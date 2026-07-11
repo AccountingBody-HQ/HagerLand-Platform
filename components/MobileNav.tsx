@@ -9,6 +9,7 @@ const links = [
   { href: '/housing', label: 'Housing' },
   { href: '/cars', label: 'Cars' },
   { href: '/tutors', label: 'Tutors' },
+  { href: '/community', label: 'Community' },
 ]
 
 export function MobileNav() {

@@ -17,7 +17,7 @@ export function SiteNav() {
           <Link href="/housing">Housing</Link>
           <Link href="/cars">Cars</Link>
           <Link href="/tutors">Tutors</Link>
-          <span>Community</span>
+          <Link href="/community">Community</Link>
         </div>
         <div className="flex items-center gap-3 sm:gap-4">
           <span className="hidden sm:inline text-sm font-medium text-ink">Log in</span>
