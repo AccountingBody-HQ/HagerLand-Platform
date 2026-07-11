@@ -23,7 +23,7 @@ export default async function HomePage() {
           <div className="hidden lg:flex items-center gap-7 text-sm font-medium text-ink">
             <span>Directory</span>
             <span>Events</span>
-            <span>Jobs</span>
+            <Link href="/jobs">Jobs</Link>
             <span>Housing</span>
             <span>Tutors</span>
             <span>Community</span>
