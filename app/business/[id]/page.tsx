@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { Logo } from '@/components/Logo'
+import { SiteNav } from '@/components/SiteNav'
 
 export default async function BusinessProfilePage({
   params,
@@ -20,20 +20,7 @@ export default async function BusinessProfilePage({
 
   return (
     <main className="min-h-screen bg-bg">
-      <nav className="border-b border-border">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <Logo className="w-7 h-7 sm:w-8 sm:h-8" />
-            <span className="font-bold text-lg sm:text-xl text-ink">HagerLand</span>
-          </Link>
-          <Link
-            href="/"
-            className="text-sm font-medium text-ink hover:text-muted transition-colors"
-          >
-            ← Directory
-          </Link>
-        </div>
-      </nav>
+      <SiteNav />
 
       <section className="max-w-2xl mx-auto px-4 sm:px-6 py-10 sm:py-16 text-center sm:text-left">
         <div className="flex items-center justify-between mb-6">
