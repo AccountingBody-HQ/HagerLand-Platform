@@ -1,0 +1,67 @@
+import { postHousing } from './actions'
+import { SiteNav } from '@/components/SiteNav'
+
+const inputStyle =
+  'w-full px-4 py-3 border border-border rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-green/20 focus:border-green'
+
+export default function PostHousingPage() {
+  return (
+    <main className="min-h-screen bg-bg">
+      <SiteNav />
+      <section className="max-w-lg mx-auto px-4 sm:px-6 py-10 sm:py-16">
+        <h1 className="text-2xl sm:text-3xl font-bold text-ink text-center mb-8">
+          Post a housing listing
+        </h1>
+
+        <form action={postHousing} className="flex flex-col gap-4">
+          <label className="text-sm font-medium text-ink">
+            Title *
+            <input name="title" required className={inputStyle} />
+          </label>
+
+          <label className="text-sm font-medium text-ink">
+            Listing type
+            <input name="listing_type" placeholder="e.g. For Rent, For Sale, Room to Rent" className={inputStyle} />
+          </label>
+
+          <label className="text-sm font-medium text-ink">
+            Description
+            <textarea name="description" rows={4} className={inputStyle} />
+          </label>
+
+          <label className="text-sm font-medium text-ink">
+            Location
+            <input name="location" className={inputStyle} />
+          </label>
+
+          <label className="text-sm font-medium text-ink">
+            Price
+            <input name="price" placeholder="e.g. £650/month" className={inputStyle} />
+          </label>
+
+          <label className="text-sm font-medium text-ink">
+            Bedrooms
+            <input name="bedrooms" type="number" className={inputStyle} />
+          </label>
+
+          <label className="text-sm font-medium text-ink">
+            Contact name
+            <input name="contact_name" className={inputStyle} />
+          </label>
+
+          <label className="text-sm font-medium text-ink">
+            Contact email *
+            <input name="contact_email" type="email" required className={inputStyle} />
+          </label>
+
+          <button
+            type="submit"
+            className="bg-green hover:bg-green-dark text-white font-semibold rounded-full px-6 py-3 mt-4 transition-colors"
+          >
+            Post listing
+          </button>
+        </form>
+      </section>
+    </main>
+  )
+}

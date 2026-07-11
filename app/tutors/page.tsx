@@ -21,9 +21,9 @@ export default async function TutorsPage() {
           Find trusted tutors, or offer your own teaching services.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 mt-8 max-w-xs sm:max-w-none mx-auto justify-center">
-          <button className="flex-1 bg-green hover:bg-green-dark text-white font-semibold rounded-full px-6 py-3 transition-colors">
+          <Link href="/tutors/post" className="flex-1 bg-green hover:bg-green-dark text-white font-semibold rounded-full px-6 py-3 transition-colors text-center">
             Offer tutoring
-          </button>
+          </Link>
         </div>
       </section>
 

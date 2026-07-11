@@ -21,9 +21,9 @@ export default async function HousingPage() {
           Rooms, rentals, and homes for sale, from a trusted community.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 mt-8 max-w-xs sm:max-w-none mx-auto justify-center">
-          <button className="flex-1 bg-green hover:bg-green-dark text-white font-semibold rounded-full px-6 py-3 transition-colors">
+          <Link href="/housing/post" className="flex-1 bg-green hover:bg-green-dark text-white font-semibold rounded-full px-6 py-3 transition-colors text-center">
             Post a listing
-          </button>
+          </Link>
         </div>
       </section>
 

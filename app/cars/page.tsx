@@ -21,9 +21,9 @@ export default async function CarsPage() {
           Buy or sell a car, find a private hire service, or a trusted garage.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 mt-8 max-w-xs sm:max-w-none mx-auto justify-center">
-          <button className="flex-1 bg-green hover:bg-green-dark text-white font-semibold rounded-full px-6 py-3 transition-colors">
+          <Link href="/cars/post" className="flex-1 bg-green hover:bg-green-dark text-white font-semibold rounded-full px-6 py-3 transition-colors text-center">
             Post a listing
-          </button>
+          </Link>
         </div>
       </section>
 
