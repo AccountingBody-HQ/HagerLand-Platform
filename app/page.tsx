@@ -25,7 +25,7 @@ export default async function HomePage() {
             <span>Events</span>
             <Link href="/jobs">Jobs</Link>
             <Link href="/housing">Housing</Link>
-            <span>Tutors</span>
+            <Link href="/tutors">Tutors</Link>
             <span>Community</span>
           </div>
           <div className="flex items-center gap-3 sm:gap-4">
