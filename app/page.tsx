@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import Link from 'next/link'
 
 export default async function HomePage() {
   const { data: businesses, error } = await supabase
@@ -23,31 +24,37 @@ export default async function HomePage() {
       <div style={{ display: 'grid', gap: 16 }}>
         {businesses && businesses.length > 0 ? (
           businesses.map((business) => (
-            <div
+            <Link
               key={business.id}
-              style={{
-                border: '1px solid #e0e0e0',
-                borderRadius: 8,
-                padding: 20,
-              }}
+              href={`/business/${business.id}`}
+              style={{ textDecoration: 'none', color: 'inherit' }}
             >
-              <h2 style={{ margin: '0 0 8px 0', fontSize: 20 }}>
-                {business.company_name}
-              </h2>
-              <p style={{ color: '#666', margin: '0 0 4px 0' }}>
-                {business.sic_description} — {business.trading_address_city}
-              </p>
-              {business.phone && (
-                <p style={{ margin: '0 0 4px 0', fontSize: 14 }}>
-                  📞 {business.phone}
+              <div
+                style={{
+                  border: '1px solid #e0e0e0',
+                  borderRadius: 8,
+                  padding: 20,
+                  cursor: 'pointer',
+                }}
+              >
+                <h2 style={{ margin: '0 0 8px 0', fontSize: 20 }}>
+                  {business.company_name}
+                </h2>
+                <p style={{ color: '#666', margin: '0 0 4px 0' }}>
+                  {business.sic_description} — {business.trading_address_city}
                 </p>
-              )}
-              {business.website && (
-                <p style={{ margin: 0, fontSize: 14 }}>
-                  🌐 {business.website}
-                </p>
-              )}
-            </div>
+                {business.phone && (
+                  <p style={{ margin: '0 0 4px 0', fontSize: 14 }}>
+                    📞 {business.phone}
+                  </p>
+                )}
+                {business.website && (
+                  <p style={{ margin: 0, fontSize: 14 }}>
+                    🌐 {business.website}
+                  </p>
+                )}
+              </div>
+            </Link>
           ))
         ) : (
           <p style={{ textAlign: 'center', color: '#999' }}>
