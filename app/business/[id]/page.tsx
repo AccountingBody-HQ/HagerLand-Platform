@@ -36,9 +36,11 @@ export default async function BusinessProfilePage({
           <span className="text-sm text-muted">
             {business.sic_description} &middot; {business.trading_address_city}
           </span>
-          <span className="bg-gold-soft text-gold text-xs font-semibold px-2.5 py-1 rounded-full">
-            Verified
-          </span>
+          {business.is_verified && (
+            <span className="bg-gold-soft text-gold text-xs font-semibold px-2.5 py-1 rounded-full">
+              Verified
+            </span>
+          )}
         </div>
 
         {business.ai_description && (

@@ -78,9 +78,11 @@ export default async function HomePage() {
                   <div className="w-9 h-9 rounded-full bg-green-soft flex items-center justify-center font-bold text-green text-sm">
                     {business.company_name.charAt(0)}
                   </div>
-                  <span className="bg-gold-soft text-gold text-xs font-semibold px-2.5 py-1 rounded-full">
-                    Verified
-                  </span>
+                  {business.is_verified && (
+                    <span className="bg-gold-soft text-gold text-xs font-semibold px-2.5 py-1 rounded-full">
+                      Verified
+                    </span>
+                  )}
                 </div>
                 <h3 className="font-bold text-ink mb-1">{business.company_name}</h3>
                 <p className="text-sm text-muted mb-3">
