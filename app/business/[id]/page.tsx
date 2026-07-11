@@ -18,46 +18,75 @@ export default async function BusinessProfilePage({
   }
 
   return (
-    <div style={{ maxWidth: 700, margin: '0 auto', padding: 20, fontFamily: 'sans-serif' }}>
-      <Link href="/" style={{ color: '#666', textDecoration: 'none', fontSize: 14 }}>
-        ← Back to directory
-      </Link>
+    <main className="min-h-screen bg-bg">
+      <nav className="sticky top-0 z-10 bg-bg/90 backdrop-blur border-b border-border">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+          <Link href="/" className="font-display text-xl tracking-tight">
+            HagerLand
+          </Link>
+          <Link
+            href="/"
+            className="text-sm text-muted hover:text-ink transition-colors"
+          >
+            ← Directory
+          </Link>
+        </div>
+      </nav>
 
-      <div
-        style={{
-          border: '1px solid #e0e0e0',
-          borderRadius: 8,
-          padding: 30,
-          marginTop: 20,
-        }}
-      >
-        <h1 style={{ margin: '0 0 8px 0' }}>{business.company_name}</h1>
-        <p style={{ color: '#666', margin: '0 0 20px 0', fontSize: 16 }}>
-          {business.sic_description} — {business.trading_address_city}
+      <section className="max-w-2xl mx-auto px-6 py-16">
+        <div className="w-14 h-14 rounded-full bg-green-soft flex items-center justify-center font-display text-green text-xl mb-6">
+          {business.company_name.charAt(0)}
+        </div>
+
+        <h1 className="font-display font-light text-3xl sm:text-4xl tracking-tight mb-2">
+          {business.company_name}
+        </h1>
+        <p className="font-mono text-xs tracking-widest uppercase text-muted mb-8">
+          {business.sic_description} &middot; {business.trading_address_city}
         </p>
 
         {business.ai_description && (
-          <p style={{ lineHeight: 1.6, marginBottom: 20 }}>
+          <p className="text-base leading-relaxed text-ink/80 mb-8">
             {business.ai_description}
           </p>
         )}
 
-        <div style={{ display: 'grid', gap: 10, marginTop: 20 }}>
+        <div className="border-t border-border pt-6 space-y-3">
           {business.phone && (
-            <p style={{ margin: 0 }}>📞 {business.phone}</p>
+            <div className="flex items-center gap-3 text-sm">
+              <span className="font-mono text-[11px] tracking-widest uppercase text-muted w-20">
+                Phone
+              </span>
+              <span>{business.phone}</span>
+            </div>
           )}
           {business.website && (
-            <p style={{ margin: 0 }}>🌐 {business.website}</p>
+            <div className="flex items-center gap-3 text-sm">
+              <span className="font-mono text-[11px] tracking-widest uppercase text-muted w-20">
+                Website
+              </span>
+              <span>{business.website}</span>
+            </div>
           )}
           {business.email && (
-            <p style={{ margin: 0 }}>✉️ {business.email}</p>
+            <div className="flex items-center gap-3 text-sm">
+              <span className="font-mono text-[11px] tracking-widest uppercase text-muted w-20">
+                Email
+              </span>
+              <span>{business.email}</span>
+            </div>
           )}
         </div>
 
-        <p style={{ marginTop: 30, fontSize: 13, color: '#999' }}>
-          Unclaimed listing — are you the owner?
-        </p>
-      </div>
-    </div>
+        <div className="mt-10 pt-6 border-t border-border">
+          <p className="text-sm text-muted mb-3">
+            Unclaimed listing. Are you the owner?
+          </p>
+          <button className="text-sm font-medium border border-ink rounded-full px-5 py-2 hover:bg-ink hover:text-bg transition-colors">
+            Claim this business
+          </button>
+        </div>
+      </section>
+    </main>
   )
 }
