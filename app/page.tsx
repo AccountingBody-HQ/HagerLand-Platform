@@ -64,7 +64,7 @@ export default async function HomePage() {
         <div className="max-w-6xl mx-auto px-6 grid sm:grid-cols-3 gap-6">
           <div className="bg-white rounded-xl p-6 border border-border">
             <p className="font-bold text-lg text-ink mb-2">Verified owners</p>
-            <p className="text-sm text-muted">Every listing is confirmed, so you know exactly who you're supporting.</p>
+            <p className="text-sm text-muted">Every listing is confirmed, so you know exactly who you&apos;re supporting.</p>
           </div>
           <div className="bg-white rounded-xl p-6 border border-border">
             <p className="font-bold text-lg text-ink mb-2">Every industry</p>
