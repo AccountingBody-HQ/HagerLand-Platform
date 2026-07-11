@@ -24,7 +24,7 @@ export default async function HomePage() {
             <span>Directory</span>
             <span>Events</span>
             <Link href="/jobs">Jobs</Link>
-            <span>Housing</span>
+            <Link href="/housing">Housing</Link>
             <span>Tutors</span>
             <span>Community</span>
           </div>
