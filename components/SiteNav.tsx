@@ -12,7 +12,7 @@ export function SiteNav() {
         </Link>
         <div className="hidden lg:flex items-center gap-7 text-sm font-medium text-ink">
           <Link href="/">Directory</Link>
-          <span>Events</span>
+          <Link href="/events">Events</Link>
           <Link href="/jobs">Jobs</Link>
           <Link href="/housing">Housing</Link>
           <Link href="/cars">Cars</Link>
