@@ -20,6 +20,12 @@ export function SiteNav() {
           <Link href="/community">Community</Link>
         </div>
         <div className="flex items-center gap-3 sm:gap-4">
+          <Link href="/search" aria-label="Search" className="text-ink">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="11" cy="11" r="8" />
+              <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
+            </svg>
+          </Link>
           <span className="hidden sm:inline text-sm font-medium text-ink">Log in</span>
           <button className="bg-green hover:bg-green-dark text-white text-sm font-semibold rounded-full px-4 sm:px-5 py-2 sm:py-2.5 transition-colors">
             List your business

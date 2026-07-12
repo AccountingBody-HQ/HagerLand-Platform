@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { SiteNav } from '@/components/SiteNav'
+import { SearchBox } from '@/components/SearchBox'
 
 export default async function CommunityPage() {
   const { data: orgs, error } = await supabase
@@ -20,7 +21,8 @@ export default async function CommunityPage() {
         <p className="text-muted text-base sm:text-lg mt-4">
           Churches, associations, and support networks for the Ethiopian community.
         </p>
-        <div className="flex flex-col sm:flex-row gap-3 mt-8 max-w-xs sm:max-w-none mx-auto justify-center">
+        <SearchBox className="mt-6 max-w-lg mx-auto" />
+        <div className="flex flex-col sm:flex-row gap-3 mt-6 max-w-xs sm:max-w-none mx-auto justify-center">
           <Link href="/community/post" className="flex-1 bg-green hover:bg-green-dark text-white font-semibold rounded-full px-6 py-3 transition-colors text-center">
             List an organisation
           </Link>
