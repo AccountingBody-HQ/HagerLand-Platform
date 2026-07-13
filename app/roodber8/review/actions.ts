@@ -1,6 +1,7 @@
 'use server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { revalidatePath } from 'next/cache'
+import { requireAdminSession } from '@/lib/admin-auth'
 
 const TABLES = ['jobs', 'housing', 'cars', 'tutors', 'community', 'events'] as const
 type TableName = (typeof TABLES)[number]
@@ -10,6 +11,7 @@ function isValidTable(table: string): table is TableName {
 }
 
 export async function approveListing(table: string, id: string) {
+  requireAdminSession()
   if (!isValidTable(table)) throw new Error('Invalid table')
   const { error } = await supabaseAdmin.from(table).update({ status: 'active' }).eq('id', id)
   if (error) throw new Error(error.message)
@@ -17,6 +19,7 @@ export async function approveListing(table: string, id: string) {
 }
 
 export async function rejectListing(table: string, id: string) {
+  requireAdminSession()
   if (!isValidTable(table)) throw new Error('Invalid table')
   const { error } = await supabaseAdmin.from(table).update({ status: 'rejected' }).eq('id', id)
   if (error) throw new Error(error.message)
