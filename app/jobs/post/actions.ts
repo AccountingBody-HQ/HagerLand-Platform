@@ -31,7 +31,7 @@ export async function postJob(formData: FormData) {
     job_type: jobType || null,
     salary_range: salaryRange || null,
     contact_email: contactEmail || null,
-    status: 'active',
+    status: 'pending', // awaiting admin review — see /roodber8/review
   })
 
   if (error) {

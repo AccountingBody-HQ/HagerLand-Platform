@@ -33,7 +33,7 @@ export async function postEvent(formData: FormData) {
     event_time: eventTime || null,
     organiser_name: organiserName || null,
     contact_email: contactEmail || null,
-    status: 'active',
+    status: 'pending', // awaiting admin review — see /roodber8/review
   })
 
   if (error) throw new Error(error.message)

@@ -33,7 +33,7 @@ export async function postTutor(formData: FormData) {
     rate: rate || null,
     contact_email: contactEmail || null,
     contact_phone: contactPhone || null,
-    status: 'active',
+    status: 'pending', // awaiting admin review — see /roodber8/review
   })
 
   if (error) throw new Error(error.message)

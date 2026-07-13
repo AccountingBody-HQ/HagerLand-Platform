@@ -98,14 +98,22 @@ export default function AddBusinessPage({
             <div style={{ fontSize: 13, color: COLORS.faint, marginBottom: 2 }}>HagerLand Admin</div>
             <h1 style={{ fontSize: 22, fontWeight: 700, color: COLORS.text, margin: 0 }}>Add a Business</h1>
           </div>
-          <form action={logout}>
-            <button
-              type="submit"
-              style={{ background: 'transparent', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '8px 16px', color: COLORS.muted, fontSize: 13, cursor: 'pointer' }}
+          <div style={{ display: 'flex', gap: 8 }}>
+              <a
+              href="/roodber8/review"
+              style={{ border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '8px 16px', color: COLORS.muted, fontSize: 13, textDecoration: 'none' }}
             >
-              Sign out
-            </button>
-          </form>
+              Review Queue
+            </a>
+            <form action={logout}>
+              <button
+                type="submit"
+                style={{ background: 'transparent', border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '8px 16px', color: COLORS.muted, fontSize: 13, cursor: 'pointer' }}
+              >
+                Sign out
+              </button>
+            </form>
+          </div>
         </div>
 
         <div style={{ backgroundColor: COLORS.panel, border: `1px solid ${COLORS.border}`, borderRadius: 12, padding: 32 }}>

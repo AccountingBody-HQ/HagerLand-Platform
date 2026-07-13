@@ -15,6 +15,9 @@ export async function verifyTurnstileToken(token: string | null): Promise<boolea
       body: new URLSearchParams({ secret, response: token }),
     })
     const data = await res.json()
+    if (!data.success) {
+      console.log('[Turnstile] Verification failed:', JSON.stringify(data))
+    }
     return data.success === true
   } catch (err) {
     console.error('Turnstile verification failed:', err)
@@ -25,6 +28,10 @@ export async function verifyTurnstileToken(token: string | null): Promise<boolea
 // Honeypot: a hidden field real users never see or fill in.
 // If it has a value, the submission is almost certainly a bot.
 export function isHoneypotFilled(formData: FormData): boolean {
-  const value = formData.get('website_confirm') as string | null
-  return !!value && value.trim().length > 0
+  const value = formData.get('hl_extra_field') as string | null
+  const filled = !!value && value.trim().length > 0
+  if (filled) {
+    console.log('[Turnstile] Honeypot triggered, value was:', value)
+  }
+  return filled
 }

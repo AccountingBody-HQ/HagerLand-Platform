@@ -17,7 +17,7 @@ export default function PostHousingPage() {
         <form action={postHousing} className="flex flex-col gap-4">
           <input
             type="text"
-            name="website_confirm"
+            name="hl_extra_field"
             tabIndex={-1}
             autoComplete="off"
             aria-hidden="true"
