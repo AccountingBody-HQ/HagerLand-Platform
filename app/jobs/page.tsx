@@ -37,9 +37,10 @@ export default async function JobsPage() {
         <div className="grid gap-4">
           {jobs && jobs.length > 0 ? (
             jobs.map((job) => (
-              <div
+              <Link
                 key={job.id}
-                className="border border-border bg-white rounded-xl p-5 sm:p-6"
+                href={`/jobs/${job.id}`}
+                className="block border border-border bg-white rounded-xl p-5 sm:p-6 hover:border-green/40 transition-colors"
               >
                 <div className="flex items-start justify-between gap-4 mb-2">
                   <h3 className="font-bold text-ink text-lg">{job.title}</h3>
@@ -59,7 +60,7 @@ export default async function JobsPage() {
                   {job.salary_range && <span>{job.salary_range}</span>}
                   {job.contact_email && <span>{job.contact_email}</span>}
                 </div>
-              </div>
+              </Link>
             ))
           ) : (
             <p className="text-muted text-center py-12">No jobs posted yet.</p>

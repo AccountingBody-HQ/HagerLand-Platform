@@ -37,9 +37,10 @@ export default async function TutorsPage() {
         <div className="grid gap-4">
           {tutors && tutors.length > 0 ? (
             tutors.map((tutor) => (
-              <div
+              <Link
                 key={tutor.id}
-                className="border border-border bg-white rounded-xl p-5 sm:p-6"
+                href={`/tutors/${tutor.id}`}
+                className="block border border-border bg-white rounded-xl p-5 sm:p-6 hover:border-green/40 transition-colors"
               >
                 <div className="flex items-start justify-between gap-4 mb-2">
                   <h3 className="font-bold text-ink text-lg">{tutor.name}</h3>
@@ -59,7 +60,7 @@ export default async function TutorsPage() {
                   {tutor.rate && <span className="font-semibold text-ink">{tutor.rate}</span>}
                   {tutor.contact_email && <span>{tutor.contact_email}</span>}
                 </div>
-              </div>
+              </Link>
             ))
           ) : (
             <p className="text-muted text-center py-12">No tutors listed yet.</p>

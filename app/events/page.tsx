@@ -37,9 +37,10 @@ export default async function EventsPage() {
         <div className="grid gap-4">
           {events && events.length > 0 ? (
             events.map((event) => (
-              <div
+              <Link
                 key={event.id}
-                className="border border-border bg-white rounded-xl p-5 sm:p-6"
+                href={`/events/${event.id}`}
+                className="block border border-border bg-white rounded-xl p-5 sm:p-6 hover:border-green/40 transition-colors"
               >
                 <div className="flex items-start justify-between gap-4 mb-2">
                   <h3 className="font-bold text-ink text-lg">{event.title}</h3>
@@ -61,7 +62,7 @@ export default async function EventsPage() {
                   {event.organiser_name && <span>{event.organiser_name}</span>}
                   {event.contact_email && <span>{event.contact_email}</span>}
                 </div>
-              </div>
+              </Link>
             ))
           ) : (
             <p className="text-muted text-center py-12">No events posted yet.</p>

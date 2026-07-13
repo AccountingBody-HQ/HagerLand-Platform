@@ -37,9 +37,10 @@ export default async function CommunityPage() {
         <div className="grid gap-4">
           {orgs && orgs.length > 0 ? (
             orgs.map((org) => (
-              <div
+              <Link
                 key={org.id}
-                className="border border-border bg-white rounded-xl p-5 sm:p-6"
+                href={`/community/${org.id}`}
+                className="block border border-border bg-white rounded-xl p-5 sm:p-6 hover:border-green/40 transition-colors"
               >
                 <div className="flex items-start justify-between gap-4 mb-2">
                   <h3 className="font-bold text-ink text-lg">{org.name}</h3>
@@ -57,7 +58,7 @@ export default async function CommunityPage() {
                   {org.contact_name && <span>{org.contact_name}</span>}
                   {org.contact_email && <span>{org.contact_email}</span>}
                 </div>
-              </div>
+              </Link>
             ))
           ) : (
             <p className="text-muted text-center py-12">No organisations listed yet.</p>

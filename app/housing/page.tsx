@@ -37,9 +37,10 @@ export default async function HousingPage() {
         <div className="grid gap-4">
           {listings && listings.length > 0 ? (
             listings.map((listing) => (
-              <div
+              <Link
                 key={listing.id}
-                className="border border-border bg-white rounded-xl p-5 sm:p-6"
+                href={`/housing/${listing.id}`}
+                className="block border border-border bg-white rounded-xl p-5 sm:p-6 hover:border-green/40 transition-colors"
               >
                 <div className="flex items-start justify-between gap-4 mb-2">
                   <h3 className="font-bold text-ink text-lg">{listing.title}</h3>
@@ -60,7 +61,7 @@ export default async function HousingPage() {
                   {listing.price && <span className="font-semibold text-ink">{listing.price}</span>}
                   {listing.contact_email && <span>{listing.contact_email}</span>}
                 </div>
-              </div>
+              </Link>
             ))
           ) : (
             <p className="text-muted text-center py-12">No listings posted yet.</p>
