@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers'
 import { authenticator } from 'otplib'
 import crypto from 'crypto'
 
@@ -62,3 +63,10 @@ export function verifySessionToken(token: string | undefined): boolean {
 }
 
 export const SESSION_COOKIE = SESSION_COOKIE_NAME
+
+export function requireAdminSession(): void {
+  const token = cookies().get(SESSION_COOKIE)?.value
+  if (!verifySessionToken(token)) {
+    throw new Error('Unauthorized')
+  }
+}
