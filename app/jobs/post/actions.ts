@@ -1,9 +1,20 @@
 'use server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { sendInternalNotification, sendSubmitterAcknowledgment } from '@/lib/email'
+import { verifyTurnstileToken, isHoneypotFilled } from '@/lib/turnstile'
 import { redirect } from 'next/navigation'
 
 export async function postJob(formData: FormData) {
+  if (isHoneypotFilled(formData)) {
+    redirect('/jobs?error=1')
+  }
+
+  const turnstileToken = formData.get('cf-turnstile-response') as string | null
+  const isHuman = await verifyTurnstileToken(turnstileToken)
+  if (!isHuman) {
+    redirect('/jobs?error=1')
+  }
+
   const title = formData.get('title') as string
   const companyName = formData.get('company_name') as string
   const description = formData.get('description') as string

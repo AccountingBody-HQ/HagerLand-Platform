@@ -1,9 +1,20 @@
 'use server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { sendInternalNotification, sendSubmitterAcknowledgment } from '@/lib/email'
+import { verifyTurnstileToken, isHoneypotFilled } from '@/lib/turnstile'
 import { redirect } from 'next/navigation'
 
 export async function postTutor(formData: FormData) {
+  if (isHoneypotFilled(formData)) {
+    redirect('/tutors?error=1')
+  }
+
+  const turnstileToken = formData.get('cf-turnstile-response') as string | null
+  const isHuman = await verifyTurnstileToken(turnstileToken)
+  if (!isHuman) {
+    redirect('/tutors?error=1')
+  }
+
   const name = formData.get('name') as string
   const subject = formData.get('subject') as string
   const description = formData.get('description') as string

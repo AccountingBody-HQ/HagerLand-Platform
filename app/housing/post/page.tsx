@@ -1,5 +1,6 @@
 import { postHousing } from './actions'
 import { SiteNav } from '@/components/SiteNav'
+import { TurnstileWidget } from '@/components/TurnstileWidget'
 
 const inputStyle =
   'w-full px-4 py-3 border border-border rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-green/20 focus:border-green'
@@ -14,6 +15,15 @@ export default function PostHousingPage() {
         </h1>
 
         <form action={postHousing} className="flex flex-col gap-4">
+          <input
+            type="text"
+            name="website_confirm"
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+            style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, overflow: 'hidden' }}
+          />
+          <TurnstileWidget />
           <label className="text-sm font-medium text-ink">
             Title *
             <input name="title" required className={inputStyle} />
