@@ -1,6 +1,6 @@
 'use server'
-
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { sendInternalNotification, sendSubmitterAcknowledgment } from '@/lib/email'
 import { redirect } from 'next/navigation'
 
 export async function postEvent(formData: FormData) {
@@ -25,8 +25,18 @@ export async function postEvent(formData: FormData) {
     status: 'active',
   })
 
-  if (error) {
-    throw new Error(error.message)
+  if (error) throw new Error(error.message)
+
+  if (contactEmail) {
+    const detailsHtml = `
+      <p><strong>Category:</strong> ${category || 'Not specified'}</p>
+      <p><strong>Date:</strong> ${eventDate || 'Not specified'}</p>
+      <p><strong>Time:</strong> ${eventTime || 'Not specified'}</p>
+      <p><strong>Location:</strong> ${location || 'Not specified'}</p>
+      <p><strong>Description:</strong> ${description || 'None provided'}</p>
+    `
+    await sendInternalNotification({ sectionLabel: 'Event', title, submitterName: organiserName, submitterEmail: contactEmail, detailsHtml })
+    await sendSubmitterAcknowledgment({ sectionLabel: 'Event', title, submitterEmail: contactEmail })
   }
 
   redirect('/events?success=true')
