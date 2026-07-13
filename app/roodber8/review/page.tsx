@@ -22,6 +22,7 @@ const SECTIONS = [
   { table: 'tutors', label: 'Tutors', titleField: 'name', subtitleFields: ['subject', 'location'] },
   { table: 'community', label: 'Community', titleField: 'name', subtitleFields: ['category', 'location'] },
   { table: 'events', label: 'Events', titleField: 'title', subtitleFields: ['category', 'location'] },
+  { table: 'companies', label: 'Business', titleField: 'company_name', subtitleFields: ['sic_description', 'trading_address_city'] },
 ] as const
 
 export default async function ReviewPage() {

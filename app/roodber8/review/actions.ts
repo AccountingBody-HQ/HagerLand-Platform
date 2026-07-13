@@ -3,7 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 import { revalidatePath } from 'next/cache'
 import { requireAdminSession } from '@/lib/admin-auth'
 
-const TABLES = ['jobs', 'housing', 'cars', 'tutors', 'community', 'events'] as const
+const TABLES = ['jobs', 'housing', 'cars', 'tutors', 'community', 'events', 'companies'] as const
 type TableName = (typeof TABLES)[number]
 
 function isValidTable(table: string): table is TableName {

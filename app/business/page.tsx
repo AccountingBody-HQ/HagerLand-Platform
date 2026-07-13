@@ -8,7 +8,7 @@ export default async function BusinessPage() {
   const { data: businesses, error } = await supabase
     .from('companies')
     .select('id, company_name, sic_description, trading_address_city, phone, is_verified')
-    .eq('profile_published', true)
+    .eq('status', 'active')
     .order('company_name', { ascending: true })
 
   return (
