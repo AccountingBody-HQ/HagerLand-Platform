@@ -66,7 +66,7 @@ export default async function HomePage() {
               <span className="w-1 h-1 rounded-full bg-white/30" />
               Homeland
               <span className="w-1 h-1 rounded-full bg-white/30" />
-              The Ethiopian diaspora network
+              Ethiopian Network
             </p>
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white leading-[1.05] tracking-tight mb-6">
               Find Ethiopian
@@ -114,7 +114,7 @@ export default async function HomePage() {
               <div className="absolute inset-0 opacity-10" style={{backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '20px 20px'}} />
               <div className="relative">
                 <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center mb-6">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M8 3v18M16 3v18M2 9h20M2 15h20"/></svg>
                 </div>
                 <h2 className="text-2xl font-bold text-white mb-3">Business directory</h2>
                 <p className="text-white/65 text-sm leading-relaxed">Discover and support verified Ethiopian-owned businesses across the UK and worldwide.</p>
@@ -156,10 +156,10 @@ export default async function HomePage() {
               <h2 className="text-3xl sm:text-4xl font-bold text-ink leading-tight mb-6">Simple. Trusted.<br/>Community-first.</h2>
               <p className="text-muted leading-relaxed text-base mb-8">HagerLand connects the Ethiopian diaspora with trusted, verified listings. Every business, job, and event is reviewed by our team before going live — no spam, no fakes.</p>
               <div className="flex flex-col sm:flex-row gap-3">
-                <Link href="/business" className="inline-flex items-center justify-center gap-2 bg-green hover:bg-green-dark text-white font-semibold rounded-full px-6 py-3 transition-colors text-sm">
+                <Link href="/business" className="flex-1 text-center bg-green hover:bg-green-dark text-white font-semibold rounded-full px-6 py-3 transition-colors text-sm">
                   Browse businesses
                 </Link>
-                <Link href="/how-it-works" className="inline-flex items-center justify-center gap-2 border border-border text-ink font-semibold rounded-full px-6 py-3 hover:border-ink transition-colors text-sm">
+                <Link href="/how-it-works" className="flex-1 text-center border border-border text-ink font-semibold rounded-full px-6 py-3 hover:border-ink transition-colors text-sm">
                   Learn more →
                 </Link>
               </div>
@@ -243,16 +243,16 @@ export default async function HomePage() {
             ))}
           </div>
           {/* CTA strip — merged into this section */}
-          <div className="bg-ink rounded-2xl px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="bg-white border border-green/20 rounded-2xl px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-6">
             <div>
-              <h3 className="text-xl font-bold text-white mb-1">Ready to join the directory?</h3>
-              <p className="text-white/45 text-sm">List your business, job, or event. Free, always.</p>
+              <h3 className="text-xl font-bold text-ink mb-1">Ready to join the directory?</h3>
+              <p className="text-muted text-sm">List your business, job, or event. Free, always.</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 shrink-0 w-full sm:w-auto">
               <Link href="/business/post" className="bg-green hover:bg-green-dark text-white font-bold rounded-full px-7 py-3 transition-colors text-center text-sm">
                 Get listed — free
               </Link>
-              <Link href="/business" className="border border-white/20 hover:border-white/50 text-white font-semibold rounded-full px-7 py-3 transition-colors text-center text-sm">
+              <Link href="/business" className="border border-border text-ink hover:border-ink font-semibold rounded-full px-7 py-3 transition-colors text-center text-sm">
                 Browse businesses
               </Link>
             </div>
