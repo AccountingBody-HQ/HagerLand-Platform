@@ -11,7 +11,7 @@ export function SiteNav() {
           <span className="font-bold text-lg sm:text-xl text-ink">HagerLand</span>
         </Link>
         <div className="hidden lg:flex items-center gap-7 text-sm font-medium text-ink">
-          <Link href="/">Directory</Link>
+          <Link href="/business">Businesses</Link>
           <Link href="/events">Events</Link>
           <Link href="/jobs">Jobs</Link>
           <Link href="/housing">Housing</Link>
