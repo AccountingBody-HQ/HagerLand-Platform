@@ -1,22 +1,153 @@
+'use client'
+
+import { useState } from 'react'
 import { SiteNav } from '@/components/SiteNav'
 import { SiteFooter } from '@/components/SiteFooter'
+import { submitContactForm } from './actions'
 
-export const metadata = { title: 'Contact us' }
+const SUBJECTS = [
+  'General enquiry',
+  'Report a listing',
+  'Claim my business',
+  'Update my listing',
+  'Partnership or advertising',
+  'Other',
+]
 
 export default function ContactPage() {
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const [errorMsg, setErrorMsg] = useState('')
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setStatus('loading')
+    setErrorMsg('')
+    const formData = new FormData(e.currentTarget)
+    const result = await submitContactForm(formData)
+    if (result.success) {
+      setStatus('success')
+    } else {
+      setStatus('error')
+      setErrorMsg(result.error || 'Something went wrong.')
+    }
+  }
+
   return (
     <main className="min-h-screen bg-bg flex flex-col">
       <SiteNav />
-      <section className="max-w-lg mx-auto px-4 sm:px-6 py-16 flex-1 text-center">
-        <h1 className="text-3xl font-bold text-ink mb-4">Contact us</h1>
-        <p className="text-muted leading-relaxed mb-8">
-          Have a question, want to report a listing, or need help? Reach out to our team.
-        </p>
-        <a href="mailto:team@hagerland.com" className="inline-block bg-green hover:bg-green-dark text-white font-semibold rounded-full px-6 py-2.5 transition-colors">
-          Email us
-        </a>
-        <p className="text-xs text-muted mt-6">team@hagerland.com</p>
+
+      {/* HERO BAND */}
+      <section className="relative overflow-hidden bg-green">
+        <div className="absolute inset-0" style={{background: 'linear-gradient(135deg, #155F3A 0%, #1C7C4C 60%, #1e8a55 100%)'}} />
+        <div className="absolute inset-0 opacity-[0.07]" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px'}} />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+          <div className="max-w-2xl">
+            <p className="inline-flex items-center gap-2.5 text-white/50 text-[11px] font-bold tracking-[0.18em] uppercase mb-6">
+              ሃገር
+              <span className="w-1 h-1 rounded-full bg-white/30" />
+              Get in touch
+            </p>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.05] tracking-tight mb-6">
+              Contact us
+            </h1>
+            <p className="text-white/65 text-lg sm:text-xl leading-relaxed">
+              Questions, listing issues, or anything else — we read every message and reply within 48 hours.
+            </p>
+          </div>
+        </div>
       </section>
+
+      {/* CONTACT LAYOUT */}
+      <section className="bg-white flex-1">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+          <div className="grid lg:grid-cols-3 gap-12 lg:gap-16">
+
+            {/* LEFT — info */}
+            <div className="lg:col-span-1 space-y-8">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-widest text-green mb-4">How we can help</p>
+                <div className="space-y-4">
+                  {[
+                    { title: 'Report a listing', body: 'Found something inaccurate or inappropriate? Let us know and we will review it promptly.' },
+                    { title: 'Update your details', body: 'Need to change your listing? Send us the details and we will update it for you.' },
+                    { title: 'General questions', body: 'Anything else — we are happy to hear from you.' },
+                  ].map((item) => (
+                    <div key={item.title} className="p-5 border border-border rounded-2xl">
+                      <h3 className="font-bold text-ink text-sm mb-1">{item.title}</h3>
+                      <p className="text-xs text-muted leading-relaxed">{item.body}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="p-5 border border-border rounded-2xl">
+                <p className="text-xs font-bold uppercase tracking-widest text-green mb-2">Email directly</p>
+                <a href="mailto:team@hagerland.com" className="text-sm font-semibold text-ink hover:text-green transition-colors">
+                  team@hagerland.com
+                </a>
+                <p className="text-xs text-muted mt-1">We reply within 48 hours.</p>
+              </div>
+            </div>
+
+            {/* RIGHT — form */}
+            <div className="lg:col-span-2">
+              {status === 'success' ? (
+                <div className="flex flex-col items-start gap-4 p-8 border border-green/30 bg-green-soft rounded-2xl">
+                  <div className="w-12 h-12 rounded-xl bg-green flex items-center justify-center">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-ink mb-2">Message sent</h2>
+                    <p className="text-muted text-sm leading-relaxed">Thank you for getting in touch. We have sent a confirmation to your email and will reply within 48 hours.</p>
+                  </div>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  {/* honeypot */}
+                  <input type="text" name="website" className="hidden" tabIndex={-1} autoComplete="off" />
+
+                  <div className="grid sm:grid-cols-2 gap-5">
+                    <div>
+                      <label className="block text-xs font-bold text-ink mb-2">Your name</label>
+                      <input name="name" type="text" required placeholder="e.g. Abebe Girma"
+                        className="w-full border border-border rounded-xl px-4 py-3 text-sm text-ink placeholder:text-muted focus:outline-none focus:border-green transition-colors" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-ink mb-2">Email address</label>
+                      <input name="email" type="email" required placeholder="you@example.com"
+                        className="w-full border border-border rounded-xl px-4 py-3 text-sm text-ink placeholder:text-muted focus:outline-none focus:border-green transition-colors" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-ink mb-2">Subject</label>
+                    <select name="subject" required
+                      className="w-full border border-border rounded-xl px-4 py-3 text-sm text-ink focus:outline-none focus:border-green transition-colors bg-white">
+                      <option value="">Select a subject</option>
+                      {SUBJECTS.map((s) => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-ink mb-2">Message</label>
+                    <textarea name="message" required rows={6} placeholder="Tell us how we can help..."
+                      className="w-full border border-border rounded-xl px-4 py-3 text-sm text-ink placeholder:text-muted focus:outline-none focus:border-green transition-colors resize-none" />
+                  </div>
+
+                  {status === 'error' && (
+                    <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3">{errorMsg}</p>
+                  )}
+
+                  <button type="submit" disabled={status === 'loading'}
+                    className="bg-green hover:bg-green-dark disabled:opacity-60 text-white font-bold rounded-full px-8 py-3 transition-colors text-sm">
+                    {status === 'loading' ? 'Sending...' : 'Send message'}
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
       <SiteFooter />
     </main>
   )
