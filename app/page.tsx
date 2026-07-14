@@ -10,13 +10,30 @@ export const metadata = {
 }
 
 const SECTIONS = [
-  { href: '/business', label: 'Businesses', description: 'Verified Ethiopian-owned businesses worldwide', table: 'companies' },
-  { href: '/jobs', label: 'Jobs', description: 'Work within the Ethiopian community', table: 'jobs' },
-  { href: '/housing', label: 'Housing', description: 'Rooms, rentals, and properties', table: 'housing' },
-  { href: '/cars', label: 'Cars & taxi', description: 'Buy, sell, or find a trusted driver', table: 'cars' },
-  { href: '/tutors', label: 'Tutors', description: 'Expert teaching and mentoring', table: 'tutors' },
-  { href: '/community', label: 'Community', description: 'Churches, associations, and groups', table: 'community' },
-  { href: '/events', label: 'Events', description: 'Celebrations and networking', table: 'events' },
+  {
+    href: '/jobs', label: 'Jobs', description: 'Work within the Ethiopian community', table: 'jobs',
+    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>`,
+  },
+  {
+    href: '/housing', label: 'Housing', description: 'Rooms, rentals, and properties', table: 'housing',
+    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+  },
+  {
+    href: '/cars', label: 'Cars & taxi', description: 'Buy, sell, or find a trusted driver', table: 'cars',
+    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="1" y="8" width="22" height="10" rx="2"/><path d="M5 8l2-4h10l2 4"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>`,
+  },
+  {
+    href: '/tutors', label: 'Tutors', description: 'Expert teaching and mentoring', table: 'tutors',
+    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 14l9-5-9-5-9 5 9 5z"/><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>`,
+  },
+  {
+    href: '/community', label: 'Community', description: 'Churches, associations, and groups', table: 'community',
+    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>`,
+  },
+  {
+    href: '/events', label: 'Events', description: 'Celebrations and networking', table: 'events',
+    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+  },
 ] as const
 
 const TRUST = [
@@ -51,14 +68,14 @@ export default async function HomePage() {
     <main className="min-h-screen bg-bg flex flex-col">
       <SiteNav />
 
-      {/* ══════════════════════ HERO */}
+      {/* ══ HERO */}
       <section className="relative overflow-hidden bg-green">
         <div className="absolute inset-0" style={{background: 'linear-gradient(135deg, #155F3A 0%, #1C7C4C 60%, #1e8a55 100%)'}} />
         <div className="absolute inset-0 opacity-[0.07]" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px'}} />
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] opacity-10 pointer-events-none" style={{background: 'radial-gradient(circle at top right, #fff 0%, transparent 60%)'}} />
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] opacity-10 pointer-events-none" style={{background: 'radial-gradient(circle at top right, #fff 0%, transparent 60%)'}} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-32">
           <div className="max-w-3xl">
-            <p className="inline-flex items-center gap-2.5 text-white/55 text-[11px] font-bold tracking-[0.18em] uppercase mb-8">
+            <p className="inline-flex items-center gap-2.5 text-white/50 text-[11px] font-bold tracking-[0.18em] uppercase mb-8">
               ሃገር
               <span className="w-1 h-1 rounded-full bg-white/30" />
               Homeland
@@ -67,10 +84,8 @@ export default async function HomePage() {
             </p>
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white leading-[1.05] tracking-tight mb-6">
               Find Ethiopian
-              <br />
-              <span className="text-white/60">business,</span>
-              <br />
-              <span className="text-white/60">worldwide.</span>
+              <br /><span className="text-white/60">business,</span>
+              <br /><span className="text-white/60">worldwide.</span>
             </h1>
             <p className="text-white/65 text-lg sm:text-xl max-w-xl mb-10 leading-relaxed">
               The verified directory of Ethiopian-owned businesses, jobs, housing, community, and events — serving the diaspora everywhere.
@@ -95,7 +110,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ══════════════════════ SECTIONS GRID */}
+      {/* ══ SECTIONS — asymmetric: featured large left + 6 grid right */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 w-full">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
           <div>
@@ -106,37 +121,54 @@ export default async function HomePage() {
             List your business →
           </Link>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          {SECTIONS.map((section, i) => (
-            <Link key={section.href} href={section.href}
-              className="group bg-white border border-border rounded-2xl p-6 hover:border-green/50 hover:shadow-xl transition-all duration-200">
-              <div className="flex items-start justify-between mb-8">
-                <span className="text-xs font-bold text-muted/40 tracking-widest tabular-nums">{String(i + 1).padStart(2, '0')}</span>
+        <div className="grid lg:grid-cols-5 gap-5">
+          {/* Featured business directory card */}
+          <Link href="/business"
+            className="lg:col-span-2 group relative bg-green rounded-2xl p-8 flex flex-col justify-between min-h-[300px] overflow-hidden">
+            <div className="absolute inset-0 opacity-10" style={{backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '20px 20px'}} />
+            <div className="relative">
+              <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center mb-6">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-3">Business directory</h2>
+              <p className="text-white/65 text-sm leading-relaxed">Discover and support verified Ethiopian-owned businesses across the UK and worldwide.</p>
+            </div>
+            <div className="relative flex items-end justify-between mt-8">
+              <div>
+                <p className="text-4xl font-bold text-white">{counts.companies}</p>
+                <p className="text-white/50 text-xs mt-1">businesses listed</p>
+              </div>
+              <div className="w-11 h-11 rounded-full bg-white/20 group-hover:bg-white/30 flex items-center justify-center transition-colors">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </div>
+            </div>
+          </Link>
+          {/* 6 section cards */}
+          <div className="lg:col-span-3 grid grid-cols-2 sm:grid-cols-3 gap-4">
+            {SECTIONS.map((section) => (
+              <Link key={section.href} href={section.href}
+                className="group bg-white border border-border rounded-2xl p-5 hover:border-green/50 hover:shadow-lg transition-all duration-200 flex flex-col">
+                <div className="w-10 h-10 rounded-xl bg-green-soft text-green flex items-center justify-center mb-4 shrink-0"
+                  dangerouslySetInnerHTML={{ __html: section.icon }} />
+                <h3 className="font-bold text-ink text-sm mb-1 group-hover:text-green transition-colors">{section.label}</h3>
+                <p className="text-xs text-muted leading-relaxed flex-1">{section.description}</p>
                 {counts[section.table] > 0 && (
-                  <span className="text-xs font-semibold text-green bg-green-soft px-2.5 py-1 rounded-full">
-                    {counts[section.table].toLocaleString()}
-                  </span>
+                  <p className="text-xs font-bold text-green mt-3">{counts[section.table].toLocaleString()} listings</p>
                 )}
-              </div>
-              <h3 className="text-lg font-bold text-ink mb-2 group-hover:text-green transition-colors">{section.label}</h3>
-              <p className="text-sm text-muted leading-relaxed mb-8">{section.description}</p>
-              <div className="flex items-center gap-1.5 text-xs font-bold text-muted/40 group-hover:text-green group-hover:gap-2.5 transition-all">
-                Browse
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* ══════════════════════ HOW IT WORKS */}
+      {/* ══ HOW IT WORKS */}
       <section className="bg-section border-y border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-24 items-center">
             <div>
               <p className="text-xs font-bold uppercase tracking-widest text-green mb-4">How it works</p>
               <h2 className="text-3xl sm:text-4xl font-bold text-ink leading-tight mb-6">Simple. Trusted.<br/>Community-first.</h2>
-              <p className="text-muted leading-relaxed text-base mb-8">HagerLand connects the Ethiopian diaspora with trusted, verified listings. Every business, job, and event is reviewed by our team before it goes live — no spam, no fakes.</p>
+              <p className="text-muted leading-relaxed text-base mb-8">HagerLand connects the Ethiopian diaspora with trusted, verified listings. Every business, job, and event is reviewed by our team before going live — no spam, no fakes.</p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link href="/business" className="inline-flex items-center justify-center gap-2 bg-green hover:bg-green-dark text-white font-semibold rounded-full px-6 py-3 transition-colors text-sm">
                   Browse businesses
@@ -165,7 +197,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ══════════════════════ RECENTLY ADDED */}
+      {/* ══ RECENTLY ADDED */}
       {recentBusinesses && recentBusinesses.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 w-full">
           <div className="flex items-end justify-between mb-10">
@@ -206,26 +238,26 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ══════════════════════ TRUST STATS */}
-      <section className="bg-green">
+      {/* ══ TRUST — light green-soft background */}
+      <section className="bg-green-soft border-y border-green/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
-          <div className="text-center mb-14">
-            <p className="text-xs font-bold uppercase tracking-widest text-white/50 mb-4">Why HagerLand</p>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white">Built for trust.<br/>Built for the community.</h2>
+          <div className="text-center mb-12">
+            <p className="text-xs font-bold uppercase tracking-widest text-green mb-4">Why HagerLand</p>
+            <h2 className="text-3xl sm:text-4xl font-bold text-ink">Built for trust.<br/>Built for the community.</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {TRUST.map((item) => (
-              <div key={item.label} className="bg-white/10 border border-white/10 rounded-2xl p-7">
-                <p className="text-3xl font-bold text-white mb-1">{item.stat}</p>
-                <p className="text-sm font-semibold text-white mb-3">{item.label}</p>
-                <p className="text-sm text-white/55 leading-relaxed">{item.body}</p>
+              <div key={item.label} className="bg-white border border-green/15 rounded-2xl p-7">
+                <p className="text-3xl font-bold text-green mb-1">{item.stat}</p>
+                <p className="text-sm font-bold text-ink mb-3">{item.label}</p>
+                <p className="text-sm text-muted leading-relaxed">{item.body}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ══════════════════════ CTA */}
+      {/* ══ CTA */}
       <section className="bg-ink">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16 flex flex-col sm:flex-row items-center justify-between gap-8">
           <div>
