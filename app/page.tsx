@@ -10,30 +10,18 @@ export const metadata = {
 }
 
 const SECTIONS = [
-  {
-    href: '/jobs', label: 'Jobs', description: 'Work within the Ethiopian community', table: 'jobs',
-    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>`,
-  },
-  {
-    href: '/housing', label: 'Housing', description: 'Rooms, rentals, and properties', table: 'housing',
-    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
-  },
-  {
-    href: '/cars', label: 'Cars & taxi', description: 'Buy, sell, or find a trusted driver', table: 'cars',
-    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="1" y="8" width="22" height="10" rx="2"/><path d="M5 8l2-4h10l2 4"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>`,
-  },
-  {
-    href: '/tutors', label: 'Tutors', description: 'Expert teaching and mentoring', table: 'tutors',
-    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 14l9-5-9-5-9 5 9 5z"/><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>`,
-  },
-  {
-    href: '/community', label: 'Community', description: 'Churches, associations, and groups', table: 'community',
-    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>`,
-  },
-  {
-    href: '/events', label: 'Events', description: 'Celebrations and networking', table: 'events',
-    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
-  },
+  { href: '/jobs', label: 'Jobs', description: 'Work within the Ethiopian community', table: 'jobs',
+    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>` },
+  { href: '/housing', label: 'Housing', description: 'Rooms, rentals, and properties', table: 'housing',
+    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>` },
+  { href: '/cars', label: 'Cars & taxi', description: 'Buy, sell, or find a trusted driver', table: 'cars',
+    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="1" y="8" width="22" height="10" rx="2"/><path d="M5 8l2-4h10l2 4"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>` },
+  { href: '/tutors', label: 'Tutors', description: 'Expert teaching and mentoring', table: 'tutors',
+    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 14l9-5-9-5-9 5 9 5z"/><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>` },
+  { href: '/community', label: 'Community', description: 'Churches, associations, and groups', table: 'community',
+    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>` },
+  { href: '/events', label: 'Events', description: 'Celebrations and networking', table: 'events',
+    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>` },
 ] as const
 
 const TRUST = [
@@ -53,13 +41,11 @@ export default async function HomePage() {
     supabase.from('community').select('id', { count: 'exact', head: true }).eq('status', 'active'),
     supabase.from('events').select('id', { count: 'exact', head: true }).eq('status', 'active'),
   ])
-
   const counts: Record<string, number> = {
     companies: b.count ?? 0, jobs: j.count ?? 0, housing: h.count ?? 0,
     cars: c.count ?? 0, tutors: t.count ?? 0, community: co.count ?? 0, events: e.count ?? 0,
   }
   const totalListings = Object.values(counts).reduce((a, b) => a + b, 0)
-
   const { data: recentBusinesses } = await supabase
     .from('companies').select('id, company_name, sic_description, trading_address_city, is_verified')
     .eq('status', 'active').order('created_at', { ascending: false }).limit(4)
@@ -110,59 +96,59 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ══ SECTIONS — asymmetric: featured large left + 6 grid right */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 w-full">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-green mb-3">Browse the platform</p>
-            <h2 className="text-3xl sm:text-4xl font-bold text-ink leading-tight">Everything the<br className="hidden sm:block"/> Ethiopian diaspora needs</h2>
+      {/* ══ BROWSE THE PLATFORM */}
+      <section className="bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-green mb-3">Browse the platform</p>
+              <h2 className="text-3xl sm:text-4xl font-bold text-ink leading-tight">Everything the<br className="hidden sm:block"/> Ethiopian diaspora needs</h2>
+            </div>
+            <Link href="/business/post" className="hidden sm:inline-flex items-center gap-2 border border-border text-ink text-sm font-semibold rounded-full px-5 py-2.5 hover:border-ink hover:bg-section transition-all shrink-0">
+              List your business →
+            </Link>
           </div>
-          <Link href="/business/post" className="hidden sm:inline-flex items-center gap-2 border border-border text-ink text-sm font-semibold rounded-full px-5 py-2.5 hover:border-ink hover:bg-section transition-all shrink-0">
-            List your business →
-          </Link>
-        </div>
-        <div className="grid lg:grid-cols-5 gap-5">
-          {/* Featured business directory card */}
-          <Link href="/business"
-            className="lg:col-span-2 group relative bg-green rounded-2xl p-8 flex flex-col justify-between min-h-[300px] overflow-hidden">
-            <div className="absolute inset-0 opacity-10" style={{backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '20px 20px'}} />
-            <div className="relative">
-              <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center mb-6">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <div className="grid lg:grid-cols-5 gap-5">
+            <Link href="/business"
+              className="lg:col-span-2 group relative bg-green rounded-2xl p-8 flex flex-col justify-between min-h-[300px] overflow-hidden">
+              <div className="absolute inset-0 opacity-10" style={{backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '20px 20px'}} />
+              <div className="relative">
+                <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center mb-6">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                </div>
+                <h2 className="text-2xl font-bold text-white mb-3">Business directory</h2>
+                <p className="text-white/65 text-sm leading-relaxed">Discover and support verified Ethiopian-owned businesses across the UK and worldwide.</p>
               </div>
-              <h2 className="text-2xl font-bold text-white mb-3">Business directory</h2>
-              <p className="text-white/65 text-sm leading-relaxed">Discover and support verified Ethiopian-owned businesses across the UK and worldwide.</p>
+              <div className="relative flex items-end justify-between mt-8">
+                <div>
+                  <p className="text-4xl font-bold text-white">{counts.companies}</p>
+                  <p className="text-white/50 text-xs mt-1">businesses listed</p>
+                </div>
+                <div className="w-11 h-11 rounded-full bg-white/20 group-hover:bg-white/30 flex items-center justify-center transition-colors">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </div>
+              </div>
+            </Link>
+            <div className="lg:col-span-3 grid grid-cols-2 sm:grid-cols-3 gap-4">
+              {SECTIONS.map((section) => (
+                <Link key={section.href} href={section.href}
+                  className="group bg-white border border-border rounded-2xl p-5 hover:border-green/50 hover:shadow-lg transition-all duration-200 flex flex-col">
+                  <div className="w-10 h-10 rounded-xl bg-green-soft text-green flex items-center justify-center mb-4 shrink-0"
+                    dangerouslySetInnerHTML={{ __html: section.icon }} />
+                  <h3 className="font-bold text-ink text-sm mb-1 group-hover:text-green transition-colors">{section.label}</h3>
+                  <p className="text-xs text-muted leading-relaxed flex-1">{section.description}</p>
+                  {counts[section.table] > 0 && (
+                    <p className="text-xs font-bold text-green mt-3">{counts[section.table].toLocaleString()} listings</p>
+                  )}
+                </Link>
+              ))}
             </div>
-            <div className="relative flex items-end justify-between mt-8">
-              <div>
-                <p className="text-4xl font-bold text-white">{counts.companies}</p>
-                <p className="text-white/50 text-xs mt-1">businesses listed</p>
-              </div>
-              <div className="w-11 h-11 rounded-full bg-white/20 group-hover:bg-white/30 flex items-center justify-center transition-colors">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-              </div>
-            </div>
-          </Link>
-          {/* 6 section cards */}
-          <div className="lg:col-span-3 grid grid-cols-2 sm:grid-cols-3 gap-4">
-            {SECTIONS.map((section) => (
-              <Link key={section.href} href={section.href}
-                className="group bg-white border border-border rounded-2xl p-5 hover:border-green/50 hover:shadow-lg transition-all duration-200 flex flex-col">
-                <div className="w-10 h-10 rounded-xl bg-green-soft text-green flex items-center justify-center mb-4 shrink-0"
-                  dangerouslySetInnerHTML={{ __html: section.icon }} />
-                <h3 className="font-bold text-ink text-sm mb-1 group-hover:text-green transition-colors">{section.label}</h3>
-                <p className="text-xs text-muted leading-relaxed flex-1">{section.description}</p>
-                {counts[section.table] > 0 && (
-                  <p className="text-xs font-bold text-green mt-3">{counts[section.table].toLocaleString()} listings</p>
-                )}
-              </Link>
-            ))}
           </div>
         </div>
       </section>
 
       {/* ══ HOW IT WORKS */}
-      <section className="bg-section border-y border-border">
+      <section className="bg-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-24 items-center">
             <div>
@@ -199,53 +185,55 @@ export default async function HomePage() {
 
       {/* ══ RECENTLY ADDED */}
       {recentBusinesses && recentBusinesses.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 w-full">
-          <div className="flex items-end justify-between mb-10">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-green mb-3">Just added</p>
-              <h2 className="text-2xl sm:text-3xl font-bold text-ink">Recently listed businesses</h2>
-            </div>
-            <Link href="/business" className="hidden sm:flex items-center gap-1.5 text-sm font-semibold text-ink hover:text-green transition-colors">
-              View all
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </Link>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {recentBusinesses.map((business) => (
-              <Link key={business.id} href={`/business/${business.id}`}
-                className="group bg-white border border-border rounded-2xl p-5 hover:border-green/40 hover:shadow-lg transition-all duration-200">
-                <div className="flex items-center justify-between mb-5">
-                  <div className="w-11 h-11 rounded-xl bg-green-soft flex items-center justify-center font-bold text-green text-lg">
-                    {business.company_name.charAt(0)}
-                  </div>
-                  {business.is_verified && (
-                    <span className="inline-flex items-center gap-1.5 bg-gold-soft text-gold text-xs font-semibold px-2.5 py-1 rounded-full">
-                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5"><polyline points="20 6 9 17 4 12"/></svg>
-                      Verified
-                    </span>
-                  )}
-                </div>
-                <p className="font-bold text-ink text-sm mb-1 truncate group-hover:text-green transition-colors">{business.company_name}</p>
-                <p className="text-xs text-muted leading-relaxed line-clamp-2">
-                  {[business.sic_description, business.trading_address_city].filter(Boolean).join(' · ')}
-                </p>
+        <section className="bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+            <div className="flex items-end justify-between mb-10">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-widest text-green mb-3">Just added</p>
+                <h2 className="text-2xl sm:text-3xl font-bold text-ink">Recently listed businesses</h2>
+              </div>
+              <Link href="/business" className="hidden sm:flex items-center gap-1.5 text-sm font-semibold text-ink hover:text-green transition-colors">
+                View all
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
               </Link>
-            ))}
-          </div>
-          <div className="sm:hidden mt-6">
-            <Link href="/business" className="text-sm font-semibold text-green">View all businesses →</Link>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {recentBusinesses.map((business) => (
+                <Link key={business.id} href={`/business/${business.id}`}
+                  className="group bg-white border border-border rounded-2xl p-5 hover:border-green/40 hover:shadow-lg transition-all duration-200">
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="w-11 h-11 rounded-xl bg-green-soft flex items-center justify-center font-bold text-green text-lg">
+                      {business.company_name.charAt(0)}
+                    </div>
+                    {business.is_verified && (
+                      <span className="inline-flex items-center gap-1.5 bg-gold-soft text-gold text-xs font-semibold px-2.5 py-1 rounded-full">
+                        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        Verified
+                      </span>
+                    )}
+                  </div>
+                  <p className="font-bold text-ink text-sm mb-1 truncate group-hover:text-green transition-colors">{business.company_name}</p>
+                  <p className="text-xs text-muted leading-relaxed line-clamp-2">
+                    {[business.sic_description, business.trading_address_city].filter(Boolean).join(' · ')}
+                  </p>
+                </Link>
+              ))}
+            </div>
+            <div className="sm:hidden mt-6">
+              <Link href="/business" className="text-sm font-semibold text-green">View all businesses →</Link>
+            </div>
           </div>
         </section>
       )}
 
-      {/* ══ TRUST — light green-soft background */}
-      <section className="bg-green-soft border-y border-green/10">
+      {/* ══ WHY HAGERLAND + CTA merged */}
+      <section className="bg-green-soft">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
-          <div className="text-center mb-12">
-            <p className="text-xs font-bold uppercase tracking-widest text-green mb-4">Why HagerLand</p>
-            <h2 className="text-3xl sm:text-4xl font-bold text-ink">Built for trust.<br/>Built for the community.</h2>
+          <div className="mb-12">
+            <p className="text-xs font-bold uppercase tracking-widest text-green mb-3">Why HagerLand</p>
+            <h2 className="text-3xl sm:text-4xl font-bold text-ink leading-tight">Built for trust.<br/>Built for the community.</h2>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-14">
             {TRUST.map((item) => (
               <div key={item.label} className="bg-white border border-green/15 rounded-2xl p-7">
                 <p className="text-3xl font-bold text-green mb-1">{item.stat}</p>
@@ -254,23 +242,20 @@ export default async function HomePage() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* ══ CTA */}
-      <section className="bg-ink">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16 flex flex-col sm:flex-row items-center justify-between gap-8">
-          <div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">List your business for free</h2>
-            <p className="text-white/40 text-sm">Join the growing Ethiopian business network. Takes under 2 minutes.</p>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto shrink-0">
-            <Link href="/business/post" className="bg-green hover:bg-green-dark text-white font-bold rounded-full px-8 py-3.5 transition-colors text-center text-sm">
-              Get listed — free
-            </Link>
-            <Link href="/business" className="border border-white/20 hover:border-white/50 text-white font-semibold rounded-full px-8 py-3.5 transition-colors text-center text-sm">
-              Browse businesses
-            </Link>
+          {/* CTA strip — merged into this section */}
+          <div className="bg-ink rounded-2xl px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div>
+              <h3 className="text-xl font-bold text-white mb-1">Ready to join the directory?</h3>
+              <p className="text-white/45 text-sm">List your business, job, or event. Free, always.</p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3 shrink-0 w-full sm:w-auto">
+              <Link href="/business/post" className="bg-green hover:bg-green-dark text-white font-bold rounded-full px-7 py-3 transition-colors text-center text-sm">
+                Get listed — free
+              </Link>
+              <Link href="/business" className="border border-white/20 hover:border-white/50 text-white font-semibold rounded-full px-7 py-3 transition-colors text-center text-sm">
+                Browse businesses
+              </Link>
+            </div>
           </div>
         </div>
       </section>
