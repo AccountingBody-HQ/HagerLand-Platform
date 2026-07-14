@@ -25,3 +25,28 @@ export async function rejectListing(table: string, id: string) {
   if (error) throw new Error(error.message)
   revalidatePath('/roodber8/review')
 }
+
+export async function approveClaim(claimId: string, companyId: string) {
+  requireAdminSession()
+  const { error: claimError } = await supabaseAdmin
+    .from('business_claims')
+    .update({ status: 'approved' })
+    .eq('id', claimId)
+  if (claimError) throw new Error(claimError.message)
+  const { error: companyError } = await supabaseAdmin
+    .from('companies')
+    .update({ is_verified: true, is_claimed: true })
+    .eq('id', companyId)
+  if (companyError) throw new Error(companyError.message)
+  revalidatePath('/roodber8/review')
+}
+
+export async function rejectClaim(claimId: string) {
+  requireAdminSession()
+  const { error } = await supabaseAdmin
+    .from('business_claims')
+    .update({ status: 'rejected' })
+    .eq('id', claimId)
+  if (error) throw new Error(error.message)
+  revalidatePath('/roodber8/review')
+}

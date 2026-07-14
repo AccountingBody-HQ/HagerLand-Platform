@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers'
 import { verifySessionToken, SESSION_COOKIE } from '@/lib/admin-auth'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { approveListing, rejectListing } from './actions'
+import { approveListing, rejectListing, approveClaim, rejectClaim } from './actions'
 import Link from 'next/link'
 
 const COLORS = {
@@ -46,6 +46,13 @@ export default async function ReviewPage() {
     )
   )
 
+
+  const { data: pendingClaims } = await supabaseAdmin
+    .from('business_claims')
+    .select('id, company_id, claimant_name, claimant_email, created_at, companies(company_name)')
+    .eq('status', 'verified')
+    .order('created_at', { ascending: false })
+
   const pendingBySection = SECTIONS.map((s, i) => ({ ...s, items: results[i].data ?? [] }))
   const totalPending = pendingBySection.reduce((sum, s) => sum + s.items.length, 0)
 
@@ -64,6 +71,42 @@ export default async function ReviewPage() {
           </Link>
         </div>
 
+        {pendingClaims && pendingClaims.length > 0 && (
+          <div style={{ marginBottom: 24 }}>
+            <h2 style={{ fontSize: 15, fontWeight: 700, color: COLORS.gold, marginBottom: 12 }}>
+              Business Claims — Awaiting Approval ({pendingClaims.length})
+            </h2>
+            <div style={{ backgroundColor: COLORS.panel, border: `1px solid ${COLORS.border}`, borderRadius: 10 }}>
+              {pendingClaims.map((claim, idx: number) => (
+                <div key={claim.id}
+                  style={{ padding: 16, borderBottom: idx < pendingClaims.length - 1 ? `1px solid ${COLORS.border}` : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+                  <div style={{ minWidth: 0 }}>
+                    <p style={{ color: COLORS.text, fontSize: 14, fontWeight: 600, margin: 0 }}>
+                      {(Array.isArray(claim.companies) ? claim.companies[0]?.company_name : (claim.companies as { company_name: string } | null)?.company_name) ?? 'Unknown business'}
+                    </p>
+                    <p style={{ color: COLORS.muted, fontSize: 12, margin: '4px 0 0' }}>
+                      {claim.claimant_name} · {claim.claimant_email}
+                    </p>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+                    <form action={approveClaim.bind(null, claim.id, claim.company_id)}>
+                      <button type="submit"
+                        style={{ background: COLORS.green, color: '#fff', border: 'none', borderRadius: 6, padding: '6px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                        Approve
+                      </button>
+                    </form>
+                    <form action={rejectClaim.bind(null, claim.id)}>
+                      <button type="submit"
+                        style={{ background: 'transparent', color: COLORS.danger, border: `1px solid ${COLORS.danger}`, borderRadius: 6, padding: '6px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                        Reject
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         {totalPending === 0 && (
           <div style={{ backgroundColor: COLORS.panel, border: `1px solid ${COLORS.border}`, borderRadius: 12, padding: 32, textAlign: 'center', color: COLORS.muted }}>
             Nothing pending review right now.
