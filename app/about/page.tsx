@@ -22,13 +22,13 @@ const VALUES = [
   },
   {
     icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>`,
-    title: 'Community owned',
+    title: 'Community first',
     body: 'HagerLand is built by and for the Ethiopian diaspora. The platform exists to serve the community — not to extract value from it.',
   },
   {
     icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>`,
-    title: 'Ethiopian, not Habesha',
-    body: 'We use the word Ethiopian deliberately — to welcome everyone across all ethnic backgrounds, including the Oromo, Amhara, Tigrinya, Somali, and every other community that makes Ethiopia.',
+    title: 'Open to everyone',
+    body: 'HagerLand welcomes every member of the Ethiopian community — regardless of background, region, or language. The platform is built to unite.',
   },
   {
     icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>`,
@@ -81,13 +81,13 @@ export default function AboutPage() {
               </p>
             </div>
             <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-green mb-4">Why Ethiopian</p>
-              <h2 className="text-3xl sm:text-4xl font-bold text-ink leading-tight mb-6">One word that includes everyone</h2>
+              <p className="text-xs font-bold uppercase tracking-widest text-green mb-4">Our mission</p>
+              <h2 className="text-3xl sm:text-4xl font-bold text-ink leading-tight mb-6">Connecting the community, worldwide</h2>
               <p className="text-muted leading-relaxed mb-4">
-                We use the word <strong className="text-ink">Ethiopian</strong> deliberately — not Habesha. Habesha traditionally refers to the Amhara and Tigrinya communities, and using it as an umbrella term excludes a significant part of the Ethiopian population, including the Oromo, Somali, Sidama, and many others.
+                HagerLand is built for every member of the Ethiopian community — wherever they are in the world and whatever their background. Our goal is simple: make it easier for Ethiopians to find, support, and connect with each other.
               </p>
               <p className="text-muted leading-relaxed mb-4">
-                HagerLand is for every Ethiopian — regardless of ethnicity, language, or region of origin. The platform is built to unite, not divide.
+                Every listing on the platform is free to submit and free to browse. We believe that a stronger, better-connected diaspora benefits everyone.
               </p>
               <p className="text-muted leading-relaxed">
                 If you are from Ethiopia or of Ethiopian heritage, this platform is yours.
