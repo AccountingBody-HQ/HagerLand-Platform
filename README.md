@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HagerLand
 
-## Getting Started
+The global network for Ethiopian business, community, and culture.
 
-First, run the development server:
+Live at [hagerland.com](https://hagerland.com)
+
+## What this is
+
+HagerLand is the trusted digital home of the Ethiopian diaspora:
+
+- A searchable, verified directory of Ethiopian-owned businesses worldwide
+- Community sections: jobs, housing, cars & taxi, tutors, community organisations, events
+- An admin console for reviewing every listing before it goes live
+
+## Tech stack
+
+- **Framework:** Next.js 14 (App Router, TypeScript)
+- **Database:** Supabase (Postgres)
+- **Email:** Resend
+- **Bot protection:** Cloudflare Turnstile + honeypot field
+- **Hosting:** Vercel
+- **Organisation:** AccountingBody-HQ on GitHub
+
+## Getting started
 
 ```bash
+cp .env.example .env.local
+# Fill in all values
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Admin console
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Available at `/roodber8`. Requires username, password, and 6-digit TOTP code.
+Do not share, rename, or publicise this path.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Build and deploy
 
-## Learn More
+```bash
+rm -rf .next && npm run build # must be green before every commit
+git push # Vercel auto-deploys on push to main
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Build guide
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See `HagerLand_Build_Guide_v7.md` for the complete sequential build plan.
+The guide covers all 10 sessions, every file, every line of code.

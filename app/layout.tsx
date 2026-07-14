@@ -1,13 +1,6 @@
 import type { Metadata } from 'next'
-import { Fraunces, Inter, IBM_Plex_Mono } from 'next/font/google'
+import { Inter, IBM_Plex_Mono } from 'next/font/google'
 import './globals.css'
-
-const fraunces = Fraunces({
-  subsets: ['latin'],
-  weight: ['300', '400', '500'],
-  style: ['normal', 'italic'],
-  variable: '--font-fraunces',
-})
 
 const inter = Inter({
   subsets: ['latin'],
@@ -21,8 +14,18 @@ const plexMono = IBM_Plex_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'HagerLand — The global network for Ethiopian business',
-  description: 'A verified directory of Ethiopian-owned businesses across the diaspora.',
+  title: {
+    default: 'HagerLand — The global network for Ethiopian business',
+    template: '%s | HagerLand',
+  },
+  description:
+    'Find and support Ethiopian-owned businesses, jobs, housing, events, and community across the diaspora.',
+  metadataBase: new URL('https://hagerland.com'),
+  openGraph: {
+    siteName: 'HagerLand',
+    type: 'website',
+    locale: 'en_GB',
+  },
 }
 
 export default function RootLayout({
@@ -32,7 +35,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${fraunces.variable} ${inter.variable} ${plexMono.variable} font-sans bg-bg text-ink`}>
+      <body
+        className={`${inter.variable} ${plexMono.variable} font-sans bg-bg text-ink`}
+      >
         {children}
       </body>
     </html>

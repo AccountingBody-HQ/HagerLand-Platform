@@ -4,6 +4,7 @@ import { SiteNav } from '@/components/SiteNav'
 import { DirectorySearch } from '@/components/DirectorySearch'
 import { SearchBox } from '@/components/SearchBox'
 import Link from 'next/link'
+import { SiteFooter } from '@/components/SiteFooter'
 
 export default async function HomePage() {
   const { data: businesses, error } = await supabase
@@ -14,7 +15,7 @@ export default async function HomePage() {
 
 
   return (
-    <main className="min-h-screen bg-bg">
+    <main className="min-h-screen bg-bg flex flex-col">
       <SiteNav />
 
       <section className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-24 grid md:grid-cols-2 gap-10 md:gap-12 items-center">
@@ -62,6 +63,7 @@ export default async function HomePage() {
         <p className="text-sm text-red-600 text-center">Error loading businesses: {error.message}</p>
       )}
       <DirectorySearch businesses={businesses ?? []} />
+      <SiteFooter />
     </main>
   )
 }

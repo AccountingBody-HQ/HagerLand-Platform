@@ -2,9 +2,13 @@
 const nextConfig = {
   experimental: {
     serverActions: {
-      allowedOrigins: ['*.app.github.dev', 'localhost:3000'],
+      allowedOrigins: [
+        'localhost:3000',
+        ...(process.env.NODE_ENV !== 'production'
+          ? ['*.app.github.dev']
+          : []),
+      ],
     },
   },
-};
-
-export default nextConfig;
+}
+export default nextConfig

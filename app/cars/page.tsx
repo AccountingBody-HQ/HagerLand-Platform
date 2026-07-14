@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { SiteNav } from '@/components/SiteNav'
 import { SearchBox } from '@/components/SearchBox'
+import { SiteFooter } from '@/components/SiteFooter'
 
 export default async function CarsPage() {
   const { data: listings, error } = await supabase
@@ -11,7 +12,7 @@ export default async function CarsPage() {
     .order('created_at', { ascending: false })
 
   return (
-    <main className="min-h-screen bg-bg">
+    <main className="min-h-screen bg-bg flex flex-col">
       <SiteNav />
 
       <section className="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-16 text-center">
@@ -65,6 +66,7 @@ export default async function CarsPage() {
           )}
         </div>
       </section>
+      <SiteFooter />
     </main>
   )
 }

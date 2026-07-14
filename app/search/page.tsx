@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, Suspense } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { SiteNav } from '@/components/SiteNav'
+import { SiteFooter } from '@/components/SiteFooter'
 
 type ResultType = 'all' | 'business' | 'job' | 'housing' | 'car' | 'tutor' | 'community' | 'event'
 
@@ -100,7 +101,7 @@ function SearchInner() {
   const displayed = activeType === 'all' ? results : results.filter((r) => r.type === activeType)
 
   return (
-    <main className="min-h-screen bg-bg">
+    <main className="min-h-screen bg-bg flex flex-col">
       <SiteNav />
 
       <section className="bg-section py-12 sm:py-16">
@@ -215,13 +216,14 @@ function SearchInner() {
           </>
         )}
       </section>
+      <SiteFooter />
     </main>
   )
 }
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-bg" />}>
+    <Suspense fallback={<div className="min-h-screen bg-bg flex flex-col" />}>
       <SearchInner />
     </Suspense>
   )

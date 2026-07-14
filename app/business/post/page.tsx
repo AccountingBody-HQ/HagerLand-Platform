@@ -1,13 +1,14 @@
 import { postBusiness } from './actions'
 import { SiteNav } from '@/components/SiteNav'
 import { TurnstileWidget } from '@/components/TurnstileWidget'
+import { SiteFooter } from '@/components/SiteFooter'
 
 const inputStyle =
   'w-full px-4 py-3 border border-border rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-green/20 focus:border-green'
 
 export default function PostBusinessPage() {
   return (
-    <main className="min-h-screen bg-bg">
+    <main className="min-h-screen bg-bg flex flex-col">
       <SiteNav />
       <section className="max-w-lg mx-auto px-4 sm:px-6 py-10 sm:py-16">
         <h1 className="text-2xl sm:text-3xl font-bold text-ink text-center mb-8">
@@ -62,6 +63,7 @@ export default function PostBusinessPage() {
           </button>
         </form>
       </section>
+      <SiteFooter />
     </main>
   )
 }

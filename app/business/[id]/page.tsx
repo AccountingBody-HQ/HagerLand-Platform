@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import { SiteNav } from '@/components/SiteNav'
+import { SiteFooter } from '@/components/SiteFooter'
 
 export default async function BusinessProfilePage({
   params,
@@ -19,7 +20,7 @@ export default async function BusinessProfilePage({
   }
 
   return (
-    <main className="min-h-screen bg-bg">
+    <main className="min-h-screen bg-bg flex flex-col">
       <SiteNav />
 
       <section className="max-w-2xl mx-auto px-4 sm:px-6 py-10 sm:py-16 text-center sm:text-left">
@@ -87,6 +88,7 @@ export default async function BusinessProfilePage({
           </div>
         </div>
       </section>
+      <SiteFooter />
     </main>
   )
 }
