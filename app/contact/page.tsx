@@ -58,28 +58,25 @@ export default function ContactPage() {
       </section>
 
       {/* CONTACT LAYOUT */}
-      <section className="bg-white flex-1">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-          <div className="grid lg:grid-cols-3 gap-12 lg:gap-16">
+      <section className="bg-section">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+          <div className="grid lg:grid-cols-3 gap-8 lg:gap-12 items-start">
 
             {/* LEFT — info */}
-            <div className="lg:col-span-1 space-y-8">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-widest text-green mb-4">How we can help</p>
-                <div className="space-y-4">
-                  {[
-                    { title: 'Report a listing', body: 'Found something inaccurate or inappropriate? Let us know and we will review it promptly.' },
-                    { title: 'Update your details', body: 'Need to change your listing? Send us the details and we will update it for you.' },
-                    { title: 'General questions', body: 'Anything else — we are happy to hear from you.' },
-                  ].map((item) => (
-                    <div key={item.title} className="p-5 border border-border rounded-2xl">
-                      <h3 className="font-bold text-ink text-sm mb-1">{item.title}</h3>
-                      <p className="text-xs text-muted leading-relaxed">{item.body}</p>
-                    </div>
-                  ))}
+            <div className="lg:col-span-1 space-y-4">
+              <p className="text-xs font-bold uppercase tracking-widest text-green mb-5">How we can help</p>
+              {[
+                { title: 'Report a listing', body: 'Found something inaccurate or inappropriate? Let us know and we will review it promptly.' },
+                { title: 'Update your details', body: 'Need to change your listing? Send us the details and we will update it for you.' },
+                { title: 'Claim your business', body: 'Already listed but not yet claimed? We can help you through the verification process.' },
+                { title: 'General questions', body: 'Anything else — we are happy to hear from you.' },
+              ].map((item) => (
+                <div key={item.title} className="p-5 bg-white border border-border rounded-2xl">
+                  <h3 className="font-bold text-ink text-sm mb-1">{item.title}</h3>
+                  <p className="text-xs text-muted leading-relaxed">{item.body}</p>
                 </div>
-              </div>
-              <div className="p-5 border border-border rounded-2xl">
+              ))}
+              <div className="p-5 bg-white border border-border rounded-2xl">
                 <p className="text-xs font-bold uppercase tracking-widest text-green mb-2">Email directly</p>
                 <a href="mailto:team@hagerland.com" className="text-sm font-semibold text-ink hover:text-green transition-colors">
                   team@hagerland.com
@@ -89,9 +86,9 @@ export default function ContactPage() {
             </div>
 
             {/* RIGHT — form */}
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-2 bg-white border border-border rounded-2xl p-8">
               {status === 'success' ? (
-                <div className="flex flex-col items-start gap-4 p-8 border border-green/30 bg-green-soft rounded-2xl">
+                <div className="flex flex-col items-start gap-4 py-8">
                   <div className="w-12 h-12 rounded-xl bg-green flex items-center justify-center">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                   </div>
@@ -102,6 +99,10 @@ export default function ContactPage() {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-5">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-widest text-green mb-1">Send a message</p>
+                    <h2 className="text-xl font-bold text-ink mb-6">We will get back to you within 48 hours</h2>
+                  </div>
                   {/* honeypot */}
                   <input type="text" name="website" className="hidden" tabIndex={-1} autoComplete="off" />
 
@@ -143,6 +144,26 @@ export default function ContactPage() {
                   </button>
                 </form>
               )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="bg-green-soft">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+          <div className="bg-white border border-green/20 rounded-2xl px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div>
+              <h3 className="text-xl font-bold text-ink mb-1">Want to list your business?</h3>
+              <p className="text-muted text-sm">Join the directory — free for everyone, always.</p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3 shrink-0 w-full sm:w-auto">
+              <a href="/business/post" className="w-44 text-center bg-green hover:bg-green-dark text-white font-bold rounded-full py-3 transition-colors text-sm">
+                Get listed — free
+              </a>
+              <a href="/business" className="w-44 text-center border border-border text-ink hover:border-ink font-semibold rounded-full py-3 transition-colors text-sm">
+                Browse businesses
+              </a>
             </div>
           </div>
         </div>
