@@ -26,7 +26,7 @@ export function SiteNav() {
               <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
             </svg>
           </Link>
-          <span className="hidden sm:inline text-sm font-medium text-ink">Log in</span>
+          
           <Link href="/business/post" className="bg-green hover:bg-green-dark text-white text-sm font-semibold rounded-full px-4 sm:px-5 py-2 sm:py-2.5 transition-colors">
             List your business
           </Link>
