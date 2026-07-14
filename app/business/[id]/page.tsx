@@ -11,6 +11,7 @@ export default async function BusinessProfilePage({
     .from('companies')
     .select('*')
     .eq('id', params.id)
+    .eq('status', 'active')
     .single()
 
   if (error || !business) {

@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     supabase
       .from('companies')
       .select('id, company_name, sic_description, trading_address_city')
-      .eq('profile_published', true)
+      .eq('status', 'active')
       .or(`company_name.ilike.${like},sic_description.ilike.${like},trading_address_city.ilike.${like}`)
       .limit(8),
     supabase

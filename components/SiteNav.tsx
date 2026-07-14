@@ -27,9 +27,9 @@ export function SiteNav() {
             </svg>
           </Link>
           <span className="hidden sm:inline text-sm font-medium text-ink">Log in</span>
-          <button className="bg-green hover:bg-green-dark text-white text-sm font-semibold rounded-full px-4 sm:px-5 py-2 sm:py-2.5 transition-colors">
+          <Link href="/business/post" className="bg-green hover:bg-green-dark text-white text-sm font-semibold rounded-full px-4 sm:px-5 py-2 sm:py-2.5 transition-colors">
             List your business
-          </button>
+          </Link>
           <MobileNav />
         </div>
       </div>

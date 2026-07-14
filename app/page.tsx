@@ -3,12 +3,13 @@ import { HeroGraphic } from '@/components/HeroGraphic'
 import { SiteNav } from '@/components/SiteNav'
 import { DirectorySearch } from '@/components/DirectorySearch'
 import { SearchBox } from '@/components/SearchBox'
+import Link from 'next/link'
 
 export default async function HomePage() {
   const { data: businesses, error } = await supabase
     .from('companies')
     .select('*')
-    .eq('profile_published', true)
+    .eq('status', 'active')
     .order('company_name')
 
 
@@ -26,12 +27,12 @@ export default async function HomePage() {
           </p>
           <SearchBox className="mt-6 max-w-md mx-auto md:mx-0" />
           <div className="flex flex-col sm:flex-row gap-3 mt-6 max-w-xs sm:max-w-none mx-auto md:mx-0">
-            <button className="flex-1 bg-green hover:bg-green-dark text-white font-semibold rounded-full px-6 py-3 transition-colors">
+            <Link href="/business" className="flex-1 bg-green hover:bg-green-dark text-white font-semibold rounded-full px-6 py-3 transition-colors text-center">
               Explore the directory
-            </button>
-            <button className="flex-1 border border-ink text-ink font-semibold rounded-full px-6 py-3 hover:bg-ink hover:text-white transition-colors">
+            </Link>
+            <Link href="/business/post" className="flex-1 border border-ink text-ink font-semibold rounded-full px-6 py-3 hover:bg-ink hover:text-white transition-colors text-center">
               List your business
-            </button>
+            </Link>
           </div>
         </div>
 
