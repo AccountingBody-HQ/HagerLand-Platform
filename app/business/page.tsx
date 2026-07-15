@@ -96,9 +96,7 @@ export default async function BusinessPage({
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {businesses && businesses.length > 0 ? businesses.map((business) => (
               <Link key={business.id} href={`/business/${business.id}`}
-                className="group flex flex-col bg-white border border-border rounded-2xl overflow-hidden hover:border-green/60 hover:shadow-md transition-all duration-200 relative">
-                {/* Green left accent */}
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-green rounded-l-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                className="group flex flex-col bg-white border border-border rounded-2xl overflow-hidden hover:border-l-4 hover:border-l-green hover:border-green/30 hover:shadow-md transition-all duration-200">
                 {/* Top section */}
                 <div className="flex items-start gap-4 p-5 pb-4">
                   <div className="w-11 h-11 rounded-xl bg-green-soft flex items-center justify-center font-black text-green text-lg shrink-0">
