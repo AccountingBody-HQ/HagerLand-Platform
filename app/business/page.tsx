@@ -49,17 +49,21 @@ export default async function BusinessPage({
     <main className="min-h-screen bg-bg flex flex-col">
       <SiteNav />
 
-      {/* HERO — soft green, not full green */}
-      <section className="bg-green-soft border-b border-green/15">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+      {/* HERO — dark premium */}
+      <section className="relative bg-ink overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.04]" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)', backgroundSize: '24px 24px'}} />
+        <div className="absolute inset-0" style={{background: 'radial-gradient(ellipse at 70% 50%, rgba(28,124,76,0.15) 0%, transparent 60%))'}} />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
             <div className="max-w-2xl">
-              <p className="text-xs font-bold uppercase tracking-widest text-green mb-3">Business directory</p>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-ink leading-[1.05] tracking-tight mb-3">Ethiopian-owned businesses</h1>
-              <p className="text-muted text-base sm:text-lg leading-relaxed">
-                Discover and support verified businesses in the Ethiopian community.
-                {count != null && count > 0 && <span className="ml-2 font-semibold text-green">{count.toLocaleString()} listed.</span>}
-              </p>
+              <p className="text-xs font-bold uppercase tracking-widest text-green mb-4">Business directory</p>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-[1.05] tracking-tight mb-4">Ethiopian-owned businesses</h1>
+              <div className="flex items-center gap-3 flex-wrap">
+                <p className="text-white/50 text-base leading-relaxed">Discover and support verified businesses in the Ethiopian community.</p>
+                {count != null && count > 0 && (
+                  <span className="bg-green/20 text-green border border-green/30 text-sm font-bold px-3 py-1 rounded-full">{count.toLocaleString()} listed</span>
+                )}
+              </div>
             </div>
             <Link href="/business/post" className="shrink-0 bg-green hover:bg-green-dark text-white font-bold rounded-full px-6 py-3 text-sm transition-colors">List your business →</Link>
           </div>
@@ -112,8 +116,8 @@ export default async function BusinessPage({
                   )}
                 </div>
                 <div className="flex items-center gap-4 px-5 py-3 border-t border-border bg-section mt-auto">
-                  {business.sic_description && <span className="flex items-center gap-1.5 text-xs text-muted"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M8 3v18M2 9h20"/></svg>{business.sic_description}</span>}
-                  {business.phone && <span className="flex items-center gap-1.5 text-xs text-muted ml-auto"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.63 19.79 19.79 0 012 1.18 2 2 0 014 .02h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>{business.phone}</span>}
+                  {business.sic_description && <span className="flex items-center gap-1.5 text-xs text-muted truncate"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M8 3v18M2 9h20"/></svg>{business.sic_description}</span>}
+                  {business.phone && <span className="flex items-center gap-1.5 text-xs text-muted ml-auto shrink-0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.63 19.79 19.79 0 012 1.18 2 2 0 014 .02h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>{business.phone}</span>}
                 </div>
               </Link>
             )) : (
