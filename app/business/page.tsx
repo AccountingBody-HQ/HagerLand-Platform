@@ -51,15 +51,15 @@ export default async function BusinessPage({
 
       {/* HERO — dark premium */}
       <section className="relative bg-ink overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.06]" style={{backgroundImage: 'linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px)', backgroundSize: '32px 32px'}} />
+        <div className="absolute inset-0 opacity-[0.06]" style={{backgroundImage: 'linear-gradient(rgba(255,255,255,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.12) 1px, transparent 1px)', backgroundSize: '40px 40px'}} />
         <div className="absolute inset-0" style={{background: 'radial-gradient(ellipse at 70% 50%, rgba(28,124,76,0.18) 0%, transparent 60%)'}} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
             <div className="max-w-2xl">
               <p className="text-xs font-bold uppercase tracking-widest text-green mb-4">Business directory</p>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-[1.05] tracking-tight mb-4">Ethiopian-owned businesses</h1>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-[1.05] tracking-tight mb-4">Business directory</h1>
               <div className="flex items-center gap-3 flex-wrap">
-                <p className="text-white/50 text-base leading-relaxed">Discover and support verified businesses in the Ethiopian community.</p>
+                <p className="text-white/50 text-base leading-relaxed">Find and support verified businesses across the diaspora community.</p>
                 {count != null && count > 0 && (
                   <span className="bg-green/20 text-green border border-green/30 text-sm font-bold px-3 py-1 rounded-full">{count.toLocaleString()} listed</span>
                 )}
@@ -103,7 +103,7 @@ export default async function BusinessPage({
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-bold text-ink text-sm leading-snug truncate group-hover:text-green transition-colors">{business.company_name}</h3>
-                    <p className="text-xs text-muted mt-0.5 truncate">{business.sic_description || 'Ethiopian business'}</p>
+                    <p className="text-xs text-muted mt-0.5 truncate">{business.sic_description || 'Community business'}</p>
                   </div>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted group-hover:text-green shrink-0 mt-0.5 transition-colors"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </div>
