@@ -128,23 +128,51 @@ export default async function BusinessPage({
             {businesses && businesses.length > 0 ? (
               businesses.map((business) => (
                 <Link key={business.id} href={`/business/${business.id}`}
-                  className="group bg-white border border-border rounded-2xl p-5 hover:border-green/50 hover:shadow-lg transition-all duration-200 block">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-11 h-11 rounded-xl bg-green-soft flex items-center justify-center font-bold text-green text-lg">
-                      {business.company_name.charAt(0)}
+                  className="group flex flex-col rounded-2xl overflow-hidden border border-border hover:border-green/50 hover:shadow-lg transition-all duration-200 bg-white">
+                  {/* Card header — dark green band */}
+                  <div className="relative bg-green px-5 pt-5 pb-8 overflow-hidden">
+                    <div className="absolute inset-0 opacity-[0.08]" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)', backgroundSize: '18px 18px'}} />
+                    <div className="relative flex items-start justify-between gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center font-bold text-white text-lg shrink-0">
+                        {business.company_name.charAt(0)}
+                      </div>
+                      {business.is_verified && (
+                        <span className="inline-flex items-center gap-1 bg-gold-soft text-gold text-xs font-semibold px-2 py-0.5 rounded-full shrink-0">
+                          <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5"><polyline points="20 6 9 17 4 12"/></svg>
+                          Verified
+                        </span>
+                      )}
                     </div>
-                    {business.is_verified && (
-                      <span className="inline-flex items-center gap-1.5 bg-gold-soft text-gold text-xs font-semibold px-2.5 py-1 rounded-full">
-                        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5"><polyline points="20 6 9 17 4 12"/></svg>
-                        Verified
-                      </span>
-                    )}
+                    <h3 className="relative font-bold text-white text-base mt-3 leading-snug line-clamp-2 group-hover:text-white/90 transition-colors">{business.company_name}</h3>
                   </div>
-                  <h3 className="font-bold text-ink mb-1 group-hover:text-green transition-colors truncate">{business.company_name}</h3>
-                  <p className="text-sm text-muted line-clamp-2">
-                    {[business.sic_description, business.trading_address_city].filter(Boolean).join(' · ')}
-                  </p>
-                  {business.phone && <p className="text-xs text-muted mt-2">{business.phone}</p>}
+                  {/* Card body */}
+                  <div className="flex flex-col flex-1 px-5 py-4 -mt-3 bg-white rounded-t-2xl">
+                    <div className="space-y-2 flex-1">
+                      {business.sic_description && (
+                        <div className="flex items-center gap-2">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted shrink-0"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M8 3v18M2 9h20"/></svg>
+                          <span className="text-xs text-muted truncate">{business.sic_description}</span>
+                        </div>
+                      )}
+                      {business.trading_address_city && (
+                        <div className="flex items-center gap-2">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted shrink-0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                          <span className="text-xs text-muted">{business.trading_address_city}</span>
+                        </div>
+                      )}
+                      {business.phone && (
+                        <div className="flex items-center gap-2">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted shrink-0"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.63 19.79 19.79 0 012 1.18 2 2 0 014 .02h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+                          <span className="text-xs text-muted">{business.phone}</span>
+                        </div>
+                      )}
+                    </div>
+                    {/* Card footer */}
+                    <div className="flex items-center justify-between mt-4 pt-3 border-t border-border">
+                      <span className="text-xs font-semibold text-green">View details</span>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-green group-hover:translate-x-0.5 transition-transform"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </div>
+                  </div>
                 </Link>
               ))
             ) : (
