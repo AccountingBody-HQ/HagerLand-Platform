@@ -49,23 +49,21 @@ export default async function BusinessPage({
     <main className="min-h-screen bg-bg flex flex-col">
       <SiteNav />
 
-      {/* HERO — dark premium */}
-      <section className="relative bg-ink overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.06]" style={{backgroundImage: 'linear-gradient(rgba(255,255,255,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.12) 1px, transparent 1px)', backgroundSize: '40px 40px'}} />
-        <div className="absolute inset-0" style={{background: 'radial-gradient(ellipse at 70% 50%, rgba(28,124,76,0.18) 0%, transparent 60%)'}} />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+      {/* HERO — clean white */}
+      <section className="bg-white border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
             <div className="max-w-2xl">
-              <p className="text-xs font-bold uppercase tracking-widest text-green mb-4">Business directory</p>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-[1.05] tracking-tight mb-4">Business directory</h1>
+              <p className="text-xs font-bold uppercase tracking-widest text-green mb-3">Business directory</p>
+              <h1 className="text-3xl sm:text-4xl font-bold text-ink leading-tight tracking-tight mb-3">Find businesses in the community</h1>
               <div className="flex items-center gap-3 flex-wrap">
-                <p className="text-white/50 text-base leading-relaxed">Find and support verified businesses across the diaspora community.</p>
+                <p className="text-muted text-base leading-relaxed">Discover and support verified businesses across the diaspora.</p>
                 {count != null && count > 0 && (
-                  <span className="bg-green/20 text-green border border-green/30 text-sm font-bold px-3 py-1 rounded-full">{count.toLocaleString()} listed</span>
+                  <span className="bg-green-soft text-green border border-green/20 text-sm font-bold px-3 py-1 rounded-full">{count.toLocaleString()} listed</span>
                 )}
               </div>
             </div>
-            <Link href="/business/post" className="shrink-0 bg-green hover:bg-green-dark text-white font-bold rounded-full px-6 py-3 text-sm transition-colors">List your business →</Link>
+            <Link href="/business/post" className="shrink-0 bg-green hover:bg-green-dark text-white font-bold rounded-full px-6 py-3 text-sm transition-colors whitespace-nowrap">List your business →</Link>
           </div>
         </div>
       </section>
