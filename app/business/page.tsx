@@ -51,9 +51,9 @@ export default async function BusinessPage({
 
       {/* HERO — dark premium */}
       <section className="relative bg-ink overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.04]" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)', backgroundSize: '24px 24px'}} />
-        <div className="absolute inset-0" style={{background: 'radial-gradient(ellipse at 70% 50%, rgba(28,124,76,0.15) 0%, transparent 60%))'}} />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20">
+        <div className="absolute inset-0 opacity-[0.06]" style={{backgroundImage: 'linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px)', backgroundSize: '32px 32px'}} />
+        <div className="absolute inset-0" style={{background: 'radial-gradient(ellipse at 70% 50%, rgba(28,124,76,0.18) 0%, transparent 60%)'}} />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
             <div className="max-w-2xl">
               <p className="text-xs font-bold uppercase tracking-widest text-green mb-4">Business directory</p>
