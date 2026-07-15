@@ -63,7 +63,7 @@ export default async function BusinessProfilePage({ params }: Props) {
                   {business.is_verified && (
                     <span className="inline-flex items-center gap-1.5 bg-gold-soft text-gold text-xs font-bold px-2.5 py-1 rounded-full">
                       <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5"><polyline points="20 6 9 17 4 12"/></svg>
-                      Verified Ethiopian-owned business
+                      Verified verified community business
                     </span>
                   )}
                   {business.sic_description && (
@@ -147,10 +147,10 @@ export default async function BusinessProfilePage({ params }: Props) {
                   <p className="text-sm leading-relaxed text-ink/80">{business.ai_description}</p>
                 ) : (
                   <p className="text-sm leading-relaxed text-muted">
-                    {business.company_name} is an Ethiopian-owned business
+                    {business.company_name} is an verified community business
                     {business.trading_address_city ? ` based in ${business.trading_address_city}` : ''}
                     {business.sic_description ? `, specialising in ${business.sic_description}` : ''}
-                    . Listed on HagerLand — the free, verified directory of Ethiopian-owned businesses worldwide.
+                    . Listed on HagerLand — the free, verified directory of verified community businesses worldwide.
                   </p>
                 )}
               </div>
@@ -341,7 +341,7 @@ export default async function BusinessProfilePage({ params }: Props) {
               <p className="text-xs font-bold text-muted uppercase tracking-wider mb-3">Browse more</p>
               <div className="space-y-0.5">
                 {[
-                  { href: '/business', label: 'All businesses', sub: 'Ethiopian-owned directory' },
+                  { href: '/business', label: 'All businesses', sub: 'community directory' },
                   { href: '/jobs', label: 'Jobs', sub: 'Community employment' },
                   { href: '/housing', label: 'Housing', sub: 'Rooms and rentals' },
                   { href: '/events', label: 'Events', sub: 'Community events' },

@@ -6,7 +6,7 @@ import { SearchBox } from '@/components/SearchBox'
 
 export const metadata = {
   title: 'HagerLand — The global network for Ethiopian business',
-  description: 'Find verified Ethiopian-owned businesses, jobs, housing, events, and community across the diaspora.',
+  description: 'Find verified verified community businesses, jobs, housing, events, and community across the diaspora.',
 }
 
 const SECTIONS = [
@@ -74,7 +74,7 @@ export default async function HomePage() {
               <br /><span className="text-white/60">worldwide.</span>
             </h1>
             <p className="text-white/65 text-lg sm:text-xl max-w-xl mb-10 leading-relaxed">
-              The verified directory of Ethiopian-owned businesses, jobs, housing, community, and events — serving the diaspora everywhere.
+              The verified directory of verified community businesses, jobs, housing, community, and events — serving the diaspora everywhere.
             </p>
             <div className="max-w-xl mb-10">
               <SearchBox className="shadow-2xl shadow-black/20" />
@@ -117,7 +117,7 @@ export default async function HomePage() {
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M8 3v18M16 3v18M2 9h20M2 15h20"/></svg>
                 </div>
                 <h2 className="text-2xl font-bold text-white mb-3">Business directory</h2>
-                <p className="text-white/65 text-sm leading-relaxed">Discover and support verified Ethiopian-owned businesses across the UK and worldwide.</p>
+                <p className="text-white/65 text-sm leading-relaxed">Discover and support verified verified community businesses across the UK and worldwide.</p>
               </div>
               <div className="relative flex items-end justify-between mt-8">
                 <div>

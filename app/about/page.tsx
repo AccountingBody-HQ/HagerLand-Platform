@@ -4,7 +4,7 @@ import { SiteFooter } from '@/components/SiteFooter'
 
 export const metadata = {
   title: 'About HagerLand — The global network for Ethiopian business',
-  description: 'HagerLand is the free, verified directory of Ethiopian-owned businesses, jobs, housing, events and community worldwide.',
+  description: 'HagerLand is the free, verified directory of verified community businesses, jobs, housing, events and community worldwide.',
 }
 
 const STATS = [
@@ -57,7 +57,7 @@ export default function AboutPage() {
               Built for the<br />Ethiopian diaspora.
             </h1>
             <p className="text-white/65 text-lg sm:text-xl leading-relaxed">
-              HagerLand is the free, verified network connecting Ethiopian-owned businesses, workers, and communities across the world.
+              HagerLand is the free, verified network connecting verified community businesses, workers, and communities across the world.
             </p>
           </div>
         </div>

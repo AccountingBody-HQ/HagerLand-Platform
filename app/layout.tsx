@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     template: '%s | HagerLand',
   },
   description:
-    'Find and support Ethiopian-owned businesses, jobs, housing, events, and community across the diaspora.',
+    'Find and support verified community businesses, jobs, housing, events, and community across the diaspora.',
   metadataBase: new URL('https://hagerland.com'),
   openGraph: {
     siteName: 'HagerLand',

@@ -6,10 +6,10 @@ import { SubmissionBanner } from '@/components/SubmissionBanner'
 
 export const metadata = {
   title: 'Ethiopian business directory | HagerLand',
-  description: 'Find verified Ethiopian-owned businesses across the UK and worldwide.',
+  description: 'Find verified verified community businesses across the UK and worldwide.',
   openGraph: {
     title: 'Ethiopian business directory | HagerLand',
-    description: 'Find verified Ethiopian-owned businesses worldwide.',
+    description: 'Find verified verified community businesses worldwide.',
   },
 }
 

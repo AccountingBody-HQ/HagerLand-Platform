@@ -57,7 +57,7 @@ const FAQ = [
   },
   {
     q: 'Is HagerLand only for UK businesses?',
-    a: 'No — HagerLand is global. We welcome Ethiopian-owned businesses, community groups, and listings from anywhere in the world. Our current focus is the UK diaspora but the platform is open to all.',
+    a: 'No — HagerLand is global. We welcome verified community businesses, community groups, and listings from anywhere in the world. Our current focus is the UK diaspora but the platform is open to all.',
   },
 ]
 
