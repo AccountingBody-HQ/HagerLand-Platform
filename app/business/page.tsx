@@ -49,21 +49,49 @@ export default async function BusinessPage({
     <main className="min-h-screen bg-bg flex flex-col">
       <SiteNav />
 
-      {/* HERO — clean white */}
-      <section className="bg-white border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-            <div className="max-w-2xl">
-              <p className="text-xs font-bold uppercase tracking-widest text-green mb-3">Business directory</p>
-              <h1 className="text-3xl sm:text-4xl font-bold text-ink leading-tight tracking-tight mb-3">Find businesses in the community</h1>
-              <div className="flex items-center gap-3 flex-wrap">
-                <p className="text-muted text-base leading-relaxed">Discover and support verified businesses across the diaspora.</p>
-                {count != null && count > 0 && (
-                  <span className="bg-green-soft text-green border border-green/20 text-sm font-bold px-3 py-1 rounded-full">{count.toLocaleString()} listed</span>
-                )}
+      {/* HERO */}
+      <section className="relative overflow-hidden bg-green">
+        <div className="absolute inset-0" style={{background: 'linear-gradient(135deg, #155F3A 0%, #1C7C4C 60%, #1e8a55 100%)'}} />
+        <div className="absolute inset-0 opacity-[0.07]" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px'}} />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] opacity-10 pointer-events-none" style={{background: 'radial-gradient(circle at top right, #fff 0%, transparent 60%)'}} />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+          <div className="max-w-3xl">
+            <p className="inline-flex items-center gap-2.5 text-white/50 text-[11px] font-bold tracking-[0.18em] uppercase mb-8">
+              ሃገር
+              <span className="w-1 h-1 rounded-full bg-white/30" />
+              Homeland
+              <span className="w-1 h-1 rounded-full bg-white/30" />
+              Business directory
+            </p>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.05] tracking-tight mb-6">
+              Find businesses
+              <br /><span className="text-white/60">in the community,</span>
+              <br /><span className="text-white/60">worldwide.</span>
+            </h1>
+            <p className="text-white/65 text-lg sm:text-xl max-w-xl mb-10 leading-relaxed">
+              Discover and support verified businesses across the diaspora. Every listing reviewed by our team.
+            </p>
+            <div className="flex flex-wrap items-center gap-x-8 gap-y-4 mb-10">
+              {count != null && count > 0 && (
+                <>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-bold text-white">{count.toLocaleString()}</span>
+                    <span className="text-white/40 text-sm">businesses listed</span>
+                  </div>
+                </>
+              )}
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-bold text-white">Free</span>
+                <span className="text-white/40 text-sm">to list</span>
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-bold text-white">100%</span>
+                <span className="text-white/40 text-sm">verified</span>
               </div>
             </div>
-            <Link href="/business/post" className="shrink-0 bg-green hover:bg-green-dark text-white font-bold rounded-full px-6 py-3 text-sm transition-colors whitespace-nowrap">List your business →</Link>
+            <Link href="/business/post" className="inline-flex items-center gap-2 bg-white text-green font-bold rounded-full px-7 py-3.5 text-sm hover:bg-green-soft transition-colors">
+              List your business — free →
+            </Link>
           </div>
         </div>
       </section>
