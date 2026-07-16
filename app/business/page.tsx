@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { SiteNav } from '@/components/SiteNav'
 import { SiteFooter } from '@/components/SiteFooter'
 import { SubmissionBanner } from '@/components/SubmissionBanner'
+import { FilterDropdown } from '@/components/FilterDropdown' // eslint-disable-line // eslint-disable-line
 
 export const metadata = {
   title: 'Ethiopian business directory | HagerLand',
