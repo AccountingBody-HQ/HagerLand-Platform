@@ -14,6 +14,8 @@ const SECTIONS = [
     icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>` },
   { href: '/housing', label: 'Housing', description: 'Rooms, rentals, and properties', table: 'housing',
     icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>` },
+  { href: '/money', label: 'Money', description: 'Transfers, exchange, and financial services', table: 'money',
+    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>` },
   { href: '/cars', label: 'Cars & taxi', description: 'Buy, sell, or find a trusted driver', table: 'cars',
     icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="1" y="8" width="22" height="10" rx="2"/><path d="M5 8l2-4h10l2 4"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>` },
   { href: '/tutors', label: 'Tutors', description: 'Expert teaching and mentoring', table: 'tutors',
@@ -32,7 +34,7 @@ const TRUST = [
 ] as const
 
 export default async function HomePage() {
-  const [b, j, h, c, t, co, e] = await Promise.all([
+  const [b, j, h, c, t, co, e, m] = await Promise.all([
     supabase.from('companies').select('id', { count: 'exact', head: true }).eq('status', 'active'),
     supabase.from('jobs').select('id', { count: 'exact', head: true }).eq('status', 'active'),
     supabase.from('housing').select('id', { count: 'exact', head: true }).eq('status', 'active'),
@@ -40,10 +42,11 @@ export default async function HomePage() {
     supabase.from('tutors').select('id', { count: 'exact', head: true }).eq('status', 'active'),
     supabase.from('community').select('id', { count: 'exact', head: true }).eq('status', 'active'),
     supabase.from('events').select('id', { count: 'exact', head: true }).eq('status', 'active'),
+    supabase.from('money').select('id', { count: 'exact', head: true }).eq('status', 'active'),
   ])
   const counts: Record<string, number> = {
     companies: b.count ?? 0, jobs: j.count ?? 0, housing: h.count ?? 0,
-    cars: c.count ?? 0, tutors: t.count ?? 0, community: co.count ?? 0, events: e.count ?? 0,
+    cars: c.count ?? 0, tutors: t.count ?? 0, community: co.count ?? 0, events: e.count ?? 0, money: m.count ?? 0,
   }
   const totalListings = Object.values(counts).reduce((a, b) => a + b, 0)
   const { data: recentBusinesses } = await supabase
@@ -83,7 +86,7 @@ export default async function HomePage() {
               {[
                 { value: totalListings.toLocaleString(), label: 'active listings' },
                 { value: counts.companies.toLocaleString(), label: 'businesses' },
-                { value: '7', label: 'categories' },
+                { value: '8', label: 'categories' },
                 { value: 'Free', label: 'to list' },
               ].map((s) => (
                 <div key={s.label} className="flex items-baseline gap-2">
