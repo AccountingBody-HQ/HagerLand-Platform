@@ -6,11 +6,11 @@ import { SubmissionBanner } from '@/components/SubmissionBanner'
 import { FilterDropdown } from '@/components/FilterDropdown'
 
 export const metadata = {
-  title: 'Ethiopian business directory | HagerLand',
-  description: 'Find verified verified community businesses across the UK and worldwide.',
+  title: 'Business directory | HagerLand',
+  description: 'Find verified community businesses across the UK and worldwide.',
   openGraph: {
-    title: 'Ethiopian business directory | HagerLand',
-    description: 'Find verified verified community businesses worldwide.',
+    title: 'Business directory | HagerLand',
+    description: 'Find verified community businesses worldwide.',
   },
 }
 
