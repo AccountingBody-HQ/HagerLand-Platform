@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { SiteNav } from '@/components/SiteNav'
 import { SiteFooter } from '@/components/SiteFooter'
 import { SubmissionBanner } from '@/components/SubmissionBanner'
-import { FilterDropdown } from '@/components/FilterDropdown' // eslint-disable-line // eslint-disable-line
+import { FilterDropdown } from '@/components/FilterDropdown'
 
 export const metadata = {
   title: 'Ethiopian business directory | HagerLand',
@@ -112,27 +112,23 @@ export default async function BusinessPage({
 
           {/* FILTERS */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-8">
-            <div className="flex items-center gap-3 flex-1">
+            <div className="flex items-center gap-3">
               {cities.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  <Link href="/business" className={`text-sm px-4 py-2 rounded-full border transition-colors ${!city ? 'bg-ink text-white border-ink' : 'bg-white text-ink border-border hover:border-ink'}`}>All cities</Link>
-                  {cities.slice(0, 8).map((c) => (
-                    <Link key={c} href={`/business?city=${encodeURIComponent(c)}`} className={`text-sm px-4 py-2 rounded-full border transition-colors ${city === c ? 'bg-ink text-white border-ink' : 'bg-white text-ink border-border hover:border-ink'}`}>{c}</Link>
-                  ))}
-                  {cities.length > 8 && (
-                    <span className="text-sm px-4 py-2 rounded-full border border-border bg-white text-muted">+{cities.length - 8} more</span>
-                  )}
-                </div>
+                <FilterDropdown
+                  options={cities}
+                  value={city}
+                  basePath="/business"
+                  paramName="city"
+                  allLabel="All cities"
+                />
               )}
-            </div>
-            <div className="flex items-center gap-3 shrink-0">
               {city && (
-                <Link href="/business" className="text-xs font-semibold text-green hover:underline">Clear filter</Link>
-              )}
-              {count != null && (
-                <p className="text-sm text-muted">{count.toLocaleString()} {count === 1 ? 'business' : 'businesses'}</p>
+                <Link href="/business" className="text-xs font-semibold text-green hover:underline">Clear</Link>
               )}
             </div>
+            {count != null && (
+              <p className="text-sm text-muted ml-auto">{count.toLocaleString()} {count === 1 ? 'business' : 'businesses'}</p>
+            )}
           </div>
           {error && <p className="text-sm text-red-600 mb-6">Error loading businesses: {error.message}</p>}
 
