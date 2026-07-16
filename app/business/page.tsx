@@ -113,29 +113,25 @@ export default async function BusinessPage({
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-8">
             <div className="flex items-center gap-3 flex-1">
               {cities.length > 0 && (
-                <div className="relative">
-                  <select
-                    defaultValue={city || ''}
-                    onChange={(e) => { window.location.href = e.target.value ? `/business?city=${encodeURIComponent(e.target.value)}` : '/business' }}
-                    className="appearance-none bg-white border border-border text-ink text-sm font-medium rounded-full pl-4 pr-9 py-2.5 focus:outline-none focus:border-green cursor-pointer hover:border-ink transition-colors">
-                    <option value=''>All cities</option>
-                    {cities.map((c) => (
-                      <option key={c} value={c} selected={city === c}>{c}</option>
-                    ))}
-                  </select>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="absolute right-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none"><path d="M6 9l6 6 6-6"/></svg>
-                </div>
-              )}
-              {city && (
-                <div className="flex items-center gap-2 text-sm text-muted">
-                  <span>Filtered by <strong className="text-ink">{city}</strong></span>
-                  <Link href="/business" className="text-green hover:underline text-xs font-semibold">Clear</Link>
+                <div className="flex flex-wrap gap-2">
+                  <Link href="/business" className={`text-sm px-4 py-2 rounded-full border transition-colors ${!city ? 'bg-ink text-white border-ink' : 'bg-white text-ink border-border hover:border-ink'}`}>All cities</Link>
+                  {cities.slice(0, 8).map((c) => (
+                    <Link key={c} href={`/business?city=${encodeURIComponent(c)}`} className={`text-sm px-4 py-2 rounded-full border transition-colors ${city === c ? 'bg-ink text-white border-ink' : 'bg-white text-ink border-border hover:border-ink'}`}>{c}</Link>
+                  ))}
+                  {cities.length > 8 && (
+                    <span className="text-sm px-4 py-2 rounded-full border border-border bg-white text-muted">+{cities.length - 8} more</span>
+                  )}
                 </div>
               )}
             </div>
-            {count != null && (
-              <p className="text-sm text-muted shrink-0">{count.toLocaleString()} {count === 1 ? 'business' : 'businesses'} found</p>
-            )}
+            <div className="flex items-center gap-3 shrink-0">
+              {city && (
+                <Link href="/business" className="text-xs font-semibold text-green hover:underline">Clear filter</Link>
+              )}
+              {count != null && (
+                <p className="text-sm text-muted">{count.toLocaleString()} {count === 1 ? 'business' : 'businesses'}</p>
+              )}
+            </div>
           </div>
           {error && <p className="text-sm text-red-600 mb-6">Error loading businesses: {error.message}</p>}
 
