@@ -2,7 +2,7 @@
 
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+
 
 export async function submitContactForm(formData: FormData) {
   const name = (formData.get('name') as string || '').trim()
@@ -17,7 +17,8 @@ export async function submitContactForm(formData: FormData) {
   if (message.length < 10) return { error: 'Message is too short.' }
 
   try {
-    await resend.emails.send({
+    const resend = new Resend(process.env.RESEND_API_KEY)
+  await resend.emails.send({
       from: 'info@accountingbody.com',
       to: 'info@accountingbody.com',
       replyTo: email,

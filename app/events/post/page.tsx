@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { postEvent } from './actions'
 import { SiteNav } from '@/components/SiteNav'
 import { TurnstileWidget } from '@/components/TurnstileWidget'

@@ -1,4 +1,6 @@
-import { supabase } from '@/lib/supabase'
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 import { NextRequest, NextResponse } from 'next/server'
 
 // In-memory rate limiter: 30 requests per 60 seconds per IP
@@ -28,6 +30,10 @@ function scoreResult(title: string, query: string): number {
 }
 
 export async function GET(request: NextRequest) {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return NextResponse.json([])
+
+  const { supabase } = await import('@/lib/supabase')
+
   const ip =
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
   if (isRateLimited(ip)) {
@@ -39,7 +45,7 @@ export async function GET(request: NextRequest) {
 
   const like = `%${query}%`
 
-  const [businesses, jobs, housing, cars, tutors, community, events] =
+  const [businesses, jobs, housing, cars, tutors, community, events, money] =
     await Promise.all([
       supabase
         .from('companies')
@@ -82,6 +88,12 @@ export async function GET(request: NextRequest) {
         .select('id, title, category, location')
         .eq('status', 'active')
         .or(`title.ilike.${like},category.ilike.${like},location.ilike.${like}`)
+        .limit(8),
+      supabase
+        .from('money')
+        .select('id, title, service_type, location')
+        .eq('status', 'active')
+        .or(`title.ilike.${like},service_type.ilike.${like},location.ilike.${like}`)
         .limit(8),
     ])
 
@@ -133,6 +145,14 @@ export async function GET(request: NextRequest) {
       subtitle: [c.category, c.location].filter(Boolean).join(' · '),
       url: `/community/${c.id}`,
       score: scoreResult(c.name, query),
+    })),
+    ...(money.data ?? []).map((m) => ({
+      id: m.id,
+      type: 'money' as const,
+      title: m.title,
+      subtitle: [m.service_type, m.location].filter(Boolean).join(' · '),
+      url: `/money/${m.id}`,
+      score: scoreResult(m.title, query),
     })),
     ...(events.data ?? []).map((e) => ({
       id: e.id,

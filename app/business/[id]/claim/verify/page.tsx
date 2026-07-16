@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { SiteNav } from '@/components/SiteNav'
 import { SiteFooter } from '@/components/SiteFooter'
@@ -53,8 +55,9 @@ export default async function VerifyClaimPage({
   const companyName = (Array.isArray(companiesData) ? companiesData[0]?.company_name : (companiesData as { company_name: string } | null)?.company_name) ?? 'your business'
 
   try {
+    
     const resend = new Resend(process.env.RESEND_API_KEY)
-    await resend.emails.send({
+  await resend.emails.send({
       from: 'HagerLand <info@accountingbody.com>',
       to: 'info@accountingbody.com',
       subject: `New verified claim — ${companyName}`,

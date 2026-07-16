@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { SiteNav } from '@/components/SiteNav'
 import { SiteFooter } from '@/components/SiteFooter'
 import { submitMoney } from './actions'

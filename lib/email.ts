@@ -1,6 +1,5 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
 
 // Both addresses use accountingbody.com (verified Resend domain) since
 // hagerland.com is not yet a verified sending domain on the free plan.
@@ -20,6 +19,7 @@ type SectionSubmission = {
 // Failures here are logged but never thrown — a submission should still
 // succeed and save to the database even if the email fails to send.
 export async function sendInternalNotification(submission: SectionSubmission) {
+  const resend = new Resend(process.env.RESEND_API_KEY)
   try {
     await resend.emails.send({
       from: FROM_ADDRESS,
@@ -45,6 +45,7 @@ export async function sendInternalNotification(submission: SectionSubmission) {
 // Sends a polished acknowledgment to the person who submitted the listing.
 // Same fail-safe behaviour: never throws, just logs.
 export async function sendSubmitterAcknowledgment(submission: SectionSubmission) {
+  const resend = new Resend(process.env.RESEND_API_KEY)
   try {
     await resend.emails.send({
       from: FROM_ADDRESS,

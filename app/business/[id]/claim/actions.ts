@@ -55,8 +55,9 @@ export async function submitClaim(companyId: string, formData: FormData) {
   const verifyUrl = `https://hagerland.com/business/${companyId}/claim/verify?token=${token}`
 
   try {
+    
     const resend = new Resend(process.env.RESEND_API_KEY)
-    await resend.emails.send({
+  await resend.emails.send({
       from: 'HagerLand <info@accountingbody.com>',
       to: claimantEmail,
       subject: `Verify your claim — ${company.company_name}`,

@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase'
 import { Resend } from 'resend'
 import { redirect } from 'next/navigation'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+
 
 export async function submitMoney(formData: FormData) {
   const honey = (formData.get('website_url') as string || '').trim()
@@ -30,7 +30,8 @@ export async function submitMoney(formData: FormData) {
   if (error) redirect('/money/post?error=1')
 
   try {
-    await resend.emails.send({
+    const resend = new Resend(process.env.RESEND_API_KEY)
+  await resend.emails.send({
       from: 'info@accountingbody.com',
       to: 'info@accountingbody.com',
       subject: `[HagerLand] New money service submission: ${title}`,
