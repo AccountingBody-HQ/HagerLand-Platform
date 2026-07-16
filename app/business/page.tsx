@@ -155,7 +155,7 @@ export default async function BusinessPage({
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-4 px-5 py-3 border-t border-border bg-section mt-auto">
+                <div className="flex items-center gap-4 px-5 py-3 border-t border-border bg-white mt-auto">
                   {business.sic_description && <span className="flex items-center gap-1.5 text-xs text-muted truncate"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M8 3v18M2 9h20"/></svg>{business.sic_description}</span>}
                   {business.phone && <span className="flex items-center gap-1.5 text-xs text-muted ml-auto shrink-0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.63 19.79 19.79 0 012 1.18 2 2 0 014 .02h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>{business.phone}</span>}
                 </div>
