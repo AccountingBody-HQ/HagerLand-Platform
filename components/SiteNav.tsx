@@ -10,10 +10,11 @@ export function SiteNav() {
           <Logo className="w-7 h-7" />
           <span className="font-bold text-lg text-ink tracking-tight">HagerLand</span>
         </Link>
-        <div className="hidden lg:flex items-center gap-8 text-sm font-medium text-muted">
+        <div className="hidden lg:flex items-center gap-6 text-sm font-medium text-muted">
           <Link href="/business" className="hover:text-ink transition-colors">Businesses</Link>
           <Link href="/jobs" className="hover:text-ink transition-colors">Jobs</Link>
           <Link href="/housing" className="hover:text-ink transition-colors">Housing</Link>
+          <Link href="/money" className="hover:text-ink transition-colors">Money</Link>
           <Link href="/cars" className="hover:text-ink transition-colors">Cars</Link>
           <Link href="/tutors" className="hover:text-ink transition-colors">Tutors</Link>
           <Link href="/community" className="hover:text-ink transition-colors">Community</Link>
