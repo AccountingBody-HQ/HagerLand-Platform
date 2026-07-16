@@ -17,7 +17,7 @@ const sections = [
 
 export function SiteNav() {
   const pathname = usePathname()
-  const pageUrl = typeof window !== 'undefined' ? window.location.href : 'https://hagerland.com'
+  const pageUrl = 'https://hagerland-platform-iuixpqr94-accountingbodys-projects.vercel.app' + pathname
 
   return (
     <nav className='bg-white border-b border-border sticky top-0 z-40'>
