@@ -20,6 +20,7 @@ export default async function JobsPage({ searchParams }: { searchParams: { type?
   const from = (page - 1) * PAGE_SIZE
   const to = from + PAGE_SIZE - 1
 
+  console.log('SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
   let query = supabase.from('jobs').select('*', { count: 'exact' })
     .eq('status', 'active').order('created_at', { ascending: false }).range(from, to)
   if (jobType) query = query.eq('job_type', jobType)
