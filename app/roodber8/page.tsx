@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic'
 import { cookies } from 'next/headers'
 import { verifySessionToken, SESSION_COOKIE } from '@/lib/admin-auth'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { login } from './login-actions'
+import { redirect } from 'next/navigation'
 import Link from 'next/link'
 
 const C = {
@@ -12,16 +12,6 @@ const C = {
   green: '#1C7C4C', greenSoft: 'rgba(28,124,76,0.12)',
   gold: '#B8862E', goldSoft: 'rgba(184,138,46,0.12)',
   danger: '#ef4444',
-}
-
-const inp: React.CSSProperties = {
-  width: '100%', backgroundColor: '#111827', border: '1px solid #1a2238',
-  borderRadius: 8, padding: 12, color: '#ffffff', fontSize: 14,
-  outline: 'none', boxSizing: 'border-box', marginTop: 6,
-}
-
-const lbl: React.CSSProperties = {
-  display: 'block', fontSize: 13, color: '#94a3b8', marginBottom: 4,
 }
 
 const SECTIONS = [
@@ -35,53 +25,11 @@ const SECTIONS = [
   { table: 'events',    label: 'Events',     color: '#a855f7', href: '/roodber8/review' },
 ] as const
 
-export default async function AdminPage({
-  searchParams,
-}: {
-  searchParams: { success?: string; error?: string }
-}) {
+export default async function AdminPage() {
   const token = cookies().get(SESSION_COOKIE)?.value
   const isAuth = verifySessionToken(token)
 
-  if (!isAuth) {
-    return (
-      <div style={{ minHeight: '100vh', backgroundColor: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'system-ui,sans-serif' }}>
-        <div style={{ backgroundColor: C.panel, border: `1px solid ${C.border}`, borderRadius: 16, padding: 40, width: '100%', maxWidth: 400 }}>
-          <div style={{ marginBottom: 32, textAlign: 'center' }}>
-            <div style={{ width: 48, height: 48, borderRadius: 14, background: 'linear-gradient(135deg,#1C7C4C,#155c38)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-              <svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='white' strokeWidth='2'><path d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z'/><circle cx='12' cy='9' r='2.5'/></svg>
-            </div>
-            <div style={{ fontSize: 22, fontWeight: 700, color: C.text, marginBottom: 4 }}>HagerLand</div>
-            <div style={{ fontSize: 13, color: C.muted }}>Admin Console — Sign in to continue</div>
-          </div>
-          <form action={login}>
-            <div style={{ marginBottom: 16 }}>
-              <label style={lbl}>Username</label>
-              <input name='username' required style={inp} autoComplete='username' />
-            </div>
-            <div style={{ marginBottom: 16 }}>
-              <label style={lbl}>Password</label>
-              <input name='password' type='password' required style={inp} autoComplete='current-password' />
-            </div>
-            <div style={{ marginBottom: 24 }}>
-              <label style={lbl}>Verification code</label>
-              <input name='code' required maxLength={6} inputMode='numeric' autoComplete='one-time-code'
-                style={{ ...inp, letterSpacing: '0.3em', textAlign: 'center' }} />
-            </div>
-            {searchParams.error && (
-              <div style={{ backgroundColor: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, padding: '10px 14px', marginBottom: 16, color: C.danger, fontSize: 13 }}>
-                Invalid credentials. Please try again.
-              </div>
-            )}
-            <button type='submit'
-              style={{ width: '100%', backgroundColor: C.green, color: '#fff', border: 'none', borderRadius: 10, padding: 14, fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>
-              Access Admin Console
-            </button>
-          </form>
-        </div>
-      </div>
-    )
-  }
+  if (!isAuth) redirect('/roodber8-login')
 
   // Fetch all stats in parallel
   const [pendingResults, activeResults] = await Promise.all([

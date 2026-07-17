@@ -13,7 +13,7 @@ export async function login(formData: FormData) {
   const codeOk = verifyCode(code)
 
   if (!credsOk || !codeOk) {
-    redirect('/roodber8?error=1')
+    redirect('/roodber8-login?error=1')
   }
 
   const session = createSessionToken()
