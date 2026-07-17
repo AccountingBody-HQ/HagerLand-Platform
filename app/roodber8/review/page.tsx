@@ -25,6 +25,7 @@ const SECTIONS = [
   { table: 'community', label: 'Community', titleField: 'name', subtitleFields: ['category', 'location'] },
   { table: 'events', label: 'Events', titleField: 'title', subtitleFields: ['category', 'location'] },
   { table: 'companies', label: 'Business', titleField: 'company_name', subtitleFields: ['sic_description', 'trading_address_city'] },
+  { table: 'money', label: 'Money', titleField: 'title', subtitleFields: ['service_type', 'location'] },
 ] as const
 
 export default async function ReviewPage() {
