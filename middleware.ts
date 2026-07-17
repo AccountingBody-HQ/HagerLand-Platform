@@ -1,3 +1,4 @@
+export const runtime = 'nodejs'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { verifySessionToken, SESSION_COOKIE } from '@/lib/admin-auth'
