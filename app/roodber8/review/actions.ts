@@ -3,7 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 import { revalidatePath } from 'next/cache'
 import { requireAdminSession } from '@/lib/admin-auth'
 
-const TABLES = ['jobs', 'housing', 'cars', 'tutors', 'community', 'events', 'companies'] as const
+const TABLES = ['jobs', 'housing', 'cars', 'tutors', 'community', 'events', 'companies', 'money'] as const
 type TableName = (typeof TABLES)[number]
 
 function isValidTable(table: string): table is TableName {
@@ -48,5 +48,23 @@ export async function rejectClaim(claimId: string) {
     .update({ status: 'rejected' })
     .eq('id', claimId)
   if (error) throw new Error(error.message)
+  revalidatePath('/roodber8/review')
+}
+
+export async function deleteListing(table: string, id: string) {
+  requireAdminSession()
+  if (!isValidTable(table)) throw new Error('Invalid table')
+  const { error } = await supabaseAdmin.from(table).delete().eq('id', id)
+  if (error) throw new Error(error.message)
+  revalidatePath('/roodber8')
+  revalidatePath('/roodber8/review')
+}
+
+export async function deactivateListing(table: string, id: string) {
+  requireAdminSession()
+  if (!isValidTable(table)) throw new Error('Invalid table')
+  const { error } = await supabaseAdmin.from(table).update({ status: 'pending' }).eq('id', id)
+  if (error) throw new Error(error.message)
+  revalidatePath('/roodber8')
   revalidatePath('/roodber8/review')
 }
