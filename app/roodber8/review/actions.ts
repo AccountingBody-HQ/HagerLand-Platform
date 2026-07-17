@@ -58,6 +58,14 @@ export async function deleteListing(table: string, id: string) {
   if (error) throw new Error(error.message)
   revalidatePath('/roodber8')
   revalidatePath('/roodber8/review')
+  revalidatePath('/business')
+  revalidatePath('/jobs')
+  revalidatePath('/housing')
+  revalidatePath('/money')
+  revalidatePath('/cars')
+  revalidatePath('/tutors')
+  revalidatePath('/community')
+  revalidatePath('/events')
 }
 
 export async function deactivateListing(table: string, id: string) {
@@ -67,4 +75,12 @@ export async function deactivateListing(table: string, id: string) {
   if (error) throw new Error(error.message)
   revalidatePath('/roodber8')
   revalidatePath('/roodber8/review')
+  revalidatePath('/business')
+  revalidatePath('/jobs')
+  revalidatePath('/housing')
+  revalidatePath('/money')
+  revalidatePath('/cars')
+  revalidatePath('/tutors')
+  revalidatePath('/community')
+  revalidatePath('/events')
 }
