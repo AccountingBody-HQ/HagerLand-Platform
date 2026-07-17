@@ -21,7 +21,7 @@ export function SiteNav() {
 
   return (
     <nav className='bg-white border-b border-border sticky top-0 z-40'>
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4'>
+      <div className='w-full px-4 sm:px-6 lg:px-10 h-16 flex items-center justify-between gap-3'>
 
         {/* Logo */}
         <Link href='/' className='flex items-center gap-2 shrink-0'>
