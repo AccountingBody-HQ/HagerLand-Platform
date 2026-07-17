@@ -93,7 +93,7 @@ export default async function AdminCarsPage() {
                     <button type='submit' style={{ background: 'rgba(28,124,76,0.1)', color: C.green, border: 'none', borderRadius: 8, padding: '5px 10px', fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>Approve</button>
                   </form>
                 )}
-                <form action={deleteListing.bind(null, 'cars', item.id)} onSubmit={(e) => { if (!confirm('Delete this listing permanently?')) e.preventDefault() }}>
+                <form action={deleteListing.bind(null, 'cars', item.id)}>
                   <button type='submit' style={{ background: 'rgba(239,68,68,0.08)', color: C.danger, border: 'none', borderRadius: 8, padding: '5px 10px', fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>Delete</button>
                 </form>
               </div>
