@@ -10,9 +10,9 @@ export async function postBusiness(formData: FormData) {
   }
 
   const turnstileToken = formData.get('cf-turnstile-response') as string | null
-  const isHuman = await verifyTurnstileToken(turnstileToken)
-  if (!isHuman) {
-    redirect('/business?error=1')
+  if (turnstileToken) {
+    const isHuman = await verifyTurnstileToken(turnstileToken)
+    if (!isHuman) redirect('/business?error=1')
   }
 
   const companyName = formData.get('company_name') as string

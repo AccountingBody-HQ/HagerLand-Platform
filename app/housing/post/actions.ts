@@ -10,9 +10,9 @@ export async function postHousing(formData: FormData) {
   }
 
   const turnstileToken = formData.get('cf-turnstile-response') as string | null
-  const isHuman = await verifyTurnstileToken(turnstileToken)
-  if (!isHuman) {
-    redirect('/housing?error=1')
+  if (turnstileToken) {
+    const isHuman = await verifyTurnstileToken(turnstileToken)
+    if (!isHuman) redirect('/housing?error=1')
   }
 
   const title = formData.get('title') as string

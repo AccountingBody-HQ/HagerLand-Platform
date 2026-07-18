@@ -10,9 +10,9 @@ export async function postTutor(formData: FormData) {
   }
 
   const turnstileToken = formData.get('cf-turnstile-response') as string | null
-  const isHuman = await verifyTurnstileToken(turnstileToken)
-  if (!isHuman) {
-    redirect('/tutors?error=1')
+  if (turnstileToken) {
+    const isHuman = await verifyTurnstileToken(turnstileToken)
+    if (!isHuman) redirect('/tutors?error=1')
   }
 
   const name = formData.get('name') as string
