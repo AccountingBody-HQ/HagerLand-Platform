@@ -44,72 +44,135 @@ export default async function BusinessProfilePage({ params }: Props) {
         address: business.trading_address_city ? { '@type': 'PostalAddress', addressLocality: business.trading_address_city, addressCountry: 'GB' } : undefined,
       }) }} />
 
-      {/* ══ HERO — matches platform standard */}
+      {/* ══ HERO */}
       <section className="relative overflow-hidden bg-green">
-        <div className="absolute inset-0" style={{background: 'linear-gradient(135deg, #155F3A 0%, #1C7C4C 60%, #1e8a55 100%)' }} />
-        <div className="absolute inset-0 opacity-[0.07]" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px'}} />
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] opacity-10 pointer-events-none" style={{background: 'radial-gradient(circle at top right, #fff 0%, transparent 60%)'}} />
+        {/* Background layers */}
+        <div className="absolute inset-0" style={{background: 'linear-gradient(135deg, #0f4a2a 0%, #155F3A 40%, #1C7C4C 100%)' }} />
+        <div className="absolute inset-0 opacity-[0.06]" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px'}} />
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] opacity-[0.08] pointer-events-none" style={{background: 'radial-gradient(circle at top right, #fff 0%, transparent 60%)'}} />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] opacity-[0.05] pointer-events-none" style={{background: 'radial-gradient(circle at bottom left, #B8862E 0%, transparent 60%)'}} />
+
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+
           {/* Breadcrumb */}
-          <nav className="flex items-center gap-1.5 text-xs text-white/40 mb-6">
+          <nav className="flex items-center gap-1.5 text-xs text-white/40 mb-10">
             <Link href="/" className="hover:text-white/70 transition-colors">Home</Link>
-            <span>/</span>
+            <span className="text-white/20">/</span>
             <Link href="/business" className="hover:text-white/70 transition-colors">Business directory</Link>
-            <span>/</span>
-            <span className="text-white/60">{business.company_name}</span>
+            <span className="text-white/20">/</span>
+            <span className="text-white/60 truncate max-w-[200px]">{business.company_name}</span>
           </nav>
-          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
-            <div className="flex items-start gap-5">
+
+          {/* Main hero layout */}
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-10">
+
+            {/* Left — identity block */}
+            <div className="flex items-start gap-6 flex-1 min-w-0">
+
               {/* Avatar */}
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center font-black text-white text-2xl sm:text-3xl shrink-0">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center font-black text-white text-3xl sm:text-4xl shrink-0 shadow-xl shadow-black/20 backdrop-blur-sm">
                 {initial}
               </div>
+
+              {/* Info */}
               <div className="flex-1 min-w-0">
-                <div className="flex flex-wrap gap-2 mb-3">
+
+                {/* Badges */}
+                <div className="flex flex-wrap gap-2 mb-4">
                   {business.is_verified && (
-                    <span className="inline-flex items-center gap-1.5 bg-gold-soft text-gold text-xs font-bold px-2.5 py-1 rounded-full">
+                    <span className="inline-flex items-center gap-1.5 bg-gold-soft text-gold text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">
                       <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5"><polyline points="20 6 9 17 4 12"/></svg>
                       Verified community business
                     </span>
                   )}
                   {business.sic_description && (
-                    <span className="bg-white/15 text-white/90 text-xs font-medium px-2.5 py-1 rounded-full">{business.sic_description}</span>
+                    <span className="bg-white/15 text-white/90 text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm">{business.sic_description}</span>
                   )}
                 </div>
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight mb-4 leading-tight">
+
+                {/* Business name */}
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-[1.1] mb-5">
                   {business.company_name}
                 </h1>
-                <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+
+                {/* Contact details row */}
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-2.5 mb-8">
                   {business.trading_address_city && (
-                    <span className="flex items-center gap-1.5 text-white/60 text-sm">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    <span className="flex items-center gap-2 text-white/70 text-sm font-medium">
+                      <span className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                      </span>
                       {business.trading_address_city}
                     </span>
                   )}
                   {business.phone && (
-                    <a href={`tel:${business.phone}`} className="flex items-center gap-1.5 text-white/60 hover:text-white text-sm transition-colors">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.63 19.79 19.79 0 012 1.18 2 2 0 014 .02h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+                    <a href={`tel:${business.phone}`} className="flex items-center gap-2 text-white/70 hover:text-white text-sm font-medium transition-colors group">
+                      <span className="w-7 h-7 rounded-full bg-white/10 group-hover:bg-white/20 flex items-center justify-center shrink-0 transition-colors">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.63 19.79 19.79 0 012 1.18 2 2 0 014 .02h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+                      </span>
                       {business.phone}
                     </a>
                   )}
                   {business.website && (
-                    <a href={business.website.startsWith('http') ? business.website : `https://${business.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-white/60 hover:text-white text-sm transition-colors">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+                    <a href={business.website.startsWith('http') ? business.website : `https://${business.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-white/70 hover:text-white text-sm font-medium transition-colors group">
+                      <span className="w-7 h-7 rounded-full bg-white/10 group-hover:bg-white/20 flex items-center justify-center shrink-0 transition-colors">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+                      </span>
                       {business.website.replace(/^https?:\/\//,'')}
                     </a>
                   )}
                 </div>
+
+                {/* Action buttons */}
+                <div className="flex items-center gap-3">
+                  <ShareButton title={business.company_name} dark={true} />
+                  <Link href="/business/edit-link"
+                    className="inline-flex items-center gap-2 border border-white/25 text-white/70 hover:border-white/60 hover:text-white text-sm font-semibold rounded-full px-4 py-2 transition-colors whitespace-nowrap backdrop-blur-sm">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    Edit listing
+                  </Link>
+                </div>
+
               </div>
             </div>
-            {/* Share + Edit buttons */}
-            <div className="flex items-center gap-2 shrink-0">
-              <ShareButton title={business.company_name} dark={true} />
-              <Link href="/business/edit-link"
-                className="inline-flex items-center gap-2 border border-white/25 text-white/70 hover:border-white/60 hover:text-white text-sm font-semibold rounded-full px-4 py-2 transition-colors whitespace-nowrap">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                Edit listing
-              </Link>
+
+            {/* Right — trust panel */}
+            <div className="lg:w-64 shrink-0">
+              <div className="bg-white/8 backdrop-blur-sm border border-white/15 rounded-2xl p-5 space-y-3">
+                <p className="text-white/50 text-xs font-bold uppercase tracking-widest mb-4">Listing status</p>
+                <div className="flex items-center gap-3">
+                  <span className="w-7 h-7 rounded-full bg-green-soft/20 border border-white/20 flex items-center justify-center shrink-0">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  </span>
+                  <span className="text-white/80 text-sm font-medium">Active listing</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="w-7 h-7 rounded-full bg-green-soft/20 border border-white/20 flex items-center justify-center shrink-0">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  </span>
+                  <span className="text-white/80 text-sm font-medium">Human-reviewed</span>
+                </div>
+                {business.is_verified ? (
+                  <div className="flex items-center gap-3">
+                    <span className="w-7 h-7 rounded-full bg-green-soft/20 border border-white/20 flex items-center justify-center shrink-0">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                    </span>
+                    <span className="text-white/80 text-sm font-medium">Ownership verified</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <span className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </span>
+                    <span className="text-white/40 text-sm">Ownership unverified</span>
+                  </div>
+                )}
+                <div className="pt-3 mt-3 border-t border-white/10">
+                  <p className="text-white/40 text-xs leading-relaxed">Listed on HagerLand — the free, verified community directory.</p>
+                </div>
+              </div>
             </div>
+
           </div>
         </div>
       </section>
