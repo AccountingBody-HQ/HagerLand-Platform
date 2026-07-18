@@ -54,7 +54,7 @@ export default async function AdminBusinessesPage() {
     return (
       <div style={{ padding: '13px 20px', borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <a href={`/roodber8/businesses/${item.id}`} style={{ fontSize: 13, fontWeight: 600, color: C.text, margin: 0, textDecoration: 'none' }} onMouseOver={e => (e.currentTarget.style.color=C.green)} onMouseOut={e => (e.currentTarget.style.color=C.text)}>{item.company_name}</a>
+          <a href={`/roodber8/businesses/${item.id}`} style={{ fontSize: 13, fontWeight: 600, color: C.text, margin: 0, textDecoration: 'none' }}>{item.company_name}</a>
           <p style={{ fontSize: 11, color: C.faint, margin: '2px 0 0' }}>
             {item.trading_address_city ?? '—'} · {item.sic_description ?? '—'} · {item.contact_email ?? '—'}
           </p>
