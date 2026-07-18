@@ -74,6 +74,7 @@ export async function postBusiness(formData: FormData) {
     contact_email:        contactEmail,
     submitter_name:       submitterName || null,
     status:               'pending_verification',
+    first_seen_at:        new Date().toISOString(),
     tier_classification:  1,
     profile_published:    false,
     verification_token:   verificationToken,

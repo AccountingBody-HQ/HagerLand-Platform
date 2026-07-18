@@ -28,8 +28,8 @@ export default async function AdminBusinessesPage() {
 
   const { data: items, error: dbError } = await supabase
     .from('companies')
-    .select('id, company_name, trading_address_city, sic_description, contact_email, submitter_name, status, email_verified_at, created_at, is_verified, phone, website')
-    .order('created_at', { ascending: false })
+    .select('id, company_name, trading_address_city, sic_description, contact_email, submitter_name, status, email_verified_at, first_seen_at, is_verified, phone, website')
+    .order('first_seen_at', { ascending: false })
     .limit(100)
 
   console.log('URL:', process.env.NEXT_PUBLIC_SUPABASE_URL?.slice(0,30), 'KEY:', !!process.env.SUPABASE_SECRET_KEY, 'count:', items?.length, 'err:', dbError?.message)
@@ -59,7 +59,7 @@ export default async function AdminBusinessesPage() {
             {item.trading_address_city ?? '—'} · {item.sic_description ?? '—'} · {item.contact_email ?? '—'}
           </p>
           <p style={{ fontSize: 11, color: C.faint, margin: '2px 0 0' }}>
-            {new Date(item.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+            {item.first_seen_at ? new Date(item.first_seen_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
             {item.status === 'pending_verification' && ' · Email not yet verified'}
           </p>
         </div>
