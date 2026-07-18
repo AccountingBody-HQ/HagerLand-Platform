@@ -64,6 +64,11 @@ export default function PostBusinessPage({ searchParams }: { searchParams: { suc
               </label>
 
               <label className='text-sm font-medium text-ink'>
+                About your business
+                <textarea name='description' rows={4} className={inp + ' resize-none'} placeholder='Tell us about your business — what you offer, who you serve, what makes you special...' />
+              </label>
+
+              <label className='text-sm font-medium text-ink'>
                 City
                 <input name='trading_address_city' className={inp} placeholder='e.g. London' />
               </label>

@@ -52,7 +52,8 @@ export async function postBusiness(formData: FormData) {
   const website       = (formData.get('website') as string ?? '').trim()
   const category      = (formData.get('sic_description') as string ?? '').trim()
   const contactEmail  = (formData.get('contact_email') as string ?? '').trim()
-  const submitterName = (formData.get('submitter_name') as string ?? '').trim()
+  const submitterName  = (formData.get('submitter_name') as string ?? '').trim()
+  const description    = (formData.get('description') as string ?? '').trim()
 
   if (!companyName || !contactEmail) redirect('/business/post?error=missing')
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -74,6 +75,7 @@ export async function postBusiness(formData: FormData) {
     website:              website || null,
     sic_description:      category || null,
     contact_email:        contactEmail,
+    ai_description:       description || null,
     submitter_name:       submitterName || null,
     status:               'pending_verification',
     first_seen_at:        new Date().toISOString(),
