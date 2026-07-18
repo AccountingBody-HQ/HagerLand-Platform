@@ -22,6 +22,7 @@ const companyLinks = [
 
 const listLinks = [
   { href: '/business/post', label: 'List your business' },
+  { href: '/business/edit-link', label: 'Edit your listing' },
   { href: '/jobs/post', label: 'Post a job' },
   { href: '/housing/post', label: 'Post a listing' },
   { href: '/money/post', label: 'List a service' },

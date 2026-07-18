@@ -21,7 +21,7 @@ const inp: React.CSSProperties = {
   outline: 'none', boxSizing: 'border-box', marginTop: 6,
 }
 
-export default async function AdminBusinessDetailPage({ params }: { params: { id: string } }) {
+export default async function AdminBusinessDetailPage({ params, searchParams }: { params: { id: string }; searchParams: { saved?: string } }) {
   noStore()
   const token = cookies().get(SESSION_COOKIE)?.value
   if (!verifySessionToken(token)) redirect('/roodber8-login')
@@ -50,6 +50,11 @@ export default async function AdminBusinessDetailPage({ params }: { params: { id
         <Link href='/roodber8/businesses' style={{ color: C.faint, fontSize: 13, textDecoration: 'none' }}>← All Businesses</Link>
       </div>
 
+      {searchParams.saved && (
+        <div style={{ background: 'rgba(28,124,76,0.12)', border: '1px solid rgba(28,124,76,0.3)', borderRadius: 10, padding: '12px 16px', marginBottom: 20, color: C.green, fontSize: 13, fontWeight: 600 }}>
+          ✓ Changes saved successfully.
+        </div>
+      )}
       {/* Header */}
       <div style={{ marginBottom: 28, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
         <div>
