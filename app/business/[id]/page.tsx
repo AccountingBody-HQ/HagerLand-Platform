@@ -44,23 +44,26 @@ export default async function BusinessProfilePage({ params }: Props) {
         address: business.trading_address_city ? { '@type': 'PostalAddress', addressLocality: business.trading_address_city, addressCountry: 'GB' } : undefined,
       }) }} />
 
-      {/* ══ HERO — white/green, clean, professional */}
-      <section className='relative bg-white border-b border-border overflow-hidden'>
+      {/* ══ HERO — green, premium, matches platform standard */}
+      <section className='relative overflow-hidden bg-green'>
+        <div className='absolute inset-0' style={{background: 'linear-gradient(135deg, #155c38 0%, #1C7C4C 50%, #1a7048 100%)' }} />
+        <div className='absolute inset-0 opacity-[0.07]' style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)', backgroundSize: '24px 24px'}} />
+        <div className='absolute top-0 right-0 w-[600px] h-[600px] opacity-10 pointer-events-none' style={{background: 'radial-gradient(ellipse at 100% 0%, #fff 0%, transparent 60%)'}} />
         <div className='absolute inset-0 opacity-[0.03]' style={{backgroundImage: 'radial-gradient(circle, #1C7C4C 1px, transparent 1px)', backgroundSize: '24px 24px'}} />
         <div className='absolute top-0 right-0 w-96 h-96 opacity-[0.06] pointer-events-none' style={{background: 'radial-gradient(ellipse at 100% 0%, #1C7C4C 0%, transparent 70%)'}} />
         <div className='relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-10'>
           {/* Breadcrumb */}
-          <nav className='flex items-center gap-1.5 text-xs text-muted mb-6'>
-            <Link href='/' className='hover:text-ink transition-colors'>Home</Link>
+          <nav className='flex items-center gap-1.5 text-xs text-white/40 mb-6'>
+            <Link href='/' className='hover:text-white/70 transition-colors'>Home</Link>
             <span>/</span>
-            <Link href='/business' className='hover:text-ink transition-colors'>Business directory</Link>
+            <Link href='/business' className='hover:text-white/70 transition-colors'>Business directory</Link>
             <span>/</span>
-            <span className='text-ink font-medium'>{business.company_name}</span>
+            <span className='text-white/60'>{business.company_name}</span>
           </nav>
           <div className='flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6'>
             <div className='flex items-start gap-5'>
               {/* Avatar */}
-              <div className='w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-green-soft border border-green/20 flex items-center justify-center font-black text-green text-2xl sm:text-3xl shrink-0'>
+              <div className='w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center font-black text-white text-2xl sm:text-3xl shrink-0'>
                 {initial}
               </div>
               <div className='flex-1 min-w-0'>
@@ -72,27 +75,27 @@ export default async function BusinessProfilePage({ params }: Props) {
                     </span>
                   )}
                   {business.sic_description && (
-                    <span className='bg-green-soft text-green text-xs font-medium px-2.5 py-1 rounded-full'>{business.sic_description}</span>
+                    <span className='bg-white/15 text-white text-xs font-medium px-2.5 py-1 rounded-full'>{business.sic_description}</span>
                   )}
                 </div>
-                <h1 className='text-2xl sm:text-3xl lg:text-4xl font-black text-ink tracking-tight mb-3 leading-tight'>
+                <h1 className='text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight mb-3 leading-tight'>
                   {business.company_name}
                 </h1>
                 <div className='flex flex-wrap items-center gap-x-4 gap-y-1.5'>
                   {business.trading_address_city && (
-                    <span className='flex items-center gap-1.5 text-muted text-sm'>
+                    <span className='flex items-center gap-1.5 text-white/60 text-sm'>
                       <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><path d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z'/><circle cx='12' cy='10' r='3'/></svg>
                       {business.trading_address_city}
                     </span>
                   )}
                   {business.phone && (
-                    <a href={`tel:${business.phone}`} className='flex items-center gap-1.5 text-muted hover:text-green text-sm transition-colors'>
+                    <a href={`tel:${business.phone}`} className='flex items-center gap-1.5 text-white/60 hover:text-white text-sm transition-colors'>
                       <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><path d='M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.63 19.79 19.79 0 012 1.18 2 2 0 014 .02h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z'/></svg>
                       {business.phone}
                     </a>
                   )}
                   {business.website && (
-                    <a href={business.website.startsWith('http') ? business.website : `https://${business.website}`} target='_blank' rel='noopener noreferrer' className='flex items-center gap-1.5 text-muted hover:text-green text-sm transition-colors'>
+                    <a href={business.website.startsWith('http') ? business.website : `https://${business.website}`} target='_blank' rel='noopener noreferrer' className='flex items-center gap-1.5 text-white/60 hover:text-white text-sm transition-colors'>
                       <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><circle cx='12' cy='12' r='10'/><line x1='2' y1='12' x2='22' y2='12'/><path d='M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z'/></svg>
                       {business.website.replace(/^https?:\/\//, '')}
                     </a>
@@ -102,9 +105,9 @@ export default async function BusinessProfilePage({ params }: Props) {
             </div>
             {/* Share + Edit buttons — same size, aligned */}
             <div className='flex items-center gap-2 shrink-0'>
-              <ShareButton title={business.company_name} dark={false} />
+              <ShareButton title={business.company_name} dark={true} />
               <Link href='/business/edit-link'
-                className='inline-flex items-center gap-2 border border-border bg-white text-muted hover:text-ink hover:border-ink text-xs font-semibold rounded-full px-4 py-2 transition-colors whitespace-nowrap'>
+                className='inline-flex items-center gap-2 border border-white/20 text-white/70 hover:border-white/50 hover:text-white text-xs font-semibold rounded-full px-4 py-2 transition-colors whitespace-nowrap'>
                 <svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><path d='M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7'/><path d='M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z'/></svg>
                 Edit listing
               </Link>
