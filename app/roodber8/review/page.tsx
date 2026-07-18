@@ -45,7 +45,7 @@ export default async function ReviewPage() {
 
   const results = await Promise.all(
     SECTIONS.map((s) =>
-      supabaseAdmin.from(s.table).select('*').eq('status', 'pending').order('created_at', { ascending: false })
+      supabaseAdmin.from(s.table).select('*').eq('status', 'pending').order(s.table === 'companies' ? 'first_seen_at' : 'created_at', { ascending: false })
     )
   )
 

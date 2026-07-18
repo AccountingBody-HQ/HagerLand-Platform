@@ -24,6 +24,7 @@ export default function PostBusinessPage({ searchParams }: { searchParams: { suc
             <h1 className='text-2xl font-bold text-ink mb-3'>Check your email</h1>
             <p className='text-muted text-sm leading-relaxed'>We have sent a verification link to your email address. Please click the link to submit your listing for review.</p>
             <p className='text-muted text-xs mt-4'>The link expires in 24 hours. Check your spam folder if you do not see it.</p>
+            <p className='text-muted text-xs mt-2'>Lost the edit link? <a href='/business/edit-link' className='text-green font-medium'>Request a new one here.</a></p>
           </div>
         ) : (
           <>
