@@ -79,6 +79,7 @@ export async function updateCompany(id: string, data: {
   website?: string
   sic_description?: string
   submitter_name?: string
+  ai_description?: string | null
 }) {
   requireAdminSession()
   const supabase = getAdmin()

@@ -100,6 +100,7 @@ export default async function AdminBusinessDetailPage({ params, searchParams }: 
         <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 14, padding: '20px 24px' }}>
           <h2 style={{ fontSize: 12, fontWeight: 700, color: C.faint, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 16px' }}>Submission Info</h2>
           {[
+            { label: 'About / Description', value: b.ai_description },
             { label: 'Submitted by', value: b.submitter_name },
             { label: 'Contact email', value: b.contact_email },
             { label: 'Submitted', value: b.first_seen_at ? new Date(b.first_seen_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '—' },
@@ -125,7 +126,8 @@ export default async function AdminBusinessDetailPage({ params, searchParams }: 
           <form action={async (fd: FormData) => {
             'use server'
             await updateCompany(b.id, {
-              company_name: fd.get('company_name') as string,
+              company_name:         fd.get('company_name') as string,
+              ai_description:       (fd.get('ai_description') as string) || null,
               trading_address_city: fd.get('trading_address_city') as string,
               phone: fd.get('phone') as string,
               website: fd.get('website') as string,
@@ -134,6 +136,10 @@ export default async function AdminBusinessDetailPage({ params, searchParams }: 
             })
             redirect(`/roodber8/businesses/${b.id}?saved=1`)
           }}>
+            <div style={{ marginBottom: 12 }}>
+              <label style={{ fontSize: 11, fontWeight: 600, color: C.faint, textTransform: 'uppercase', letterSpacing: '0.05em' }}>About / Description</label>
+              <textarea name='ai_description' defaultValue={b.ai_description ?? ''} rows={3} style={{ ...inp, resize: 'none' }} />
+            </div>
             <div style={{ marginBottom: 12 }}>
               <label style={{ fontSize: 11, fontWeight: 600, color: C.faint, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Business name</label>
               <input name='company_name' defaultValue={b.company_name ?? ''} style={inp} />
