@@ -65,58 +65,60 @@ export default async function BusinessProfilePage({ params }: Props) {
           <div className="flex items-start gap-7 mb-8">
 
             {/* Avatar */}
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center font-black text-white text-3xl sm:text-4xl shrink-0">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center font-black text-white text-3xl sm:text-4xl shrink-0 mt-1">
               {initial}
             </div>
 
             {/* Identity */}
-            <div className="flex-1 min-w-0 pt-1">
+            <div className="flex-1 min-w-0">
 
-              {/* Badges */}
-              <div className="flex flex-wrap gap-2 mb-3">
+              {/* Pills — unified h-7 height, px-3, font-semibold */}
+              <div className="flex flex-wrap gap-2 mb-4">
                 {business.is_verified && (
-                  <span className="inline-flex items-center gap-1.5 bg-gold-soft text-gold text-xs font-bold px-2.5 py-1 rounded-full">
-                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span className="inline-flex items-center gap-1.5 h-7 bg-gold-soft text-gold text-xs font-semibold px-3 rounded-full">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5"><polyline points="20 6 9 17 4 12"/></svg>
                     Verified community business
                   </span>
                 )}
                 {business.sic_description && (
-                  <span className="bg-white/15 text-white/90 text-xs font-medium px-2.5 py-1 rounded-full">{business.sic_description}</span>
+                  <span className="inline-flex items-center h-7 bg-white/15 text-white/90 text-xs font-semibold px-3 rounded-full">
+                    {business.sic_description}
+                  </span>
                 )}
               </div>
 
-              {/* Name */}
+              {/* Business name */}
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.05] tracking-tight mb-5">
                 {business.company_name}
               </h1>
 
-              {/* Contact row */}
-              <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mb-8">
+              {/* Contact row — icons 13px, inline-flex for alignment */}
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2.5 mb-8">
                 {business.trading_address_city && (
-                  <span className="flex items-center gap-1.5 text-white/65 text-sm">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  <span className="inline-flex items-center gap-2 text-white/65 text-sm">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
                     {business.trading_address_city}
                   </span>
                 )}
                 {business.phone && (
-                  <a href={`tel:${business.phone}`} className="flex items-center gap-1.5 text-white/65 hover:text-white text-sm transition-colors">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.63 19.79 19.79 0 012 1.18 2 2 0 014 .02h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+                  <a href={`tel:${business.phone}`} className="inline-flex items-center gap-2 text-white/65 hover:text-white text-sm transition-colors">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.63 19.79 19.79 0 012 1.18 2 2 0 014 .02h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
                     {business.phone}
                   </a>
                 )}
                 {business.website && (
-                  <a href={business.website.startsWith('http') ? business.website : `https://${business.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-white/65 hover:text-white text-sm transition-colors">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+                  <a href={business.website.startsWith('http') ? business.website : `https://${business.website}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-white/65 hover:text-white text-sm transition-colors">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
                     {business.website.replace(/^https?:\/\//,'')}
                   </a>
                 )}
               </div>
 
-              {/* Action buttons */}
+              {/* Action buttons — unified h-9, px-5 */}
               <div className="flex items-center gap-3">
                 <ShareButton title={business.company_name} dark={true} />
                 <Link href="/business/edit-link"
-                  className="inline-flex items-center gap-2 border border-white/25 text-white/70 hover:border-white/60 hover:text-white text-sm font-semibold rounded-full px-4 py-2 transition-colors whitespace-nowrap">
+                  className="inline-flex items-center gap-2 h-9 border border-white/25 text-white/70 hover:border-white/60 hover:text-white text-sm font-semibold rounded-full px-5 transition-colors whitespace-nowrap">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                   Edit listing
                 </Link>
