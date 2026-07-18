@@ -18,12 +18,13 @@ export default async function AdminBusinessesPage() {
   const token = cookies().get(SESSION_COOKIE)?.value
   if (!verifySessionToken(token)) redirect('/roodber8-login')
 
-  const { data: items } = await supabaseAdmin
+  const { data: items, error: dbError } = await supabaseAdmin
     .from('companies')
     .select('*')
     .order('created_at', { ascending: false })
     .limit(100)
 
+  if (dbError) console.error('DB ERROR:', dbError)
   const all = items ?? []
   const pending  = all.filter(i => i.status === 'pending')
   const active   = all.filter(i => i.status === 'active')
