@@ -75,13 +75,13 @@ export default async function BusinessProfilePage({ params }: Props) {
               {/* Pills — unified h-7 height, px-3, font-semibold */}
               <div className="flex flex-wrap gap-2 mb-4">
                 {business.is_verified && (
-                  <span className="inline-flex items-center justify-center gap-1.5 h-7 w-44 bg-gold-soft text-gold text-[11px] font-semibold rounded-full">
+                  <span className="inline-flex items-center justify-center gap-1.5 h-6 w-44 bg-gold-soft text-gold text-[11px] font-normal rounded-full">
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5"><polyline points="20 6 9 17 4 12"/></svg>
                     Verified community business
                   </span>
                 )}
                 {business.sic_description && (
-                  <span className="inline-flex items-center justify-center gap-1.5 h-7 w-44 bg-white/15 border border-white/20 text-white/90 text-[11px] font-semibold rounded-full">
+                  <span className="inline-flex items-center justify-center gap-1.5 h-6 w-44 bg-white/15 border border-white/20 text-white/90 text-[11px] font-normal rounded-full">
                     {business.sic_description}
                   </span>
                 )}
