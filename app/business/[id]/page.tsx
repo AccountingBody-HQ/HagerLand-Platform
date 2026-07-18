@@ -118,7 +118,7 @@ export default async function BusinessProfilePage({ params }: Props) {
               <div className="flex flex-wrap items-center gap-3">
                 <ShareButton title={business.company_name} dark={true} />
                 <Link href="/business/edit-link"
-                  className="inline-flex items-center justify-center gap-2 border border-white/25 text-white/70 hover:border-white/60 hover:text-white text-sm font-semibold rounded-full w-36 py-2.5 transition-colors">
+                  className="inline-flex items-center justify-center gap-2 border border-white/25 text-white/70 hover:border-white/60 hover:text-white text-sm font-semibold rounded-full w-40 py-2.5 transition-colors">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                   Edit listing
                 </Link>
@@ -143,7 +143,7 @@ export default async function BusinessProfilePage({ params }: Props) {
               { label: 'Status', value: business.is_verified ? 'Verified & Active' : 'Active' },
               { label: 'Category', value: business.sic_description || 'Community business' },
               { label: 'Location', value: business.trading_address_city || 'United Kingdom' },
-              { label: 'Directory', value: 'HagerLand' },
+              { label: 'Listed on', value: 'HagerLand — Free & verified' },
             ].map((s) => (
               <div key={s.label} className='px-5 py-3.5 first:pl-0'>
                 <p className='text-xs font-bold text-muted uppercase tracking-wider'>{s.label}</p>
@@ -168,7 +168,7 @@ export default async function BusinessProfilePage({ params }: Props) {
                 <div className='px-6 py-5 border-b border-green/10 flex items-center justify-between'>
                   <div className='flex items-center gap-3'>
                     <div className='w-8 h-8 rounded-lg bg-green flex items-center justify-center shrink-0'>
-                      <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='white' strokeWidth='2'><path d='M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z'/></svg>
+                      <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='white' strokeWidth='2'><path d='M3 11l19-9-9 19-2-8-8-2z'/></svg>
                     </div>
                     <div>
                       <h2 className='font-bold text-ink text-base'>What&apos;s on</h2>
