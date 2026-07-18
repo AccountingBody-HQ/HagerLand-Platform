@@ -9,11 +9,13 @@ export default function ManageBusinessPage() {
   const [token, setToken] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [status, setStatus] = useState<'idle'|'saving'|'saved'|'error'|'invalid'>('idle')
-  const [form, setForm] = useState({
-    company_name: '', trading_address_city: '', phone: '',
-    website: '', sic_description: '', submitter_name: '',
-  })
   const [listingStatus, setListingStatus] = useState('')
+  const [companyName, setCompanyName] = useState('')
+  const [city, setCity] = useState('')
+  const [phone, setPhone] = useState('')
+  const [website, setWebsite] = useState('')
+  const [category, setCategory] = useState('')
+  const [submitterName, setSubmitterName] = useState('')
 
   useEffect(() => {
     const t = new URLSearchParams(window.location.search).get('token')
@@ -23,14 +25,12 @@ export default function ManageBusinessPage() {
       .then(r => r.json())
       .then(({ data, error }) => {
         if (error || !data) { setStatus('invalid'); setLoading(false); return }
-        setForm({
-          company_name: data.company_name ?? '',
-          trading_address_city: data.trading_address_city ?? '',
-          phone: data.phone ?? '',
-          website: data.website ?? '',
-          sic_description: data.sic_description ?? '',
-          submitter_name: data.submitter_name ?? '',
-        })
+        setCompanyName(data.company_name ?? '')
+        setCity(data.trading_address_city ?? '')
+        setPhone(data.phone ?? '')
+        setWebsite(data.website ?? '')
+        setCategory(data.sic_description ?? '')
+        setSubmitterName(data.submitter_name ?? '')
         setListingStatus(data.status)
         setLoading(false)
       })
@@ -45,7 +45,15 @@ export default function ManageBusinessPage() {
       const res = await fetch('/api/business/manage', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, token }),
+        body: JSON.stringify({
+          token,
+          company_name: companyName,
+          trading_address_city: city,
+          phone,
+          website,
+          sic_description: category,
+          submitter_name: submitterName,
+        }),
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error ?? 'Update failed')
@@ -55,20 +63,8 @@ export default function ManageBusinessPage() {
     }
   }
 
-  function Field({ label, name, type = 'text', placeholder = '' }: { label: string; name: keyof typeof form; type?: string; placeholder?: string }) {
-    return (
-      <label className='text-sm font-medium text-ink'>
-        {label}
-        <input
-          type={type}
-          value={form[name]}
-          onChange={e => setForm(f => ({ ...f, [name]: e.target.value }))}
-          className={inp}
-          placeholder={placeholder}
-        />
-      </label>
-    )
-  }
+  const statusLabel = listingStatus === 'active' ? 'Live' : listingStatus === 'pending' ? 'Under review' : 'Awaiting verification'
+  const statusColor = listingStatus === 'active' ? 'text-green' : 'text-gold'
 
   return (
     <main className='min-h-screen bg-bg flex flex-col'>
@@ -79,7 +75,8 @@ export default function ManageBusinessPage() {
         ) : status === 'invalid' ? (
           <div className='text-center py-12'>
             <h1 className='text-xl font-bold text-ink mb-3'>Invalid or expired link</h1>
-            <p className='text-muted text-sm'>This manage link is invalid or has expired. Please contact us if you need help.</p>
+            <p className='text-muted text-sm mb-6'>This manage link is invalid or has expired.</p>
+            <p className='text-muted text-sm'>Need help? <a href='/contact' className='text-green font-medium'>Contact us</a> and we will send you a new edit link.</p>
           </div>
         ) : status === 'saved' ? (
           <div className='text-center py-12'>
@@ -88,13 +85,14 @@ export default function ManageBusinessPage() {
             </div>
             <h1 className='text-xl font-bold text-ink mb-3'>Changes saved</h1>
             <p className='text-muted text-sm'>Your listing has been updated and will be reviewed by our team.</p>
+            <button onClick={() => setStatus('idle')} className='mt-6 text-green text-sm font-medium'>Make more changes</button>
           </div>
         ) : (
           <>
             <div className='mb-8'>
               <h1 className='text-2xl font-bold text-ink mb-2'>Edit your listing</h1>
               <p className='text-muted text-sm'>
-                Status: <span className={`font-semibold ${listingStatus === 'active' ? 'text-green' : 'text-gold'}`}>{listingStatus === 'active' ? 'Live' : listingStatus === 'pending' ? 'Under review' : 'Awaiting verification'}</span>
+                Status: <span className={`font-semibold ${statusColor}`}>{statusLabel}</span>
               </p>
             </div>
             {status === 'error' && (
@@ -103,12 +101,30 @@ export default function ManageBusinessPage() {
               </div>
             )}
             <form onSubmit={handleSubmit} className='flex flex-col gap-4 bg-white border border-border rounded-2xl p-6 sm:p-8'>
-              <Field label='Business name *' name='company_name' placeholder='e.g. Addis Kitchen' />
-              <Field label='Your name' name='submitter_name' placeholder='Your full name' />
-              <Field label='Category / industry' name='sic_description' placeholder='e.g. Ethiopian Restaurant' />
-              <Field label='City' name='trading_address_city' placeholder='e.g. London' />
-              <Field label='Phone' name='phone' placeholder='e.g. 020 7946 0001' />
-              <Field label='Website' name='website' placeholder='e.g. https://example.com' />
+              <label className='text-sm font-medium text-ink'>
+                Business name *
+                <input value={companyName} onChange={e => setCompanyName(e.target.value)} required className={inp} placeholder='e.g. Addis Kitchen' />
+              </label>
+              <label className='text-sm font-medium text-ink'>
+                Your name
+                <input value={submitterName} onChange={e => setSubmitterName(e.target.value)} className={inp} placeholder='Your full name' />
+              </label>
+              <label className='text-sm font-medium text-ink'>
+                Category / industry
+                <input value={category} onChange={e => setCategory(e.target.value)} className={inp} placeholder='e.g. Ethiopian Restaurant' />
+              </label>
+              <label className='text-sm font-medium text-ink'>
+                City
+                <input value={city} onChange={e => setCity(e.target.value)} className={inp} placeholder='e.g. London' />
+              </label>
+              <label className='text-sm font-medium text-ink'>
+                Phone
+                <input value={phone} onChange={e => setPhone(e.target.value)} className={inp} placeholder='e.g. 020 7946 0001' />
+              </label>
+              <label className='text-sm font-medium text-ink'>
+                Website
+                <input value={website} onChange={e => setWebsite(e.target.value)} className={inp} placeholder='e.g. https://example.com' />
+              </label>
               <div className='pt-2'>
                 <button type='submit' disabled={status === 'saving'} className='w-full bg-green hover:bg-green-dark text-white font-semibold rounded-full px-6 py-3 transition-colors disabled:opacity-60'>
                   {status === 'saving' ? 'Saving...' : 'Save changes'}
