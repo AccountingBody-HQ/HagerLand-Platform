@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
 
     const { data, error } = await supabase
       .from('companies')
-      .select('id, company_name, trading_address_city, phone, website, sic_description, submitter_name, status')
+      .select('id, company_name, trading_address_city, phone, website, sic_description, submitter_name, status, promo_text')
       .eq('manage_token', token)
       .single()
 
@@ -50,6 +50,7 @@ export async function POST(req: NextRequest) {
     const { error: updateError } = await supabase
       .from('companies')
       .update({
+        promo_text: body.promo_text ?? null,
         company_name: company_name.trim(),
         trading_address_city: trading_address_city?.trim() || null,
         phone: phone?.trim() || null,

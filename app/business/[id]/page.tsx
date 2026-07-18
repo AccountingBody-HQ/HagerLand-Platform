@@ -177,6 +177,28 @@ export default async function BusinessProfilePage({ params }: Props) {
               </div>
             </div>
 
+            {/* What's on */}
+            {business.promo_text && (
+              <div className='bg-white border border-border rounded-2xl overflow-hidden'>
+                <div className='px-6 py-5 border-b border-border flex items-center justify-between'>
+                  <div>
+                    <h2 className='font-bold text-ink text-base'>What&apos;s on</h2>
+                    <p className='text-xs text-muted mt-0.5'>Latest news, offers &amp; updates</p>
+                  </div>
+                  <span className='inline-flex items-center gap-1.5 bg-green-soft text-green text-xs font-bold px-2.5 py-1 rounded-full shrink-0'>
+                    <span className='w-1.5 h-1.5 rounded-full bg-green animate-pulse' />
+                    Live update
+                  </span>
+                </div>
+                <div className='px-6 py-6'>
+                  <p className='text-sm leading-relaxed text-ink/80 whitespace-pre-line'>{business.promo_text}</p>
+                </div>
+                <div className='px-6 py-4 bg-section border-t border-border'>
+                  <p className='text-xs text-muted'>Updated by the business · <a href='/business/edit-link' className='text-green font-medium hover:underline'>Edit your listing</a> to post updates</p>
+                </div>
+              </div>
+            )}
+
             {/* Business information */}
             <div className='bg-white border border-border rounded-2xl overflow-hidden'>
               <div className='px-6 py-5 border-b border-border'>
