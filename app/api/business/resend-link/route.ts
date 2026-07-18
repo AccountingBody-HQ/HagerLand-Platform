@@ -4,10 +4,32 @@ import { Resend } from 'resend'
 
 export const dynamic = 'force-dynamic'
 
+// Rate limit: max 3 requests per email per 60 minutes
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
+
+function isRateLimited(email: string): boolean {
+  const now = Date.now()
+  const key = email.toLowerCase().trim()
+  const entry = rateLimitMap.get(key)
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(key, { count: 1, resetAt: now + 60 * 60 * 1000 })
+    return false
+  }
+  if (entry.count >= 3) return true
+  entry.count++
+  return false
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { email } = await req.json()
     if (!email) return NextResponse.json({ error: 'Email required' }, { status: 400 })
+
+    // Always return ok to prevent email enumeration
+    // but silently drop if rate limited
+    if (isRateLimited(email)) {
+      return NextResponse.json({ ok: true })
+    }
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -16,26 +38,28 @@ export async function POST(req: NextRequest) {
     const resend = new Resend(process.env.RESEND_API_KEY)
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://hagerland-platform.vercel.app'
 
-    // Find all active/pending listings for this email
     const { data: listings } = await supabase
       .from('companies')
       .select('id, company_name, manage_token, status')
       .eq('contact_email', email.trim().toLowerCase())
       .in('status', ['active', 'pending', 'pending_verification'])
 
-    // Always return success to prevent email enumeration
     if (!listings || listings.length === 0) {
       return NextResponse.json({ ok: true })
     }
 
     const listingsHtml = listings.map(l =>
-      `<tr><td style='padding:10px 14px;color:#152238;font-size:14px;font-weight:600;'>${l.company_name}</td>
-       <td style='padding:10px 14px;'><a href='${baseUrl}/business/manage?token=${l.manage_token}' style='color:#1C7C4C;font-weight:600;font-size:14px;'>Edit listing →</a></td></tr>`
+      `<tr>
+        <td style='padding:12px 14px;color:#152238;font-size:14px;font-weight:600;border-bottom:1px solid #e4e6e3;'>${l.company_name}</td>
+        <td style='padding:12px 14px;border-bottom:1px solid #e4e6e3;'>
+          <a href='${baseUrl}/business/manage?token=${l.manage_token}' style='color:#1C7C4C;font-weight:600;font-size:14px;text-decoration:none;'>Edit listing →</a>
+        </td>
+      </tr>`
     ).join('')
 
     await resend.emails.send({
       from: 'HagerLand <info@accountingbody.com>',
-      to: email,
+      to: email.trim(),
       subject: 'Your HagerLand edit links',
       html: `<!DOCTYPE html>
         <html><body style='margin:0;padding:0;background:#f4f5f3;font-family:-apple-system,BlinkMacSystemFont,sans-serif;'>
@@ -47,14 +71,15 @@ export async function POST(req: NextRequest) {
                 <p style='margin:0;color:#fff;font-size:22px;font-weight:700;'>Your edit links</p>
               </td></tr>
               <tr><td style='background:#fff;padding:40px;border:1px solid #e4e6e3;border-top:none;'>
-                <p style='color:#152238;font-size:15px;margin:0 0 20px;'>Here are the edit links for your HagerLand listings:</p>
-                <table width='100%' style='border:1px solid #e4e6e3;border-radius:8px;overflow:hidden;'>
+                <p style='color:#152238;font-size:15px;margin:0 0 8px;'>Here are the edit links for your HagerLand listings.</p>
+                <p style='color:#6b7280;font-size:13px;margin:0 0 24px;'>If you did not request this email, please ignore it. Your listings are safe.</p>
+                <table width='100%' style='border:1px solid #e4e6e3;border-radius:8px;overflow:hidden;border-collapse:collapse;'>
                   ${listingsHtml}
                 </table>
-                <p style='color:#6b7280;font-size:12px;margin:20px 0 0;'>Save these links — you will need them to make future changes.</p>
+                <p style='color:#6b7280;font-size:12px;margin:20px 0 0;'>Save these links — you will need them to make future changes to your listings.</p>
               </td></tr>
               <tr><td style='background:#f4f5f3;border-radius:0 0 16px 16px;padding:20px 40px;border:1px solid #e4e6e3;border-top:none;'>
-                <p style='margin:0;color:#9ca3af;font-size:12px;'>HagerLand — The free, verified community directory.</p>
+                <p style='margin:0;color:#9ca3af;font-size:12px;'>HagerLand — The free, verified community directory. Serving the diaspora worldwide.</p>
               </td></tr>
             </table>
           </td></tr>
