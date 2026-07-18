@@ -35,7 +35,7 @@ export default function PostBusinessPage({ searchParams }: { searchParams: { suc
 
             {error && (
               <div className='bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg mb-6'>
-                {error === 'missing' ? 'Please fill in all required fields.' : 'Something went wrong. Please try again.'}
+                {error === 'missing' ? 'Please fill in all required fields.' : error === 'invalid-email' ? 'Please enter a valid email address.' : 'Something went wrong. Please try again.'}
               </div>
             )}
 

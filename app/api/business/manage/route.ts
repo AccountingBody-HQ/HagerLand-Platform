@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
 
     const { data, error } = await supabase
       .from('companies')
-      .select('id, company_name, trading_address_city, phone, website, sic_description, contact_email, submitter_name, status')
+      .select('id, company_name, trading_address_city, phone, website, sic_description, submitter_name, status')
       .eq('manage_token', token)
       .single()
 

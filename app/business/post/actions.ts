@@ -55,6 +55,8 @@ export async function postBusiness(formData: FormData) {
   const submitterName = (formData.get('submitter_name') as string ?? '').trim()
 
   if (!companyName || !contactEmail) redirect('/business/post?error=missing')
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(contactEmail)) redirect('/business/post?error=invalid-email')
 
   const verificationToken = crypto.randomUUID()
   const manageToken       = crypto.randomUUID()
