@@ -5,65 +5,87 @@ import { SiteNav } from '@/components/SiteNav'
 import { TurnstileWidget } from '@/components/TurnstileWidget'
 import { SiteFooter } from '@/components/SiteFooter'
 
-const inputStyle =
-  'w-full px-4 py-3 border border-border rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-green/20 focus:border-green'
+const inp = 'w-full px-4 py-3 border border-border rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-green/20 focus:border-green text-sm'
 
-export default function PostBusinessPage() {
+export default function PostBusinessPage({ searchParams }: { searchParams: { success?: string; error?: string; verified?: string } }) {
+  const success = searchParams.success === 'verify'
+  const error = searchParams.error
+
   return (
-    <main className="min-h-screen bg-bg flex flex-col">
+    <main className='min-h-screen bg-bg flex flex-col'>
       <SiteNav />
-      <section className="max-w-lg mx-auto px-4 sm:px-6 py-10 sm:py-16">
-        <h1 className="text-2xl sm:text-3xl font-bold text-ink text-center mb-8">
-          List your business
-        </h1>
+      <section className='max-w-lg mx-auto px-4 sm:px-6 py-10 sm:py-16 w-full'>
 
-        <form action={postBusiness} className="flex flex-col gap-4">
-          <input
-            type="text"
-            name="hl_extra_field"
-            tabIndex={-1}
-            autoComplete="off"
-            aria-hidden="true"
-            style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, overflow: 'hidden' }}
-          />
-          <TurnstileWidget />
-          <label className="text-sm font-medium text-ink">
-            Business name *
-            <input name="company_name" required className={inputStyle} />
-          </label>
+        {success ? (
+          <div className='text-center py-12'>
+            <div className='w-16 h-16 bg-green-soft rounded-full flex items-center justify-center mx-auto mb-6'>
+              <svg width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='#1C7C4C' strokeWidth='2.5'><polyline points='20 6 9 17 4 12'/></svg>
+            </div>
+            <h1 className='text-2xl font-bold text-ink mb-3'>Check your email</h1>
+            <p className='text-muted text-sm leading-relaxed'>We have sent a verification link to your email address. Please click the link to submit your listing for review.</p>
+            <p className='text-muted text-xs mt-4'>The link expires in 24 hours. Check your spam folder if you do not see it.</p>
+          </div>
+        ) : (
+          <>
+            <div className='mb-8 text-center'>
+              <h1 className='text-2xl sm:text-3xl font-bold text-ink mb-2'>List your business</h1>
+              <p className='text-muted text-sm'>Free to list. Reviewed by our team before going live.</p>
+            </div>
 
-          <label className="text-sm font-medium text-ink">
-            City
-            <input name="trading_address_city" className={inputStyle} />
-          </label>
+            {error && (
+              <div className='bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg mb-6'>
+                {error === 'missing' ? 'Please fill in all required fields.' : 'Something went wrong. Please try again.'}
+              </div>
+            )}
 
-          <label className="text-sm font-medium text-ink">
-            Phone
-            <input name="phone" className={inputStyle} />
-          </label>
+            <form action={postBusiness} className='flex flex-col gap-4 bg-white border border-border rounded-2xl p-6 sm:p-8'>
+              <input type='text' name='hl_extra_field' tabIndex={-1} autoComplete='off' aria-hidden='true' style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, overflow: 'hidden' }} />
+              <TurnstileWidget />
 
-          <label className="text-sm font-medium text-ink">
-            Website
-            <input name="website" className={inputStyle} />
-          </label>
+              <label className='text-sm font-medium text-ink'>
+                Business name *
+                <input name='company_name' required className={inp} placeholder='e.g. Addis Kitchen' />
+              </label>
 
-          <label className="text-sm font-medium text-ink">
-            Category / industry
-            <input name="sic_description" placeholder="e.g. Ethiopian Restaurant" className={inputStyle} />
-          </label>
+              <label className='text-sm font-medium text-ink'>
+                Your name *
+                <input name='submitter_name' required className={inp} placeholder='Your full name' />
+              </label>
 
-          <label className="text-sm font-medium text-ink">
-            Contact email *
-            <input name="contact_email" type="email" required className={inputStyle} />
-          </label>
+              <label className='text-sm font-medium text-ink'>
+                Contact email *
+                <input name='contact_email' type='email' required className={inp} placeholder='you@example.com' />
+              </label>
 
-          <button
-            type="submit"
-            className="bg-green hover:bg-green-dark text-white font-semibold rounded-full px-6 py-3 mt-4 transition-colors"
-          >
-            Submit business
-          </button>
-        </form>
+              <label className='text-sm font-medium text-ink'>
+                Category / industry
+                <input name='sic_description' className={inp} placeholder='e.g. Ethiopian Restaurant' />
+              </label>
+
+              <label className='text-sm font-medium text-ink'>
+                City
+                <input name='trading_address_city' className={inp} placeholder='e.g. London' />
+              </label>
+
+              <label className='text-sm font-medium text-ink'>
+                Phone
+                <input name='phone' className={inp} placeholder='e.g. 020 7946 0001' />
+              </label>
+
+              <label className='text-sm font-medium text-ink'>
+                Website
+                <input name='website' className={inp} placeholder='e.g. https://example.com' />
+              </label>
+
+              <div className='pt-2'>
+                <button type='submit' className='w-full bg-green hover:bg-green-dark text-white font-semibold rounded-full px-6 py-3 transition-colors'>
+                  Submit listing
+                </button>
+                <p className='text-center text-xs text-muted mt-3'>We will email you a verification link. Your listing goes live after review.</p>
+              </div>
+            </form>
+          </>
+        )}
       </section>
       <SiteFooter />
     </main>
