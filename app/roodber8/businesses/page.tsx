@@ -32,7 +32,7 @@ export default async function AdminBusinessesPage() {
     .order('created_at', { ascending: false })
     .limit(100)
 
-  if (dbError) console.error('DB ERROR:', dbError)
+  console.log('URL:', process.env.NEXT_PUBLIC_SUPABASE_URL?.slice(0,30), 'KEY:', !!process.env.SUPABASE_SECRET_KEY, 'count:', items?.length, 'err:', dbError?.message)
   const all = items ?? []
   const unverified = all.filter(i => i.status === 'pending_verification')
   const pending    = all.filter(i => i.status === 'pending')
