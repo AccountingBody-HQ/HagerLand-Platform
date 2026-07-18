@@ -49,8 +49,8 @@ export default async function AdminPage() {
 
   // Recent submissions across all sections
   const { data: recentBusinesses } = await supabaseAdmin
-    .from('companies').select('id, company_name, trading_address_city, status, created_at')
-    .order('created_at', { ascending: false }).limit(4)
+    .from('companies').select('id, company_name, trading_address_city, status, first_seen_at')
+    .order('first_seen_at', { ascending: false }).limit(4)
 
   const { data: recentJobs } = await supabaseAdmin
     .from('jobs').select('id, title, location, status, created_at')
