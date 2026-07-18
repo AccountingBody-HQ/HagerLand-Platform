@@ -4,6 +4,33 @@ import { Resend } from 'resend'
 import { verifyTurnstileToken, isHoneypotFilled } from '@/lib/turnstile'
 import { redirect } from 'next/navigation'
 
+const GREEN = '#1C7C4C'
+const DARK = '#152238'
+
+function emailWrapper(content: string) {
+  return `<!DOCTYPE html>
+    <html lang='en'>
+    <head><meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1'></head>
+    <body style='margin:0;padding:0;background:#f4f5f3;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;'>
+      <table width='100%' cellpadding='0' cellspacing='0' style='background:#f4f5f3;padding:40px 16px;'>
+        <tr><td align='center'>
+          <table width='100%' cellpadding='0' cellspacing='0' style='max-width:540px;'>
+            <tr><td style='background:${GREEN};border-radius:16px 16px 0 0;padding:32px 40px;'>
+              <p style='margin:0 0 4px;color:rgba(255,255,255,0.6);font-size:11px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;'>ሃገር · Homeland · HagerLand</p>
+              <p style='margin:0;color:#fff;font-size:22px;font-weight:700;'>Community Directory</p>
+            </td></tr>
+            <tr><td style='background:#ffffff;padding:40px;border-left:1px solid #e4e6e3;border-right:1px solid #e4e6e3;'>
+              ${content}
+            </td></tr>
+            <tr><td style='background:#f4f5f3;border-radius:0 0 16px 16px;padding:24px 40px;border:1px solid #e4e6e3;border-top:none;'>
+              <p style='margin:0;color:#9ca3af;font-size:12px;line-height:1.6;'>HagerLand — The free, verified community directory.<br>Serving the diaspora worldwide.</p>
+            </td></tr>
+          </table>
+        </td></tr>
+      </table>
+    </body></html>`
+}
+
 export async function postBusiness(formData: FormData) {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -19,37 +46,38 @@ export async function postBusiness(formData: FormData) {
     if (!isHuman) redirect('/business?error=1')
   }
 
-  const companyName = (formData.get('company_name') as string ?? '').trim()
-  const city = (formData.get('trading_address_city') as string ?? '').trim()
-  const phone = (formData.get('phone') as string ?? '').trim()
-  const website = (formData.get('website') as string ?? '').trim()
-  const category = (formData.get('sic_description') as string ?? '').trim()
-  const contactEmail = (formData.get('contact_email') as string ?? '').trim()
+  const companyName   = (formData.get('company_name') as string ?? '').trim()
+  const city          = (formData.get('trading_address_city') as string ?? '').trim()
+  const phone         = (formData.get('phone') as string ?? '').trim()
+  const website       = (formData.get('website') as string ?? '').trim()
+  const category      = (formData.get('sic_description') as string ?? '').trim()
+  const contactEmail  = (formData.get('contact_email') as string ?? '').trim()
   const submitterName = (formData.get('submitter_name') as string ?? '').trim()
 
   if (!companyName || !contactEmail) redirect('/business/post?error=missing')
 
   const verificationToken = crypto.randomUUID()
-  const manageToken = crypto.randomUUID()
+  const manageToken       = crypto.randomUUID()
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://hagerland-platform.vercel.app'
+  const verifyUrl = `${baseUrl}/api/business/verify-email?token=${verificationToken}`
 
   const { data: country } = await supabase.from('countries').select('id').eq('code', 'GB').single()
 
   const { error } = await supabase.from('companies').insert({
-    company_name: companyName,
-    company_number: `SELFSERVE-${Date.now()}`,
-    country_id: country?.id,
+    company_name:         companyName,
+    company_number:       `SELFSERVE-${Date.now()}`,
+    country_id:           country?.id,
     trading_address_city: city || null,
-    phone: phone || null,
-    website: website || null,
-    sic_description: category || null,
-    contact_email: contactEmail,
-    submitter_name: submitterName || null,
-    status: 'pending_verification',
-    tier_classification: 1,
-    profile_published: false,
-    verification_token: verificationToken,
-    manage_token: manageToken,
+    phone:                phone || null,
+    website:              website || null,
+    sic_description:      category || null,
+    contact_email:        contactEmail,
+    submitter_name:       submitterName || null,
+    status:               'pending_verification',
+    tier_classification:  1,
+    profile_published:    false,
+    verification_token:   verificationToken,
+    manage_token:         manageToken,
   })
 
   if (error) {
@@ -57,26 +85,20 @@ export async function postBusiness(formData: FormData) {
     redirect('/business/post?error=db')
   }
 
-  // Send verification email
-  const verifyUrl = `${baseUrl}/api/business/verify-email?token=${verificationToken}`
   await resend.emails.send({
     from: 'HagerLand <info@accountingbody.com>',
-    to: contactEmail,
-    subject: 'Please verify your email — HagerLand listing',
-    html: `
-      <div style='font-family:system-ui,sans-serif;max-width:520px;margin:0 auto;'>
-        <div style='background:#1C7C4C;padding:32px;border-radius:12px 12px 0 0;'>
-          <h1 style='color:#fff;margin:0;font-size:22px;'>Verify your email</h1>
-          <p style='color:rgba(255,255,255,0.7);margin:8px 0 0;font-size:14px;'>HagerLand — Community Directory</p>
-        </div>
-        <div style='background:#fff;padding:32px;border:1px solid #e4e6e3;border-top:none;border-radius:0 0 12px 12px;'>
-          <p style='color:#152238;font-size:15px;'>Thank you for submitting <strong>${companyName}</strong> to HagerLand.</p>
-          <p style='color:#475569;font-size:14px;'>Please verify your email address to submit your listing for review.</p>
-          <a href='${verifyUrl}' style='display:inline-block;background:#1C7C4C;color:#fff;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px;margin:16px 0;'>Verify my email →</a>
-          <p style='color:#6B7280;font-size:12px;margin-top:24px;'>If you did not submit this listing, you can ignore this email.</p>
-          <p style='color:#6B7280;font-size:12px;'>This link expires in 24 hours.</p>
-        </div>
-      </div>`,
+    to:   contactEmail,
+    subject: `Verify your email — ${companyName} listing`,
+    html: emailWrapper(`
+      <h2 style='margin:0 0 8px;color:${DARK};font-size:20px;'>One step to go.</h2>
+      <p style='margin:0 0 20px;color:#475569;font-size:15px;line-height:1.7;'>
+        Thank you${submitterName ? ', ' + submitterName.split(' ')[0] : ''} for submitting <strong>${companyName}</strong> to HagerLand.
+        Please verify your email address to send your listing to our review team.
+      </p>
+      <a href='${verifyUrl}' style='display:inline-block;background:${GREEN};color:#fff;font-weight:600;font-size:15px;padding:14px 28px;border-radius:8px;text-decoration:none;margin-bottom:24px;'>Verify my email →</a>
+      <p style='margin:16px 0 4px;color:#6b7280;font-size:13px;'>This link expires in 24 hours.</p>
+      <p style='margin:0;color:#9ca3af;font-size:12px;'>If you did not submit this listing, you can safely ignore this email.</p>
+    `),
   })
 
   redirect('/business/post?success=verify')
