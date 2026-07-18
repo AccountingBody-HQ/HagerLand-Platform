@@ -81,7 +81,7 @@ export async function GET(req: NextRequest) {
           <tr><td style='padding:10px 14px;color:#6b7280;font-size:13px;font-weight:600;'>Contact</td><td style='padding:10px 14px;color:${DARK};font-size:13px;'>${data.contact_email}</td></tr>
           <tr style='background:#f4f5f3;'><td style='padding:10px 14px;color:#6b7280;font-size:13px;font-weight:600;'>Submitted by</td><td style='padding:10px 14px;color:${DARK};font-size:13px;'>${data.submitter_name ?? '—'}</td></tr>
         </table>
-        <a href='https://hagerland-platform.vercel.app/roodber8/businesses' style='display:inline-block;background:${GREEN};color:#fff;font-weight:600;font-size:14px;padding:12px 24px;border-radius:8px;text-decoration:none;'>Review in admin →</a>
+        <a href='${baseUrl}/roodber8/businesses' style='display:inline-block;background:${GREEN};color:#fff;font-weight:600;font-size:14px;padding:12px 24px;border-radius:8px;text-decoration:none;'>Review in admin →</a>
       `),
     })
 
