@@ -116,8 +116,54 @@ export async function approveListing(table: string, id: string) {
       })
     }
   } else {
-    const { error } = await supabase.from(table).update({ status: 'active' }).eq('id', id)
+    const { data: listing } = await supabase
+      .from(table)
+      .select('contact_email, title, name, manage_token, pending_changes')
+      .eq('id', id)
+      .single()
+
+    const updateData: Record<string, unknown> = { status: 'active', pending_changes: null }
+
+    // Apply pending_changes if any
+    if (listing?.pending_changes) {
+      for (const [field, values] of Object.entries(listing.pending_changes as Record<string, { old: string | null, new: string | null }>)) {
+        updateData[field] = values.new
+      }
+    }
+
+    const { error } = await supabase.from(table).update(updateData).eq('id', id)
     if (error) throw new Error(error.message)
+
+    // Send approval confirmation email
+    if (listing?.contact_email) {
+      const resend = new Resend(process.env.RESEND_API_KEY)
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://hagerland-platform.vercel.app'
+      const listingName = (listing as Record<string, string>).title || (listing as Record<string, string>).name || 'Your listing'
+      const manageUrl = listing.manage_token ? `${baseUrl}/${table}/manage?token=${listing.manage_token}` : `${baseUrl}/${table}`
+      const GREEN = '#1C7C4C'
+      await resend.emails.send({
+        from: 'HagerLand <info@accountingbody.com>',
+        to: listing.contact_email,
+        subject: `Your listing has been approved — ${listingName}`,
+        html: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"></head>
+          <body style="margin:0;padding:0;background:#f4f5f3;font-family:-apple-system,sans-serif;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f5f3;padding:40px 16px;"><tr><td align="center">
+          <table width="100%" cellpadding="0" cellspacing="0" style="max-width:540px;">
+          <tr><td style="background:${GREEN};border-radius:16px 16px 0 0;padding:32px 40px;">
+          <p style="margin:0 0 4px;color:rgba(255,255,255,0.6);font-size:11px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;">ሃገር · Homeland · HagerLand</p>
+          <p style="margin:0;color:#fff;font-size:22px;font-weight:700;">Community Directory</p></td></tr>
+          <tr><td style="background:#ffffff;padding:40px;border-left:1px solid #e4e6e3;border-right:1px solid #e4e6e3;">
+          <h2 style="margin:0 0 16px;font-size:20px;font-weight:700;color:#152238;">Your listing has been approved</h2>
+          <p style="margin:0 0 16px;font-size:14px;color:#6B7280;line-height:1.6;">
+            <strong style="color:#152238;">${listingName}</strong> has been reviewed and approved by our team. Your listing is now live on HagerLand.
+          </p>
+          <a href="${manageUrl}" style="display:inline-block;background:${GREEN};color:#ffffff;font-weight:700;font-size:14px;padding:14px 32px;border-radius:100px;text-decoration:none;">View my listing</a>
+          </td></tr>
+          <tr><td style="background:#f4f5f3;border-radius:0 0 16px 16px;padding:24px 40px;border:1px solid #e4e6e3;border-top:none;">
+          <p style="margin:0;color:#9ca3af;font-size:12px;">HagerLand — The free, verified community directory.</p>
+          </td></tr></table></td></tr></table></body></html>`
+      })
+    }
   }
   revalidateAll()
 }
