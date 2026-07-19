@@ -170,6 +170,36 @@ export default async function BusinessProfilePage({ params }: Props) {
           {/* ── LEFT 2/3 */}
           <div className='lg:col-span-2 space-y-5'>
 
+            {/* What's on — ABOVE About when promo exists */}
+            {business.promo_text && (
+
+              <div className='relative overflow-hidden rounded-2xl border border-green/20' style={{background: 'linear-gradient(135deg, #f0f9f4 0%, #ffffff 100%)'}}>
+                <div className='absolute top-0 right-0 w-32 h-32 opacity-10 pointer-events-none' style={{background: 'radial-gradient(circle at top right, #1C7C4C 0%, transparent 70%)'}} />
+                <div className='px-6 py-5 border-b border-green/10 flex items-center justify-between'>
+                  <div className='flex items-center gap-3'>
+                    <div className='w-8 h-8 rounded-lg bg-green flex items-center justify-center shrink-0'>
+                      <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='white' strokeWidth='2'><path d='M3 11l19-9-9 19-2-8-8-2z'/></svg>
+                    </div>
+                    <div>
+                      <h2 className='font-bold text-ink text-base'>What&apos;s on</h2>
+                      <p className='text-xs text-muted'>Latest from {business.company_name}</p>
+                    </div>
+                  </div>
+                  <span className='inline-flex items-center gap-1.5 bg-green text-white text-[11px] font-bold px-3 py-1 rounded-full'>
+                    <span className='w-1.5 h-1.5 rounded-full bg-white/70 animate-pulse' />
+                    Live
+                  </span>
+                </div>
+                <div className='px-6 py-6'>
+                  <p className='text-sm leading-relaxed text-ink whitespace-pre-line font-medium'>{business.promo_text}</p>
+                </div>
+                <div className='px-6 py-3.5 border-t border-green/10 flex items-center justify-between'>
+                  <p className='text-xs text-muted'>Posted by the business</p>
+                  <a href='/business/edit-link' className='text-xs text-green font-semibold hover:underline'>Update this →</a>
+                </div>
+              </div>
+            )}
+
             {/* About */}
             <div className='bg-white border border-border rounded-2xl overflow-hidden'>
               <div className='px-6 py-5 border-b border-border flex items-center justify-between'>
@@ -208,34 +238,8 @@ export default async function BusinessProfilePage({ params }: Props) {
               </div>
             </div>
 
-            {/* What's on — top if promo exists, below About if not */}
-            {business.promo_text ? (
-              <div className='relative overflow-hidden rounded-2xl border border-green/20' style={{background: 'linear-gradient(135deg, #f0f9f4 0%, #ffffff 100%)'}}>
-                <div className='absolute top-0 right-0 w-32 h-32 opacity-10 pointer-events-none' style={{background: 'radial-gradient(circle at top right, #1C7C4C 0%, transparent 70%)'}} />
-                <div className='px-6 py-5 border-b border-green/10 flex items-center justify-between'>
-                  <div className='flex items-center gap-3'>
-                    <div className='w-8 h-8 rounded-lg bg-green flex items-center justify-center shrink-0'>
-                      <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='white' strokeWidth='2'><path d='M3 11l19-9-9 19-2-8-8-2z'/></svg>
-                    </div>
-                    <div>
-                      <h2 className='font-bold text-ink text-base'>What&apos;s on</h2>
-                      <p className='text-xs text-muted'>Latest from {business.company_name}</p>
-                    </div>
-                  </div>
-                  <span className='inline-flex items-center gap-1.5 bg-green text-white text-[11px] font-bold px-3 py-1 rounded-full'>
-                    <span className='w-1.5 h-1.5 rounded-full bg-white/70 animate-pulse' />
-                    Live
-                  </span>
-                </div>
-                <div className='px-6 py-6'>
-                  <p className='text-sm leading-relaxed text-ink whitespace-pre-line font-medium'>{business.promo_text}</p>
-                </div>
-                <div className='px-6 py-3.5 border-t border-green/10 flex items-center justify-between'>
-                  <p className='text-xs text-muted'>Posted by the business</p>
-                  <a href='/business/edit-link' className='text-xs text-green font-semibold hover:underline'>Update this →</a>
-                </div>
-              </div>
-            ) : (
+            {/* What's on empty state — BELOW About when no promo */}
+            {!business.promo_text && (
               <div className='border-2 border-dashed border-border rounded-2xl px-6 py-8 text-center'>
                 <div className='w-10 h-10 rounded-xl bg-green-soft flex items-center justify-center mx-auto mb-3'>
                   <svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' className='text-green'><path d='M3 11l19-9-9 19-2-8-8-2z'/></svg>
@@ -247,6 +251,7 @@ export default async function BusinessProfilePage({ params }: Props) {
                   Add a promotion
                 </a>
               </div>
+
             )}
 
             {/* Contact this business — primary CTA */}
