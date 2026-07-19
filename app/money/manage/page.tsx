@@ -24,6 +24,7 @@ export default function ManageMoneyPage() {
   const [whatsapp, setWhatsapp] = useState('')
   const [promoText, setPromoText] = useState('')
   const [promoExpiresAt, setPromoExpiresAt] = useState('')
+  const [hasPending, setHasPending] = useState(false)
 
   useEffect(() => {
     const t = new URLSearchParams(window.location.search).get('token')
@@ -49,6 +50,7 @@ export default function ManageMoneyPage() {
         setPromoText(data.promo_text ?? '')
         setPromoExpiresAt(data.promo_expires_at ? data.promo_expires_at.split('T')[0] : '')
         setListingStatus(data.status)
+        setHasPending(!!data.pending_changes && Object.keys(data.pending_changes).length > 0)
         setLoading(false)
       })
       .catch(() => { setStatus('invalid'); setLoading(false) })
@@ -77,6 +79,7 @@ export default function ManageMoneyPage() {
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error ?? 'Update failed')
+      setHasPending(json.hasPendingChanges ?? false)
       setStatus('saved')
     } catch { setStatus('error') }
   }
@@ -111,6 +114,12 @@ export default function ManageMoneyPage() {
               <h1 className='text-2xl font-bold text-ink mb-2'>Edit your listing</h1>
               <p className='text-muted text-sm'>Status: <span className={`font-semibold ${statusColor}`}>{statusLabel}</span></p>
             </div>
+            {hasPending && (
+              <div className='bg-gold-soft border border-gold/20 text-gold text-sm px-4 py-3 rounded-lg mb-6 flex items-start gap-2'>
+                <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' className='shrink-0 mt-0.5'><circle cx='12' cy='12' r='10'/><line x1='12' y1='8' x2='12' y2='12'/><line x1='12' y1='16' x2='12.01' y2='16'/></svg>
+                <span>You have changes pending admin review. They will go live once approved.</span>
+              </div>
+            )}
             {status === 'error' && (
               <div className='bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg mb-6'>Something went wrong. Please try again.</div>
             )}
