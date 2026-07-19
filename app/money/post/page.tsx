@@ -1,108 +1,109 @@
-export const dynamic = 'force-dynamic'
-
+import { postMoney } from './actions'
 import { SiteNav } from '@/components/SiteNav'
 import { SiteFooter } from '@/components/SiteFooter'
-import { submitMoney } from './actions'
-
-export const metadata = {
-  title: 'List a money service | HagerLand',
-  description: 'List your money transfer or financial service on HagerLand — free.',
-}
-
-const SERVICE_TYPES = [
-  'Money transfer',
-  'Currency exchange',
-  'Mobile money',
-  'Banking services',
-  'Financial advice',
-  'Insurance',
-  'Investment',
-  'Other',
-]
-
-export default function PostMoneyPage() {
+import { TurnstileWidget } from '@/components/TurnstileWidget'
+import { MoneyCategorySelect } from '@/components/MoneyCategorySelect'
+const inp = 'w-full px-4 py-3 border border-border rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-green/20 focus:border-green text-sm'
+export default function PostMoneyPage({ searchParams }: { searchParams: { success?: string; error?: string } }) {
+  const success = searchParams.success === 'verify'
+  const error = searchParams.error
   return (
-    <main className="min-h-screen bg-bg flex flex-col">
+    <main className='min-h-screen bg-bg flex flex-col'>
       <SiteNav />
-      <section className="relative overflow-hidden bg-green">
-        <div className="absolute inset-0" style={{background: 'linear-gradient(135deg, #155F3A 0%, #1C7C4C 60%, #1e8a55 100%)'}} />
-        <div className="absolute inset-0 opacity-[0.07]" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px'}} />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-          <p className="inline-flex items-center gap-2.5 text-white/50 text-[11px] font-bold tracking-[0.18em] uppercase mb-6">ሃገር <span className="w-1 h-1 rounded-full bg-white/30" /> Money</p>
-          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-3">List a money service</h1>
-          <p className="text-white/65 text-lg max-w-xl">Add your money transfer or financial service to HagerLand. Free, always.</p>
-        </div>
-      </section>
-      <section className="bg-section flex-1">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10 pb-20">
-          <form action={submitMoney} className="bg-white border border-border rounded-2xl p-8 space-y-5">
-            <input type="text" name="website_url" className="hidden" tabIndex={-1} autoComplete="off" />
-            <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-green mb-1">Service details</p>
-              <h2 className="text-xl font-bold text-ink mb-6">Tell us about your service</h2>
+      <section className='max-w-lg mx-auto px-4 sm:px-6 py-10 sm:py-16 w-full'>
+        {success ? (
+          <div className='text-center py-12'>
+            <div className='w-16 h-16 bg-green-soft rounded-full flex items-center justify-center mx-auto mb-6'>
+              <svg width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='#1C7C4C' strokeWidth='2.5'><polyline points='20 6 9 17 4 12'/></svg>
             </div>
-            <div>
-              <label className="block text-xs font-bold text-ink mb-2">Service name <span className="text-red-500">*</span></label>
-              <input name="title" type="text" required placeholder="e.g. Addis Money Transfer"
-                className="w-full border border-border rounded-xl px-4 py-3 text-sm text-ink placeholder:text-muted focus:outline-none focus:border-green transition-colors" />
+            <h1 className='text-xl font-bold text-ink mb-3'>Check your email</h1>
+            <p className='text-muted text-sm mb-2'>We sent a verification link to your email address. Click it to submit your listing for review.</p>
+            <p className='text-muted text-xs mt-2'>Link expires in 24 hours. Lost the link? <a href='/money/edit-link' className='text-green font-medium'>Request a new one here.</a></p>
+          </div>
+        ) : (
+          <>
+            <div className='mb-8 text-center'>
+              <h1 className='text-2xl sm:text-3xl font-bold text-ink mb-2'>List a financial service</h1>
+              <p className='text-muted text-sm'>Free to list. Reviewed by our team before going live.</p>
             </div>
-            <div>
-              <label className="block text-xs font-bold text-ink mb-2">Service type <span className="text-red-500">*</span></label>
-              <select name="service_type" required className="w-full border border-border rounded-xl px-4 py-3 text-sm text-ink focus:outline-none focus:border-green transition-colors bg-white">
-                <option value="">Select a type</option>
-                {SERVICE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-ink mb-2">Description</label>
-              <textarea name="description" rows={4} placeholder="Describe your service, rates, and any other relevant details..."
-                className="w-full border border-border rounded-xl px-4 py-3 text-sm text-ink placeholder:text-muted focus:outline-none focus:border-green transition-colors resize-none" />
-            </div>
-            <div className="grid sm:grid-cols-2 gap-5">
+            {error && (
+              <div className='bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg mb-6'>
+                {error === 'missing' ? 'Please fill in all required fields.' : error === 'invalid-email' ? 'Please enter a valid email address.' : error === 'expired' ? 'Your verification link has expired. Please submit your listing again.' : 'Something went wrong. Please try again.'}
+              </div>
+            )}
+            <form action={postMoney} className='flex flex-col gap-4 bg-white border border-border rounded-2xl p-6 sm:p-8'>
+              <input type='text' name='hl_extra_field' tabIndex={-1} autoComplete='off' aria-hidden='true' style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, overflow: 'hidden' }} />
+              <TurnstileWidget />
+              <label className='text-sm font-medium text-ink'>
+                Service name <span className='text-ink'>*</span>
+                <input name='title' required className={inp} placeholder='e.g. International Money Transfer' />
+              </label>
+              <label className='text-sm font-medium text-ink'>
+                Your name <span className='text-ink'>*</span>
+                <input name='submitter_name' required className={inp} placeholder='Your full name' />
+              </label>
+              <label className='text-sm font-medium text-ink'>
+                Contact email <span className='text-ink'>*</span>
+                <input name='contact_email' type='email' required className={inp} placeholder='you@example.com' />
+              </label>
+              <MoneyCategorySelect value={''} onChange={() => {}} />
+              <label className='text-sm font-medium text-ink'>
+                Description <span className='text-ink'>*</span>
+                <textarea name='description' required rows={4} className={inp + ' resize-none'} placeholder='Tell us about this listing — what makes it special...' />
+              </label>
+              <div className='grid sm:grid-cols-2 gap-4'>
+                <label className='text-sm font-medium text-ink'>
+                  City <span className='text-ink'>*</span>
+                  <input name='city' required className={inp} placeholder='e.g. London' />
+                </label>
+                <label className='text-sm font-medium text-ink'>
+                  Country
+                  <input name='country' className={inp} placeholder='e.g. United Kingdom' />
+                </label>
+              </div>
+              <label className='text-sm font-medium text-ink'>
+                Full address
+                <input name='address' className={inp} placeholder='e.g. 123 High Street, London, E1 6RF' />
+              </label>
+              <label className='text-sm font-medium text-ink'>
+                Phone <span className='text-ink'>*</span>
+                <input name='phone' required className={inp} placeholder='e.g. 020 7946 0001' />
+              </label>
+              <label className='text-sm font-medium text-ink'>
+                Website
+                <input name='website' className={inp} placeholder='e.g. https://example.com' />
+              </label>
+              <label className='text-sm font-medium text-ink'>
+                Opening hours
+                <span className='block text-xs font-normal text-muted mt-0.5 mb-1'>e.g. Mon-Fri 9am-6pm, Sat 10am-4pm</span>
+                <input name='opening_hours' className={inp} placeholder='e.g. Mon-Fri 9am-6pm' />
+              </label>
               <div>
-                <label className="block text-xs font-bold text-ink mb-2">Location</label>
-                <input name="location" type="text" placeholder="e.g. London"
-                  className="w-full border border-border rounded-xl px-4 py-3 text-sm text-ink placeholder:text-muted focus:outline-none focus:border-green transition-colors" />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-ink mb-2">Coverage</label>
-                <input name="coverage" type="text" placeholder="e.g. UK to Ethiopia"
-                  className="w-full border border-border rounded-xl px-4 py-3 text-sm text-ink placeholder:text-muted focus:outline-none focus:border-green transition-colors" />
-              </div>
-            </div>
-            <div className="border-t border-border pt-5">
-              <p className="text-xs font-bold uppercase tracking-widest text-green mb-4">Contact details</p>
-              <div className="grid sm:grid-cols-2 gap-5">
-                <div>
-                  <label className="block text-xs font-bold text-ink mb-2">Your name</label>
-                  <input name="contact_name" type="text" placeholder="e.g. Abebe Girma"
-                    className="w-full border border-border rounded-xl px-4 py-3 text-sm text-ink placeholder:text-muted focus:outline-none focus:border-green transition-colors" />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-ink mb-2">Email address <span className="text-red-500">*</span></label>
-                  <input name="contact_email" type="email" required placeholder="you@example.com"
-                    className="w-full border border-border rounded-xl px-4 py-3 text-sm text-ink placeholder:text-muted focus:outline-none focus:border-green transition-colors" />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-ink mb-2">Phone number</label>
-                  <input name="contact_phone" type="tel" placeholder="e.g. 07700 900000"
-                    className="w-full border border-border rounded-xl px-4 py-3 text-sm text-ink placeholder:text-muted focus:outline-none focus:border-green transition-colors" />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-ink mb-2">Website</label>
-                  <input name="website" type="url" placeholder="https://example.com"
-                    className="w-full border border-border rounded-xl px-4 py-3 text-sm text-ink placeholder:text-muted focus:outline-none focus:border-green transition-colors" />
+                <p className='text-sm font-medium text-ink mb-2'>Social media</p>
+                <div className='flex flex-col gap-3'>
+                  <div className='flex items-center gap-2'>
+                    <span className='text-xs font-semibold text-muted w-24 shrink-0'>Instagram</span>
+                    <input name='instagram' className={inp} placeholder='e.g. @handle' />
+                  </div>
+                  <div className='flex items-center gap-2'>
+                    <span className='text-xs font-semibold text-muted w-24 shrink-0'>Facebook</span>
+                    <input name='facebook' className={inp} placeholder='e.g. facebook.com/page' />
+                  </div>
+                  <div className='flex items-center gap-2'>
+                    <span className='text-xs font-semibold text-muted w-24 shrink-0'>WhatsApp</span>
+                    <input name='whatsapp' className={inp} placeholder='e.g. +44 7700 900000' />
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="bg-green-soft border border-green/20 rounded-xl p-4 text-xs text-muted">
-              Your listing will be reviewed by our team within 48 hours before going live. We will send a confirmation to your email address.
-            </div>
-            <button type="submit" className="w-full bg-green hover:bg-green-dark text-white font-bold rounded-full py-3.5 text-sm transition-colors">
-              Submit listing — free
-            </button>
-          </form>
-        </div>
+              <div className='pt-2'>
+                <button type='submit' className='w-full bg-green hover:bg-green-dark text-white font-semibold rounded-full px-6 py-3 transition-colors'>
+                  Submit listing
+                </button>
+                <p className='text-center text-xs text-muted mt-3'>We will email you a verification link. Your listing goes live after review.</p>
+              </div>
+            </form>
+          </>
+        )}
       </section>
       <SiteFooter />
     </main>
