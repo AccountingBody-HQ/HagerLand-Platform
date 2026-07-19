@@ -92,7 +92,7 @@ export async function postJobs(formData: FormData) {
     manage_token:       manageToken,
   })
 
-  if (error) {
+  if (error && error.code !== 'PGRST204') {
     console.error('Jobs insert error:', error)
     redirect('/jobs/post?error=db')
   }

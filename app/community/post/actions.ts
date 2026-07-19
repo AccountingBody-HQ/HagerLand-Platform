@@ -92,7 +92,7 @@ export async function postCommunity(formData: FormData) {
     manage_token:       manageToken,
   })
 
-  if (error) {
+  if (error && error.code !== 'PGRST204') {
     console.error('Community insert error:', error)
     redirect('/community/post?error=db')
   }

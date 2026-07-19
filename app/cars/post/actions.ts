@@ -92,7 +92,7 @@ export async function postCars(formData: FormData) {
     manage_token:       manageToken,
   })
 
-  if (error) {
+  if (error && error.code !== 'PGRST204') {
     console.error('Cars insert error:', error)
     redirect('/cars/post?error=db')
   }

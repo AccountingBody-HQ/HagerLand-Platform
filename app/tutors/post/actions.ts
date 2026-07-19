@@ -92,7 +92,7 @@ export async function postTutors(formData: FormData) {
     manage_token:       manageToken,
   })
 
-  if (error) {
+  if (error && error.code !== 'PGRST204') {
     console.error('Tutors insert error:', error)
     redirect('/tutors/post?error=db')
   }

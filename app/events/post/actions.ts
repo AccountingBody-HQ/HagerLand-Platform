@@ -92,7 +92,7 @@ export async function postEvents(formData: FormData) {
     manage_token:       manageToken,
   })
 
-  if (error) {
+  if (error && error.code !== 'PGRST204') {
     console.error('Events insert error:', error)
     redirect('/events/post?error=db')
   }

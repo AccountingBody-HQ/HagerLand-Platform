@@ -92,7 +92,7 @@ export async function postHousing(formData: FormData) {
     manage_token:       manageToken,
   })
 
-  if (error) {
+  if (error && error.code !== 'PGRST204') {
     console.error('Housing insert error:', error)
     redirect('/housing/post?error=db')
   }

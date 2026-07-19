@@ -92,7 +92,7 @@ export async function postMoney(formData: FormData) {
     manage_token:       manageToken,
   })
 
-  if (error) {
+  if (error && error.code !== 'PGRST204') {
     console.error('Money insert error:', error)
     redirect('/money/post?error=db')
   }
