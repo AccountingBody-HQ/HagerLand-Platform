@@ -159,8 +159,8 @@ export default function ManageBusinessPage() {
                 <input value={submitterName} onChange={e => setSubmitterName(e.target.value)} className={inp} placeholder='Your full name' />
               </label>
               <label className='text-sm font-medium text-ink'>
-                Category / industry
-                <select value={category} onChange={e => setCategory(e.target.value)} className={inp + ' cursor-pointer'}>
+                Category / industry <span className='text-red-500'>*</span>
+                <select value={category} onChange={e => setCategory(e.target.value)} required className={inp + ' cursor-pointer'}>
                   <option value=''>Select a category...</option>
                   {CATEGORIES.map(({ group, items }) => (
                     <optgroup key={group} label={group}>
@@ -172,8 +172,8 @@ export default function ManageBusinessPage() {
                 </select>
               </label>
               <label className='text-sm font-medium text-ink'>
-                Phone
-                <input value={phone} onChange={e => setPhone(e.target.value)} className={inp} placeholder='e.g. 020 7946 0001' />
+                Phone <span className='text-red-500'>*</span>
+                <input value={phone} onChange={e => setPhone(e.target.value)} required className={inp} placeholder='e.g. 020 7946 0001' />
               </label>
               <label className='text-sm font-medium text-ink'>
                 Website

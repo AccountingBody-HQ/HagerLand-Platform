@@ -83,8 +83,8 @@ export default function PostBusinessPage({ searchParams }: { searchParams: { suc
               </label>
 
               <label className='text-sm font-medium text-ink'>
-                Phone
-                <input name='phone' className={inp} placeholder='e.g. 020 7946 0001' />
+                Phone <span className='text-red-500'>*</span>
+                <input name='phone' required className={inp} placeholder='e.g. 020 7946 0001' />
               </label>
 
               <label className='text-sm font-medium text-ink'>
