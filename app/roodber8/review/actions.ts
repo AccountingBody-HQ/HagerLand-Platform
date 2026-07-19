@@ -147,6 +147,12 @@ export async function updateCompany(id: string, data: {
   sic_description?: string
   submitter_name?: string
   ai_description?: string | null
+  country?: string | null
+  address?: string | null
+  opening_hours?: string | null
+  instagram?: string | null
+  facebook?: string | null
+  whatsapp?: string | null
 }) {
   requireAdminSession()
   const supabase = getAdmin()

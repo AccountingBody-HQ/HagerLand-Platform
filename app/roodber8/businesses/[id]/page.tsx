@@ -167,6 +167,12 @@ export default async function AdminBusinessDetailPage({ params, searchParams }: 
               website: fd.get('website') as string,
               sic_description: fd.get('sic_description') as string,
               submitter_name: fd.get('submitter_name') as string,
+              country: (fd.get('country') as string) || null,
+              address: (fd.get('address') as string) || null,
+              opening_hours: (fd.get('opening_hours') as string) || null,
+              instagram: (fd.get('instagram') as string) || null,
+              facebook: (fd.get('facebook') as string) || null,
+              whatsapp: (fd.get('whatsapp') as string) || null,
             })
             redirect(`/roodber8/businesses/${b.id}?saved=1`)
           }}>
@@ -194,9 +200,33 @@ export default async function AdminBusinessDetailPage({ params, searchParams }: 
               <label style={{ fontSize: 11, fontWeight: 600, color: C.faint, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Website</label>
               <input name='website' defaultValue={b.website ?? ''} style={inp} />
             </div>
-            <div style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: 12 }}>
               <label style={{ fontSize: 11, fontWeight: 600, color: C.faint, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Submitted by</label>
               <input name='submitter_name' defaultValue={b.submitter_name ?? ''} style={inp} />
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <label style={{ fontSize: 11, fontWeight: 600, color: C.faint, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Country</label>
+              <input name='country' defaultValue={b.country ?? ''} style={inp} />
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <label style={{ fontSize: 11, fontWeight: 600, color: C.faint, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Full Address</label>
+              <input name='address' defaultValue={b.address ?? ''} style={inp} />
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <label style={{ fontSize: 11, fontWeight: 600, color: C.faint, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Opening Hours</label>
+              <input name='opening_hours' defaultValue={b.opening_hours ?? ''} style={inp} />
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <label style={{ fontSize: 11, fontWeight: 600, color: C.faint, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Instagram</label>
+              <input name='instagram' defaultValue={b.instagram ?? ''} style={inp} />
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <label style={{ fontSize: 11, fontWeight: 600, color: C.faint, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Facebook</label>
+              <input name='facebook' defaultValue={b.facebook ?? ''} style={inp} />
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontSize: 11, fontWeight: 600, color: C.faint, textTransform: 'uppercase', letterSpacing: '0.05em' }}>WhatsApp</label>
+              <input name='whatsapp' defaultValue={b.whatsapp ?? ''} style={inp} />
             </div>
             <button type='submit' style={{ width: '100%', background: C.green, color: '#fff', border: 'none', borderRadius: 8, padding: '10px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
               Save Changes
