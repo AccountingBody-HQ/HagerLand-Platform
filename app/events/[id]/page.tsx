@@ -13,11 +13,11 @@ type Props = { params: { id: string } }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { data } = await supabase.from('events')
-    .select('company_name, sic_description, trading_address_city')
+    .select('title, category, city')
     .eq('id', params.id).eq('status', 'active').single()
   if (!data) return { title: 'Business not found' }
-  const title = data.company_name
-  const description = [data.sic_description, data.trading_address_city].filter(Boolean).join(' · ')
+  const title = data.title
+  const description = [data.category, data.city].filter(Boolean).join(' · ')
   return { title, description, openGraph: { title: `${title} | HagerLand`, description } }
 }
 
