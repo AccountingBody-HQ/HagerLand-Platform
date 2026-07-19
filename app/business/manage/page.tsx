@@ -16,8 +16,10 @@ export default function ManageBusinessPage() {
   const [website, setWebsite] = useState('')
   const [category, setCategory] = useState('')
   const [submitterName, setSubmitterName] = useState('')
+  const [description, setDescription] = useState('')
   const [promoText, setPromoText] = useState('')
   const [promoExpiresAt, setPromoExpiresAt] = useState('')
+  const [hasPending, setHasPending] = useState(false)
 
   useEffect(() => {
     const t = new URLSearchParams(window.location.search).get('token')
@@ -33,9 +35,11 @@ export default function ManageBusinessPage() {
         setWebsite(data.website ?? '')
         setCategory(data.sic_description ?? '')
         setSubmitterName(data.submitter_name ?? '')
+        setDescription(data.ai_description ?? '')
         setPromoText(data.promo_text ?? '')
         setPromoExpiresAt(data.promo_expires_at ? data.promo_expires_at.split('T')[0] : '')
         setListingStatus(data.status)
+        setHasPending(!!data.pending_changes && Object.keys(data.pending_changes).length > 0)
         setLoading(false)
       })
       .catch(() => { setStatus('invalid'); setLoading(false) })
@@ -57,8 +61,9 @@ export default function ManageBusinessPage() {
           website,
           sic_description: category,
           submitter_name: submitterName,
+          ai_description: description,
           promo_text: promoText,
-          promo_expires_at: promoExpiresAt ? new Date(promoExpiresAt).toISOString() : null,
+          promo_expires_at: promoExpiresAt || null,
         }),
       })
       const json = await res.json()
@@ -82,7 +87,7 @@ export default function ManageBusinessPage() {
           <div className='text-center py-12'>
             <h1 className='text-xl font-bold text-ink mb-3'>Invalid or expired link</h1>
             <p className='text-muted text-sm mb-6'>This manage link is invalid or has expired.</p>
-            <p className='text-muted text-sm'>Need help? <a href='/contact' className='text-green font-medium'>Contact us</a> and we will send you a new edit link.</p>
+            <p className='text-muted text-sm'>Need help? <a href='/business/edit-link' className='text-green font-medium'>Contact us</a> and we will send you a new edit link.</p>
           </div>
         ) : status === 'saved' ? (
           <div className='text-center py-12'>
@@ -101,6 +106,12 @@ export default function ManageBusinessPage() {
                 Status: <span className={`font-semibold ${statusColor}`}>{statusLabel}</span>
               </p>
             </div>
+            {hasPending && (
+              <div className='bg-gold-soft border border-gold/20 text-gold text-sm px-4 py-3 rounded-lg mb-6 flex items-start gap-2'>
+                <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' className='shrink-0 mt-0.5'><circle cx='12' cy='12' r='10'/><line x1='12' y1='8' x2='12' y2='12'/><line x1='12' y1='16' x2='12.01' y2='16'/></svg>
+                <span>You have changes pending admin review. They will go live once approved.</span>
+              </div>
+            )}
             {status === 'error' && (
               <div className='bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg mb-6'>
                 Something went wrong. Please try again.
@@ -130,6 +141,11 @@ export default function ManageBusinessPage() {
               <label className='text-sm font-medium text-ink'>
                 Website
                 <input value={website} onChange={e => setWebsite(e.target.value)} className={inp} placeholder='e.g. https://example.com' />
+              </label>
+              <label className='text-sm font-medium text-ink'>
+                About your business
+                <span className='block text-xs font-normal text-muted mt-0.5 mb-1'>Tell customers who you are, what you offer, and what makes you special.</span>
+                <textarea value={description} onChange={e => setDescription(e.target.value)} rows={4} className={inp} placeholder='e.g. We are a family-run Ethiopian restaurant in London, serving authentic cuisine since 2010...' />
               </label>
               <label className='text-sm font-medium text-ink'>
                 What&apos;s on — promotions &amp; updates

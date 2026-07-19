@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
     if (!token) return NextResponse.json({ error: 'Missing token' }, { status: 400 })
     const { data, error } = await supabase
       .from('companies')
-      .select('id, company_name, trading_address_city, phone, website, sic_description, submitter_name, status, promo_text, promo_expires_at, pending_changes')
+      .select('id, company_name, trading_address_city, phone, website, sic_description, submitter_name, status, promo_text, promo_expires_at, pending_changes, ai_description')
       .eq('manage_token', token)
       .single()
     if (error || !data) return NextResponse.json({ error: 'Invalid token' }, { status: 404 })
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
 
     const { data: existing, error: findError } = await supabase
       .from('companies')
-      .select('id, status, company_name, trading_address_city, phone, website, sic_description, submitter_name, promo_text, promo_expires_at')
+      .select('id, status, company_name, trading_address_city, phone, website, sic_description, submitter_name, promo_text, promo_expires_at, ai_description')
       .eq('manage_token', token)
       .single()
     if (findError || !existing) return NextResponse.json({ error: 'Invalid token' }, { status: 404 })
@@ -50,6 +50,7 @@ export async function POST(req: NextRequest) {
       website: website?.trim() || null,
       sic_description: sic_description?.trim() || null,
       submitter_name: submitter_name?.trim() || null,
+      ai_description: body.ai_description?.trim() || null,
       promo_text: body.promo_text ?? null,
       promo_expires_at: body.promo_expires_at ? new Date(new Date(body.promo_expires_at).setHours(23, 59, 59, 999)).toISOString() : null,
     }
@@ -62,6 +63,7 @@ export async function POST(req: NextRequest) {
       website: existing.website,
       sic_description: existing.sic_description,
       submitter_name: existing.submitter_name,
+      ai_description: existing.ai_description ?? null,
       promo_text: existing.promo_text ?? null,
       promo_expires_at: existing.promo_expires_at ?? null,
     }
