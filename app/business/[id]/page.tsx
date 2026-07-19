@@ -37,7 +37,7 @@ export default async function BusinessProfilePage({ params }: Props) {
 
   const initial = business.company_name.split(' ').slice(0, 2).map((w: string) => w[0]).join('').toUpperCase()
   const enquiryEmail = business.contact_email || business.email || null
-  const promoActive = business.promo_text && (!business.promo_expires_at || new Date(business.promo_expires_at) > new Date())
+  const promoActive = business.promo_text && (!business.promo_expires_at || (() => { const exp = new Date(business.promo_expires_at); exp.setHours(23,59,59,999); return exp > new Date(); })())
   const description = business.ai_description || business.sic_description
     ? `${business.company_name} is a verified community business${business.trading_address_city ? ` based in ${business.trading_address_city}` : ''}${business.sic_description ? `, specialising in ${business.sic_description}` : ''}. Listed on HagerLand — the free, verified community directory.`
     : null

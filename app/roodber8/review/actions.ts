@@ -24,6 +24,7 @@ function revalidateAll() {
   revalidatePath('/roodber8/review')
   revalidatePath('/roodber8/businesses')
   revalidatePath('/business')
+  revalidatePath('/business/[id]', 'page')
   revalidatePath('/jobs')
   revalidatePath('/housing')
   revalidatePath('/money')
