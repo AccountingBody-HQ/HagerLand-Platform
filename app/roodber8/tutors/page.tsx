@@ -47,7 +47,7 @@ export default async function AdminTutorsPage() {
               <div key={item.id} style={{ padding: '14px 20px', borderBottom: idx < pending.length - 1 ? `1px solid ${C.border}` : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <a href={`/roodber8/tutors/${item.id}`} style={{ fontSize: 13, fontWeight: 600, color: C.text, margin: 0, textDecoration: "none" }}>{item.name}</a>
-                  <p style={{ fontSize: 11, color: C.faint, margin: '2px 0 0' }}>{item.location ?? '—'} · {new Date(item.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                  <p style={{ fontSize: 11, color: C.faint, margin: '2px 0 0' }}>{item.city ?? '—'} · {new Date(item.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                 </div>
                 <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
                   <form action={approveListing.bind(null, 'tutors', item.id)}>
@@ -75,7 +75,7 @@ export default async function AdminTutorsPage() {
             <div key={item.id} style={{ padding: '13px 20px', borderBottom: idx < all.length - 1 ? `1px solid ${C.border}` : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <a href={`/roodber8/tutors/${item.id}`} style={{ fontSize: 13, fontWeight: 600, color: C.text, margin: 0, textDecoration: "none" }}>{item.name}</a>
-                <p style={{ fontSize: 11, color: C.faint, margin: '2px 0 0' }}>{item.location ?? '—'} · {new Date(item.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                <p style={{ fontSize: 11, color: C.faint, margin: '2px 0 0' }}>{item.city ?? '—'} · {new Date(item.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{
