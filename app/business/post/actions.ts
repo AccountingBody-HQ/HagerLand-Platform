@@ -63,7 +63,7 @@ export async function postBusiness(formData: FormData) {
   const submitterName  = (formData.get('submitter_name') as string ?? '').trim()
   const description    = (formData.get('description') as string ?? '').trim()
 
-  if (!companyName || !contactEmail) redirect('/business/post?error=missing')
+  if (!companyName || !contactEmail || !submitterName || !description || !phone || !sic_description) redirect('/business/post?error=missing')
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailRegex.test(contactEmail)) redirect('/business/post?error=invalid-email')
 
