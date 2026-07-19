@@ -22,12 +22,12 @@ export default async function HousingPage({ searchParams }: { searchParams: { ty
 
   let query = supabase.from('housing').select('*', { count: 'exact' })
     .eq('status', 'active').order('created_at', { ascending: false }).range(from, to)
-  if (listingType) query = query.eq('listing_type', listingType)
+  if (listingType) query = query.eq('category', listingType)
   const { data: listings, count, error } = await query
 
-  const { data: typeRows } = await supabase.from('housing').select('listing_type')
-    .eq('status', 'active').not('listing_type', 'is', null)
-  const listingTypes = Array.from(new Set((typeRows ?? []).map((r) => r.listing_type).filter(Boolean) as string[])).sort()
+  const { data: typeRows } = await supabase.from('housing').select('category')
+    .eq('status', 'active').not('category', 'is', null)
+  const listingTypes = Array.from(new Set((typeRows ?? []).map((r) => r.category).filter(Boolean) as string[])).sort()
 
   const totalPages = Math.ceil((count ?? 0) / PAGE_SIZE)
   function pageUrl(p: number) {
@@ -86,13 +86,13 @@ export default async function HousingPage({ searchParams }: { searchParams: { ty
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-bold text-ink text-sm leading-snug truncate group-hover:text-green transition-colors">{listing.title}</h3>
-                    <p className="text-xs text-muted mt-0.5 truncate">{[listing.listing_type, listing.location].filter(Boolean).join(' · ') || 'Community listing'}</p>
+                    <p className="text-xs text-muted mt-0.5 truncate">{[listing.category, listing.city].filter(Boolean).join(' · ') || 'Community listing'}</p>
                   </div>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted group-hover:text-green shrink-0 mt-0.5 transition-colors"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </div>
                 <div className="flex items-center gap-2 px-5 pb-4">
-                  {listing.location && <span className="text-xs font-semibold text-muted bg-section border border-border px-2.5 py-1 rounded-full">{listing.location}</span>}
-                  {listing.listing_type && <span className="text-xs font-semibold text-green bg-green-soft px-2.5 py-1 rounded-full">{listing.listing_type}</span>}
+                  {listing.city && <span className="text-xs font-semibold text-muted bg-section border border-border px-2.5 py-1 rounded-full">{listing.city}</span>}
+                  {listing.category && <span className="text-xs font-semibold text-green bg-green-soft px-2.5 py-1 rounded-full">{listing.category}</span>}
                   {listing.is_verified && <span className="inline-flex items-center gap-1 bg-gold-soft text-gold text-xs font-bold px-2.5 py-1 rounded-full ml-auto"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5"><polyline points="20 6 9 17 4 12"/></svg>Verified</span>}
                 </div>
                 <div className="flex items-center gap-4 px-5 py-3 border-t border-border bg-white mt-auto">

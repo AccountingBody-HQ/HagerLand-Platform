@@ -97,7 +97,7 @@ export default async function EventsPage({ searchParams }: { searchParams: { cat
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted group-hover:text-green shrink-0 mt-0.5 transition-colors"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </div>
                 <div className="flex items-center gap-2 px-5 pb-4">
-                  {event.location && <span className="text-xs font-semibold text-muted bg-section border border-border px-2.5 py-1 rounded-full">{event.location}</span>}
+                  {event.city && <span className="text-xs font-semibold text-muted bg-section border border-border px-2.5 py-1 rounded-full">{event.city}</span>}
                   {event.category && <span className="text-xs font-semibold text-green bg-green-soft px-2.5 py-1 rounded-full">{event.category}</span>}
                 </div>
                 <div className="flex items-center gap-4 px-5 py-3 border-t border-border bg-white mt-auto">
