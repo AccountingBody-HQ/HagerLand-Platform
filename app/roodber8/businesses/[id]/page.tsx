@@ -55,6 +55,40 @@ export default async function AdminBusinessDetailPage({ params, searchParams }: 
           ✓ Changes saved successfully.
         </div>
       )}
+
+      {/* Pending changes diff panel */}
+      {b.pending_changes && Object.keys(b.pending_changes).length > 0 && (
+        <div style={{ background: 'rgba(184,138,46,0.08)', border: '1px solid rgba(184,138,46,0.3)', borderRadius: 12, padding: 24, marginBottom: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+            <span style={{ background: C.gold, color: '#000', fontSize: 10, fontWeight: 800, padding: '3px 8px', borderRadius: 100, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Changes pending review</span>
+            <span style={{ color: C.muted, fontSize: 12 }}>The business submitted edits — review below before approving</span>
+          </div>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: 'left', color: C.faint, fontWeight: 700, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0 12px 10px 0', width: '20%' }}>Field</th>
+                <th style={{ textAlign: 'left', color: C.faint, fontWeight: 700, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0 12px 10px', width: '40%' }}>Current (live)</th>
+                <th style={{ textAlign: 'left', color: C.faint, fontWeight: 700, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0 0 10px', width: '40%' }}>Proposed (new)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(b.pending_changes as Record<string, { old: string | null, new: string | null }>).map(([field, values]) => (
+                <tr key={field} style={{ borderTop: `1px solid ${C.border}` }}>
+                  <td style={{ padding: '10px 12px 10px 0', color: C.muted, fontWeight: 600, textTransform: 'capitalize' }}>
+                    {field.replace(/_/g, ' ').replace('sic description', 'category').replace('trading address city', 'city')}
+                  </td>
+                  <td style={{ padding: '10px 12px', color: C.muted, background: 'rgba(239,68,68,0.05)', borderRadius: 4 }}>
+                    {values.old || <span style={{ color: C.faint, fontStyle: 'italic' }}>empty</span>}
+                  </td>
+                  <td style={{ padding: '10px 0', color: '#4ade80', fontWeight: 600, background: 'rgba(74,222,128,0.05)', borderRadius: 4, paddingLeft: 12 }}>
+                    {values.new || <span style={{ color: C.faint, fontStyle: 'italic' }}>empty</span>}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
       {/* Header */}
       <div style={{ marginBottom: 28, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
         <div>
