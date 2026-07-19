@@ -53,7 +53,7 @@ export default async function AdminPage() {
     .order('first_seen_at', { ascending: false }).limit(4)
 
   const { data: recentJobs } = await supabaseAdmin
-    .from('jobs').select('id, title, location, status, created_at')
+    .from('jobs').select('id, title, city, status, created_at')
     .order('created_at', { ascending: false }).limit(3)
 
   const { data: pendingClaims } = await supabaseAdmin
@@ -168,7 +168,7 @@ export default async function AdminPage() {
             <div key={j.id} style={{ padding: '13px 20px', borderBottom: i < arr.length - 1 ? `1px solid ${C.border}` : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <p style={{ fontSize: 13, fontWeight: 600, color: C.text, margin: 0 }}>{j.title}</p>
-                <p style={{ fontSize: 11, color: C.faint, margin: '2px 0 0' }}>{j.location ?? '—'}</p>
+                <p style={{ fontSize: 11, color: C.faint, margin: '2px 0 0' }}>{j.city ?? '—'}</p>
               </div>
               <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: j.status === 'active' ? '#1C7C4C' : C.gold, background: j.status === 'active' ? 'rgba(28,124,76,0.12)' : C.goldSoft, padding: '3px 8px', borderRadius: 20 }}>{j.status}</span>
             </div>
