@@ -55,7 +55,10 @@ export async function postJobs(formData: FormData) {
     verification_token: verificationToken,
     manage_token: manageToken,
   })
-  if (dbError) redirect('/jobs/post?error=db')
+  if (dbError) {
+    console.error('Jobs DB insert error:', JSON.stringify(dbError))
+    redirect('/jobs/post?error=db')
+  }
   await resend.emails.send({
     from: 'HagerLand <info@accountingbody.com>',
     to: contactEmail,
