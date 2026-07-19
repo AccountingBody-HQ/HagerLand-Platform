@@ -36,7 +36,7 @@ export default function PostBusinessPage({ searchParams }: { searchParams: { suc
 
             {error && (
               <div className='bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg mb-6'>
-                {error === 'missing' ? 'Please fill in all required fields.' : error === 'invalid-email' ? 'Please enter a valid email address.' : 'Something went wrong. Please try again.'}
+                {error === 'missing' ? 'Please fill in all required fields — business name, your name, email, and about your business are required.' : error === 'invalid-email' ? 'Please enter a valid email address.' : 'Something went wrong. Please try again.'}
               </div>
             )}
 
@@ -62,7 +62,7 @@ export default function PostBusinessPage({ searchParams }: { searchParams: { suc
               <CategorySelect />
 
               <label className='text-sm font-medium text-ink'>
-                About your business
+                About your business <span className='text-red-500'>*</span>
                 <textarea name='description' required rows={4} className={inp + ' resize-none'} placeholder='Tell us about your business — what you offer, who you serve, what makes you special...' />
               </label>
 
