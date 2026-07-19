@@ -23,7 +23,7 @@ export function CategorySelect() {
   return (
     <div className='flex flex-col gap-4'>
       <label className='text-sm font-medium text-ink'>
-        Category / industry <span className='text-red-500'>*</span>
+        Category / industry <span className='text-ink'>*</span>
         <select
           name='sic_description'
           value={value}

@@ -62,7 +62,7 @@ export default function PostBusinessPage({ searchParams }: { searchParams: { suc
               <CategorySelect />
 
               <label className='text-sm font-medium text-ink'>
-                About your business <span className='text-red-500'>*</span>
+                About your business <span className='text-ink'>*</span>
                 <textarea name='description' required rows={4} className={inp + ' resize-none'} placeholder='Tell us about your business — what you offer, who you serve, what makes you special...' />
               </label>
 
@@ -83,7 +83,7 @@ export default function PostBusinessPage({ searchParams }: { searchParams: { suc
               </label>
 
               <label className='text-sm font-medium text-ink'>
-                Phone <span className='text-red-500'>*</span>
+                Phone <span className='text-ink'>*</span>
                 <input name='phone' required className={inp} placeholder='e.g. 020 7946 0001' />
               </label>
 

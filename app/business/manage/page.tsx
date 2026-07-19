@@ -159,7 +159,7 @@ export default function ManageBusinessPage() {
                 <input value={submitterName} onChange={e => setSubmitterName(e.target.value)} className={inp} placeholder='Your full name' />
               </label>
               <label className='text-sm font-medium text-ink'>
-                Category / industry <span className='text-red-500'>*</span>
+                Category / industry <span className='text-ink'>*</span>
                 <select value={category} onChange={e => setCategory(e.target.value)} required className={inp + ' cursor-pointer'}>
                   <option value=''>Select a category...</option>
                   {CATEGORIES.map(({ group, items }) => (
@@ -172,7 +172,7 @@ export default function ManageBusinessPage() {
                 </select>
               </label>
               <label className='text-sm font-medium text-ink'>
-                Phone <span className='text-red-500'>*</span>
+                Phone <span className='text-ink'>*</span>
                 <input value={phone} onChange={e => setPhone(e.target.value)} required className={inp} placeholder='e.g. 020 7946 0001' />
               </label>
               <label className='text-sm font-medium text-ink'>
@@ -227,7 +227,7 @@ export default function ManageBusinessPage() {
               </label>
               {promoText && (
                 <label className='text-sm font-medium text-ink'>
-                  Promotion end date <span className='text-red-500'>*</span>
+                  Promotion end date <span className='text-ink'>*</span>
                   <span className='block text-xs font-normal text-muted mt-0.5 mb-1'>Required — max 1 year. Expired promotions are hidden automatically.</span>
                   <input
                     type='date'
