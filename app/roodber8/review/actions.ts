@@ -32,6 +32,20 @@ function revalidateAll() {
   revalidatePath('/tutors')
   revalidatePath('/community')
   revalidatePath('/events')
+  revalidatePath('/jobs/[id]', 'page')
+  revalidatePath('/housing/[id]', 'page')
+  revalidatePath('/money/[id]', 'page')
+  revalidatePath('/cars/[id]', 'page')
+  revalidatePath('/tutors/[id]', 'page')
+  revalidatePath('/community/[id]', 'page')
+  revalidatePath('/events/[id]', 'page')
+  revalidatePath('/roodber8/jobs')
+  revalidatePath('/roodber8/housing')
+  revalidatePath('/roodber8/money')
+  revalidatePath('/roodber8/cars')
+  revalidatePath('/roodber8/tutors')
+  revalidatePath('/roodber8/community')
+  revalidatePath('/roodber8/events')
 }
 
 export async function approveListing(table: string, id: string) {
