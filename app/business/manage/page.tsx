@@ -19,6 +19,12 @@ export default function ManageBusinessPage() {
   const [description, setDescription] = useState('')
   const [promoText, setPromoText] = useState('')
   const [promoExpiresAt, setPromoExpiresAt] = useState('')
+  const [country, setCountry] = useState('')
+  const [address, setAddress] = useState('')
+  const [openingHours, setOpeningHours] = useState('')
+  const [instagram, setInstagram] = useState('')
+  const [facebook, setFacebook] = useState('')
+  const [whatsapp, setWhatsapp] = useState('')
   const [hasPending, setHasPending] = useState(false)
 
   useEffect(() => {
@@ -38,6 +44,12 @@ export default function ManageBusinessPage() {
         setDescription(data.ai_description ?? '')
         setPromoText(data.promo_text ?? '')
         setPromoExpiresAt(data.promo_expires_at ? data.promo_expires_at.split('T')[0] : '')
+        setCountry(data.country ?? '')
+        setAddress(data.address ?? '')
+        setOpeningHours(data.opening_hours ?? '')
+        setInstagram(data.instagram ?? '')
+        setFacebook(data.facebook ?? '')
+        setWhatsapp(data.whatsapp ?? '')
         setListingStatus(data.status)
         setHasPending(!!data.pending_changes && Object.keys(data.pending_changes).length > 0)
         setLoading(false)
@@ -64,6 +76,12 @@ export default function ManageBusinessPage() {
           ai_description: description,
           promo_text: promoText,
           promo_expires_at: promoExpiresAt || null,
+          country,
+          address,
+          opening_hours: openingHours,
+          instagram,
+          facebook,
+          whatsapp,
         }),
       })
       const json = await res.json()
@@ -132,10 +150,6 @@ export default function ManageBusinessPage() {
                 <input value={category} onChange={e => setCategory(e.target.value)} className={inp} placeholder='e.g. Ethiopian Restaurant' />
               </label>
               <label className='text-sm font-medium text-ink'>
-                City
-                <input value={city} onChange={e => setCity(e.target.value)} className={inp} placeholder='e.g. London' />
-              </label>
-              <label className='text-sm font-medium text-ink'>
                 Phone
                 <input value={phone} onChange={e => setPhone(e.target.value)} className={inp} placeholder='e.g. 020 7946 0001' />
               </label>
@@ -143,6 +157,42 @@ export default function ManageBusinessPage() {
                 Website
                 <input value={website} onChange={e => setWebsite(e.target.value)} className={inp} placeholder='e.g. https://example.com' />
               </label>
+              <div className='grid sm:grid-cols-2 gap-3'>
+                <label className='text-sm font-medium text-ink'>
+                  City
+                  <input value={city} onChange={e => setCity(e.target.value)} className={inp} placeholder='e.g. London' />
+                </label>
+                <label className='text-sm font-medium text-ink'>
+                  Country
+                  <input value={country} onChange={e => setCountry(e.target.value)} className={inp} placeholder='e.g. United Kingdom' />
+                </label>
+              </div>
+              <label className='text-sm font-medium text-ink'>
+                Full address
+                <input value={address} onChange={e => setAddress(e.target.value)} className={inp} placeholder='e.g. 123 High Street, London, E1 6RF' />
+              </label>
+              <label className='text-sm font-medium text-ink'>
+                Opening hours
+                <span className='block text-xs font-normal text-muted mt-0.5 mb-1'>e.g. Mon-Fri 9am-6pm, Sat 10am-4pm</span>
+                <input value={openingHours} onChange={e => setOpeningHours(e.target.value)} className={inp} placeholder='e.g. Mon-Fri 9am-6pm' />
+              </label>
+              <div>
+                <p className='text-sm font-medium text-ink mb-2'>Social media</p>
+                <div className='flex flex-col gap-3'>
+                  <div className='flex items-center gap-2'>
+                    <span className='text-xs font-semibold text-muted w-24 shrink-0'>Instagram</span>
+                    <input value={instagram} onChange={e => setInstagram(e.target.value)} className={inp} placeholder='e.g. @addiskitchen' />
+                  </div>
+                  <div className='flex items-center gap-2'>
+                    <span className='text-xs font-semibold text-muted w-24 shrink-0'>Facebook</span>
+                    <input value={facebook} onChange={e => setFacebook(e.target.value)} className={inp} placeholder='e.g. facebook.com/addiskitchen' />
+                  </div>
+                  <div className='flex items-center gap-2'>
+                    <span className='text-xs font-semibold text-muted w-24 shrink-0'>WhatsApp</span>
+                    <input value={whatsapp} onChange={e => setWhatsapp(e.target.value)} className={inp} placeholder='e.g. +44 7700 900000' />
+                  </div>
+                </div>
+              </div>
               <label className='text-sm font-medium text-ink'>
                 About your business
                 <span className='block text-xs font-normal text-muted mt-0.5 mb-1'>Tell customers who you are, what you offer, and what makes you special.</span>

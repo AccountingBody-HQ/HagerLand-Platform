@@ -60,7 +60,80 @@ export default function PostBusinessPage({ searchParams }: { searchParams: { suc
 
               <label className='text-sm font-medium text-ink'>
                 Category / industry
-                <input name='sic_description' className={inp} placeholder='e.g. Ethiopian Restaurant' />
+                <select name='sic_description' className={inp + ' cursor-pointer'}>
+                  <option value=''>Select a category...</option>
+                  <optgroup label="Food & Hospitality">
+                    <option>Ethiopian Restaurant</option>
+                    <option>Eritrean Restaurant</option>
+                    <option>Cafe & Coffee Shop</option>
+                    <option>Catering & Events</option>
+                    <option>Food Delivery</option>
+                    <option>Bakery & Pastry</option>
+                  </optgroup>
+                  <optgroup label="Professional Services">
+                    <option>Accounting & Tax</option>
+                    <option>Legal Services</option>
+                    <option>Financial Advice</option>
+                    <option>Immigration & Visa</option>
+                    <option>Mortgage & Property</option>
+                    <option>Insurance</option>
+                    <option>Business Consulting</option>
+                  </optgroup>
+                  <optgroup label="Health & Wellbeing">
+                    <option>GP & Medical</option>
+                    <option>Dentist</option>
+                    <option>Pharmacy</option>
+                    <option>Mental Health & Counselling</option>
+                    <option>Physiotherapy</option>
+                    <option>Alternative Medicine</option>
+                  </optgroup>
+                  <optgroup label="Beauty & Personal Care">
+                    <option>Hair Salon & Braiding</option>
+                    <option>Barbershop</option>
+                    <option>Nail & Beauty Salon</option>
+                    <option>Skincare & Cosmetics</option>
+                  </optgroup>
+                  <optgroup label="Retail & Trade">
+                    <option>African & Ethiopian Grocery</option>
+                    <option>Fashion & Clothing</option>
+                    <option>Electronics & Mobile</option>
+                    <option>Home & Furniture</option>
+                    <option>Car Sales & Parts</option>
+                  </optgroup>
+                  <optgroup label="Transport & Travel">
+                    <option>Taxi & Private Hire</option>
+                    <option>Travel Agency</option>
+                    <option>Driving School</option>
+                    <option>Courier & Delivery</option>
+                  </optgroup>
+                  <optgroup label="Education & Training">
+                    <option>Tutoring & Education</option>
+                    <option>Language Classes</option>
+                    <option>Skills & Vocational Training</option>
+                    <option>Childcare & Nursery</option>
+                  </optgroup>
+                  <optgroup label="Creative & Media">
+                    <option>Photography & Videography</option>
+                    <option>Music & Entertainment</option>
+                    <option>Graphic Design & Printing</option>
+                    <option>Marketing & PR</option>
+                    <option>Web & Tech Services</option>
+                  </optgroup>
+                  <optgroup label="Community & Faith">
+                    <option>Church & Faith Organisation</option>
+                    <option>Community Association</option>
+                    <option>Charity & Non-profit</option>
+                    <option>Events & Cultural</option>
+                  </optgroup>
+                  <optgroup label="Property">
+                    <option>Estate Agent</option>
+                    <option>Letting Agent</option>
+                    <option>Property Management</option>
+                    <option>Construction & Renovation</option>
+                    <option>Cleaning Services</option>
+                  </optgroup>
+                  <option value='Other'>Other (please specify)</option>
+                </select>
               </label>
 
               <label className='text-sm font-medium text-ink'>
@@ -68,9 +141,20 @@ export default function PostBusinessPage({ searchParams }: { searchParams: { suc
                 <textarea name='description' rows={4} className={inp + ' resize-none'} placeholder='Tell us about your business — what you offer, who you serve, what makes you special...' />
               </label>
 
+              <div className='grid sm:grid-cols-2 gap-4'>
+                <label className='text-sm font-medium text-ink'>
+                  City *
+                  <input name='trading_address_city' required className={inp} placeholder='e.g. London' />
+                </label>
+                <label className='text-sm font-medium text-ink'>
+                  Country
+                  <input name='country' className={inp} placeholder='e.g. United Kingdom' />
+                </label>
+              </div>
+
               <label className='text-sm font-medium text-ink'>
-                City
-                <input name='trading_address_city' className={inp} placeholder='e.g. London' />
+                Full address
+                <input name='address' className={inp} placeholder='e.g. 123 High Street, London, E1 6RF' />
               </label>
 
               <label className='text-sm font-medium text-ink'>
@@ -82,6 +166,30 @@ export default function PostBusinessPage({ searchParams }: { searchParams: { suc
                 Website
                 <input name='website' className={inp} placeholder='e.g. https://example.com' />
               </label>
+
+              <label className='text-sm font-medium text-ink'>
+                Opening hours
+                <span className='block text-xs font-normal text-muted mt-0.5 mb-1'>e.g. Mon-Fri 9am-6pm, Sat 10am-4pm</span>
+                <input name='opening_hours' className={inp} placeholder='e.g. Mon-Fri 9am-6pm' />
+              </label>
+
+              <div>
+                <p className='text-sm font-medium text-ink mb-2'>Social media</p>
+                <div className='flex flex-col gap-3'>
+                  <div className='flex items-center gap-2'>
+                    <span className='text-xs font-semibold text-muted w-24 shrink-0'>Instagram</span>
+                    <input name='instagram' className={inp} placeholder='e.g. @addiskitchen' />
+                  </div>
+                  <div className='flex items-center gap-2'>
+                    <span className='text-xs font-semibold text-muted w-24 shrink-0'>Facebook</span>
+                    <input name='facebook' className={inp} placeholder='e.g. facebook.com/addiskitchen' />
+                  </div>
+                  <div className='flex items-center gap-2'>
+                    <span className='text-xs font-semibold text-muted w-24 shrink-0'>WhatsApp</span>
+                    <input name='whatsapp' className={inp} placeholder='e.g. +44 7700 900000' />
+                  </div>
+                </div>
+              </div>
 
               <div className='pt-2'>
                 <button type='submit' className='w-full bg-green hover:bg-green-dark text-white font-semibold rounded-full px-6 py-3 transition-colors'>

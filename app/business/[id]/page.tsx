@@ -370,6 +370,25 @@ export default async function BusinessProfilePage({ params }: Props) {
                     <span className='text-sm text-green font-medium hover:underline truncate'>{business.website.replace(/^https?:\/\//, '')}</span>
                   </a>
                 )}
+                {business.opening_hours && (
+                  <div className='flex items-center gap-3 px-5 py-3.5'>
+                    <svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' className='text-green shrink-0'><circle cx='12' cy='12' r='10'/><polyline points='12 6 12 12 16 14'/></svg>
+                    <span className='text-sm text-ink'>{business.opening_hours}</span>
+                  </div>
+                )}
+                {(business.instagram || business.facebook || business.whatsapp) && (
+                  <div className='flex items-center gap-3 px-5 py-3.5 flex-wrap'>
+                    {business.instagram && (
+                      <a href={business.instagram.startsWith('http') ? business.instagram : `https://instagram.com/${business.instagram.replace('@','')}`} target='_blank' rel='noopener noreferrer' className='text-xs font-semibold text-green hover:underline'>Instagram</a>
+                    )}
+                    {business.facebook && (
+                      <a href={business.facebook.startsWith('http') ? business.facebook : `https://${business.facebook}`} target='_blank' rel='noopener noreferrer' className='text-xs font-semibold text-green hover:underline'>Facebook</a>
+                    )}
+                    {business.whatsapp && (
+                      <a href={`https://wa.me/${business.whatsapp.replace(/[^0-9+]/g,'')}`} target='_blank' rel='noopener noreferrer' className='text-xs font-semibold text-green hover:underline'>WhatsApp</a>
+                    )}
+                  </div>
+                )}
               </div>
               {enquiryEmail && (
                 <div className='px-5 py-4 border-t border-border'>

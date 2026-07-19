@@ -48,6 +48,12 @@ export async function postBusiness(formData: FormData) {
 
   const companyName   = (formData.get('company_name') as string ?? '').trim()
   const city          = (formData.get('trading_address_city') as string ?? '').trim()
+  const countryName     = (formData.get('country') as string ?? '').trim()
+  const address         = (formData.get('address') as string ?? '').trim()
+  const opening_hours   = (formData.get('opening_hours') as string ?? '').trim()
+  const instagram       = (formData.get('instagram') as string ?? '').trim()
+  const facebook        = (formData.get('facebook') as string ?? '').trim()
+  const whatsapp        = (formData.get('whatsapp') as string ?? '').trim()
   const phone         = (formData.get('phone') as string ?? '').trim()
   const website       = (formData.get('website') as string ?? '').trim()
   const category      = (formData.get('sic_description') as string ?? '').trim()
@@ -71,6 +77,12 @@ export async function postBusiness(formData: FormData) {
     company_number:       `SELFSERVE-${Date.now()}`,
     country_id:           country?.id,
     trading_address_city: city || null,
+    country:              countryName || null,
+    address:              address || null,
+    opening_hours:        opening_hours || null,
+    instagram:            instagram || null,
+    facebook:             facebook || null,
+    whatsapp:             whatsapp || null,
     phone:                phone || null,
     website:              website || null,
     sic_description:      category || null,
