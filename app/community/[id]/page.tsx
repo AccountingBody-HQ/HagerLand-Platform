@@ -32,7 +32,7 @@ export default async function BusinessProfilePage({ params }: Props) {
     .select('id, company_name, sic_description, trading_address_city, is_verified')
     .eq('status', 'active')
     .neq('id', params.id)
-    .or(`sic_description.eq.${org.category},trading_address_city.eq.${org.city}`)
+    .or(`category.eq.${org.category},city.eq.${org.city}`)
     .limit(3)
 
   const initial = org.name.split(' ').slice(0, 2).map((w: string) => w[0]).join('').toUpperCase()
