@@ -127,6 +127,16 @@ export default function ManageCarsPage() {
                 Category <span className='text-ink'>*</span>
                 <select value={category} onChange={e => setCategory(e.target.value)} required className={inp + ' cursor-pointer'}>
                   <option value=''>Select a category...</option>
+                  <option key='Car for sale' value='Car for sale'>Car for sale</option>
+                  <option key='Van for sale' value='Van for sale'>Van for sale</option>
+                  <option key='Car hire' value='Car hire'>Car hire</option>
+                  <option key='Van hire' value='Van hire'>Van hire</option>
+                  <option key='Taxi & private hire' value='Taxi & private hire'>Taxi & private hire</option>
+                  <option key='Driving school' value='Driving school'>Driving school</option>
+                  <option key='MOT & servicing' value='MOT & servicing'>MOT & servicing</option>
+                  <option key='Body repair & paint' value='Body repair & paint'>Body repair & paint</option>
+                  <option key='Tyres & exhausts' value='Tyres & exhausts'>Tyres & exhausts</option>
+                  <option key='Car parts & accessories' value='Car parts & accessories'>Car parts & accessories</option>
                 </select>
               </label>
               <label className='text-sm font-medium text-ink'>

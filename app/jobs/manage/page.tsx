@@ -127,6 +127,13 @@ export default function ManageJobsPage() {
                 Category <span className='text-ink'>*</span>
                 <select value={category} onChange={e => setCategory(e.target.value)} required className={inp + ' cursor-pointer'}>
                   <option value=''>Select a category...</option>
+                  <option key='Full-time' value='Full-time'>Full-time</option>
+                  <option key='Part-time' value='Part-time'>Part-time</option>
+                  <option key='Contract' value='Contract'>Contract</option>
+                  <option key='Freelance' value='Freelance'>Freelance</option>
+                  <option key='Internship' value='Internship'>Internship</option>
+                  <option key='Volunteer' value='Volunteer'>Volunteer</option>
+                  <option key='Apprenticeship' value='Apprenticeship'>Apprenticeship</option>
                 </select>
               </label>
               <label className='text-sm font-medium text-ink'>

@@ -127,6 +127,18 @@ export default function ManageEventsPage() {
                 Category <span className='text-ink'>*</span>
                 <select value={category} onChange={e => setCategory(e.target.value)} required className={inp + ' cursor-pointer'}>
                   <option value=''>Select a category...</option>
+                  <option key='Music & concert' value='Music & concert'>Music & concert</option>
+                  <option key='Cultural festival' value='Cultural festival'>Cultural festival</option>
+                  <option key='Religious celebration' value='Religious celebration'>Religious celebration</option>
+                  <option key='Community meeting' value='Community meeting'>Community meeting</option>
+                  <option key='Sports event' value='Sports event'>Sports event</option>
+                  <option key='Food & dining' value='Food & dining'>Food & dining</option>
+                  <option key='Networking' value='Networking'>Networking</option>
+                  <option key='Wedding & celebration' value='Wedding & celebration'>Wedding & celebration</option>
+                  <option key='Fundraiser' value='Fundraiser'>Fundraiser</option>
+                  <option key='Exhibition & art' value='Exhibition & art'>Exhibition & art</option>
+                  <option key='Conference & seminar' value='Conference & seminar'>Conference & seminar</option>
+                  <option key='Online event' value='Online event'>Online event</option>
                 </select>
               </label>
               <label className='text-sm font-medium text-ink'>

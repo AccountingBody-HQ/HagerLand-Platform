@@ -127,6 +127,16 @@ export default function ManageMoneyPage() {
                 Category <span className='text-ink'>*</span>
                 <select value={category} onChange={e => setCategory(e.target.value)} required className={inp + ' cursor-pointer'}>
                   <option value=''>Select a category...</option>
+                  <option key='Money transfer' value='Money transfer'>Money transfer</option>
+                  <option key='Currency exchange' value='Currency exchange'>Currency exchange</option>
+                  <option key='Accounting & Tax' value='Accounting & Tax'>Accounting & Tax</option>
+                  <option key='Mortgage advice' value='Mortgage advice'>Mortgage advice</option>
+                  <option key='Business loans' value='Business loans'>Business loans</option>
+                  <option key='Personal loans' value='Personal loans'>Personal loans</option>
+                  <option key='Insurance' value='Insurance'>Insurance</option>
+                  <option key='Investment advice' value='Investment advice'>Investment advice</option>
+                  <option key='Pension advice' value='Pension advice'>Pension advice</option>
+                  <option key='Credit repair' value='Credit repair'>Credit repair</option>
                 </select>
               </label>
               <label className='text-sm font-medium text-ink'>

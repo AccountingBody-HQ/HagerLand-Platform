@@ -127,6 +127,16 @@ export default function ManageCommunityPage() {
                 Category <span className='text-ink'>*</span>
                 <select value={category} onChange={e => setCategory(e.target.value)} required className={inp + ' cursor-pointer'}>
                   <option value=''>Select a category...</option>
+                  <option key='Community association' value='Community association'>Community association</option>
+                  <option key='Church & faith group' value='Church & faith group'>Church & faith group</option>
+                  <option key='Charity & non-profit' value='Charity & non-profit'>Charity & non-profit</option>
+                  <option key='Cultural organisation' value='Cultural organisation'>Cultural organisation</option>
+                  <option key='Sports club' value='Sports club'>Sports club</option>
+                  <option key='Youth group' value='Youth group'>Youth group</option>
+                  <option key='Womens-group' value="Women's group">Women&apos;s group</option>
+                  <option key='Elders group' value='Elders group'>Elders group</option>
+                  <option key='Support group' value='Support group'>Support group</option>
+                  <option key='Political & civic' value='Political & civic'>Political & civic</option>
                 </select>
               </label>
               <label className='text-sm font-medium text-ink'>

@@ -127,6 +127,19 @@ export default function ManageTutorsPage() {
                 Category <span className='text-ink'>*</span>
                 <select value={category} onChange={e => setCategory(e.target.value)} required className={inp + ' cursor-pointer'}>
                   <option value=''>Select a category...</option>
+                  <option key='Maths' value='Maths'>Maths</option>
+                  <option key='English & Literacy' value='English & Literacy'>English & Literacy</option>
+                  <option key='Science' value='Science'>Science</option>
+                  <option key='Amharic language' value='Amharic language'>Amharic language</option>
+                  <option key='Tigrinya language' value='Tigrinya language'>Tigrinya language</option>
+                  <option key='Afaan Oromo language' value='Afaan Oromo language'>Afaan Oromo language</option>
+                  <option key='Music & instruments' value='Music & instruments'>Music & instruments</option>
+                  <option key='Art & design' value='Art & design'>Art & design</option>
+                  <option key='IT & computing' value='IT & computing'>IT & computing</option>
+                  <option key='Business studies' value='Business studies'>Business studies</option>
+                  <option key='University preparation' value='University preparation'>University preparation</option>
+                  <option key='11+ & entrance exams' value='11+ & entrance exams'>11+ & entrance exams</option>
+                  <option key='Special educational needs' value='Special educational needs'>Special educational needs</option>
                 </select>
               </label>
               <label className='text-sm font-medium text-ink'>

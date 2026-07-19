@@ -127,6 +127,14 @@ export default function ManageHousingPage() {
                 Category <span className='text-ink'>*</span>
                 <select value={category} onChange={e => setCategory(e.target.value)} required className={inp + ' cursor-pointer'}>
                   <option value=''>Select a category...</option>
+                  <option key='Room to rent' value='Room to rent'>Room to rent</option>
+                  <option key='Flat to rent' value='Flat to rent'>Flat to rent</option>
+                  <option key='House to rent' value='House to rent'>House to rent</option>
+                  <option key='Studio to rent' value='Studio to rent'>Studio to rent</option>
+                  <option key='Property to buy' value='Property to buy'>Property to buy</option>
+                  <option key='Short-term let' value='Short-term let'>Short-term let</option>
+                  <option key='Homestay' value='Homestay'>Homestay</option>
+                  <option key='Commercial space' value='Commercial space'>Commercial space</option>
                 </select>
               </label>
               <label className='text-sm font-medium text-ink'>
