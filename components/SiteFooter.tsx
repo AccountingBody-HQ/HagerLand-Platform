@@ -23,10 +23,10 @@ const companyLinks = [
 const listLinks = [
   { href: '/business/post', label: 'List your business' },
   { href: '/jobs/post', label: 'Post a job' },
-  { href: '/housing/post', label: 'Post a listing' },
-  { href: '/money/post', label: 'List a service' },
+  { href: '/housing/post', label: 'List a property' },
+  { href: '/money/post', label: 'List a financial service' },
   { href: '/events/post', label: 'Post an event' },
-  { href: '/tutors/post', label: 'Offer tutoring' },
+  { href: '/tutors/post', label: 'List as a tutor' },
   { href: '/community/post', label: 'List an organisation' },
 ]
 
