@@ -18,14 +18,14 @@ const COLORS = {
 }
 
 const SECTIONS = [
-  { table: 'jobs', label: 'Jobs', titleField: 'title', subtitleFields: ['company_name', 'location'] },
-  { table: 'housing', label: 'Housing', titleField: 'title', subtitleFields: ['listing_type', 'location'] },
-  { table: 'cars', label: 'Cars', titleField: 'title', subtitleFields: ['listing_type', 'location'] },
-  { table: 'tutors', label: 'Tutors', titleField: 'name', subtitleFields: ['subject', 'location'] },
-  { table: 'community', label: 'Community', titleField: 'name', subtitleFields: ['category', 'location'] },
-  { table: 'events', label: 'Events', titleField: 'title', subtitleFields: ['category', 'location'] },
+  { table: 'jobs', label: 'Jobs', titleField: 'title', subtitleFields: ['category', 'city'] },
+  { table: 'housing', label: 'Housing', titleField: 'title', subtitleFields: ['category', 'city'] },
+  { table: 'cars', label: 'Cars', titleField: 'title', subtitleFields: ['category', 'city'] },
+  { table: 'tutors', label: 'Tutors', titleField: 'name', subtitleFields: ['category', 'city'] },
+  { table: 'community', label: 'Community', titleField: 'name', subtitleFields: ['category', 'city'] },
+  { table: 'events', label: 'Events', titleField: 'title', subtitleFields: ['category', 'city'] },
   { table: 'companies', label: 'Business', titleField: 'company_name', subtitleFields: ['sic_description', 'trading_address_city'] },
-  { table: 'money', label: 'Money', titleField: 'title', subtitleFields: ['service_type', 'location'] },
+  { table: 'money', label: 'Money', titleField: 'title', subtitleFields: ['category', 'city'] },
 ] as const
 
 export default async function ReviewPage() {
