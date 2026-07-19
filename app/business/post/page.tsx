@@ -63,7 +63,7 @@ export default function PostBusinessPage({ searchParams }: { searchParams: { suc
 
               <label className='text-sm font-medium text-ink'>
                 About your business
-                <textarea name='description' rows={4} className={inp + ' resize-none'} placeholder='Tell us about your business — what you offer, who you serve, what makes you special...' />
+                <textarea name='description' required rows={4} className={inp + ' resize-none'} placeholder='Tell us about your business — what you offer, who you serve, what makes you special...' />
               </label>
 
               <div className='grid sm:grid-cols-2 gap-4'>
