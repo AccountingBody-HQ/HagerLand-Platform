@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 import { postBusiness } from './actions'
 import { SiteNav } from '@/components/SiteNav'
 import { TurnstileWidget } from '@/components/TurnstileWidget'
+import { CategorySelect } from '@/components/CategorySelect'
 import { SiteFooter } from '@/components/SiteFooter'
 
 const inp = 'w-full px-4 py-3 border border-border rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-green/20 focus:border-green text-sm'
@@ -58,109 +59,7 @@ export default function PostBusinessPage({ searchParams }: { searchParams: { suc
                 <input name='contact_email' type='email' required className={inp} placeholder='you@example.com' />
               </label>
 
-              <label className='text-sm font-medium text-ink'>
-                Category / industry
-                <select name='sic_description' className={inp + ' cursor-pointer'}>
-                  <option value=''>Select a category...</option>
-                  <optgroup label="Food & Hospitality">
-                    <option>Ethiopian Restaurant</option>
-                    <option>Eritrean Restaurant</option>
-                    <option>Cafe & Coffee Shop</option>
-                    <option>Catering & Events</option>
-                    <option>Food Delivery</option>
-                    <option>Bakery & Pastry</option>
-                  </optgroup>
-                  <optgroup label="Professional Services">
-                    <option>Accounting & Tax</option>
-                    <option>Legal Services</option>
-                    <option>Financial Advice</option>
-                    <option>Immigration & Visa</option>
-                    <option>Mortgage & Property</option>
-                    <option>Insurance</option>
-                    <option>Business Consulting</option>
-                  </optgroup>
-                  <optgroup label="Health & Wellbeing">
-                    <option>GP & Medical</option>
-                    <option>Dentist</option>
-                    <option>Pharmacy</option>
-                    <option>Mental Health & Counselling</option>
-                    <option>Physiotherapy</option>
-                    <option>Alternative Medicine</option>
-                  </optgroup>
-                  <optgroup label="Beauty & Personal Care">
-                    <option>Hair Salon & Braiding</option>
-                    <option>Barbershop</option>
-                    <option>Nail & Beauty Salon</option>
-                    <option>Skincare & Cosmetics</option>
-                  </optgroup>
-                  <optgroup label="Retail & Trade">
-                    <option>African & Ethiopian Grocery</option>
-                    <option>Fashion & Clothing</option>
-                    <option>Electronics & Mobile</option>
-                    <option>Home & Furniture</option>
-                    <option>Car Sales & Parts</option>
-                  </optgroup>
-                  <optgroup label="Transport & Travel">
-                    <option>Taxi & Private Hire</option>
-                    <option>Travel Agency</option>
-                    <option>Driving School</option>
-                    <option>Courier & Delivery</option>
-                  </optgroup>
-                  <optgroup label="Education & Training">
-                    <option>Tutoring & Education</option>
-                    <option>Language Classes</option>
-                    <option>Skills & Vocational Training</option>
-                    <option>Childcare & Nursery</option>
-                  </optgroup>
-                  <optgroup label="Creative & Media">
-                    <option>Photography & Videography</option>
-                    <option>Music & Entertainment</option>
-                    <option>Graphic Design & Printing</option>
-                    <option>Marketing & PR</option>
-                    <option>Web & Tech Services</option>
-                  </optgroup>
-                  <optgroup label="Community & Faith">
-                    <option>Church & Faith Organisation</option>
-                    <option>Community Association</option>
-                    <option>Charity & Non-profit</option>
-                    <option>Events & Cultural</option>
-                  </optgroup>
-                  <optgroup label="Property">
-                    <option>Estate Agent</option>
-                    <option>Letting Agent</option>
-                    <option>Property Management</option>
-                    <option>Construction & Renovation</option>
-                    <option>Cleaning Services</option>
-                  </optgroup>
-                  <option value='Other'>Other (please specify)</option>
-                </select>
-              </label>
-
-              <div id='other-category-wrapper' style={{display:'none'}}>
-                <label className='text-sm font-medium text-ink'>
-                  Please specify your category *
-                  <input name='sic_description_other' id='sic_description_other' className={inp} placeholder='e.g. Funeral Services' />
-                </label>
-              </div>
-              <script dangerouslySetInnerHTML={{__html: `
-                function initCatSelect() {
-                  var sel = document.querySelector('[name=sic_description]');
-                  if (!sel) { setTimeout(initCatSelect, 100); return; }
-                  sel.addEventListener('change', function() {
-                    var wrapper = document.getElementById('other-category-wrapper');
-                    var inp = document.getElementById('sic_description_other');
-                    if (this.value === 'Other') {
-                      wrapper.style.display = 'block';
-                      inp.required = true;
-                    } else {
-                      wrapper.style.display = 'none';
-                      inp.required = false;
-                      inp.value = '';
-                    }
-                  });
-                }
-                initCatSelect();
-              `}} />
+              <CategorySelect />
 
               <label className='text-sm font-medium text-ink'>
                 About your business
