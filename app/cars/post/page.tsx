@@ -47,7 +47,7 @@ export default function PostCarsPage({ searchParams }: { searchParams: { success
                 Contact email <span className='text-ink'>*</span>
                 <input name='contact_email' type='email' required className={inp} placeholder='you@example.com' />
               </label>
-              <CarsCategorySelect value={''} onChange={() => {}} />
+              <CarsCategorySelect />
               <label className='text-sm font-medium text-ink'>
                 Description <span className='text-ink'>*</span>
                 <textarea name='description' required rows={4} className={inp + ' resize-none'} placeholder='Tell us about this listing — what makes it special...' />
