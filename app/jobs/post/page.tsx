@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { postJobs } from './actions'
 import { SiteNav } from '@/components/SiteNav'
 import { SiteFooter } from '@/components/SiteFooter'
