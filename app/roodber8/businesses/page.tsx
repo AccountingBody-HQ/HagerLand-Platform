@@ -26,13 +26,12 @@ export default async function AdminBusinessesPage() {
     process.env.SUPABASE_SECRET_KEY!
   )
 
-  const { data: items, error: dbError } = await supabase
+  const { data: items } = await supabase
     .from('companies')
     .select('id, company_name, trading_address_city, sic_description, contact_email, submitter_name, status, email_verified_at, first_seen_at, is_verified, phone, website')
     .order('first_seen_at', { ascending: false })
     .limit(100)
 
-  console.log('URL:', process.env.NEXT_PUBLIC_SUPABASE_URL?.slice(0,30), 'KEY:', !!process.env.SUPABASE_SECRET_KEY, 'count:', items?.length, 'err:', dbError?.message)
   const all = items ?? []
   const unverified = all.filter(i => i.status === 'pending_verification')
   const pending    = all.filter(i => i.status === 'pending')

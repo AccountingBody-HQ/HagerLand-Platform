@@ -69,13 +69,14 @@ export default function ManageBusinessPage() {
       const json = await res.json()
       if (!res.ok) throw new Error(json.error ?? 'Update failed')
       setStatus('saved')
+      setHasPending(json.hasPendingChanges ?? false)
     } catch {
       setStatus('error')
     }
   }
 
   const statusLabel = listingStatus === 'active' ? 'Live' : listingStatus === 'pending' ? 'Under review' : 'Awaiting verification'
-  const statusColor = listingStatus === 'active' ? 'text-green' : 'text-gold'
+  const statusColor = listingStatus === 'active' ? 'text-green' : listingStatus === 'pending' ? 'text-gold' : 'text-muted'
 
   return (
     <main className='min-h-screen bg-bg flex flex-col'>
