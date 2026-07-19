@@ -151,7 +151,7 @@ export default function ManageBusinessPage() {
             )}
             <form onSubmit={handleSubmit} className='flex flex-col gap-4 bg-white border border-border rounded-2xl p-6 sm:p-8'>
               <label className='text-sm font-medium text-ink'>
-                Business name *
+                Business name <span className='text-ink'>*</span>
                 <input value={companyName} onChange={e => setCompanyName(e.target.value)} required className={inp} placeholder='e.g. Addis Kitchen' />
               </label>
               <label className='text-sm font-medium text-ink'>
@@ -172,12 +172,9 @@ export default function ManageBusinessPage() {
                 </select>
               </label>
               <label className='text-sm font-medium text-ink'>
-                Phone <span className='text-ink'>*</span>
-                <input value={phone} onChange={e => setPhone(e.target.value)} required className={inp} placeholder='e.g. 020 7946 0001' />
-              </label>
-              <label className='text-sm font-medium text-ink'>
-                Website
-                <input value={website} onChange={e => setWebsite(e.target.value)} className={inp} placeholder='e.g. https://example.com' />
+                About your business <span className='text-ink'>*</span>
+                <span className='block text-xs font-normal text-muted mt-0.5 mb-1'>Tell customers who you are, what you offer, and what makes you special.</span>
+                <textarea value={description} onChange={e => setDescription(e.target.value)} required rows={4} className={inp} placeholder='e.g. We are a family-run Ethiopian restaurant in London, serving authentic cuisine since 2010...' />
               </label>
               <div className='grid sm:grid-cols-2 gap-3'>
                 <label className='text-sm font-medium text-ink'>
@@ -192,6 +189,14 @@ export default function ManageBusinessPage() {
               <label className='text-sm font-medium text-ink'>
                 Full address
                 <input value={address} onChange={e => setAddress(e.target.value)} className={inp} placeholder='e.g. 123 High Street, London, E1 6RF' />
+              </label>
+              <label className='text-sm font-medium text-ink'>
+                Phone <span className='text-ink'>*</span>
+                <input value={phone} onChange={e => setPhone(e.target.value)} required className={inp} placeholder='e.g. 020 7946 0001' />
+              </label>
+              <label className='text-sm font-medium text-ink'>
+                Website
+                <input value={website} onChange={e => setWebsite(e.target.value)} className={inp} placeholder='e.g. https://example.com' />
               </label>
               <label className='text-sm font-medium text-ink'>
                 Opening hours
@@ -215,11 +220,6 @@ export default function ManageBusinessPage() {
                   </div>
                 </div>
               </div>
-              <label className='text-sm font-medium text-ink'>
-                About your business
-                <span className='block text-xs font-normal text-muted mt-0.5 mb-1'>Tell customers who you are, what you offer, and what makes you special.</span>
-                <textarea value={description} onChange={e => setDescription(e.target.value)} rows={4} className={inp} placeholder='e.g. We are a family-run Ethiopian restaurant in London, serving authentic cuisine since 2010...' />
-              </label>
               <label className='text-sm font-medium text-ink'>
                 What&apos;s on — promotions &amp; updates
                 <span className='block text-xs font-normal text-muted mt-0.5 mb-1'>Share offers, events, announcements, or any news you want customers to see.</span>
