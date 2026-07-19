@@ -29,10 +29,11 @@ export async function GET(req: NextRequest) {
     const submittedAt = new Date(data.created_at)
     const hoursSince = (Date.now() - submittedAt.getTime()) / (1000 * 60 * 60)
     if (hoursSince > 24) {
-      await supabase.from('cars').delete().eq('id', data.id)
+      await supabase.from('cars').delete().eq('id', data.id).select()
       return NextResponse.redirect(new URL('/cars/post?error=expired', req.url))
     }
-    await supabase.from('cars').update({ status: 'pending', email_verified_at: new Date().toISOString(), verification_token: null }).eq('id', data.id)
+    const { error: updateErr } = await supabase.from('cars').update({ status: 'pending', email_verified_at: new Date().toISOString(), verification_token: null }).eq('id', data.id)
+    if (updateErr && updateErr.code !== 'PGRST204') throw new Error(updateErr.message)
     const manageUrl = `${baseUrl}/cars/manage?token=${data.manage_token}`
     const name = data.title || data.name || data.company_name || 'Your listing'
     await resend.emails.send({
