@@ -3,6 +3,19 @@ import { useState, useEffect } from 'react'
 import { SiteNav } from '@/components/SiteNav'
 import { SiteFooter } from '@/components/SiteFooter'
 
+
+const CATEGORIES = [
+  { group: 'Food & Hospitality', items: ['Ethiopian Restaurant','Eritrean Restaurant','Cafe & Coffee Shop','Catering & Events','Food Delivery','Bakery & Pastry'] },
+  { group: 'Professional Services', items: ['Accounting & Tax','Legal Services','Financial Advice','Immigration & Visa','Mortgage & Property','Insurance','Business Consulting'] },
+  { group: 'Health & Wellbeing', items: ['GP & Medical','Dentist','Pharmacy','Mental Health & Counselling','Physiotherapy','Alternative Medicine'] },
+  { group: 'Beauty & Personal Care', items: ['Hair Salon & Braiding','Barbershop','Nail & Beauty Salon','Skincare & Cosmetics'] },
+  { group: 'Retail & Trade', items: ['African & Ethiopian Grocery','Fashion & Clothing','Electronics & Mobile','Home & Furniture','Car Sales & Parts'] },
+  { group: 'Transport & Travel', items: ['Taxi & Private Hire','Travel Agency','Driving School','Courier & Delivery'] },
+  { group: 'Education & Training', items: ['Tutoring & Education','Language Classes','Skills & Vocational Training','Childcare & Nursery'] },
+  { group: 'Creative & Media', items: ['Photography & Videography','Music & Entertainment','Graphic Design & Printing','Marketing & PR','Web & Tech Services'] },
+  { group: 'Community & Faith', items: ['Church & Faith Organisation','Community Association','Charity & Non-profit','Events & Cultural'] },
+  { group: 'Property', items: ['Estate Agent','Letting Agent','Property Management','Construction & Renovation','Cleaning Services'] },
+]
 const inp = 'w-full px-4 py-3 border border-border rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-green/20 focus:border-green text-sm'
 
 export default function ManageBusinessPage() {
@@ -147,7 +160,16 @@ export default function ManageBusinessPage() {
               </label>
               <label className='text-sm font-medium text-ink'>
                 Category / industry
-                <input value={category} onChange={e => setCategory(e.target.value)} className={inp} placeholder='e.g. Ethiopian Restaurant' />
+                <select value={category} onChange={e => setCategory(e.target.value)} className={inp + ' cursor-pointer'}>
+                  <option value=''>Select a category...</option>
+                  {CATEGORIES.map(({ group, items }) => (
+                    <optgroup key={group} label={group}>
+                      {items.map(item => (
+                        <option key={item} value={item}>{item}</option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
               </label>
               <label className='text-sm font-medium text-ink'>
                 Phone
