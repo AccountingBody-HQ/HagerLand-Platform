@@ -143,9 +143,9 @@ export default function PostBusinessPage({ searchParams }: { searchParams: { suc
                 </label>
               </div>
               <script dangerouslySetInnerHTML={{__html: `
-                document.addEventListener('DOMContentLoaded', function() {
+                function initCatSelect() {
                   var sel = document.querySelector('[name=sic_description]');
-                  if (!sel) return;
+                  if (!sel) { setTimeout(initCatSelect, 100); return; }
                   sel.addEventListener('change', function() {
                     var wrapper = document.getElementById('other-category-wrapper');
                     var inp = document.getElementById('sic_description_other');
@@ -158,7 +158,8 @@ export default function PostBusinessPage({ searchParams }: { searchParams: { suc
                       inp.value = '';
                     }
                   });
-                });
+                }
+                initCatSelect();
               `}} />
 
               <label className='text-sm font-medium text-ink'>
