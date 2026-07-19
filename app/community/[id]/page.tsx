@@ -29,7 +29,7 @@ export default async function BusinessProfilePage({ params }: Props) {
 
   // Related orges — same category or city, exclude current
   const { data: relatedBusinesses } = await supabase.from('community')
-    .select('id, company_name, sic_description, trading_address_city, is_verified')
+    .select('id, name, category, city')
     .eq('status', 'active')
     .neq('id', params.id)
     .or(`category.eq.${org.category},city.eq.${org.city}`)
@@ -309,22 +309,17 @@ export default async function BusinessProfilePage({ params }: Props) {
                 </div>
                 <div className='divide-y divide-border'>
                   {relatedBusinesses.map((b) => {
-                    const rel_initial = b.company_name.split(' ').slice(0, 2).map((w: string) => w[0]).join('').toUpperCase()
+                    const rel_initial = (b.name || '').split(' ').slice(0, 2).map((w: string) => w[0]).join('').toUpperCase()
                     return (
                       <a key={b.id} href={`/org/${b.id}`} className='flex items-center gap-4 px-6 py-4 hover:bg-section transition-colors group'>
                         <div className='w-10 h-10 rounded-xl bg-green-soft flex items-center justify-center font-bold text-green text-sm shrink-0'>
                           {rel_initial}
                         </div>
                         <div className='flex-1 min-w-0'>
-                          <p className='text-sm font-semibold text-ink group-hover:text-green transition-colors truncate'>{b.company_name}</p>
-                          <p className='text-xs text-muted'>{b.sic_description || b.trading_address_city || 'Community org'}</p>
+                          <p className='text-sm font-semibold text-ink group-hover:text-green transition-colors truncate'>{b.name}</p>
+                          <p className='text-xs text-muted'>{b.category || b.city || 'Organisation listing'}</p>
                         </div>
-                        {b.is_verified && (
-                          <span className='inline-flex items-center gap-1 bg-gold-soft text-gold text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0'>
-                            <svg width='7' height='7' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='3.5'><polyline points='20 6 9 17 4 12'/></svg>
-                            Verified
-                          </span>
-                        )}
+
                         <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' className='text-muted group-hover:text-green transition-colors shrink-0'><path d='M9 18l6-6-6-6'/></svg>
                       </a>
                     )
