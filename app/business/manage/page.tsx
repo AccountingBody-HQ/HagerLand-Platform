@@ -17,6 +17,7 @@ export default function ManageBusinessPage() {
   const [category, setCategory] = useState('')
   const [submitterName, setSubmitterName] = useState('')
   const [promoText, setPromoText] = useState('')
+  const [promoExpiresAt, setPromoExpiresAt] = useState('')
 
   useEffect(() => {
     const t = new URLSearchParams(window.location.search).get('token')
@@ -33,6 +34,7 @@ export default function ManageBusinessPage() {
         setCategory(data.sic_description ?? '')
         setSubmitterName(data.submitter_name ?? '')
         setPromoText(data.promo_text ?? '')
+        setPromoExpiresAt(data.promo_expires_at ? data.promo_expires_at.split('T')[0] : '')
         setListingStatus(data.status)
         setLoading(false)
       })
@@ -56,6 +58,7 @@ export default function ManageBusinessPage() {
           sic_description: category,
           submitter_name: submitterName,
           promo_text: promoText,
+          promo_expires_at: promoExpiresAt ? new Date(promoExpiresAt).toISOString() : null,
         }),
       })
       const json = await res.json()
@@ -133,6 +136,21 @@ export default function ManageBusinessPage() {
                 <span className='block text-xs font-normal text-muted mt-0.5 mb-1'>Share offers, events, announcements, or any news you want customers to see.</span>
                 <textarea value={promoText} onChange={e => setPromoText(e.target.value)} rows={4} className={inp} placeholder='e.g. Live music this Saturday 7pm — book your table now! Special Eid menu available all week.' />
               </label>
+              {promoText && (
+                <label className='text-sm font-medium text-ink'>
+                  Promotion end date <span className='text-red-500'>*</span>
+                  <span className='block text-xs font-normal text-muted mt-0.5 mb-1'>Required — max 1 year. Expired promotions are hidden automatically.</span>
+                  <input
+                    type='date'
+                    value={promoExpiresAt}
+                    onChange={e => setPromoExpiresAt(e.target.value)}
+                    min={new Date().toISOString().split('T')[0]}
+                    max={new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
+                    required={!!promoText}
+                    className={inp}
+                  />
+                </label>
+              )}
               <div className='pt-2'>
                 <button type='submit' disabled={status === 'saving'} className='w-full bg-green hover:bg-green-dark text-white font-semibold rounded-full px-6 py-3 transition-colors disabled:opacity-60'>
                   {status === 'saving' ? 'Saving...' : 'Save changes'}

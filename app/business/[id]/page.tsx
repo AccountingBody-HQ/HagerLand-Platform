@@ -37,6 +37,7 @@ export default async function BusinessProfilePage({ params }: Props) {
 
   const initial = business.company_name.split(' ').slice(0, 2).map((w: string) => w[0]).join('').toUpperCase()
   const enquiryEmail = business.contact_email || business.email || null
+  const promoActive = business.promo_text && (!business.promo_expires_at || new Date(business.promo_expires_at) > new Date())
   const description = business.ai_description || business.sic_description
     ? `${business.company_name} is a verified community business${business.trading_address_city ? ` based in ${business.trading_address_city}` : ''}${business.sic_description ? `, specialising in ${business.sic_description}` : ''}. Listed on HagerLand — the free, verified community directory.`
     : null
@@ -171,7 +172,7 @@ export default async function BusinessProfilePage({ params }: Props) {
           <div className='lg:col-span-2 space-y-5'>
 
             {/* What's on — ABOVE About when promo exists */}
-            {business.promo_text && (
+            {promoActive && (
 
               <div className='relative overflow-hidden rounded-2xl border border-green/20' style={{background: 'linear-gradient(135deg, #f0f9f4 0%, #ffffff 100%)'}}>
                 <div className='absolute top-0 right-0 w-32 h-32 opacity-10 pointer-events-none' style={{background: 'radial-gradient(circle at top right, #1C7C4C 0%, transparent 70%)'}} />
@@ -239,7 +240,7 @@ export default async function BusinessProfilePage({ params }: Props) {
             </div>
 
             {/* What's on empty state — BELOW About when no promo */}
-            {!business.promo_text && (
+            {!promoActive && (
               <div className='border-2 border-dashed border-border rounded-2xl px-6 py-8 text-center'>
                 <div className='w-10 h-10 rounded-xl bg-green-soft flex items-center justify-center mx-auto mb-3'>
                   <svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' className='text-green'><path d='M3 11l19-9-9 19-2-8-8-2z'/></svg>
