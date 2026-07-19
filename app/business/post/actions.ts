@@ -47,6 +47,9 @@ export async function postBusiness(formData: FormData) {
   }
 
   const companyName   = (formData.get('company_name') as string ?? '').trim()
+  const rawCategory     = (formData.get('sic_description') as string ?? '').trim()
+  const otherCategory   = (formData.get('sic_description_other') as string ?? '').trim()
+  const sic_description = rawCategory === 'Other' ? otherCategory : rawCategory
   const city          = (formData.get('trading_address_city') as string ?? '').trim()
   const countryName     = (formData.get('country') as string ?? '').trim()
   const address         = (formData.get('address') as string ?? '').trim()
@@ -56,7 +59,6 @@ export async function postBusiness(formData: FormData) {
   const whatsapp        = (formData.get('whatsapp') as string ?? '').trim()
   const phone         = (formData.get('phone') as string ?? '').trim()
   const website       = (formData.get('website') as string ?? '').trim()
-  const category      = (formData.get('sic_description') as string ?? '').trim()
   const contactEmail  = (formData.get('contact_email') as string ?? '').trim()
   const submitterName  = (formData.get('submitter_name') as string ?? '').trim()
   const description    = (formData.get('description') as string ?? '').trim()
@@ -85,7 +87,7 @@ export async function postBusiness(formData: FormData) {
     whatsapp:             whatsapp || null,
     phone:                phone || null,
     website:              website || null,
-    sic_description:      category || null,
+    sic_description:      sic_description || null,
     contact_email:        contactEmail,
     ai_description:       description || null,
     submitter_name:       submitterName || null,

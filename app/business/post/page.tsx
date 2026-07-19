@@ -136,6 +136,31 @@ export default function PostBusinessPage({ searchParams }: { searchParams: { suc
                 </select>
               </label>
 
+              <div id='other-category-wrapper' style={{display:'none'}}>
+                <label className='text-sm font-medium text-ink'>
+                  Please specify your category *
+                  <input name='sic_description_other' id='sic_description_other' className={inp} placeholder='e.g. Funeral Services' />
+                </label>
+              </div>
+              <script dangerouslySetInnerHTML={{__html: `
+                document.addEventListener('DOMContentLoaded', function() {
+                  var sel = document.querySelector('[name=sic_description]');
+                  if (!sel) return;
+                  sel.addEventListener('change', function() {
+                    var wrapper = document.getElementById('other-category-wrapper');
+                    var inp = document.getElementById('sic_description_other');
+                    if (this.value === 'Other') {
+                      wrapper.style.display = 'block';
+                      inp.required = true;
+                    } else {
+                      wrapper.style.display = 'none';
+                      inp.required = false;
+                      inp.value = '';
+                    }
+                  });
+                });
+              `}} />
+
               <label className='text-sm font-medium text-ink'>
                 About your business
                 <textarea name='description' rows={4} className={inp + ' resize-none'} placeholder='Tell us about your business — what you offer, who you serve, what makes you special...' />
