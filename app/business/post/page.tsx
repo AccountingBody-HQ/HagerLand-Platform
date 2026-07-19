@@ -36,7 +36,7 @@ export default function PostBusinessPage({ searchParams }: { searchParams: { suc
 
             {error && (
               <div className='bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg mb-6'>
-                {error === 'missing' ? 'Please fill in all required fields — business name, your name, email, and about your business are required.' : error === 'invalid-email' ? 'Please enter a valid email address.' : 'Something went wrong. Please try again.'}
+                {error === 'missing' ? 'Please fill in all required fields — business name, your name, email, and about your business are required.' : error === 'invalid-email' ? 'Please enter a valid email address.' : error === 'expired' ? 'Your verification link has expired. Please submit your listing again.' : 'Something went wrong. Please try again.'}
               </div>
             )}
 

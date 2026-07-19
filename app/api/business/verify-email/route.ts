@@ -58,6 +58,13 @@ export async function GET(req: NextRequest) {
 
     if (error || !data) return NextResponse.redirect(new URL('/business/post?verified=invalid', req.url))
     if (data.status !== 'pending_verification') return NextResponse.redirect(new URL('/business?verified=already', req.url))
+    // Check 24-hour expiry
+    const submittedAt = new Date(data.first_seen_at)
+    const hoursSince = (Date.now() - submittedAt.getTime()) / (1000 * 60 * 60)
+    if (hoursSince > 24) {
+      await supabase.from('companies').delete().eq('id', data.id)
+      return NextResponse.redirect(new URL('/business/post?error=expired', req.url))
+    }
 
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://hagerland-platform.vercel.app'
     const manageUrl = `${baseUrl}/business/manage?token=${data.manage_token}`
