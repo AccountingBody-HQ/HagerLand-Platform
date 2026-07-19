@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
 
     const { data: existing, error: findError } = await supabase
       .from('companies')
-      .select('id, status, company_name, trading_address_city, phone, website, sic_description, submitter_name')
+      .select('id, status, company_name, trading_address_city, phone, website, sic_description, submitter_name, promo_text, promo_expires_at')
       .eq('manage_token', token)
       .single()
     if (findError || !existing) return NextResponse.json({ error: 'Invalid token' }, { status: 404 })
@@ -50,6 +50,8 @@ export async function POST(req: NextRequest) {
       website: website?.trim() || null,
       sic_description: sic_description?.trim() || null,
       submitter_name: submitter_name?.trim() || null,
+      promo_text: body.promo_text ?? null,
+      promo_expires_at: body.promo_expires_at ? new Date(new Date(body.promo_expires_at).setHours(23, 59, 59, 999)).toISOString() : null,
     }
 
     // Build diff — only store fields that actually changed
@@ -60,36 +62,35 @@ export async function POST(req: NextRequest) {
       website: existing.website,
       sic_description: existing.sic_description,
       submitter_name: existing.submitter_name,
+      promo_text: existing.promo_text ?? null,
+      promo_expires_at: existing.promo_expires_at ?? null,
     }
 
     const changedFields: Record<string, { old: string | null, new: string | null }> = {}
     for (const key of Object.keys(newDetails) as Array<keyof typeof newDetails>) {
-      if (newDetails[key] !== oldDetails[key]) {
-        changedFields[key] = { old: oldDetails[key] ?? null, new: newDetails[key] ?? null }
+      const oldVal = (oldDetails as Record<string, string | null>)[key] ?? null
+      const newVal = (newDetails as Record<string, string | null>)[key] ?? null
+      if (newVal !== oldVal) {
+        changedFields[key] = { old: oldVal, new: newVal }
       }
     }
 
-    const hasDetailChanges = Object.keys(changedFields).length > 0
+    const hasChanges = Object.keys(changedFields).length > 0
 
-    const updatePayload: Record<string, unknown> = {
-      // Promo always goes live immediately
-      promo_text: body.promo_text ?? null,
-      promo_expires_at: body.promo_expires_at ?? null,
-    }
+    const updatePayload: Record<string, unknown> = {}
 
-    if (hasDetailChanges) {
-      // Store changes for admin review — don't apply to live fields yet
+    if (hasChanges) {
+      // All changes go into pending_changes for admin review
       updatePayload.pending_changes = changedFields
       updatePayload.status = existing.status === 'active' ? 'pending' : existing.status
     }
-
     const { error: updateError } = await supabase
       .from('companies')
       .update(updatePayload)
       .eq('id', existing.id)
 
     if (updateError) return NextResponse.json({ error: updateError.message }, { status: 500 })
-    return NextResponse.json({ ok: true, hasPendingChanges: hasDetailChanges })
+    return NextResponse.json({ ok: true, hasPendingChanges: hasChanges })
   } catch (err) {
     console.error('Update business error:', err)
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
