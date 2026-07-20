@@ -25,6 +25,7 @@ const listLinks = [
   { href: '/jobs/post', label: 'Post a job' },
   { href: '/housing/post', label: 'List a property' },
   { href: '/money/post', label: 'List a financial service' },
+  { href: '/cars/post', label: 'List a car & taxi service' },
   { href: '/events/post', label: 'Post an event' },
   { href: '/tutors/post', label: 'List as a tutor' },
   { href: '/community/post', label: 'List an organisation' },
