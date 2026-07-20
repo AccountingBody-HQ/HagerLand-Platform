@@ -45,7 +45,9 @@ export function MobileNav() {
 
           {/* Language switcher */}
           <div className="px-5 pt-6 pb-4">
-            <MobileLangSwitcher />
+            <div className="w-fit">
+              <MobileLangSwitcher />
+            </div>
           </div>
 
           {/* Eyebrow */}
