@@ -41,7 +41,7 @@ const SECTIONS = [
 const TRUST = [
   { stat: '100%', label: 'Verified listings', body: 'Every submission reviewed by our team before going live.' },
   { stat: 'Free', label: 'Always free to list', body: 'No fees, no subscriptions. Community first, always.' },
-  { stat: '7', label: 'Categories', body: 'Businesses, jobs, housing, cars, tutors, community and events.' },
+  { stat: '8', label: 'Categories', body: 'Businesses, jobs, housing, money, cars, tutors, community and events.' },
   { stat: 'Global', label: 'Diaspora-wide', body: 'Serving the Ethiopian community wherever in the world you are.' },
 ] as const
 
