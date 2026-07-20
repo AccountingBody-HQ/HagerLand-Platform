@@ -41,10 +41,9 @@ export async function postBusiness(formData: FormData) {
   if (isHoneypotFilled(formData)) redirect('/business?error=1')
 
   const turnstileToken = formData.get('cf-turnstile-response') as string | null
-  if (turnstileToken) {
-    const isHuman = await verifyTurnstileToken(turnstileToken)
-    if (!isHuman) redirect('/business?error=1')
-  }
+  if (!turnstileToken) redirect('/business?error=1')
+  const isHuman = await verifyTurnstileToken(turnstileToken)
+  if (!isHuman) redirect('/business?error=1')
 
   const companyName   = (formData.get('company_name') as string ?? '').trim()
   const rawCategory     = (formData.get('sic_description') as string ?? '').trim()

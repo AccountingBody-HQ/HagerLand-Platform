@@ -41,10 +41,9 @@ export async function postHousing(formData: FormData) {
   if (isHoneypotFilled(formData)) redirect('/housing?error=1')
 
   const turnstileToken = formData.get('cf-turnstile-response') as string | null
-  if (turnstileToken) {
-    const isHuman = await verifyTurnstileToken(turnstileToken)
-    if (!isHuman) redirect('/housing?error=1')
-  }
+  if (!turnstileToken) redirect('/housing?error=1')
+  const isHuman = await verifyTurnstileToken(turnstileToken)
+  if (!isHuman) redirect('/housing?error=1')
 
   const listingTitle  = (formData.get('title') as string ?? '').trim()
   const submitterName = (formData.get('submitter_name') as string ?? '').trim()

@@ -41,10 +41,9 @@ export async function postEvents(formData: FormData) {
   if (isHoneypotFilled(formData)) redirect('/events?error=1')
 
   const turnstileToken = formData.get('cf-turnstile-response') as string | null
-  if (turnstileToken) {
-    const isHuman = await verifyTurnstileToken(turnstileToken)
-    if (!isHuman) redirect('/events?error=1')
-  }
+  if (!turnstileToken) redirect('/events?error=1')
+  const isHuman = await verifyTurnstileToken(turnstileToken)
+  if (!isHuman) redirect('/events?error=1')
 
   const listingTitle  = (formData.get('title') as string ?? '').trim()
   const submitterName = (formData.get('submitter_name') as string ?? '').trim()
