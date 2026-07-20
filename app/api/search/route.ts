@@ -3,20 +3,7 @@ export const runtime = 'nodejs'
 
 import { NextRequest, NextResponse } from 'next/server'
 
-// In-memory rate limiter: 30 requests per 60 seconds per IP
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now()
-  const entry = rateLimitMap.get(ip)
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + 60_000 })
-    return false
-  }
-  if (entry.count >= 30) return true
-  entry.count++
-  return false
-}
+import { isRateLimited as checkRateLimit } from '@/lib/rate-limit'
 
 // Relevance scoring: exact > starts-with > word-boundary > contains
 function scoreResult(title: string, query: string): number {
@@ -36,7 +23,7 @@ export async function GET(request: NextRequest) {
 
   const ip =
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
-  if (isRateLimited(ip)) {
+  if (await checkRateLimit(ip, 30, 1)) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
   }
 
