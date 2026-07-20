@@ -251,7 +251,7 @@ export default async function HomePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-14">
             {TRUST.map((item) => (
               <div key={item.label} className="bg-white border border-green/15 rounded-2xl p-7">
-                <p className="text-3xl font-bold text-green mb-1">{item.stat}</p>
+                <p className="text-3xl font-bold text-green mb-1" translate="no">{item.stat}</p>
                 <p className="text-sm font-bold text-ink mb-3">{item.label}</p>
                 <p className="text-sm text-muted leading-relaxed">{item.body}</p>
               </div>
