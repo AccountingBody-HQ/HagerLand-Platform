@@ -3,23 +3,9 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Logo } from '@/components/Logo'
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 
-function LanguageSwitcher() {
-  const pathname = usePathname()
-  const pageUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://hagerland-platform.vercel.app') + pathname
-  return (
-    <div className="flex items-center gap-0.5 border border-white/20 rounded-full px-1.5 py-1.5 bg-white/8">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-white/40 mx-1"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
-      <span className="text-[11px] font-bold text-white px-2.5 py-1 rounded-full bg-white/20 tracking-wide">EN</span>
-      <a href={`https://translate.google.com/translate?sl=en&tl=am&u=${encodeURIComponent(pageUrl)}`}
-        target="_blank" rel="noopener noreferrer"
-        className="text-[11px] font-bold text-white/50 hover:text-white px-2.5 py-1 rounded-full hover:bg-white/15 transition-all tracking-wide">አማ</a>
-      <a href={`https://translate.google.com/translate?sl=en&tl=om&u=${encodeURIComponent(pageUrl)}`}
-        target="_blank" rel="noopener noreferrer"
-        className="text-[11px] font-bold text-white/50 hover:text-white px-2.5 py-1 rounded-full hover:bg-white/15 transition-all tracking-wide">OM</a>
-    </div>
-  )
-}
+
 
 const SECTIONS = [
   { href: '/business', label: 'Businesses', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M8 3v18M2 9h20"/></svg>', desc: 'Find verified businesses' },
@@ -53,7 +39,7 @@ export function MobileNav() {
               <span className="font-bold text-lg text-white tracking-tight">HagerLand</span>
             </Link>
             <div className="flex items-center gap-2">
-              <LanguageSwitcher />
+              <LanguageSwitcher dark={true} />
               <button onClick={() => setOpen(false)} aria-label="Close menu" className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 transition-colors">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12" strokeLinecap="round"/></svg>
               </button>
