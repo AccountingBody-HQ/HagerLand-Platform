@@ -18,14 +18,14 @@ const COLORS = {
 }
 
 const SECTIONS = [
-  { table: 'jobs', label: 'Jobs', titleField: 'title', subtitleFields: ['category', 'city'] },
-  { table: 'housing', label: 'Housing', titleField: 'title', subtitleFields: ['category', 'city'] },
-  { table: 'cars', label: 'Cars', titleField: 'title', subtitleFields: ['category', 'city'] },
-  { table: 'tutors', label: 'Tutors', titleField: 'name', subtitleFields: ['category', 'city'] },
-  { table: 'community', label: 'Community', titleField: 'name', subtitleFields: ['category', 'city'] },
-  { table: 'events', label: 'Events', titleField: 'title', subtitleFields: ['category', 'city'] },
-  { table: 'companies', label: 'Business', titleField: 'company_name', subtitleFields: ['sic_description', 'trading_address_city'] },
-  { table: 'money', label: 'Money', titleField: 'title', subtitleFields: ['category', 'city'] },
+  { table: 'jobs', label: 'Jobs', titleField: 'title', subtitleFields: ['category', 'city'], adminPath: 'jobs' },
+  { table: 'housing', label: 'Housing', titleField: 'title', subtitleFields: ['category', 'city'], adminPath: 'housing' },
+  { table: 'cars', label: 'Cars', titleField: 'title', subtitleFields: ['category', 'city'], adminPath: 'cars' },
+  { table: 'tutors', label: 'Tutors', titleField: 'name', subtitleFields: ['category', 'city'], adminPath: 'tutors' },
+  { table: 'community', label: 'Community', titleField: 'name', subtitleFields: ['category', 'city'], adminPath: 'community' },
+  { table: 'events', label: 'Events', titleField: 'title', subtitleFields: ['category', 'city'], adminPath: 'events' },
+  { table: 'companies', label: 'Business', titleField: 'company_name', subtitleFields: ['sic_description', 'trading_address_city'], adminPath: 'businesses' },
+  { table: 'money', label: 'Money', titleField: 'title', subtitleFields: ['category', 'city'], adminPath: 'money' },
 ] as const
 
 export default async function ReviewPage() {
@@ -49,7 +49,6 @@ export default async function ReviewPage() {
     )
   )
 
-
   const { data: pendingClaims } = await supabaseAdmin
     .from('business_claims')
     .select('id, company_id, claimant_name, claimant_email, created_at, companies(company_name)')
@@ -70,7 +69,7 @@ export default async function ReviewPage() {
             </h1>
           </div>
           <Link href="/roodber8" style={{ color: COLORS.muted, fontSize: 13, border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '8px 16px', textDecoration: 'none' }}>
-            Add a Business
+            ← Command Centre
           </Link>
         </div>
 
@@ -92,6 +91,10 @@ export default async function ReviewPage() {
                     </p>
                   </div>
                   <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+                    <Link href={`/roodber8/businesses/${claim.company_id}`}
+                      style={{ background: 'transparent', color: COLORS.muted, border: `1px solid ${COLORS.border}`, borderRadius: 6, padding: '6px 14px', fontSize: 12, fontWeight: 600, textDecoration: 'none', display: 'inline-block' }}>
+                      View
+                    </Link>
                     <form action={approveClaim.bind(null, claim.id, claim.company_id)}>
                       <button type="submit"
                         style={{ background: COLORS.green, color: '#fff', border: 'none', borderRadius: 6, padding: '6px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
@@ -110,6 +113,7 @@ export default async function ReviewPage() {
             </div>
           </div>
         )}
+
         {totalPending === 0 && (
           <div style={{ backgroundColor: COLORS.panel, border: `1px solid ${COLORS.border}`, borderRadius: 12, padding: 32, textAlign: 'center', color: COLORS.muted }}>
             Nothing pending review right now.
@@ -147,6 +151,12 @@ export default async function ReviewPage() {
                       )}
                     </div>
                     <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+                      <Link
+                        href={`/roodber8/${section.adminPath}/${item.id}`}
+                        style={{ background: 'transparent', color: COLORS.muted, border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '8px 14px', fontSize: 13, fontWeight: 600, textDecoration: 'none', display: 'inline-block' }}
+                      >
+                        View
+                      </Link>
                       <form action={approveListing.bind(null, section.table, item.id)}>
                         <button type="submit" style={{ background: COLORS.green, color: '#fff', border: 'none', borderRadius: 8, padding: '8px 14px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
                           Approve
