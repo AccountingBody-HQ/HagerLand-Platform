@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { SiteNav } from '@/components/SiteNav'
 import { SiteFooter } from '@/components/SiteFooter'
 
-type ResultType = 'all' | 'business' | 'job' | 'housing' | 'car' | 'tutor' | 'community' | 'event'
+type ResultType = 'all' | 'business' | 'job' | 'housing' | 'money' | 'car' | 'tutor' | 'community' | 'event'
 
 type SearchResult = {
   id: string
@@ -21,6 +21,7 @@ const FILTERS: { id: ResultType; label: string }[] = [
   { id: 'business', label: 'Directory' },
   { id: 'job', label: 'Jobs' },
   { id: 'housing', label: 'Housing' },
+  { id: 'money', label: 'Money' },
   { id: 'car', label: 'Cars' },
   { id: 'tutor', label: 'Tutors' },
   { id: 'community', label: 'Community' },
@@ -34,6 +35,7 @@ function badgeClass(type: string) {
     business: 'bg-green-soft text-green',
     job: 'bg-gold-soft text-gold',
     housing: 'bg-green-soft text-green',
+    money: 'bg-gold-soft text-gold',
     car: 'bg-gold-soft text-gold',
     tutor: 'bg-green-soft text-green',
     community: 'bg-gold-soft text-gold',
@@ -47,6 +49,7 @@ function typeLabel(type: string) {
     business: 'Directory',
     job: 'Job',
     housing: 'Housing',
+    money: 'Money',
     car: 'Car/Taxi',
     tutor: 'Tutor',
     community: 'Community',
@@ -110,7 +113,7 @@ function SearchInner() {
             Search HagerLand
           </h1>
           <p className="text-muted text-sm sm:text-base mb-6">
-            Search across businesses, jobs, housing, cars, tutors, community, and events.
+            Search across businesses, jobs, housing, money, cars, tutors, community, and events.
           </p>
           <div className="relative max-w-lg mx-auto">
             <input
