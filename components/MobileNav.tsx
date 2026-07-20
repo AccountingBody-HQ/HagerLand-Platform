@@ -4,6 +4,25 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Logo } from '@/components/Logo'
 
+function LanguageSwitcher() {
+  const pathname = usePathname()
+  const pageUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://hagerland-platform.vercel.app') + pathname
+  return (
+    <div className="flex items-center justify-center gap-2">
+      <span className="text-xs text-white/30 uppercase font-bold tracking-widest">Language</span>
+      <div className="flex items-center gap-1.5">
+        <span className="text-xs font-bold text-white/60 px-2 py-1 rounded-full bg-white/10">EN</span>
+        <a href={`https://translate.google.com/translate?sl=en&tl=am&u=${encodeURIComponent(pageUrl)}`}
+          target="_blank" rel="noopener noreferrer"
+          className="text-xs font-bold text-white/40 hover:text-white/80 px-2 py-1 rounded-full hover:bg-white/10 transition-colors">አማ</a>
+        <a href={`https://translate.google.com/translate?sl=en&tl=om&u=${encodeURIComponent(pageUrl)}`}
+          target="_blank" rel="noopener noreferrer"
+          className="text-xs font-bold text-white/40 hover:text-white/80 px-2 py-1 rounded-full hover:bg-white/10 transition-colors">OM</a>
+      </div>
+    </div>
+  )
+}
+
 const SECTIONS = [
   { href: '/business', label: 'Businesses', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M8 3v18M2 9h20"/></svg>', desc: 'Find verified businesses' },
   { href: '/jobs', label: 'Jobs', icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>', desc: 'Work in the community' },
@@ -75,6 +94,7 @@ export function MobileNav() {
               className="flex items-center justify-center w-full bg-green hover:bg-green-dark text-white font-bold rounded-full py-3.5 text-sm transition-colors">
               List your business — free
             </Link>
+            <LanguageSwitcher />
             <div className="flex items-center justify-between">
               <p className="text-xs text-white/25">ሃገር — Homeland</p>
               <div className="flex items-center gap-3">
