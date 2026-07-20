@@ -24,9 +24,9 @@ export function SiteNav() {
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4'>
 
         {/* Logo */}
-        <Link href='/' className='flex items-center gap-2 shrink-0'>
+        <Link href='/' className='flex items-center gap-2 shrink-0' translate="no">
           <Logo className='w-7 h-7' />
-          <span className='font-bold text-base text-ink tracking-tight'>HagerLand</span>
+          <span className='font-bold text-base text-ink tracking-tight' translate="no">HagerLand</span>
         </Link>
 
         {/* Desktop nav links */}

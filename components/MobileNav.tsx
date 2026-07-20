@@ -3,7 +3,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Logo } from '@/components/Logo'
-import { LanguageSwitcher } from '@/components/LanguageSwitcher'
+import { MobileLangSwitcher } from '@/components/LanguageSwitcher'
 
 
 
@@ -45,7 +45,7 @@ export function MobileNav() {
 
           {/* Language switcher */}
           <div className="px-5 pt-6 pb-4">
-            <LanguageSwitcher dark={true} />
+            <MobileLangSwitcher />
           </div>
 
           {/* Eyebrow */}

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, IBM_Plex_Mono } from 'next/font/google'
 import './globals.css'
+import { HLLanguageProvider } from '@/components/HLLanguageContext'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -35,10 +36,31 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <script
+          src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+          async
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              function googleTranslateElementInit() {
+                new google.translate.TranslateElement(
+                  { pageLanguage: 'en', includedLanguages: 'am,om', autoDisplay: false },
+                  'google_translate_element'
+                );
+              }
+            `,
+          }}
+        />
+      </head>
       <body
         className={`${inter.variable} ${plexMono.variable} font-sans bg-bg text-ink`}
       >
-        {children}
+        <div id="google_translate_element" style={{ display: 'none' }} />
+        <HLLanguageProvider>
+          {children}
+        </HLLanguageProvider>
       </body>
     </html>
   )
