@@ -18,6 +18,11 @@ const HAGERLAND_CATEGORIES = [
   'Property',
 ]
 
+function formatOpeningHours(weekdayText: string[]): string {
+  if (!weekdayText || weekdayText.length === 0) return ''
+  return weekdayText.join('\n')
+}
+
 async function getPlaceDetails(placeId: string, apiKey: string) {
   const fields = 'formatted_phone_number,website,opening_hours'
   const url = 'https://maps.googleapis.com/maps/api/place/details/json?place_id=' + placeId + '&fields=' + fields + '&key=' + apiKey
@@ -28,7 +33,7 @@ async function getPlaceDetails(placeId: string, apiKey: string) {
   return {
     phone: r.formatted_phone_number || null,
     website: r.website || null,
-    opening_hours: r.opening_hours?.weekday_text?.join(', ') || null,
+    opening_hours: r.opening_hours?.weekday_text ? formatOpeningHours(r.opening_hours.weekday_text) : null,
   }
 }
 
@@ -47,7 +52,6 @@ export async function POST(request: NextRequest) {
 
   const apiKey = process.env.GOOGLE_PLACES_API_KEY!
 
-  // Step 1 — Fetch phone, website, hours from Google Place Details
   let phone = manualPhone || null
   let website = manualWebsite || null
   let opening_hours = null
@@ -59,17 +63,60 @@ export async function POST(request: NextRequest) {
     if (details.opening_hours) opening_hours = details.opening_hours
   }
 
-  // Step 2 — AI enhancement via Anthropic
-  const prompt = 'You are helping populate HagerLand, a free verified directory for the Ethiopian and Eritrean diaspora worldwide.' +
-    ' A business has been found via Google Places. Your job is to:' +
-    ' 1. Write a warm, professional About description (2-3 sentences) in HagerLand tone — community-focused, welcoming, factual. Never use the words Habesha, Ethiopian-owned, or Eritrean-owned.' +
-    ' 2. Map the business to the single best HagerLand category from this list: ' + HAGERLAND_CATEGORIES.join(', ') + '.' +
-    ' 3. Decide if this business likely serves the Ethiopian or Eritrean diaspora community (true/false).' +
-    ' Business data:' +
-    ' Name: ' + name +
-    ' Address: ' + address +
-    ' Google types: ' + (types || []).join(', ') +
-    ' Respond in this exact JSON format with no other text: {"ai_description": "...", "category": "...", "community_relevant": true}'
+  const prompt = `You are a professional content writer and business directory specialist for HagerLand — the premier verified directory for the Ethiopian and Eritrean diaspora worldwide.
+A business has been discovered via Google Places. Your task is to create a high-quality, professional directory listing.
+
+BUSINESS DATA FROM GOOGLE:
+Name: ${name}
+Full Address: ${address}
+City: ${city}
+Google Place Types: ${(types || []).join(', ')}
+Phone: ${phone || 'Not available'}
+Website: ${website || 'Not available'}
+Opening Hours: ${opening_hours || 'Not available'}
+
+YOUR TASKS:
+
+1. ABOUT DESCRIPTION (ai_description)
+Write 3 sentences that:
+- Open with a strong specific statement about what this business is and does
+- Mention the specific cuisine, service type, or expertise
+- Close with a welcoming sentence about why people should visit
+- Sound natural and professional like a premium directory
+- Are grounded in the business name, address, and type — do not invent details
+- Never use: Habesha, Ethiopian-owned, Eritrean-owned, diaspora-owned
+- Never use vague filler like "a wide range of services" or "committed to excellence"
+
+2. CATEGORY (category)
+Pick the single most accurate from:
+Food & Hospitality: restaurants, cafes, bars, catering, bakeries, takeaways, coffee shops
+Professional Services: accountants, lawyers, consultants, architects, financial advisors
+Health & Wellbeing: doctors, dentists, pharmacies, gyms, physiotherapy, opticians
+Beauty & Personal Care: hair salons, barbershops, nail bars, spas, beauty clinics
+Retail & Trade: shops, supermarkets, clothing, electronics, hardware, wholesale
+Transport & Travel: taxis, private hire, driving schools, car hire, travel agents
+Education & Training: tutors, schools, colleges, training centres, language schools
+Creative & Media: photographers, designers, videographers, marketing, music studios
+Community & Faith: churches, mosques, community centres, charities, cultural organisations
+Property: estate agents, letting agents, property management, construction
+
+Google type rules:
+restaurant/food/meal_takeaway/cafe/bar/bakery = Food & Hospitality
+doctor/dentist/pharmacy/hospital/gym = Health & Wellbeing
+hair_care/beauty_salon/spa/nail_salon = Beauty & Personal Care
+store/supermarket/clothing_store/electronics_store = Retail & Trade
+lawyer/accounting/finance/insurance_agency = Professional Services
+taxi_service/car_rental/driving_school/travel_agency = Transport & Travel
+school/university/tutoring/child_care = Education & Training
+church/mosque/place_of_worship/charity = Community & Faith
+real_estate_agency/lodging/general_contractor = Property
+art_gallery/photography/design/movie_studio = Creative & Media
+
+3. COMMUNITY RELEVANCE (community_relevant)
+true if the business name, location, or type suggests it serves the Ethiopian or Eritrean community. When uncertain, set true.
+
+RESPOND IN THIS EXACT JSON FORMAT WITH NO OTHER TEXT OR MARKDOWN:
+{"ai_description": "...", "category": "...", "community_relevant": true}`
 
   let ai_description = ''
   let sic_description = 'Professional Services'
@@ -95,7 +142,6 @@ export async function POST(request: NextRequest) {
     // AI enhancement failed — proceed with empty description
   }
 
-  // Step 3 — Insert into companies table
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SECRET_KEY!
