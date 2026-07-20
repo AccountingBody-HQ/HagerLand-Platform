@@ -19,9 +19,10 @@ const SECTIONS = [
   {
     title: 'What you may submit',
     body: [
-      'Listings must be accurate, lawful, and genuinely connected to the Ethiopian community.',
+      'Listings must be accurate, lawful, and genuinely connected to the Ethiopian or Eritrean community.',
       'You must have the right to submit the information you provide — do not submit details belonging to others without their permission.',
       'Listings must include valid contact details so that users can reach you directly.',
+      'By submitting a listing you confirm that the information provided is accurate and that you have the authority to submit it.',
     ],
   },
   {
@@ -29,8 +30,9 @@ const SECTIONS = [
     body: [
       'Listings that are misleading, fraudulent, or contain false information.',
       'Content that is offensive, discriminatory, or harmful to any individual or group.',
-      'Spam, duplicate listings, or content submitted for commercial gain unrelated to the Ethiopian community.',
+      'Spam, duplicate listings, or content submitted for commercial gain unrelated to the community.',
       'Any attempt to manipulate, scrape, or abuse the platform in a way that degrades the experience for others.',
+      'Submitting another person\'s personal data without their knowledge or consent.',
     ],
   },
   {
@@ -38,14 +40,14 @@ const SECTIONS = [
     body: [
       'All submissions are reviewed by our team before going live. We reserve the right to decline any listing without providing a reason.',
       'We reserve the right to remove any listing at any time, at our sole discretion.',
-      'Listings that are found to violate these terms after going live will be removed immediately.',
+      'Listings that are found to violate these terms after going live will be removed without notice.',
     ],
   },
   {
     title: 'Intellectual property',
     body: [
-      'The HagerLand name, logo, and platform design are the property of HagerLand.',
-      'By submitting a listing, you grant HagerLand a non-exclusive licence to display the submitted content on the platform.',
+      'The HagerLand name, logo, and platform design are the property of HagerLand / AccountingBody HQ.',
+      'By submitting a listing, you grant HagerLand a non-exclusive, royalty-free licence to display the submitted content on the platform for as long as the listing remains live.',
       'You retain ownership of any content you submit.',
     ],
   },
@@ -55,6 +57,15 @@ const SECTIONS = [
       'HagerLand is a directory platform. We do not endorse, verify the quality of, or take responsibility for any business, individual, or service listed.',
       'We are not liable for any loss or damage arising from your use of the platform or reliance on any listing.',
       'All interactions between users and listing owners are the sole responsibility of the parties involved.',
+      'To the fullest extent permitted by law, HagerLand\'s total liability to you for any claim arising out of or in connection with these terms shall not exceed £100.',
+    ],
+  },
+  {
+    title: 'Governing law and jurisdiction',
+    body: [
+      'These terms are governed by and construed in accordance with the laws of England and Wales.',
+      'Any dispute arising out of or in connection with these terms shall be subject to the exclusive jurisdiction of the courts of England and Wales.',
+      'If you are accessing HagerLand from outside the United Kingdom, you are responsible for compliance with any local laws that apply to you.',
     ],
   },
   {
@@ -72,10 +83,9 @@ export default function TermsPage() {
     <main className="min-h-screen bg-bg flex flex-col">
       <SiteNav />
 
-      {/* HERO BAND */}
       <section className="relative overflow-hidden bg-green">
-        <div className="absolute inset-0" style={{background: 'linear-gradient(135deg, #155F3A 0%, #1C7C4C 60%, #1e8a55 100%)'}} />
-        <div className="absolute inset-0 opacity-[0.07]" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px'}} />
+        <div className="absolute inset-0" style={{background: "linear-gradient(135deg, #155F3A 0%, #1C7C4C 60%, #1e8a55 100%)"}} />
+        <div className="absolute inset-0 opacity-[0.07]" style={{backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)", backgroundSize: "28px 28px"}} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
           <div className="max-w-2xl">
             <p className="inline-flex items-center gap-2.5 text-white/50 text-[11px] font-bold tracking-[0.18em] uppercase mb-6">
@@ -93,18 +103,15 @@ export default function TermsPage() {
         </div>
       </section>
 
-      {/* CONTENT */}
       <section className="bg-white flex-1">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
           <div className="grid lg:grid-cols-3 gap-12 lg:gap-16">
-
-            {/* NAV */}
             <div className="hidden lg:block">
               <p className="text-xs font-bold uppercase tracking-widest text-green mb-4">Contents</p>
               <ul className="space-y-2">
                 {SECTIONS.map((s) => (
                   <li key={s.title}>
-                    <a href={`#${s.title.toLowerCase().replace(/\s+/g, '-')}`}
+                    <a href={`#${s.title.toLowerCase().replace(/\s+/g, "-")}`}
                       className="text-sm text-muted hover:text-green transition-colors">
                       {s.title}
                     </a>
@@ -118,13 +125,12 @@ export default function TermsPage() {
               </div>
             </div>
 
-            {/* BODY */}
             <div className="lg:col-span-2 space-y-10">
               <p className="text-muted leading-relaxed">
                 These terms govern your use of HagerLand. Please read them carefully. By using the platform you agree to these terms in full.
               </p>
               {SECTIONS.map((s) => (
-                <div key={s.title} id={s.title.toLowerCase().replace(/\s+/g, '-')}>
+                <div key={s.title} id={s.title.toLowerCase().replace(/\s+/g, "-")}>
                   <h2 className="text-xl font-bold text-ink mb-4">{s.title}</h2>
                   <ul className="space-y-3">
                     {s.body.map((para, i) => (
@@ -141,7 +147,6 @@ export default function TermsPage() {
         </div>
       </section>
 
-      {/* CTA */}
       <section className="bg-green-soft">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
           <div className="bg-white border border-green/20 rounded-2xl px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-6">

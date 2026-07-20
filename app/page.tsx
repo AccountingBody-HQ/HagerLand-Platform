@@ -6,7 +6,19 @@ import { SearchBox } from '@/components/SearchBox'
 
 export const metadata = {
   title: 'HagerLand — The global network for Ethiopian business',
-  description: 'Find verified verified community businesses, jobs, housing, events, and community across the diaspora.',
+  description: 'Find verified community businesses, jobs, housing, events, and more across the diaspora. The free, verified directory serving Ethiopians and Eritreans worldwide.',
+  openGraph: {
+    title: 'HagerLand — The global network for Ethiopian business',
+    description: 'Find verified community businesses, jobs, housing, events, and more across the diaspora.',
+    url: 'https://hagerland.com',
+    siteName: 'HagerLand',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'HagerLand — The global network for Ethiopian business',
+    description: 'Find verified community businesses, jobs, housing, events, and more across the diaspora.',
+  },
 }
 
 const SECTIONS = [
