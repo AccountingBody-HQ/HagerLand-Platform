@@ -78,9 +78,9 @@ export default async function HomePage() {
           <div className="max-w-3xl">
             <p className="inline-flex items-center gap-2.5 text-white/50 text-[11px] font-bold tracking-[0.18em] uppercase mb-8">
               ሃገር
-              <span className="w-1 h-1 rounded-full bg-white/30" />
+              <span className="w-1 h-1 rounded-full bg-white/30" translate="no" />
               Homeland
-              <span className="w-1 h-1 rounded-full bg-white/30" />
+              <span className="w-1 h-1 rounded-full bg-white/30" translate="no" />
               Ethiopian Network
             </p>
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white leading-[1.05] tracking-tight mb-6">

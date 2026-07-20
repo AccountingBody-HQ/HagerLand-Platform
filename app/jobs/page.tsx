@@ -47,7 +47,7 @@ export default async function JobsPage({ searchParams }: { searchParams: { type?
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
           <div className="max-w-3xl">
             <p className="inline-flex items-center gap-2.5 text-white/50 text-[11px] font-bold tracking-[0.18em] uppercase mb-8">
-              ሃገር <span className="w-1 h-1 rounded-full bg-white/30" /> Homeland <span className="w-1 h-1 rounded-full bg-white/30" /> Jobs
+              ሃገር <span className="w-1 h-1 rounded-full bg-white/30" translate="no" /> Homeland <span className="w-1 h-1 rounded-full bg-white/30" translate="no" /> Jobs
             </p>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.05] tracking-tight mb-6">
               Find jobs
