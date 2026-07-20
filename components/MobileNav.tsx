@@ -44,7 +44,7 @@ export function MobileNav() {
           </div>
 
           {/* Language switcher */}
-          <div className="px-5 pt-6 pb-2 flex justify-center">
+          <div className="px-5 pt-6 pb-4">
             <LanguageSwitcher dark={true} />
           </div>
 
