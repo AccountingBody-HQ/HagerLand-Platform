@@ -8,17 +8,15 @@ function LanguageSwitcher() {
   const pathname = usePathname()
   const pageUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://hagerland-platform.vercel.app') + pathname
   return (
-    <div className="flex items-center justify-center gap-2">
-      <span className="text-xs text-white/30 uppercase font-bold tracking-widest">Language</span>
-      <div className="flex items-center gap-1.5">
-        <span className="text-xs font-bold text-white/60 px-2 py-1 rounded-full bg-white/10">EN</span>
-        <a href={`https://translate.google.com/translate?sl=en&tl=am&u=${encodeURIComponent(pageUrl)}`}
-          target="_blank" rel="noopener noreferrer"
-          className="text-xs font-bold text-white/40 hover:text-white/80 px-2 py-1 rounded-full hover:bg-white/10 transition-colors">አማ</a>
-        <a href={`https://translate.google.com/translate?sl=en&tl=om&u=${encodeURIComponent(pageUrl)}`}
-          target="_blank" rel="noopener noreferrer"
-          className="text-xs font-bold text-white/40 hover:text-white/80 px-2 py-1 rounded-full hover:bg-white/10 transition-colors">OM</a>
-      </div>
+    <div className="flex items-center gap-0.5 border border-white/20 rounded-full px-1.5 py-1.5 bg-white/8">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-white/40 mx-1"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
+      <span className="text-[11px] font-bold text-white px-2.5 py-1 rounded-full bg-white/20 tracking-wide">EN</span>
+      <a href={`https://translate.google.com/translate?sl=en&tl=am&u=${encodeURIComponent(pageUrl)}`}
+        target="_blank" rel="noopener noreferrer"
+        className="text-[11px] font-bold text-white/50 hover:text-white px-2.5 py-1 rounded-full hover:bg-white/15 transition-all tracking-wide">አማ</a>
+      <a href={`https://translate.google.com/translate?sl=en&tl=om&u=${encodeURIComponent(pageUrl)}`}
+        target="_blank" rel="noopener noreferrer"
+        className="text-[11px] font-bold text-white/50 hover:text-white px-2.5 py-1 rounded-full hover:bg-white/15 transition-all tracking-wide">OM</a>
     </div>
   )
 }
@@ -54,9 +52,12 @@ export function MobileNav() {
               <Logo className="w-7 h-7" />
               <span className="font-bold text-lg text-white tracking-tight">HagerLand</span>
             </Link>
-            <button onClick={() => setOpen(false)} aria-label="Close menu" className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 transition-colors">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12" strokeLinecap="round"/></svg>
-            </button>
+            <div className="flex items-center gap-2">
+              <LanguageSwitcher />
+              <button onClick={() => setOpen(false)} aria-label="Close menu" className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 transition-colors">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12" strokeLinecap="round"/></svg>
+              </button>
+            </div>
           </div>
 
           {/* Eyebrow */}
@@ -94,7 +95,6 @@ export function MobileNav() {
               className="flex items-center justify-center w-full bg-green hover:bg-green-dark text-white font-bold rounded-full py-3.5 text-sm transition-colors">
               List your business — free
             </Link>
-            <LanguageSwitcher />
             <div className="flex items-center justify-between">
               <p className="text-xs text-white/25">ሃገር — Homeland</p>
               <div className="flex items-center gap-3">
