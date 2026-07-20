@@ -38,16 +38,18 @@ export function MobileNav() {
               <Logo className="w-7 h-7" />
               <span className="font-bold text-lg text-white tracking-tight">HagerLand</span>
             </Link>
-            <div className="flex items-center gap-2">
-              <LanguageSwitcher dark={true} />
-              <button onClick={() => setOpen(false)} aria-label="Close menu" className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 transition-colors">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12" strokeLinecap="round"/></svg>
-              </button>
-            </div>
+            <button onClick={() => setOpen(false)} aria-label="Close menu" className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 transition-colors">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12" strokeLinecap="round"/></svg>
+            </button>
+          </div>
+
+          {/* Language switcher */}
+          <div className="px-5 pt-6 pb-2 flex justify-center">
+            <LanguageSwitcher dark={true} />
           </div>
 
           {/* Eyebrow */}
-          <div className="px-5 pt-6 pb-2">
+          <div className="px-5 pb-2">
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/30">Browse the directory</p>
           </div>
 
