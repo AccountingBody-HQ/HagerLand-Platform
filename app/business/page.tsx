@@ -78,17 +78,17 @@ export default async function BusinessPage({
               {count != null && count > 0 && (
                 <>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-2xl font-bold text-white">{count.toLocaleString()}</span>
+                    <span className="text-2xl font-bold text-white" translate="no">{count.toLocaleString()}</span>
                     <span className="text-white/40 text-sm">businesses listed</span>
                   </div>
                 </>
               )}
               <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-bold text-white">Free</span>
+                <span className="text-2xl font-bold text-white" translate="no">Free</span>
                 <span className="text-white/40 text-sm">to list</span>
               </div>
               <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-bold text-white">100%</span>
+                <span className="text-2xl font-bold text-white" translate="no">100%</span>
                 <span className="text-white/40 text-sm">verified</span>
               </div>
             </div>

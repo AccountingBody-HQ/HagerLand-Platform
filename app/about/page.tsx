@@ -103,7 +103,7 @@ export default function AboutPage() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
             {STATS.map((item) => (
               <div key={item.label} className="bg-white border border-border rounded-2xl p-7">
-                <p className="text-3xl font-bold text-green mb-1">{item.stat}</p>
+                <p className="text-3xl font-bold text-green mb-1" translate="no">{item.stat}</p>
                 <p className="text-sm font-bold text-ink mb-3">{item.label}</p>
                 <p className="text-sm text-muted leading-relaxed">{item.body}</p>
               </div>

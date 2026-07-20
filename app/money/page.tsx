@@ -56,9 +56,9 @@ export default async function MoneyPage({ searchParams }: { searchParams: { type
             </h1>
             <p className="text-white/65 text-lg sm:text-xl max-w-xl mb-10 leading-relaxed">Find trusted money transfer and financial services across the diaspora. Every listing reviewed by our team.</p>
             <div className="flex flex-wrap items-center gap-x-8 gap-y-4 mb-10">
-              {count != null && count > 0 && <div className="flex items-baseline gap-2"><span className="text-2xl font-bold text-white">{count.toLocaleString()}</span><span className="text-white/40 text-sm">services listed</span></div>}
-              <div className="flex items-baseline gap-2"><span className="text-2xl font-bold text-white">Free</span><span className="text-white/40 text-sm">to list</span></div>
-              <div className="flex items-baseline gap-2"><span className="text-2xl font-bold text-white">100%</span><span className="text-white/40 text-sm">verified</span></div>
+              {count != null && count > 0 && <div className="flex items-baseline gap-2"><span className="text-2xl font-bold text-white" translate="no">{count.toLocaleString()}</span><span className="text-white/40 text-sm">services listed</span></div>}
+              <div className="flex items-baseline gap-2"><span className="text-2xl font-bold text-white" translate="no">Free</span><span className="text-white/40 text-sm">to list</span></div>
+              <div className="flex items-baseline gap-2"><span className="text-2xl font-bold text-white" translate="no">100%</span><span className="text-white/40 text-sm">verified</span></div>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 max-w-xl">
               <div className="relative flex-1">

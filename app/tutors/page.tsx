@@ -50,8 +50,8 @@ export default async function TutorsPage({ searchParams }: { searchParams: { mod
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.05] tracking-tight mb-6">Find tutors<br /><span className="text-white/60">in the community,</span><br /><span className="text-white/60">worldwide.</span></h1>
             <p className="text-white/65 text-lg sm:text-xl max-w-xl mb-10 leading-relaxed">Find trusted tutors, or offer your own teaching and mentoring services.</p>
             <div className="flex flex-wrap items-center gap-x-8 gap-y-4 mb-10">
-              {count != null && count > 0 && <div className="flex items-baseline gap-2"><span className="text-2xl font-bold text-white">{count.toLocaleString()}</span><span className="text-white/40 text-sm">tutors listed</span></div>}
-              <div className="flex items-baseline gap-2"><span className="text-2xl font-bold text-white">Free</span><span className="text-white/40 text-sm">to list</span></div>
+              {count != null && count > 0 && <div className="flex items-baseline gap-2"><span className="text-2xl font-bold text-white" translate="no">{count.toLocaleString()}</span><span className="text-white/40 text-sm">tutors listed</span></div>}
+              <div className="flex items-baseline gap-2"><span className="text-2xl font-bold text-white" translate="no">Free</span><span className="text-white/40 text-sm">to list</span></div>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 max-w-xl">
               <div className="relative flex-1">

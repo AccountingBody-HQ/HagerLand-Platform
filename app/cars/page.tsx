@@ -50,8 +50,8 @@ export default async function CarsPage({ searchParams }: { searchParams: { type?
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.05] tracking-tight mb-6">Cars & taxi<br /><span className="text-white/60">services,</span><br /><span className="text-white/60">worldwide.</span></h1>
             <p className="text-white/65 text-lg sm:text-xl max-w-xl mb-10 leading-relaxed">Buy or sell a car, find a private hire service, or a trusted driver.</p>
             <div className="flex flex-wrap items-center gap-x-8 gap-y-4 mb-10">
-              {count != null && count > 0 && <div className="flex items-baseline gap-2"><span className="text-2xl font-bold text-white">{count.toLocaleString()}</span><span className="text-white/40 text-sm">listings</span></div>}
-              <div className="flex items-baseline gap-2"><span className="text-2xl font-bold text-white">Free</span><span className="text-white/40 text-sm">to post</span></div>
+              {count != null && count > 0 && <div className="flex items-baseline gap-2"><span className="text-2xl font-bold text-white" translate="no">{count.toLocaleString()}</span><span className="text-white/40 text-sm">listings</span></div>}
+              <div className="flex items-baseline gap-2"><span className="text-2xl font-bold text-white" translate="no">Free</span><span className="text-white/40 text-sm">to post</span></div>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 max-w-xl">
               <div className="relative flex-1">
