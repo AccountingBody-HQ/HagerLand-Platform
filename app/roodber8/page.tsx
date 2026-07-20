@@ -15,14 +15,14 @@ const C = {
 }
 
 const SECTIONS = [
-  { table: 'companies', label: 'Businesses', color: '#1C7C4C', href: '/roodber8/review' },
-  { table: 'jobs',      label: 'Jobs',       color: '#3b82f6', href: '/roodber8/review' },
-  { table: 'housing',   label: 'Housing',    color: '#8b5cf6', href: '/roodber8/review' },
-  { table: 'money',     label: 'Money',      color: '#f59e0b', href: '/roodber8/review' },
-  { table: 'cars',      label: 'Cars',       color: '#ec4899', href: '/roodber8/review' },
-  { table: 'tutors',    label: 'Tutors',     color: '#14b8a6', href: '/roodber8/review' },
-  { table: 'community', label: 'Community',  color: '#f97316', href: '/roodber8/review' },
-  { table: 'events',    label: 'Events',     color: '#a855f7', href: '/roodber8/review' },
+  { table: 'companies', label: 'Businesses', color: '#1C7C4C', href: '/roodber8/businesses' },
+  { table: 'jobs',      label: 'Jobs',       color: '#3b82f6', href: '/roodber8/jobs' },
+  { table: 'housing',   label: 'Housing',    color: '#8b5cf6', href: '/roodber8/housing' },
+  { table: 'money',     label: 'Money',      color: '#f59e0b', href: '/roodber8/money' },
+  { table: 'cars',      label: 'Cars',       color: '#ec4899', href: '/roodber8/cars' },
+  { table: 'tutors',    label: 'Tutors',     color: '#14b8a6', href: '/roodber8/tutors' },
+  { table: 'community', label: 'Community',  color: '#f97316', href: '/roodber8/community' },
+  { table: 'events',    label: 'Events',     color: '#a855f7', href: '/roodber8/events' },
 ] as const
 
 export default async function AdminPage() {
@@ -183,9 +183,14 @@ export default async function AdminPage() {
           <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
             {[
               { label: 'Review all pending listings', sub: `${totalPending} awaiting approval`, href: '/roodber8/review', color: C.gold },
-              { label: 'View live business directory', sub: 'Open public site', href: '/business', color: '#1C7C4C' },
-              { label: 'View live jobs board', sub: 'Open public site', href: '/jobs', color: '#3b82f6' },
-              { label: 'View live events', sub: 'Open public site', href: '/events', color: '#a855f7' },
+              { label: 'Businesses', sub: `${sectionStats[0].active} active · ${sectionStats[0].pending} pending`, href: '/roodber8/businesses', color: '#1C7C4C' },
+              { label: 'Jobs', sub: `${sectionStats[1].active} active · ${sectionStats[1].pending} pending`, href: '/roodber8/jobs', color: '#3b82f6' },
+              { label: 'Housing', sub: `${sectionStats[2].active} active · ${sectionStats[2].pending} pending`, href: '/roodber8/housing', color: '#8b5cf6' },
+              { label: 'Money', sub: `${sectionStats[3].active} active · ${sectionStats[3].pending} pending`, href: '/roodber8/money', color: '#f59e0b' },
+              { label: 'Cars', sub: `${sectionStats[4].active} active · ${sectionStats[4].pending} pending`, href: '/roodber8/cars', color: '#ec4899' },
+              { label: 'Tutors', sub: `${sectionStats[5].active} active · ${sectionStats[5].pending} pending`, href: '/roodber8/tutors', color: '#14b8a6' },
+              { label: 'Community', sub: `${sectionStats[6].active} active · ${sectionStats[6].pending} pending`, href: '/roodber8/community', color: '#f97316' },
+              { label: 'Events', sub: `${sectionStats[7].active} active · ${sectionStats[7].pending} pending`, href: '/roodber8/events', color: '#a855f7' },
             ].map(action => (
               <Link key={action.label} href={action.href}
                 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', borderRadius: 10, background: 'rgba(255,255,255,0.02)', border: '1px solid #1a2238', textDecoration: 'none' }}>
