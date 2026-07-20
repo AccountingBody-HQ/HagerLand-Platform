@@ -107,16 +107,7 @@ export default async function MoneyPage({ searchParams }: { searchParams: { type
                   <span className="ml-auto text-xs font-semibold text-green">View service →</span>
                 </div>
               </Link>
-            )) : (
-              <div className="col-span-full text-center py-20">
-                <div className="w-16 h-16 rounded-2xl bg-green-soft flex items-center justify-center mx-auto mb-4">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="text-green"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
-                </div>
-                <p className="font-bold text-ink mb-2">No money services listed yet</p>
-                <p className="text-sm text-muted mb-6">Be the first to list a money transfer or financial service.</p>
-                <Link href="/money/post" className="inline-flex items-center gap-2 bg-green hover:bg-green-dark text-white font-bold rounded-full px-6 py-3 text-sm transition-colors">List a service — free →</Link>
-              </div>
-            )}
+            )) : <p className="text-muted col-span-full text-center py-16">No money services listed yet.</p>}
           </div>
           {totalPages > 1 && (
             <div className="flex items-center justify-center gap-3 mt-10">
