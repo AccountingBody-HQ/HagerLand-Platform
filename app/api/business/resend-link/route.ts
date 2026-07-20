@@ -1,33 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
+import { isRateLimited } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
-
-// Rate limit: max 3 requests per email per 60 minutes
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
-
-function isRateLimited(email: string): boolean {
-  const now = Date.now()
-  const key = email.toLowerCase().trim()
-  const entry = rateLimitMap.get(key)
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(key, { count: 1, resetAt: now + 60 * 60 * 1000 })
-    return false
-  }
-  if (entry.count >= 3) return true
-  entry.count++
-  return false
-}
 
 export async function POST(req: NextRequest) {
   try {
     const { email } = await req.json()
     if (!email) return NextResponse.json({ error: 'Email required' }, { status: 400 })
 
-    // Always return ok to prevent email enumeration
-    // but silently drop if rate limited
-    if (isRateLimited(email)) {
+    if (await isRateLimited(email)) {
       return NextResponse.json({ ok: true })
     }
 
@@ -48,7 +31,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true })
     }
 
-    const listingsHtml = listings.map(l =>
+    const listingsHtml = listings.map((l: Record<string, string>) =>
       `<tr>
         <td style='padding:12px 14px;color:#152238;font-size:14px;font-weight:600;border-bottom:1px solid #e4e6e3;'>${l.company_name}</td>
         <td style='padding:12px 14px;border-bottom:1px solid #e4e6e3;'>
