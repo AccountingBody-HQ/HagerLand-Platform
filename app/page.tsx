@@ -181,12 +181,12 @@ export default async function HomePage() {
             </div>
             <div className="space-y-3">
               {[
-                { n: '01', title: 'Search or browse', body: 'Find what you need by name, category, or city. All 7 sections are fully searchable.' },
+                { n: '01', title: 'Search or browse', body: 'Find what you need by name, category, or city. All 8 sections are fully searchable.' },
                 { n: '02', title: 'Connect directly', body: 'Click to reveal contact details. Reach the listing owner directly — no middleman, no fees.' },
                 { n: '03', title: 'List for free', body: 'Submit your listing in under 2 minutes. Reviewed by our team and live within 48 hours.' },
               ].map((step) => (
                 <div key={step.n} className="group flex gap-5 p-5 bg-white rounded-2xl border border-border hover:border-green/40 hover:shadow-md transition-all">
-                  <span className="text-xs font-bold text-green mt-0.5 shrink-0 w-6 tabular-nums">{step.n}</span>
+                  <span className="text-xs font-bold text-green mt-0.5 shrink-0 w-6 tabular-nums" translate="no">{step.n}</span>
                   <div>
                     <h3 className="font-bold text-ink mb-1 text-sm">{step.title}</h3>
                     <p className="text-sm text-muted leading-relaxed">{step.body}</p>

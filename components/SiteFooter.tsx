@@ -47,7 +47,7 @@ export function SiteFooter() {
           <div className="lg:col-span-2">
             <Link href="/" className="flex items-center gap-2.5 mb-5">
               <Logo className="w-8 h-8" />
-              <span className="font-bold text-xl text-white tracking-tight">HagerLand</span>
+              <span className="font-bold text-xl text-white tracking-tight" translate="no">HagerLand</span>
             </Link>
             <p className="text-white/50 text-sm leading-relaxed max-w-xs mb-4">
               The global network for Ethiopian business, community, and culture. Supporting the diaspora wherever in the world you are.

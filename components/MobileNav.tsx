@@ -36,7 +36,7 @@ export function MobileNav() {
           <div className="flex items-center justify-between px-5 h-16 shrink-0 border-b border-white/10">
             <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-2.5">
               <Logo className="w-7 h-7" />
-              <span className="font-bold text-lg text-white tracking-tight">HagerLand</span>
+              <span className="font-bold text-lg text-white tracking-tight" translate="no">HagerLand</span>
             </Link>
             <button onClick={() => setOpen(false)} aria-label="Close menu" className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 transition-colors">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12" strokeLinecap="round"/></svg>
