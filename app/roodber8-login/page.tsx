@@ -1,5 +1,4 @@
 export const dynamic = 'force-dynamic'
-
 import { cookies } from 'next/headers'
 import { verifySessionToken, SESSION_COOKIE } from '@/lib/admin-auth'
 import { redirect } from 'next/navigation'
@@ -22,6 +21,8 @@ export default async function LoginPage({
   const token = cookies().get(SESSION_COOKIE)?.value
   const isAuth = verifySessionToken(token)
   if (isAuth) redirect('/roodber8')
+
+  const isRateLimited = searchParams.error === 'rate_limited'
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#080d1a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'system-ui,sans-serif' }}>
@@ -47,9 +48,14 @@ export default async function LoginPage({
             <input name='code' required maxLength={6} inputMode='numeric' autoComplete='one-time-code'
               style={{ ...inp, letterSpacing: '0.3em', textAlign: 'center' }} />
           </div>
-          {searchParams.error && (
+          {searchParams.error && !isRateLimited && (
             <div style={{ backgroundColor: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, padding: '10px 14px', marginBottom: 16, color: '#ef4444', fontSize: 13 }}>
               Invalid credentials. Please try again.
+            </div>
+          )}
+          {isRateLimited && (
+            <div style={{ backgroundColor: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, padding: '10px 14px', marginBottom: 16, color: '#ef4444', fontSize: 13 }}>
+              Too many failed attempts. Please wait 15 minutes before trying again.
             </div>
           )}
           <button type='submit'
