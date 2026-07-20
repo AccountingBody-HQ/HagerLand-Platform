@@ -16,7 +16,9 @@ const C = {
   danger: '#ef4444',
 }
 
-export default async function AdminBusinessesPage() {
+const PAGE_SIZE = 50
+
+export default async function AdminBusinessesPage({ searchParams }: { searchParams: { page?: string } }) {
   noStore()
   const token = cookies().get(SESSION_COOKIE)?.value
   if (!verifySessionToken(token)) redirect('/roodber8-login')
@@ -26,13 +28,19 @@ export default async function AdminBusinessesPage() {
     process.env.SUPABASE_SECRET_KEY!
   )
 
-  const { data: items } = await supabase
+  const page = Math.max(1, parseInt(searchParams.page ?? '1', 10))
+  const from = (page - 1) * PAGE_SIZE
+  const to = from + PAGE_SIZE - 1
+
+  const { data: items, count } = await supabase
     .from('companies')
-    .select('id, company_name, trading_address_city, sic_description, contact_email, submitter_name, status, email_verified_at, first_seen_at, is_verified, phone, website')
+    .select('id, company_name, trading_address_city, sic_description, contact_email, submitter_name, status, email_verified_at, first_seen_at, is_verified, phone, website', { count: 'exact' })
     .order('first_seen_at', { ascending: false })
-    .limit(100)
+    .range(from, to)
 
   const all = items ?? []
+  const totalPages = Math.ceil((count ?? 0) / PAGE_SIZE)
+
   const unverified = all.filter(i => i.status === 'pending_verification')
   const pending    = all.filter(i => i.status === 'pending')
   const active     = all.filter(i => i.status === 'active')
@@ -93,7 +101,7 @@ export default async function AdminBusinessesPage() {
         <Link href='/roodber8' style={{ color: C.faint, fontSize: 12, textDecoration: 'none' }}>← Command Centre</Link>
         <h1 style={{ fontSize: 24, fontWeight: 800, color: C.text, margin: '8px 0 4px' }}>Businesses</h1>
         <p style={{ fontSize: 13, color: C.faint, margin: 0 }}>
-          {active.length} active · {pending.length} pending review · {unverified.length} awaiting email verification · {rejected.length} rejected
+          {count ?? 0} total · {active.length} active · {pending.length} pending · {unverified.length} unverified · {rejected.length} rejected — page {page} of {totalPages}
         </p>
       </div>
 
@@ -116,7 +124,7 @@ export default async function AdminBusinessesPage() {
       )}
 
       <div style={{ marginBottom: 24 }}>
-        <h2 style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 12 }}>All Businesses ({all.length})</h2>
+        <h2 style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 12 }}>All Businesses ({count ?? 0})</h2>
         <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 14, overflow: 'hidden' }}>
           {all.length === 0
             ? <div style={{ padding: 32, textAlign: 'center', color: C.faint, fontSize: 13 }}>No businesses yet.</div>
@@ -124,6 +132,18 @@ export default async function AdminBusinessesPage() {
           }
         </div>
       </div>
+
+      {totalPages > 1 && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 24 }}>
+          {page > 1 && (
+            <a href={`/roodber8/businesses?page=${page - 1}`} style={{ background: C.panel, color: C.muted, border: `1px solid ${C.border}`, borderRadius: 8, padding: '8px 18px', fontSize: 13, textDecoration: 'none' }}>← Previous</a>
+          )}
+          <span style={{ fontSize: 13, color: C.faint }}>Page {page} of {totalPages}</span>
+          {page < totalPages && (
+            <a href={`/roodber8/businesses?page=${page + 1}`} style={{ background: C.panel, color: C.muted, border: `1px solid ${C.border}`, borderRadius: 8, padding: '8px 18px', fontSize: 13, textDecoration: 'none' }}>Next →</a>
+          )}
+        </div>
+      )}
     </div>
   )
 }
