@@ -102,7 +102,7 @@ export default async function HomePage() {
                 { value: 'Free', label: 'to list' },
               ].map((s) => (
                 <div key={s.label} className="flex items-baseline gap-2">
-                  <span className="text-2xl font-bold text-white">{s.value}</span>
+                  <span className="text-2xl font-bold text-white" translate="no">{s.value}</span>
                   <span className="text-white/40 text-sm">{s.label}</span>
                 </div>
               ))}
@@ -136,7 +136,7 @@ export default async function HomePage() {
               </div>
               <div className="relative flex items-end justify-between mt-8">
                 <div>
-                  <p className="text-4xl font-bold text-white">{counts.companies}</p>
+                  <p className="text-4xl font-bold text-white" translate="no">{counts.companies}</p>
                   <p className="text-white/50 text-xs mt-1">businesses listed</p>
                 </div>
                 <div className="w-11 h-11 rounded-full bg-white/20 group-hover:bg-white/30 flex items-center justify-center transition-colors">
@@ -153,7 +153,7 @@ export default async function HomePage() {
                   <h3 className="font-bold text-ink text-sm mb-1 group-hover:text-green transition-colors">{section.label}</h3>
                   <p className="text-xs text-muted leading-relaxed flex-1">{section.description}</p>
                   {counts[section.table] > 0 && (
-                    <p className="text-xs font-bold text-green mt-3">{counts[section.table].toLocaleString()} listings</p>
+                    <p className="text-xs font-bold text-green mt-3" translate="no">{counts[section.table].toLocaleString()} listings</p>
                   )}
                 </Link>
               ))}
