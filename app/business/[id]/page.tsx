@@ -309,45 +309,11 @@ export default async function BusinessProfilePage({ params }: Props) {
               </div>
             )}
 
-            {!promoActive && (
-              <div className='bg-white border border-border rounded-2xl overflow-hidden'>
-                <div className='px-6 py-5 border-b border-border'>
-                  <h2 className='font-bold text-ink text-base'>Got something to share?</h2>
-                  <p className='text-xs text-muted mt-0.5'>Add a promotion to your listing</p>
-                </div>
-                <div className='px-6 py-8 text-center'>
-                  <div className='w-10 h-10 rounded-xl bg-green-soft flex items-center justify-center mx-auto mb-3'>
-                    <svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' className='text-green'><path d='M3 11l19-9-9 19-2-8-8-2z'/></svg>
-                  </div>
-                  <p className='text-xs text-muted mb-4 max-w-xs mx-auto'>Post offers, events, or updates — your customers will see it here instantly.</p>
-                  <a href={business.is_verified ? '/business/edit-link' : `/business/${params.id}/claim?from=promotion`} className='inline-flex items-center gap-2 bg-green hover:bg-green-dark text-white text-xs font-bold rounded-full px-4 py-2 transition-colors'>
-                    <svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><circle cx='12' cy='12' r='10'/><line x1='12' y1='8' x2='12' y2='16'/><line x1='8' y1='12' x2='16' y2='12'/></svg>
-                    Add a promotion
-                  </a>
-                </div>
-              </div>
-            )}
+
           </div>
 
 
-            {/* Claim */}
-            {!business.is_verified && (
-              <div className='bg-white border border-border rounded-2xl overflow-hidden'>
-                <div className='px-6 py-5 border-b border-border'>
-                  <h2 className='font-bold text-ink text-base'>Own or manage this business?</h2>
-                  <p className='text-xs text-muted mt-0.5'>Take control of your listing</p>
-                </div>
-                <div className='px-6 py-6 flex items-center justify-between gap-6'>
-                  <p className='text-sm text-muted leading-relaxed'>
-                    Take control of your listing — update your details and add promotions.
-                  </p>
-                  <Link href={`/business/${params.id}/claim`} className='inline-flex items-center gap-2 bg-green hover:bg-green-dark text-white font-bold rounded-full px-6 py-2.5 text-sm transition-colors shrink-0'>
-                    <svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/></svg>
-                    Request access
-                  </Link>
-                </div>
-              </div>
-            )}
+
           {/* ── RIGHT SIDEBAR */}
           <div className='space-y-5'>
 
@@ -454,6 +420,46 @@ export default async function BusinessProfilePage({ params }: Props) {
               </Link>
             </div>
           </div>
+        </div>
+      </div>
+      {/* ══ BOTTOM SECTION — full width, below grid, correct mobile order */}
+      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10'>
+        <div className='lg:max-w-[66%] space-y-5'>
+          {!promoActive && (
+            <div className='bg-white border border-border rounded-2xl overflow-hidden'>
+              <div className='px-6 py-5 border-b border-border'>
+                <h2 className='font-bold text-ink text-base'>Got something to share?</h2>
+                <p className='text-xs text-muted mt-0.5'>Add a promotion to your listing</p>
+              </div>
+              <div className='px-6 py-8 text-center'>
+                <div className='w-10 h-10 rounded-xl bg-green-soft flex items-center justify-center mx-auto mb-3'>
+                  <svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' className='text-green'><path d='M3 11l19-9-9 19-2-8-8-2z'/></svg>
+                </div>
+                <p className='text-xs text-muted mb-4 max-w-xs mx-auto'>Post offers, events, or updates — your customers will see it here instantly.</p>
+                <a href={business.is_verified ? '/business/edit-link' : `/business/${params.id}/claim?from=promotion`} className='inline-flex items-center gap-2 bg-green hover:bg-green-dark text-white text-xs font-bold rounded-full px-4 py-2 transition-colors'>
+                  <svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><circle cx='12' cy='12' r='10'/><line x1='12' y1='8' x2='12' y2='16'/><line x1='8' y1='12' x2='16' y2='12'/></svg>
+                  Add a promotion
+                </a>
+              </div>
+            </div>
+          )}
+          {!business.is_verified && (
+            <div className='bg-white border border-border rounded-2xl overflow-hidden'>
+              <div className='px-6 py-5 border-b border-border'>
+                <h2 className='font-bold text-ink text-base'>Own or manage this business?</h2>
+                <p className='text-xs text-muted mt-0.5'>Take control of your listing</p>
+              </div>
+              <div className='px-6 py-6 flex items-center justify-between gap-6'>
+                <p className='text-sm text-muted leading-relaxed'>
+                  Take control of your listing — update your details and add promotions.
+                </p>
+                <Link href={`/business/${params.id}/claim`} className='inline-flex items-center gap-2 bg-green hover:bg-green-dark text-white font-bold rounded-full px-6 py-2.5 text-sm transition-colors shrink-0'>
+                  <svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/></svg>
+                  Request access
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
       </div>
       <SiteFooter />
