@@ -43,7 +43,7 @@ export default async function BusinessProfilePage({ params }: Props) {
     : null
 
   return (
-    <main className='min-h-screen bg-section flex flex-col overflow-x-hidden'>
+    <main className='min-h-screen bg-section flex flex-col'>
       <SiteNav />
       <script type='application/ld+json' dangerouslySetInnerHTML={{ __html: JSON.stringify({
         '@context': 'https://schema.org', '@type': 'LocalBusiness',
@@ -170,7 +170,7 @@ export default async function BusinessProfilePage({ params }: Props) {
       </div>
 
       {/* ══ MAIN CONTENT */}
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pb-20'>
+      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pb-20 overflow-hidden'>
         <div className='grid lg:grid-cols-3 gap-8 items-start'>
 
           {/* ── LEFT 2/3 */}
