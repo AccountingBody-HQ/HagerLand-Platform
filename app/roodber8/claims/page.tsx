@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 import { cookies } from 'next/headers'
 import { verifySessionToken, SESSION_COOKIE } from '@/lib/admin-auth'
 import { redirect } from 'next/navigation'
-import { approveClaim, rejectClaim } from '@/app/roodber8/review/actions'
+import { approveClaim, rejectClaim, deleteClaim } from '@/app/roodber8/review/actions'
 import { createClient } from '@supabase/supabase-js'
 import { unstable_noStore as noStore } from 'next/cache'
 import Link from 'next/link'
@@ -174,7 +174,12 @@ export default async function AdminClaimsPage() {
                     {claim.claimant_name} · {claim.claimant_email} · {(claim as Record<string, unknown>).relationship as string || 'No relationship stated'} · {new Date(claim.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                   </p>
                 </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', padding: '3px 8px', borderRadius: 20, color: claim.status === 'approved' ? C.green : claim.status === 'rejected' ? C.danger : C.gold, background: claim.status === 'approved' ? 'rgba(28,124,76,0.12)' : claim.status === 'rejected' ? 'rgba(239,68,68,0.12)' : C.goldSoft }}>{claim.status}</span>
+                <form action={deleteClaim.bind(null, claim.id)}>
+                  <button type='submit' style={{ background: 'transparent', color: C.danger, border: `1px solid ${C.danger}`, borderRadius: 6, padding: '3px 8px', fontSize: 10, fontWeight: 700, cursor: 'pointer', textTransform: 'uppercase' }}>Delete</button>
+                </form>
+              </div>
               </div>
             )
           })}

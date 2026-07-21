@@ -238,3 +238,12 @@ export async function rejectClaim(claimId: string) {
   if (error) throw new Error(error.message)
   revalidateAll()
 }
+export async function deleteClaim(claimId: string) {
+  requireAdminSession()
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SECRET_KEY!
+  )
+  await supabase.from('business_claims').delete().eq('id', claimId)
+  revalidateAll()
+}
