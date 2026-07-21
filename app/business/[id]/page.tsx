@@ -151,18 +151,18 @@ export default async function BusinessProfilePage({ params }: Props) {
       </section>
 
       {/* ══ STATUS BAR */}
-      <div className='bg-white border-b border-border'>
+      <div className='bg-white border-b border-border overflow-hidden'>
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-          <div className='flex flex-wrap divide-x divide-border'>
+          <div className='grid grid-cols-2 sm:flex sm:flex-wrap sm:divide-x divide-border'>
             {[
-              { label: 'Status', value: business.is_verified ? 'Verified & Active' : 'Active' },
-              { label: 'Category', value: business.sic_description || 'Community business' },
-              { label: 'Location', value: business.trading_address_city || 'United Kingdom' },
-              { label: 'Listed on', value: 'HagerLand — Free & verified' },
-            ].map((s) => (
-              <div key={s.label} className='px-5 py-3.5 first:pl-0'>
-                <p className='text-xs font-bold text-muted uppercase tracking-wider'>{s.label}</p>
-                <p className='text-sm font-bold text-ink mt-0.5'>{s.value}</p>
+              { label: 'Status', value: business.is_verified ? 'Verified & Active' : 'Active', green: business.is_verified },
+              { label: 'Category', value: business.sic_description || 'Community business', green: false },
+              { label: 'Location', value: business.trading_address_city || 'United Kingdom', green: false },
+              { label: 'Listed on', value: 'HagerLand — Free & verified', green: false },
+            ].map((s, i) => (
+              <div key={s.label} className={`px-4 sm:px-5 py-3 sm:py-3.5 sm:first:pl-0 border-border ${i === 0 ? 'border-r sm:border-r-0 border-b sm:border-b-0' : ''} ${i === 1 ? 'border-b sm:border-b-0' : ''} ${i === 2 ? 'border-r sm:border-r-0' : ''}`}>
+                <p className='text-[10px] sm:text-xs font-bold text-muted uppercase tracking-wider'>{s.label}</p>
+                <p className={`text-sm font-bold mt-0.5 ${s.green ? 'text-green' : 'text-ink'}`}>{s.value}</p>
               </div>
             ))}
           </div>
