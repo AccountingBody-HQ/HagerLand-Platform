@@ -190,12 +190,12 @@ RESPOND IN THIS EXACT JSON FORMAT WITH NO OTHER TEXT OR MARKDOWN:
     status: 'pending',
     source: 'admin_import',
     google_place_id: google_place_id || null,
-    community_relevant,
   }
 
   // companies-only fields
   if (section === 'companies') {
     row.is_verified = false
+    row.community_relevant = community_relevant
   }
 
   const { data, error } = await supabase.from(section).insert(row).select('id').single()
