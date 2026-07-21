@@ -20,7 +20,7 @@ const HAGERLAND_CATEGORIES = [
 
 function formatOpeningHours(weekdayText: string[]): string {
   if (!weekdayText || weekdayText.length === 0) return ''
-  return weekdayText.join('\n')
+  return weekdayText.join('||')
 }
 
 async function getPlaceDetails(placeId: string, apiKey: string) {
