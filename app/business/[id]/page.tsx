@@ -55,7 +55,7 @@ export default async function BusinessProfilePage({ params }: Props) {
       }) }} />
 
       {/* ══ HERO */}
-      <section className="relative overflow-hidden bg-green">
+      <section className="relative overflow-hidden bg-green w-full">
         <div className="absolute inset-0" style={{background: 'linear-gradient(135deg, #155F3A 0%, #1C7C4C 60%, #1e8a55 100%)' }} />
         <div className="absolute inset-0 opacity-[0.07]" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px'}} />
         <div className="absolute top-0 right-0 w-[500px] h-[500px] opacity-10 pointer-events-none" style={{background: 'radial-gradient(circle at top right, #fff 0%, transparent 60%)'}} />
@@ -170,7 +170,7 @@ export default async function BusinessProfilePage({ params }: Props) {
       </div>
 
       {/* ══ MAIN CONTENT */}
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pb-20'>
+      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pb-20 overflow-hidden'>
         <div className='grid lg:grid-cols-3 gap-8 items-start'>
 
           {/* ── LEFT 2/3 */}
