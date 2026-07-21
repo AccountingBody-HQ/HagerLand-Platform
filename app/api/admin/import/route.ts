@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json()
-  const { name, address, city, phone: manualPhone, website: manualWebsite, google_place_id, types } = body
+  const { name, address, city, country, phone: manualPhone, website: manualWebsite, google_place_id, types } = body
 
   if (!name || !city) {
     return NextResponse.json({ error: 'Name and city are required' }, { status: 400 })
@@ -151,6 +151,7 @@ RESPOND IN THIS EXACT JSON FORMAT WITH NO OTHER TEXT OR MARKDOWN:
     company_name: name,
     trading_address_city: city,
     address: address,
+    country: country || null,
     phone: phone,
     website: website,
     opening_hours: opening_hours,

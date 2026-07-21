@@ -43,6 +43,7 @@ export async function GET(request: NextRequest) {
     name: place.name,
     address: place.formatted_address,
     city: extractCity(place.formatted_address),
+    country: extractCountry(place.formatted_address),
     types: place.types,
   }))
 
@@ -52,8 +53,13 @@ export async function GET(request: NextRequest) {
 function extractCity(address: string): string {
   if (!address) return ''
   const parts = address.split(',')
-  if (parts.length >= 2) {
-    return parts[parts.length - 2].trim()
-  }
-  return parts[0].trim()
+  const raw = parts.length >= 2 ? parts[parts.length - 2].trim() : parts[0].trim()
+  // Strip leading postal codes e.g. "2200 København" -> "København"
+  return raw.replace(/^[0-9A-Z\s-]{2,10}\s+/, '').trim()
+}
+
+function extractCountry(address: string): string {
+  if (!address) return ''
+  const parts = address.split(',')
+  return parts[parts.length - 1].trim()
 }

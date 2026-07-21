@@ -23,6 +23,7 @@ interface PlaceResult {
   name: string
   address: string
   city: string
+  country: string
   types: string[]
 }
 
@@ -78,6 +79,7 @@ export default function ImportPage() {
           name: selected.name,
           address: selected.address,
           city: selected.city,
+          country: selected.country,
           phone: phone || null,
           website: website || null,
           google_place_id: selected.google_place_id,
