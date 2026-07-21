@@ -328,7 +328,7 @@ export default async function BusinessProfilePage({ params }: Props) {
             )}
 
             {!promoActive && (
-              <div className='bg-white border border-border rounded-2xl overflow-hidden order-last lg:order-none'>
+              <div className='bg-white border border-border rounded-2xl overflow-hidden'>
                 <div className='px-6 py-5 border-b border-border'>
                   <h2 className='font-bold text-ink text-base'>Got something to share?</h2>
                   <p className='text-xs text-muted mt-0.5'>Add a promotion to your listing</p>
