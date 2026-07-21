@@ -210,7 +210,7 @@ export default async function BusinessProfilePage({ params }: Props) {
             <div className='bg-white border border-border rounded-2xl overflow-hidden order-1 lg:order-none'>
               <div className='px-6 py-5 border-b border-border flex items-center justify-between'>
                 <div>
-                  <h2 className='font-bold text-ink text-base'>About {business.company_name}</h2>
+                  <h2 className='font-bold text-ink text-base truncate'>About {business.company_name}</h2>
                   <p className='text-xs text-muted mt-0.5'>Who we are &amp; what we do</p>
                 </div>
                 {business.is_verified && (
@@ -249,8 +249,8 @@ export default async function BusinessProfilePage({ params }: Props) {
             {/* Contact this business — primary CTA */}
             <div className='bg-white border border-border rounded-2xl overflow-hidden order-2 lg:order-none'>
               <div className='px-6 py-5 border-b border-border'>
-                <h2 className='font-bold text-ink text-base'>Get in touch</h2>
-                <p className='text-xs text-muted mt-0.5'>Contact {business.company_name} directly</p>
+                <h2 className='font-bold text-ink text-base break-words'>Get in touch</h2>
+                <p className='text-xs text-muted mt-0.5 truncate'>Contact {business.company_name} directly</p>
               </div>
               <div className='p-6 grid sm:grid-cols-3 gap-3'>
                 {enquiryEmail && (
@@ -293,7 +293,7 @@ export default async function BusinessProfilePage({ params }: Props) {
             {relatedBusinesses && relatedBusinesses.length > 0 && (
               <div className='bg-white border border-border rounded-2xl overflow-hidden order-7 lg:order-none'>
                 <div className='px-6 py-5 border-b border-border'>
-                  <h2 className='font-bold text-ink text-base'>More in the community</h2>
+                  <h2 className='font-bold text-ink text-base break-words'>More in the community</h2>
                   <p className='text-xs text-muted mt-0.5'>
                     {business.sic_description ? `More ${business.sic_description} businesses` : `More businesses in ${business.trading_address_city}`}
                   </p>
