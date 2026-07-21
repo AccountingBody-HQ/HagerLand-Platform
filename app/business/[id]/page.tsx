@@ -171,10 +171,10 @@ export default async function BusinessProfilePage({ params }: Props) {
 
       {/* ══ MAIN CONTENT */}
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pb-20'>
-        <div className='grid lg:grid-cols-3 gap-8 items-start min-w-0'>
+        <div className='flex flex-col lg:grid lg:grid-cols-3 gap-8 items-start min-w-0'>
 
           {/* ── LEFT 2/3 */}
-          <div className='lg:col-span-2 space-y-5 min-w-0 overflow-hidden'>
+          <div className='lg:col-span-2 space-y-5 min-w-0 overflow-hidden order-1 lg:order-none'>
 
             {/* What's on — ABOVE About when promo exists */}
             {promoActive && (
@@ -207,7 +207,7 @@ export default async function BusinessProfilePage({ params }: Props) {
             )}
 
             {/* About */}
-            <div className='bg-white border border-border rounded-2xl overflow-hidden'>
+            <div className='bg-white border border-border rounded-2xl overflow-hidden order-1 lg:order-none'>
               <div className='px-6 py-5 border-b border-border flex items-center justify-between'>
                 <div>
                   <h2 className='font-bold text-ink text-base'>About {business.company_name}</h2>
@@ -247,7 +247,7 @@ export default async function BusinessProfilePage({ params }: Props) {
             {/* What's on empty state — BELOW About when no promo */}
 
             {/* Contact this business — primary CTA */}
-            <div className='bg-white border border-border rounded-2xl overflow-hidden'>
+            <div className='bg-white border border-border rounded-2xl overflow-hidden order-2 lg:order-none'>
               <div className='px-6 py-5 border-b border-border'>
                 <h2 className='font-bold text-ink text-base'>Get in touch</h2>
                 <p className='text-xs text-muted mt-0.5'>Contact {business.company_name} directly</p>
@@ -273,7 +273,7 @@ export default async function BusinessProfilePage({ params }: Props) {
 
             {/* Claim */}
             {!business.is_verified && (
-              <div className='bg-white border border-border rounded-2xl overflow-hidden'>
+              <div className='bg-white border border-border rounded-2xl overflow-hidden order-4 lg:order-none'>
                 <div className='px-6 py-5 border-b border-border'>
                   <h2 className='font-bold text-ink text-base'>Own or manage this business?</h2>
                   <p className='text-xs text-muted mt-0.5'>Take control of your listing</p>
@@ -291,7 +291,7 @@ export default async function BusinessProfilePage({ params }: Props) {
             )}
             {/* More businesses like this */}
             {relatedBusinesses && relatedBusinesses.length > 0 && (
-              <div className='bg-white border border-border rounded-2xl overflow-hidden'>
+              <div className='bg-white border border-border rounded-2xl overflow-hidden order-7 lg:order-none'>
                 <div className='px-6 py-5 border-b border-border'>
                   <h2 className='font-bold text-ink text-base'>More in the community</h2>
                   <p className='text-xs text-muted mt-0.5'>
@@ -328,7 +328,7 @@ export default async function BusinessProfilePage({ params }: Props) {
             )}
 
             {!promoActive && (
-              <div className='bg-white border border-border rounded-2xl overflow-hidden'>
+              <div className='bg-white border border-border rounded-2xl overflow-hidden order-5 lg:order-none'>
                 <div className='px-6 py-5 border-b border-border'>
                   <h2 className='font-bold text-ink text-base'>Got something to share?</h2>
                   <p className='text-xs text-muted mt-0.5'>Add a promotion to your listing</p>
@@ -348,10 +348,10 @@ export default async function BusinessProfilePage({ params }: Props) {
           </div>
 
           {/* ── RIGHT SIDEBAR */}
-          <div className='space-y-5 min-w-0'>
+          <div className='contents lg:block lg:space-y-5 lg:min-w-0'>
 
             {/* Contact card — sticky CTA */}
-            <div className='bg-white border border-border rounded-2xl overflow-hidden'>
+            <div className='bg-white border border-border rounded-2xl overflow-hidden order-3 lg:order-none'>
               <div className='px-5 py-4 border-b border-border flex items-center justify-between'>
                 <p className='text-xs font-bold text-muted uppercase tracking-wider'>Contact</p>
                 {business.is_verified && (
@@ -420,7 +420,7 @@ export default async function BusinessProfilePage({ params }: Props) {
             </div>
 
             {/* Browse more */}
-            <div className='bg-white border border-border rounded-2xl overflow-hidden'>
+            <div className='bg-white border border-border rounded-2xl overflow-hidden order-6 lg:order-none'>
               <div className='px-5 py-4 border-b border-border'>
                 <p className='text-xs font-bold text-muted uppercase tracking-wider'>Browse more</p>
               </div>
@@ -444,7 +444,7 @@ export default async function BusinessProfilePage({ params }: Props) {
             </div>
 
             {/* CTA */}
-            <div className='bg-green rounded-2xl p-5'>
+            <div className='bg-green rounded-2xl p-5 order-8 lg:order-none'>
               <p className='text-xs font-bold text-white/60 uppercase tracking-wider mb-1'>Free listing</p>
               <p className='text-base font-bold text-white mb-3'>List your business</p>
               <p className='text-xs text-white/70 mb-4'>Join the community directory — free for everyone, always.</p>
