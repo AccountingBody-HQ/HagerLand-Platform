@@ -153,14 +153,14 @@ export default async function BusinessProfilePage({ params }: Props) {
       {/* ══ STATUS BAR */}
       <div className='bg-white border-b border-border'>
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-          <div className='grid grid-cols-2 sm:flex sm:flex-wrap sm:divide-x divide-border'>
+          <div className='flex flex-wrap divide-x divide-border overflow-x-auto'>
             {[
               { label: 'Status', value: business.is_verified ? 'Verified & Active' : 'Active' },
               { label: 'Category', value: business.sic_description || 'Community business' },
               { label: 'Location', value: business.trading_address_city || 'United Kingdom' },
               { label: 'Listed on', value: 'HagerLand — Free & verified' },
-            ].map((s, i) => (
-              <div key={s.label} className={`px-4 sm:px-5 py-3 sm:py-3.5 sm:first:pl-0 border-border ${i % 2 === 0 ? 'border-r sm:border-r-0' : ''} ${i < 2 ? 'border-b sm:border-b-0' : ''}`}>
+            ].map((s) => (
+              <div key={s.label} className='px-5 py-3.5 first:pl-0'>
                 <p className='text-[10px] sm:text-xs font-bold text-muted uppercase tracking-wider'>{s.label}</p>
                 <p className='text-sm font-bold text-ink mt-0.5'>{s.value}</p>
               </div>
