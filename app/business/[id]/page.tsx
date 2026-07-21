@@ -153,16 +153,16 @@ export default async function BusinessProfilePage({ params }: Props) {
       {/* ══ STATUS BAR */}
       <div className='bg-white border-b border-border'>
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-          <div className='flex flex-wrap divide-x divide-border'>
+          <div className='grid grid-cols-2 sm:flex sm:flex-wrap sm:divide-x divide-border'>
             {[
-              { label: 'Status', value: business.is_verified ? 'Verified & Active' : 'Active' },
-              { label: 'Category', value: business.sic_description || 'Community business' },
-              { label: 'Location', value: business.trading_address_city || 'United Kingdom' },
-              { label: 'Listed on', value: 'HagerLand — Free & verified' },
-            ].map((s) => (
-              <div key={s.label} className='px-5 py-3.5 first:pl-0'>
-                <p className='text-xs font-bold text-muted uppercase tracking-wider'>{s.label}</p>
-                <p className='text-sm font-bold text-ink mt-0.5'>{s.value}</p>
+              { label: 'Status', value: business.is_verified ? 'Verified & Active' : 'Active', highlight: business.is_verified },
+              { label: 'Category', value: business.sic_description || 'Community business', highlight: false },
+              { label: 'Location', value: business.trading_address_city || 'United Kingdom', highlight: false },
+              { label: 'Listed on', value: 'HagerLand — Free & verified', highlight: false },
+            ].map((s, i) => (
+              <div key={s.label} className={`px-4 sm:px-5 py-3 sm:py-3.5 border-b sm:border-b-0 border-border ${i % 2 === 0 ? 'border-r sm:border-r-0' : ''}`}>
+                <p className='text-[10px] font-bold text-muted uppercase tracking-wider'>{s.label}</p>
+                <p className={`text-sm font-bold mt-0.5 ${s.highlight ? 'text-green' : 'text-ink'}`}>{s.value}</p>
               </div>
             ))}
           </div>
@@ -328,7 +328,7 @@ export default async function BusinessProfilePage({ params }: Props) {
             )}
 
             {!promoActive && (
-              <div className='bg-white border border-border rounded-2xl overflow-hidden'>
+              <div className='bg-white border border-border rounded-2xl overflow-hidden order-last lg:order-none'>
                 <div className='px-6 py-5 border-b border-border'>
                   <h2 className='font-bold text-ink text-base'>Got something to share?</h2>
                   <p className='text-xs text-muted mt-0.5'>Add a promotion to your listing</p>
