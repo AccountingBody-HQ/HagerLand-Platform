@@ -361,9 +361,13 @@ export default async function BusinessProfilePage({ params }: Props) {
                   <div className='flex items-start gap-3 px-5 py-3.5'>
                     <svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' className='text-green shrink-0 mt-0.5'><path d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z'/><circle cx='12' cy='10' r='3'/></svg>
                     <div className='flex flex-col gap-0.5'>
-                      {business.address && <span className='text-sm text-ink'>{business.address}</span>}
-                      {business.trading_address_city && <span className='text-sm text-ink'>{business.trading_address_city}</span>}
-                      {business.country && <span className='text-sm text-ink'>{business.country}</span>}
+                      {business.address
+                        ? <span className='text-sm text-ink'>{business.address}</span>
+                        : <>
+                            {business.trading_address_city && <span className='text-sm text-ink'>{business.trading_address_city}</span>}
+                            {business.country && <span className='text-sm text-ink'>{business.country}</span>}
+                          </>
+                      }
                     </div>
                   </div>
                 )}
