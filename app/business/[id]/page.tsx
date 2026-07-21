@@ -43,7 +43,7 @@ export default async function BusinessProfilePage({ params }: Props) {
     : null
 
   return (
-    <main className='min-h-screen bg-section flex flex-col'>
+    <main className='min-h-screen bg-section flex flex-col overflow-x-hidden'>
       <SiteNav />
       <script type='application/ld+json' dangerouslySetInnerHTML={{ __html: JSON.stringify({
         '@context': 'https://schema.org', '@type': 'LocalBusiness',
