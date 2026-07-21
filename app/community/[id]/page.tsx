@@ -72,7 +72,7 @@ export default async function BusinessProfilePage({ params }: Props) {
           </p>
 
           {/* Main layout — avatar left, content right */}
-          <div className="flex flex-col sm:flex-row items-start gap-5 sm:gap-7 mb-8">
+          <div className="flex items-start gap-7 mb-8">
 
             {/* Avatar */}
             <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center font-black text-white text-3xl sm:text-4xl shrink-0 mt-1">
@@ -125,15 +125,15 @@ export default async function BusinessProfilePage({ params }: Props) {
               </div>
 
               {/* Action buttons */}
-              <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2 sm:gap-3">
-                <ShareButton title={org.name} dark={true} className="w-full sm:w-40" />
+              <div className="flex flex-wrap items-center gap-3">
+                <ShareButton title={org.name} dark={true} />
                 <Link href="/org/edit-link"
-                  className="inline-flex items-center justify-center gap-2 border border-white/25 text-white/70 hover:border-white/60 hover:text-white text-sm font-semibold rounded-full w-full sm:w-40 py-2.5 transition-colors">
+                  className="inline-flex items-center justify-center gap-2 border border-white/25 text-white/70 hover:border-white/60 hover:text-white text-sm font-semibold rounded-full w-40 py-2.5 transition-colors">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                   Edit listing
                 </Link>
                 <Link href="/org/edit-link"
-                  className="inline-flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 border border-white/30 text-white text-sm font-semibold rounded-full w-full sm:w-40 py-2.5 transition-colors">
+                  className="inline-flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 border border-white/30 text-white text-sm font-semibold rounded-full w-40 py-2.5 transition-colors">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
                   Add promotion
                 </Link>
@@ -166,10 +166,10 @@ export default async function BusinessProfilePage({ params }: Props) {
 
       {/* ══ MAIN CONTENT */}
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pb-20'>
-        <div className='flex flex-col lg:grid lg:grid-cols-3 gap-8 items-start min-w-0'>
+        <div className='grid lg:grid-cols-3 gap-8 items-start'>
 
           {/* ── LEFT 2/3 */}
-          <div className='lg:col-span-2 space-y-5 min-w-0 overflow-hidden order-1 lg:order-none'>
+          <div className='lg:col-span-2 space-y-5'>
 
             {/* What's on — ABOVE About when promo exists */}
             {promoActive && (
@@ -202,7 +202,7 @@ export default async function BusinessProfilePage({ params }: Props) {
             )}
 
             {/* About */}
-            <div className='bg-white border border-border rounded-2xl overflow-hidden order-1 lg:order-none'>
+            <div className='bg-white border border-border rounded-2xl overflow-hidden'>
               <div className='px-6 py-5 border-b border-border flex items-center justify-between'>
                 <div>
                   <h2 className='font-bold text-ink text-base'>About {org.name}</h2>
@@ -241,7 +241,7 @@ export default async function BusinessProfilePage({ params }: Props) {
 
             {/* What's on empty state — BELOW About when no promo */}
             {!promoActive && (
-              <div className='border-2 border-dashed border-border rounded-2xl px-6 py-8 text-center order-5 lg:order-none'>
+              <div className='border-2 border-dashed border-border rounded-2xl px-6 py-8 text-center'>
                 <div className='w-10 h-10 rounded-xl bg-green-soft flex items-center justify-center mx-auto mb-3'>
                   <svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' className='text-green'><path d='M3 11l19-9-9 19-2-8-8-2z'/></svg>
                 </div>
@@ -256,7 +256,7 @@ export default async function BusinessProfilePage({ params }: Props) {
             )}
 
             {/* Contact this org — primary CTA */}
-            <div className='bg-white border border-border rounded-2xl overflow-hidden order-2 lg:order-none'>
+            <div className='bg-white border border-border rounded-2xl overflow-hidden'>
               <div className='px-6 py-5 border-b border-border'>
                 <h2 className='font-bold text-ink text-base'>Get in touch</h2>
                 <p className='text-xs text-muted mt-0.5'>Contact {org.name} directly</p>
@@ -300,7 +300,7 @@ export default async function BusinessProfilePage({ params }: Props) {
             )}
             {/* More orges like this */}
             {relatedBusinesses && relatedBusinesses.length > 0 && (
-              <div className='bg-white border border-border rounded-2xl overflow-hidden order-7 lg:order-none'>
+              <div className='bg-white border border-border rounded-2xl overflow-hidden'>
                 <div className='px-6 py-5 border-b border-border'>
                   <h2 className='font-bold text-ink text-base'>More in the community</h2>
                   <p className='text-xs text-muted mt-0.5'>
@@ -333,10 +333,10 @@ export default async function BusinessProfilePage({ params }: Props) {
           </div>
 
           {/* ── RIGHT SIDEBAR */}
-          <div className='contents lg:block lg:space-y-5'>
+          <div className='space-y-5'>
 
             {/* Contact card — sticky CTA */}
-            <div className='bg-white border border-border rounded-2xl overflow-hidden order-3 lg:order-none'>
+            <div className='bg-white border border-border rounded-2xl overflow-hidden'>
               <div className='px-5 py-4 border-b border-border flex items-center justify-between'>
                 <p className='text-xs font-bold text-muted uppercase tracking-wider'>Contact</p>
                 {org.is_verified && (
@@ -393,7 +393,7 @@ export default async function BusinessProfilePage({ params }: Props) {
             </div>
 
             {/* Browse more */}
-            <div className='bg-white border border-border rounded-2xl overflow-hidden order-6 lg:order-none'>
+            <div className='bg-white border border-border rounded-2xl overflow-hidden'>
               <div className='px-5 py-4 border-b border-border'>
                 <p className='text-xs font-bold text-muted uppercase tracking-wider'>Browse more</p>
               </div>
@@ -417,7 +417,7 @@ export default async function BusinessProfilePage({ params }: Props) {
             </div>
 
             {/* CTA */}
-            <div className='bg-green rounded-2xl p-5 order-8 lg:order-none'>
+            <div className='bg-green rounded-2xl p-5'>
               <p className='text-xs font-bold text-white/60 uppercase tracking-wider mb-1'>Free listing</p>
               <p className='text-base font-bold text-white mb-3'>List your org</p>
               <p className='text-xs text-white/70 mb-4'>Join the community directory — free for everyone, always.</p>
