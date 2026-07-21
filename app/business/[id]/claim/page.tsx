@@ -16,7 +16,7 @@ export default async function ClaimPage({
   searchParams,
 }: {
   params: { id: string }
-  searchParams: { success?: string; error?: string }
+  searchParams: { success?: string; error?: string; from?: string }
 }) {
   const { data: business } = await supabase
     .from('companies')
@@ -56,12 +56,20 @@ export default async function ClaimPage({
           </div>
         ) : (
           <>
-            <h1 className="text-2xl sm:text-3xl font-bold text-ink mb-2 text-center">Claim this listing</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-ink mb-2 text-center">
+              {searchParams.from === 'promotion' ? 'Claim your listing first' : 'Request access'}
+            </h1>
             <p className="text-muted text-center mb-8">
-              Claiming <span className="font-semibold text-ink">{business.company_name}</span>
+              {searchParams.from === 'promotion' ? (
+                <>To add promotions to <span className="font-semibold text-ink">{business.company_name}</span>, you first need to verify ownership.</>
+              ) : (
+                <>Requesting access for <span className="font-semibold text-ink">{business.company_name}</span></>
+              )}
             </p>
             <div className="bg-green-soft border border-green/20 rounded-xl p-4 mb-6 text-sm text-green">
-              We will send a verification link to your email. Our team reviews every claim before awarding a verified badge.
+              {searchParams.from === 'promotion'
+                ? 'Once your ownership is verified by our team, you will be able to add and manage promotions for your listing.'
+                : 'We will send a verification link to your email. Our team reviews every claim before granting access to manage your listing.'}
             </div>
             {searchParams.error && (
               <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 mb-6">
