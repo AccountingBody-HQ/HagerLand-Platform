@@ -7,6 +7,7 @@ import crypto from 'crypto'
 export async function submitClaim(companyId: string, formData: FormData) {
   const claimantName = (formData.get('claimant_name') as string)?.trim()
   const claimantEmail = (formData.get('claimant_email') as string)?.trim()
+  const relationship = (formData.get('relationship') as string)?.trim()
 
   if (!claimantName || !claimantEmail) {
     redirect(`/business/${companyId}/claim?error=missing`)
@@ -42,6 +43,7 @@ export async function submitClaim(companyId: string, formData: FormData) {
       company_id: companyId,
       claimant_name: claimantName,
       claimant_email: claimantEmail,
+      relationship: relationship || null,
       verification_code: token,
       code_expires_at: expiresAt,
       status: 'pending',
