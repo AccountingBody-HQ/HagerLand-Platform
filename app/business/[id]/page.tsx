@@ -373,7 +373,11 @@ export default async function BusinessProfilePage({ params }: Props) {
                 {business.opening_hours && (
                   <div className='flex items-center gap-3 px-5 py-3.5'>
                     <svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' className='text-green shrink-0'><circle cx='12' cy='12' r='10'/><polyline points='12 6 12 12 16 14'/></svg>
-                    <span className='text-sm text-ink'>{business.opening_hours}</span>
+                    <div className='flex flex-col gap-0.5'>
+                      {business.opening_hours.split('\n').map((line: string, i: number) => (
+                        <span key={i} className='text-sm text-ink'>{line}</span>
+                      ))}
+                    </div>
                   </div>
                 )}
                 {(business.instagram || business.facebook || business.whatsapp) && (
