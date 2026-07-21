@@ -131,7 +131,7 @@ export default async function BusinessProfilePage({ params }: Props) {
 
               {/* Action buttons */}
               <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2 sm:gap-3">
-                <ShareButton title={business.company_name} dark={true} />
+                <ShareButton title={business.company_name} dark={true} className="w-full sm:w-40" />
                 <Link href={business.is_verified ? "/business/edit-link" : `/business/${params.id}/claim`}
                   className="inline-flex items-center justify-center gap-2 border border-white/25 text-white/70 hover:border-white/60 hover:text-white text-sm font-semibold rounded-full w-full sm:w-40 py-2.5 transition-colors">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -171,10 +171,10 @@ export default async function BusinessProfilePage({ params }: Props) {
 
       {/* ══ MAIN CONTENT */}
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pb-20'>
-        <div className='grid lg:grid-cols-3 gap-8 items-start'>
+        <div className='grid lg:grid-cols-3 gap-8 items-start min-w-0'>
 
           {/* ── LEFT 2/3 */}
-          <div className='lg:col-span-2 space-y-5'>
+          <div className='lg:col-span-2 space-y-5 min-w-0 overflow-hidden'>
 
             {/* What's on — ABOVE About when promo exists */}
             {promoActive && (
