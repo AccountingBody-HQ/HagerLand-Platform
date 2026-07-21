@@ -55,7 +55,7 @@ export default async function BusinessProfilePage({ params }: Props) {
       }) }} />
 
       {/* ══ HERO */}
-      <section className="relative overflow-hidden bg-green w-full">
+      <section className="relative overflow-hidden bg-green">
         <div className="absolute inset-0" style={{background: 'linear-gradient(135deg, #155F3A 0%, #1C7C4C 60%, #1e8a55 100%)' }} />
         <div className="absolute inset-0 opacity-[0.07]" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px'}} />
         <div className="absolute top-0 right-0 w-[500px] h-[500px] opacity-10 pointer-events-none" style={{background: 'radial-gradient(circle at top right, #fff 0%, transparent 60%)'}} />
@@ -153,16 +153,16 @@ export default async function BusinessProfilePage({ params }: Props) {
       {/* ══ STATUS BAR */}
       <div className='bg-white border-b border-border'>
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-          <div className='grid grid-cols-2 sm:flex sm:flex-wrap sm:divide-x divide-border'>
+          <div className='flex flex-wrap divide-x divide-border'>
             {[
-              { label: 'Status', value: business.is_verified ? 'Verified & Active' : 'Active', highlight: business.is_verified },
-              { label: 'Category', value: business.sic_description || 'Community business', highlight: false },
-              { label: 'Location', value: business.trading_address_city || 'United Kingdom', highlight: false },
-              { label: 'Listed on', value: 'HagerLand — Free & verified', highlight: false },
-            ].map((s, i) => (
-              <div key={s.label} className={`px-4 sm:px-5 py-3 sm:py-3.5 border-b sm:border-b-0 border-border ${i % 2 === 0 ? 'border-r sm:border-r-0' : ''}`}>
-                <p className='text-[10px] font-bold text-muted uppercase tracking-wider'>{s.label}</p>
-                <p className={`text-sm font-bold mt-0.5 ${s.highlight ? 'text-green' : 'text-ink'}`}>{s.value}</p>
+              { label: 'Status', value: business.is_verified ? 'Verified & Active' : 'Active' },
+              { label: 'Category', value: business.sic_description || 'Community business' },
+              { label: 'Location', value: business.trading_address_city || 'United Kingdom' },
+              { label: 'Listed on', value: 'HagerLand — Free & verified' },
+            ].map((s) => (
+              <div key={s.label} className='px-5 py-3.5 first:pl-0'>
+                <p className='text-xs font-bold text-muted uppercase tracking-wider'>{s.label}</p>
+                <p className='text-sm font-bold text-ink mt-0.5'>{s.value}</p>
               </div>
             ))}
           </div>
@@ -170,7 +170,7 @@ export default async function BusinessProfilePage({ params }: Props) {
       </div>
 
       {/* ══ MAIN CONTENT */}
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pb-20 overflow-hidden'>
+      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pb-20'>
         <div className='grid lg:grid-cols-3 gap-8 items-start'>
 
           {/* ── LEFT 2/3 */}
@@ -271,6 +271,24 @@ export default async function BusinessProfilePage({ params }: Props) {
               </div>
             </div>
 
+            {/* Claim */}
+            {!business.is_verified && (
+              <div className='bg-white border border-border rounded-2xl overflow-hidden'>
+                <div className='px-6 py-5 border-b border-border'>
+                  <h2 className='font-bold text-ink text-base'>Own or manage this business?</h2>
+                  <p className='text-xs text-muted mt-0.5'>Take control of your listing</p>
+                </div>
+                <div className='px-6 py-6 flex items-center justify-between gap-6'>
+                  <p className='text-sm text-muted leading-relaxed'>
+                    Take control of your listing — update your details and add promotions.
+                  </p>
+                  <Link href={`/business/${params.id}/claim`} className='inline-flex items-center gap-2 bg-green hover:bg-green-dark text-white font-bold rounded-full px-6 py-2.5 text-sm transition-colors shrink-0'>
+                    <svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/></svg>
+                    Request access
+                  </Link>
+                </div>
+              </div>
+            )}
             {/* More businesses like this */}
             {relatedBusinesses && relatedBusinesses.length > 0 && (
               <div className='bg-white border border-border rounded-2xl overflow-hidden'>
@@ -309,13 +327,6 @@ export default async function BusinessProfilePage({ params }: Props) {
               </div>
             )}
 
-
-          </div>
-
-
-
-          {/* ── BOTTOM CARDS — inside left column, bottom of page */}
-          <div className='lg:col-span-2 space-y-5 order-3 lg:order-3'>
             {!promoActive && (
               <div className='bg-white border border-border rounded-2xl overflow-hidden'>
                 <div className='px-6 py-5 border-b border-border'>
@@ -334,26 +345,10 @@ export default async function BusinessProfilePage({ params }: Props) {
                 </div>
               </div>
             )}
-            {!business.is_verified && (
-              <div className='bg-white border border-border rounded-2xl overflow-hidden'>
-                <div className='px-6 py-5 border-b border-border'>
-                  <h2 className='font-bold text-ink text-base'>Own or manage this business?</h2>
-                  <p className='text-xs text-muted mt-0.5'>Take control of your listing</p>
-                </div>
-                <div className='px-6 py-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4'>
-                  <p className='text-sm text-muted leading-relaxed'>
-                    Take control of your listing — update your details and add promotions.
-                  </p>
-                  <Link href={`/business/${params.id}/claim`} className='inline-flex items-center gap-2 bg-green hover:bg-green-dark text-white font-bold rounded-full px-6 py-2.5 text-sm transition-colors shrink-0'>
-                    <svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/></svg>
-                    Request access
-                  </Link>
-                </div>
-              </div>
-            )}
           </div>
+
           {/* ── RIGHT SIDEBAR */}
-          <div className='space-y-5 order-2 lg:order-2'>
+          <div className='space-y-5'>
 
             {/* Contact card — sticky CTA */}
             <div className='bg-white border border-border rounded-2xl overflow-hidden'>
@@ -463,5 +458,4 @@ export default async function BusinessProfilePage({ params }: Props) {
       <SiteFooter />
     </main>
   )
-}
-
+}// cache bust Sat Jul 18 19:45:42 UTC 2026

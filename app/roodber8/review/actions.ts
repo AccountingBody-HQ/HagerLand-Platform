@@ -62,11 +62,7 @@ export async function approveListing(table: string, id: string) {
       .eq('id', id)
       .single()
 
-    // For imported listings, approval makes them active but not verified
-    // is_verified is only set true when the owner claims and verifies the listing
-    const { data: existing } = await supabase.from(table).select('source').eq('id', id).single()
-    const isImport = existing?.source === 'admin_import'
-    const updateData: Record<string, unknown> = { status: 'active', is_verified: isImport ? false : true, pending_changes: null }
+    const updateData: Record<string, unknown> = { status: 'active', is_verified: true, pending_changes: null }
 
     // Apply pending_changes to live fields if any
     if (company?.pending_changes) {
