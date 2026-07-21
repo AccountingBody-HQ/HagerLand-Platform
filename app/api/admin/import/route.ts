@@ -188,14 +188,14 @@ RESPOND IN THIS EXACT JSON FORMAT WITH NO OTHER TEXT OR MARKDOWN:
     [categoryField]: assignedCategory,
     ai_description,
     status: 'pending',
-    source: 'admin_import',
-    google_place_id: google_place_id || null,
   }
 
   // companies-only fields
   if (section === 'companies') {
     row.is_verified = false
     row.community_relevant = community_relevant
+    row.source = 'admin_import'
+    row.google_place_id = google_place_id || null
   }
 
   const { data, error } = await supabase.from(section).insert(row).select('id').single()
