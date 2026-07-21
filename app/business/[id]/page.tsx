@@ -348,7 +348,7 @@ export default async function BusinessProfilePage({ params }: Props) {
           </div>
 
           {/* ── RIGHT SIDEBAR */}
-          <div className='space-y-5'>
+          <div className='space-y-5 min-w-0'>
 
             {/* Contact card — sticky CTA */}
             <div className='bg-white border border-border rounded-2xl overflow-hidden'>
