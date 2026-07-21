@@ -22,7 +22,7 @@ export function ShareButton({ title, dark = true }: { title: string; dark?: bool
   return (
     <button
       onClick={handleShare}
-      className={`inline-flex items-center justify-center gap-2 font-semibold rounded-full w-40 py-2.5 text-sm transition-colors shrink-0 ${
+      className={`inline-flex items-center justify-center gap-2 font-semibold rounded-full w-28 sm:w-40 py-2 sm:py-2.5 text-xs sm:text-sm transition-colors shrink-0 ${
         dark
           ? 'border border-white/25 text-white/70 hover:border-white/60 hover:text-white'
           : 'border border-border text-muted hover:border-ink hover:text-ink'
