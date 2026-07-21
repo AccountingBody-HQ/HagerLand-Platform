@@ -153,7 +153,7 @@ export default async function BusinessProfilePage({ params }: Props) {
       {/* ══ STATUS BAR */}
       <div className='bg-white border-b border-border'>
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-          <div className='flex flex-wrap divide-x divide-border overflow-x-auto'>
+          <div className='flex flex-wrap divide-x divide-border'>
             {[
               { label: 'Status', value: business.is_verified ? 'Verified & Active' : 'Active' },
               { label: 'Category', value: business.sic_description || 'Community business' },
@@ -170,7 +170,7 @@ export default async function BusinessProfilePage({ params }: Props) {
       </div>
 
       {/* ══ MAIN CONTENT */}
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pb-20 overflow-hidden'>
+      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pb-20'>
         <div className='grid lg:grid-cols-3 gap-8 items-start'>
 
           {/* ── LEFT 2/3 */}
