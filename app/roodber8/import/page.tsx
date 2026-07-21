@@ -18,6 +18,17 @@ const C = {
   blueSoft: 'rgba(59,130,246,0.12)',
 }
 
+const SECTIONS = [
+  { value: 'companies', label: 'Businesses', adminPath: '/roodber8/businesses/' },
+  { value: 'jobs',      label: 'Jobs',       adminPath: '/roodber8/jobs/' },
+  { value: 'housing',   label: 'Housing',    adminPath: '/roodber8/housing/' },
+  { value: 'money',     label: 'Money',      adminPath: '/roodber8/money/' },
+  { value: 'cars',      label: 'Cars',       adminPath: '/roodber8/cars/' },
+  { value: 'tutors',    label: 'Tutors',     adminPath: '/roodber8/tutors/' },
+  { value: 'community', label: 'Community',  adminPath: '/roodber8/community/' },
+  { value: 'events',    label: 'Events',     adminPath: '/roodber8/events/' },
+]
+
 interface PlaceResult {
   google_place_id: string
   name: string
@@ -37,6 +48,7 @@ interface ImportedResult {
 export default function ImportPage() {
   const router = useRouter()
   const [query, setQuery] = useState('')
+  const [section, setSection] = useState('companies')
   const [searching, setSearching] = useState(false)
   const [results, setResults] = useState<PlaceResult[]>([])
   const [searchError, setSearchError] = useState('')
@@ -76,6 +88,7 @@ export default function ImportPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          section,
           name: selected.name,
           address: selected.address,
           city: selected.city,
@@ -96,6 +109,8 @@ export default function ImportPage() {
     }
   }
 
+  const selectedSection = SECTIONS.find(s => s.value === section) || SECTIONS[0]
+
   return (
     <div style={{ minHeight: '100vh', background: C.bg, color: C.text, padding: '2rem' }}>
 
@@ -107,13 +122,42 @@ export default function ImportPage() {
           Google Places Import
         </h1>
         <p style={{ color: C.muted, fontSize: '0.9rem' }}>
-          Search Google Places, preview AI-enhanced data, and import businesses directly into HagerLand.
+          Search Google Places, preview AI-enhanced data, and import listings directly into HagerLand.
         </p>
       </div>
 
+      {/* Step 1 — Choose section */}
+      <div style={{ background: C.panel, border: '1px solid ' + C.border, borderRadius: '12px', padding: '1.5rem', marginBottom: '1.5rem' }}>
+        <label style={{ display: 'block', color: C.muted, fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+          Step 1 — Which section does this listing belong to?
+        </label>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem' }}>
+          {SECTIONS.map(s => (
+            <button
+              key={s.value}
+              onClick={() => { setSection(s.value); setSelected(null); setImported(null); setResults([]); }}
+              style={{
+                background: section === s.value ? C.green : C.bg,
+                border: '1px solid ' + (section === s.value ? C.green : C.border),
+                borderRadius: '8px',
+                padding: '0.6rem 0.5rem',
+                color: section === s.value ? '#fff' : C.muted,
+                fontWeight: section === s.value ? 700 : 400,
+                fontSize: '0.85rem',
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+              }}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Step 2 — Search */}
       <div style={{ background: C.panel, border: '1px solid ' + C.border, borderRadius: '12px', padding: '1.5rem', marginBottom: '1.5rem' }}>
         <label style={{ display: 'block', color: C.muted, fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-          Search Google Places
+          Step 2 — Search Google Places
         </label>
         <div style={{ display: 'flex', gap: '0.75rem' }}>
           <input
@@ -162,7 +206,7 @@ export default function ImportPage() {
       {selected && !imported && (
         <div style={{ background: C.panel, border: '1px solid ' + C.border, borderRadius: '12px', padding: '1.5rem', marginBottom: '1.5rem' }}>
           <p style={{ color: C.muted, fontSize: '0.8rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '1rem' }}>
-            Selected — Add Optional Details
+            Step 3 — Confirm & Import into {selectedSection.label}
           </p>
           <div style={{ marginBottom: '1rem' }}>
             <p style={{ color: C.text, fontWeight: 700, fontSize: '1.1rem' }}>{selected.name}</p>
@@ -190,23 +234,25 @@ export default function ImportPage() {
               />
             </div>
           </div>
-          <p style={{ color: C.muted, fontSize: '0.82rem', marginBottom: '1.25rem' }}>
-            Claude will write the business description and assign the correct HagerLand category automatically.
-          </p>
+          <div style={{ background: C.bg, border: '1px solid ' + C.border, borderRadius: '8px', padding: '0.875rem 1rem', marginBottom: '1.25rem' }}>
+            <p style={{ color: C.muted, fontSize: '0.82rem', margin: 0 }}>
+              Importing into: <strong style={{ color: C.text }}>{selectedSection.label}</strong> · Claude will write the description and assign the category automatically.
+            </p>
+          </div>
           {importError && <p style={{ color: C.danger, fontSize: '0.85rem', marginBottom: '1rem' }}>{importError}</p>}
           <button
             onClick={handleImport}
             disabled={importing}
             style={{ background: C.green, color: '#fff', border: 'none', borderRadius: '8px', padding: '0.75rem 2rem', fontWeight: 700, fontSize: '0.95rem', cursor: importing ? 'wait' : 'pointer' }}
           >
-            {importing ? 'Importing & enhancing with AI...' : 'Import Business'}
+            {importing ? 'Importing & enhancing with AI...' : `Import into ${selectedSection.label}`}
           </button>
         </div>
       )}
 
       {imported && (
         <div style={{ background: 'rgba(28,124,76,0.1)', border: '1px solid ' + C.green, borderRadius: '12px', padding: '1.5rem' }}>
-          <p style={{ color: C.green, fontWeight: 700, fontSize: '1rem', marginBottom: '1rem' }}>✓ Business imported successfully</p>
+          <p style={{ color: C.green, fontWeight: 700, fontSize: '1rem', marginBottom: '1rem' }}>✓ Imported successfully into {selectedSection.label}</p>
           <div style={{ display: 'grid', gap: '0.75rem', marginBottom: '1.5rem' }}>
             <div>
               <p style={{ color: C.muted, fontSize: '0.78rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.25rem' }}>Category assigned</p>
@@ -223,7 +269,7 @@ export default function ImportPage() {
           </div>
           <div style={{ display: 'flex', gap: '0.75rem' }}>
             <button
-              onClick={() => router.push('/roodber8/businesses/' + imported.id)}
+              onClick={() => router.push(selectedSection.adminPath + imported.id)}
               style={{ background: C.green, color: '#fff', border: 'none', borderRadius: '8px', padding: '0.65rem 1.25rem', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}
             >
               Review in admin

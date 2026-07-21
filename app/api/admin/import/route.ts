@@ -5,18 +5,59 @@ import { createClient } from '@supabase/supabase-js'
 
 const SESSION_COOKIE = 'hl_admin_session'
 
-const HAGERLAND_CATEGORIES = [
-  'Food & Hospitality',
-  'Professional Services',
-  'Health & Wellbeing',
-  'Beauty & Personal Care',
-  'Retail & Trade',
-  'Transport & Travel',
-  'Education & Training',
-  'Creative & Media',
-  'Community & Faith',
-  'Property',
-]
+const VALID_SECTIONS = ['companies', 'jobs', 'housing', 'money', 'cars', 'tutors', 'community', 'events'] as const
+type SectionName = (typeof VALID_SECTIONS)[number]
+
+function isValidSection(s: string): s is SectionName {
+  return (VALID_SECTIONS as readonly string[]).includes(s)
+}
+
+// Field name mapping per section
+function getTitleField(section: SectionName): string {
+  return (section === 'tutors' || section === 'community') ? 'name' : section === 'companies' ? 'company_name' : 'title'
+}
+
+function getCategoryField(section: SectionName): string {
+  return section === 'companies' ? 'sic_description' : 'category'
+}
+
+function getCityField(section: SectionName): string {
+  return section === 'companies' ? 'trading_address_city' : 'city'
+}
+
+// Admin path for redirect after import
+function getAdminPath(section: SectionName): string {
+  return section === 'companies' ? '/roodber8/businesses/' : `/roodber8/${section}/`
+}
+
+const HAGERLAND_CATEGORIES: Record<SectionName, string[]> = {
+  companies: [
+    'Food & Hospitality', 'Professional Services', 'Health & Wellbeing',
+    'Beauty & Personal Care', 'Retail & Trade', 'Transport & Travel',
+    'Education & Training', 'Creative & Media', 'Community & Faith', 'Property',
+  ],
+  jobs: ['Full-time', 'Part-time', 'Contract', 'Freelance', 'Internship', 'Volunteer', 'Apprenticeship'],
+  housing: ['Room to rent', 'Flat to rent', 'House to rent', 'Studio to rent', 'Property to buy', 'Short-term let', 'Homestay', 'Commercial space'],
+  money: ['Money transfer', 'Currency exchange', 'Accounting & Tax', 'Mortgage advice', 'Business loans', 'Personal loans', 'Insurance', 'Investment advice', 'Pension advice', 'Credit repair'],
+  cars: ['Car for sale', 'Van for sale', 'Car hire', 'Van hire', 'Taxi & private hire', 'Driving school', 'MOT & servicing', 'Body repair & paint', 'Tyres & exhausts', 'Car parts & accessories'],
+  tutors: ['Maths', 'English & Literacy', 'Science', 'Amharic language', 'Tigrinya language', 'Afaan Oromo language', 'Music & instruments', 'Art & design', 'IT & computing', 'Business studies', 'University preparation', '11+ & entrance exams', 'Special educational needs'],
+  community: ['Community association', 'Church & faith group', 'Charity & non-profit', 'Cultural organisation', 'Sports club', 'Youth group', "Women's group", 'Elders group', 'Support group', 'Political & civic'],
+  events: ['Music & concert', 'Cultural festival', 'Religious celebration', 'Community meeting', 'Sports event', 'Food & dining', 'Networking', 'Wedding & celebration', 'Fundraiser', 'Exhibition & art', 'Conference & seminar', 'Online event'],
+}
+
+function getDefaultCategory(section: SectionName): string {
+  const defaults: Record<SectionName, string> = {
+    companies: 'Professional Services',
+    jobs: 'Full-time',
+    housing: 'Flat to rent',
+    money: 'Money transfer',
+    cars: 'Car for sale',
+    tutors: 'Maths',
+    community: 'Community association',
+    events: 'Community meeting',
+  }
+  return defaults[section]
+}
 
 function formatOpeningHours(weekdayText: string[]): string {
   if (!weekdayText || weekdayText.length === 0) return ''
@@ -44,14 +85,17 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json()
-  const { name, address, city, country, phone: manualPhone, website: manualWebsite, google_place_id, types } = body
+  const { section = 'companies', name, address, city, country, phone: manualPhone, website: manualWebsite, google_place_id, types } = body
+
+  if (!isValidSection(section)) {
+    return NextResponse.json({ error: 'Invalid section' }, { status: 400 })
+  }
 
   if (!name || !city) {
     return NextResponse.json({ error: 'Name and city are required' }, { status: 400 })
   }
 
   const apiKey = process.env.GOOGLE_PLACES_API_KEY!
-
   let phone = manualPhone || null
   let website = manualWebsite || null
   let opening_hours = null
@@ -63,10 +107,11 @@ export async function POST(request: NextRequest) {
     if (details.opening_hours) opening_hours = details.opening_hours
   }
 
-  const prompt = `You are a professional content writer and business directory specialist for HagerLand — the premier verified directory for the Ethiopian and Eritrean diaspora worldwide.
-A business has been discovered via Google Places. Your task is to create a high-quality, professional directory listing.
+  const categoryList = HAGERLAND_CATEGORIES[section].join(', ')
+  const prompt = `You are a professional content writer for HagerLand — the verified directory for the Ethiopian and Eritrean diaspora worldwide.
+A listing has been discovered via Google Places. Your task is to create a high-quality directory listing for the ${section} section.
 
-BUSINESS DATA FROM GOOGLE:
+LISTING DATA FROM GOOGLE:
 Name: ${name}
 Full Address: ${address}
 City: ${city}
@@ -77,49 +122,28 @@ Opening Hours: ${opening_hours || 'Not available'}
 
 YOUR TASKS:
 
-1. ABOUT DESCRIPTION (ai_description)
+1. DESCRIPTION (ai_description)
 Write 3 sentences that:
-- Open with a strong specific statement about what this business is and does
-- Mention the specific cuisine, service type, or expertise
-- Close with a welcoming sentence about why people should visit
-- Sound natural and professional like a premium directory
-- Are grounded in the business name, address, and type — do not invent details
+- Open with a strong specific statement about what this listing is and does
+- Mention the specific service type or expertise
+- Close with a welcoming sentence about why people should use it
+- Sound natural and professional
+- Are grounded in the name, address, and type — do not invent details
 - Never use: Habesha, Ethiopian-owned, Eritrean-owned, diaspora-owned
 - Never use vague filler like "a wide range of services" or "committed to excellence"
 
 2. CATEGORY (category)
-Pick the single most accurate from:
-Food & Hospitality: restaurants, cafes, bars, catering, bakeries, takeaways, coffee shops
-Professional Services: accountants, lawyers, consultants, architects, financial advisors
-Health & Wellbeing: doctors, dentists, pharmacies, gyms, physiotherapy, opticians
-Beauty & Personal Care: hair salons, barbershops, nail bars, spas, beauty clinics
-Retail & Trade: shops, supermarkets, clothing, electronics, hardware, wholesale
-Transport & Travel: taxis, private hire, driving schools, car hire, travel agents
-Education & Training: tutors, schools, colleges, training centres, language schools
-Creative & Media: photographers, designers, videographers, marketing, music studios
-Community & Faith: churches, mosques, community centres, charities, cultural organisations
-Property: estate agents, letting agents, property management, construction
-
-Google type rules:
-restaurant/food/meal_takeaway/cafe/bar/bakery = Food & Hospitality
-doctor/dentist/pharmacy/hospital/gym = Health & Wellbeing
-hair_care/beauty_salon/spa/nail_salon = Beauty & Personal Care
-store/supermarket/clothing_store/electronics_store = Retail & Trade
-lawyer/accounting/finance/insurance_agency = Professional Services
-taxi_service/car_rental/driving_school/travel_agency = Transport & Travel
-school/university/tutoring/child_care = Education & Training
-church/mosque/place_of_worship/charity = Community & Faith
-real_estate_agency/lodging/general_contractor = Property
-art_gallery/photography/design/movie_studio = Creative & Media
+Pick the single most accurate from this list for the ${section} section:
+${categoryList}
 
 3. COMMUNITY RELEVANCE (community_relevant)
-true if the business name, location, or type suggests it serves the Ethiopian or Eritrean community. When uncertain, set true.
+true if the name, location, or type suggests it serves the Ethiopian or Eritrean community. When uncertain, set true.
 
 RESPOND IN THIS EXACT JSON FORMAT WITH NO OTHER TEXT OR MARKDOWN:
 {"ai_description": "...", "category": "...", "community_relevant": true}`
 
   let ai_description = ''
-  let sic_description = 'Professional Services'
+  let assignedCategory = getDefaultCategory(section)
   let community_relevant = true
 
   try {
@@ -136,10 +160,11 @@ RESPOND IN THIS EXACT JSON FORMAT WITH NO OTHER TEXT OR MARKDOWN:
     const text = aiData.content?.[0]?.text || '{}'
     const parsed = JSON.parse(text)
     ai_description = parsed.ai_description || ''
-    sic_description = HAGERLAND_CATEGORIES.includes(parsed.category) ? parsed.category : 'Professional Services'
+    const cats = HAGERLAND_CATEGORIES[section]
+    assignedCategory = cats.includes(parsed.category) ? parsed.category : getDefaultCategory(section)
     community_relevant = parsed.community_relevant !== false
   } catch {
-    // AI enhancement failed — proceed with empty description
+    // AI enhancement failed — proceed with defaults
   }
 
   const supabase = createClient(
@@ -147,26 +172,47 @@ RESPOND IN THIS EXACT JSON FORMAT WITH NO OTHER TEXT OR MARKDOWN:
     process.env.SUPABASE_SECRET_KEY!
   )
 
-  const { data, error } = await supabase.from('companies').insert({
-    company_name: name,
-    trading_address_city: city,
-    address: address,
+  const titleField = getTitleField(section)
+  const categoryField = getCategoryField(section)
+  const cityField = getCityField(section)
+
+  // Build the insert row dynamically
+  const row: Record<string, unknown> = {
+    [titleField]: name,
+    [cityField]: city,
+    address,
     country: country || null,
-    phone: phone,
-    website: website,
-    opening_hours: opening_hours,
-    sic_description: sic_description,
-    ai_description: ai_description,
+    phone,
+    website,
+    opening_hours,
+    [categoryField]: assignedCategory,
+    ai_description,
     status: 'pending',
-    is_verified: false,
     source: 'admin_import',
     google_place_id: google_place_id || null,
-    community_relevant: community_relevant,
-  }).select('id').single()
+    community_relevant,
+  }
+
+  // companies-only fields
+  if (section === 'companies') {
+    row.is_verified = false
+  }
+
+  const { data, error } = await supabase.from(section).insert(row).select('id').single()
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  return NextResponse.json({ success: true, id: data.id, ai_description, sic_description, community_relevant, phone, website, opening_hours })
+  return NextResponse.json({
+    success: true,
+    id: data.id,
+    ai_description,
+    sic_description: assignedCategory,
+    community_relevant,
+    phone,
+    website,
+    opening_hours,
+    adminPath: getAdminPath(section),
+  })
 }

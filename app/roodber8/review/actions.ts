@@ -58,11 +58,11 @@ export async function approveListing(table: string, id: string) {
     // Fetch pending_changes and contact details
     const { data: company } = await supabase
       .from('companies')
-      .select('pending_changes, contact_email, company_name, manage_token')
+      .select('pending_changes, contact_email, company_name, manage_token, source')
       .eq('id', id)
       .single()
 
-    const updateData: Record<string, unknown> = { status: 'active', is_verified: true, pending_changes: null }
+    const updateData: Record<string, unknown> = { status: 'active', is_verified: company?.source !== 'admin_import', pending_changes: null }
 
     // Apply pending_changes to live fields if any
     if (company?.pending_changes) {
