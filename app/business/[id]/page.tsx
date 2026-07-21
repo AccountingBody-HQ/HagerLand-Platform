@@ -271,24 +271,6 @@ export default async function BusinessProfilePage({ params }: Props) {
               </div>
             </div>
 
-            {/* Claim */}
-            {!business.is_verified && (
-              <div className='bg-white border border-border rounded-2xl overflow-hidden'>
-                <div className='px-6 py-5 border-b border-border'>
-                  <h2 className='font-bold text-ink text-base'>Own or manage this business?</h2>
-                  <p className='text-xs text-muted mt-0.5'>Take control of your listing</p>
-                </div>
-                <div className='px-6 py-6 flex items-center justify-between gap-6'>
-                  <p className='text-sm text-muted leading-relaxed'>
-                    Take control of your listing — update your details and add promotions.
-                  </p>
-                  <Link href={`/business/${params.id}/claim`} className='inline-flex items-center gap-2 bg-green hover:bg-green-dark text-white font-bold rounded-full px-6 py-2.5 text-sm transition-colors shrink-0'>
-                    <svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/></svg>
-                    Request access
-                  </Link>
-                </div>
-              </div>
-            )}
             {/* More businesses like this */}
             {relatedBusinesses && relatedBusinesses.length > 0 && (
               <div className='bg-white border border-border rounded-2xl overflow-hidden'>
@@ -347,6 +329,25 @@ export default async function BusinessProfilePage({ params }: Props) {
             )}
           </div>
 
+
+            {/* Claim */}
+            {!business.is_verified && (
+              <div className='bg-white border border-border rounded-2xl overflow-hidden'>
+                <div className='px-6 py-5 border-b border-border'>
+                  <h2 className='font-bold text-ink text-base'>Own or manage this business?</h2>
+                  <p className='text-xs text-muted mt-0.5'>Take control of your listing</p>
+                </div>
+                <div className='px-6 py-6 flex items-center justify-between gap-6'>
+                  <p className='text-sm text-muted leading-relaxed'>
+                    Take control of your listing — update your details and add promotions.
+                  </p>
+                  <Link href={`/business/${params.id}/claim`} className='inline-flex items-center gap-2 bg-green hover:bg-green-dark text-white font-bold rounded-full px-6 py-2.5 text-sm transition-colors shrink-0'>
+                    <svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/></svg>
+                    Request access
+                  </Link>
+                </div>
+              </div>
+            )}
           {/* ── RIGHT SIDEBAR */}
           <div className='space-y-5'>
 
@@ -458,4 +459,5 @@ export default async function BusinessProfilePage({ params }: Props) {
       <SiteFooter />
     </main>
   )
-}// cache bust Sat Jul 18 19:45:42 UTC 2026
+}
+
