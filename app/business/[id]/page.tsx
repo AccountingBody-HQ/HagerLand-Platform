@@ -72,7 +72,7 @@ export default async function BusinessProfilePage({ params }: Props) {
           </p>
 
           {/* Main layout — avatar left, content right */}
-          <div className="flex items-start gap-7 mb-8">
+          <div className="flex flex-col sm:flex-row items-start gap-5 sm:gap-7 mb-8">
 
             {/* Avatar */}
             <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center font-black text-white text-3xl sm:text-4xl shrink-0 mt-1">
@@ -130,15 +130,15 @@ export default async function BusinessProfilePage({ params }: Props) {
               </div>
 
               {/* Action buttons */}
-              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2 sm:gap-3">
                 <ShareButton title={business.company_name} dark={true} />
                 <Link href={business.is_verified ? "/business/edit-link" : `/business/${params.id}/claim`}
-                  className="inline-flex items-center justify-center gap-2 border border-white/25 text-white/70 hover:border-white/60 hover:text-white text-xs sm:text-sm font-semibold rounded-full w-28 sm:w-40 py-2 sm:py-2.5 transition-colors">
+                  className="inline-flex items-center justify-center gap-2 border border-white/25 text-white/70 hover:border-white/60 hover:text-white text-sm font-semibold rounded-full w-full sm:w-40 py-2.5 transition-colors">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                   Edit listing
                 </Link>
                 <Link href={business.is_verified ? "/business/edit-link" : `/business/${params.id}/claim?from=promotion`}
-                  className="inline-flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 border border-white/30 text-white text-xs sm:text-sm font-semibold rounded-full w-28 sm:w-40 py-2 sm:py-2.5 transition-colors">
+                  className="inline-flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 border border-white/30 text-white text-sm font-semibold rounded-full w-full sm:w-40 py-2.5 transition-colors">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
                   Add promotion
                 </Link>
