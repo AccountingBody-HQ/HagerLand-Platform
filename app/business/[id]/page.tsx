@@ -278,7 +278,7 @@ export default async function BusinessProfilePage({ params }: Props) {
                   <h2 className='font-bold text-ink text-base'>Own or manage this business?</h2>
                   <p className='text-xs text-muted mt-0.5'>Take control of your listing</p>
                 </div>
-                <div className='px-6 py-6 flex items-center justify-between gap-6'>
+                <div className='px-6 py-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4'>
                   <p className='text-sm text-muted leading-relaxed'>
                     Take control of your listing — update your details and add promotions.
                   </p>
