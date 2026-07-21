@@ -55,7 +55,7 @@ export default async function BusinessProfilePage({ params }: Props) {
       }) }} />
 
       {/* ══ HERO */}
-      <section className="relative overflow-hidden bg-green w-full max-w-full">
+      <section className="relative overflow-hidden bg-green">
         <div className="absolute inset-0" style={{background: 'linear-gradient(135deg, #155F3A 0%, #1C7C4C 60%, #1e8a55 100%)' }} />
         <div className="absolute inset-0 opacity-[0.07]" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px'}} />
         <div className="absolute top-0 right-0 w-[500px] h-[500px] opacity-10 pointer-events-none" style={{background: 'radial-gradient(circle at top right, #fff 0%, transparent 60%)'}} />
@@ -72,7 +72,7 @@ export default async function BusinessProfilePage({ params }: Props) {
           </p>
 
           {/* Main layout — avatar left, content right */}
-          <div className="flex items-start gap-5 sm:gap-7 mb-8 min-w-0 overflow-hidden">
+          <div className="flex items-start gap-7 mb-8">
 
             {/* Avatar */}
             <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center font-black text-white text-3xl sm:text-4xl shrink-0 mt-1">
@@ -151,18 +151,18 @@ export default async function BusinessProfilePage({ params }: Props) {
       </section>
 
       {/* ══ STATUS BAR */}
-      <div className='bg-white border-b border-border overflow-hidden'>
+      <div className='bg-white border-b border-border'>
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-          <div className='grid grid-cols-2 sm:flex sm:flex-wrap sm:divide-x divide-border'>
+          <div className='flex flex-wrap divide-x divide-border'>
             {[
-              { label: 'Status', value: business.is_verified ? 'Verified & Active' : 'Active', green: business.is_verified },
-              { label: 'Category', value: business.sic_description || 'Community business', green: false },
-              { label: 'Location', value: business.trading_address_city || 'United Kingdom', green: false },
-              { label: 'Listed on', value: 'HagerLand — Free & verified', green: false },
-            ].map((s, i) => (
-              <div key={s.label} className={`px-4 sm:px-5 py-3 sm:py-3.5 sm:first:pl-0 border-border ${i === 0 ? 'border-r sm:border-r-0 border-b sm:border-b-0' : ''} ${i === 1 ? 'border-b sm:border-b-0' : ''} ${i === 2 ? 'border-r sm:border-r-0' : ''}`}>
-                <p className='text-[10px] sm:text-xs font-bold text-muted uppercase tracking-wider'>{s.label}</p>
-                <p className={`text-sm font-bold mt-0.5 ${s.green ? 'text-green' : 'text-ink'}`}>{s.value}</p>
+              { label: 'Status', value: business.is_verified ? 'Verified & Active' : 'Active' },
+              { label: 'Category', value: business.sic_description || 'Community business' },
+              { label: 'Location', value: business.trading_address_city || 'United Kingdom' },
+              { label: 'Listed on', value: 'HagerLand — Free & verified' },
+            ].map((s) => (
+              <div key={s.label} className='px-5 py-3.5 first:pl-0'>
+                <p className='text-xs font-bold text-muted uppercase tracking-wider'>{s.label}</p>
+                <p className='text-sm font-bold text-ink mt-0.5'>{s.value}</p>
               </div>
             ))}
           </div>
