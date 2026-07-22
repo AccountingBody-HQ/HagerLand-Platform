@@ -73,11 +73,11 @@ export default async function EventsPage({ searchParams }: { searchParams: { cat
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pb-24">
           <SubmissionBanner />
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-8">
-            <div className="flex flex-wrap items-center gap-2">
-              <Link href="/events" className={`text-sm px-4 py-2 rounded-full border transition-colors whitespace-nowrap ${!showUpcoming && !category ? 'bg-ink text-white border-ink' : 'bg-white text-ink border-border hover:border-ink'}`}>All Events</Link>
-              <Link href="/events?upcoming=1" className={`text-sm px-4 py-2 rounded-full border transition-colors whitespace-nowrap ${showUpcoming && !category ? 'bg-ink text-white border-ink' : 'bg-white text-ink border-border hover:border-ink'}`}>Upcoming</Link>
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+              <Link href="/events" className={`text-sm px-4 py-2 rounded-full border transition-colors whitespace-nowrap shrink-0 ${!showUpcoming && !category ? 'bg-ink text-white border-ink' : 'bg-white text-ink border-border hover:border-ink'}`}>All Events</Link>
+              <Link href="/events?upcoming=1" className={`text-sm px-4 py-2 rounded-full border transition-colors whitespace-nowrap shrink-0 ${showUpcoming && !category ? 'bg-ink text-white border-ink' : 'bg-white text-ink border-border hover:border-ink'}`}>Upcoming</Link>
               {categories.length > 0 && <FilterDropdown options={categories} value={category} basePath={showUpcoming ? '/events?upcoming=1' : '/events'} paramName="category" allLabel="All categories" />}
-              {category && <Link href="/events" className="text-xs font-semibold text-green hover:underline">Clear</Link>}
+              {category && <Link href="/events" className="text-xs font-semibold text-green hover:underline shrink-0">Clear</Link>}
             </div>
             {count != null && <p className="text-sm text-muted sm:ml-auto">{count.toLocaleString()} {count === 1 ? 'event' : 'events'}</p>}
           </div>
