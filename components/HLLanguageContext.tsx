@@ -20,8 +20,10 @@ function setGoogTransCookie(langCode: string) {
     document.cookie = `googtrans=; ${expires}; path=/; domain=${hostname};`
     document.cookie = `googtrans=; ${expires}; path=/; domain=.${rootDomain};`
     document.cookie = `googtrans=; ${expires}; path=/; domain=${rootDomain};`
-    // Small delay to ensure cookies are cleared before reload
-    setTimeout(() => window.location.reload(), 50)
+    // Force hard navigation to strip Google Translate's internal state
+    setTimeout(() => {
+      window.location.href = window.location.href.split('?')[0].split('#')[0]
+    }, 50)
   } else {
     const value = '/en/' + langCode
     document.cookie = `googtrans=${value}; path=/;`
