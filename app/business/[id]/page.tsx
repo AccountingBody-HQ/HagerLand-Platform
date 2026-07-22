@@ -75,7 +75,7 @@ export default async function BusinessProfilePage({ params }: Props) {
           <div className="flex flex-col sm:flex-row items-start gap-5 sm:gap-7 mb-8">
 
             {/* Avatar */}
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center font-black text-white text-3xl sm:text-4xl shrink-0 mt-1">
+            <div translate="no" className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center font-black text-white text-3xl sm:text-4xl shrink-0 mt-1">
               {initial}
             </div>
 
@@ -303,7 +303,7 @@ export default async function BusinessProfilePage({ params }: Props) {
                     const rel_initial = b.company_name.split(' ').slice(0, 2).map((w: string) => w[0]).join('').toUpperCase()
                     return (
                       <a key={b.id} href={`/business/${b.id}`} className='flex items-center gap-4 px-6 py-4 hover:bg-section transition-colors group'>
-                        <div className='w-10 h-10 rounded-xl bg-green-soft flex items-center justify-center font-bold text-green text-sm shrink-0'>
+                        <div translate='no' className='w-10 h-10 rounded-xl bg-green-soft flex items-center justify-center font-bold text-green text-sm shrink-0'>
                           {rel_initial}
                         </div>
                         <div className='flex-1 min-w-0'>
