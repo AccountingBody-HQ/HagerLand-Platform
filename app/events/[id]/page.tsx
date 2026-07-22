@@ -392,7 +392,7 @@ export default async function EventsDetailPage({ params }: Props) {
               <p className='text-xs font-bold text-white/60 uppercase tracking-wider mb-1'>Free listing</p>
               <p className='text-base font-bold text-white mb-3'>List an event</p>
               <p className='text-xs text-white/70 mb-4'>Reach the community — list your event for free.</p>
-              <Link href='/events/post' className='block text-center bg-white text-green font-bold text-sm rounded-full px-4 py-2.5 hover:bg-green-soft transition-colors'>
+              <Link href='/events/post' className='block text-center bg-white text-green font-bold text-sm rounded-full px-4 py-2.5 hover:bg-green-soft transition-colors' translate='no'>
                 Get listed — free
               </Link>
             </div>
