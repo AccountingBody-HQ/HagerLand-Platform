@@ -260,6 +260,24 @@ export default async function CarsDetailPage({ params }: Props) {
               </div>
             )}
 
+            {/* Own or manage */}
+            {!listing.manage_token && (
+              <div className='bg-white border border-border rounded-2xl overflow-hidden'>
+                <div className='px-6 py-5 border-b border-border'>
+                  <h2 className='font-bold text-ink text-base'>Own or manage this listing?</h2>
+                  <p className='text-xs text-muted mt-0.5'>Take control of your listing</p>
+                </div>
+                <div className='px-6 py-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4'>
+                  <p className='text-sm text-muted leading-relaxed'>
+                    Take control of your listing — update your details and add promotions.
+                  </p>
+                  <Link href={`/cars/${listing.id}/claim`} className='inline-flex items-center gap-2 bg-green hover:bg-green-dark text-white font-bold rounded-full px-6 py-2.5 text-sm transition-colors shrink-0'>
+                    <svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/></svg>
+                    Request access
+                  </Link>
+                </div>
+              </div>
+            )}
             {/* Promo CTA */}
             {!promoActive && (
               <div className='bg-white border border-border rounded-2xl overflow-hidden'>
