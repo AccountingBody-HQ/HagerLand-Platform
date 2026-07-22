@@ -290,7 +290,7 @@ export default async function EventsDetailPage({ params }: Props) {
                     <svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' className='text-green'><path d='M3 11l19-9-9 19-2-8-8-2z'/></svg>
                   </div>
                   <p className='text-xs text-muted mb-4 max-w-xs mx-auto'>Post offers, events, or updates — your customers will see it here instantly.</p>
-                  <a href='/events/edit-link' className='inline-flex items-center gap-2 bg-green hover:bg-green-dark text-white text-xs font-bold rounded-full px-4 py-2 transition-colors'>
+                  <a href={listing.manage_token ? '/events/edit-link' : `/events/${listing.id}/claim?from=promotion`} className='inline-flex items-center gap-2 bg-green hover:bg-green-dark text-white text-xs font-bold rounded-full px-4 py-2 transition-colors'>
                     <svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'><circle cx='12' cy='12' r='10'/><line x1='12' y1='8' x2='12' y2='16'/><line x1='8' y1='12' x2='16' y2='12'/></svg>
                     Add a promotion
                   </a>
