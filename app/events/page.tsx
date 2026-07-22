@@ -74,8 +74,8 @@ export default async function EventsPage({ searchParams }: { searchParams: { cat
           <SubmissionBanner />
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-8">
             <div className="flex flex-wrap items-center gap-2">
-              <Link href="/events" className={`text-sm px-4 py-2 rounded-full border transition-colors whitespace-nowrap ${!showUpcoming && !category ? 'bg-ink text-white border-ink' : 'bg-white text-ink border-border hover:border-ink'}`}>All Events</Link>
-              <Link href="/events?upcoming=1" className={`text-sm px-4 py-2 rounded-full border transition-colors whitespace-nowrap ${showUpcoming && !category ? 'bg-ink text-white border-ink' : 'bg-white text-ink border-border hover:border-ink'}`}>Upcoming</Link>
+              <Link href="/events" className={`text-xs font-medium px-3 py-2 rounded-full border transition-colors whitespace-nowrap ${!showUpcoming && !category ? 'bg-ink text-white border-ink' : 'bg-white text-ink border-border hover:border-ink'}`}>All Events</Link>
+              <Link href="/events?upcoming=1" className={`text-xs font-medium px-3 py-2 rounded-full border transition-colors whitespace-nowrap ${showUpcoming && !category ? 'bg-ink text-white border-ink' : 'bg-white text-ink border-border hover:border-ink'}`}>Upcoming</Link>
               {categories.length > 0 && <FilterDropdown options={categories} value={category} basePath={showUpcoming ? '/events?upcoming=1' : '/events'} paramName="category" allLabel="All categories" />}
               {category && <Link href="/events" className="text-xs font-semibold text-green hover:underline shrink-0">Clear</Link>}
             </div>

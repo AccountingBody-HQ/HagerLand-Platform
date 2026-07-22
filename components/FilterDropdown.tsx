@@ -44,7 +44,7 @@ export function FilterDropdown({
     <div ref={ref} className="relative inline-block">
       <button
         onClick={() => setOpen(!open)}
-        className="inline-flex items-center gap-2 bg-white border border-border text-ink text-sm font-medium rounded-full pl-4 pr-3 py-2 hover:border-ink transition-colors focus:outline-none focus:border-green whitespace-nowrap justify-between">
+        className="inline-flex items-center gap-1.5 bg-white border border-border text-ink text-xs font-medium rounded-full pl-3 pr-2.5 py-2 hover:border-ink transition-colors focus:outline-none focus:border-green whitespace-nowrap">
         <span>{current}</span>
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
           className={`text-muted transition-transform ${open ? 'rotate-180' : ''}`}>
