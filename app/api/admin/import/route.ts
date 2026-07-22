@@ -103,7 +103,12 @@ export async function POST(request: NextRequest) {
   if (google_place_id) {
     const details = await getPlaceDetails(google_place_id, apiKey)
     if (!phone && details.phone) phone = details.phone
-    if (!website && details.website) website = details.website
+    if (!website && details.website) {
+      const w = details.website
+      // Reject Google search URLs, Maps URLs, and any non-business URLs
+      const isGoogleUrl = /google\.com|maps\.app\.goo|goo\.gl/i.test(w)
+      if (!isGoogleUrl) website = w
+    }
     if (details.opening_hours) opening_hours = details.opening_hours
   }
 
