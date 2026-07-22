@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { SiteNav } from '@/components/SiteNav'
 import { SiteFooter } from '@/components/SiteFooter'
+import { SearchBox } from '@/components/SearchBox'
 import { SubmissionBanner } from '@/components/SubmissionBanner'
 import { FilterDropdown } from '@/components/FilterDropdown' // eslint-disable-line
 
@@ -54,13 +55,7 @@ export default async function CommunityPage({ searchParams }: { searchParams: { 
               <div className="flex items-baseline gap-2"><span className="text-2xl font-bold text-white" translate="no">Free</span><span className="text-white/40 text-sm">to list</span></div>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 max-w-xl">
-              <div className="relative flex-1">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="absolute left-4 top-1/2 -translate-y-1/2 text-muted pointer-events-none"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35" strokeLinecap="round"/></svg>
-                <form action="/search" method="get" className="flex items-center gap-2">
-                  <input name="q" type="text" placeholder="Search organisations..." className="w-full pl-10 pr-4 py-3.5 rounded-full border-0 text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-white/50 shadow-xl shadow-black/10" />
-                  <button type="submit" className="shrink-0 bg-white/20 hover:bg-white/30 border border-white/30 text-white rounded-full px-4 py-3.5 text-sm font-semibold transition-colors whitespace-nowrap">Search</button>
-                </form>
-              </div>
+              <SearchBox className="shadow-xl shadow-black/10 flex-1" />
               <Link href="/community/post" className="inline-flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 border border-white/30 text-white font-bold rounded-full px-6 py-3.5 text-sm transition-colors whitespace-nowrap">List an organisation →</Link>
             </div>
           </div>
