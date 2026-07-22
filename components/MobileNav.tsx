@@ -20,11 +20,13 @@ const SECTIONS = [
 
 export function MobileNav() {
   const [open, setOpen] = useState(false)
+  const openMenu = () => { setOpen(true); document.body.style.overflow = 'hidden' }
+  const closeMenu = () => { setOpen(false); document.body.style.overflow = '' }
   const pathname = usePathname()
 
   return (
     <>
-      <button onClick={() => setOpen(true)} aria-label="Open menu" className="p-1 text-ink">
+      <button onClick={openMenu} aria-label="Open menu" className="p-1 text-ink">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M3 6h18M3 12h18M3 18h18" strokeLinecap="round"/>
         </svg>
@@ -34,25 +36,19 @@ export function MobileNav() {
 
           {/* Header */}
           <div className="flex items-center justify-between px-5 h-16 shrink-0 border-b border-white/10">
-            <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-2.5">
+            <Link href="/" onClick={closeMenu} className="flex items-center gap-2.5">
               <Logo className="w-7 h-7" />
               <span className="font-bold text-lg text-white tracking-tight" translate="no">HagerLand</span>
             </Link>
-            <button onClick={() => setOpen(false)} aria-label="Close menu" className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 transition-colors">
+            <button onClick={closeMenu} aria-label="Close menu" className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 transition-colors">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12" strokeLinecap="round"/></svg>
             </button>
           </div>
 
-          {/* Language switcher */}
-          <div className="px-5 pt-3 pb-2">
-            <div className="w-fit">
-              <MobileLangSwitcher />
-            </div>
-          </div>
-
-          {/* Eyebrow */}
-          <div className="px-5 pb-1">
+          {/* Eyebrow + Language switcher */}
+          <div className="px-5 pt-3 pb-2 flex items-center justify-between">
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/30">Browse the directory</p>
+            <MobileLangSwitcher />
           </div>
 
           {/* Nav links */}
@@ -61,7 +57,7 @@ export function MobileNav() {
               {SECTIONS.map((section) => {
                 const active = pathname === section.href
                 return (
-                  <Link key={section.href} href={section.href} onClick={() => setOpen(false)}
+                  <Link key={section.href} href={section.href} onClick={closeMenu}
                     className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all ${active ? 'bg-green text-white' : 'text-white/70 hover:bg-white/8 hover:text-white'}`}>
                     <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${active ? 'bg-white/20' : 'bg-white/8'}`}
                       dangerouslySetInnerHTML={{ __html: section.icon }} />
@@ -81,16 +77,16 @@ export function MobileNav() {
 
           {/* Footer CTA */}
           <div className="px-5 py-4 border-t border-white/10 shrink-0 space-y-2">
-            <Link href="/business/post" onClick={() => setOpen(false)}
+            <Link href="/business/post" onClick={closeMenu}
               className="flex items-center justify-center w-full bg-green hover:bg-green-dark text-white font-bold rounded-full py-3.5 text-sm transition-colors">
               List your business — free
             </Link>
             <div className="flex items-center justify-between">
               <p className="text-xs text-white/25">ሃገር — Homeland</p>
               <div className="flex items-center gap-3">
-                <Link href="/about" onClick={() => setOpen(false)} className="text-xs text-white/30 hover:text-white/60 transition-colors">About</Link>
-                <Link href="/contact" onClick={() => setOpen(false)} className="text-xs text-white/30 hover:text-white/60 transition-colors">Contact</Link>
-                <Link href="/how-it-works" onClick={() => setOpen(false)} className="text-xs text-white/30 hover:text-white/60 transition-colors">How it works</Link>
+                <Link href="/about" onClick={closeMenu} className="text-xs text-white/30 hover:text-white/60 transition-colors">About</Link>
+                <Link href="/contact" onClick={closeMenu} className="text-xs text-white/30 hover:text-white/60 transition-colors">Contact</Link>
+                <Link href="/how-it-works" onClick={closeMenu} className="text-xs text-white/30 hover:text-white/60 transition-colors">How it works</Link>
               </div>
             </div>
           </div>
