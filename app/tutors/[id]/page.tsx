@@ -392,7 +392,7 @@ export default async function TutorsDetailPage({ params }: Props) {
               <p className='text-xs font-bold text-white/60 uppercase tracking-wider mb-1'>Free listing</p>
               <p className='text-base font-bold text-white mb-3'>List your tutoring</p>
               <p className='text-xs text-white/70 mb-4'>Reach the community — list your tutoring service for free.</p>
-              <Link href='/tutors/post' className='block text-center bg-white text-green font-bold text-sm rounded-full px-4 py-2.5 hover:bg-green-soft transition-colors' translate='no'>
+              <Link href='/tutors/post' className='block text-center bg-white text-green font-bold text-sm rounded-full px-4 py-2.5 hover:bg-green-soft transition-colors leading-tight min-h-[38px] flex items-center justify-center'>
                 Get listed — free
               </Link>
             </div>
