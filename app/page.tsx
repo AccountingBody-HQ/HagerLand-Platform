@@ -263,11 +263,11 @@ export default async function HomePage() {
               <h3 className="text-xl font-bold text-ink mb-1">Ready to join the directory?</h3>
               <p className="text-muted text-sm">List your business, job, or event. Free, always.</p>
             </div>
-            <div className="flex flex-row gap-3 shrink-0 w-full sm:w-auto">
-              <Link href="/business/post" className="flex-1 text-center bg-green hover:bg-green-dark text-white font-bold rounded-full py-3 px-4 transition-colors text-sm whitespace-nowrap" translate="no">
+            <div className="flex flex-row gap-3 shrink-0">
+              <Link href="/business/post" className="w-40 text-center bg-green hover:bg-green-dark text-white font-bold rounded-full py-3 px-4 transition-colors text-sm whitespace-nowrap" translate="no">
                 Get listed — free
               </Link>
-              <Link href="/business" className="flex-1 text-center border border-border text-ink hover:border-ink font-semibold rounded-full py-3 px-4 transition-colors text-sm whitespace-nowrap" translate="no">
+              <Link href="/business" className="w-40 text-center border border-border text-ink hover:border-ink font-semibold rounded-full py-3 px-4 transition-colors text-sm whitespace-nowrap" translate="no">
                 Browse businesses
               </Link>
             </div>
