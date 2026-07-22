@@ -264,10 +264,10 @@ export default async function HomePage() {
               <p className="text-muted text-sm">List your business, job, or event. Free, always.</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 shrink-0 w-full sm:w-auto">
-              <Link href="/business/post" className="text-center bg-green hover:bg-green-dark text-white font-bold rounded-full py-3 px-6 transition-colors text-sm">
+              <Link href="/business/post" className="flex-1 text-center bg-green hover:bg-green-dark text-white font-bold rounded-full py-3 px-6 transition-colors text-sm">
                 Get listed — free
               </Link>
-              <Link href="/business" className="w-44 text-center border border-border text-ink hover:border-ink font-semibold rounded-full py-3 transition-colors text-sm">
+              <Link href="/business" className="flex-1 text-center border border-border text-ink hover:border-ink font-semibold rounded-full py-3 transition-colors text-sm">
                 Browse businesses
               </Link>
             </div>
