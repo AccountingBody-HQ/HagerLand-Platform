@@ -44,14 +44,14 @@ export function MobileNav() {
           </div>
 
           {/* Language switcher */}
-          <div className="px-5 pt-6 pb-4">
+          <div className="px-5 pt-3 pb-2">
             <div className="w-fit">
               <MobileLangSwitcher />
             </div>
           </div>
 
           {/* Eyebrow */}
-          <div className="px-5 pb-2">
+          <div className="px-5 pb-1">
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/30">Browse the directory</p>
           </div>
 
@@ -62,7 +62,7 @@ export function MobileNav() {
                 const active = pathname === section.href
                 return (
                   <Link key={section.href} href={section.href} onClick={() => setOpen(false)}
-                    className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all ${active ? 'bg-green text-white' : 'text-white/70 hover:bg-white/8 hover:text-white'}`}>
+                    className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all ${active ? 'bg-green text-white' : 'text-white/70 hover:bg-white/8 hover:text-white'}`}>
                     <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${active ? 'bg-white/20' : 'bg-white/8'}`}
                       dangerouslySetInnerHTML={{ __html: section.icon }} />
                     <div className="flex-1 min-w-0">
@@ -80,7 +80,7 @@ export function MobileNav() {
           </div>
 
           {/* Footer CTA */}
-          <div className="px-5 py-6 border-t border-white/10 shrink-0 space-y-3">
+          <div className="px-5 py-4 border-t border-white/10 shrink-0 space-y-2">
             <Link href="/business/post" onClick={() => setOpen(false)}
               className="flex items-center justify-center w-full bg-green hover:bg-green-dark text-white font-bold rounded-full py-3.5 text-sm transition-colors">
               List your business — free
