@@ -79,6 +79,27 @@ export default function ImportPage() {
     }
   }
 
+  async function handleSelect(place: PlaceResult) {
+    setSelected(place)
+    setPhone('')
+    setWebsite('')
+    setImported(null)
+    setImportError('')
+    try {
+      const res = await fetch('/api/admin/place-details?place_id=' + place.google_place_id)
+      const data = await res.json()
+      if (!data.error) {
+        if (data.city) place.city = data.city
+        if (data.country) place.country = data.country
+        if (data.phone) setPhone(data.phone)
+        if (data.website) setWebsite(data.website)
+        setSelected({ ...place })
+      }
+    } catch {
+      // fallback to regex-extracted city already in place.city
+    }
+  }
+
   async function handleImport() {
     if (!selected) return
     setImporting(true)
@@ -188,7 +209,7 @@ export default function ImportPage() {
             {results.map(place => (
               <button
                 key={place.google_place_id}
-                onClick={() => { setSelected(place); setPhone(''); setWebsite(''); setImported(null); setImportError('') }}
+                onClick={() => handleSelect(place)}
                 style={{
                   background: selected?.google_place_id === place.google_place_id ? 'rgba(28,124,76,0.15)' : C.bg,
                   border: '1px solid ' + (selected?.google_place_id === place.google_place_id ? C.green : C.border),
