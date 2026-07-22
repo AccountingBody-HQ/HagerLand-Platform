@@ -176,7 +176,7 @@ export default function HowItWorksPage() {
               <p className="text-muted text-sm">Search the directory or list your business — free, always.</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 shrink-0 w-full sm:w-auto">
-              <Link href="/business/post" className="w-44 text-center bg-green hover:bg-green-dark text-white font-bold rounded-full py-3 transition-colors text-sm leading-tight min-h-[48px] flex items-center justify-center">
+              <Link href="/business/post" className="text-center bg-green hover:bg-green-dark text-white font-bold rounded-full py-3 px-6 transition-colors text-sm">
                 Get listed — free
               </Link>
               <Link href="/business" className="w-44 text-center border border-border text-ink hover:border-ink font-semibold rounded-full py-3 transition-colors text-sm">
