@@ -9,18 +9,26 @@ const LanguageContext = createContext<LanguageContextValue>({
   language: 'en',
   setLanguage: () => {},
 })
+function showLangOverlay() {
+  if (typeof document === 'undefined') return
+  const overlay = document.createElement('div')
+  overlay.id = 'hl-lang-overlay'
+  overlay.style.cssText = 'position:fixed;inset:0;background:#1C7C4C;z-index:99999;display:flex;align-items:center;justify-content:center;transition:opacity 0.15s;'
+  overlay.innerHTML = '<div style="text-align:center"><p style="color:rgba(255,255,255,0.7);font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;margin:0 0 8px">ሃገር · Homeland · HagerLand</p><p style="color:#fff;font-size:14px;font-weight:600;margin:0">Loading...</p></div>'
+  document.body.appendChild(overlay)
+}
+
 function setGoogTransCookie(langCode: string) {
   if (typeof document === 'undefined') return
   const hostname = window.location.hostname
   const rootDomain = hostname.replace(/^www\./, '')
+  showLangOverlay()
   if (langCode === 'en') {
-    // Clear on all possible domain combinations
     const expires = 'expires=Thu, 01 Jan 1970 00:00:00 UTC'
     document.cookie = `googtrans=; ${expires}; path=/;`
     document.cookie = `googtrans=; ${expires}; path=/; domain=${hostname};`
     document.cookie = `googtrans=; ${expires}; path=/; domain=.${rootDomain};`
     document.cookie = `googtrans=; ${expires}; path=/; domain=${rootDomain};`
-    // Force hard navigation to strip Google Translate's internal state
     setTimeout(() => {
       window.location.href = window.location.href.split('?')[0].split('#')[0]
     }, 50)
