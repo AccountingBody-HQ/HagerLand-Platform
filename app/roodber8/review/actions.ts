@@ -224,10 +224,93 @@ export async function updateCompany(id: string, data: {
 export async function approveClaim(claimId: string, companyId: string) {
   requireAdminSession()
   const supabase = getAdmin()
-  const { error: claimError } = await supabase.from('business_claims').update({ status: 'approved' }).eq('id', claimId)
+
+  // Fetch claim to determine section and listing_id
+  const { data: claim } = await supabase
+    .from('business_claims')
+    .select('section, listing_id, claimant_email, claimant_name')
+    .eq('id', claimId)
+    .single()
+
+  const section = claim?.section ?? 'companies'
+  const isCompany = section === 'companies'
+
+  const { error: claimError } = await supabase
+    .from('business_claims')
+    .update({ status: 'approved' })
+    .eq('id', claimId)
   if (claimError) throw new Error(claimError.message)
-  const { error: companyError } = await supabase.from('companies').update({ is_verified: true }).eq('id', companyId)
-  if (companyError) throw new Error(companyError.message)
+
+  if (isCompany) {
+    // Business: set is_verified true
+    const { error: companyError } = await supabase
+      .from('companies')
+      .update({ is_verified: true })
+      .eq('id', companyId)
+    if (companyError) throw new Error(companyError.message)
+  } else {
+    // Other section: generate manage_token and write to correct table
+    const crypto = await import('crypto')
+    const manageToken = crypto.default.randomBytes(32).toString('hex')
+    const listingId = claim?.listing_id
+    if (!listingId) throw new Error('No listing_id on claim')
+
+    // Fetch listing title for email
+    const titleField = (section === 'tutors' || section === 'community') ? 'name' : 'title'
+    const { data: listing } = await supabase
+      .from(section)
+      .select(`${titleField}, contact_email`)
+      .eq('id', listingId)
+      .single()
+
+    const { error: listingError } = await supabase
+      .from(section)
+      .update({ manage_token: manageToken })
+      .eq('id', listingId)
+    if (listingError) throw new Error(listingError.message)
+
+    // Send approval email to claimant
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://hagerland-platform.vercel.app'
+    const manageUrl = `${baseUrl}/${section}/manage?token=${manageToken}`
+    const listingTitle = (listing as Record<string, string> | null)?.[titleField] ?? 'Your listing'
+    const emailTo = listing?.contact_email || claim?.claimant_email
+    if (emailTo) {
+      try {
+        const { Resend } = await import('resend')
+        const resend = new Resend(process.env.RESEND_API_KEY)
+        const GREEN = '#1C7C4C'
+        await resend.emails.send({
+          from: 'HagerLand <info@accountingbody.com>',
+          to: emailTo,
+          subject: `Your claim has been approved — ${listingTitle}`,
+          html: `
+            <div style="font-family:system-ui,sans-serif;max-width:580px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #E4E6E3">
+              <div style="background:${GREEN};padding:28px 40px">
+                <p style="color:rgba(255,255,255,0.6);font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;margin:0 0 6px 0">ሃገር · Homeland · HagerLand</p>
+                <p style="color:#ffffff;font-size:18px;font-weight:700;margin:0">Your claim has been approved</p>
+              </div>
+              <div style="padding:36px 40px">
+                <p style="color:#152238;font-size:15px;margin:0 0 16px 0">Hi ${claim?.claimant_name ?? 'there'},</p>
+                <p style="color:#152238;font-size:15px;margin:0 0 16px 0">Your claim for <strong>${listingTitle}</strong> on HagerLand has been approved. You can now manage your listing using the link below.</p>
+                <p style="margin:0 0 28px 0">
+                  <a href="${manageUrl}" style="display:inline-block;background:${GREEN};color:#ffffff;padding:14px 32px;border-radius:32px;text-decoration:none;font-weight:700;font-size:15px">
+                    Manage my listing
+                  </a>
+                </p>
+                <p style="color:#6B7280;font-size:13px;margin:0 0 8px 0">Keep this link safe — it gives access to edit your listing.</p>
+                <p style="color:#6B7280;font-size:11px;margin:0;word-break:break-all">Or copy this link: ${manageUrl}</p>
+              </div>
+              <div style="background:#F4F5F3;padding:20px 40px;border-top:1px solid #E4E6E3">
+                <p style="color:#6B7280;font-size:12px;margin:0;text-align:center">HagerLand — The free, verified community directory.</p>
+              </div>
+            </div>`,
+        })
+      } catch (err) {
+        console.error('Claim approval email failed:', err)
+      }
+    }
+  }
+
   revalidateAll()
 }
 
