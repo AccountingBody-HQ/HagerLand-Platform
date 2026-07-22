@@ -14,9 +14,9 @@ export const metadata = {
 
 const PAGE_SIZE = 20
 
-export default async function EventsPage({ searchParams }: { searchParams: { category?: string; past?: string; page?: string } }) {
+export default async function EventsPage({ searchParams }: { searchParams: { category?: string; upcoming?: string; page?: string } }) {
   const category = searchParams.category
-  const showPast = searchParams.past === '1'
+  const showUpcoming = searchParams.upcoming === '1'
   const page = Math.max(1, parseInt(searchParams.page ?? '1', 10))
   const from = (page - 1) * PAGE_SIZE
   const to = from + PAGE_SIZE - 1
@@ -25,7 +25,7 @@ export default async function EventsPage({ searchParams }: { searchParams: { cat
   let query = supabase.from('events').select('*', { count: 'exact' })
     .eq('status', 'active').order('event_date', { ascending: true }).range(from, to)
   if (category) query = query.eq('category', category)
-  if (!showPast) query = query.gte('event_date', today)
+  if (showUpcoming) query = query.gte('event_date', today)
   const { data: events, count, error } = await query
 
   const { data: catRows } = await supabase.from('events').select('category')
@@ -36,7 +36,7 @@ export default async function EventsPage({ searchParams }: { searchParams: { cat
   function pageUrl(p: number) {
     const params = new URLSearchParams()
     if (category) params.set('category', category)
-    if (showPast) params.set('past', '1')
+    if (showUpcoming) params.set('upcoming', '1')
     params.set('page', String(p))
     return `/events?${params.toString()}`
   }
@@ -74,9 +74,10 @@ export default async function EventsPage({ searchParams }: { searchParams: { cat
           <SubmissionBanner />
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-8">
             <div className="flex items-center gap-3">
-              <Link href="/events" className={`text-sm px-4 py-2 rounded-full border transition-colors ${!showPast && !category ? 'bg-ink text-white border-ink' : 'bg-white text-ink border-border hover:border-ink'}`}>Upcoming</Link>
-              <Link href="/events?past=1" className={`text-sm px-4 py-2 rounded-full border transition-colors ${showPast ? 'bg-ink text-white border-ink' : 'bg-white text-ink border-border hover:border-ink'}`}>All events</Link>
-              {categories.length > 0 && <FilterDropdown options={categories} value={category} basePath={showPast ? '/events?past=1' : '/events'} paramName="category" allLabel="All categories" />}
+              <Link href="/events" className={`text-sm px-4 py-2 rounded-full border transition-colors ${!showUpcoming && !category ? 'bg-ink text-white border-ink' : 'bg-white text-ink border-border hover:border-ink'}`}>All Events</Link>
+              <Link href="/events?upcoming=1" className={`text-sm px-4 py-2 rounded-full border transition-colors ${showUpcoming && !category ? 'bg-ink text-white border-ink' : 'bg-white text-ink border-border hover:border-ink'}`}>Upcoming</Link>
+              
+              {categories.length > 0 && <FilterDropdown options={categories} value={category} basePath={showUpcoming ? '/events?upcoming=1' : '/events'} paramName="category" allLabel="All categories" />}
               {category && <Link href="/events" className="text-xs font-semibold text-green hover:underline">Clear</Link>}
             </div>
             {count != null && <p className="text-sm text-muted ml-auto">{count.toLocaleString()} {count === 1 ? 'event' : 'events'}</p>}
@@ -105,7 +106,7 @@ export default async function EventsPage({ searchParams }: { searchParams: { cat
                   {event.event_time && <span className="text-xs text-muted ml-auto">{event.event_time}</span>}
                 </div>
               </Link>
-            )) : <p className="text-muted col-span-full text-center py-16">{showPast ? 'No events found.' : 'No upcoming events. Check back soon.'}</p>}
+            )) : <p className="text-muted col-span-full text-center py-16">{showUpcoming ? 'No upcoming events. Check back soon.' : 'No events found.'}</p>}
           </div>
           {totalPages > 1 && (
             <div className="flex items-center justify-center gap-3 mt-10">
