@@ -10,34 +10,16 @@ interface GooglePlace {
   types: string[]
 }
 
-export async function GET(request: NextRequest) {
-  const token = cookies().get(SESSION_COOKIE)?.value
-  if (!verifySessionToken(token)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  const { searchParams } = new URL(request.url)
-  const query = searchParams.get('query')
-  const pagetoken = searchParams.get('pagetoken')
-
-  if (!query && !pagetoken) {
-    return NextResponse.json({ error: 'Query required' }, { status: 400 })
-  }
-
-  const apiKey = process.env.GOOGLE_PLACES_API_KEY
-  if (!apiKey) {
-    return NextResponse.json({ error: 'API key not configured' }, { status: 500 })
-  }
-
+async function handleRequest(query: string | null, pagetoken: string | null, apiKey: string) {
   const url = pagetoken
-    ? `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${decodeURIComponent(pagetoken)}&key=${apiKey}`
+    ? `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${pagetoken}&key=${apiKey}`
     : `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query ?? '')}&key=${apiKey}`
 
   const res = await fetch(url, { cache: 'no-store' })
   const data = await res.json()
 
   if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
-    return NextResponse.json({ error: data.status }, { status: 500 })
+    return { error: data.status }
   }
 
   const results = (data.results || []).map((place: GooglePlace) => ({
@@ -49,11 +31,37 @@ export async function GET(request: NextRequest) {
     types: place.types,
   }))
 
-  return NextResponse.json({
-    results,
-    next_page_token: data.next_page_token ?? null,
-    total: results.length,
-  })
+  return { results, next_page_token: data.next_page_token ?? null, total: results.length }
+}
+
+function auth(): boolean {
+  const token = cookies().get(SESSION_COOKIE)?.value
+  return verifySessionToken(token)
+}
+
+export async function GET(request: NextRequest) {
+  if (!auth()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const apiKey = process.env.GOOGLE_PLACES_API_KEY
+  if (!apiKey) return NextResponse.json({ error: 'API key not configured' }, { status: 500 })
+  const { searchParams } = new URL(request.url)
+  const query = searchParams.get('query')
+  const pagetoken = searchParams.get('pagetoken')
+  if (!query && !pagetoken) return NextResponse.json({ error: 'Query required' }, { status: 400 })
+  const result = await handleRequest(query, pagetoken, apiKey)
+  if (result.error) return NextResponse.json({ error: result.error }, { status: 500 })
+  return NextResponse.json(result)
+}
+
+export async function POST(request: NextRequest) {
+  if (!auth()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const apiKey = process.env.GOOGLE_PLACES_API_KEY
+  if (!apiKey) return NextResponse.json({ error: 'API key not configured' }, { status: 500 })
+  const body = await request.json()
+  const { query, pagetoken } = body
+  if (!query && !pagetoken) return NextResponse.json({ error: 'Query required' }, { status: 400 })
+  const result = await handleRequest(query, pagetoken, apiKey)
+  if (result.error) return NextResponse.json({ error: result.error }, { status: 500 })
+  return NextResponse.json(result)
 }
 
 function extractCity(address: string): string {
