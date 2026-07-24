@@ -66,6 +66,7 @@ export default function ImportPage() {
     setSearching(true)
     setSearchError('')
     setResults([])
+    setNextPageToken(null)
     setSelected(null)
     setImported(null)
     try {
@@ -222,7 +223,7 @@ export default function ImportPage() {
       {results.length > 0 && !imported && (
         <div style={{ background: C.panel, border: '1px solid ' + C.border, borderRadius: '12px', padding: '1.5rem', marginBottom: '1.5rem' }}>
           <p style={{ color: C.muted, fontSize: '0.8rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '1rem' }}>
-            {results.length} result{results.length !== 1 ? 's' : ''} — Click to select
+            {results.length} result{results.length !== 1 ? 's' : ''} — Click to select{nextPageToken ? ' · More available' : ''}
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             {results.map(place => (
