@@ -51,8 +51,6 @@ export default function ImportPage() {
   const [section, setSection] = useState('companies')
   const [searching, setSearching] = useState(false)
   const [results, setResults] = useState<PlaceResult[]>([])
-  const [nextPageToken, setNextPageToken] = useState<string | null>(null)
-  const [loadingMore, setLoadingMore] = useState(false)
   const [searchError, setSearchError] = useState('')
   const [selected, setSelected] = useState<PlaceResult | null>(null)
   const [phone, setPhone] = useState('')
@@ -66,36 +64,42 @@ export default function ImportPage() {
     setSearching(true)
     setSearchError('')
     setResults([])
-    setNextPageToken(null)
     setSelected(null)
     setImported(null)
     try {
-      const res = await fetch('/api/admin/places-search?query=' + encodeURIComponent(query))
-      const data = await res.json()
-      if (data.error) { setSearchError(data.error); return }
-      setResults(data.results || [])
-      setNextPageToken(data.next_page_token || null)
-      if ((data.results || []).length === 0) setSearchError('No results found. Try a different search term.')
+      // Page 1
+      const res1 = await fetch('/api/admin/places-search?query=' + encodeURIComponent(query))
+      const data1 = await res1.json()
+      if (data1.error) { setSearchError(data1.error); return }
+      if ((data1.results || []).length === 0) { setSearchError('No results found. Try a different search term.'); return }
+      let allResults = data1.results || []
+      setResults(allResults)
+
+      // Page 2
+      if (data1.next_page_token) {
+        await new Promise(r => setTimeout(r, 2500))
+        const res2 = await fetch('/api/admin/places-search?query=' + encodeURIComponent(query) + '&pagetoken=' + data1.next_page_token)
+        const data2 = await res2.json()
+        if (!data2.error && data2.results?.length > 0) {
+          allResults = [...allResults, ...data2.results]
+          setResults(allResults)
+
+          // Page 3
+          if (data2.next_page_token) {
+            await new Promise(r => setTimeout(r, 2500))
+            const res3 = await fetch('/api/admin/places-search?query=' + encodeURIComponent(query) + '&pagetoken=' + data2.next_page_token)
+            const data3 = await res3.json()
+            if (!data3.error && data3.results?.length > 0) {
+              allResults = [...allResults, ...data3.results]
+              setResults(allResults)
+            }
+          }
+        }
+      }
     } catch {
       setSearchError('Search failed. Please try again.')
     } finally {
       setSearching(false)
-    }
-  }
-
-  async function handleLoadMore() {
-    if (!nextPageToken) return
-    setLoadingMore(true)
-    try {
-      // Google requires ~2 second delay before pagetoken is valid
-      await new Promise(r => setTimeout(r, 2000))
-      const res = await fetch('/api/admin/places-search?query=' + encodeURIComponent(query) + '&pagetoken=' + encodeURIComponent(nextPageToken))
-      const data = await res.json()
-      if (data.error) return
-      setResults(prev => [...prev, ...(data.results || [])])
-      setNextPageToken(data.next_page_token || null)
-    } finally {
-      setLoadingMore(false)
     }
   }
 
@@ -223,7 +227,7 @@ export default function ImportPage() {
       {results.length > 0 && !imported && (
         <div style={{ background: C.panel, border: '1px solid ' + C.border, borderRadius: '12px', padding: '1.5rem', marginBottom: '1.5rem' }}>
           <p style={{ color: C.muted, fontSize: '0.8rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '1rem' }}>
-            {results.length} result{results.length !== 1 ? 's' : ''} — Click to select{nextPageToken ? ' · More available' : ''}
+            {results.length} result{results.length !== 1 ? 's' : ''} — Click to select
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             {results.map(place => (
@@ -241,17 +245,7 @@ export default function ImportPage() {
               </button>
             ))}
           </div>
-          {nextPageToken && !selected && (
-            <div style={{ textAlign: 'center', marginTop: '1rem' }}>
-              <button
-                onClick={handleLoadMore}
-                disabled={loadingMore}
-                style={{ background: 'transparent', color: C.blue, border: '1px solid ' + C.blue, borderRadius: '8px', padding: '8px 20px', fontSize: '13px', fontWeight: 600, cursor: loadingMore ? 'not-allowed' : 'pointer', opacity: loadingMore ? 0.6 : 1 }}
-              >
-                {loadingMore ? 'Loading more results...' : 'Load more results (20 more)'}
-              </button>
-            </div>
-          )}
+
         </div>
       )}
 
