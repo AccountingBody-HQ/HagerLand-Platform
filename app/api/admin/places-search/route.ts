@@ -55,20 +55,23 @@ export async function GET(request: NextRequest) {
   allResults.push(...page1.results)
 
   // Page 2 — only if page 1 returned a token
+  console.log('Page 1 results:', page1.results.length, 'next_page_token:', !!page1.next_page_token)
   if (page1.next_page_token) {
-    await delay(2000) // Google requires ~2s before pagetoken is valid
+    await delay(2500)
     const page2 = await fetchPage(
       `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${page1.next_page_token}&key=${apiKey}`
     )
     allResults.push(...page2.results)
+    console.log('Page 2 results:', page2.results.length, 'next_page_token:', !!page2.next_page_token)
 
     // Page 3 — only if page 2 returned a token
     if (page2.next_page_token) {
-      await delay(2000)
+      await delay(2500)
       const page3 = await fetchPage(
         `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${page2.next_page_token}&key=${apiKey}`
       )
       allResults.push(...page3.results)
+      console.log('Page 3 results:', page3.results.length)
     }
   }
 
