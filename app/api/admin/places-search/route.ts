@@ -53,7 +53,11 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  if (!auth()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  // Check cookie auth first, then fall back to x-admin-token header
+  const headerToken = request.headers.get('x-admin-token')
+  const cookieToken = cookies().get(SESSION_COOKIE)?.value
+  const token = cookieToken || headerToken || ''
+  if (!verifySessionToken(token)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const apiKey = process.env.GOOGLE_PLACES_API_KEY
   if (!apiKey) return NextResponse.json({ error: 'API key not configured' }, { status: 500 })
   const body = await request.json()
