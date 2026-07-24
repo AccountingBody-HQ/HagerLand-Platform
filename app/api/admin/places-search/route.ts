@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
   let url: string
   if (pagetoken) {
     // Google requires a 2-second delay before using pagetoken — handled client-side
-    url = `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${encodeURIComponent(pagetoken)}&key=${apiKey}`
+    url = `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${pagetoken}&key=${apiKey}`
   } else {
     // Use exactTerms for high precision matching of the search query
     url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query ?? '')}&key=${apiKey}`
