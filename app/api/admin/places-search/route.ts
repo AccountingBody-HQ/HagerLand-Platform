@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
   }
 
   const url = pagetoken
-    ? `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${pagetoken}&key=${apiKey}`
+    ? `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${decodeURIComponent(pagetoken)}&key=${apiKey}`
     : `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query ?? '')}&key=${apiKey}`
 
   const res = await fetch(url, { cache: 'no-store' })

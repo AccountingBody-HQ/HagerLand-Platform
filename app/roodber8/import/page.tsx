@@ -79,7 +79,7 @@ export default function ImportPage() {
       // Page 2
       if (data1.next_page_token) {
         await new Promise(r => setTimeout(r, 2500))
-        const res2 = await fetch('/api/admin/places-search?query=' + encodeURIComponent(query) + '&pagetoken=' + data1.next_page_token)
+        const res2 = await fetch('/api/admin/places-search?query=' + encodeURIComponent(query) + '&pagetoken=' + encodeURIComponent(data1.next_page_token))
         const data2 = await res2.json()
         if (!data2.error && data2.results?.length > 0) {
           allResults = [...allResults, ...data2.results]
@@ -88,7 +88,7 @@ export default function ImportPage() {
           // Page 3
           if (data2.next_page_token) {
             await new Promise(r => setTimeout(r, 2500))
-            const res3 = await fetch('/api/admin/places-search?query=' + encodeURIComponent(query) + '&pagetoken=' + data2.next_page_token)
+            const res3 = await fetch('/api/admin/places-search?query=' + encodeURIComponent(query) + '&pagetoken=' + encodeURIComponent(data2.next_page_token))
             const data3 = await res3.json()
             if (!data3.error && data3.results?.length > 0) {
               allResults = [...allResults, ...data3.results]
