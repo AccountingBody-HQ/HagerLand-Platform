@@ -10,6 +10,24 @@ interface PlaceResult {
   types: string[]
 }
 
+interface GooglePlace {
+  place_id: string
+  name: string
+  formatted_address: string
+  types: string[]
+}
+
+async function fetchPage(url: string): Promise<{ results: GooglePlace[], next_page_token?: string }> {
+  const res = await fetch(url, { cache: 'no-store' })
+  const data = await res.json()
+  if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') return { results: [] }
+  return { results: data.results || [], next_page_token: data.next_page_token }
+}
+
+function delay(ms: number) {
+  return new Promise(r => setTimeout(r, ms))
+}
+
 export async function GET(request: NextRequest) {
   const token = cookies().get(SESSION_COOKIE)?.value
   if (!verifySessionToken(token)) {
@@ -18,9 +36,8 @@ export async function GET(request: NextRequest) {
 
   const { searchParams } = new URL(request.url)
   const query = searchParams.get('query')
-  const pagetoken = searchParams.get('pagetoken')
 
-  if (!query && !pagetoken) {
+  if (!query) {
     return NextResponse.json({ error: 'Query required' }, { status: 400 })
   }
 
@@ -29,24 +46,33 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'API key not configured' }, { status: 500 })
   }
 
-  // Build URL — pagetoken replaces query on subsequent pages
-  let url: string
-  if (pagetoken) {
-    // Google requires a 2-second delay before using pagetoken — handled client-side
-    url = `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${pagetoken}&key=${apiKey}`
-  } else {
-    // Use exactTerms for high precision matching of the search query
-    url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query ?? '')}&key=${apiKey}`
+  const allResults: GooglePlace[] = []
+
+  // Page 1
+  const page1 = await fetchPage(
+    `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${apiKey}`
+  )
+  allResults.push(...page1.results)
+
+  // Page 2 — only if page 1 returned a token
+  if (page1.next_page_token) {
+    await delay(2000) // Google requires ~2s before pagetoken is valid
+    const page2 = await fetchPage(
+      `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${page1.next_page_token}&key=${apiKey}`
+    )
+    allResults.push(...page2.results)
+
+    // Page 3 — only if page 2 returned a token
+    if (page2.next_page_token) {
+      await delay(2000)
+      const page3 = await fetchPage(
+        `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${page2.next_page_token}&key=${apiKey}`
+      )
+      allResults.push(...page3.results)
+    }
   }
 
-  const res = await fetch(url, { cache: 'no-store' })
-  const data = await res.json()
-
-  if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
-    return NextResponse.json({ error: data.status }, { status: 500 })
-  }
-
-  const results = (data.results || []).map((place: PlaceResult) => ({
+  const results = allResults.map((place: PlaceResult) => ({
     google_place_id: place.place_id,
     name: place.name,
     address: place.formatted_address,
@@ -55,11 +81,7 @@ export async function GET(request: NextRequest) {
     types: place.types,
   }))
 
-  return NextResponse.json({
-    results,
-    next_page_token: data.next_page_token ?? null,
-    total: results.length,
-  })
+  return NextResponse.json({ results, total: results.length })
 }
 
 function extractCity(address: string): string {
