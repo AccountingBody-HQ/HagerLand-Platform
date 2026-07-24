@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
   const query = searchParams.get('query')
   const pagetoken = searchParams.get('pagetoken')
 
-  if (!query) {
+  if (!query && !pagetoken) {
     return NextResponse.json({ error: 'Query required' }, { status: 400 })
   }
 
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     url = `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${encodeURIComponent(pagetoken)}&key=${apiKey}`
   } else {
     // Use exactTerms for high precision matching of the search query
-    url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${apiKey}`
+    url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query ?? '')}&key=${apiKey}`
   }
 
   const res = await fetch(url, { cache: 'no-store' })
