@@ -74,6 +74,7 @@ export default function ImportPage() {
       if ((data1.results || []).length === 0) { setSearchError('No results found. Try a different search term.'); return }
       let allResults = data1.results || []
       setResults(allResults)
+      console.log('Page1 token:', data1.next_page_token)
 
       // Page 2
       if (data1.next_page_token) {
