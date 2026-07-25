@@ -51,7 +51,7 @@ export function MobileNav() {
           <div className="flex items-center justify-between px-5 h-14 shrink-0 border-b border-white/10">
             <Link href="/" onClick={closeMenu} className="flex items-center gap-2.5">
               <Logo className="w-6 h-6" />
-              <span className="font-brand font-bold text-base text-white tracking-tight" translate="no">HagerLand<sup className="text-[0.5em] font-normal opacity-60 relative -top-[0.6em] ml-[1px]">&reg;</sup></span>
+              <span className="font-brand font-extrabold text-lg text-white tracking-tight" translate="no">HagerLand<span style={{fontSize:'0.5em',verticalAlign:'super',opacity:0.6,marginLeft:'1px',fontWeight:400}}>®</span></span>
             </Link>
             <button onClick={closeMenu} aria-label="Close menu" className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 transition-colors">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12" strokeLinecap="round"/></svg>
