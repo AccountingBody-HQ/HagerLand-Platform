@@ -69,6 +69,7 @@ export default async function ReviewPage() {
       subtitle: s.subtitleFields.map((f) => item[f]).filter(Boolean).join(' · '),
       email: item.contact_email ?? '',
       description: item.ai_description ?? item.description ?? '',
+      hasEdits: item.pending_changes != null,
     })),
   }))
 

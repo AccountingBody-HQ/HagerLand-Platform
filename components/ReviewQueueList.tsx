@@ -16,6 +16,7 @@ export interface ReviewItem {
   subtitle: string
   email: string
   description: string
+  hasEdits?: boolean
 }
 
 export interface ReviewSection {
@@ -139,7 +140,14 @@ export default function ReviewQueueList({ sections }: { sections: ReviewSection[
                     />
                   </label>
                   <div style={{ minWidth: 0, flex: 1 }}>
-                    <p style={{ color: C.text, fontSize: 14, fontWeight: 600, margin: 0 }}>{item.title}</p>
+                    <p style={{ color: C.text, fontSize: 14, fontWeight: 600, margin: 0 }}>
+                      {item.title}
+                      {item.hasEdits && (
+                        <span style={{ marginLeft: 8, verticalAlign: 'middle', background: 'rgba(184,138,46,0.12)', color: C.gold, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', padding: '2px 8px', borderRadius: 999 }}>
+                          Edited — check changes
+                        </span>
+                      )}
+                    </p>
                     <p style={{ color: C.muted, fontSize: 12, margin: '4px 0 0' }}>{item.subtitle}</p>
                     {item.email && <p style={{ color: C.muted, fontSize: 12, margin: '2px 0 0' }}>{item.email}</p>}
                     {item.description && (
