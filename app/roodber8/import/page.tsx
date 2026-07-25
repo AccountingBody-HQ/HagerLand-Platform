@@ -58,6 +58,9 @@ export default function ImportPage() {
   const [website, setWebsite] = useState('')
   const [importing, setImporting] = useState(false)
   const [importError, setImportError] = useState('')
+  const [bulkSelected, setBulkSelected] = useState<Set<string>>(new Set())
+  const [bulkRunning, setBulkRunning] = useState(false)
+  const [bulkProgress, setBulkProgress] = useState<{ name: string; status: string }[]>([])
   const [imported, setImported] = useState<ImportedResult | null>(null)
 
   async function handleSearch() {
@@ -100,6 +103,55 @@ export default function ImportPage() {
     } catch {
       // fallback to regex-extracted city already in place.city
     }
+  }
+
+  function toggleBulk(id: string) {
+    setBulkSelected(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) { next.delete(id) } else { next.add(id) }
+      return next
+    })
+  }
+
+  async function handleBulkImport() {
+    const chosen = results.filter(r => bulkSelected.has(r.google_place_id) && !r.already_imported)
+    if (chosen.length === 0 || bulkRunning) return
+    setBulkRunning(true)
+    setSelected(null)
+    setBulkProgress(chosen.map(c => ({ name: c.name, status: 'waiting' })))
+    const succeeded = new Set<string>()
+    for (let i = 0; i < chosen.length; i++) {
+      const place = chosen[i]
+      setBulkProgress(prev => prev.map((p, idx) => (idx === i ? { ...p, status: 'importing' } : p)))
+      let status = 'failed'
+      try {
+        const res = await fetch('/api/admin/import', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            section,
+            name: place.name,
+            address: place.address,
+            city: place.city,
+            country: place.country,
+            phone: null,
+            website: null,
+            google_place_id: place.google_place_id,
+            types: place.types,
+          }),
+        })
+        const data = await res.json()
+        if (data.error === 'already_imported') { status = 'duplicate'; succeeded.add(place.google_place_id) }
+        else if (data.error) { status = 'failed' }
+        else { status = 'imported'; succeeded.add(place.google_place_id) }
+      } catch {
+        status = 'failed'
+      }
+      setBulkProgress(prev => prev.map((p, idx) => (idx === i ? { ...p, status } : p)))
+    }
+    setResults(prev => prev.map(r => (succeeded.has(r.google_place_id) ? { ...r, already_imported: true } : r)))
+    setBulkSelected(new Set())
+    setBulkRunning(false)
   }
 
   async function handleImport() {
@@ -217,37 +269,93 @@ export default function ImportPage() {
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             {results.map(place => (
-              <button
-                key={place.google_place_id}
-                onClick={() => { if (!place.already_imported) handleSelect(place) }}
-                disabled={place.already_imported}
-                style={{
-                  background: selected?.google_place_id === place.google_place_id ? 'rgba(28,124,76,0.15)' : C.bg,
-                  border: '1px solid ' + (selected?.google_place_id === place.google_place_id ? C.green : C.border),
-                  borderRadius: '8px', padding: '0.875rem 1rem', textAlign: 'left',
-                  cursor: place.already_imported ? 'default' : 'pointer',
-                  opacity: place.already_imported ? 0.55 : 1,
-                  transition: 'all 0.15s'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
-                  <div style={{ minWidth: 0 }}>
-                    <p style={{ color: C.text, fontWeight: 600, marginBottom: '0.25rem' }}>{place.name}</p>
-                    <p style={{ color: C.muted, fontSize: '0.82rem' }}>{place.address}</p>
+              <div key={place.google_place_id} style={{ display: 'flex', alignItems: 'stretch', gap: '0.6rem' }}>
+                {!place.already_imported && (
+                  <label style={{ display: 'flex', alignItems: 'center', cursor: bulkRunning ? 'default' : 'pointer', paddingLeft: '0.25rem' }}>
+                    <input
+                      type="checkbox"
+                      checked={bulkSelected.has(place.google_place_id)}
+                      onChange={() => toggleBulk(place.google_place_id)}
+                      disabled={bulkRunning}
+                      style={{ width: '16px', height: '16px', accentColor: C.green, cursor: 'inherit' }}
+                    />
+                  </label>
+                )}
+                <button
+                  onClick={() => { if (!place.already_imported) handleSelect(place) }}
+                  disabled={place.already_imported || bulkRunning}
+                  style={{
+                    flex: 1, minWidth: 0,
+                    background: selected?.google_place_id === place.google_place_id ? 'rgba(28,124,76,0.15)' : C.bg,
+                    border: '1px solid ' + (selected?.google_place_id === place.google_place_id ? C.green : C.border),
+                    borderRadius: '8px', padding: '0.875rem 1rem', textAlign: 'left',
+                    cursor: place.already_imported || bulkRunning ? 'default' : 'pointer',
+                    opacity: place.already_imported ? 0.55 : 1,
+                    transition: 'all 0.15s'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
+                    <div style={{ minWidth: 0 }}>
+                      <p style={{ color: C.text, fontWeight: 600, marginBottom: '0.25rem' }}>{place.name}</p>
+                      <p style={{ color: C.muted, fontSize: '0.82rem' }}>{place.address}</p>
+                    </div>
+                    {place.already_imported && (
+                      <span style={{
+                        flexShrink: 0, background: C.goldSoft, color: C.gold,
+                        fontSize: '0.72rem', fontWeight: 600, padding: '0.25rem 0.6rem',
+                        borderRadius: '999px', whiteSpace: 'nowrap'
+                      }}>
+                        ✓ Imported
+                      </span>
+                    )}
                   </div>
-                  {place.already_imported && (
-                    <span style={{
-                      flexShrink: 0, background: C.goldSoft, color: C.gold,
-                      fontSize: '0.72rem', fontWeight: 600, padding: '0.25rem 0.6rem',
-                      borderRadius: '999px', whiteSpace: 'nowrap'
-                    }}>
-                      ✓ Imported
-                    </span>
-                  )}
-                </div>
-              </button>
+                </button>
+              </div>
             ))}
           </div>
+
+          {bulkSelected.size > 0 && !bulkRunning && (
+            <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <button
+                onClick={handleBulkImport}
+                style={{ background: C.green, color: '#fff', border: 'none', borderRadius: '8px', padding: '0.65rem 1.5rem', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer' }}
+              >
+                Import {bulkSelected.size} selected into {selectedSection.label}
+              </button>
+              <button
+                onClick={() => setBulkSelected(new Set())}
+                style={{ background: 'transparent', color: C.muted, border: '1px solid ' + C.border, borderRadius: '8px', padding: '0.65rem 1rem', fontSize: '0.85rem', cursor: 'pointer' }}
+              >
+                Clear selection
+              </button>
+            </div>
+          )}
+
+          {bulkProgress.length > 0 && (
+            <div style={{ marginTop: '1rem', background: C.bg, border: '1px solid ' + C.border, borderRadius: '8px', padding: '1rem' }}>
+              <p style={{ color: C.muted, fontSize: '0.78rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.75rem' }}>
+                Bulk import {bulkRunning ? 'in progress…' : 'complete'}
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                {bulkProgress.map((p, idx) => (
+                  <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem' }}>
+                    <span style={{ color: C.text, fontSize: '0.85rem', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</span>
+                    <span style={{
+                      flexShrink: 0, fontSize: '0.78rem', fontWeight: 600,
+                      color: p.status === 'imported' ? C.green : p.status === 'failed' ? C.danger : p.status === 'duplicate' ? C.gold : C.muted
+                    }}>
+                      {p.status === 'waiting' ? 'Waiting' : p.status === 'importing' ? 'Importing…' : p.status === 'imported' ? '✓ Imported' : p.status === 'duplicate' ? 'Already imported' : '✗ Failed'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              {!bulkRunning && (
+                <p style={{ color: C.muted, fontSize: '0.8rem', marginTop: '0.75rem', marginBottom: 0 }}>
+                  All imported listings are now in the review queue as pending.
+                </p>
+              )}
+            </div>
+          )}
         </div>
       )}
 
