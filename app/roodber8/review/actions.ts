@@ -330,3 +330,11 @@ export async function deleteClaim(claimId: string) {
   await supabase.from('business_claims').delete().eq('id', claimId)
   revalidateAll()
 }
+
+export async function approveMany(items: { table: string; id: string }[]) {
+  // Reuses approveListing per item so bulk approval is identical to
+  // individual approval: same emails, same import is_verified rules.
+  for (const item of items) {
+    await approveListing(item.table, item.id)
+  }
+}

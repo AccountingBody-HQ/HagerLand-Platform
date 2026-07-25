@@ -3,7 +3,8 @@ export const dynamic = 'force-dynamic'
 import { cookies } from 'next/headers'
 import { verifySessionToken, SESSION_COOKIE } from '@/lib/admin-auth'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { approveListing, rejectListing, approveClaim, rejectClaim } from './actions'
+import { approveClaim, rejectClaim } from './actions'
+import ReviewQueueList from '@/components/ReviewQueueList'
 import Link from 'next/link'
 
 const COLORS = {
@@ -57,6 +58,19 @@ export default async function ReviewPage() {
 
   const pendingBySection = SECTIONS.map((s, i) => ({ ...s, items: results[i].data ?? [] }))
   const totalPending = pendingBySection.reduce((sum, s) => sum + s.items.length, 0)
+
+  const listSections = pendingBySection.map((s) => ({
+    table: s.table,
+    label: s.label,
+    adminPath: s.adminPath,
+    items: (s.items as { id: string; [key: string]: string | null }[]).map((item) => ({
+      id: String(item.id),
+      title: String(item[s.titleField] ?? ''),
+      subtitle: s.subtitleFields.map((f) => item[f]).filter(Boolean).join(' · '),
+      email: item.contact_email ?? '',
+      description: item.ai_description ?? item.description ?? '',
+    })),
+  }))
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: COLORS.bg, fontFamily: 'system-ui, sans-serif', padding: '48px 24px' }}>
@@ -120,60 +134,7 @@ export default async function ReviewPage() {
           </div>
         )}
 
-        {pendingBySection.map((section) =>
-          section.items.length > 0 ? (
-            <div key={section.table} style={{ marginBottom: 24 }}>
-              <h2 style={{ fontSize: 15, fontWeight: 700, color: COLORS.text, marginBottom: 8 }}>
-                {section.label} ({section.items.length})
-              </h2>
-              <div style={{ backgroundColor: COLORS.panel, border: `1px solid ${COLORS.border}`, borderRadius: 12, overflow: 'hidden' }}>
-                {section.items.map((item: { id: string; [key: string]: string | null }, idx: number) => (
-                  <div
-                    key={item.id}
-                    style={{
-                      padding: 16,
-                      borderBottom: idx < section.items.length - 1 ? `1px solid ${COLORS.border}` : 'none',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      gap: 16,
-                    }}
-                  >
-                    <div style={{ minWidth: 0 }}>
-                      <p style={{ color: COLORS.text, fontSize: 14, fontWeight: 600, margin: 0 }}>
-                        {item[section.titleField]}
-                      </p>
-                      <p style={{ color: COLORS.muted, fontSize: 12, margin: '4px 0 0' }}>
-                        {section.subtitleFields.map((f) => item[f]).filter(Boolean).join(' · ')}
-                      </p>
-                      {item.contact_email && (
-                        <p style={{ color: COLORS.muted, fontSize: 12, margin: '2px 0 0' }}>{item.contact_email}</p>
-                      )}
-                    </div>
-                    <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
-                      <Link
-                        href={`/roodber8/${section.adminPath}/${item.id}`}
-                        style={{ background: 'transparent', color: COLORS.muted, border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '8px 14px', fontSize: 13, fontWeight: 600, textDecoration: 'none', display: 'inline-block' }}
-                      >
-                        View
-                      </Link>
-                      <form action={approveListing.bind(null, section.table, item.id)}>
-                        <button type="submit" style={{ background: COLORS.green, color: '#fff', border: 'none', borderRadius: 8, padding: '8px 14px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
-                          Approve
-                        </button>
-                      </form>
-                      <form action={rejectListing.bind(null, section.table, item.id)}>
-                        <button type="submit" style={{ background: 'transparent', color: COLORS.danger, border: `1px solid ${COLORS.danger}`, borderRadius: 8, padding: '8px 14px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
-                          Reject
-                        </button>
-                      </form>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : null
-        )}
+        <ReviewQueueList sections={listSections} />
       </div>
     </div>
   )
