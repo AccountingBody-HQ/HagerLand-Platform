@@ -5,6 +5,9 @@ import { verifySessionToken } from '@/lib/admin-auth'
 const SESSION_COOKIE = 'hl_admin_session'
 const MAX_PAGES = 3
 const PAGE_DELAY_MS = 2000
+const TOKEN_RETRIES = 3
+
+export const maxDuration = 60
 
 interface PlaceResult {
   place_id: string
@@ -13,8 +16,28 @@ interface PlaceResult {
   types: string[]
 }
 
+interface GoogleResponse {
+  status: string
+  results?: PlaceResult[]
+  next_page_token?: string
+}
+
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+// Fetch one page. If Google says the token isn't ready (INVALID_REQUEST),
+// wait and retry up to TOKEN_RETRIES times.
+async function fetchPage(url: string, isTokenPage: boolean): Promise<GoogleResponse> {
+  let data: GoogleResponse = { status: 'UNKNOWN' }
+  const attempts = isTokenPage ? 1 + TOKEN_RETRIES : 1
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    if (attempt > 0) await sleep(PAGE_DELAY_MS)
+    const res = await fetch(url, { cache: 'no-store' })
+    data = (await res.json()) as GoogleResponse
+    if (data.status !== 'INVALID_REQUEST') return data
+  }
+  return data
 }
 
 export async function GET(request: NextRequest) {
@@ -49,24 +72,10 @@ export async function GET(request: NextRequest) {
       ? `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${pageToken}&key=${apiKey}`
       : `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${apiKey}`
 
-    const res = await fetch(url, { cache: 'no-store' })
-    const data = await res.json()
-
-    if (data.status === 'INVALID_REQUEST' && page > 0) {
-      // Token not ready yet — retry once after another delay
-      await sleep(PAGE_DELAY_MS)
-      const retryRes = await fetch(url, { cache: 'no-store' })
-      const retryData = await retryRes.json()
-      if (retryData.status === 'OK') {
-        allResults.push(...(retryData.results || []))
-        pageToken = retryData.next_page_token ?? null
-        if (!pageToken) break
-        continue
-      }
-      break // give up on further pages, return what we have
-    }
+    const data = await fetchPage(url, page > 0)
 
     if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
+      console.error(`places-search: page ${page + 1} failed with status ${data.status}`)
       if (page === 0) {
         return NextResponse.json({ error: data.status }, { status: 500 })
       }
