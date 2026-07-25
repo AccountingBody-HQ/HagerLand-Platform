@@ -189,7 +189,8 @@ RESPOND IN THIS EXACT JSON FORMAT WITH NO OTHER TEXT OR MARKDOWN:
     const cats = HAGERLAND_CATEGORIES[section]
     assignedCategory = cats.includes(parsed.category) ? parsed.category : getDefaultCategory(section)
     community_relevant = parsed.community_relevant !== false
-  } catch {
+  } catch (err) {
+    console.error('admin/import error:', err)
     // AI enhancement failed — proceed with defaults
   }
 

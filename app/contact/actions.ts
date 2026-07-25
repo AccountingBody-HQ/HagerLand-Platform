@@ -47,7 +47,8 @@ export async function submitContactForm(formData: FormData) {
     })
 
     return { success: true }
-  } catch {
+  } catch (err) {
+    console.error('contact/actions error:', err)
     return { error: 'Something went wrong. Please try again or email us directly.' }
   }
 }

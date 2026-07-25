@@ -57,7 +57,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       )
     ).flat()
     return [...staticUrls, ...listingUrls]
-  } catch {
+  } catch (err) {
+    console.error('sitemap error:', err)
     return staticUrls
   }
 }

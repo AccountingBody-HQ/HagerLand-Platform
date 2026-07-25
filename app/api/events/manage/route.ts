@@ -14,7 +14,8 @@ export async function GET(req: NextRequest) {
       .single()
     if (error || !data) return NextResponse.json({ error: 'Invalid token' }, { status: 404 })
     return NextResponse.json({ data })
-  } catch {
+  } catch (err) {
+    console.error('events/manage error:', err)
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }
 }
@@ -94,7 +95,8 @@ export async function POST(req: NextRequest) {
 
     if (updateError) return NextResponse.json({ error: updateError.message }, { status: 500 })
     return NextResponse.json({ ok: true, hasPendingChanges: hasChanges })
-  } catch {
+  } catch (err) {
+    console.error('events/manage error:', err)
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }
 }

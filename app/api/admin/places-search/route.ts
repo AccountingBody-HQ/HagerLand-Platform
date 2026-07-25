@@ -102,7 +102,8 @@ export async function GET(request: NextRequest) {
         .in('google_place_id', ids)
       importedIds = new Set((logged || []).map((l) => l.google_place_id))
     }
-  } catch {
+  } catch (err) {
+    console.error('admin/places-search error:', err)
     // flagging failed — search still works, badges just won't show
   }
 
