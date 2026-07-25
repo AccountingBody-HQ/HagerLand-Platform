@@ -8,10 +8,16 @@ const MAX_PAGES = 3
 
 export const maxDuration = 60
 
+interface AddressComponent {
+  longText?: string
+  types?: string[]
+}
+
 interface NewPlace {
   id: string
   displayName?: { text?: string }
   formattedAddress?: string
+  addressComponents?: AddressComponent[]
   types?: string[]
 }
 
@@ -56,7 +62,7 @@ export async function GET(request: NextRequest) {
         'Content-Type': 'application/json',
         'X-Goog-Api-Key': apiKey,
         'X-Goog-FieldMask':
-          'places.id,places.displayName,places.formattedAddress,places.types,nextPageToken',
+          'places.id,places.displayName,places.formattedAddress,places.addressComponents,places.types,nextPageToken',
       },
       body: JSON.stringify(body),
     })
@@ -80,8 +86,8 @@ export async function GET(request: NextRequest) {
     google_place_id: place.id,
     name: place.displayName?.text ?? '',
     address: place.formattedAddress ?? '',
-    city: extractCity(place.formattedAddress ?? ''),
-    country: extractCountry(place.formattedAddress ?? ''),
+    city: cityFromComponents(place.addressComponents) || extractCity(place.formattedAddress ?? ''),
+    country: countryFromComponents(place.addressComponents) || extractCountry(place.formattedAddress ?? ''),
     types: place.types ?? [],
   }))
 
@@ -116,6 +122,22 @@ export async function GET(request: NextRequest) {
     results: flagged,
     total: flagged.length,
   })
+}
+
+function cityFromComponents(components?: AddressComponent[]): string {
+  if (!components) return ''
+  const priority = ['locality', 'postal_town', 'administrative_area_level_2', 'administrative_area_level_1']
+  for (const wanted of priority) {
+    const match = components.find((c) => (c.types || []).includes(wanted))
+    if (match?.longText) return match.longText
+  }
+  return ''
+}
+
+function countryFromComponents(components?: AddressComponent[]): string {
+  if (!components) return ''
+  const match = components.find((c) => (c.types || []).includes('country'))
+  return match?.longText ?? ''
 }
 
 function extractCity(address: string): string {
