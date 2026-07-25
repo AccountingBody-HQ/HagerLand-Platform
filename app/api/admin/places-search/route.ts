@@ -1,30 +1,52 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifySessionToken, SESSION_COOKIE } from '@/lib/admin-auth'
+import { cookies } from 'next/headers'
+import { verifySessionToken } from '@/lib/admin-auth'
+const SESSION_COOKIE = 'hl_admin_session'
 
-interface GooglePlace {
+interface PlaceResult {
   place_id: string
   name: string
   formatted_address: string
   types: string[]
 }
 
-async function handleRequest(query: string | null, pagetoken: string | null, apiKey: string) {
+export async function GET(request: NextRequest) {
+  const token = cookies().get(SESSION_COOKIE)?.value
+  if (!verifySessionToken(token)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const { searchParams } = new URL(request.url)
+  const query = searchParams.get('query')
+  const pagetoken = searchParams.get('pagetoken')
+
+  if (!query) {
+    return NextResponse.json({ error: 'Query required' }, { status: 400 })
+  }
+
+  const apiKey = process.env.GOOGLE_PLACES_API_KEY
+  if (!apiKey) {
+    return NextResponse.json({ error: 'API key not configured' }, { status: 500 })
+  }
+
+  // Build URL — pagetoken replaces query on subsequent pages
   let url: string
   if (pagetoken) {
-    const rawToken = Buffer.from(pagetoken, 'base64').toString('utf-8')
-    url = `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${rawToken}&key=${apiKey}`
+    // Google requires a 2-second delay before using pagetoken — handled client-side
+    url = `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${encodeURIComponent(pagetoken)}&key=${apiKey}`
   } else {
-    url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query ?? '')}&key=${apiKey}`
+    // Use exactTerms for high precision matching of the search query
+    url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${apiKey}`
   }
 
   const res = await fetch(url, { cache: 'no-store' })
   const data = await res.json()
 
   if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
-    return { error: data.status }
+    return NextResponse.json({ error: data.status }, { status: 500 })
   }
 
-  const results = (data.results || []).map((place: GooglePlace) => ({
+  const results = (data.results || []).map((place: PlaceResult) => ({
     google_place_id: place.place_id,
     name: place.name,
     address: place.formatted_address,
@@ -33,48 +55,11 @@ async function handleRequest(query: string | null, pagetoken: string | null, api
     types: place.types,
   }))
 
-  return { results, next_page_token: data.next_page_token ?? null, total: results.length }
-}
-
-export async function GET(request: NextRequest) {
-  const cookieHeader = request.headers.get('cookie') || ''
-  const token = cookieHeader.split(';').find(c => c.trim().startsWith(SESSION_COOKIE + '='))?.split('=').slice(1).join('=').trim()
-  if (!verifySessionToken(token)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  const apiKey = process.env.GOOGLE_PLACES_API_KEY
-  if (!apiKey) return NextResponse.json({ error: 'API key not configured' }, { status: 500 })
-
-  const { searchParams } = new URL(request.url)
-  const query = searchParams.get('query')
-  const pagetoken = searchParams.get('pagetoken')
-
-  if (!query && !pagetoken) return NextResponse.json({ error: 'Query required' }, { status: 400 })
-
-  const result = await handleRequest(query, pagetoken, apiKey)
-  if ('error' in result) return NextResponse.json({ error: result.error }, { status: 500 })
-  return NextResponse.json(result)
-}
-
-export async function POST(request: NextRequest) {
-  const cookieHeader = request.headers.get('cookie') || ''
-  const token = cookieHeader.split(';').find(c => c.trim().startsWith(SESSION_COOKIE + '='))?.split('=').slice(1).join('=').trim()
-  if (!verifySessionToken(token)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  const apiKey = process.env.GOOGLE_PLACES_API_KEY
-  if (!apiKey) return NextResponse.json({ error: 'API key not configured' }, { status: 500 })
-
-  const body = await request.json()
-  const { query, pagetoken } = body
-
-  if (!query && !pagetoken) return NextResponse.json({ error: 'Query required' }, { status: 400 })
-
-  const result = await handleRequest(query, pagetoken, apiKey)
-  if ('error' in result) return NextResponse.json({ error: result.error }, { status: 500 })
-  return NextResponse.json(result)
+  return NextResponse.json({
+    results,
+    next_page_token: data.next_page_token ?? null,
+    total: results.length,
+  })
 }
 
 function extractCity(address: string): string {
