@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Inter, IBM_Plex_Mono } from 'next/font/google'
+import { Inter, IBM_Plex_Mono, Manrope } from 'next/font/google'
 import './globals.css'
 import { HLLanguageProvider } from '@/components/HLLanguageContext'
 
@@ -14,6 +14,11 @@ const plexMono = IBM_Plex_Mono({
   variable: '--font-plex-mono',
 })
 
+const manrope = Manrope({
+  subsets: ['latin'],
+  weight: ['700', '800'],
+  variable: '--font-manrope',
+})
 export const metadata: Metadata = {
   title: {
     default: 'HagerLand — The global network for Ethiopian business',
@@ -55,7 +60,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.variable} ${plexMono.variable} font-sans bg-bg text-ink`}
+        className={`${inter.variable} ${plexMono.variable} ${manrope.variable} font-sans bg-bg text-ink`}
       >
         <div id="google_translate_element" style={{ display: 'none' }} />
         <HLLanguageProvider>

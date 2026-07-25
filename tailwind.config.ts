@@ -26,6 +26,7 @@ const config: Config = {
       fontFamily: {
         display: ['var(--font-inter)'],
         sans: ['var(--font-inter)'],
+        brand: ['var(--font-manrope)'],
         mono: ['var(--font-plex-mono)'],
       },
     },
