@@ -95,6 +95,27 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Name and city are required' }, { status: 400 })
   }
 
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SECRET_KEY!
+  )
+
+  // Duplicate check — has this place already been imported into this section?
+  if (google_place_id) {
+    const { data: existing } = await supabase
+      .from('import_log')
+      .select('listing_name, imported_at, status')
+      .eq('google_place_id', google_place_id)
+      .eq('section', section)
+      .maybeSingle()
+    if (existing && existing.status === 'imported') {
+      return NextResponse.json(
+        { error: 'already_imported', listing_name: existing.listing_name, imported_at: existing.imported_at },
+        { status: 409 }
+      )
+    }
+  }
+
   const apiKey = process.env.GOOGLE_PLACES_API_KEY!
   let phone = manualPhone || null
   let website = manualWebsite || null
@@ -172,11 +193,6 @@ RESPOND IN THIS EXACT JSON FORMAT WITH NO OTHER TEXT OR MARKDOWN:
     // AI enhancement failed — proceed with defaults
   }
 
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SECRET_KEY!
-  )
-
   const titleField = getTitleField(section)
   const categoryField = getCategoryField(section)
   const cityField = getCityField(section)
@@ -206,7 +222,29 @@ RESPOND IN THIS EXACT JSON FORMAT WITH NO OTHER TEXT OR MARKDOWN:
   const { data, error } = await supabase.from(section).insert(row).select('id').single()
 
   if (error) {
+    if (google_place_id) {
+      await supabase.from('import_log').upsert({
+        google_place_id,
+        section,
+        listing_name: name,
+        status: 'failed',
+        error: error.message,
+        imported_at: new Date().toISOString(),
+      })
+    }
     return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  if (google_place_id) {
+    await supabase.from('import_log').upsert({
+      google_place_id,
+      section,
+      listing_id: String(data.id),
+      listing_name: name,
+      status: 'imported',
+      error: null,
+      imported_at: new Date().toISOString(),
+    })
   }
 
   return NextResponse.json({
