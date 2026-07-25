@@ -5,7 +5,7 @@ import { verifySessionToken, SESSION_COOKIE } from '@/lib/admin-auth'
 import { createClient } from '@supabase/supabase-js'
 import { unstable_noStore as noStore } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { approveListing, rejectListing, deleteListing, deactivateListing } from '@/app/roodber8/review/actions'
+import { approveListing, rejectListing, deleteListing, deactivateListing, restoreListing, purgeListing } from '@/app/roodber8/review/actions'
 import Link from 'next/link'
 
 const C = {
@@ -22,6 +22,7 @@ const STATUS_FILTERS: [string, string][] = [
   ['pending', 'Pending'],
   ['active', 'Active'],
   ['rejected', 'Rejected'],
+  ['deleted', 'Deleted'],
 ]
 
 export default async function AdminEventsPage({ searchParams }: { searchParams: { page?: string; q?: string; status?: string } }) {
@@ -49,7 +50,7 @@ export default async function AdminEventsPage({ searchParams }: { searchParams: 
 
   let queryBuilder = supabase.from('events').select('*', { count: 'exact' })
   if (q) queryBuilder = queryBuilder.ilike('title', '%' + q + '%')
-  if (statusFilter) queryBuilder = queryBuilder.eq('status', statusFilter)
+  if (statusFilter) { queryBuilder = queryBuilder.eq('status', statusFilter) } else { queryBuilder = queryBuilder.neq('status', 'deleted') }
   const { data: items, count } = await queryBuilder
     .order('created_at', { ascending: false })
     .range(from, to)
@@ -169,6 +170,9 @@ export default async function AdminEventsPage({ searchParams }: { searchParams: 
                 }}>{item.status}</span>
                 <a href={`/roodber8/events/${item.id}`} style={{ background: 'transparent', color: C.muted, border: `1px solid ${C.border}`, borderRadius: 8, padding: '5px 10px', fontSize: 10, fontWeight: 600, textDecoration: 'none' }}>View</a>
                 {item.status === 'active' && (
+                  <a href={`/events/${item.id}`} target='_blank' style={{ background: 'transparent', color: C.muted, border: `1px solid ${C.border}`, borderRadius: 8, padding: '5px 10px', fontSize: 10, fontWeight: 600, textDecoration: 'none' }}>Public</a>
+                )}
+                {item.status === 'active' && (
                   <form action={deactivateListing.bind(null, 'events', item.id)}>
                     <button type='submit' style={{ background: 'rgba(184,138,46,0.1)', color: C.gold, border: 'none', borderRadius: 8, padding: '5px 10px', fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>Deactivate</button>
                   </form>
@@ -178,9 +182,20 @@ export default async function AdminEventsPage({ searchParams }: { searchParams: 
                     <button type='submit' style={{ background: 'rgba(28,124,76,0.12)', color: C.green, border: 'none', borderRadius: 8, padding: '5px 10px', fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>Approve</button>
                   </form>
                 )}
-                <form action={deleteListing.bind(null, 'events', item.id)}>
-                  <button type='submit' style={{ background: 'rgba(239,68,68,0.08)', color: C.danger, border: 'none', borderRadius: 8, padding: '5px 10px', fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>Delete</button>
-                </form>
+                {item.status === 'deleted' ? (
+                  <>
+                    <form action={restoreListing.bind(null, 'events', item.id)}>
+                      <button type='submit' style={{ background: 'rgba(28,124,76,0.12)', color: C.green, border: 'none', borderRadius: 8, padding: '5px 10px', fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>Restore</button>
+                    </form>
+                    <form action={purgeListing.bind(null, 'events', item.id)}>
+                      <button type='submit' style={{ background: 'rgba(239,68,68,0.15)', color: C.danger, border: `1px solid ${C.danger}`, borderRadius: 8, padding: '5px 10px', fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>Delete forever</button>
+                    </form>
+                  </>
+                ) : (
+                  <form action={deleteListing.bind(null, 'events', item.id)}>
+                    <button type='submit' style={{ background: 'rgba(239,68,68,0.08)', color: C.danger, border: 'none', borderRadius: 8, padding: '5px 10px', fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>Delete</button>
+                  </form>
+                )}
               </div>
             </div>
           ))}
