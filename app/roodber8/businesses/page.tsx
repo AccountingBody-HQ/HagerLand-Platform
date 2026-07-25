@@ -94,6 +94,7 @@ export default async function AdminBusinessesPage({ searchParams }: { searchPara
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
           <StatusBadge status={item.status} />
+          <a href={`/roodber8/businesses/${item.id}`} style={{ background: 'transparent', color: C.muted, border: `1px solid ${C.border}`, borderRadius: 8, padding: '5px 10px', fontSize: 10, fontWeight: 600, textDecoration: 'none' }}>View</a>
           {showActions && item.status === 'pending' && (
             <>
               <form action={approveListing.bind(null, 'companies', item.id)}>
