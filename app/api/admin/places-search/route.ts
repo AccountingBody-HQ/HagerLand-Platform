@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
 import { verifySessionToken, SESSION_COOKIE } from '@/lib/admin-auth'
 
 interface GooglePlace {
@@ -38,7 +37,8 @@ async function handleRequest(query: string | null, pagetoken: string | null, api
 }
 
 export async function GET(request: NextRequest) {
-  const token = cookies().get(SESSION_COOKIE)?.value
+  const cookieHeader = request.headers.get('cookie') || ''
+  const token = cookieHeader.split(';').find(c => c.trim().startsWith(SESSION_COOKIE + '='))?.split('=').slice(1).join('=').trim()
   if (!verifySessionToken(token)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
@@ -58,7 +58,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const token = cookies().get(SESSION_COOKIE)?.value
+  const cookieHeader = request.headers.get('cookie') || ''
+  const token = cookieHeader.split(';').find(c => c.trim().startsWith(SESSION_COOKIE + '='))?.split('=').slice(1).join('=').trim()
   if (!verifySessionToken(token)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
