@@ -208,7 +208,8 @@ export async function deleteListing(table: string, id: string) {
   const supabase = getAdmin()
   const titleField = table === 'companies' ? 'company_name' : (table === 'tutors' || table === 'community') ? 'name' : 'title'
   const { data: doomed } = await supabase.from(table).select(titleField).eq('id', id).single()
-  const { error } = await supabase.from(table).delete().eq('id', id)
+  // Soft delete: hide the listing, keep the data. Use purgeListing for permanent removal.
+  const { error } = await supabase.from(table).update({ status: 'deleted' }).eq('id', id)
   if (error) throw new Error(error.message)
   await logAudit('delete', table, id, (doomed as Record<string, string> | null)?.[titleField])
   revalidateAll()
@@ -367,4 +368,28 @@ export async function approveMany(items: { table: string; id: string }[]) {
   for (const item of items) {
     await approveListing(item.table, item.id)
   }
+}
+
+export async function restoreListing(table: string, id: string) {
+  const token = cookies().get(SESSION_COOKIE)?.value
+  if (!verifySessionToken(token)) throw new Error('Unauthorized')
+  if (!isValidTable(table)) throw new Error('Invalid table')
+  const supabase = getAdmin()
+  const { error } = await supabase.from(table).update({ status: 'pending' }).eq('id', id)
+  if (error) throw new Error(error.message)
+  await logAudit('restore', table, id)
+  revalidateAll()
+}
+
+export async function purgeListing(table: string, id: string) {
+  const token = cookies().get(SESSION_COOKIE)?.value
+  if (!verifySessionToken(token)) throw new Error('Unauthorized')
+  if (!isValidTable(table)) throw new Error('Invalid table')
+  const supabase = getAdmin()
+  const titleField = table === 'companies' ? 'company_name' : (table === 'tutors' || table === 'community') ? 'name' : 'title'
+  const { data: doomed } = await supabase.from(table).select(titleField).eq('id', id).single()
+  const { error } = await supabase.from(table).delete().eq('id', id)
+  if (error) throw new Error(error.message)
+  await logAudit('purge', table, id, (doomed as Record<string, string> | null)?.[titleField])
+  revalidateAll()
 }
