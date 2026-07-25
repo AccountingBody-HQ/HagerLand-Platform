@@ -17,7 +17,14 @@ const C = {
 
 const PAGE_SIZE = 50
 
-export default async function AdminEventsPage({ searchParams }: { searchParams: { page?: string } }) {
+const STATUS_FILTERS: [string, string][] = [
+  ['', 'All'],
+  ['pending', 'Pending'],
+  ['active', 'Active'],
+  ['rejected', 'Rejected'],
+]
+
+export default async function AdminEventsPage({ searchParams }: { searchParams: { page?: string; q?: string; status?: string } }) {
   noStore()
   const token = cookies().get(SESSION_COOKIE)?.value
   if (!verifySessionToken(token)) redirect('/roodber8-login')
@@ -27,13 +34,23 @@ export default async function AdminEventsPage({ searchParams }: { searchParams: 
     process.env.SUPABASE_SECRET_KEY!
   )
 
+  const q = (searchParams.q ?? '').trim()
+  const statusFilter = searchParams.status ?? ''
   const page = Math.max(1, parseInt(searchParams.page ?? '1', 10))
   const from = (page - 1) * PAGE_SIZE
   const to = from + PAGE_SIZE - 1
 
-  const { data: items, count } = await supabase
-    .from('events')
-    .select('*', { count: 'exact' })
+  const qs = (p: number) => {
+    const parts = ['page=' + p]
+    if (q) parts.push('q=' + encodeURIComponent(q))
+    if (statusFilter) parts.push('status=' + statusFilter)
+    return parts.join('&')
+  }
+
+  let queryBuilder = supabase.from('events').select('*', { count: 'exact' })
+  if (q) queryBuilder = queryBuilder.ilike('title', '%' + q + '%')
+  if (statusFilter) queryBuilder = queryBuilder.eq('status', statusFilter)
+  const { data: items, count } = await queryBuilder
     .order('created_at', { ascending: false })
     .range(from, to)
 
@@ -53,6 +70,42 @@ export default async function AdminEventsPage({ searchParams }: { searchParams: 
           {count ?? 0} total · {active.length} active · {pending.length} pending · {unverified.length} unverified · {rejected.length} rejected — page {page} of {totalPages}
         </p>
       </div>
+
+      <div style={{ display: 'flex', gap: 10, marginBottom: 20, flexWrap: 'wrap', alignItems: 'center' }}>
+        <form method='GET' action='/roodber8/events' style={{ display: 'flex', gap: 8, flex: 1, minWidth: 220 }}>
+          {statusFilter ? <input type='hidden' name='status' value={statusFilter} /> : null}
+          <input
+            name='q'
+            defaultValue={q}
+            placeholder='Search by title…'
+            style={{ flex: 1, background: C.panel, border: '1px solid ' + C.border, borderRadius: 8, padding: '8px 12px', color: C.text, fontSize: 13, outline: 'none' }}
+          />
+          <button type='submit' style={{ background: C.green, color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+            Search
+          </button>
+        </form>
+        <div style={{ display: 'flex', gap: 6 }}>
+          {STATUS_FILTERS.map(([val, label]) => (
+            <a
+              key={label}
+              href={'/roodber8/events?page=1' + (q ? '&q=' + encodeURIComponent(q) : '') + (val ? '&status=' + val : '')}
+              style={{
+                fontSize: 12, fontWeight: 600, padding: '6px 12px', borderRadius: 20, textDecoration: 'none',
+                color: statusFilter === val ? '#fff' : C.muted,
+                background: statusFilter === val ? C.green : 'transparent',
+                border: '1px solid ' + (statusFilter === val ? C.green : C.border),
+              }}
+            >
+              {label}
+            </a>
+          ))}
+        </div>
+      </div>
+      {(q || statusFilter) ? (
+        <p style={{ fontSize: 12, color: C.faint, margin: '-8px 0 16px' }}>
+          Showing filtered results · <a href='/roodber8/events' style={{ color: C.muted }}>clear filters</a>
+        </p>
+      ) : null}
 
       {unverified.length > 0 && (
         <div style={{ marginBottom: 24 }}>
@@ -99,7 +152,9 @@ export default async function AdminEventsPage({ searchParams }: { searchParams: 
         <h2 style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 12 }}>All Listings ({count ?? 0})</h2>
         <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 14, overflow: 'hidden' }}>
           {all.length === 0 ? (
-            <div style={{ padding: 32, textAlign: 'center', color: C.faint, fontSize: 13 }}>No listings yet.</div>
+            <div style={{ padding: 32, textAlign: 'center', color: C.faint, fontSize: 13 }}>
+              {(q || statusFilter) ? 'No listings match your search.' : 'No listings yet.'}
+            </div>
           ) : all.map((item: Record<string, string>) => (
             <div key={item.id} style={{ padding: '13px 20px', borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -135,11 +190,11 @@ export default async function AdminEventsPage({ searchParams }: { searchParams: 
       {totalPages > 1 && (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 24 }}>
           {page > 1 && (
-            <a href={`/roodber8/events?page=${page - 1}`} style={{ background: C.panel, color: C.muted, border: `1px solid ${C.border}`, borderRadius: 8, padding: '8px 18px', fontSize: 13, textDecoration: 'none' }}>← Previous</a>
+            <a href={'/roodber8/events?' + qs(page - 1)} style={{ background: C.panel, color: C.muted, border: `1px solid ${C.border}`, borderRadius: 8, padding: '8px 18px', fontSize: 13, textDecoration: 'none' }}>← Previous</a>
           )}
           <span style={{ fontSize: 13, color: C.faint }}>Page {page} of {totalPages}</span>
           {page < totalPages && (
-            <a href={`/roodber8/events?page=${page + 1}`} style={{ background: C.panel, color: C.muted, border: `1px solid ${C.border}`, borderRadius: 8, padding: '8px 18px', fontSize: 13, textDecoration: 'none' }}>Next →</a>
+            <a href={'/roodber8/events?' + qs(page + 1)} style={{ background: C.panel, color: C.muted, border: `1px solid ${C.border}`, borderRadius: 8, padding: '8px 18px', fontSize: 13, textDecoration: 'none' }}>Next →</a>
           )}
         </div>
       )}
