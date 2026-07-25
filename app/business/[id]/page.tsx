@@ -254,7 +254,7 @@ export default async function BusinessProfilePage({ params }: Props) {
               </div>
               <div className='p-6 grid sm:grid-cols-3 gap-3'>
                 {enquiryEmail && (
-                  <EnquireButton email={enquiryEmail} label='Send enquiry' subject={`Enquiry via HagerLand — ${business.company_name}`} />
+                  <EnquireButton email={enquiryEmail} section='companies' listingId={String(business.id)} label='Send enquiry' subject={`Enquiry via HagerLand — ${business.company_name}`} />
                 )}
                 {business.phone && (
                   <a href={`tel:${business.phone}`} className='flex items-center justify-center gap-2 bg-section hover:bg-border border border-border text-ink font-semibold rounded-xl px-4 py-3 text-sm transition-colors'>
@@ -414,7 +414,7 @@ export default async function BusinessProfilePage({ params }: Props) {
               </div>
               {enquiryEmail && (
                 <div className='px-5 py-4 border-t border-border'>
-                  <EnquireButton email={enquiryEmail} label='Send enquiry' subject={`Enquiry via HagerLand — ${business.company_name}`} />
+                  <EnquireButton email={enquiryEmail} section='companies' listingId={String(business.id)} label='Send enquiry' subject={`Enquiry via HagerLand — ${business.company_name}`} />
                 </div>
               )}
             </div>
