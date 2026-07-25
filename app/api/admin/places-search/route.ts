@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { verifySessionToken } from '@/lib/admin-auth'
+import { createClient } from '@supabase/supabase-js'
 
 const SESSION_COOKIE = 'hl_admin_session'
 const MAX_PAGES = 3
@@ -28,6 +29,7 @@ export async function GET(request: NextRequest) {
 
   const { searchParams } = new URL(request.url)
   const query = searchParams.get('query')
+  const section = searchParams.get('section') || 'companies'
 
   if (!query) {
     return NextResponse.json({ error: 'Query required' }, { status: 400 })
@@ -83,9 +85,35 @@ export async function GET(request: NextRequest) {
     types: place.types ?? [],
   }))
 
+  // Flag results already imported into this section (best-effort)
+  let importedIds = new Set<string>()
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SECRET_KEY!
+    )
+    const ids = results.map((r) => r.google_place_id)
+    if (ids.length > 0) {
+      const { data: logged } = await supabase
+        .from('import_log')
+        .select('google_place_id')
+        .eq('section', section)
+        .eq('status', 'imported')
+        .in('google_place_id', ids)
+      importedIds = new Set((logged || []).map((l) => l.google_place_id))
+    }
+  } catch {
+    // flagging failed — search still works, badges just won't show
+  }
+
+  const flagged = results.map((r) => ({
+    ...r,
+    already_imported: importedIds.has(r.google_place_id),
+  }))
+
   return NextResponse.json({
-    results,
-    total: results.length,
+    results: flagged,
+    total: flagged.length,
   })
 }
 

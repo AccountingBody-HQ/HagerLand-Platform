@@ -36,6 +36,7 @@ interface PlaceResult {
   city: string
   country: string
   types: string[]
+  already_imported?: boolean
 }
 
 interface ImportedResult {
@@ -67,7 +68,7 @@ export default function ImportPage() {
     setSelected(null)
     setImported(null)
     try {
-      const res = await fetch('/api/admin/places-search?query=' + encodeURIComponent(query))
+      const res = await fetch('/api/admin/places-search?query=' + encodeURIComponent(query) + '&section=' + section)
       const data = await res.json()
       if (data.error) { setSearchError(data.error); return }
       setResults(data.results || [])
@@ -122,6 +123,14 @@ export default function ImportPage() {
         }),
       })
       const data = await res.json()
+      if (data.error === 'already_imported') {
+        const when = data.imported_at ? new Date(data.imported_at).toLocaleDateString('en-GB') : ''
+        setImportError(
+          "This place is already on HagerLand as '" + (data.listing_name || selected.name) + "'" +
+          (when ? ', imported on ' + when : '') + '. No duplicate was created.'
+        )
+        return
+      }
       if (data.error) { setImportError(data.error); return }
       setImported(data)
     } catch {
@@ -210,15 +219,32 @@ export default function ImportPage() {
             {results.map(place => (
               <button
                 key={place.google_place_id}
-                onClick={() => handleSelect(place)}
+                onClick={() => { if (!place.already_imported) handleSelect(place) }}
+                disabled={place.already_imported}
                 style={{
                   background: selected?.google_place_id === place.google_place_id ? 'rgba(28,124,76,0.15)' : C.bg,
                   border: '1px solid ' + (selected?.google_place_id === place.google_place_id ? C.green : C.border),
-                  borderRadius: '8px', padding: '0.875rem 1rem', textAlign: 'left', cursor: 'pointer', transition: 'all 0.15s'
+                  borderRadius: '8px', padding: '0.875rem 1rem', textAlign: 'left',
+                  cursor: place.already_imported ? 'default' : 'pointer',
+                  opacity: place.already_imported ? 0.55 : 1,
+                  transition: 'all 0.15s'
                 }}
               >
-                <p style={{ color: C.text, fontWeight: 600, marginBottom: '0.25rem' }}>{place.name}</p>
-                <p style={{ color: C.muted, fontSize: '0.82rem' }}>{place.address}</p>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
+                  <div style={{ minWidth: 0 }}>
+                    <p style={{ color: C.text, fontWeight: 600, marginBottom: '0.25rem' }}>{place.name}</p>
+                    <p style={{ color: C.muted, fontSize: '0.82rem' }}>{place.address}</p>
+                  </div>
+                  {place.already_imported && (
+                    <span style={{
+                      flexShrink: 0, background: C.goldSoft, color: C.gold,
+                      fontSize: '0.72rem', fontWeight: 600, padding: '0.25rem 0.6rem',
+                      borderRadius: '999px', whiteSpace: 'nowrap'
+                    }}>
+                      ✓ Imported
+                    </span>
+                  )}
+                </div>
               </button>
             ))}
           </div>
