@@ -26,7 +26,7 @@ export function SiteNav() {
         {/* Logo */}
         <Link href='/' className='flex items-center gap-2 shrink-0' translate="no">
           <Logo className='w-7 h-7' />
-          <span className='font-bold text-base text-ink tracking-tight' translate="no">HagerLand<sup className='text-[0.6em] font-normal align-super'>&reg;</sup></span>
+          <span className='font-bold text-base text-ink tracking-tight' translate="no">HagerLand<sup className='text-[0.72em] font-normal align-super opacity-80'>&reg;</sup></span>
         </Link>
 
         {/* Desktop nav links */}
