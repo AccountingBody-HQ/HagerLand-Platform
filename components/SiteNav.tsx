@@ -27,8 +27,8 @@ export function SiteNav() {
         <Link href='/' className='flex items-center gap-2 shrink-0' translate="no">
           <Logo className='w-7 h-7' />
           <span className='flex flex-col leading-none'>
-            <span className='font-brand font-extrabold text-[22px] text-ink tracking-tight' translate="no">HagerLand<span style={{fontSize:'0.55em',display:'inline-block',position:'relative',top:'-0.85em',opacity:1,marginLeft:'2px',fontWeight:400}}>®</span></span>
-            <span className='text-[7px] font-semibold uppercase tracking-[0.1em] text-green mt-[4px]' translate="no">Connect and Cooperate</span>
+            <span className='font-brand font-extrabold text-[20px] text-ink tracking-tight' translate="no">HagerLand<span style={{fontSize:'0.55em',display:'inline-block',position:'relative',top:'-0.85em',opacity:1,marginLeft:'2px',fontWeight:400}}>®</span></span>
+            <span className='text-[7px] font-semibold uppercase tracking-[0.1em] text-green mt-[6px]' translate="no">Connect and Cooperate</span>
           </span>
         </Link>
 
