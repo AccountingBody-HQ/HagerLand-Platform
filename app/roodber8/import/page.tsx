@@ -197,16 +197,21 @@ export default function ImportPage() {
   return (
     <div style={{ minHeight: '100vh', background: C.bg, color: C.text, padding: '2rem' }}>
 
-      <div style={{ marginBottom: '2rem' }}>
-        <p style={{ color: C.muted, fontSize: '11px', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
-          Admin · Import Tool
-        </p>
-        <h1 style={{ fontSize: '1.75rem', fontWeight: 700, marginBottom: '0.5rem' }}>
-          Google Places Import
-        </h1>
-        <p style={{ color: C.muted, fontSize: '0.9rem' }}>
-          Search Google Places, preview AI-enhanced data, and import listings directly into HagerLand.
-        </p>
+      <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem' }}>
+        <div>
+          <p style={{ color: C.muted, fontSize: '11px', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
+            Admin · Import Tool
+          </p>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, marginBottom: '0.5rem' }}>
+            Google Places Import
+          </h1>
+          <p style={{ color: C.muted, fontSize: '0.9rem' }}>
+            Search Google Places, preview AI-enhanced data, and import listings directly into HagerLand.
+          </p>
+        </div>
+        <a href="/roodber8/import/history" style={{ flexShrink: 0, color: C.muted, fontSize: '0.85rem', border: '1px solid ' + C.border, borderRadius: '8px', padding: '0.5rem 1rem', textDecoration: 'none' }}>
+          View history
+        </a>
       </div>
 
       {/* Step 1 — Choose section */}
