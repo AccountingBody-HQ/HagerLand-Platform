@@ -127,11 +127,20 @@ export async function approveListing(table: string, id: string) {
       })
     }
   } else {
-    const { data: listing } = await supabase
+    const titleCol = (table === 'tutors' || table === 'community') ? 'name' : 'title'
+    type ListingRow = {
+      contact_email: string | null
+      title?: string | null
+      name?: string | null
+      manage_token: string | null
+      pending_changes: Record<string, { old: string | null; new: string | null }> | null
+    }
+    const { data: listing, error: fetchError } = await supabase
       .from(table)
-      .select('contact_email, title, name, manage_token, pending_changes')
+      .select('contact_email, ' + titleCol + ', manage_token, pending_changes')
       .eq('id', id)
-      .single()
+      .single<ListingRow>()
+    if (fetchError) console.error('approveListing fetch failed:', fetchError.message)
 
     const updateData: Record<string, unknown> = { status: 'active', pending_changes: null }
 
@@ -144,13 +153,13 @@ export async function approveListing(table: string, id: string) {
 
     const { error } = await supabase.from(table).update(updateData).eq('id', id)
     if (error) throw new Error(error.message)
-    await logAudit('approve', table, id, (listing as Record<string, string> | null)?.title || (listing as Record<string, string> | null)?.name)
+    await logAudit('approve', table, id, listing?.title || listing?.name)
 
     // Send approval confirmation email
     if (listing?.contact_email) {
       const resend = new Resend(process.env.RESEND_API_KEY)
       const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://hagerland-platform.vercel.app'
-      const listingName = (listing as Record<string, string>).title || (listing as Record<string, string>).name || 'Your listing'
+      const listingName = listing.title || listing.name || 'Your listing'
       const manageUrl = listing.manage_token ? `${baseUrl}/${table}/manage?token=${listing.manage_token}` : `${baseUrl}/${table}`
       const GREEN = '#1C7C4C'
       await resend.emails.send({
