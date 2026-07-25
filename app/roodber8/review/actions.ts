@@ -19,6 +19,16 @@ function isValidTable(table: string): table is TableName {
   return (TABLES as readonly string[]).includes(table)
 }
 
+async function logAudit(action: string, table: string, id: string, name?: string | null) {
+  const { error } = await getAdmin().from('admin_audit').insert({
+    action,
+    table_name: table,
+    listing_id: String(id),
+    listing_name: name ?? null,
+  })
+  if (error) console.error('audit log failed:', error.message)
+}
+
 function revalidateAll() {
   revalidatePath('/roodber8')
   revalidatePath('/roodber8/review')
@@ -73,6 +83,7 @@ export async function approveListing(table: string, id: string) {
 
     const { error } = await supabase.from('companies').update(updateData).eq('id', id)
     if (error) throw new Error(error.message)
+    await logAudit('approve', 'companies', id, company?.company_name)
 
     // Send approval confirmation email
     if (company?.contact_email) {
@@ -133,6 +144,7 @@ export async function approveListing(table: string, id: string) {
 
     const { error } = await supabase.from(table).update(updateData).eq('id', id)
     if (error) throw new Error(error.message)
+    await logAudit('approve', table, id, (listing as Record<string, string> | null)?.title || (listing as Record<string, string> | null)?.name)
 
     // Send approval confirmation email
     if (listing?.contact_email) {
@@ -176,6 +188,7 @@ export async function rejectListing(table: string, id: string) {
   if (table === 'companies') updateData.pending_changes = null
   const { error } = await supabase.from(table).update(updateData).eq('id', id)
   if (error) throw new Error(error.message)
+  await logAudit('reject', table, id)
   revalidateAll()
 }
 
@@ -184,8 +197,11 @@ export async function deleteListing(table: string, id: string) {
   if (!verifySessionToken(token)) throw new Error('Unauthorized')
   if (!isValidTable(table)) throw new Error('Invalid table')
   const supabase = getAdmin()
+  const titleField = table === 'companies' ? 'company_name' : (table === 'tutors' || table === 'community') ? 'name' : 'title'
+  const { data: doomed } = await supabase.from(table).select(titleField).eq('id', id).single()
   const { error } = await supabase.from(table).delete().eq('id', id)
   if (error) throw new Error(error.message)
+  await logAudit('delete', table, id, (doomed as Record<string, string> | null)?.[titleField])
   revalidateAll()
 }
 
@@ -196,6 +212,7 @@ export async function deactivateListing(table: string, id: string) {
   const supabase = getAdmin()
   const { error } = await supabase.from(table).update({ status: 'pending' }).eq('id', id)
   if (error) throw new Error(error.message)
+  await logAudit('deactivate', table, id)
   revalidateAll()
 }
 
@@ -218,6 +235,7 @@ export async function updateCompany(id: string, data: {
   const supabase = getAdmin()
   const { error } = await supabase.from('companies').update(data).eq('id', id)
   if (error) throw new Error(error.message)
+  await logAudit('edit', 'companies', id, data.company_name)
   revalidateAll()
 }
 
@@ -311,6 +329,7 @@ export async function approveClaim(claimId: string, companyId: string) {
     }
   }
 
+  await logAudit('approve_claim', 'business_claims', claimId, claim?.claimant_name)
   revalidateAll()
 }
 
@@ -319,6 +338,7 @@ export async function rejectClaim(claimId: string) {
   const supabase = getAdmin()
   const { error } = await supabase.from('business_claims').update({ status: 'rejected' }).eq('id', claimId)
   if (error) throw new Error(error.message)
+  await logAudit('reject_claim', 'business_claims', claimId)
   revalidateAll()
 }
 export async function deleteClaim(claimId: string) {
@@ -328,6 +348,7 @@ export async function deleteClaim(claimId: string) {
     process.env.SUPABASE_SECRET_KEY!
   )
   await supabase.from('business_claims').delete().eq('id', claimId)
+  await logAudit('delete_claim', 'business_claims', claimId)
   revalidateAll()
 }
 
