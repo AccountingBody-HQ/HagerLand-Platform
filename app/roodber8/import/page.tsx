@@ -51,8 +51,6 @@ export default function ImportPage() {
   const [section, setSection] = useState('companies')
   const [searching, setSearching] = useState(false)
   const [results, setResults] = useState<PlaceResult[]>([])
-  const [nextPageToken, setNextPageToken] = useState<string | null>(null)
-  const [loadingMore, setLoadingMore] = useState(false)
   const [searchError, setSearchError] = useState('')
   const [selected, setSelected] = useState<PlaceResult | null>(null)
   const [phone, setPhone] = useState('')
@@ -73,7 +71,6 @@ export default function ImportPage() {
       const data = await res.json()
       if (data.error) { setSearchError(data.error); return }
       setResults(data.results || [])
-      setNextPageToken(data.next_page_token || null)
       if ((data.results || []).length === 0) setSearchError('No results found. Try a different search term.')
     } catch {
       setSearchError('Search failed. Please try again.')
@@ -82,21 +79,6 @@ export default function ImportPage() {
     }
   }
 
-  async function handleLoadMore() {
-    if (!nextPageToken) return
-    setLoadingMore(true)
-    try {
-      // Google requires ~2 second delay before pagetoken is valid
-      await new Promise(r => setTimeout(r, 2000))
-      const res = await fetch('/api/admin/places-search?query=' + encodeURIComponent(query) + '&pagetoken=' + encodeURIComponent(nextPageToken))
-      const data = await res.json()
-      if (data.error) return
-      setResults(prev => [...prev, ...(data.results || [])])
-      setNextPageToken(data.next_page_token || null)
-    } finally {
-      setLoadingMore(false)
-    }
-  }
 
   async function handleSelect(place: PlaceResult) {
     setSelected(place)
@@ -240,17 +222,6 @@ export default function ImportPage() {
               </button>
             ))}
           </div>
-          {nextPageToken && !selected && (
-            <div style={{ textAlign: 'center', marginTop: '1rem' }}>
-              <button
-                onClick={handleLoadMore}
-                disabled={loadingMore}
-                style={{ background: 'transparent', color: C.blue, border: '1px solid ' + C.blue, borderRadius: '8px', padding: '8px 20px', fontSize: '13px', fontWeight: 600, cursor: loadingMore ? 'not-allowed' : 'pointer', opacity: loadingMore ? 0.6 : 1 }}
-              >
-                {loadingMore ? 'Loading more results...' : 'Load more results (20 more)'}
-              </button>
-            </div>
-          )}
         </div>
       )}
 
