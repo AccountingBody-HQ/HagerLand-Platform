@@ -11,8 +11,9 @@ interface GooglePlace {
 }
 
 async function handleRequest(query: string | null, pagetoken: string | null, apiKey: string) {
-  const url = pagetoken
-    ? `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${pagetoken}&key=${apiKey}`
+  const rawToken = pagetoken ? Buffer.from(pagetoken, 'base64').toString('utf-8') : null
+  const url = rawToken
+    ? `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${rawToken}&key=${apiKey}`
     : `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query ?? '')}&key=${apiKey}`
 
   const res = await fetch(url, { cache: 'no-store' })
