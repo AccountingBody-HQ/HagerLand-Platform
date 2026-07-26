@@ -137,11 +137,8 @@ export default async function HomePage() {
                   <div className="relative h-28" style={{background: 'linear-gradient(135deg, #155F3A 0%, #1C7C4C 60%, #1e8a55 100%)'}}>
                     <div className="absolute inset-0 opacity-[0.09]" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)', backgroundSize: '18px 18px'}} />
                     <span className="absolute top-3.5 right-3.5 inline-flex items-center gap-1 bg-white text-gold text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow-sm tracking-wide">★ FEATURED</span>
-                    <div className="absolute left-5 -bottom-7 rounded-xl bg-white border-[3px] border-white flex items-center justify-center font-extrabold text-green text-xl shadow-lg" style={{width: '54px', height: '54px'}}>
-                      {business.company_name.charAt(0)}
-                    </div>
                   </div>
-                  <div className="pt-12 px-6 pb-7 flex flex-col flex-1">
+                  <div className="pt-6 px-6 pb-7 flex flex-col flex-1">
                     <p className="font-extrabold text-ink text-base mb-4 flex items-center gap-1.5 truncate group-hover:text-green transition-colors">
                       {business.company_name}
                       {business.is_verified && (
