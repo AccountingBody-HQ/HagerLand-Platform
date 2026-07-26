@@ -118,7 +118,7 @@ export default async function HomePage() {
 
       {/* ══ FEATURED */}
       {featuredBusinesses && featuredBusinesses.length > 0 && (
-        <section className="bg-section">
+        <section className="bg-green-soft">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
             <div className="flex items-end justify-between mb-10">
               <div>
