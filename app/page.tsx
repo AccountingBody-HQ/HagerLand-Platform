@@ -134,21 +134,21 @@ export default async function HomePage() {
               {featuredBusinesses.map((business) => (
                 <Link key={business.id} href={`/business/${business.id}`}
                   className="group relative bg-white border border-border rounded-2xl overflow-hidden hover:border-green hover:shadow-xl hover:-translate-y-1 transition-all duration-200 flex flex-col">
-                  <div className="relative h-24" style={{background: 'linear-gradient(135deg, #155F3A 0%, #1C7C4C 60%, #1e8a55 100%)'}}>
+                  <div className="relative h-28" style={{background: 'linear-gradient(135deg, #155F3A 0%, #1C7C4C 60%, #1e8a55 100%)'}}>
                     <div className="absolute inset-0 opacity-[0.09]" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)', backgroundSize: '18px 18px'}} />
                     <span className="absolute top-3.5 right-3.5 inline-flex items-center gap-1 bg-white text-gold text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow-sm tracking-wide">★ FEATURED</span>
                     <div className="absolute left-5 -bottom-7 rounded-xl bg-white border-[3px] border-white flex items-center justify-center font-extrabold text-green text-xl shadow-lg" style={{width: '54px', height: '54px'}}>
                       {business.company_name.charAt(0)}
                     </div>
                   </div>
-                  <div className="pt-11 px-5 pb-6 flex flex-col flex-1">
-                    <p className="font-extrabold text-ink text-base mb-2 flex items-center gap-1.5 truncate group-hover:text-green transition-colors">
+                  <div className="pt-12 px-6 pb-7 flex flex-col flex-1">
+                    <p className="font-extrabold text-ink text-base mb-4 flex items-center gap-1.5 truncate group-hover:text-green transition-colors">
                       {business.company_name}
                       {business.is_verified && (
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#B8862E" strokeWidth="3" className="shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
                       )}
                     </p>
-                    <div className="flex flex-col gap-1.5 mb-4">
+                    <div className="flex flex-col gap-2.5 mb-6">
                       {business.sic_description && (
                         <span className="flex items-center gap-2 text-[13px] text-muted">
                           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -162,7 +162,7 @@ export default async function HomePage() {
                         </span>
                       )}
                     </div>
-                    <div className="mt-auto pt-4 border-t border-border/60">
+                    <div className="mt-auto pt-5 border-t border-border/60">
                       <span className="text-[13px] font-bold text-green flex items-center gap-1">View listing →</span>
                     </div>
                   </div>
