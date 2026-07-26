@@ -11,7 +11,7 @@ const STEPS = [
   {
     n: '01',
     title: 'Search or browse',
-    body: 'Use the search bar to find businesses, jobs, housing, or events by name, category, or city. Every section has filter pills to narrow results instantly. All 7 sections are fully searchable from a single query.',
+    body: 'Use the search bar to find businesses, jobs, housing, or events by name, category, or city. Every section has filter pills to narrow results instantly. All 8 sections are fully searchable from a single query.',
     icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35" strokeLinecap="round"/></svg>`,
   },
   {
