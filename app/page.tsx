@@ -134,12 +134,10 @@ export default async function HomePage() {
               {featuredBusinesses.map((business) => (
                 <Link key={business.id} href={`/business/${business.id}`}
                   className="group relative bg-white border border-border rounded-2xl overflow-hidden hover:border-green hover:shadow-xl hover:-translate-y-1 transition-all duration-200 flex flex-col">
-                  <div className="relative h-28" style={{background: 'linear-gradient(135deg, #155F3A 0%, #1C7C4C 60%, #1e8a55 100%)'}}>
-                    <div className="absolute inset-0 opacity-[0.09]" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)', backgroundSize: '18px 18px'}} />
-                    <span className="absolute top-3.5 right-3.5 inline-flex items-center gap-1 bg-white text-gold text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow-sm tracking-wide">★ FEATURED</span>
-                  </div>
-                  <div className="pt-6 px-6 pb-7 flex flex-col flex-1">
-                    <p className="font-extrabold text-ink text-base mb-4 flex items-center gap-1.5 truncate group-hover:text-green transition-colors">
+                  <div className="absolute left-0 top-0 bottom-0 w-[5px]" style={{background: 'linear-gradient(180deg, #1C7C4C 0%, #3a9d6a 55%, #B8862E 100%)'}} />
+                  <span className="absolute top-5 right-5 text-gold text-lg">★</span>
+                  <div className="pt-7 pl-7 pr-6 pb-7 flex flex-col flex-1">
+                    <p className="font-extrabold text-ink text-base mb-4 pr-6 flex items-center gap-1.5 group-hover:text-green transition-colors leading-snug">
                       {business.company_name}
                       {business.is_verified && (
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#B8862E" strokeWidth="3" className="shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
