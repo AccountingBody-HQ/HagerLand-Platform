@@ -67,7 +67,7 @@ export default async function HomePage() {
     .from('companies').select('id, company_name, sic_description, trading_address_city, is_verified')
     .eq('status', 'active').order('created_at', { ascending: false }).limit(4)
   const { data: featuredBusinesses } = await supabase
-    .from('companies').select('id, company_name, sic_description, trading_address_city, is_verified')
+    .from('companies').select('id, company_name, sic_description, trading_address_city, is_verified, phone')
     .eq('status', 'active').eq('is_featured', true).limit(4)
 
   return (
@@ -158,6 +158,12 @@ export default async function HomePage() {
                       <span className="flex items-center gap-2 text-xs text-muted">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
                         <span className="truncate">{business.trading_address_city}</span>
+                      </span>
+                    )}
+                    {business.phone && (
+                      <span className="flex items-center gap-2 text-xs text-muted">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.36 1.9.68 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.9.32 1.85.55 2.81.68A2 2 0 0122 16.92z"/></svg>
+                        <span className="truncate">{business.phone}</span>
                       </span>
                     )}
                   </div>
