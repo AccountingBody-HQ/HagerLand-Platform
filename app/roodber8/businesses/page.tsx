@@ -5,7 +5,7 @@ import { verifySessionToken, SESSION_COOKIE } from '@/lib/admin-auth'
 import { createClient } from '@supabase/supabase-js'
 import { unstable_noStore as noStore } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { approveListing, rejectListing, deleteListing, deactivateListing, restoreListing, purgeListing } from '@/app/roodber8/review/actions'
+import { approveListing, rejectListing, deleteListing, deactivateListing, restoreListing, purgeListing, toggleFeatured } from '@/app/roodber8/review/actions'
 import Link from 'next/link'
 
 const C = {
@@ -52,7 +52,7 @@ export default async function AdminBusinessesPage({ searchParams }: { searchPara
 
   let queryBuilder = supabase
     .from('companies')
-    .select('id, company_name, trading_address_city, sic_description, contact_email, submitter_name, status, email_verified_at, first_seen_at, is_verified, phone, website', { count: 'exact' })
+    .select('id, company_name, trading_address_city, sic_description, contact_email, submitter_name, status, email_verified_at, first_seen_at, is_verified, phone, website, is_featured', { count: 'exact' })
   if (q) queryBuilder = queryBuilder.ilike('company_name', '%' + q + '%')
   if (statusFilter) { queryBuilder = queryBuilder.eq('status', statusFilter) } else { queryBuilder = queryBuilder.neq('status', 'deleted') }
   const { data: items, count } = await queryBuilder
@@ -111,6 +111,11 @@ export default async function AdminBusinessesPage({ searchParams }: { searchPara
           {item.status === 'active' && (
             <form action={deactivateListing.bind(null, 'companies', item.id)}>
               <button type='submit' style={{ background: 'rgba(184,138,46,0.1)', color: C.gold, border: 'none', borderRadius: 8, padding: '5px 10px', fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>Deactivate</button>
+            </form>
+          )}
+          {item.status === 'active' && (
+            <form action={toggleFeatured.bind(null, item.id, !item.is_featured)}>
+              <button type='submit' title={item.is_featured ? 'Unfeature' : 'Feature'} style={{ background: item.is_featured ? C.gold : 'transparent', color: item.is_featured ? '#fff' : C.gold, border: `1px solid ${C.gold}`, borderRadius: 8, padding: '5px 10px', fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>{item.is_featured ? '★' : '☆'}</button>
             </form>
           )}
           {item.status === 'deleted' ? (
