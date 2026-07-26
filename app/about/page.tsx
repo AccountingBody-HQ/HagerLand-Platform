@@ -8,7 +8,7 @@ export const metadata = {
 }
 
 const STATS = [
-  { stat: '7', label: 'Categories', body: 'Businesses, jobs, housing, cars, tutors, community, and events.' },
+  { stat: '8', label: 'Categories', body: 'Businesses, jobs, housing, money, cars, tutors, community, and events.' },
   { stat: 'Free', label: 'Always free', body: 'No fees, no subscriptions — community first, always.' },
   { stat: '100%', label: 'Human-reviewed', body: 'Every submission checked by our team before going live.' },
   { stat: 'Global', label: 'Diaspora-wide', body: 'Serving the Ethiopian community wherever in the world you are.' },
