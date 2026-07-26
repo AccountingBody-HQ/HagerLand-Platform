@@ -58,6 +58,22 @@ function revalidateAll() {
   revalidatePath('/roodber8/events')
 }
 
+export async function toggleFeatured(id: string, featured: boolean) {
+  requireAdminSession()
+  const supabase = getAdmin()
+  const { data: company } = await supabase
+    .from('companies')
+    .select('company_name')
+    .eq('id', id)
+    .single<{ company_name: string }>()
+  const { error } = await supabase
+    .from('companies')
+    .update({ is_featured: featured })
+    .eq('id', id)
+  if (error) throw new Error(error.message)
+  await logAudit(featured ? 'feature' : 'unfeature', 'companies', id, company?.company_name)
+  revalidateAll()
+}
 export async function approveListing(table: string, id: string) {
   requireAdminSession()
   if (!isValidTable(table)) throw new Error('Invalid table')
