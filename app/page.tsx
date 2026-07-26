@@ -64,6 +64,9 @@ export default async function HomePage() {
   const { data: recentBusinesses } = await supabase
     .from('companies').select('id, company_name, sic_description, trading_address_city, is_verified')
     .eq('status', 'active').order('created_at', { ascending: false }).limit(4)
+  const { data: featuredBusinesses } = await supabase
+    .from('companies').select('id, company_name, sic_description, trading_address_city, is_verified')
+    .eq('status', 'active').eq('is_featured', true).limit(3)
 
   return (
     <main className="min-h-screen bg-bg flex flex-col">
@@ -161,6 +164,39 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ══ FEATURED */}
+      {featuredBusinesses && featuredBusinesses.length > 0 && (
+        <section className="bg-white border-t border-border">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+            <div className="flex items-end justify-between mb-10">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-widest text-gold mb-3">Featured</p>
+                <h2 className="text-2xl sm:text-3xl font-bold text-ink">Spotlight on the community</h2>
+              </div>
+              <Link href="/business" className="hidden sm:flex items-center gap-1.5 text-sm font-semibold text-ink hover:text-green transition-colors">
+                View all
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </Link>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {featuredBusinesses.map((business) => (
+                <Link key={business.id} href={`/business/${business.id}`}
+                  className="group relative bg-white border border-gold/30 rounded-2xl p-5 hover:border-gold hover:shadow-lg transition-all duration-200">
+                  <span className="absolute top-4 right-4 inline-flex items-center gap-1 bg-gold-soft text-gold text-[11px] font-bold px-2.5 py-1 rounded-full">★ Featured</span>
+                  <div className="w-12 h-12 rounded-xl bg-green-soft flex items-center justify-center font-bold text-green text-lg mb-4">
+                    {business.company_name.charAt(0)}
+                  </div>
+                  <p className="font-bold text-ink text-base mb-1 truncate group-hover:text-green transition-colors">{business.company_name}</p>
+                  <p className="text-xs text-muted leading-relaxed line-clamp-2">
+                    {[business.sic_description, business.trading_address_city].filter(Boolean).join(' · ')}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ══ HOW IT WORKS */}
       <section className="bg-section">
