@@ -118,8 +118,8 @@ export default async function HomePage() {
 
       {/* ══ FEATURED */}
       {featuredBusinesses && featuredBusinesses.length > 0 && (
-        <section className="bg-green-soft">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+        <section className="bg-section">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
             <div className="flex items-end justify-between mb-10">
               <div>
                 <p className="text-xs font-bold uppercase tracking-widest text-gold mb-3">Featured</p>
@@ -133,9 +133,9 @@ export default async function HomePage() {
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {featuredBusinesses.map((business) => (
                 <Link key={business.id} href={`/business/${business.id}`}
-                  className="group relative bg-white border border-gold/30 rounded-2xl p-5 hover:border-gold hover:shadow-lg transition-all duration-200">
+                  className="group relative bg-white border border-border rounded-2xl p-7 hover:border-green/50 hover:shadow-lg transition-all duration-200 flex flex-col">
                   <span className="absolute top-4 right-4 inline-flex items-center gap-1 bg-gold-soft text-gold text-[11px] font-bold px-2.5 py-1 rounded-full">★ Featured</span>
-                  <div className="w-12 h-12 rounded-xl bg-green-soft flex items-center justify-center font-bold text-green text-lg mb-4">
+                  <div className="w-14 h-14 rounded-xl bg-green-soft flex items-center justify-center font-bold text-green text-xl mb-5">
                     {business.company_name.charAt(0)}
                   </div>
                   <p className="font-bold text-ink text-base mb-1 truncate group-hover:text-green transition-colors">{business.company_name}</p>
