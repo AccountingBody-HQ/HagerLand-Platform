@@ -133,7 +133,7 @@ export default async function HomePage() {
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {featuredBusinesses.map((business) => (
                 <Link key={business.id} href={`/business/${business.id}`}
-                  className="group relative bg-white border border-border rounded-[20px] p-6 flex flex-col min-h-[300px] overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-1.5 hover:border-green transition-all duration-300 ease-out">
+                  className="group relative bg-white border border-border rounded-[20px] p-6 flex flex-col min-h-[340px] overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-1.5 hover:border-green transition-all duration-300 ease-out">
                   <div className="absolute top-0 left-0 right-0 h-1" style={{background: 'linear-gradient(90deg, #155F3A, #26996a, #B8862E)'}} />
                   <span className="absolute top-5 right-5 inline-flex items-center gap-1 bg-gold-soft text-gold text-[9px] font-extrabold tracking-wide px-2.5 py-1 rounded-full">★ FEATURED</span>
                   <div className="w-13 h-13 rounded-[14px] bg-green-soft flex items-center justify-center text-green mb-6" style={{width: '56px', height: '56px'}}>
