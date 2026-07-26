@@ -4,6 +4,8 @@ import { SiteNav } from '@/components/SiteNav'
 import { SiteFooter } from '@/components/SiteFooter'
 import { SearchBox } from '@/components/SearchBox'
 
+export const revalidate = 60
+
 export const metadata = {
   title: 'HagerLand — The global network for Ethiopian business',
   description: 'Find verified community businesses, jobs, housing, events, and more across the diaspora. The free, verified platform serving Ethiopians and Eritreans worldwide.',
