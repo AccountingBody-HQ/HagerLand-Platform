@@ -5,7 +5,7 @@ import { verifySessionToken, SESSION_COOKIE } from '@/lib/admin-auth'
 import { createClient } from '@supabase/supabase-js'
 import { unstable_noStore as noStore } from 'next/cache'
 import { redirect, notFound } from 'next/navigation'
-import { approveListing, rejectListing, deleteListing, deactivateListing, updateCompany } from '@/app/roodber8/review/actions'
+import { approveListing, rejectListing, deleteListing, deactivateListing, updateCompany, toggleFeatured } from '@/app/roodber8/review/actions'
 import Link from 'next/link'
 
 const C = {
@@ -107,9 +107,14 @@ export default async function AdminBusinessDetailPage({ params, searchParams }: 
             </>
           )}
           {b.status === 'active' && (
+            <>
             <form action={deactivateListing.bind(null, 'companies', b.id)}>
               <button type='submit' style={{ background: C.goldSoft, color: C.gold, border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Deactivate</button>
             </form>
+            <form action={toggleFeatured.bind(null, b.id, !b.is_featured)}>
+              <button type='submit' style={{ background: b.is_featured ? C.gold : 'transparent', color: b.is_featured ? '#fff' : C.gold, border: `1px solid ${C.gold}`, borderRadius: 8, padding: '8px 16px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{b.is_featured ? '★ Featured' : '☆ Feature'}</button>
+            </form>
+            </>
           )}
           {b.status === 'rejected' && (
             <form action={approveListing.bind(null, 'companies', b.id)}>
