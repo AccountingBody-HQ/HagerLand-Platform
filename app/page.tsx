@@ -68,7 +68,7 @@ export default async function HomePage() {
     .eq('status', 'active').order('created_at', { ascending: false }).limit(4)
   const { data: featuredBusinesses } = await supabase
     .from('companies').select('id, company_name, sic_description, trading_address_city, is_verified')
-    .eq('status', 'active').eq('is_featured', true).limit(3)
+    .eq('status', 'active').eq('is_featured', true).limit(4)
 
   return (
     <main className="min-h-screen bg-bg flex flex-col">
