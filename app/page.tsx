@@ -133,15 +133,39 @@ export default async function HomePage() {
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {featuredBusinesses.map((business) => (
                 <Link key={business.id} href={`/business/${business.id}`}
-                  className="group relative bg-white border border-border rounded-2xl p-7 hover:border-green/50 hover:shadow-lg transition-all duration-200 flex flex-col">
-                  <span className="absolute top-4 right-4 inline-flex items-center gap-1 bg-gold-soft text-gold text-[11px] font-bold px-2.5 py-1 rounded-full">★ Featured</span>
-                  <div className="w-14 h-14 rounded-xl bg-green-soft flex items-center justify-center font-bold text-green text-xl mb-5">
-                    {business.company_name.charAt(0)}
+                  className="group relative bg-white border border-border rounded-2xl overflow-hidden hover:border-green hover:shadow-xl hover:-translate-y-1 transition-all duration-200 flex flex-col">
+                  <div className="relative h-20 bg-[#f7fbf9]">
+                    <div className="absolute inset-0 opacity-[0.08]" style={{backgroundImage: 'radial-gradient(circle, rgba(28,124,76,0.5) 1px, transparent 1px)', backgroundSize: '16px 16px'}} />
+                    <span className="absolute top-3.5 right-3.5 inline-flex items-center gap-1 bg-white text-gold text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow-sm tracking-wide">★ FEATURED</span>
+                    <div className="absolute left-5 -bottom-6 w-13 h-13 rounded-xl bg-[#c3e6d1] border-2 border-white flex items-center justify-center font-extrabold text-[#155c38] text-xl shadow-md" style={{width: '52px', height: '52px'}}>
+                      {business.company_name.charAt(0)}
+                    </div>
                   </div>
-                  <p className="font-bold text-ink text-base mb-1 truncate group-hover:text-green transition-colors">{business.company_name}</p>
-                  <p className="text-xs text-muted leading-relaxed line-clamp-2">
-                    {[business.sic_description, business.trading_address_city].filter(Boolean).join(' · ')}
-                  </p>
+                  <div className="pt-9 px-5 pb-5 flex flex-col flex-1">
+                    <p className="font-extrabold text-ink text-base mb-2 flex items-center gap-1.5 truncate group-hover:text-green transition-colors">
+                      {business.company_name}
+                      {business.is_verified && (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#B8862E" strokeWidth="3" className="shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
+                      )}
+                    </p>
+                    <div className="flex flex-col gap-1.5 mb-4">
+                      {business.sic_description && (
+                        <span className="flex items-center gap-2 text-[13px] text-muted">
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                          <span className="truncate">{business.sic_description}</span>
+                        </span>
+                      )}
+                      {business.trading_address_city && (
+                        <span className="flex items-center gap-2 text-[13px] text-muted">
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                          <span className="truncate">{business.trading_address_city}</span>
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-auto pt-4 border-t border-border/60">
+                      <span className="text-[13px] font-bold text-green flex items-center gap-1">View listing →</span>
+                    </div>
+                  </div>
                 </Link>
               ))}
             </div>
