@@ -136,7 +136,6 @@ export default async function HomePage() {
                   className="group relative bg-white rounded-[22px] overflow-hidden flex flex-col min-h-[340px] shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 ease-out">
                   <div className="relative h-[120px] overflow-hidden" style={{background: 'linear-gradient(135deg, #0f4d2e 0%, #1C7C4C 55%, #26996a 100%)'}}>
                     <div className="absolute inset-0 opacity-[0.08]" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)', backgroundSize: '20px 20px'}} />
-                    <div className="absolute -top-10 -right-8 w-32 h-32 rounded-full transition-transform duration-500 group-hover:scale-150" style={{background: 'radial-gradient(circle, rgba(184,134,46,0.55), transparent 70%)'}} />
                     <span className="absolute top-4 left-4 z-10 inline-flex items-center gap-1.5 bg-white/15 border border-white/25 text-white text-[10px] font-extrabold tracking-wide px-3 py-1.5 rounded-full backdrop-blur-sm">
                       <span className="text-[#ffd88a]">★</span> FEATURED
                     </span>
