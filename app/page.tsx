@@ -136,14 +136,14 @@ export default async function HomePage() {
                   className="group relative bg-white border border-border rounded-2xl overflow-hidden hover:border-green hover:shadow-xl hover:-translate-y-1 transition-all duration-200 flex flex-col">
                   <div className="absolute left-0 top-0 bottom-0 w-[5px]" style={{background: 'linear-gradient(180deg, #1C7C4C 0%, #3a9d6a 55%, #B8862E 100%)'}} />
                   <span className="absolute top-5 right-5 inline-flex items-center gap-1 bg-gold-soft text-gold text-[10px] font-extrabold px-2.5 py-1 rounded-full tracking-wide">★ FEATURED</span>
-                  <div className="pt-14 pl-7 pr-6 pb-9 flex flex-col flex-1">
-                    <p className="font-extrabold text-ink text-base mb-4 pr-6 flex items-center gap-1.5 group-hover:text-green transition-colors leading-snug">
+                  <div className="pt-16 pl-7 pr-6 pb-10 flex flex-col flex-1">
+                    <p className="font-extrabold text-ink text-base mb-5 pr-6 flex items-center gap-1.5 group-hover:text-green transition-colors leading-snug">
                       {business.company_name}
                       {business.is_verified && (
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#B8862E" strokeWidth="3" className="shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
                       )}
                     </p>
-                    <div className="flex flex-col gap-3 mb-8">
+                    <div className="flex flex-col gap-3.5 mb-10">
                       {business.sic_description && (
                         <span className="flex items-center gap-2 text-[13px] text-muted">
                           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -157,7 +157,7 @@ export default async function HomePage() {
                         </span>
                       )}
                     </div>
-                    <div className="mt-auto pt-5 border-t border-border/60">
+                    <div className="mt-auto pt-6 border-t border-border/60">
                       <span className="text-[13px] font-bold text-green flex items-center gap-1">View listing →</span>
                     </div>
                   </div>
