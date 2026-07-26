@@ -130,11 +130,12 @@ export default async function HomePage() {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
               </Link>
             </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {featuredBusinesses.map((business) => (
                 <Link key={business.id} href={`/business/${business.id}`}
                   className="group relative bg-white border border-border rounded-2xl overflow-hidden hover:border-green hover:shadow-xl hover:-translate-y-1 transition-all duration-200 flex flex-col min-h-[300px]">
                   <div className="absolute left-0 top-0 bottom-0 w-[5px]" style={{background: 'linear-gradient(180deg, #1C7C4C 0%, #3a9d6a 55%, #B8862E 100%)'}} />
+                  <div className="absolute right-0 top-0 bottom-0 w-[5px]" style={{background: 'linear-gradient(180deg, #1C7C4C 0%, #3a9d6a 55%, #B8862E 100%)'}} />
                   <span className="absolute top-5 right-5 inline-flex items-center gap-1 bg-gold-soft text-gold text-[10px] font-extrabold px-2.5 py-1 rounded-full tracking-wide">★ FEATURED</span>
                   <div className="pt-16 pl-7 pr-6 pb-10 flex flex-col flex-1">
                     <p className="font-extrabold text-ink text-lg mb-5 pr-8 flex items-start gap-2 group-hover:text-green transition-colors leading-snug">
