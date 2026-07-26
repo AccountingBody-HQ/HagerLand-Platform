@@ -4,7 +4,7 @@ import { SiteFooter } from '@/components/SiteFooter'
 
 export const metadata = {
   title: 'About HagerLand — The global network for Ethiopian business',
-  description: 'HagerLand is the free, verified directory of verified community businesses, jobs, housing, events and community worldwide.',
+  description: 'HagerLand is the free, verified platform for community businesses, jobs, housing, events and community worldwide.',
 }
 
 const STATS = [
@@ -33,7 +33,7 @@ const VALUES = [
   {
     icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>`,
     title: 'Free, forever',
-    body: 'Listing on HagerLand is free and will remain free. The directory exists to lower barriers for Ethiopian businesses and community members — not to monetise them.',
+    body: 'Listing on HagerLand is free and will remain free. The platform exists to lower barriers for Ethiopian businesses and community members — not to monetise them.',
   },
 ]
 
@@ -77,7 +77,7 @@ export default function AboutPage() {
                 For the Ethiopian diaspora — spread across the UK, Europe, North America, and beyond — finding trusted Ethiopian businesses, jobs, or community groups has always meant relying on word of mouth. HagerLand exists to change that.
               </p>
               <p className="text-muted leading-relaxed">
-                We built a single, searchable, verified directory that works for the whole community — whether you are looking for an Ethiopian restaurant in London, a job within the community, or a church group in your city.
+                We built a single, searchable, verified platform that works for the whole community — whether you are looking for an Ethiopian restaurant in London, a job within the community, or a church group in your city.
               </p>
             </div>
             <div>
@@ -140,7 +140,7 @@ export default function AboutPage() {
           <div className="bg-white border border-green/20 rounded-2xl px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-6">
             <div>
               <h3 className="text-xl font-bold text-ink mb-1">Ready to get listed?</h3>
-              <p className="text-muted text-sm">Join the directory. Free for everyone, always.</p>
+              <p className="text-muted text-sm">Join the platform. Free for everyone, always.</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 shrink-0 w-full sm:w-auto">
               <Link href="/business/post" className="text-center bg-green hover:bg-green-dark text-white font-bold rounded-full py-3 px-6 transition-colors text-sm" translate="no">

@@ -3,7 +3,7 @@ import { SiteNav } from '@/components/SiteNav'
 import { SiteFooter } from '@/components/SiteFooter'
 
 export const metadata = {
-  title: 'How HagerLand works — Free verified Ethiopian directory',
+  title: 'How HagerLand works — Free verified Ethiopian platform',
   description: 'Learn how HagerLand works — search, list, claim, and connect with the Ethiopian diaspora community.',
 }
 
@@ -29,7 +29,7 @@ const STEPS = [
   {
     n: '04',
     title: 'Claim your listing',
-    body: 'If your business is already in our directory, you can claim it. Submit your name and email, verify via a link we send you, and our admin team will review the claim. Approved claims earn a gold verified badge on your listing.',
+    body: 'If your business is already on our platform, you can claim it. Submit your name and email, verify via a link we send you, and our admin team will review the claim. Approved claims earn a gold verified badge on your listing.',
     icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
   },
 ]
@@ -132,7 +132,7 @@ export default function HowItWorksPage() {
                   List your business
                 </Link>
                 <Link href="/business" className="flex-1 text-center border border-border text-ink font-semibold rounded-full px-6 py-3 hover:border-ink transition-colors text-sm">
-                  Browse directory →
+                  Browse listings →
                 </Link>
               </div>
             </div>
@@ -173,7 +173,7 @@ export default function HowItWorksPage() {
           <div className="bg-white border border-green/20 rounded-2xl px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-6">
             <div>
               <h3 className="text-xl font-bold text-ink mb-1">Ready to get started?</h3>
-              <p className="text-muted text-sm">Search the directory or list your business — free, always.</p>
+              <p className="text-muted text-sm">Search the platform or list your business — free, always.</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 shrink-0 w-full sm:w-auto">
               <Link href="/business/post" className="text-center bg-green hover:bg-green-dark text-white font-bold rounded-full py-3 px-6 transition-colors text-sm" translate="no">

@@ -6,7 +6,7 @@ import { SearchBox } from '@/components/SearchBox'
 
 export const metadata = {
   title: 'HagerLand — The global network for Ethiopian business',
-  description: 'Find verified community businesses, jobs, housing, events, and more across the diaspora. The free, verified directory serving Ethiopians and Eritreans worldwide.',
+  description: 'Find verified community businesses, jobs, housing, events, and more across the diaspora. The free, verified platform serving Ethiopians and Eritreans worldwide.',
   openGraph: {
     title: 'HagerLand — The global network for Ethiopian business',
     description: 'Find verified community businesses, jobs, housing, events, and more across the diaspora.',
@@ -89,7 +89,7 @@ export default async function HomePage() {
               <br /><span className="text-white/60">worldwide.</span>
             </h1>
             <p className="text-white/65 text-lg sm:text-xl max-w-xl mb-10 leading-relaxed">
-              The verified directory of verified community businesses, jobs, housing, community, and events — serving the diaspora everywhere.
+              The verified platform for community businesses, jobs, housing, community, and events — serving the diaspora everywhere.
             </p>
             <div className="max-w-xl mb-10">
               <SearchBox className="shadow-2xl shadow-black/20" />
@@ -131,8 +131,8 @@ export default async function HomePage() {
                 <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center mb-6">
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M8 3v18M16 3v18M2 9h20M2 15h20"/></svg>
                 </div>
-                <h2 className="text-2xl font-bold text-white mb-3">Business directory</h2>
-                <p className="text-white/65 text-sm leading-relaxed">Discover and support verified verified community businesses across the UK and worldwide.</p>
+                <h2 className="text-2xl font-bold text-white mb-3">Business platform</h2>
+                <p className="text-white/65 text-sm leading-relaxed">Discover and support verified community businesses across the UK and worldwide.</p>
               </div>
               <div className="relative flex items-end justify-between mt-8">
                 <div>
@@ -260,7 +260,7 @@ export default async function HomePage() {
           {/* CTA strip — merged into this section */}
           <div className="bg-white border border-green/20 rounded-2xl px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-6">
             <div>
-              <h3 className="text-xl font-bold text-ink mb-1">Ready to join the directory?</h3>
+              <h3 className="text-xl font-bold text-ink mb-1">Ready to join the platform?</h3>
               <p className="text-muted text-sm">List your business, job, or event. Free, always.</p>
             </div>
             <div className="flex flex-row gap-3 shrink-0">

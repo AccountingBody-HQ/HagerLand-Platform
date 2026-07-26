@@ -155,7 +155,7 @@ export default function ContactPage() {
           <div className="bg-white border border-green/20 rounded-2xl px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-6">
             <div>
               <h3 className="text-xl font-bold text-ink mb-1">Want to list your business?</h3>
-              <p className="text-muted text-sm">Join the directory — free for everyone, always.</p>
+              <p className="text-muted text-sm">Join the platform — free for everyone, always.</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 shrink-0 w-full sm:w-auto">
               <a href="/business/post" className="text-center bg-green hover:bg-green-dark text-white font-bold rounded-full py-3 px-6 transition-colors text-sm" translate="no">
