@@ -133,35 +133,45 @@ export default async function HomePage() {
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {featuredBusinesses.map((business) => (
                 <Link key={business.id} href={`/business/${business.id}`}
-                  className="group relative bg-white border border-border rounded-2xl overflow-hidden hover:border-green hover:shadow-xl hover:-translate-y-1 transition-all duration-200 flex flex-col min-h-[300px]">
-                  <div className="absolute left-0 top-0 bottom-0 w-[5px]" style={{background: 'linear-gradient(180deg, #1C7C4C 0%, #3a9d6a 55%, #B8862E 100%)'}} />
-                  <div className="absolute right-0 top-0 bottom-0 w-[5px]" style={{background: 'linear-gradient(180deg, #1C7C4C 0%, #3a9d6a 55%, #B8862E 100%)'}} />
-                  <span className="absolute top-5 right-5 inline-flex items-center gap-1 bg-gold-soft text-gold text-[10px] font-extrabold px-2.5 py-1 rounded-full tracking-wide">★ FEATURED</span>
-                  <div className="pt-16 pl-7 pr-6 pb-10 flex flex-col flex-1">
-                    <p className="font-extrabold text-ink text-lg mb-5 pr-8 flex items-start gap-2 group-hover:text-green transition-colors leading-snug">
+                  className="group relative bg-white rounded-[22px] overflow-hidden flex flex-col min-h-[340px] shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 ease-out">
+                  <div className="relative h-[120px] overflow-hidden" style={{background: 'linear-gradient(135deg, #0f4d2e 0%, #1C7C4C 55%, #26996a 100%)'}}>
+                    <div className="absolute inset-0 opacity-[0.08]" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)', backgroundSize: '20px 20px'}} />
+                    <div className="absolute -top-10 -right-8 w-32 h-32 rounded-full transition-transform duration-500 group-hover:scale-150" style={{background: 'radial-gradient(circle, rgba(184,134,46,0.55), transparent 70%)'}} />
+                    <span className="absolute top-4 left-4 z-10 inline-flex items-center gap-1.5 bg-white/15 border border-white/25 text-white text-[10px] font-extrabold tracking-wide px-3 py-1.5 rounded-full backdrop-blur-sm">
+                      <span className="text-[#ffd88a]">★</span> FEATURED
+                    </span>
+                  </div>
+                  <div className="absolute left-5 top-[94px] z-10 w-[60px] h-[60px] rounded-[17px] bg-white border border-[#eef2ef] flex items-center justify-center font-extrabold text-green text-2xl shadow-lg transition-transform duration-300 group-hover:scale-105 group-hover:-rotate-3">
+                    {business.company_name.charAt(0)}
+                  </div>
+                  <div className="pt-9 px-5 pb-5 flex flex-col flex-1">
+                    <p className="font-extrabold text-ink text-base leading-snug mb-3 flex items-start gap-1.5 group-hover:text-green transition-colors">
                       {business.company_name}
                       {business.is_verified && (
-                        <span className="inline-flex items-center justify-center w-[18px] h-[18px] rounded-full bg-gold shrink-0">
-                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="4"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span className="inline-flex items-center justify-center w-[17px] h-[17px] rounded-full bg-gold shrink-0 mt-0.5">
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="4"><polyline points="20 6 9 17 4 12"/></svg>
                         </span>
                       )}
                     </p>
-                    <div className="flex flex-col gap-3.5 mb-10">
+                    <div className="flex flex-wrap gap-2 mb-5">
                       {business.sic_description && (
-                        <span className="flex items-center gap-2 text-[13px] text-muted">
-                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                          <span className="truncate">{business.sic_description}</span>
+                        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#3d5a4a] bg-[#eef5f0] px-2.5 py-1.5 rounded-lg">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                          <span className="truncate max-w-[110px]">{business.sic_description}</span>
                         </span>
                       )}
                       {business.trading_address_city && (
-                        <span className="flex items-center gap-2 text-[13px] text-muted">
-                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                          <span className="truncate">{business.trading_address_city}</span>
+                        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#3d5a4a] bg-[#eef5f0] px-2.5 py-1.5 rounded-lg">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                          {business.trading_address_city}
                         </span>
                       )}
                     </div>
-                    <div className="mt-auto pt-6 border-t border-border/60">
-                      <span className="text-[13px] font-bold text-green flex items-center gap-1">View listing →</span>
+                    <div className="mt-auto flex items-center justify-between pt-4 border-t border-[#eef2ef]">
+                      <span className="text-[13px] font-extrabold text-green">View listing</span>
+                      <span className="w-7 h-7 rounded-full bg-[#eef5f0] flex items-center justify-center transition-all duration-300 group-hover:bg-green">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-green group-hover:text-white transition-colors"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                      </span>
                     </div>
                   </div>
                 </Link>
