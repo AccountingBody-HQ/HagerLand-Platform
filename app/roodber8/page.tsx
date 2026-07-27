@@ -24,6 +24,7 @@ const SECTIONS = [
   { table: 'community', label: 'Community',  color: '#f97316', href: '/roodber8/community' },
   { table: 'events',    label: 'Events',     color: '#a855f7', href: '/roodber8/events' },
   { table: 'delivery',  label: 'Delivery',   color: '#0ea5e9', href: '/roodber8/delivery' },
+  { table: 'made_in_ethiopia', label: 'Made in Ethiopia', color: '#B8862E', href: '/roodber8/made-in-ethiopia' },
 ] as const
 
 export default async function AdminPage() {

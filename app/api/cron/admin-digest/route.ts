@@ -17,6 +17,7 @@ const SECTIONS: { table: string; label: string; timeCol: string }[] = [
   { table: 'community', label: 'Community', timeCol: 'created_at' },
   { table: 'events', label: 'Events', timeCol: 'created_at' },
   { table: 'delivery', label: 'Delivery', timeCol: 'created_at' },
+  { table: 'made_in_ethiopia', label: 'Made in Ethiopia', timeCol: 'created_at' },
 ]
 
 export async function GET(request: NextRequest) {

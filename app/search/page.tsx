@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { SiteNav } from '@/components/SiteNav'
 import { SiteFooter } from '@/components/SiteFooter'
 
-type ResultType = 'all' | 'business' | 'job' | 'housing' | 'money' | 'car' | 'tutor' | 'community' | 'event'
+type ResultType = 'all' | 'business' | 'job' | 'housing' | 'money' | 'car' | 'tutor' | 'community' | 'event' | 'made_in_ethiopia'
 
 type SearchResult = {
   id: string
@@ -26,6 +26,7 @@ const FILTERS: { id: ResultType; label: string }[] = [
   { id: 'tutor', label: 'Tutors' },
   { id: 'community', label: 'Community' },
   { id: 'event', label: 'Events' },
+  { id: 'made_in_ethiopia', label: 'Made in Ethiopia' },
 ]
 
 const POPULAR_SEARCHES = ['London', 'restaurant', 'accountant', 'Manchester', 'salon']
@@ -40,6 +41,7 @@ function badgeClass(type: string) {
     tutor: 'bg-green-soft text-green',
     community: 'bg-gold-soft text-gold',
     event: 'bg-green-soft text-green',
+    made_in_ethiopia: 'bg-gold-soft text-gold',
   }
   return map[type] ?? 'bg-section text-muted'
 }
@@ -54,6 +56,7 @@ function typeLabel(type: string) {
     tutor: 'Tutor',
     community: 'Community',
     event: 'Event',
+    made_in_ethiopia: 'Made in Ethiopia',
   }
   return map[type] ?? type
 }
@@ -113,7 +116,7 @@ function SearchInner() {
             Search HagerLand
           </h1>
           <p className="text-muted text-sm sm:text-base mb-6">
-            Search across businesses, jobs, housing, money, cars, tutors, community, and events.
+            Search across Made in Ethiopia, businesses, jobs, housing, money, cars, tutors, community, and events.
           </p>
           <div className="relative max-w-lg mx-auto">
             <input

@@ -5,7 +5,7 @@ import { cookies } from 'next/headers'
 import { requireAdminSession, verifySessionToken, SESSION_COOKIE } from '@/lib/admin-auth'
 import { Resend } from 'resend'
 
-const TABLES = ['jobs', 'housing', 'cars', 'tutors', 'community', 'events', 'companies', 'money', 'delivery'] as const
+const TABLES = ['jobs', 'housing', 'cars', 'tutors', 'community', 'events', 'companies', 'money', 'delivery', 'made_in_ethiopia'] as const
 type TableName = (typeof TABLES)[number]
 
 function getAdmin() {
@@ -17,6 +17,11 @@ function getAdmin() {
 
 function isValidTable(table: string): table is TableName {
   return (TABLES as readonly string[]).includes(table)
+}
+
+// Table name and URL slug diverge for made_in_ethiopia (underscore vs hyphen).
+function routeFor(table: string): string {
+  return table === 'made_in_ethiopia' ? 'made-in-ethiopia' : table
 }
 
 async function logAudit(action: string, table: string, id: string, name?: string | null) {
@@ -43,6 +48,7 @@ function revalidateAll() {
   revalidatePath('/community')
   revalidatePath('/events')
   revalidatePath('/delivery')
+  revalidatePath('/made-in-ethiopia')
   revalidatePath('/jobs/[id]', 'page')
   revalidatePath('/housing/[id]', 'page')
   revalidatePath('/money/[id]', 'page')
@@ -51,6 +57,7 @@ function revalidateAll() {
   revalidatePath('/community/[id]', 'page')
   revalidatePath('/events/[id]', 'page')
   revalidatePath('/delivery/[id]', 'page')
+  revalidatePath('/made-in-ethiopia/[id]', 'page')
   revalidatePath('/roodber8/jobs')
   revalidatePath('/roodber8/housing')
   revalidatePath('/roodber8/money')
@@ -59,6 +66,7 @@ function revalidateAll() {
   revalidatePath('/roodber8/community')
   revalidatePath('/roodber8/events')
   revalidatePath('/roodber8/delivery')
+  revalidatePath('/roodber8/made-in-ethiopia')
 }
 
 export async function toggleFeatured(id: string, featured: boolean) {
@@ -180,7 +188,7 @@ export async function approveListing(table: string, id: string) {
       const resend = new Resend(process.env.RESEND_API_KEY)
       const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://hagerland-platform.vercel.app'
       const listingName = listing.title || listing.name || 'Your listing'
-      const manageUrl = listing.manage_token ? `${baseUrl}/${table}/manage?token=${listing.manage_token}` : `${baseUrl}/${table}`
+      const manageUrl = listing.manage_token ? `${baseUrl}/${routeFor(table)}/manage?token=${listing.manage_token}` : `${baseUrl}/${routeFor(table)}`
       const GREEN = '#1C7C4C'
       await resend.emails.send({
         from: 'HagerLand <info@accountingbody.com>',
@@ -319,7 +327,7 @@ export async function approveClaim(claimId: string, companyId: string) {
 
     // Send approval email to claimant
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://hagerland-platform.vercel.app'
-    const manageUrl = `${baseUrl}/${section}/manage?token=${manageToken}`
+    const manageUrl = `${baseUrl}/${routeFor(section)}/manage?token=${manageToken}`
     const listingTitle = (listing as Record<string, string> | null)?.[titleField] ?? 'Your listing'
     const emailTo = listing?.contact_email || claim?.claimant_email
     if (emailTo) {

@@ -18,6 +18,12 @@ const SECTION_LABELS: Record<string, string> = {
   companies: 'Business', jobs: 'Jobs', housing: 'Housing',
   money: 'Money', cars: 'Cars', tutors: 'Tutors',
   community: 'Community', events: 'Events', delivery: 'Delivery',
+  made_in_ethiopia: 'Made in Ethiopia',
+}
+
+// Table name and URL slug diverge for made_in_ethiopia (underscore vs hyphen).
+function routeFor(section: string): string {
+  return section === 'made_in_ethiopia' ? 'made-in-ethiopia' : section
 }
 
 export default async function AdminClaimsPage() {
@@ -75,14 +81,13 @@ export default async function AdminClaimsPage() {
   function getAdminLink(claim: Record<string, unknown>): string {
     const section = claim.section as string ?? 'companies'
     if (section === 'companies' || !section) return `/roodber8/businesses/${claim.company_id}`
-    const adminSection = section === 'money' ? 'money' : section
-    return `/roodber8/${adminSection}/${claim.listing_id}`
+    return `/roodber8/${routeFor(section)}/${claim.listing_id}`
   }
 
   function getPublicLink(claim: Record<string, unknown>): string {
     const section = claim.section as string ?? 'companies'
     if (section === 'companies' || !section) return `/business/${claim.company_id}`
-    return `/${section}/${claim.listing_id}`
+    return `/${routeFor(section)}/${claim.listing_id}`
   }
 
   function getApproveArgs(claim: Record<string, unknown>): [string, string] {

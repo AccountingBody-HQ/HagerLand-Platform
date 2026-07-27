@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
 
   const like = `%${query}%`
 
-  const [businesses, jobs, housing, cars, tutors, community, events, money, delivery] =
+  const [businesses, jobs, housing, cars, tutors, community, events, money, delivery, madeInEthiopia] =
     await Promise.all([
       supabase
         .from('companies')
@@ -84,6 +84,12 @@ export async function GET(request: NextRequest) {
         .limit(8),
       supabase
         .from('delivery')
+        .select('id, title, category, city')
+        .eq('status', 'active')
+        .or(`title.ilike.${like},category.ilike.${like},city.ilike.${like}`)
+        .limit(8),
+      supabase
+        .from('made_in_ethiopia')
         .select('id, title, category, city')
         .eq('status', 'active')
         .or(`title.ilike.${like},category.ilike.${like},city.ilike.${like}`)
@@ -162,6 +168,14 @@ export async function GET(request: NextRequest) {
       subtitle: [d.category, d.city].filter(Boolean).join(' · '),
       url: `/delivery/${d.id}`,
       score: scoreResult(d.title, query),
+    })),
+    ...(madeInEthiopia.data ?? []).map((m) => ({
+      id: m.id,
+      type: 'made_in_ethiopia' as const,
+      title: m.title,
+      subtitle: [m.category, m.city].filter(Boolean).join(' · '),
+      url: `/made-in-ethiopia/${m.id}`,
+      score: scoreResult(m.title, query),
     })),
   ]
 

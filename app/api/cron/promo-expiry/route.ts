@@ -26,7 +26,7 @@ export async function GET(request: Request) {
   const dayEnd = new Date(in3Days)
   dayEnd.setHours(23, 59, 59, 999)
 
-  const tables = ['companies', 'jobs', 'housing', 'money', 'cars', 'tutors', 'community', 'events', 'delivery']
+  const tables = ['companies', 'jobs', 'housing', 'money', 'cars', 'tutors', 'community', 'events', 'delivery', 'made_in_ethiopia']
   const allExpiring: Array<{id: string, company_name?: string, title?: string, name?: string, contact_email: string, promo_text: string, promo_expires_at: string, manage_token: string, _section: string}> = []
   
   for (const table of tables) {
@@ -42,7 +42,7 @@ export async function GET(request: Request) {
           id: row.id, company_name: row.company_name, title: row.title, name: row.name,
           contact_email: row.contact_email, promo_text: row.promo_text,
           promo_expires_at: row.promo_expires_at, manage_token: row.manage_token,
-          _section: table === 'companies' ? 'business' : table
+          _section: table === 'companies' ? 'business' : table === 'made_in_ethiopia' ? 'made-in-ethiopia' : table
         })
       }
     }
