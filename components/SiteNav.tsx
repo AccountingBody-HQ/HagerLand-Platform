@@ -50,18 +50,17 @@ function DiasporaDropdown({ isActive }: { isActive: boolean }) {
       </Link>
       {open && (
         <div className="absolute top-full left-0 pt-2 z-50">
-          <div className="w-56 bg-white border border-border rounded-2xl shadow-xl overflow-hidden py-1.5">
+          <div className="w-64 bg-white border border-border/60 rounded-2xl shadow-2xl shadow-black/10 overflow-hidden py-2">
             {diasporaSections.map((s) => (
               <Link key={s.href} href={s.href}
-                className="block px-4 py-2.5 text-sm text-ink hover:bg-section hover:text-green transition-colors">
+                className="block mx-2 my-0.5 px-3.5 py-2.5 rounded-xl text-[13.5px] font-medium text-ink hover:bg-section hover:text-green transition-colors">
                 {s.label}
               </Link>
             ))}
-            <div className="border-t border-border mt-1 pt-1">
-              <Link href="/diaspora" className="block px-4 py-2.5 text-sm font-semibold text-green hover:bg-section transition-colors">
-                View all →
-              </Link>
-            </div>
+            <div className="mx-3.5 my-1.5 border-t border-border/70" />
+            <Link href="/diaspora" className="block mx-2 mb-0.5 px-3.5 py-2.5 rounded-xl text-[13.5px] font-semibold text-green hover:bg-green-soft transition-colors">
+              View all →
+            </Link>
           </div>
         </div>
       )}

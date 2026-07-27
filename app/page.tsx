@@ -214,7 +214,7 @@ export default async function HomePage() {
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8"><path d="M20.59 13.41L13.42 20.58a2 2 0 01-2.83 0L2.59 12.58A2 2 0 012 11.17V4a2 2 0 012-2h7.17a2 2 0 011.42.59l8 8a2 2 0 010 2.82z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>
               </div>
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-widest text-white/60 mb-2">Group 1 · Made in Ethiopia</p>
+                <p className="text-[11px] font-bold uppercase tracking-widest text-white/60 mb-2">Made in Ethiopia</p>
                 <h3 className="text-2xl font-bold text-white mb-2">Authentic products, straight from origin</h3>
                 <p className="text-white/70 text-sm leading-relaxed max-w-lg">Coffee, honey & spices, textiles, leather goods, crafts, and more — every listing declares exactly how and where it&apos;s made in Ethiopia.</p>
               </div>
@@ -232,7 +232,7 @@ export default async function HomePage() {
 
           {/* Diaspora Businesses group */}
           <div className="flex items-end justify-between mb-4 mt-10">
-            <p className="text-xs font-bold uppercase tracking-widest text-muted">Group 2 · Diaspora Businesses</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-muted">Diaspora Businesses</p>
             <Link href="/diaspora" className="text-xs font-semibold text-green hover:underline">View all →</Link>
           </div>
           <div className="grid lg:grid-cols-5 gap-5 mb-10">
@@ -274,9 +274,9 @@ export default async function HomePage() {
 
           {/* Community + Events groups */}
           <div className="grid sm:grid-cols-2 gap-5">
-            {COMMUNITY_EVENTS.map((section, i) => (
+            {COMMUNITY_EVENTS.map((section) => (
               <div key={section.href}>
-                <p className="text-xs font-bold uppercase tracking-widest text-muted mb-4">Group {i + 3} · {section.label}</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-muted mb-4">{section.label}</p>
                 <Link href={section.href}
                   className="group bg-white border border-border rounded-2xl p-6 hover:border-green/50 hover:shadow-lg transition-all duration-200 flex items-center gap-5">
                   <div className="w-12 h-12 rounded-xl bg-green-soft text-green flex items-center justify-center shrink-0"
