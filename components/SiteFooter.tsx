@@ -2,6 +2,8 @@ import Link from 'next/link'
 import { Logo } from '@/components/Logo'
 
 const browseLinks = [
+  { href: '/made-in-ethiopia', label: 'Made in Ethiopia' },
+  { href: '/diaspora', label: 'Diaspora Businesses' },
   { href: '/business', label: 'Business directory' },
   { href: '/jobs', label: 'Jobs' },
   { href: '/housing', label: 'Housing' },
@@ -22,6 +24,7 @@ const companyLinks = [
 ]
 
 const listLinks = [
+  { href: '/made-in-ethiopia/post', label: 'List a Made in Ethiopia product' },
   { href: '/business/post', label: 'List your business' },
   { href: '/jobs/post', label: 'Post a job' },
   { href: '/housing/post', label: 'List a property' },

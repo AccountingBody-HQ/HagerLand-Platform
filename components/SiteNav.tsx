@@ -1,21 +1,73 @@
 'use client'
 import Link from 'next/link'
+import { useState, useRef } from 'react'
 import { Logo } from '@/components/Logo'
 import { MobileNav } from '@/components/MobileNav'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { usePathname } from 'next/navigation'
 
-const sections = [
+const diasporaSections = [
   { href: '/business', label: 'Businesses' },
   { href: '/jobs', label: 'Jobs' },
   { href: '/housing', label: 'Housing' },
   { href: '/money', label: 'Money' },
   { href: '/cars', label: 'Cars' },
   { href: '/tutors', label: 'Tutors' },
-  { href: '/community', label: 'Community' },
-  { href: '/events', label: 'Events' },
   { href: '/delivery', label: 'Delivery' },
 ]
+
+const groups = [
+  { href: '/made-in-ethiopia', label: 'Made in Ethiopia' },
+  { href: '/diaspora', label: 'Diaspora Businesses', dropdown: diasporaSections },
+  { href: '/community', label: 'Community' },
+  { href: '/events', label: 'Events' },
+]
+
+function DiasporaDropdown({ isActive }: { isActive: boolean }) {
+  const [open, setOpen] = useState(false)
+  const closeTimer = useRef<ReturnType<typeof setTimeout>>()
+
+  function handleEnter() {
+    clearTimeout(closeTimer.current)
+    setOpen(true)
+  }
+  function handleLeave() {
+    closeTimer.current = setTimeout(() => setOpen(false), 150)
+  }
+
+  return (
+    <div className="relative" onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
+      <Link
+        href="/diaspora"
+        className={`relative flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[12.5px] font-medium transition-colors whitespace-nowrap
+          ${isActive ? 'text-green font-semibold' : 'text-muted hover:text-ink hover:bg-section'}`}
+      >
+        Diaspora Businesses
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={`transition-transform ${open ? 'rotate-180' : ''}`}>
+          <path d="M6 9l6 6 6-6"/>
+        </svg>
+        {isActive && <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-green rounded-full" />}
+      </Link>
+      {open && (
+        <div className="absolute top-full left-0 pt-2 z-50">
+          <div className="w-56 bg-white border border-border rounded-2xl shadow-xl overflow-hidden py-1.5">
+            {diasporaSections.map((s) => (
+              <Link key={s.href} href={s.href}
+                className="block px-4 py-2.5 text-sm text-ink hover:bg-section hover:text-green transition-colors">
+                {s.label}
+              </Link>
+            ))}
+            <div className="border-t border-border mt-1 pt-1">
+              <Link href="/diaspora" className="block px-4 py-2.5 text-sm font-semibold text-green hover:bg-section transition-colors">
+                View all →
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 
 export function SiteNav() {
   const pathname = usePathname()
@@ -35,19 +87,23 @@ export function SiteNav() {
 
         {/* Desktop nav links */}
         <div className='hidden xl:flex items-center gap-1 flex-1 justify-center'>
-          {sections.map(sec => {
-            const isActive = pathname.startsWith(sec.href)
+          {groups.map(group => {
+            if (group.dropdown) {
+              const isActive = pathname.startsWith('/diaspora') || group.dropdown.some(s => pathname.startsWith(s.href))
+              return <DiasporaDropdown key={group.href} isActive={isActive} />
+            }
+            const isActive = pathname.startsWith(group.href)
             return (
               <Link
-                key={sec.href}
-                href={sec.href}
+                key={group.href}
+                href={group.href}
                 className={`relative px-2.5 py-1.5 rounded-lg text-[12.5px] font-medium transition-colors whitespace-nowrap
                   ${isActive
                     ? 'text-green font-semibold'
                     : 'text-muted hover:text-ink hover:bg-section'
                   }`}
               >
-                {sec.label}
+                {group.label}
                 {isActive && (
                   <span className='absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-green rounded-full' />
                 )}
