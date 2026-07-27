@@ -5,7 +5,7 @@ import { createClient } from '@supabase/supabase-js'
 
 const SESSION_COOKIE = 'hl_admin_session'
 
-const VALID_SECTIONS = ['companies', 'jobs', 'housing', 'money', 'cars', 'tutors', 'community', 'events'] as const
+const VALID_SECTIONS = ['companies', 'jobs', 'housing', 'money', 'cars', 'tutors', 'community', 'events', 'delivery'] as const
 type SectionName = (typeof VALID_SECTIONS)[number]
 
 function isValidSection(s: string): s is SectionName {
@@ -43,6 +43,7 @@ const HAGERLAND_CATEGORIES: Record<SectionName, string[]> = {
   tutors: ['Maths', 'English & Literacy', 'Science', 'Amharic language', 'Tigrinya language', 'Afaan Oromo language', 'Music & instruments', 'Art & design', 'IT & computing', 'Business studies', 'University preparation', '11+ & entrance exams', 'Special educational needs'],
   community: ['Community association', 'Church & faith group', 'Charity & non-profit', 'Cultural organisation', 'Sports club', 'Youth group', "Women's group", 'Elders group', 'Support group', 'Political & civic'],
   events: ['Music & concert', 'Cultural festival', 'Religious celebration', 'Community meeting', 'Sports event', 'Food & dining', 'Networking', 'Wedding & celebration', 'Fundraiser', 'Exhibition & art', 'Conference & seminar', 'Online event'],
+  delivery: ['Courier services', 'Same-day/local delivery', 'Removals & man-with-van', 'Freight & haulage', 'Cargo shipping', 'Logistics & warehousing', 'Bike/motorcycle courier', 'International shipping'],
 }
 
 function getDefaultCategory(section: SectionName): string {
@@ -55,6 +56,7 @@ function getDefaultCategory(section: SectionName): string {
     tutors: 'Maths',
     community: 'Community association',
     events: 'Community meeting',
+    delivery: 'Courier services',
   }
   return defaults[section]
 }

@@ -16,6 +16,7 @@ const SECTIONS: { table: string; label: string; timeCol: string }[] = [
   { table: 'tutors', label: 'Tutors', timeCol: 'created_at' },
   { table: 'community', label: 'Community', timeCol: 'created_at' },
   { table: 'events', label: 'Events', timeCol: 'created_at' },
+  { table: 'delivery', label: 'Delivery', timeCol: 'created_at' },
 ]
 
 export async function GET(request: NextRequest) {

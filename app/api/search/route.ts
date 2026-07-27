@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
 
   const like = `%${query}%`
 
-  const [businesses, jobs, housing, cars, tutors, community, events, money] =
+  const [businesses, jobs, housing, cars, tutors, community, events, money, delivery] =
     await Promise.all([
       supabase
         .from('companies')
@@ -81,6 +81,12 @@ export async function GET(request: NextRequest) {
         .select('id, title, service_type, location')
         .eq('status', 'active')
         .or(`title.ilike.${like},service_type.ilike.${like},location.ilike.${like}`)
+        .limit(8),
+      supabase
+        .from('delivery')
+        .select('id, title, category, city')
+        .eq('status', 'active')
+        .or(`title.ilike.${like},category.ilike.${like},city.ilike.${like}`)
         .limit(8),
     ])
 
@@ -148,6 +154,14 @@ export async function GET(request: NextRequest) {
       subtitle: [e.category, e.location].filter(Boolean).join(' · '),
       url: `/events/${e.id}`,
       score: scoreResult(e.title, query),
+    })),
+    ...(delivery.data ?? []).map((d) => ({
+      id: d.id,
+      type: 'delivery' as const,
+      title: d.title,
+      subtitle: [d.category, d.city].filter(Boolean).join(' · '),
+      url: `/delivery/${d.id}`,
+      score: scoreResult(d.title, query),
     })),
   ]
 

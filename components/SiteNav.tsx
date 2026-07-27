@@ -14,6 +14,7 @@ const sections = [
   { href: '/tutors', label: 'Tutors' },
   { href: '/community', label: 'Community' },
   { href: '/events', label: 'Events' },
+  { href: '/delivery', label: 'Delivery' },
 ]
 
 export function SiteNav() {

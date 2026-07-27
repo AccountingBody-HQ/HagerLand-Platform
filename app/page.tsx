@@ -38,17 +38,19 @@ const SECTIONS = [
     icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>` },
   { href: '/events', label: 'Events', description: 'Celebrations and networking', table: 'events',
     icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>` },
+  { href: '/delivery', label: 'Delivery', description: 'Courier, freight, and cargo services', table: 'delivery',
+    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>` },
 ] as const
 
 const TRUST = [
   { stat: '100%', label: 'Verified listings', body: 'Every submission reviewed by our team before going live.' },
   { stat: 'Free', label: 'Always free to list', body: 'No fees, no subscriptions. Community first, always.' },
-  { stat: '8', label: 'Categories', body: 'Businesses, jobs, housing, money, cars, tutors, community and events.' },
+  { stat: '9', label: 'Categories', body: 'Businesses, jobs, housing, money, cars, tutors, community, events and delivery.' },
   { stat: 'Global', label: 'Diaspora-wide', body: 'Serving the Ethiopian community wherever in the world you are.' },
 ] as const
 
 export default async function HomePage() {
-  const [b, j, h, c, t, co, e, m] = await Promise.all([
+  const [b, j, h, c, t, co, e, m, d] = await Promise.all([
     supabase.from('companies').select('id', { count: 'exact', head: true }).eq('status', 'active'),
     supabase.from('jobs').select('id', { count: 'exact', head: true }).eq('status', 'active'),
     supabase.from('housing').select('id', { count: 'exact', head: true }).eq('status', 'active'),
@@ -57,10 +59,12 @@ export default async function HomePage() {
     supabase.from('community').select('id', { count: 'exact', head: true }).eq('status', 'active'),
     supabase.from('events').select('id', { count: 'exact', head: true }).eq('status', 'active'),
     supabase.from('money').select('id', { count: 'exact', head: true }).eq('status', 'active'),
+    supabase.from('delivery').select('id', { count: 'exact', head: true }).eq('status', 'active'),
   ])
   const counts: Record<string, number> = {
     companies: b.count ?? 0, jobs: j.count ?? 0, housing: h.count ?? 0,
     cars: c.count ?? 0, tutors: t.count ?? 0, community: co.count ?? 0, events: e.count ?? 0, money: m.count ?? 0,
+    delivery: d.count ?? 0,
   }
   const totalListings = Object.values(counts).reduce((a, b) => a + b, 0)
   const { data: recentBusinesses } = await supabase
@@ -103,7 +107,7 @@ export default async function HomePage() {
               {[
                 { value: totalListings.toLocaleString(), label: 'active listings' },
                 { value: counts.companies.toLocaleString(), label: 'businesses' },
-                { value: '8', label: 'categories' },
+                { value: '9', label: 'categories' },
                 { value: 'Free', label: 'to list' },
               ].map((s) => (
                 <div key={s.label} className="flex items-baseline gap-2">
@@ -250,7 +254,7 @@ export default async function HomePage() {
             </div>
             <div className="space-y-3">
               {[
-                { n: '01', title: 'Search or browse', body: 'Find what you need by name, category, or city. All 8 sections are fully searchable.' },
+                { n: '01', title: 'Search or browse', body: 'Find what you need by name, category, or city. All 9 sections are fully searchable.' },
                 { n: '02', title: 'Connect directly', body: 'Click to reveal contact details. Reach the listing owner directly — no middleman, no fees.' },
                 { n: '03', title: 'List for free', body: 'Submit your listing in under 2 minutes. Reviewed by our team and live within 48 hours.' },
               ].map((step) => (

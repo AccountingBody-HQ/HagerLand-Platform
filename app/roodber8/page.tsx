@@ -23,6 +23,7 @@ const SECTIONS = [
   { table: 'tutors',    label: 'Tutors',     color: '#14b8a6', href: '/roodber8/tutors' },
   { table: 'community', label: 'Community',  color: '#f97316', href: '/roodber8/community' },
   { table: 'events',    label: 'Events',     color: '#a855f7', href: '/roodber8/events' },
+  { table: 'delivery',  label: 'Delivery',   color: '#0ea5e9', href: '/roodber8/delivery' },
 ] as const
 
 export default async function AdminPage() {
@@ -191,6 +192,7 @@ export default async function AdminPage() {
               { label: 'Tutors', sub: `${sectionStats[5].active} active · ${sectionStats[5].pending} pending`, href: '/roodber8/tutors', color: '#14b8a6' },
               { label: 'Community', sub: `${sectionStats[6].active} active · ${sectionStats[6].pending} pending`, href: '/roodber8/community', color: '#f97316' },
               { label: 'Events', sub: `${sectionStats[7].active} active · ${sectionStats[7].pending} pending`, href: '/roodber8/events', color: '#a855f7' },
+              { label: 'Delivery', sub: `${sectionStats[8].active} active · ${sectionStats[8].pending} pending`, href: '/roodber8/delivery', color: '#0ea5e9' },
             ].map(action => (
               <Link key={action.label} href={action.href}
                 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', borderRadius: 10, background: 'rgba(255,255,255,0.02)', border: '1px solid #1a2238', textDecoration: 'none' }}>

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-const VALID_SECTIONS = ['companies', 'jobs', 'housing', 'money', 'cars', 'tutors', 'community', 'events']
+const VALID_SECTIONS = ['companies', 'jobs', 'housing', 'money', 'cars', 'tutors', 'community', 'events', 'delivery']
 
 export async function POST(request: NextRequest) {
   try {

@@ -12,6 +12,7 @@ const STATIC_PAGES = [
   { url: '/tutors', priority: 0.7, changeFrequency: 'weekly' as const },
   { url: '/community', priority: 0.8, changeFrequency: 'weekly' as const },
   { url: '/events', priority: 0.9, changeFrequency: 'daily' as const },
+  { url: '/delivery', priority: 0.7, changeFrequency: 'weekly' as const },
   { url: '/search', priority: 0.6, changeFrequency: 'weekly' as const },
   { url: '/about', priority: 0.5, changeFrequency: 'monthly' as const },
   { url: '/how-it-works', priority: 0.5, changeFrequency: 'monthly' as const },
@@ -42,6 +43,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       { table: 'tutors', segment: 'tutors', priority: 0.7 },
       { table: 'community', segment: 'community', priority: 0.7 },
       { table: 'events', segment: 'events', priority: 0.8 },
+      { table: 'delivery', segment: 'delivery', priority: 0.6 },
     ] as const
     const listingUrls = (
       await Promise.all(

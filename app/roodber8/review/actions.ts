@@ -5,7 +5,7 @@ import { cookies } from 'next/headers'
 import { requireAdminSession, verifySessionToken, SESSION_COOKIE } from '@/lib/admin-auth'
 import { Resend } from 'resend'
 
-const TABLES = ['jobs', 'housing', 'cars', 'tutors', 'community', 'events', 'companies', 'money'] as const
+const TABLES = ['jobs', 'housing', 'cars', 'tutors', 'community', 'events', 'companies', 'money', 'delivery'] as const
 type TableName = (typeof TABLES)[number]
 
 function getAdmin() {
@@ -42,6 +42,7 @@ function revalidateAll() {
   revalidatePath('/tutors')
   revalidatePath('/community')
   revalidatePath('/events')
+  revalidatePath('/delivery')
   revalidatePath('/jobs/[id]', 'page')
   revalidatePath('/housing/[id]', 'page')
   revalidatePath('/money/[id]', 'page')
@@ -49,6 +50,7 @@ function revalidateAll() {
   revalidatePath('/tutors/[id]', 'page')
   revalidatePath('/community/[id]', 'page')
   revalidatePath('/events/[id]', 'page')
+  revalidatePath('/delivery/[id]', 'page')
   revalidatePath('/roodber8/jobs')
   revalidatePath('/roodber8/housing')
   revalidatePath('/roodber8/money')
@@ -56,6 +58,7 @@ function revalidateAll() {
   revalidatePath('/roodber8/tutors')
   revalidatePath('/roodber8/community')
   revalidatePath('/roodber8/events')
+  revalidatePath('/roodber8/delivery')
 }
 
 export async function toggleFeatured(id: string, featured: boolean) {
@@ -144,6 +147,7 @@ export async function approveListing(table: string, id: string) {
     }
   } else {
     const titleCol = (table === 'tutors' || table === 'community') ? 'name' : 'title'
+    // 'delivery' uses the default 'title' column, same as jobs/housing/money/cars/events
     type ListingRow = {
       contact_email: string | null
       title?: string | null

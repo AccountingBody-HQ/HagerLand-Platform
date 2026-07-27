@@ -10,6 +10,7 @@ const browseLinks = [
   { href: '/tutors', label: 'Tutors' },
   { href: '/community', label: 'Community' },
   { href: '/events', label: 'Events' },
+  { href: '/delivery', label: 'Delivery & courier' },
 ]
 
 const companyLinks = [
@@ -29,6 +30,7 @@ const listLinks = [
   { href: '/events/post', label: 'Post an event' },
   { href: '/tutors/post', label: 'List as a tutor' },
   { href: '/community/post', label: 'List an organisation' },
+  { href: '/delivery/post', label: 'List a delivery service' },
 ]
 
 const socialLinks = [
