@@ -20,6 +20,18 @@ const NAV = [
   { href: '/roodber8/import',     exact: false, label: 'Import',         sub: 'Google Places AI import',   icon: 'M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12' },
 ]
 
+const BIRRBANK_NAV = [
+  { href: '/roodber8/birrbank/institutions',       exact: false, label: 'BirrBank® Institutions', sub: 'NBE-licensed institution registry', icon: 'M3 21h18M5 21V7l8-4v18M13 21V11l6-3v13M9 9v.01M9 12v.01M9 15v.01' },
+  { href: '/roodber8/birrbank/rate-updater',       exact: false, label: 'Rate Updater',           sub: 'FX, savings & loan rates',           icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
+  { href: '/roodber8/birrbank/securities',         exact: false, label: 'Securities',             sub: 'ESX equities, IPOs & bonds',         icon: 'M3 3v18h18M18.7 8l-5.1 5.1-4-4L3 15.5' },
+  { href: '/roodber8/birrbank/insurance',          exact: false, label: 'Insurance',              sub: 'Insurance products',                 icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z' },
+  { href: '/roodber8/birrbank/transfer-services',  exact: false, label: 'Transfer Services',      sub: 'Remittance & money transfer',        icon: 'M17 1l4 4-4 4M21 5H9M7 23l-4-4 4-4M3 19h12' },
+  { href: '/roodber8/birrbank/market-indices',     exact: false, label: 'Market Indices',         sub: 'ESX index levels',                   icon: 'M18 20V10M12 20V4M6 20v-6' },
+  { href: '/roodber8/birrbank/commodities',        exact: false, label: 'Commodities',            sub: 'ECX coffee, sesame & grains',        icon: 'M20.59 13.41L13.42 20.58a2 2 0 01-2.83 0L2.59 12.58A2 2 0 012 11.17V4a2 2 0 012-2h7.17a2 2 0 011.42.59l8 8a2 2 0 010 2.82z' },
+  { href: '/roodber8/birrbank/regulations',        exact: false, label: 'Regulations',            sub: 'NBE, ECMA & ECX directives',         icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
+  { href: '/roodber8/birrbank/subscribers',        exact: false, label: 'Subscribers',            sub: 'BirrBank newsletter subscribers',    icon: 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
+]
+
 function isActive(pathname: string, href: string, exact: boolean) {
   if (exact) return pathname === href
   return pathname === href || pathname.startsWith(href + '/')
@@ -60,6 +72,25 @@ export function AdminSidebar({ pathname }: { pathname: string }) {
             <Link key={item.href} href={item.href}
               style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 10, background: active ? 'rgba(28,124,76,0.12)' : 'transparent', borderLeft: active ? '2px solid #1C7C4C' : '2px solid transparent', textDecoration: 'none' }}>
               <div style={{ width: 30, height: 30, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: active ? '#1C7C4C' : 'rgba(255,255,255,0.04)' }}>
+                <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke={active ? '#fff' : '#475569'} strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><path d={item.icon}/></svg>
+              </div>
+              <div>
+                <p style={{ color: active ? '#ffffff' : '#64748b', fontSize: 13, fontWeight: 600, margin: 0 }}>{item.label}</p>
+                <p style={{ color: active ? 'rgba(255,255,255,0.4)' : '#334155', fontSize: 11, margin: 0 }}>{item.sub}</p>
+              </div>
+            </Link>
+          )
+        })}
+        {/* BirrBank section divider */}
+        <div style={{ margin: '14px 12px 8px', paddingTop: 12, borderTop: '1px solid #1a2238', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ color: '#3b82f6', fontSize: 11, fontWeight: 800, letterSpacing: '0.06em' }}>BIRRBANK<span style={{ fontSize: '0.7em', position: 'relative', top: '-0.4em' }}>®</span></span>
+        </div>
+        {BIRRBANK_NAV.map(item => {
+          const active = isActive(currentPath, item.href, item.exact)
+          return (
+            <Link key={item.href} href={item.href}
+              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 10, background: active ? 'rgba(29,78,216,0.12)' : 'transparent', borderLeft: active ? '2px solid #1D4ED8' : '2px solid transparent', textDecoration: 'none' }}>
+              <div style={{ width: 30, height: 30, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: active ? '#1D4ED8' : 'rgba(255,255,255,0.04)' }}>
                 <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke={active ? '#fff' : '#475569'} strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'><path d={item.icon}/></svg>
               </div>
               <div>

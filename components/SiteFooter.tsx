@@ -15,6 +15,15 @@ const browseLinks = [
   { href: '/delivery', label: 'Delivery & courier' },
 ]
 
+const birrbankLinks = [
+  { href: '/birrbank/banking', label: 'Banking' },
+  { href: '/birrbank/institutions', label: 'Institutions' },
+  { href: '/birrbank/insurance', label: 'Insurance' },
+  { href: '/birrbank/markets', label: 'Markets' },
+  { href: '/birrbank/commodities', label: 'Commodities' },
+  { href: '/birrbank/intelligence', label: 'Intelligence (Coming soon)' },
+]
+
 const companyLinks = [
   { href: '/about', label: 'About HagerLand' },
   { href: '/how-it-works', label: 'How it works' },
@@ -48,7 +57,7 @@ export function SiteFooter() {
   return (
     <footer className="bg-ink text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-10 lg:gap-8">
           <div className="lg:col-span-2">
             <Link href="/" className="flex items-center gap-2.5 mb-5">
               <Logo className="w-8 h-8" />
@@ -78,6 +87,16 @@ export function SiteFooter() {
             <h3 className="text-xs font-bold uppercase tracking-widest text-white/30 mb-5">List for free</h3>
             <ul className="space-y-3">
               {listLinks.map((l) => (
+                <li key={l.href}><Link href={l.href} className="text-sm text-white/55 hover:text-white transition-colors">{l.label}</Link></li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-xs font-bold uppercase tracking-widest text-white/30 mb-5">
+              BirrBank<span style={{fontSize:'0.7em',position:'relative',top:'-0.4em',marginLeft:'1px'}}>&reg;</span>
+            </h3>
+            <ul className="space-y-3">
+              {birrbankLinks.map((l) => (
                 <li key={l.href}><Link href={l.href} className="text-sm text-white/55 hover:text-white transition-colors">{l.label}</Link></li>
               ))}
             </ul>

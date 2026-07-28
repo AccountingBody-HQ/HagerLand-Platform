@@ -196,6 +196,40 @@ export default async function HomePage() {
         </section>
       )}
 
+      {/* ══ BIRRBANK */}
+      <section className="bg-green-soft">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8 mb-10">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-green mb-3">New on HagerLand</p>
+              <h2 className="text-3xl sm:text-4xl font-bold text-ink leading-tight mb-3">
+                BirrBank<span style={{fontSize:'0.55em',position:'relative',top:'-0.6em',marginLeft:'2px',fontWeight:400}}>®</span> — Ethiopia&apos;s financial directory
+              </h2>
+              <p className="text-muted text-base leading-relaxed max-w-xl">
+                Compare savings rates, FX rates, insurance, markets and commodities across all NBE-licensed institutions.
+              </p>
+            </div>
+            <Link href="/birrbank/banking"
+              className="inline-flex items-center justify-center gap-2 bg-green hover:bg-green-dark text-white font-bold rounded-full px-6 py-3.5 text-sm transition-colors whitespace-nowrap shrink-0">
+              Explore BirrBank® →
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+            {[
+              { value: '220+', label: 'Institutions' },
+              { value: 'Live', label: 'FX Rates' },
+              { value: 'ESX', label: 'Markets' },
+              { value: 'ECX', label: 'Commodities' },
+            ].map((s) => (
+              <div key={s.label} className="bg-white border border-green/15 rounded-2xl p-6 text-center">
+                <p className="text-2xl font-bold text-green mb-1" translate="no">{s.value}</p>
+                <p className="text-sm font-semibold text-ink">{s.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ══ BROWSE THE PLATFORM */}
       <section className="bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">

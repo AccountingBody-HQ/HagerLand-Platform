@@ -9,12 +9,24 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.115.0",
+    "@sanity/client": "^7.25.0",
+    "@sanity/image-url": "^2.1.1",
     "@supabase/supabase-js": "^2.110.2",
+    "@tailwindcss/typography": "^0.5.20",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.27.0",
     "next": "14.2.35",
+    "next-sanity": "^9.12.3",
     "otplib": "^12.0.1",
     "react": "^18",
     "react-dom": "^18",
-    "resend": "^6.17.2"
+    "react-markdown": "^10.1.0",
+    "recharts": "^3.10.1",
+    "resend": "^6.17.2",
+    "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
     "@types/node": "^20",
