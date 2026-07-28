@@ -14,3 +14,40 @@ body { top: 0 !important; }
 .goog-te-banner-frame.skiptranslate { display: none !important; }
 html { overflow-x: hidden !important; }
 body { overflow-x: hidden !important; }
+
+/* BirrBank — hero button pair, used across all six pillar pages */
+.hero-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 14px 32px;
+  border-radius: 9999px;
+  min-width: 220px;
+  white-space: nowrap;
+  transition: all 0.2s;
+  text-align: center;
+}
+.hero-btn-primary {
+  background: #1D4ED8;
+  color: #fff;
+}
+.hero-btn-primary:hover {
+  background: #1e40af;
+}
+.hero-btn-secondary {
+  border: 1.5px solid rgba(255,255,255,0.2);
+  color: #fff;
+}
+.hero-btn-secondary:hover {
+  border-color: rgba(255,255,255,0.4);
+}
+
+@keyframes birrbankSlideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.dropdown-slide {
+  animation: birrbankSlideDown 0.18s ease forwards;
+}
