@@ -151,13 +151,13 @@ export default async function MicrofinancePage() {
               style={{ fontSize:'clamp(22px, 2.5vw, 30px)', color:'#ffffff', letterSpacing:'-0.5px' }}>
               Every MFI verified against the NBE registry.
             </h3>
-            <p style={{ color:'#5B6472', fontSize:'15px', lineHeight:1.75, maxWidth:480 }}>
+            <p style={{ color: 'rgba(255,255,255,0.65)', fontSize:'15px', lineHeight:1.75, maxWidth:480 }}>
               BirrBank only lists microfinance institutions holding a valid licence from the National Bank of Ethiopia. No unlicensed lenders appear on this platform.
             </p>
           </div>
           <Link href="/birrbank/institutions?type=microfinance"
             className="font-bold rounded-full transition-all shrink-0"
-            style={{ fontSize:14, padding:'14px 28px', background:'#1C7C4C', color:'#fff', whiteSpace:'nowrap' }}>
+            style={{ fontSize:14, padding:'14px 28px', background: '#ffffff', color: '#1C7C4C', whiteSpace:'nowrap' }}>
             View all MFI profiles
           </Link>
         </div>

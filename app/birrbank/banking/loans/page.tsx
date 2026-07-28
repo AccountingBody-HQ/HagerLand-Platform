@@ -212,13 +212,13 @@ export default async function LoansPage() {
               style={{ fontSize:'clamp(22px, 2.5vw, 30px)', color:'#ffffff', letterSpacing:'-0.5px' }}>
               Every rate has a verified date. Always.
             </h3>
-            <p style={{ color:'#5B6472', fontSize:'15px', lineHeight:1.75, maxWidth:480 }}>
+            <p style={{ color: 'rgba(255,255,255,0.65)', fontSize:'15px', lineHeight:1.75, maxWidth:480 }}>
               Loan rates are sourced from official bank websites and verified weekly. Any rate older than 7 days is flagged automatically.
             </p>
           </div>
           <Link href="/birrbank/banking/savings-rates"
             className="font-bold rounded-full shrink-0"
-            style={{ fontSize:14, padding:'14px 28px', background:'#1C7C4C', color:'#fff', whiteSpace:'nowrap' }}>
+            style={{ fontSize:14, padding:'14px 28px', background: '#ffffff', color: '#1C7C4C', whiteSpace:'nowrap' }}>
             Compare savings rates
           </Link>
         </div>

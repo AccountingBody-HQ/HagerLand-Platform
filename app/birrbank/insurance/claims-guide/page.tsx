@@ -124,12 +124,12 @@ export default function ClaimsGuidePage() {
             <h3 className="font-bold mb-2" style={{ fontSize:'clamp(22px, 2.5vw, 30px)', color:'#ffffff', letterSpacing:'-0.5px' }}>
               Already have a claim? Compare your next policy.
             </h3>
-            <p style={{ color:'#5B6472', fontSize:'15px', lineHeight:1.75, maxWidth:480 }}>
+            <p style={{ color: 'rgba(255,255,255,0.65)', fontSize:'15px', lineHeight:1.75, maxWidth:480 }}>
               BirrBank compares premiums across all NBE-licensed insurers — free, with no broker involved.
             </p>
           </div>
           <Link href="/birrbank/insurance" className="font-bold rounded-full shrink-0"
-            style={{ fontSize:14, padding:'14px 28px', background:'#1C7C4C', color:'#fff', whiteSpace:'nowrap' }}>
+            style={{ fontSize:14, padding:'14px 28px', background: '#ffffff', color: '#1C7C4C', whiteSpace:'nowrap' }}>
             Compare all insurance
           </Link>
         </div>

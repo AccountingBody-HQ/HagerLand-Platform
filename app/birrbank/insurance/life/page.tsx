@@ -161,12 +161,12 @@ export default async function LifeInsurancePage() {
             <h3 className="font-bold mb-2" style={{ fontSize:'clamp(22px, 2.5vw, 30px)', color:'#ffffff', letterSpacing:'-0.5px' }}>
               Every insurer verified against the NBE registry.
             </h3>
-            <p style={{ color:'#5B6472', fontSize:'15px', lineHeight:1.75, maxWidth:480 }}>
+            <p style={{ color: 'rgba(255,255,255,0.65)', fontSize:'15px', lineHeight:1.75, maxWidth:480 }}>
               BirrBank only lists insurers holding a valid NBE licence. Premium data is sourced from official insurer websites.
             </p>
           </div>
           <Link href="/birrbank/insurance" className="font-bold rounded-full shrink-0"
-            style={{ fontSize:14, padding:'14px 28px', background:'#1C7C4C', color:'#fff', whiteSpace:'nowrap' }}>
+            style={{ fontSize:14, padding:'14px 28px', background: '#ffffff', color: '#1C7C4C', whiteSpace:'nowrap' }}>
             All insurance types
           </Link>
         </div>

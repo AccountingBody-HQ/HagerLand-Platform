@@ -203,12 +203,12 @@ export default async function TravelInsurancePage() {
               style={{ fontSize: 'clamp(20px, 2.5vw, 28px)', color: '#ffffff', letterSpacing: '-0.5px' }}>
               Only NBE-licensed insurers. No unverified operators.
             </h3>
-            <p style={{ color: '#5B6472', fontSize: '15px', lineHeight: 1.75, maxWidth: 480 }}>
+            <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '15px', lineHeight: 1.75, maxWidth: 480 }}>
               Every insurer on BirrBank is verified against the NBE registry. BirrBank earns nothing from the insurers it compares.
             </p>
           </div>
           <Link href="/birrbank/institutions?type=insurer" className="font-bold rounded-full transition-all shrink-0"
-            style={{ fontSize: 14, padding: '14px 28px', background: '#1C7C4C', color: '#fff', whiteSpace: 'nowrap' }}>
+            style={{ fontSize: 14, padding: '14px 28px', background: '#ffffff', color: '#1C7C4C', whiteSpace: 'nowrap' }}>
             View all insurers
           </Link>
         </div>

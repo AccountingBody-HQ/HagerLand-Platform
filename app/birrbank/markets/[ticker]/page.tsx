@@ -282,19 +282,19 @@ export default async function TickerPage({ params }: { params: { ticker: string 
               style={{ fontSize: 'clamp(20px, 2.5vw, 28px)', color: '#ffffff', letterSpacing: '-0.5px' }}>
               Track all ESX-listed securities on BirrBank.
             </h3>
-            <p style={{ color: '#5B6472', fontSize: '14px', lineHeight: 1.75, maxWidth: 440 }}>
+            <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '14px', lineHeight: 1.75, maxWidth: 440 }}>
               The Ethiopian Securities Exchange launched in 2025. BirrBank covers every listed equity, IPO pipeline and government debt instrument.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 shrink-0">
             <Link href="/birrbank/markets/equities"
               className="font-bold rounded-full text-center transition-all"
-              style={{ fontSize: 14, padding: '14px 28px', background: '#1C7C4C', color: '#fff' }}>
+              style={{ fontSize: 14, padding: '14px 28px', background: '#ffffff', color: '#1C7C4C' }}>
               All ESX equities
             </Link>
             <Link href="/birrbank/markets/ipo-pipeline"
               className="font-bold rounded-full text-center transition-all"
-              style={{ fontSize: 14, padding: '14px 28px', border: '1.5px solid #152238', color: '#5B6472' }}>
+              style={{ fontSize: 14, padding: '14px 28px', border: '1.5px solid rgba(255,255,255,0.3)', color: '#ffffff' }}>
               IPO pipeline
             </Link>
           </div>

@@ -163,7 +163,7 @@ export default async function SavingsRatesPage() {
               style={{ fontSize: 'clamp(22px, 2.5vw, 30px)', color: '#ffffff', letterSpacing: '-0.5px' }}>
               Every rate has a verified date. Always.
             </h3>
-            <p style={{ color: '#5B6472', fontSize: '15px', lineHeight: 1.75, maxWidth: 480 }}>
+            <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '15px', lineHeight: 1.75, maxWidth: 480 }}>
               Any rate older than 7 days is automatically flagged. You see exactly how fresh the data is before making any comparison decision.
             </p>
           </div>
@@ -176,7 +176,7 @@ export default async function SavingsRatesPage() {
               <div key={s.label} className="flex items-center gap-3 rounded-xl"
                 style={{ background:'#155F3A', border:'1px solid #152238', padding:'14px 20px' }}>
                 <span className="w-2 h-2 rounded-full shrink-0" style={{ background: s.color }} />
-                <span className="text-sm font-semibold" style={{ color:'#5B6472' }}>
+                <span className="text-sm font-semibold" style={{ color: 'rgba(255,255,255,0.65)' }}>
                   {s.label} — <span style={{ color: s.color }}>{s.status}</span>
                 </span>
               </div>

@@ -241,13 +241,13 @@ export default async function MoneyTransferPage() {
               style={{ fontSize:'clamp(22px, 2.5vw, 30px)', color:'#ffffff', letterSpacing:'-0.5px' }}>
               Fee data sourced directly from official service websites.
             </h3>
-            <p style={{ color:'#5B6472', fontSize:'15px', lineHeight:1.75, maxWidth:480 }}>
+            <p style={{ color: 'rgba(255,255,255,0.65)', fontSize:'15px', lineHeight:1.75, maxWidth:480 }}>
               BirrBank does not receive referral fees from any money transfer operator. Every ranking is based solely on the fee percentage and exchange rate margin.
             </p>
           </div>
           <Link href="/birrbank/diaspora/remittance"
             className="font-bold rounded-full transition-all shrink-0"
-            style={{ fontSize:14, padding:'14px 28px', background:'#1C7C4C', color:'#fff', whiteSpace:'nowrap' }}>
+            style={{ fontSize:14, padding:'14px 28px', background: '#ffffff', color: '#1C7C4C', whiteSpace:'nowrap' }}>
             Full diaspora hub
           </Link>
         </div>

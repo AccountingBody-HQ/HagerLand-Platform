@@ -97,13 +97,13 @@ export default async function InstitutionsPage() {
               style={{ fontSize: 'clamp(20px, 2.5vw, 28px)', color: '#ffffff', letterSpacing: '-0.5px' }}>
               Every institution verified against the NBE registry.
             </h3>
-            <p style={{ color: '#5B6472', fontSize: '15px', lineHeight: 1.75, maxWidth: 520 }}>
+            <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '15px', lineHeight: 1.75, maxWidth: 520 }}>
               If it is not licensed by the National Bank of Ethiopia, it does not appear on BirrBank. No grey-market operators. No unverified listings.
             </p>
           </div>
           <Link href="/birrbank/banking/savings-rates"
             className="font-bold rounded-full transition-all shrink-0"
-            style={{ fontSize: 14, padding: '14px 28px', background: '#1C7C4C', color: '#fff', whiteSpace: 'nowrap' }}>
+            style={{ fontSize: 14, padding: '14px 28px', background: '#ffffff', color: '#1C7C4C', whiteSpace: 'nowrap' }}>
             Compare savings rates
           </Link>
         </div>
