@@ -16,10 +16,6 @@ const SECTIONS = [
     icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M8 3v18M16 3v18M2 9h20M2 15h20"/></svg>` },
   { href: '/jobs', label: 'Jobs', description: 'Employment and opportunities within the community', table: 'jobs',
     icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>` },
-  { href: '/housing', label: 'Housing', description: 'Rooms, rentals, and properties', table: 'housing',
-    icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>` },
-  { href: '/money', label: 'Money', description: 'Transfers, exchange, and financial services', table: 'money',
-    icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>` },
   { href: '/cars', label: 'Cars & taxi', description: 'Buy, sell, or find a trusted driver', table: 'cars',
     icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="1" y="8" width="22" height="10" rx="2"/><path d="M5 8l2-4h10l2 4"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>` },
   { href: '/tutors', label: 'Tutors', description: 'Expert teaching and mentoring', table: 'tutors',
@@ -60,7 +56,7 @@ export default async function DiasporaPage() {
             <p className="text-white/65 text-lg sm:text-xl max-w-xl mb-10 leading-relaxed">Businesses, jobs, housing, money, cars, tutors, and delivery — verified listings for Ethiopians and Eritreans wherever in the world you are.</p>
             <div className="flex flex-wrap items-center gap-x-8 gap-y-4 mb-10">
               <div className="flex items-baseline gap-2"><span className="text-2xl font-bold text-white" translate="no">{totalListings.toLocaleString()}</span><span className="text-white/40 text-sm">listings</span></div>
-              <div className="flex items-baseline gap-2"><span className="text-2xl font-bold text-white" translate="no">7</span><span className="text-white/40 text-sm">sections</span></div>
+              <div className="flex items-baseline gap-2"><span className="text-2xl font-bold text-white" translate="no">{SECTIONS.length}</span><span className="text-white/40 text-sm">sections</span></div>
               <div className="flex items-baseline gap-2"><span className="text-2xl font-bold text-white" translate="no">Free</span><span className="text-white/40 text-sm">to list</span></div>
             </div>
             <div className="max-w-xl">
