@@ -158,13 +158,12 @@ export default async function InstitutionPage({ params }: { params: { slug: stri
               </div>
             </div>
             {/* At a glance card */}
-            <div className="hidden lg:block shrink-0 w-72 rounded-2xl overflow-hidden"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <div className="hidden lg:block shrink-0 w-72 rounded-2xl overflow-hidden bg-white/10 border border-white/20">
               <div style={{ height: 4, background: 'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
-              <div className="px-5 py-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
-                <p className="text-xs font-black uppercase tracking-widest" style={{ color: '#5B6472' }}>At a glance</p>
+              <div className="px-5 py-4 border-b border-white/20">
+                <p className="text-white font-semibold text-sm uppercase tracking-widest">At a glance</p>
               </div>
-              <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+              <div className="divide-y divide-white/20">
                 {[
                   { label: 'Type', value: typeLabel },
                   { label: 'Licence date', value: fmtDate(inst.nbe_licence_date) },
@@ -172,16 +171,15 @@ export default async function InstitutionPage({ params }: { params: { slug: stri
                   { label: 'Coverage', value: inst.coverage_level === 'full' ? 'Verified' : inst.coverage_level === 'standard' ? 'Standard' : 'Profiled' },
                 ].map(row => (
                   <div key={row.label} className="flex items-center justify-between px-5 py-3">
-                    <span className="text-xs" style={{ color: '#5B6472' }}>{row.label}</span>
-                    <span className="text-sm font-bold text-white font-mono">{row.value}</span>
+                    <span className="text-white/60 text-xs font-medium uppercase tracking-wide">{row.label}</span>
+                    <span className="text-white font-semibold text-sm font-mono">{row.value}</span>
                   </div>
                 ))}
               </div>
               {inst.website_url && (
-                <div className="px-5 py-4 border-t" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+                <div className="px-5 py-4 border-t border-white/20">
                   <a href={inst.website_url} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full font-bold rounded-xl text-xs transition-all"
-                    style={{ background: '#1C7C4C', color: '#fff', padding: '10px 16px' }}>
+                    className="flex items-center justify-center gap-2 w-full font-bold rounded-xl text-xs transition-all py-2.5 px-4 bg-white/15 hover:bg-white/25 text-white border border-white/20">
                     <Globe size={13} /> Visit website
                   </a>
                 </div>
