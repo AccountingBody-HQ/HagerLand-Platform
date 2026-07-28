@@ -5,6 +5,7 @@ import { SiteFooter } from '@/components/SiteFooter'
 import { SearchBox } from '@/components/SearchBox'
 
 export const revalidate = 60
+export const dynamic = 'force-dynamic'
 
 export const metadata = {
   title: 'Diaspora Businesses | HagerLand',
@@ -39,6 +40,9 @@ export default async function DiasporaPage() {
     cars: c.count ?? 0, tutors: t.count ?? 0, money: m.count ?? 0, delivery: d.count ?? 0,
   }
   const totalListings = Object.values(counts).reduce((a, b) => a + b, 0)
+  const { data: featuredBusinesses } = await supabase
+    .from('companies').select('id, company_name, sic_description, trading_address_city, is_verified, phone')
+    .eq('status', 'active').eq('is_featured', true).limit(4)
 
   return (
     <main className="min-h-screen bg-bg flex flex-col">
@@ -65,6 +69,70 @@ export default async function DiasporaPage() {
           </div>
         </div>
       </section>
+
+      {/* ══ FEATURED */}
+      {featuredBusinesses && featuredBusinesses.length > 0 && (
+        <section className="bg-green-soft">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
+            <div className="flex items-end justify-between mb-10">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-widest text-gold mb-3">Featured</p>
+                <h2 className="text-2xl sm:text-3xl font-bold text-ink">Spotlight on the community</h2>
+              </div>
+              <Link href="/business" className="hidden sm:flex items-center gap-1.5 text-sm font-semibold text-ink hover:text-green transition-colors">
+                View all
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </Link>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {featuredBusinesses.map((business) => (
+                <Link key={business.id} href={`/business/${business.id}`}
+                  className="group relative bg-white border border-border rounded-[20px] p-6 flex flex-col min-h-[340px] overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-1.5 hover:border-green transition-all duration-300 ease-out">
+                  <div className="absolute top-0 left-0 right-0 h-1" style={{background: 'linear-gradient(90deg, #155F3A, #26996a, #B8862E)'}} />
+                  <span className="absolute top-5 right-5 inline-flex items-center gap-1 bg-gold-soft text-gold text-[9px] font-extrabold tracking-wide px-2.5 py-1 rounded-full">★ FEATURED</span>
+                  <div className="w-13 h-13 rounded-[14px] bg-green-soft flex items-center justify-center text-green mb-6" style={{width: '56px', height: '56px'}}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l1-5h16l1 5M4 9v11a1 1 0 001 1h14a1 1 0 001-1V9M9 21v-6h6v6"/></svg>
+                  </div>
+                  <p className="font-extrabold text-ink text-[15px] leading-snug mb-4 pr-16 flex items-start gap-1.5 group-hover:text-green transition-colors">
+                    {business.company_name}
+                    {business.is_verified && (
+                      <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-gold shrink-0 mt-0.5">
+                        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="4"><polyline points="20 6 9 17 4 12"/></svg>
+                      </span>
+                    )}
+                  </p>
+                  <div className="flex flex-col gap-2 mb-4">
+                    {business.sic_description && (
+                      <span className="flex items-center gap-2 text-xs text-muted">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        <span className="truncate">{business.sic_description}</span>
+                      </span>
+                    )}
+                    {business.trading_address_city && (
+                      <span className="flex items-center gap-2 text-xs text-muted">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        <span className="truncate">{business.trading_address_city}</span>
+                      </span>
+                    )}
+                    {business.phone && (
+                      <span className="flex items-center gap-2 text-xs text-muted">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.36 1.9.68 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.9.32 1.85.55 2.81.68A2 2 0 0122 16.92z"/></svg>
+                        <span className="truncate">{business.phone}</span>
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-auto flex items-center justify-between pt-4 border-t border-border/60">
+                    <span className="text-[13px] font-extrabold text-green">View listing</span>
+                    <span className="w-7 h-7 rounded-full bg-green-soft flex items-center justify-center transition-all duration-300 group-hover:bg-green">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-green group-hover:text-white transition-colors"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* SECTION CARDS */}
       <section className="bg-white flex-1">
