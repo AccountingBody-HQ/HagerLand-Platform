@@ -78,7 +78,7 @@ export default async function DiasporaPage() {
               List your business →
             </Link>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {SECTIONS.map((section) => (
               <Link key={section.href} href={section.href}
                 className="group bg-white border border-border rounded-2xl p-6 hover:border-green/50 hover:shadow-lg transition-all duration-200 flex flex-col">
