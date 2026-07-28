@@ -81,18 +81,19 @@ export default async function MarketsPage() {
     <main className="bg-white flex-1">
 
       {/* DARK HERO */}
-      <section className="relative overflow-hidden" style={{ background:'#1C7C4C' }}>
-        <div className="absolute inset-0 pointer-events-none" style={{ background:'radial-gradient(ellipse at 60% 0%, rgba(29,78,216,0.18) 0%, transparent 60%), radial-gradient(ellipse at 0% 100%, rgba(14,30,80,0.4) 0%, transparent 50%)' }} />
+      <section className="relative overflow-hidden bg-green">
+        <div className="absolute inset-0 opacity-[0.07]" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px'}} />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] opacity-10 pointer-events-none" style={{background: 'radial-gradient(circle at top right, #fff 0%, transparent 60%)'}} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-0">
           <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold mb-6"
-            style={{ background:'rgba(29,78,216,0.15)', color:'#ffffff', border:'1px solid rgba(29,78,216,0.3)' }}>
+            style={{ background: 'rgba(255,255,255,0.15)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.3)' }}>
             Markets Pillar
           </div>
           <h1 className="font-bold text-white mb-4"
             style={{ fontSize:'clamp(38px, 4.5vw, 56px)', letterSpacing:'-0.025em', lineHeight:1.08 }}>
             Ethiopia capital markets, tracked.
           </h1>
-          <p className="text-slate-400 mb-8" style={{ fontSize:'16px', lineHeight:1.8, maxWidth:'520px' }}>
+          <p className="text-white/65 mb-8" style={{ fontSize:'16px', lineHeight:1.8, maxWidth:'520px' }}>
             ESX-listed equities, the full IPO pipeline and Treasury bill yields — the complete intelligence layer for Ethiopian capital markets.
           </p>
           <div className="flex flex-wrap gap-3 mb-10">
@@ -103,15 +104,15 @@ export default async function MarketsPage() {
               IPO pipeline
             </Link>
           </div>
-          <div className="grid grid-cols-3 mt-2 pt-8 border-t border-slate-800">
+          <div className="grid grid-cols-3 mt-2 pt-8 border-t border-white/20">
             {[
               { value:String(securities.length), label:'ESX-listed companies' },
               { value:String(ipoCount)+'+', label:'IPOs tracked' },
               { value:bestTbillYield, label:'Best T-bill yield' },
             ].map(s => (
-              <div key={s.label} className="text-center py-6 border-r border-slate-800 last:border-r-0">
+              <div key={s.label} className="text-center py-6 border-r border-white/20 last:border-r-0">
                 <div className="font-mono font-black text-white mb-1" style={{ fontSize:'clamp(22px, 3vw, 36px)', letterSpacing:'-1px' }}>{s.value}</div>
-                <div className="text-xs font-semibold text-slate-500">{s.label}</div>
+                <div className="text-xs font-semibold text-white/40">{s.label}</div>
               </div>
             ))}
           </div>
@@ -129,7 +130,7 @@ export default async function MarketsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {SUB_PAGES.map(cat => (
               <Link key={cat.label} href={cat.href}
-                className="group bg-white rounded-2xl border border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all duration-200 flex flex-col overflow-hidden">
+                className="group bg-white rounded-2xl border border-slate-200 hover:border-green/40 hover:shadow-lg transition-all duration-200 flex flex-col overflow-hidden">
                 <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                 <div className="flex flex-col flex-1 p-7">
                   <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-6"
@@ -158,8 +159,8 @@ export default async function MarketsPage() {
               Currently trading on the ESX
             </h2>
             <div className="flex items-center gap-2 shrink-0">
-              <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-              <span className="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-100 rounded-full px-3 py-1.5">
+              <span className="w-2 h-2 bg-green rounded-full animate-pulse" />
+              <span className="text-xs font-bold text-green-dark bg-green-soft border border-green/20 rounded-full px-3 py-1.5">
                 End-of-day · {today}
               </span>
             </div>
@@ -288,7 +289,7 @@ export default async function MarketsPage() {
           {tbills.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {tbills.map((t) => (
-                <div key={t.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-blue-300 hover:shadow-md transition-all">
+                <div key={t.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-green/40 hover:shadow-md transition-all">
                   <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                   <div style={{ padding:'24px' }}>
                     <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color:'#1C7C4C' }}>

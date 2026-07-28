@@ -53,18 +53,19 @@ export default async function CommoditiesPage() {
 
   return (
     <main className="bg-white flex-1">
-      <section className="relative overflow-hidden" style={{ background:'#1C7C4C' }}>
-        <div className="absolute inset-0 pointer-events-none" style={{ background:'radial-gradient(ellipse at 60% 0%, rgba(29,78,216,0.18) 0%, transparent 60%), radial-gradient(ellipse at 0% 100%, rgba(14,30,80,0.4) 0%, transparent 50%)' }} />
+      <section className="relative overflow-hidden bg-green">
+        <div className="absolute inset-0 opacity-[0.07]" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px'}} />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] opacity-10 pointer-events-none" style={{background: 'radial-gradient(circle at top right, #fff 0%, transparent 60%)'}} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-0">
           <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold mb-6"
-            style={{ background:'rgba(29,78,216,0.15)', color:'#ffffff', border:'1px solid rgba(29,78,216,0.3)' }}>
+            style={{ background: 'rgba(255,255,255,0.15)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.3)' }}>
             Commodities Pillar
           </div>
           <h1 className="font-bold text-white mb-4"
             style={{ fontSize:'clamp(38px, 4.5vw, 56px)', letterSpacing:'-0.025em', lineHeight:1.08 }}>
             ECX commodity prices — coffee, sesame, grains.
           </h1>
-          <p className="text-slate-400 mb-8" style={{ fontSize:'16px', lineHeight:1.8, maxWidth:'520px' }}>
+          <p className="text-white/65 mb-8" style={{ fontSize:'16px', lineHeight:1.8, maxWidth:'520px' }}>
             Daily prices from the Ethiopian Commodity Exchange across all grades and origins. The only financial platform integrating commodity data with banking and investment intelligence.
           </p>
           <div className="flex flex-wrap gap-3 mb-10">
@@ -75,15 +76,15 @@ export default async function CommoditiesPage() {
               Sesame prices
             </Link>
           </div>
-          <div className="grid grid-cols-3 mt-2 pt-8 border-t border-slate-800">
+          <div className="grid grid-cols-3 mt-2 pt-8 border-t border-white/20">
             {[
               { value:'Daily', label:'ECX price updates' },
               { value:'5th', label:'Ethiopia globally for coffee' },
               { value:String(totalCodes), label:'Codes tracked today' },
             ].map(s => (
-              <div key={s.label} className="text-center py-6 border-r border-slate-800 last:border-r-0">
+              <div key={s.label} className="text-center py-6 border-r border-white/20 last:border-r-0">
                 <div className="font-mono font-black text-white mb-1" style={{ fontSize:'clamp(22px, 3vw, 36px)', letterSpacing:'-1px' }}>{s.value}</div>
-                <div className="text-xs font-semibold text-slate-500">{s.label}</div>
+                <div className="text-xs font-semibold text-white/40">{s.label}</div>
               </div>
             ))}
           </div>
@@ -100,7 +101,7 @@ export default async function CommoditiesPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {SUB_CATEGORIES.map(cat => (
               <Link key={cat.label} href={cat.href}
-                className="group bg-white rounded-2xl border border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all duration-200 flex flex-col overflow-hidden">
+                className="group bg-white rounded-2xl border border-slate-200 hover:border-green/40 hover:shadow-lg transition-all duration-200 flex flex-col overflow-hidden">
                 <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                 <div className="flex flex-col flex-1 p-7">
                   <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-6"
@@ -128,7 +129,7 @@ export default async function CommoditiesPage() {
               Coffee grade prices today
             </h2>
             <div className="flex items-center gap-3 shrink-0">
-              <span className="w-2 h-2 rounded-full animate-pulse bg-blue-500" />
+              <span className="w-2 h-2 rounded-full animate-pulse bg-green" />
               <span className="text-xs font-bold rounded-full px-3 py-1.5 border" style={{ color:'#166534', background:'#dcfce7', borderColor:'#bbf7d0' }}>
                 ECX · {displayDate}
               </span>
@@ -195,7 +196,7 @@ export default async function CommoditiesPage() {
               Other ECX commodities today
             </h2>
             <div className="flex items-center gap-2 shrink-0">
-              <span className="w-2 h-2 rounded-full animate-pulse bg-blue-500" />
+              <span className="w-2 h-2 rounded-full animate-pulse bg-green" />
               <span className="text-xs font-bold rounded-full px-3 py-1.5 border" style={{ color:'#166534', background:'#dcfce7', borderColor:'#bbf7d0' }}>
                 ECX · {displayDate}
               </span>
@@ -206,7 +207,7 @@ export default async function CommoditiesPage() {
               {others.map((c) => {
                 const changePos = Number(c.price_change ?? 0) >= 0
                 return (
-                  <div key={c.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-blue-300 hover:shadow-md transition-all">
+                  <div key={c.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-green/40 hover:shadow-md transition-all">
                     <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                     <div style={{ padding:'24px' }}>
                       <div className="flex items-center justify-between mb-3">
@@ -216,7 +217,7 @@ export default async function CommoditiesPage() {
                       <p className="font-bold text-slate-800 mb-3" style={{ fontSize:'14px' }}>{c.commodity_name}</p>
                       <p className="font-mono font-black text-slate-950 mb-1" style={{ fontSize:'24px', letterSpacing:'-0.5px', lineHeight:1 }}>{fmt(c.price_etb)}</p>
                       <p className="text-xs text-slate-400 mb-3">ETB per kg</p>
-                      <div className={'inline-flex items-center gap-1 text-xs font-bold rounded-full px-2 py-1 ' + (changePos ? 'text-blue-700 bg-blue-50' : 'text-red-600 bg-red-50')}>
+                      <div className={'inline-flex items-center gap-1 text-xs font-bold rounded-full px-2 py-1 ' + (changePos ? 'text-green-dark bg-green-soft' : 'text-red-600 bg-red-50')}>
                         {changePos ? '+' : ''}{fmt(c.price_change)} ({changePos ? '+' : ''}{Number(c.price_change_pct ?? 0).toFixed(2)}%)
                       </div>
                     </div>

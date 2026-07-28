@@ -63,18 +63,19 @@ export default async function MoneyTransferPage() {
     <main className="bg-white flex-1">
 
       {/* DARK HERO */}
-      <section className="relative overflow-hidden" style={{ background:'#1C7C4C' }}>
-        <div className="absolute inset-0 pointer-events-none" style={{ background:'radial-gradient(ellipse at 60% 0%, rgba(29,78,216,0.18) 0%, transparent 60%), radial-gradient(ellipse at 0% 100%, rgba(14,30,80,0.4) 0%, transparent 50%)' }} />
+      <section className="relative overflow-hidden bg-green">
+        <div className="absolute inset-0 opacity-[0.07]" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px'}} />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] opacity-10 pointer-events-none" style={{background: 'radial-gradient(circle at top right, #fff 0%, transparent 60%)'}} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-0">
           <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold mb-6"
-            style={{ background:'rgba(29,78,216,0.15)', color:'#ffffff', border:'1px solid rgba(29,78,216,0.3)' }}>
+            style={{ background: 'rgba(255,255,255,0.15)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.3)' }}>
             Banking — Money Transfer
           </div>
           <h1 className="font-bold text-white mb-4"
             style={{ fontSize:'clamp(38px, 4.5vw, 56px)', letterSpacing:'-0.025em', lineHeight:1.08 }}>
             Send money to Ethiopia — cheapest remittance routes compared.
           </h1>
-          <p className="text-slate-400 mb-8" style={{ fontSize:'16px', lineHeight:1.8, maxWidth:'520px' }}>
+          <p className="text-white/65 mb-8" style={{ fontSize:'16px', lineHeight:1.8, maxWidth:'520px' }}>
             Compare fees, exchange rates and transfer speeds from Western Union, MoneyGram, Wise, Dahabshiil and direct bank transfers across all major diaspora corridors.
           </p>
           <div className="flex flex-wrap gap-3 mb-10">
@@ -87,15 +88,15 @@ export default async function MoneyTransferPage() {
               Diaspora hub
             </Link>
           </div>
-          <div className="grid grid-cols-3 mt-2 pt-8 border-t border-slate-800">
+          <div className="grid grid-cols-3 mt-2 pt-8 border-t border-white/20">
             {[
               { value:String(transfers.length || agencyCount), label:'Transfer services tracked' },
               { value:String(agencyCount), label:'Registered agencies' },
               { value:'NBE', label:'Regulatory authority' },
             ].map(s => (
-              <div key={s.label} className="text-center py-6 border-r border-slate-800 last:border-r-0">
+              <div key={s.label} className="text-center py-6 border-r border-white/20 last:border-r-0">
                 <div className="font-mono font-black text-white mb-1" style={{ fontSize:'clamp(22px, 3vw, 36px)', letterSpacing:'-1px' }}>{s.value}</div>
-                <div className="text-xs font-semibold text-slate-500">{s.label}</div>
+                <div className="text-xs font-semibold text-white/40">{s.label}</div>
               </div>
             ))}
           </div>
@@ -119,11 +120,11 @@ export default async function MoneyTransferPage() {
               ))}
             </div>
             {transfers.length > 0 ? transfers.map((t, i) => (
-              <div key={t.id} className={'border-b border-slate-100 transition-colors ' + (i===0 ? 'bg-blue-50' : 'bg-white hover:bg-slate-50')}>
+              <div key={t.id} className={'border-b border-slate-100 transition-colors ' + (i===0 ? 'bg-green-soft' : 'bg-white hover:bg-slate-50')}>
                 <div className="hidden sm:grid items-start"
                   style={{ gridTemplateColumns:'1fr 110px 130px 110px 130px 110px', padding:i===0?'18px 24px':'14px 24px' }}>
                   <div>
-                    <Link href={`/birrbank/institutions/${t.institution_slug}`} className={'font-bold hover:underline ' + (i===0 ? 'text-blue-900' : 'text-slate-800')} style={{ fontSize:i===0?'15px':'14px' }}>
+                    <Link href={`/birrbank/institutions/${t.institution_slug}`} className={'font-bold hover:underline ' + (i===0 ? 'text-green-dark' : 'text-slate-800')} style={{ fontSize:i===0?'15px':'14px' }}>
                       {t.institutions?.[0]?.name ?? t.institution_slug}
                     </Link>
                     {t.notes && <p className="text-xs text-slate-400 mt-0.5">{t.notes}</p>}
@@ -136,7 +137,7 @@ export default async function MoneyTransferPage() {
                       </div>
                     )}
                   </div>
-                  <p className={'font-mono font-black ' + (i===0 ? 'text-blue-700' : 'text-slate-800')} style={{ fontSize:i===0?'22px':'16px', letterSpacing:'-0.5px' }}>
+                  <p className={'font-mono font-black ' + (i===0 ? 'text-green-dark' : 'text-slate-800')} style={{ fontSize:i===0?'22px':'16px', letterSpacing:'-0.5px' }}>
                     {t.fee_percentage ? Number(t.fee_percentage).toFixed(2)+'%' : '—'}
                   </p>
                   <p className="font-mono text-slate-600 text-sm">{fmtETB(t.min_amount_etb)}</p>
@@ -218,7 +219,7 @@ export default async function MoneyTransferPage() {
               { step:'02', title:'Processing speed vs cost tradeoff', body:'Instant transfers cost more. Bank SWIFT transfers take 24-48 hours but are cheaper for large amounts. Wise offers near-mid-market rates with 24-hour delivery. Match the service to your urgency.' },
               { step:'03', title:'Corridor differences matter', body:'Fees and rates vary significantly by sending country. The US-to-Ethiopia corridor is highly competitive. The UK and Scandinavia corridors are best served by Dahabshiil. Gulf corridors favour Western Union and MoneyGram.' },
             ].map(s => (
-              <div key={s.step} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-blue-300 hover:shadow-lg transition-all">
+              <div key={s.step} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-green/40 hover:shadow-lg transition-all">
                 <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                 <div style={{ padding:'28px 24px' }}>
                   <p className="font-mono font-black mb-3" style={{ fontSize:'32px', color:'#E4E6E3', lineHeight:1 }}>{s.step}</p>

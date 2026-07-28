@@ -33,18 +33,19 @@ export default async function MobileMoneyPage() {
     <main className="bg-white flex-1">
 
       {/* DARK HERO */}
-      <section className="relative overflow-hidden" style={{ background:'#1C7C4C' }}>
-        <div className="absolute inset-0 pointer-events-none" style={{ background:'radial-gradient(ellipse at 60% 0%, rgba(29,78,216,0.18) 0%, transparent 60%), radial-gradient(ellipse at 0% 100%, rgba(14,30,80,0.4) 0%, transparent 50%)' }} />
+      <section className="relative overflow-hidden bg-green">
+        <div className="absolute inset-0 opacity-[0.07]" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px'}} />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] opacity-10 pointer-events-none" style={{background: 'radial-gradient(circle at top right, #fff 0%, transparent 60%)'}} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-0">
           <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold mb-6"
-            style={{ background:'rgba(29,78,216,0.15)', color:'#ffffff', border:'1px solid rgba(29,78,216,0.3)' }}>
+            style={{ background: 'rgba(255,255,255,0.15)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.3)' }}>
             Banking — Mobile Money
           </div>
           <h1 className="font-bold text-white mb-4"
             style={{ fontSize:'clamp(38px, 4.5vw, 56px)', letterSpacing:'-0.025em', lineHeight:1.08 }}>
             Mobile money in Ethiopia — TeleBirr, CBEBirr, Amole and more.
           </h1>
-          <p className="text-slate-400 mb-8" style={{ fontSize:'16px', lineHeight:1.8, maxWidth:'520px' }}>
+          <p className="text-white/65 mb-8" style={{ fontSize:'16px', lineHeight:1.8, maxWidth:'520px' }}>
             All {operatorCount} NBE-licensed payment operators in Ethiopia — compare mobile money platforms, USSD services and digital payment solutions.
           </p>
           <div className="flex flex-wrap gap-3 mb-10">
@@ -57,15 +58,15 @@ export default async function MobileMoneyPage() {
               View all profiles
             </Link>
           </div>
-          <div className="grid grid-cols-3 mt-2 pt-8 border-t border-slate-800">
+          <div className="grid grid-cols-3 mt-2 pt-8 border-t border-white/20">
             {[
               { value:String(operatorCount), label:'Licensed payment operators' },
               { value:'NBE', label:'Regulatory authority' },
               { value:'2021', label:'First licence issued' },
             ].map(s => (
-              <div key={s.label} className="text-center py-6 border-r border-slate-800 last:border-r-0">
+              <div key={s.label} className="text-center py-6 border-r border-white/20 last:border-r-0">
                 <div className="font-mono font-black text-white mb-1" style={{ fontSize:'clamp(22px, 3vw, 36px)', letterSpacing:'-1px' }}>{s.value}</div>
-                <div className="text-xs font-semibold text-slate-500">{s.label}</div>
+                <div className="text-xs font-semibold text-white/40">{s.label}</div>
               </div>
             ))}
           </div>
@@ -82,7 +83,7 @@ export default async function MobileMoneyPage() {
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {operators.length > 0 ? operators.map((op, i) => (
-              <div key={op.slug} className="relative bg-white rounded-2xl border border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all overflow-hidden">
+              <div key={op.slug} className="relative bg-white rounded-2xl border border-slate-200 hover:border-green/40 hover:shadow-lg transition-all overflow-hidden">
                 <Link href={`/birrbank/institutions/${op.slug}`} className="absolute inset-0 z-0" aria-label={op.name} />
                 <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                 <div style={{ padding:'24px' }}>
@@ -139,7 +140,7 @@ export default async function MobileMoneyPage() {
               { step:'02', title:'Interoperability — the future', body:'The NBE Mobile Money Interoperability Directive requires all operators to enable transfers between platforms. TeleBirr users can send to CBEBirr users and vice versa — making the ecosystem more useful for everyone.' },
               { step:'03', title:'Bank-linked vs standalone wallets', body:'CBEBirr and Amole are bank-linked platforms — directly connected to your bank account. TeleBirr and HelloCash operate as standalone wallets you load with cash. Bank-linked wallets offer higher limits and easier fund management.' },
             ].map(s => (
-              <div key={s.step} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-blue-300 hover:shadow-lg transition-all">
+              <div key={s.step} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-green/40 hover:shadow-lg transition-all">
                 <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                 <div style={{ padding:'28px 24px' }}>
                   <p className="font-mono font-black mb-3" style={{ fontSize:'32px', color:'#E4E6E3', lineHeight:1 }}>{s.step}</p>

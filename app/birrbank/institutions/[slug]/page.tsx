@@ -131,8 +131,9 @@ export default async function InstitutionPage({ params }: { params: { slug: stri
     <main className="bg-white flex-1">
 
       {/* DARK HERO */}
-      <section className="relative overflow-hidden" style={{ background: '#1C7C4C' }}>
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 60% 0%, rgba(29,78,216,0.18) 0%, transparent 60%)' }} />
+      <section className="relative overflow-hidden bg-green">
+        <div className="absolute inset-0 opacity-[0.07]" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px'}} />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] opacity-10 pointer-events-none" style={{background: 'radial-gradient(circle at top right, #fff 0%, transparent 60%)'}} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-0">
           <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold mb-5"
             style={{ background: 'rgba(255,255,255,0.15)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.3)' }}>
@@ -145,7 +146,7 @@ export default async function InstitutionPage({ params }: { params: { slug: stri
                 {inst.name}
               </h1>
               {inst.description && (
-                <p className="text-slate-400 mb-6" style={{ fontSize: '15px', lineHeight: 1.8, maxWidth: '540px' }}>{inst.description}</p>
+                <p className="text-white/65 mb-6" style={{ fontSize: '15px', lineHeight: 1.8, maxWidth: '540px' }}>{inst.description}</p>
               )}
               <div className="flex flex-wrap gap-3">
                 <Link href="/birrbank/banking/savings-rates" className="hero-btn hero-btn-primary">
@@ -188,11 +189,11 @@ export default async function InstitutionPage({ params }: { params: { slug: stri
             </div>
           </div>
           {/* Stat bar */}
-          <div className="grid mt-2 pt-8 border-t border-slate-800" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }} >
+          <div className="grid mt-2 pt-8 border-t border-white/20" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }} >
             {heroStats.map(s => (
-              <div key={s.label} className="text-center py-6 border-r border-slate-800 last:border-r-0">
+              <div key={s.label} className="text-center py-6 border-r border-white/20 last:border-r-0">
                 <div className="font-mono font-black text-white mb-1" style={{ fontSize: 'clamp(16px, 2vw, 24px)', letterSpacing: '-0.5px' }}>{s.value}</div>
-                <div className="text-xs font-semibold text-slate-500">{s.label}</div>
+                <div className="text-xs font-semibold text-white/40">{s.label}</div>
               </div>
             ))}
           </div>
@@ -224,9 +225,9 @@ export default async function InstitutionPage({ params }: { params: { slug: stri
                     {/* Mobile: card list */}
                     <div className="sm:hidden divide-y divide-slate-100">
                       {savings.map((s, i) => (
-                        <div key={s.id} className={'flex items-center justify-between px-6 py-4 ' + (i === 0 ? 'bg-blue-50' : '')}>
+                        <div key={s.id} className={'flex items-center justify-between px-6 py-4 ' + (i === 0 ? 'bg-green-soft' : '')}>
                           <div>
-                            <p className={'font-bold text-sm ' + (i === 0 ? 'text-blue-900' : 'text-slate-800')}>{ACCOUNT_TYPE_LABELS[s.account_type] ?? s.account_type}</p>
+                            <p className={'font-bold text-sm ' + (i === 0 ? 'text-green-dark' : 'text-slate-800')}>{ACCOUNT_TYPE_LABELS[s.account_type] ?? s.account_type}</p>
                             {s.is_sharia_compliant && <span className="text-xs font-bold rounded-full px-2 py-0.5 mt-1 inline-block" style={{ background: '#fef3c7', color: '#92400e' }}>Sharia</span>}
                             <p className="text-xs text-slate-400 mt-0.5">Min ETB {fmtMin(s.minimum_balance_etb)}</p>
                           </div>
@@ -246,9 +247,9 @@ export default async function InstitutionPage({ params }: { params: { slug: stri
                         </thead>
                         <tbody className="divide-y divide-slate-100">
                           {savings.map((s, i) => (
-                            <tr key={s.id} className={i === 0 ? 'bg-blue-50' : 'hover:bg-slate-50'}>
+                            <tr key={s.id} className={i === 0 ? 'bg-green-soft' : 'hover:bg-slate-50'}>
                               <td className="px-6 py-4">
-                                <p className={'font-bold text-sm ' + (i === 0 ? 'text-blue-900' : 'text-slate-800')}>{ACCOUNT_TYPE_LABELS[s.account_type] ?? s.account_type}</p>
+                                <p className={'font-bold text-sm ' + (i === 0 ? 'text-green-dark' : 'text-slate-800')}>{ACCOUNT_TYPE_LABELS[s.account_type] ?? s.account_type}</p>
                                 {s.is_sharia_compliant && <span className="text-xs font-bold rounded-full px-2 py-0.5 mt-1 inline-block" style={{ background: '#fef3c7', color: '#92400e' }}>Sharia</span>}
                               </td>
                               <td className="px-6 py-4">
@@ -287,7 +288,7 @@ export default async function InstitutionPage({ params }: { params: { slug: stri
                 {loans.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-6">
                     {loans.map((l) => (
-                      <div key={l.id} className="rounded-xl border border-slate-100 p-4 hover:border-blue-200 transition-colors">
+                      <div key={l.id} className="rounded-xl border border-slate-100 p-4 hover:border-green/30 transition-colors">
                         <p className="font-bold text-slate-800 text-sm mb-2">{LOAN_TYPE_LABELS[l.loan_type] ?? l.loan_type}</p>
                         <div className="flex items-baseline gap-1 mb-1">
                           <span className="font-mono font-black text-slate-950" style={{ fontSize: '24px', letterSpacing: '-0.5px' }}>{Number(l.min_rate).toFixed(2)}%</span>
@@ -504,13 +505,13 @@ export default async function InstitutionPage({ params }: { params: { slug: stri
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {related.map((r) => (
                 <Link key={r.slug} href={`/birrbank/institutions/${r.slug}`}
-                  className="group bg-white rounded-2xl border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all overflow-hidden">
+                  className="group bg-white rounded-2xl border border-slate-200 hover:border-green/40 hover:shadow-md transition-all overflow-hidden">
                   <div style={{ height: 4, background: 'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                   <div className="p-5">
-                    <p className="font-bold text-slate-900 text-sm mb-2 group-hover:text-blue-700 transition-colors leading-snug">{r.name}</p>
+                    <p className="font-bold text-slate-900 text-sm mb-2 group-hover:text-green-dark transition-colors leading-snug">{r.name}</p>
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-slate-400">{r.nbe_licence_date ? new Date(r.nbe_licence_date).getFullYear() : '—'}</span>
-                      <ChevronRight size={13} className="text-slate-300 group-hover:text-blue-400 transition-colors" />
+                      <ChevronRight size={13} className="text-slate-300 group-hover:text-green transition-colors" />
                     </div>
                   </div>
                 </Link>

@@ -146,7 +146,7 @@ export default async function BankingHubPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {SUB_PAGES.map(cat => (
               <Link key={cat.label} href={cat.href}
-                className="group bg-white rounded-2xl border border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all duration-200 flex flex-col overflow-hidden">
+                className="group bg-white rounded-2xl border border-slate-200 hover:border-green/40 hover:shadow-lg transition-all duration-200 flex flex-col overflow-hidden">
                 <div style={{ height: 4, background: 'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                 <div className="flex flex-col flex-1 p-7">
                   <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-6"
@@ -191,7 +191,7 @@ export default async function BankingHubPage() {
             </div>
             {TOP_SAVINGS.length > 0 ? TOP_SAVINGS.map(r => (
               <div key={r.rank}
-                className={'grid grid-cols-12 items-center border-b border-slate-100 transition-colors ' + (r.rank===1 ? 'bg-blue-50' : 'bg-white hover:bg-slate-50')}
+                className={'grid grid-cols-12 items-center border-b border-slate-100 transition-colors ' + (r.rank===1 ? 'bg-green-soft' : 'bg-white hover:bg-slate-50')}
                 style={{ padding: r.rank===1 ? '18px 24px' : '14px 24px' }}>
                 <div className="col-span-1">
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black"
@@ -200,14 +200,14 @@ export default async function BankingHubPage() {
                   </div>
                 </div>
                 <div className="col-span-5">
-                  <p className={'font-bold ' + (r.rank===1 ? 'text-blue-900' : 'text-slate-800')} style={{ fontSize: r.rank===1 ? '15px' : '14px' }}>{r.bank}</p>
+                  <p className={'font-bold ' + (r.rank===1 ? 'text-green-dark' : 'text-slate-800')} style={{ fontSize: r.rank===1 ? '15px' : '14px' }}>{r.bank}</p>
                   {r.badge && <span className="text-xs font-bold uppercase tracking-wide" style={{ color:'#1C7C4C' }}>{r.badge}</span>}
                 </div>
                 <div className="col-span-4">
                   <p className="text-slate-500 text-sm">{r.product}</p>
                 </div>
                 <div className="col-span-2 text-right">
-                  <p className={'font-mono font-black ' + (r.rank===1 ? 'text-blue-700' : 'text-slate-800')}
+                  <p className={'font-mono font-black ' + (r.rank===1 ? 'text-green-dark' : 'text-slate-800')}
                     style={{ fontSize: r.rank===1 ? '24px' : '18px', letterSpacing: '-1px' }}>{r.rate}%</p>
                 </div>
               </div>
@@ -243,7 +243,7 @@ export default async function BankingHubPage() {
           {FX_PREVIEW.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
               {FX_PREVIEW.map(fx => (
-                <div key={fx.currency} className="bg-white rounded-2xl border border-slate-200 hover:border-blue-200 hover:shadow-md transition-all overflow-hidden">
+                <div key={fx.currency} className="bg-white rounded-2xl border border-slate-200 hover:border-green/30 hover:shadow-md transition-all overflow-hidden">
                   <div style={{ height: 4, background: 'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                   <div style={{ padding: '28px 24px' }}>
                     <div className="flex items-center justify-between mb-5">

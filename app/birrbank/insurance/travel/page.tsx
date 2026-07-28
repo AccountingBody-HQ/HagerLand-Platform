@@ -112,11 +112,11 @@ export default async function TravelInsurancePage() {
               </div>
               {products.map((p, i) => (
                 <Link key={p.id} href={`/birrbank/institutions/${p.institutions?.[0]?.slug ?? p.institution_slug}`}
-                  className={'block border-b border-slate-100 transition-colors ' + (i === 0 ? 'bg-blue-50 hover:bg-blue-100' : 'bg-white hover:bg-slate-50')}>
+                  className={'block border-b border-slate-100 transition-colors ' + (i === 0 ? 'bg-green-soft hover:bg-green-soft' : 'bg-white hover:bg-slate-50')}>
                   <div className="hidden sm:grid items-center"
                     style={{ gridTemplateColumns: '1fr 160px 140px 140px 110px', padding: i === 0 ? '18px 24px' : '14px 24px' }}>
                     <div>
-                      <p className={'font-bold ' + (i === 0 ? 'text-blue-900' : 'text-slate-800')} style={{ fontSize: i === 0 ? '15px' : '14px' }}>
+                      <p className={'font-bold ' + (i === 0 ? 'text-green-dark' : 'text-slate-800')} style={{ fontSize: i === 0 ? '15px' : '14px' }}>
                         {p.institutions?.[0]?.name ?? p.institution_slug}
                       </p>
                       {p.is_sharia_compliant && (
@@ -124,7 +124,7 @@ export default async function TravelInsurancePage() {
                       )}
                     </div>
                     <p className="text-sm text-slate-600">{p.product_name ?? '\u2014'}</p>
-                    <p className={'font-mono font-black ' + (i === 0 ? 'text-blue-700' : 'text-slate-800')}
+                    <p className={'font-mono font-black ' + (i === 0 ? 'text-green-dark' : 'text-slate-800')}
                       style={{ fontSize: i === 0 ? '18px' : '15px', letterSpacing: '-0.5px' }}>
                       {fmtETB(p.premium_from_etb)}
                     </p>
@@ -181,7 +181,7 @@ export default async function TravelInsurancePage() {
               { step: '02', title: 'Trip cancellation and delays', body: 'Covers non-refundable costs if your trip is cancelled due to illness, family emergency or flight cancellation. Check whether the policy covers both pre-departure cancellation and mid-trip curtailment separately.' },
               { step: '03', title: 'Baggage and personal effects', body: 'Covers loss, theft or damage to luggage and personal items. Ethiopian insurers typically cover up to ETB 50,000 in personal effects. High-value items such as cameras or laptops often require separate declaration.' },
             ].map(s => (
-              <div key={s.step} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-blue-300 hover:shadow-lg transition-all">
+              <div key={s.step} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-green/40 hover:shadow-lg transition-all">
                 <div style={{ height: 4, background: 'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                 <div style={{ padding: '28px 24px' }}>
                   <p className="font-mono font-black mb-3" style={{ fontSize: '32px', color: '#E4E6E3', lineHeight: 1 }}>{s.step}</p>

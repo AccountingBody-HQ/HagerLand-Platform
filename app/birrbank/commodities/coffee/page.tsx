@@ -37,33 +37,34 @@ export default async function CoffeePricesPage() {
 
   return (
     <main className="bg-white flex-1">
-      <section className="relative overflow-hidden" style={{ background:'#1C7C4C' }}>
-        <div className="absolute inset-0 pointer-events-none" style={{ background:'radial-gradient(ellipse at 60% 0%, rgba(29,78,216,0.18) 0%, transparent 60%)' }} />
+      <section className="relative overflow-hidden bg-green">
+        <div className="absolute inset-0 opacity-[0.07]" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px'}} />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] opacity-10 pointer-events-none" style={{background: 'radial-gradient(circle at top right, #fff 0%, transparent 60%)'}} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-12">
           <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold mb-6"
-            style={{ background:'rgba(29,78,216,0.15)', color:'#ffffff', border:'1px solid rgba(29,78,216,0.3)' }}>
+            style={{ background: 'rgba(255,255,255,0.15)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.3)' }}>
             Commodities — Coffee
           </div>
           <h1 className="font-bold text-white mb-4"
             style={{ fontSize:'clamp(38px, 4.5vw, 56px)', letterSpacing:'-0.025em', lineHeight:1.08 }}>
             Ethiopian coffee prices — all grades and origins, daily.
           </h1>
-          <p className="text-slate-400 mb-8" style={{ fontSize:'16px', lineHeight:1.8, maxWidth:'520px' }}>
+          <p className="text-white/65 mb-8" style={{ fontSize:'16px', lineHeight:1.8, maxWidth:'520px' }}>
             ECX daily settlement prices for every Ethiopian coffee grade and origin — Yirgacheffe, Sidama, Jimma and more. Prices in ETB per kilogram.
           </p>
           <div className="flex flex-wrap gap-3 mb-10">
             <Link href="/birrbank/commodities/sesame" className="hero-btn hero-btn-primary">Sesame prices</Link>
             <Link href="/birrbank/commodities/grains" className="hero-btn hero-btn-secondary">Grain prices</Link>
           </div>
-          <div className="grid grid-cols-3 mt-2 pt-8 border-t border-slate-800">
+          <div className="grid grid-cols-3 mt-2 pt-8 border-t border-white/20">
             {[
               { value:String(totalGrades), label:'Grades tracked today' },
               { value:'ECX', label:'Official source' },
               { value:'Daily', label:'Update frequency' },
             ].map(s => (
-              <div key={s.label} className="text-center py-6 border-r border-slate-800 last:border-r-0">
+              <div key={s.label} className="text-center py-6 border-r border-white/20 last:border-r-0">
                 <div className="font-mono font-black text-white mb-1" style={{ fontSize:'clamp(22px, 3vw, 36px)', letterSpacing:'-1px' }}>{s.value}</div>
-                <div className="text-xs font-semibold text-slate-500">{s.label}</div>
+                <div className="text-xs font-semibold text-white/40">{s.label}</div>
               </div>
             ))}
           </div>
@@ -75,7 +76,7 @@ export default async function CoffeePricesPage() {
           <div className="flex items-center justify-between mb-8">
             <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Today ECX settlement prices</p>
             <div className="flex items-center gap-2 shrink-0">
-              <span className="w-2 h-2 rounded-full animate-pulse bg-blue-500" />
+              <span className="w-2 h-2 rounded-full animate-pulse bg-green" />
               <span className="text-xs font-bold rounded-full px-3 py-1.5 border" style={{ color:'#166534', background:'#dcfce7', borderColor:'#bbf7d0' }}>ECX · {displayDate}</span>
             </div>
           </div>
@@ -93,7 +94,7 @@ export default async function CoffeePricesPage() {
                 <div key={c.id} className={'border-b border-slate-100 transition-colors ' + (i===0 ? 'bg-amber-50' : 'bg-white hover:bg-slate-50')}>
                   <div className="hidden sm:grid items-center"
                     style={{ gridTemplateColumns:'130px 1fr 140px 100px 160px 140px 100px', padding:i===0?'18px 24px':'14px 24px' }}>
-                    <Link href={`/birrbank/commodities/${c.commodity_code.toLowerCase()}`} className="font-mono font-bold text-xs rounded-lg px-2 py-1 w-fit hover:bg-blue-100 transition-colors" style={{ background:'#E9F5EE', color:'#1C7C4C' }}>{c.commodity_code}</Link>
+                    <Link href={`/birrbank/commodities/${c.commodity_code.toLowerCase()}`} className="font-mono font-bold text-xs rounded-lg px-2 py-1 w-fit hover:bg-green-soft transition-colors" style={{ background:'#E9F5EE', color:'#1C7C4C' }}>{c.commodity_code}</Link>
                     <div className="flex items-center gap-2">
                       <p className="font-bold text-slate-800" style={{ fontSize:i===0?'15px':'14px' }}>{c.commodity_name}</p>
                       {i===0 && <span className="text-xs font-bold rounded-full px-2 py-0.5" style={{ background:'#fef3c7', color:'#92400e' }}>Top price</span>}
@@ -107,7 +108,7 @@ export default async function CoffeePricesPage() {
                     <p className="font-mono text-slate-500 text-sm">{fmtVol(c.volume_kg)}</p>
                   </div>
                   <div className="sm:hidden flex items-center gap-3" style={{ padding:'14px 16px' }}>
-                    <Link href={`/birrbank/commodities/${c.commodity_code.toLowerCase()}`} className="font-mono font-bold text-xs rounded-lg px-2 py-1 shrink-0 hover:bg-blue-100 transition-colors" style={{ background:'#E9F5EE', color:'#1C7C4C' }}>{c.commodity_code}</Link>
+                    <Link href={`/birrbank/commodities/${c.commodity_code.toLowerCase()}`} className="font-mono font-bold text-xs rounded-lg px-2 py-1 shrink-0 hover:bg-green-soft transition-colors" style={{ background:'#E9F5EE', color:'#1C7C4C' }}>{c.commodity_code}</Link>
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-slate-800 text-sm truncate">{c.commodity_name}</p>
                       <p className="text-xs text-slate-400">{c.region_of_origin ?? '—'} · {c.grade ?? '—'} · {fmtVol(c.volume_kg)}</p>
@@ -149,7 +150,7 @@ export default async function CoffeePricesPage() {
               { origin:'Kaffa', region:'SNNPR', notes:'The original home of Arabica coffee. Forest and semi-forest coffees with complex profiles. Increasingly sought after for specialty and single-origin roasters.' },
               { origin:'Gedeo', region:'SNNPR', notes:'Overlapping geographically with Yirgacheffe. Washed coffees with similar quality profile but distinct terroir. Growing recognition in international specialty markets.' },
             ].map(o => (
-              <div key={o.origin} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-blue-300 hover:shadow-lg transition-all">
+              <div key={o.origin} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-green/40 hover:shadow-lg transition-all">
                 <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                 <div style={{ padding:'24px' }}>
                   <div className="flex items-center justify-between mb-3">

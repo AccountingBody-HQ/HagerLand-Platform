@@ -42,18 +42,19 @@ export default async function DiasporaPage() {
 
   return (
     <main className="bg-white flex-1">
-      <section className="relative overflow-hidden" style={{ background:'#1C7C4C' }}>
-        <div className="absolute inset-0 pointer-events-none" style={{ background:'radial-gradient(ellipse at 60% 0%, rgba(29,78,216,0.18) 0%, transparent 60%), radial-gradient(ellipse at 0% 100%, rgba(14,30,80,0.4) 0%, transparent 50%)' }} />
+      <section className="relative overflow-hidden bg-green">
+        <div className="absolute inset-0 opacity-[0.07]" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px'}} />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] opacity-10 pointer-events-none" style={{background: 'radial-gradient(circle at top right, #fff 0%, transparent 60%)'}} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-0">
           <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold mb-6"
-            style={{ background:'rgba(29,78,216,0.15)', color:'#ffffff', border:'1px solid rgba(29,78,216,0.3)' }}>
+            style={{ background: 'rgba(255,255,255,0.15)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.3)' }}>
             Diaspora Hub
           </div>
           <h1 className="font-bold text-white mb-4"
             style={{ fontSize:'clamp(38px, 4.5vw, 56px)', letterSpacing:'-0.025em', lineHeight:1.08 }}>
             Ethiopian financial services for the global diaspora.
           </h1>
-          <p className="text-slate-400 mb-8" style={{ fontSize:'16px', lineHeight:1.8, maxWidth:'520px' }}>
+          <p className="text-white/65 mb-8" style={{ fontSize:'16px', lineHeight:1.8, maxWidth:'520px' }}>
             Send money home cheaply, invest in Ethiopian stocks from abroad, open a diaspora bank account and track ETB exchange rates — all in one place.
           </p>
           <div className="flex flex-wrap gap-3 mb-10">
@@ -64,7 +65,7 @@ export default async function DiasporaPage() {
               Check ETB rates
             </Link>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2 pt-8 border-t border-slate-800 pb-8">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2 pt-8 border-t border-white/20 pb-8">
             {(['USD','GBP','EUR','SAR'] as const).map(ccy => {
               const r = fxMap[ccy]
               return (
@@ -75,7 +76,7 @@ export default async function DiasporaPage() {
                   <p className="font-mono font-black text-white" style={{ fontSize:'clamp(18px, 2.5vw, 26px)', letterSpacing:'-1px', lineHeight:1 }}>
                     {r ? Number(r.selling_rate).toFixed(2) : '—'}
                   </p>
-                  <p className="text-xs text-slate-500 mt-1">ETB sell · {CURRENCY_NAMES[ccy]}</p>
+                  <p className="text-xs text-white/40 mt-1">ETB sell · {CURRENCY_NAMES[ccy]}</p>
                 </div>
               )
             })}
@@ -93,7 +94,7 @@ export default async function DiasporaPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {SUB_CATEGORIES.map(cat => (
               <Link key={cat.label} href={cat.href}
-                className="group bg-white rounded-2xl border border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all duration-200 flex flex-col overflow-hidden">
+                className="group bg-white rounded-2xl border border-slate-200 hover:border-green/40 hover:shadow-lg transition-all duration-200 flex flex-col overflow-hidden">
                 <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                 <div className="flex flex-col flex-1 p-6">
                   <p className="font-bold text-slate-900 mb-2" style={{ fontSize:'15px' }}>{cat.label}</p>
@@ -128,7 +129,7 @@ export default async function DiasporaPage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
               {ipos.map((ipo) => (
-                <div key={ipo.company_name} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-blue-300 hover:shadow-md transition-all">
+                <div key={ipo.company_name} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-green/40 hover:shadow-md transition-all">
                   <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                   <div style={{ padding:'24px' }}>
                     <p className="font-bold text-slate-900 mb-2" style={{ fontSize:'15px' }}>{ipo.company_name}</p>

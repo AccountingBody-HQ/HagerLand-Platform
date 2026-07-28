@@ -76,8 +76,9 @@ export default async function TickerPage({ params }: { params: { ticker: string 
     <main className="bg-white flex-1">
 
       {/* DARK HERO */}
-      <section className="relative overflow-hidden" style={{ background: '#1C7C4C' }}>
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 60% 0%, rgba(29,78,216,0.18) 0%, transparent 60%)' }} />
+      <section className="relative overflow-hidden bg-green">
+        <div className="absolute inset-0 opacity-[0.07]" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px'}} />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] opacity-10 pointer-events-none" style={{background: 'radial-gradient(circle at top right, #fff 0%, transparent 60%)'}} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-0">
           <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold mb-5"
             style={{ background: 'rgba(255,255,255,0.15)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.3)' }}>
@@ -90,14 +91,14 @@ export default async function TickerPage({ params }: { params: { ticker: string 
                   {security.ticker}
                 </span>
                 {security.sector && (
-                  <span className="text-xs font-semibold text-slate-400">{security.sector}</span>
+                  <span className="text-xs font-semibold text-white/65">{security.sector}</span>
                 )}
               </div>
               <h1 className="font-bold text-white mb-4"
                 style={{ fontSize: 'clamp(32px, 4vw, 52px)', letterSpacing: '-0.025em', lineHeight: 1.08 }}>
                 {security.company_name}
               </h1>
-              <p className="text-slate-400 mb-6" style={{ fontSize: '15px', lineHeight: 1.8, maxWidth: '480px' }}>
+              <p className="text-white/65 mb-6" style={{ fontSize: '15px', lineHeight: 1.8, maxWidth: '480px' }}>
                 Listed on the Ethiopian Securities Exchange. Prices updated manually from ESX published data.
               </p>
               <div className="flex flex-wrap gap-3">
@@ -132,11 +133,11 @@ export default async function TickerPage({ params }: { params: { ticker: string 
           </div>
 
           {/* Stat bar */}
-          <div className="grid mt-2 pt-8 border-t border-slate-800" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+          <div className="grid mt-2 pt-8 border-t border-white/20" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
             {heroStats.map(s => (
-              <div key={s.label} className="text-center py-6 border-r border-slate-800 last:border-r-0">
+              <div key={s.label} className="text-center py-6 border-r border-white/20 last:border-r-0">
                 <div className="font-mono font-black mb-1" style={{ fontSize: 'clamp(14px, 2vw, 22px)', letterSpacing: '-0.5px', color: s.color ?? '#ffffff' }}>{s.value}</div>
-                <div className="text-xs font-semibold text-slate-500">{s.label}</div>
+                <div className="text-xs font-semibold text-white/40">{s.label}</div>
               </div>
             ))}
           </div>

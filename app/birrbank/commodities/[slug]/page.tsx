@@ -99,10 +99,14 @@ export default async function CommoditySlugPage({
   return (
     <main className="bg-white flex-1">
       {/* Dark hero */}
-      <section className="relative overflow-hidden" style={{ background: "#1C7C4C" }}>
+      <section className="relative overflow-hidden bg-green">
         <div
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse at 60% 0%, rgba(29,78,216,0.18) 0%, transparent 60%)" }}
+          className="absolute inset-0 opacity-[0.07]"
+          style={{ backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)", backgroundSize: "28px 28px" }}
+        />
+        <div
+          className="absolute top-0 right-0 w-[500px] h-[500px] opacity-10 pointer-events-none"
+          style={{ background: "radial-gradient(circle at top right, #fff 0%, transparent 60%)" }}
         />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-12">
           {/* Breadcrumb */}
@@ -110,7 +114,7 @@ export default async function CommoditySlugPage({
           {/* Eyebrow */}
           <div
             className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold mb-6"
-            style={{ background: "rgba(29,78,216,0.15)", color: "#ffffff", border: "1px solid rgba(29,78,216,0.3)" }}
+            style={{ background: "rgba(255,255,255,0.15)", color: "#ffffff", border: "1px solid rgba(255,255,255,0.3)" }}
           >
             ECX Settlement Price
           </div>
@@ -130,13 +134,13 @@ export default async function CommoditySlugPage({
           >
             {c.commodity_name}
           </h1>
-          <p className="text-slate-400 mb-10" style={{ fontSize: "16px", lineHeight: 1.8, maxWidth: "520px" }}>
+          <p className="text-white/65 mb-10" style={{ fontSize: "16px", lineHeight: 1.8, maxWidth: "520px" }}>
             {c.grade ? `Grade ${c.grade}` : ""}{c.grade && c.region_of_origin ? " \u00b7 " : ""}{c.region_of_origin ?? ""} ECX daily settlement price in ETB per kilogram.
           </p>
 
           {/* Stat bar */}
           <div
-            className="grid grid-cols-2 sm:grid-cols-4 mt-2 pt-8 border-t border-slate-800"
+            className="grid grid-cols-2 sm:grid-cols-4 mt-2 pt-8 border-t border-white/20"
           >
             {[
               { value: `ETB ${fmt(c.price_etb)}`, label: "Latest price (per kg)" },
@@ -158,7 +162,7 @@ export default async function CommoditySlugPage({
             ].map((s) => (
               <div
                 key={s.label}
-                className="text-center py-6 border-r border-slate-800 last:border-r-0"
+                className="text-center py-6 border-r border-white/20 last:border-r-0"
               >
                 <div
                   className="font-mono font-black text-white mb-1"
@@ -166,7 +170,7 @@ export default async function CommoditySlugPage({
                 >
                   {s.value}
                 </div>
-                <div className="text-xs font-semibold text-slate-500">{s.label}</div>
+                <div className="text-xs font-semibold text-white/40">{s.label}</div>
               </div>
             ))}
           </div>

@@ -301,16 +301,16 @@ export default async function FxRatesPage({ searchParams }: { searchParams: { ty
                       <td style={{ padding: '13px 20px' }}>
                         <div className="flex items-center gap-2">
                           <span className="font-black text-xs rounded-full px-2 py-0.5" style={{ background: '#1C7C4C', color: '#fff' }}>NBE</span>
-                          <span className="font-bold text-blue-900" style={{ fontSize: '13px' }}>Official NBE Indicative</span>
+                          <span className="font-bold text-green-dark" style={{ fontSize: '13px' }}>Official NBE Indicative</span>
                         </div>
                       </td>
                       {nbeRow.map((v, i) => (
                         <td key={i} className="text-right" style={{ padding: '13px 16px' }}>
-                          <span className="font-mono font-bold text-blue-700" style={{ fontSize: '14px' }}>{v}</span>
+                          <span className="font-mono font-bold text-green-dark" style={{ fontSize: '14px' }}>{v}</span>
                         </td>
                       ))}
                       <td className="text-right" style={{ padding: '13px 16px' }}>
-                        <span className="text-xs font-bold text-blue-600">Daily</span>
+                        <span className="text-xs font-bold text-green">Daily</span>
                       </td>
                     </tr>
                     {BANK_RATES.length > 0 ? BANK_RATES.map((r, i) => {
@@ -326,7 +326,7 @@ export default async function FxRatesPage({ searchParams }: { searchParams: { ty
                       return (
                       <tr key={r.slug} style={{ borderBottom: '1px solid #F4F5F3', background: i % 2 === 0 ? '#ffffff' : '#F4F5F3' }}>
                         <td style={{ padding: '13px 20px' }}>
-                          <Link href={`/birrbank/institutions/${r.slug}`} className="font-semibold text-slate-800 hover:text-blue-700 transition-colors" style={{ fontSize: '14px' }}>
+                          <Link href={`/birrbank/institutions/${r.slug}`} className="font-semibold text-slate-800 hover:text-green-dark transition-colors" style={{ fontSize: '14px' }}>
                             {r.bank}
                           </Link>
                         </td>

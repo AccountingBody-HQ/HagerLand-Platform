@@ -43,18 +43,19 @@ export default async function PropertyInsurancePage() {
 
   return (
     <main className="bg-white flex-1">
-      <section className="relative overflow-hidden" style={{ background:'#1C7C4C' }}>
-        <div className="absolute inset-0 pointer-events-none" style={{ background:'radial-gradient(ellipse at 60% 0%, rgba(29,78,216,0.18) 0%, transparent 60%)' }} />
+      <section className="relative overflow-hidden bg-green">
+        <div className="absolute inset-0 opacity-[0.07]" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px'}} />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] opacity-10 pointer-events-none" style={{background: 'radial-gradient(circle at top right, #fff 0%, transparent 60%)'}} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-0">
           <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold mb-6"
-            style={{ background:'rgba(29,78,216,0.15)', color:'#ffffff', border:'1px solid rgba(29,78,216,0.3)' }}>
+            style={{ background: 'rgba(255,255,255,0.15)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.3)' }}>
             Insurance — Property
           </div>
           <h1 className="font-bold text-white mb-4"
             style={{ fontSize:'clamp(38px, 4.5vw, 56px)', letterSpacing:'-0.025em', lineHeight:1.08 }}>
             Property insurance in Ethiopia — fire, allied perils and homeowners cover.
           </h1>
-          <p className="text-slate-400 mb-8" style={{ fontSize:'16px', lineHeight:1.8, maxWidth:'520px' }}>
+          <p className="text-white/65 mb-8" style={{ fontSize:'16px', lineHeight:1.8, maxWidth:'520px' }}>
             Residential and commercial property insurance from every NBE-licensed insurer — coverage limits, premiums and key features compared free.
           </p>
           <div className="flex flex-wrap gap-3 mb-10">
@@ -65,15 +66,15 @@ export default async function PropertyInsurancePage() {
               Health insurance
             </Link>
           </div>
-          <div className="grid grid-cols-3 mt-2 pt-8 border-t border-slate-800">
+          <div className="grid grid-cols-3 mt-2 pt-8 border-t border-white/20">
             {[
               { value:String(totalCount || insurerCount), label:'Products compared' },
               { value:String(insurerCount), label:'Licensed insurers' },
               { value:'Free', label:'No broker fees' },
             ].map(s => (
-              <div key={s.label} className="text-center py-6 border-r border-slate-800 last:border-r-0">
+              <div key={s.label} className="text-center py-6 border-r border-white/20 last:border-r-0">
                 <div className="font-mono font-black text-white mb-1" style={{ fontSize:'clamp(22px, 3vw, 36px)', letterSpacing:'-1px' }}>{s.value}</div>
-                <div className="text-xs font-semibold text-slate-500">{s.label}</div>
+                <div className="text-xs font-semibold text-white/40">{s.label}</div>
               </div>
             ))}
           </div>
@@ -96,14 +97,14 @@ export default async function PropertyInsurancePage() {
               ))}
             </div>
             {products.length > 0 ? products.map((p, i) => (
-              <div key={p.id} className={'border-b border-slate-100 transition-colors ' + (i===0?'bg-blue-50':'bg-white hover:bg-slate-50')}>
+              <div key={p.id} className={'border-b border-slate-100 transition-colors ' + (i===0?'bg-green-soft':'bg-white hover:bg-slate-50')}>
                 <div className="hidden sm:grid items-start"
                   style={{ gridTemplateColumns:'1fr 160px 160px 160px 120px', padding:i===0?'18px 24px':'14px 24px' }}>
                   <div>
-                    <p className={'font-bold ' + (i===0?'text-blue-900':'text-slate-800')} style={{ fontSize:i===0?'15px':'14px' }}>{p.institutions?.[0]?.name ?? p.institution_slug}</p>
+                    <p className={'font-bold ' + (i===0?'text-green-dark':'text-slate-800')} style={{ fontSize:i===0?'15px':'14px' }}>{p.institutions?.[0]?.name ?? p.institution_slug}</p>
                     <p className="text-xs text-slate-400 mt-0.5">{p.product_name}</p>
                   </div>
-                  <p className={'font-mono font-black ' + (i===0?'text-blue-700':'text-slate-800')} style={{ fontSize:i===0?'22px':'16px', letterSpacing:'-0.5px' }}>
+                  <p className={'font-mono font-black ' + (i===0?'text-green-dark':'text-slate-800')} style={{ fontSize:i===0?'22px':'16px', letterSpacing:'-0.5px' }}>
                     {p.annual_premium_pct ? Number(p.annual_premium_pct).toFixed(2)+'%' : fmtETB(p.premium_from_etb)}
                   </p>
                   <p className="font-mono text-slate-600 text-sm">{fmtETB(p.coverage_from_etb)}</p>
@@ -140,7 +141,7 @@ export default async function PropertyInsurancePage() {
               { step:'02', title:'Residential vs commercial', body:'Residential policies cover the building structure and contents. Commercial policies cover the building, business contents, stock and business interruption. Premium rates differ significantly between residential and commercial use.' },
               { step:'03', title:'How the sum insured is set', body:'The sum insured should reflect the full reinstatement cost of the property — not the market value. Underinsurance is a major risk: if your property is insured for 50% of its value, your claim will be settled at 50% regardless of the loss amount.' },
             ].map(s => (
-              <div key={s.step} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-blue-300 hover:shadow-lg transition-all">
+              <div key={s.step} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-green/40 hover:shadow-lg transition-all">
                 <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                 <div style={{ padding:'28px 24px' }}>
                   <p className="font-mono font-black mb-3" style={{ fontSize:'32px', color:'#E4E6E3', lineHeight:1 }}>{s.step}</p>

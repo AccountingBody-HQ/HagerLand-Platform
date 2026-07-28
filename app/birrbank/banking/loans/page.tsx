@@ -49,7 +49,7 @@ function LoanTable({ loans, title }: { loans: LoanRow[]; title: string }) {
           ))}
         </div>
         {loans.length > 0 ? loans.map((r, i) => (
-          <div key={r.id} className={'border-b border-slate-100 transition-colors ' + (i===0 ? 'bg-blue-50' : 'bg-white hover:bg-slate-50')}>
+          <div key={r.id} className={'border-b border-slate-100 transition-colors ' + (i===0 ? 'bg-green-soft' : 'bg-white hover:bg-slate-50')}>
             <div className="hidden sm:grid items-center"
               style={{ gridTemplateColumns:'44px 1fr 130px 130px 120px 130px 110px', padding:i===0?'18px 24px':'13px 24px' }}>
               <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black"
@@ -57,10 +57,10 @@ function LoanTable({ loans, title }: { loans: LoanRow[]; title: string }) {
                 {i===0 ? <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> : i+1}
               </div>
               <Link href={`/birrbank/institutions/${r.institutions?.[0]?.slug ?? r.institution_slug}`}
-                className={'font-bold hover:underline ' + (i===0 ? 'text-blue-900' : 'text-slate-800')} style={{ fontSize:i===0?'15px':'14px' }}>
+                className={'font-bold hover:underline ' + (i===0 ? 'text-green-dark' : 'text-slate-800')} style={{ fontSize:i===0?'15px':'14px' }}>
                 {r.institutions?.[0]?.name ?? r.institution_slug}
               </Link>
-              <p className={'font-mono font-black ' + (i===0 ? 'text-blue-700' : 'text-slate-800')} style={{ fontSize:i===0?'22px':'16px', letterSpacing:'-0.5px' }}>
+              <p className={'font-mono font-black ' + (i===0 ? 'text-green-dark' : 'text-slate-800')} style={{ fontSize:i===0?'22px':'16px', letterSpacing:'-0.5px' }}>
                 {fmt(r.min_rate)}%
               </p>
               <p className="font-mono text-slate-500 text-sm">{r.max_rate ? fmt(r.max_rate)+'%' : '—'}</p>
@@ -109,18 +109,19 @@ export default async function LoansPage() {
     <main className="bg-white flex-1">
 
       {/* DARK HERO */}
-      <section className="relative overflow-hidden" style={{ background:'#1C7C4C' }}>
-        <div className="absolute inset-0 pointer-events-none" style={{ background:'radial-gradient(ellipse at 60% 0%, rgba(29,78,216,0.18) 0%, transparent 60%), radial-gradient(ellipse at 0% 100%, rgba(14,30,80,0.4) 0%, transparent 50%)' }} />
+      <section className="relative overflow-hidden bg-green">
+        <div className="absolute inset-0 opacity-[0.07]" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px'}} />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] opacity-10 pointer-events-none" style={{background: 'radial-gradient(circle at top right, #fff 0%, transparent 60%)'}} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-0">
           <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold mb-6"
-            style={{ background:'rgba(29,78,216,0.15)', color:'#ffffff', border:'1px solid rgba(29,78,216,0.3)' }}>
+            style={{ background: 'rgba(255,255,255,0.15)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.3)' }}>
             Banking — Loans
           </div>
           <h1 className="font-bold text-white mb-4"
             style={{ fontSize:'clamp(38px, 4.5vw, 56px)', letterSpacing:'-0.025em', lineHeight:1.08 }}>
             Best loan rates in Ethiopia — all {bankCount} banks compared.
           </h1>
-          <p className="text-slate-400 mb-8" style={{ fontSize:'16px', lineHeight:1.8, maxWidth:'520px' }}>
+          <p className="text-white/65 mb-8" style={{ fontSize:'16px', lineHeight:1.8, maxWidth:'520px' }}>
             Personal, home mortgage, car and business loan rates from every commercial bank — verified from official sources and sorted by lowest rate.
           </p>
           <div className="flex flex-wrap gap-3 mb-10">
@@ -133,15 +134,15 @@ export default async function LoansPage() {
               Check FX rates
             </Link>
           </div>
-          <div className="grid grid-cols-3 mt-2 pt-8 border-t border-slate-800">
+          <div className="grid grid-cols-3 mt-2 pt-8 border-t border-white/20">
             {[
               { value:String(bankCount), label:'Banks compared' },
               { value:lowestRate ? fmt(lowestRate.min_rate)+'%' : '—', label:'Lowest rate today' },
               { value:String(totalRates), label:'Loan rates tracked' },
             ].map(s => (
-              <div key={s.label} className="text-center py-6 border-r border-slate-800 last:border-r-0">
+              <div key={s.label} className="text-center py-6 border-r border-white/20 last:border-r-0">
                 <div className="font-mono font-black text-white mb-1" style={{ fontSize:'clamp(22px, 3vw, 36px)', letterSpacing:'-1px' }}>{s.value}</div>
-                <div className="text-xs font-semibold text-slate-500">{s.label}</div>
+                <div className="text-xs font-semibold text-white/40">{s.label}</div>
               </div>
             ))}
           </div>
@@ -189,7 +190,7 @@ export default async function LoansPage() {
               { step:'02', title:'Factor in the total cost, not just the rate', body:'Processing fees, insurance requirements and collateral valuation costs add to the effective cost of a loan. A bank with a 13% rate and ETB 5,000 in fees may cost more than a 13.5% rate with no fees.' },
               { step:'03', title:'Collateral requirements vary significantly', body:'Most Ethiopian banks require collateral for personal loans above ETB 50,000. CBE accepts vehicle logbooks and land title deeds. Some private banks offer unsecured personal loans at higher rates.' },
             ].map(s => (
-              <div key={s.step} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-blue-300 hover:shadow-lg transition-all">
+              <div key={s.step} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-green/40 hover:shadow-lg transition-all">
                 <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                 <div style={{ padding:'28px 24px' }}>
                   <p className="font-mono font-black mb-3" style={{ fontSize:'32px', color:'#E4E6E3', lineHeight:1 }}>{s.step}</p>

@@ -40,18 +40,19 @@ export default async function BondsPage() {
 
   return (
     <main className="bg-white flex-1">
-      <section className="relative overflow-hidden" style={{ background:'#1C7C4C' }}>
-        <div className="absolute inset-0 pointer-events-none" style={{ background:'radial-gradient(ellipse at 60% 0%, rgba(29,78,216,0.18) 0%, transparent 60%)' }} />
+      <section className="relative overflow-hidden bg-green">
+        <div className="absolute inset-0 opacity-[0.07]" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px'}} />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] opacity-10 pointer-events-none" style={{background: 'radial-gradient(circle at top right, #fff 0%, transparent 60%)'}} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-0">
           <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold mb-6"
-            style={{ background:'rgba(29,78,216,0.15)', color:'#ffffff', border:'1px solid rgba(29,78,216,0.3)' }}>
+            style={{ background: 'rgba(255,255,255,0.15)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.3)' }}>
             Markets — Bonds & T-Bills
           </div>
           <h1 className="font-bold text-white mb-4"
             style={{ fontSize:'clamp(38px, 4.5vw, 56px)', letterSpacing:'-0.025em', lineHeight:1.08 }}>
             Ethiopian bonds & T-bills — NBE auction yields.
           </h1>
-          <p className="text-slate-400 mb-8" style={{ fontSize:'16px', lineHeight:1.8, maxWidth:'520px' }}>
+          <p className="text-white/65 mb-8" style={{ fontSize:'16px', lineHeight:1.8, maxWidth:'520px' }}>
             Treasury bill auction results from the National Bank of Ethiopia — yields, tenors and minimum investments. Updated after each NBE auction.
           </p>
           <div className="flex flex-wrap gap-3 mb-10">
@@ -62,15 +63,15 @@ export default async function BondsPage() {
               How to invest
             </Link>
           </div>
-          <div className="grid grid-cols-3 mt-2 pt-8 border-t border-slate-800">
+          <div className="grid grid-cols-3 mt-2 pt-8 border-t border-white/20">
             {[
               { value:String(tbills.length), label:'T-bill tenors' },
               { value:bestYield, label:'Best current yield' },
               { value:'NBE', label:'Auction authority' },
             ].map(s => (
-              <div key={s.label} className="text-center py-6 border-r border-slate-800 last:border-r-0">
+              <div key={s.label} className="text-center py-6 border-r border-white/20 last:border-r-0">
                 <div className="font-mono font-black text-white mb-1" style={{ fontSize:'clamp(22px, 3vw, 36px)', letterSpacing:'-1px' }}>{s.value}</div>
-                <div className="text-xs font-semibold text-slate-500">{s.label}</div>
+                <div className="text-xs font-semibold text-white/40">{s.label}</div>
               </div>
             ))}
           </div>
@@ -86,7 +87,7 @@ export default async function BondsPage() {
           {tbills.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
               {tbills.map((t) => (
-                <div key={t.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-blue-300 hover:shadow-md transition-all">
+                <div key={t.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-green/40 hover:shadow-md transition-all">
                   <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                   <div style={{ padding:'24px' }}>
                     <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color:'#1C7C4C' }}>
@@ -135,12 +136,12 @@ export default async function BondsPage() {
                   ))}
                 </div>
                 {bonds.map((b, i) => (
-                  <div key={b.id} className={'border-b border-slate-100 transition-colors ' + (i===0?'bg-blue-50':'bg-white hover:bg-slate-50')}>
+                  <div key={b.id} className={'border-b border-slate-100 transition-colors ' + (i===0?'bg-green-soft':'bg-white hover:bg-slate-50')}>
                     <div className="hidden sm:grid items-center"
                       style={{ gridTemplateColumns:'1fr 120px 100px 130px 120px 110px', padding:'14px 24px' }}>
-                      <p className={'font-bold ' + (i===0?'text-blue-900':'text-slate-800')} style={{ fontSize:'14px' }}>{b.name ?? b.instrument_type}</p>
+                      <p className={'font-bold ' + (i===0?'text-green-dark':'text-slate-800')} style={{ fontSize:'14px' }}>{b.name ?? b.instrument_type}</p>
                       <p className="text-sm text-slate-500">{b.issuer ?? '—'}</p>
-                      <p className={'font-mono font-black ' + (i===0?'text-blue-700':'text-slate-800')} style={{ fontSize:i===0?'20px':'16px' }}>
+                      <p className={'font-mono font-black ' + (i===0?'text-green-dark':'text-slate-800')} style={{ fontSize:i===0?'20px':'16px' }}>
                         {b.yield_pct ? Number(b.yield_pct).toFixed(2)+'%' : '—'}
                       </p>
                       <p className="font-mono text-slate-600 text-sm">{b.coupon_rate ? Number(b.coupon_rate).toFixed(2)+'%' : '—'}</p>

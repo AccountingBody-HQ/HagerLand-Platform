@@ -141,7 +141,7 @@ export default async function SavingsRatesPage() {
               { step:'02', title:'Check the minimum balance', body:'Some banks require ETB 10,000+ to access their best rates. CBE requires as little as ETB 50. Match your available capital to the right product tier.' },
               { step:'03', title:'Consider Sharia compliance', body:'Hijra Bank and ZamZam Bank offer Mudarabah accounts — profit-sharing products that are fully Sharia-compliant and competitively priced against conventional savings.' },
             ].map(s => (
-              <div key={s.step} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-blue-300 hover:shadow-lg transition-all">
+              <div key={s.step} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-green/40 hover:shadow-lg transition-all">
                 <div style={{ height: 4, background: 'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                 <div style={{ padding: '28px 24px' }}>
                   <p className="font-mono font-black mb-3" style={{ fontSize: '32px', color: '#E4E6E3', lineHeight: 1 }}>{s.step}</p>
