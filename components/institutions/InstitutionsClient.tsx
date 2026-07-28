@@ -96,7 +96,7 @@ function GridCard({ inst }: { inst: Institution }) {
   )
 
   if (!inst.is_active) return card
-  return <Link href={`/institutions/${inst.slug}`} className="flex flex-col h-full">{card}</Link>
+  return <Link href={`/birrbank/institutions/${inst.slug}`} className="flex flex-col h-full">{card}</Link>
 }
 
 function ListRow({ inst }: { inst: Institution }) {
@@ -123,7 +123,7 @@ function ListRow({ inst }: { inst: Institution }) {
   )
 
   if (!inst.is_active) return <div>{row}</div>
-  return <Link href={`/institutions/${inst.slug}`}>{row}</Link>
+  return <Link href={`/birrbank/institutions/${inst.slug}`}>{row}</Link>
 }
 
 export default function InstitutionsClient({ institutions }: { institutions: Institution[] }) {

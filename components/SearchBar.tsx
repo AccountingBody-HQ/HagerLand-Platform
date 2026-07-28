@@ -93,7 +93,7 @@ export default function SearchBar({ variant = 'hero', placeholder, className = '
 
   const navigate = useCallback((item: typeof flatItems[0]) => {
     setOpen(false); setQuery('')
-    if (item.type === 'institution') router.push('/institutions/' + (item.data as Institution).slug)
+    if (item.type === 'institution') router.push('/birrbank/institutions/' + (item.data as Institution).slug)
     else router.push('/guides/' + (item.data as Article).slug)
   }, [router])
 

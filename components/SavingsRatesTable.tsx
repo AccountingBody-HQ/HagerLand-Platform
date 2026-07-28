@@ -98,7 +98,7 @@ export default function SavingsRatesTable({ rates, totalBanks, totalInstitutions
                 {r.rank === 1 ? <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> : r.rank}
               </div>
               <div className="flex items-center gap-2 flex-wrap">
-                <Link href={`/institutions/${r.slug}`} className={'font-bold hover:underline ' + (r.rank === 1 ? 'text-green-dark' : 'text-slate-800')} style={{ fontSize: r.rank === 1 ? '15px' : '14px' }}>{r.bank}</Link>
+                <Link href={`/birrbank/institutions/${r.slug}`} className={'font-bold hover:underline ' + (r.rank === 1 ? 'text-green-dark' : 'text-slate-800')} style={{ fontSize: r.rank === 1 ? '15px' : '14px' }}>{r.bank}</Link>
                 {r.badge && (
                   <span className="text-xs font-bold rounded-full px-2 py-0.5"
                     style={r.badge === 'Sharia' ? { background: '#fef3c7', color: '#92400e' } : r.badge === 'Best rate' ? { background: '#dbeafe', color: '#1C7C4C' } : { background: '#f0fdf4', color: '#166534' }}>
@@ -119,7 +119,7 @@ export default function SavingsRatesTable({ rates, totalBanks, totalInstitutions
                 style={r.rank === 1 ? { background: '#1C7C4C', color: '#fff' } : { background: '#f1f5f9', color: '#5B6472' }}>{r.rank}</div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
-                  <Link href={`/institutions/${r.slug}`} className="font-bold text-slate-800 text-sm truncate hover:underline">{r.bank}</Link>
+                  <Link href={`/birrbank/institutions/${r.slug}`} className="font-bold text-slate-800 text-sm truncate hover:underline">{r.bank}</Link>
                   {r.badge && <span className="text-xs font-bold rounded-full px-2 py-0.5 shrink-0" style={r.badge === 'Sharia' ? { background: '#fef3c7', color: '#92400e' } : { background: '#dbeafe', color: '#1C7C4C' }}>{r.badge}</span>}
                 </div>
                 <p className="text-xs text-slate-400">{r.type} · ETB {r.min} min · {r.verified}</p>
@@ -131,7 +131,7 @@ export default function SavingsRatesTable({ rates, totalBanks, totalInstitutions
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-t border-slate-200" style={{ background: '#f9fafb', padding: '14px 24px' }}>
           <p className="text-xs text-slate-400">Showing {ranked.length} of {rates.length} products from {totalBanks} banks · Sorted by rate (high to low)</p>
-          <Link href="/institutions" className="text-xs font-bold hover:underline shrink-0" style={{ color: '#1C7C4C' }}>View all {totalInstitutions} institutions →</Link>
+          <Link href="/birrbank/institutions" className="text-xs font-bold hover:underline shrink-0" style={{ color: '#1C7C4C' }}>View all {totalInstitutions} institutions →</Link>
         </div>
       </div>
     </div>
