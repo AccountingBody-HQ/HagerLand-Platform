@@ -24,7 +24,6 @@ const birrbankLinks = [
   { href: '/birrbank/insurance', label: 'Insurance' },
   { href: '/birrbank/markets', label: 'Markets' },
   { href: '/birrbank/commodities', label: 'Commodities' },
-  { href: '/birrbank/intelligence', label: 'Intelligence (Coming soon)' },
 ]
 
 const companyLinks = [

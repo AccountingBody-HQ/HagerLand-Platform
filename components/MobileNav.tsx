@@ -24,7 +24,6 @@ const BIRRBANK_SECTIONS = [
   { href: '/birrbank/insurance', label: 'Insurance', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>', desc: 'Compare insurance products' },
   { href: '/birrbank/markets', label: 'Markets', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>', desc: 'ESX equities & bonds' },
   { href: '/birrbank/commodities', label: 'Commodities', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M20.59 13.41L13.42 20.58a2 2 0 01-2.83 0L2.59 12.58A2 2 0 012 11.17V4a2 2 0 012-2h7.17a2 2 0 011.42.59l8 8a2 2 0 010 2.82z"/></svg>', desc: 'ECX coffee, sesame & grains' },
-  { href: '/birrbank/intelligence', label: 'Intelligence', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35" strokeLinecap="round"/></svg>', desc: 'Coming soon', comingSoon: true },
 ]
 
 const TRAILING_SECTIONS = [
@@ -158,19 +157,6 @@ export function MobileNav() {
                 <div className="pl-4 space-y-0.5 border-l border-white/10 ml-6 my-1">
                   {BIRRBANK_SECTIONS.map((section) => {
                     const active = pathname.startsWith(section.href)
-                    if (section.comingSoon) {
-                      return (
-                        <div key={section.href}
-                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/30 cursor-default">
-                          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-white/5"
-                            dangerouslySetInnerHTML={{ __html: section.icon }} />
-                          <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-sm leading-tight">{section.label}</p>
-                            <p className="text-xs leading-tight mt-0.5 text-white/25">{section.desc}</p>
-                          </div>
-                        </div>
-                      )
-                    }
                     return (
                       <Link key={section.href} href={section.href} onClick={closeMenu}
                         className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${active ? 'bg-green text-white' : 'text-white/70 hover:bg-white/8 hover:text-white'}`}>

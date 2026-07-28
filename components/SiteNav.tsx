@@ -21,7 +21,6 @@ const birrbankSections = [
   { href: '/birrbank/insurance', label: 'Insurance', desc: 'Compare insurance products', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>' },
   { href: '/birrbank/markets', label: 'Markets', desc: 'ESX equities, IPO pipeline & bonds', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>' },
   { href: '/birrbank/commodities', label: 'Commodities', desc: 'ECX coffee, sesame & grain prices', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M20.59 13.41L13.42 20.58a2 2 0 01-2.83 0L2.59 12.58A2 2 0 012 11.17V4a2 2 0 012-2h7.17a2 2 0 011.42.59l8 8a2 2 0 010 2.82z"/></svg>' },
-  { href: '/birrbank/intelligence', label: 'Intelligence', desc: 'Market intelligence — coming soon', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35" strokeLinecap="round"/></svg>', comingSoon: true },
 ]
 
 const groups = [
@@ -115,27 +114,15 @@ function BirrBankDropdown({ isActive }: { isActive: boolean }) {
           <div className="w-[460px] bg-white border border-border/60 rounded-2xl shadow-2xl shadow-black/10 overflow-hidden p-3">
             <div className="grid grid-cols-2 gap-1">
               {birrbankSections.map((s) => (
-                s.comingSoon ? (
-                  <div key={s.href}
-                    className="flex items-start gap-3 px-3 py-2.5 rounded-xl cursor-default">
-                    <div className="w-9 h-9 rounded-lg bg-section text-muted/40 flex items-center justify-center shrink-0"
-                      dangerouslySetInnerHTML={{ __html: s.icon }} />
-                    <div className="min-w-0 pt-0.5">
-                      <p className="text-[13.5px] font-semibold text-muted/60">{s.label}</p>
-                      <p className="text-xs text-muted/50 leading-snug mt-0.5">{s.desc}</p>
-                    </div>
+                <Link key={s.href} href={s.href}
+                  className="group/item flex items-start gap-3 px-3 py-2.5 rounded-xl hover:bg-section transition-colors">
+                  <div className="w-9 h-9 rounded-lg bg-green-soft text-green flex items-center justify-center shrink-0 group-hover/item:bg-green group-hover/item:text-white transition-colors"
+                    dangerouslySetInnerHTML={{ __html: s.icon }} />
+                  <div className="min-w-0 pt-0.5">
+                    <p className="text-[13.5px] font-semibold text-ink group-hover/item:text-green transition-colors">{s.label}</p>
+                    <p className="text-xs text-muted leading-snug mt-0.5">{s.desc}</p>
                   </div>
-                ) : (
-                  <Link key={s.href} href={s.href}
-                    className="group/item flex items-start gap-3 px-3 py-2.5 rounded-xl hover:bg-section transition-colors">
-                    <div className="w-9 h-9 rounded-lg bg-green-soft text-green flex items-center justify-center shrink-0 group-hover/item:bg-green group-hover/item:text-white transition-colors"
-                      dangerouslySetInnerHTML={{ __html: s.icon }} />
-                    <div className="min-w-0 pt-0.5">
-                      <p className="text-[13.5px] font-semibold text-ink group-hover/item:text-green transition-colors">{s.label}</p>
-                      <p className="text-xs text-muted leading-snug mt-0.5">{s.desc}</p>
-                    </div>
-                  </Link>
-                )
+                </Link>
               ))}
             </div>
             <div className="mx-1 my-2 border-t border-border/70" />

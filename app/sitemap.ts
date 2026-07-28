@@ -48,7 +48,6 @@ const STATIC_PAGES = [
   { url: '/birrbank/commodities/sesame', priority: 0.6, changeFrequency: 'daily' as const },
   { url: '/birrbank/commodities/grains', priority: 0.6, changeFrequency: 'daily' as const },
   { url: '/birrbank/commodities/ecx-guide', priority: 0.5, changeFrequency: 'monthly' as const },
-  { url: '/birrbank/intelligence', priority: 0.4, changeFrequency: 'monthly' as const },
   { url: '/birrbank/diaspora', priority: 0.7, changeFrequency: 'weekly' as const },
 ]
 

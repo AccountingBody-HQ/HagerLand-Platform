@@ -12,7 +12,6 @@ interface Section {
   label: string
   description: string
   icon: string
-  comingSoon?: boolean
 }
 
 const SECTIONS: Section[] = [
@@ -26,8 +25,8 @@ const SECTIONS: Section[] = [
     icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 3v18h18M7 14l4-4 3 3 5-6"/></svg>` },
   { href: '/birrbank/commodities', label: 'Commodities', description: 'Coffee, sesame and grain prices from the Ethiopian Commodity Exchange.',
     icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>` },
-  { href: '/birrbank/intelligence', label: 'Intelligence', description: 'Market intelligence for the Ethiopian economy.', comingSoon: true,
-    icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/><circle cx="12" cy="12" r="4"/></svg>` },
+  { href: '/money', label: 'Money', description: 'Financial services for the diaspora community.',
+    icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>` },
 ]
 
 export default function BirrBankHubPage() {
@@ -55,38 +54,22 @@ export default function BirrBankHubPage() {
             <h2 className="text-2xl sm:text-3xl font-bold text-ink">Pick a section to get started</h2>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {SECTIONS.map((section) => {
-              const card = (
-                <>
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-5 shrink-0 ${section.comingSoon ? 'bg-section text-muted' : 'bg-green-soft text-green'}`}
-                    dangerouslySetInnerHTML={{ __html: section.icon }} />
-                  <h3 className={`font-bold text-base mb-1.5 transition-colors ${section.comingSoon ? 'text-muted' : 'text-ink group-hover:text-green'}`}>
-                    {section.label}{section.comingSoon && <span className="ml-2 text-[11px] font-bold uppercase tracking-wide text-muted">Coming soon</span>}
-                  </h3>
-                  <p className="text-sm text-muted leading-relaxed flex-1">{section.description}</p>
-                  {!section.comingSoon && (
-                    <div className="flex items-center justify-end mt-5 pt-4 border-t border-border/60">
-                      <span className="w-7 h-7 rounded-full bg-green-soft flex items-center justify-center transition-all duration-300 group-hover:bg-green">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-green group-hover:text-white transition-colors"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                      </span>
-                    </div>
-                  )}
-                </>
-              )
-              if (section.comingSoon) {
-                return (
-                  <div key={section.href} className="bg-white border border-border rounded-2xl p-6 flex flex-col opacity-60 cursor-not-allowed">
-                    {card}
-                  </div>
-                )
-              }
-              return (
-                <Link key={section.href} href={section.href}
-                  className="group bg-white border border-border rounded-2xl p-6 hover:border-green/50 hover:shadow-lg transition-all duration-200 flex flex-col">
-                  {card}
-                </Link>
-              )
-            })}
+            {SECTIONS.map((section) => (
+              <Link key={section.href} href={section.href}
+                className="group bg-white border border-border rounded-2xl p-6 hover:border-green/50 hover:shadow-lg transition-all duration-200 flex flex-col">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-5 shrink-0 bg-green-soft text-green"
+                  dangerouslySetInnerHTML={{ __html: section.icon }} />
+                <h3 className="font-bold text-base mb-1.5 transition-colors text-ink group-hover:text-green">
+                  {section.label}
+                </h3>
+                <p className="text-sm text-muted leading-relaxed flex-1">{section.description}</p>
+                <div className="flex items-center justify-end mt-5 pt-4 border-t border-border/60">
+                  <span className="w-7 h-7 rounded-full bg-green-soft flex items-center justify-center transition-all duration-300 group-hover:bg-green">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-green group-hover:text-white transition-colors"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                  </span>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
