@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import EmailCapture from '@/components/EmailCapture'
 import { createBirrBankAdminClient } from '@/lib/supabase-birrbank'
-import { ChevronRight } from 'lucide-react'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
@@ -53,19 +52,14 @@ export default async function RemittancePage() {
 
   return (
     <main className="bg-white flex-1">
-      <section className="relative overflow-hidden" style={{ background:'#0f172a' }}>
+      <section className="relative overflow-hidden" style={{ background:'#1C7C4C' }}>
         <div className="absolute inset-0 pointer-events-none" style={{ background:'radial-gradient(ellipse at 60% 0%, rgba(29,78,216,0.18) 0%, transparent 60%), radial-gradient(ellipse at 0% 100%, rgba(14,30,80,0.4) 0%, transparent 50%)' }} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-0">
-          <nav className="flex items-center gap-2 text-xs text-slate-500 mb-8">
-            <Link href="/" className="hover:text-slate-300 transition-colors">Home</Link>
-            <ChevronRight size={12} /><Link href="/birrbank/diaspora" className="hover:text-slate-300 transition-colors">Diaspora</Link>
-            <ChevronRight size={12} /><span className="text-slate-400">Remittance</span>
-          </nav>
           <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold mb-6"
-            style={{ background:'rgba(29,78,216,0.15)', color:'#93c5fd', border:'1px solid rgba(29,78,216,0.3)' }}>
+            style={{ background:'rgba(29,78,216,0.15)', color:'#ffffff', border:'1px solid rgba(29,78,216,0.3)' }}>
             Diaspora — Remittance
           </div>
-          <h1 className="font-serif font-bold text-white mb-4"
+          <h1 className="font-bold text-white mb-4"
             style={{ fontSize:'clamp(38px, 4.5vw, 56px)', letterSpacing:'-0.025em', lineHeight:1.08 }}>
             Cheapest way to send money to Ethiopia — all services compared.
           </h1>
@@ -93,15 +87,15 @@ export default async function RemittancePage() {
 
       <section style={{ background:'#ffffff', padding:'64px 0 96px' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color:'#1D4ED8' }}>Fee comparison</p>
-          <h2 className="font-serif font-bold text-slate-950 mb-8"
+          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color:'#1C7C4C' }}>Fee comparison</p>
+          <h2 className="font-bold text-slate-950 mb-8"
             style={{ fontSize:'clamp(22px, 3vw, 36px)', letterSpacing:'-0.5px' }}>
             Remittance services — sorted by fee.
           </h2>
           <div className="rounded-2xl overflow-hidden border border-slate-200" style={{ boxShadow:'0 4px 24px rgba(0,0,0,0.06)' }}>
-            <div style={{ height:4, background:'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+            <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
             <div className="hidden sm:grid border-b border-slate-200"
-              style={{ gridTemplateColumns:'1fr 110px 130px 110px 130px 110px', padding:'13px 24px', background:'#f8fafc' }}>
+              style={{ gridTemplateColumns:'1fr 110px 130px 110px 130px 110px', padding:'13px 24px', background:'#F4F5F3' }}>
               {['Service','Fee %','Min amount','Max amount','Processing','Verified'].map(h => (
                 <p key={h} className="text-xs font-black text-slate-400 uppercase tracking-widest">{h}</p>
               ))}
@@ -118,7 +112,7 @@ export default async function RemittancePage() {
                     {t.destination_countries && (
                       <div className="flex flex-wrap gap-1 mt-2">
                         {t.destination_countries.slice(0,5).map((c: string) => (
-                          <span key={c} className="text-xs rounded px-1.5 py-0.5" style={{ background:'#f1f5f9', color:'#475569' }}>{c}</span>
+                          <span key={c} className="text-xs rounded px-1.5 py-0.5" style={{ background:'#F4F5F3', color:'#5B6472' }}>{c}</span>
                         ))}
                         {t.destination_countries.length > 5 && <span className="text-xs text-slate-400">+{t.destination_countries.length-5} more</span>}
                       </div>
@@ -143,39 +137,39 @@ export default async function RemittancePage() {
             )) : (
               <div className="py-10 text-center"><p className="text-slate-500 text-sm">Remittance data is being verified. Check back soon.</p></div>
             )}
-            <div className="flex items-center justify-between border-t border-slate-200" style={{ background:'#f8fafc', padding:'14px 24px' }}>
+            <div className="flex items-center justify-between border-t border-slate-200" style={{ background:'#F4F5F3', padding:'14px 24px' }}>
               <p className="text-xs text-slate-400">Fees sourced from official service websites · For comparison only · Sorted by fee (low to high)</p>
-              <Link href="/birrbank/banking/money-transfer" className="text-xs font-bold" style={{ color:'#1D4ED8' }}>Full transfer comparison &#x2192;</Link>
+              <Link href="/birrbank/banking/money-transfer" className="text-xs font-bold" style={{ color:'#1C7C4C' }}>Full transfer comparison &#x2192;</Link>
             </div>
           </div>
           <p className="text-xs text-slate-400 mt-5 text-center">Transfer fees and exchange rates may vary. Always check the actual cost at the point of transfer. BirrBank is not a money transfer service.</p>
 
           {agencies.length > 0 && (
             <div className="mt-12">
-              <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color:'#1D4ED8' }}>NBE registry</p>
-              <h3 className="font-serif font-bold text-slate-950 mb-2" style={{ fontSize:'clamp(18px, 2vw, 24px)', letterSpacing:'-0.5px' }}>
+              <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color:'#1C7C4C' }}>NBE registry</p>
+              <h3 className="font-bold text-slate-950 mb-2" style={{ fontSize:'clamp(18px, 2vw, 24px)', letterSpacing:'-0.5px' }}>
                 All {agencyCount} NBE-licensed money transfer agencies
               </h3>
               <p className="text-slate-500 mb-6" style={{ fontSize:'13px' }}>Click any agency to view their full profile.</p>
               <div className="rounded-2xl overflow-hidden border border-slate-200">
-                <div style={{ height:4, background:'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+                <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                 {agencies.map((ag, i) => (
                   <Link key={ag.slug} href={`/birrbank/institutions/${ag.slug}`}
                     className="flex items-center justify-between hover:bg-slate-50 transition-colors"
-                    style={{ padding:'12px 24px', borderBottom: i < agencies.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
+                    style={{ padding:'12px 24px', borderBottom: i < agencies.length - 1 ? '1px solid #F4F5F3' : 'none' }}>
                     <div className="flex items-center gap-3">
                       <span className="font-semibold text-slate-800" style={{ fontSize:'14px' }}>{ag.name}</span>
                       {ag.headquarters && <span className="text-xs text-slate-400 hidden sm:inline">{ag.headquarters}</span>}
                     </div>
                     <div className="flex items-center gap-3 shrink-0">
                       {feeTableSlugs.has(ag.slug) ? (
-                        <span className="text-xs font-semibold" style={{ color:'#1D4ED8' }}>Rates compared above</span>
+                        <span className="text-xs font-semibold" style={{ color:'#1C7C4C' }}>Rates compared above</span>
                       ) : transferDateMap[ag.slug] ? (
                         <span className="text-xs font-semibold text-emerald-600">Verified {transferDateMap[ag.slug]}</span>
                       ) : (
                         <span className="text-xs text-slate-400">Rate not yet available</span>
                       )}
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5B6472" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                     </div>
                   </Link>
                 ))}
@@ -185,10 +179,10 @@ export default async function RemittancePage() {
         </div>
       </section>
 
-      <section style={{ background:'#f8fafc', padding:'96px 0' }}>
+      <section style={{ background:'#F4F5F3', padding:'96px 0' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color:'#1D4ED8' }}>Sending guide</p>
-          <h2 className="font-serif font-bold text-slate-950 mb-10"
+          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color:'#1C7C4C' }}>Sending guide</p>
+          <h2 className="font-bold text-slate-950 mb-10"
             style={{ fontSize:'clamp(26px, 3vw, 38px)', letterSpacing:'-0.5px' }}>
             How to find the cheapest remittance route.
           </h2>
@@ -199,9 +193,9 @@ export default async function RemittancePage() {
               { step:'03', title:'Corridor differences matter', body:'Fees and rates vary significantly by sending country. The US corridor is highly competitive. UK and Scandinavia are best served by Dahabshiil. Gulf corridors favour Western Union and MoneyGram.' },
             ].map(s => (
               <div key={s.step} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-blue-300 hover:shadow-lg transition-all">
-                <div style={{ height:4, background:'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+                <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                 <div style={{ padding:'28px 24px' }}>
-                  <p className="font-mono font-black mb-3" style={{ fontSize:'32px', color:'#e2e8f0', lineHeight:1 }}>{s.step}</p>
+                  <p className="font-mono font-black mb-3" style={{ fontSize:'32px', color:'#E4E6E3', lineHeight:1 }}>{s.step}</p>
                   <p className="font-bold text-slate-900 mb-3" style={{ fontSize:'15px' }}>{s.title}</p>
                   <p className="text-sm text-slate-500" style={{ lineHeight:1.75 }}>{s.body}</p>
                 </div>
@@ -211,19 +205,19 @@ export default async function RemittancePage() {
         </div>
       </section>
 
-      <section style={{ background:'#0f172a', padding:'72px 0', borderTop:'1px solid #1e293b' }}>
+      <section style={{ background:'#1C7C4C', padding:'72px 0', borderTop:'1px solid #155F3A' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-8">
           <div>
-            <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color:'#93c5fd' }}>Also track</p>
-            <h3 className="font-serif font-bold mb-2" style={{ fontSize:'clamp(22px, 2.5vw, 30px)', color:'#ffffff', letterSpacing:'-0.5px' }}>
+            <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color:'#ffffff' }}>Also track</p>
+            <h3 className="font-bold mb-2" style={{ fontSize:'clamp(22px, 2.5vw, 30px)', color:'#ffffff', letterSpacing:'-0.5px' }}>
               Compare the live NBE ETB exchange rate.
             </h3>
-            <p style={{ color:'#94a3b8', fontSize:'15px', lineHeight:1.75, maxWidth:480 }}>
+            <p style={{ color:'#5B6472', fontSize:'15px', lineHeight:1.75, maxWidth:480 }}>
               The fee is only part of the cost. The exchange rate margin is often larger. Compare the total ETB received.
             </p>
           </div>
           <Link href="/birrbank/banking/fx-rates" className="font-bold rounded-full shrink-0"
-            style={{ fontSize:14, padding:'14px 28px', background:'#1D4ED8', color:'#fff', whiteSpace:'nowrap' }}>
+            style={{ fontSize:14, padding:'14px 28px', background:'#1C7C4C', color:'#fff', whiteSpace:'nowrap' }}>
             Check ETB rates
           </Link>
         </div>
@@ -232,8 +226,8 @@ export default async function RemittancePage() {
       <section style={{ background:'#ffffff', padding:'96px 0' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
-            <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color:'#1D4ED8' }}>Stay informed</p>
-            <h2 className="font-serif font-bold text-slate-950 mb-5"
+            <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color:'#1C7C4C' }}>Stay informed</p>
+            <h2 className="font-bold text-slate-950 mb-5"
               style={{ fontSize:'clamp(30px, 3.5vw, 42px)', letterSpacing:'-0.5px', lineHeight:1.1 }}>
               Fee changes, direct to your inbox.
             </h2>

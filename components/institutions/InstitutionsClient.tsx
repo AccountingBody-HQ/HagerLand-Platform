@@ -21,9 +21,9 @@ const TYPE_LABELS: Record<string,string> = {
   capital_goods_finance:'Capital Goods', reinsurer:'Reinsurer', investment_bank:'Investment Bank',
 }
 const TYPE_COLORS: Record<string,string> = {
-  bank:'#1D4ED8', insurer:'#8b5cf6', microfinance:'#06b6d4',
+  bank:'#1C7C4C', insurer:'#8b5cf6', microfinance:'#06b6d4',
   payment_operator:'#f59e0b', money_transfer:'#ec4899', fx_bureau:'#10b981',
-  capital_goods_finance:'#f97316', reinsurer:'#64748b', investment_bank:'#64748b',
+  capital_goods_finance:'#f97316', reinsurer:'#5B6472', investment_bank:'#5B6472',
 }
 const TYPE_TABS = [
   { value:'all', label:'All' },
@@ -37,7 +37,7 @@ const TYPE_TABS = [
 ]
 
 function TypeBadge({ type }: { type: string }) {
-  const color = TYPE_COLORS[type] ?? '#64748b'
+  const color = TYPE_COLORS[type] ?? '#5B6472'
   return (
     <span className="text-xs font-semibold rounded-full px-2.5 py-0.5"
       style={{ background:`${color}15`, color }}>
@@ -57,29 +57,29 @@ function CoverageBadge({ active, coverage }: { active: boolean; coverage: Covera
     <span className="text-xs font-semibold rounded-full px-2.5 py-0.5 bg-amber-50 text-amber-700 ring-1 ring-amber-200">Partial</span>
   )
   return (
-    <span className="text-xs font-semibold rounded-full px-2.5 py-0.5 bg-blue-50 text-blue-600 ring-1 ring-blue-200">Profiled</span>
+    <span className="text-xs font-semibold rounded-full px-2.5 py-0.5 bg-green-soft text-green ring-1 ring-green/30">Profiled</span>
   )
 }
 
 function GridCard({ inst }: { inst: Institution }) {
-  const color = TYPE_COLORS[inst.type] ?? '#64748b'
+  const color = TYPE_COLORS[inst.type] ?? '#5B6472'
   const licenceYear = inst.nbe_licence_date ? new Date(inst.nbe_licence_date).getFullYear() : inst.founded_year ?? null
   const metric = inst.branches_count ? `${inst.branches_count} branches`
     : inst.swift_code ?? inst.nbe_licence_number ?? inst.hq_region ?? null
 
   const card = (
-    <div className={`group relative bg-white border rounded-xl overflow-hidden transition-all duration-200 flex flex-col h-full ${inst.is_active ? 'border-slate-200 hover:border-l-4 hover:border-l-blue-500 hover:border-blue-200 hover:shadow-lg cursor-pointer' : 'border-slate-200 opacity-60'}`}
+    <div className={`group relative bg-white border rounded-xl overflow-hidden transition-all duration-200 flex flex-col h-full ${inst.is_active ? 'border-slate-200 hover:border-l-4 hover:border-l-green hover:border-green/30 hover:shadow-lg cursor-pointer' : 'border-slate-200 opacity-60'}`}
       style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
       <div style={{ height: 4, background: inst.is_active ? `linear-gradient(90deg, ${color}, ${color}cc)` : '#e2e8f0' }} />
       <div className="p-5 flex flex-col flex-1">
         <div className="flex items-start justify-between gap-2 mb-3">
           <div className="flex-1 min-w-0">
-            <p className={`font-bold text-sm leading-snug mb-1 line-clamp-2 ${inst.is_active ? 'text-slate-900 group-hover:text-blue-700' : 'text-slate-500'} transition-colors`}>
+            <p className={`font-bold text-sm leading-snug mb-1 line-clamp-2 ${inst.is_active ? 'text-slate-900 group-hover:text-green-dark' : 'text-slate-500'} transition-colors`}>
               {inst.name}
             </p>
             <p className="text-xs text-slate-400 font-mono truncate">{metric ?? ' '}</p>
           </div>
-          {inst.is_active && <ChevronRight size={14} className="text-slate-300 group-hover:text-blue-400 shrink-0 mt-0.5 transition-colors" />}
+          {inst.is_active && <ChevronRight size={14} className="text-slate-300 group-hover:text-green shrink-0 mt-0.5 transition-colors" />}
         </div>
         {inst.description && inst.is_active && (
           <p className="text-xs text-slate-500 leading-relaxed mb-3 line-clamp-2">{inst.description}</p>
@@ -100,7 +100,7 @@ function GridCard({ inst }: { inst: Institution }) {
 }
 
 function ListRow({ inst }: { inst: Institution }) {
-  const color = TYPE_COLORS[inst.type] ?? '#64748b'
+  const color = TYPE_COLORS[inst.type] ?? '#5B6472'
   const licenceYear = inst.nbe_licence_date ? new Date(inst.nbe_licence_date).getFullYear() : inst.founded_year ?? null
 
   const row = (
@@ -169,7 +169,7 @@ export default function InstitutionsClient({ institutions }: { institutions: Ins
           <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
           <input type="text" value={search} onChange={e => setSearch(e.target.value)}
             placeholder="Search by name, SWIFT code, licence number, region..."
-            className="w-full pl-11 pr-10 py-3 bg-white border border-slate-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 rounded-xl text-sm text-slate-800 placeholder:text-slate-400 outline-none transition-all" />
+            className="w-full pl-11 pr-10 py-3 bg-white border border-slate-200 focus:border-green focus:ring-2 focus:ring-green/20 rounded-xl text-sm text-slate-800 placeholder:text-slate-400 outline-none transition-all" />
           {search && (
             <button onClick={() => setSearch('')}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
@@ -180,12 +180,12 @@ export default function InstitutionsClient({ institutions }: { institutions: Ins
         <div className="flex items-center gap-1 p-1 rounded-xl shrink-0" style={{ background: '#f1f5f9' }}>
           <button onClick={() => setView('grid')}
             className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all"
-            style={view === 'grid' ? { background: '#fff', color: '#1D4ED8', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' } : { color: '#94a3b8' }}>
+            style={view === 'grid' ? { background: '#fff', color: '#1C7C4C', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' } : { color: '#5B6472' }}>
             <LayoutGrid size={14} /> Grid
           </button>
           <button onClick={() => setView('list')}
             className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all"
-            style={view === 'list' ? { background: '#fff', color: '#1D4ED8', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' } : { color: '#94a3b8' }}>
+            style={view === 'list' ? { background: '#fff', color: '#1C7C4C', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' } : { color: '#5B6472' }}>
             <List size={14} /> List
           </button>
         </div>
@@ -197,7 +197,7 @@ export default function InstitutionsClient({ institutions }: { institutions: Ins
             <button key={tab.value} onClick={() => setType(tab.value)}
               className="px-4 py-2 rounded-full text-sm font-semibold transition-all shrink-0"
               style={type === tab.value
-                ? { background: '#1D4ED8', color: '#fff' }
+                ? { background: '#1C7C4C', color: '#fff' }
                 : { background: '#f8fafc', color: '#475569', border: '1px solid #e2e8f0' }}>
               {tab.label}
               {tab.value === 'all'
@@ -219,7 +219,7 @@ export default function InstitutionsClient({ institutions }: { institutions: Ins
         </p>
         {(search || type !== 'all') && (
           <button onClick={() => { setSearch(''); setType('all') }}
-            className="text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors">
+            className="text-xs font-semibold text-green hover:text-green-dark transition-colors">
             Clear filters
           </button>
         )}
@@ -230,7 +230,7 @@ export default function InstitutionsClient({ institutions }: { institutions: Ins
         {[
           { label:'Verified', cls:'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200' },
           { label:'Partial', cls:'bg-amber-50 text-amber-700 ring-1 ring-amber-200' },
-          { label:'Profiled', cls:'bg-blue-50 text-blue-600 ring-1 ring-blue-200' },
+          { label:'Profiled', cls:'bg-green-soft text-green ring-1 ring-green/30' },
           { label:'Coming Soon', cls:'bg-slate-100 text-slate-400 ring-1 ring-slate-200' },
         ].map(b => (
           <span key={b.label} className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${b.cls}`}>{b.label}</span>
@@ -244,7 +244,7 @@ export default function InstitutionsClient({ institutions }: { institutions: Ins
           </div>
         ) : (
           <div className="rounded-2xl overflow-hidden border border-slate-200">
-            <div style={{ height: 4, background: 'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+            <div style={{ height: 4, background: 'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
             <div className="grid px-4 py-2 border-b border-slate-100"
               style={{ background: '#f8fafc', gridTemplateColumns: '36px 1fr 130px 60px 90px 120px 20px' }}>
               <div />

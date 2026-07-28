@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import EmailCapture from '@/components/EmailCapture'
 import { createBirrBankAdminClient } from '@/lib/supabase-birrbank'
-import { ChevronRight } from 'lucide-react'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
@@ -33,21 +32,14 @@ export default async function MicrofinancePage() {
     <main className="bg-white flex-1">
 
       {/* DARK HERO */}
-      <section className="relative overflow-hidden" style={{ background:'#0f172a' }}>
+      <section className="relative overflow-hidden" style={{ background:'#1C7C4C' }}>
         <div className="absolute inset-0 pointer-events-none" style={{ background:'radial-gradient(ellipse at 60% 0%, rgba(29,78,216,0.18) 0%, transparent 60%), radial-gradient(ellipse at 0% 100%, rgba(14,30,80,0.4) 0%, transparent 50%)' }} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-0">
-          <nav className="flex items-center gap-2 text-xs text-slate-500 mb-8">
-            <Link href="/" className="hover:text-slate-300 transition-colors">Home</Link>
-            <ChevronRight size={12} />
-            <Link href="/birrbank/banking" className="hover:text-slate-300 transition-colors">Banking</Link>
-            <ChevronRight size={12} />
-            <span className="text-slate-400">Microfinance</span>
-          </nav>
           <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold mb-6"
-            style={{ background:'rgba(29,78,216,0.15)', color:'#93c5fd', border:'1px solid rgba(29,78,216,0.3)' }}>
+            style={{ background:'rgba(29,78,216,0.15)', color:'#ffffff', border:'1px solid rgba(29,78,216,0.3)' }}>
             Banking — Microfinance
           </div>
-          <h1 className="font-serif font-bold text-white mb-4"
+          <h1 className="font-bold text-white mb-4"
             style={{ fontSize:'clamp(38px, 4.5vw, 56px)', letterSpacing:'-0.025em', lineHeight:1.08 }}>
             Microfinance institutions in Ethiopia — all {mfiCount} NBE-licensed MFIs.
           </h1>
@@ -82,15 +74,15 @@ export default async function MicrofinancePage() {
       {/* MFI TABLE */}
       <section style={{ background:'#ffffff', padding:'64px 0 96px' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#1D4ED8' }}>NBE registry</p>
-          <h2 className="font-serif font-bold text-slate-950 mb-8"
+          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#1C7C4C' }}>NBE registry</p>
+          <h2 className="font-bold text-slate-950 mb-8"
             style={{ fontSize:'clamp(22px, 3vw, 36px)', letterSpacing:'-0.5px' }}>
             All {mfiCount} licensed microfinance institutions.
           </h2>
           <div className="rounded-2xl overflow-hidden border border-slate-200" style={{ boxShadow:'0 4px 24px rgba(0,0,0,0.06)' }}>
-            <div style={{ height:4, background:'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+            <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
             <div className="hidden sm:grid border-b border-slate-200"
-              style={{ gridTemplateColumns:'1fr 180px 140px 130px', padding:'13px 24px', background:'#f8fafc' }}>
+              style={{ gridTemplateColumns:'1fr 180px 140px 130px', padding:'13px 24px', background:'#F4F5F3' }}>
               {['Institution','Address','NBE Licence No','Established'].map(h => (
                 <p key={h} className="text-xs font-black text-slate-400 uppercase tracking-widest">{h}</p>
               ))}
@@ -115,7 +107,7 @@ export default async function MicrofinancePage() {
             )) : (
               <div className="py-10 text-center"><p className="text-slate-500 text-sm">MFI directory is being populated. Check back soon.</p></div>
             )}
-            <div className="border-t border-slate-200" style={{ background:'#f8fafc', padding:'14px 24px' }}>
+            <div className="border-t border-slate-200" style={{ background:'#F4F5F3', padding:'14px 24px' }}>
               <p className="text-xs text-slate-400">Source: NBE registry · nbe.gov.et · {mfiCount} licensed microfinance institutions</p>
             </div>
           </div>
@@ -123,10 +115,10 @@ export default async function MicrofinancePage() {
       </section>
 
       {/* GUIDE */}
-      <section style={{ background:'#f8fafc', padding:'96px 0' }}>
+      <section style={{ background:'#F4F5F3', padding:'96px 0' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#1D4ED8' }}>MFI guide</p>
-          <h2 className="font-serif font-bold text-slate-950 mb-10"
+          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#1C7C4C' }}>MFI guide</p>
+          <h2 className="font-bold text-slate-950 mb-10"
             style={{ fontSize:'clamp(26px, 3vw, 38px)', letterSpacing:'-0.5px' }}>
             What microfinance institutions offer.
           </h2>
@@ -137,9 +129,9 @@ export default async function MicrofinancePage() {
               { step:'03', title:'Savings products', body:'Most NBE-licensed MFIs also offer savings accounts with competitive rates — often higher than commercial banks for small balances. Compulsory savings linked to loans help members build financial discipline and credit history.' },
             ].map(s => (
               <div key={s.step} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-blue-300 hover:shadow-lg transition-all">
-                <div style={{ height:4, background:'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+                <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                 <div style={{ padding:'28px 24px' }}>
-                  <p className="font-mono font-black mb-3" style={{ fontSize:'32px', color:'#e2e8f0', lineHeight:1 }}>{s.step}</p>
+                  <p className="font-mono font-black mb-3" style={{ fontSize:'32px', color:'#E4E6E3', lineHeight:1 }}>{s.step}</p>
                   <p className="font-bold text-slate-900 mb-3" style={{ fontSize:'15px' }}>{s.title}</p>
                   <p className="text-sm text-slate-500" style={{ lineHeight:1.75 }}>{s.body}</p>
                 </div>
@@ -150,21 +142,21 @@ export default async function MicrofinancePage() {
       </section>
 
       {/* DARK TRUST */}
-      <section style={{ background:'#0f172a', padding:'72px 0', borderTop:'1px solid #1e293b' }}>
+      <section style={{ background:'#1C7C4C', padding:'72px 0', borderTop:'1px solid #155F3A' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-8">
           <div>
-            <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color:'#93c5fd' }}>NBE licensed only</p>
-            <h3 className="font-serif font-bold mb-2"
+            <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color:'#ffffff' }}>NBE licensed only</p>
+            <h3 className="font-bold mb-2"
               style={{ fontSize:'clamp(22px, 2.5vw, 30px)', color:'#ffffff', letterSpacing:'-0.5px' }}>
               Every MFI verified against the NBE registry.
             </h3>
-            <p style={{ color:'#94a3b8', fontSize:'15px', lineHeight:1.75, maxWidth:480 }}>
+            <p style={{ color:'#5B6472', fontSize:'15px', lineHeight:1.75, maxWidth:480 }}>
               BirrBank only lists microfinance institutions holding a valid licence from the National Bank of Ethiopia. No unlicensed lenders appear on this platform.
             </p>
           </div>
           <Link href="/birrbank/institutions?type=microfinance"
             className="font-bold rounded-full transition-all shrink-0"
-            style={{ fontSize:14, padding:'14px 28px', background:'#1D4ED8', color:'#fff', whiteSpace:'nowrap' }}>
+            style={{ fontSize:14, padding:'14px 28px', background:'#1C7C4C', color:'#fff', whiteSpace:'nowrap' }}>
             View all MFI profiles
           </Link>
         </div>
@@ -174,7 +166,7 @@ export default async function MicrofinancePage() {
       <section style={{ background:'#ffffff', padding:'96px 0' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
-            <h2 className="font-serif font-bold text-slate-950 mb-5"
+            <h2 className="font-bold text-slate-950 mb-5"
               style={{ fontSize:'clamp(30px, 3.5vw, 42px)', letterSpacing:'-0.5px', lineHeight:1.1 }}>
               Microfinance news, direct to your inbox.
             </h2>

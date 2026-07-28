@@ -43,21 +43,14 @@ export default function EcxGuidePage() {
   return (
     <main className="bg-white flex-1">
 
-      <section className="relative overflow-hidden" style={{ background:'#0f172a' }}>
+      <section className="relative overflow-hidden" style={{ background:'#1C7C4C' }}>
         <div className="absolute inset-0 pointer-events-none" style={{ background:'radial-gradient(ellipse at 60% 0%, rgba(29,78,216,0.18) 0%, transparent 60%)' }} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-12">
-          <nav className="flex items-center gap-2 text-xs text-slate-500 mb-8">
-            <Link href="/" className="hover:text-slate-300 transition-colors">Home</Link>
-            <ChevronRight size={12} />
-            <Link href="/birrbank/commodities" className="hover:text-slate-300 transition-colors">Commodities</Link>
-            <ChevronRight size={12} />
-            <span className="text-slate-400">How ECX Works</span>
-          </nav>
           <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold mb-6"
-            style={{ background:'rgba(29,78,216,0.15)', color:'#93c5fd', border:'1px solid rgba(29,78,216,0.3)' }}>
+            style={{ background:'rgba(29,78,216,0.15)', color:'#ffffff', border:'1px solid rgba(29,78,216,0.3)' }}>
             Commodities — ECX Guide
           </div>
-          <h1 className="font-serif font-bold text-white mb-4"
+          <h1 className="font-bold text-white mb-4"
             style={{ fontSize:'clamp(38px, 4.5vw, 56px)', letterSpacing:'-0.025em', lineHeight:1.08 }}>
             How the Ethiopian Commodity Exchange works — explained.
           </h1>
@@ -89,17 +82,17 @@ export default function EcxGuidePage() {
 
       <section style={{ background:'#ffffff', padding:'96px 0' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color:'#1D4ED8' }}>Step by step</p>
-          <h2 className="font-serif font-bold text-slate-950 mb-10"
+          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color:'#1C7C4C' }}>Step by step</p>
+          <h2 className="font-bold text-slate-950 mb-10"
             style={{ fontSize:'clamp(26px, 3vw, 38px)', letterSpacing:'-0.5px' }}>
             From farm to settlement — how ECX works.
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {HOW_IT_WORKS.map(s => (
               <div key={s.step} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-blue-300 hover:shadow-lg transition-all">
-                <div style={{ height:4, background:'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+                <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                 <div style={{ padding:'28px 24px' }}>
-                  <p className="font-mono font-black mb-3" style={{ fontSize:'36px', color:'#e2e8f0', lineHeight:1 }}>{s.step}</p>
+                  <p className="font-mono font-black mb-3" style={{ fontSize:'36px', color:'#E4E6E3', lineHeight:1 }}>{s.step}</p>
                   <p className="font-bold text-slate-900 mb-3" style={{ fontSize:'15px' }}>{s.title}</p>
                   <p className="text-sm text-slate-500" style={{ lineHeight:1.75 }}>{s.body}</p>
                 </div>
@@ -109,10 +102,10 @@ export default function EcxGuidePage() {
         </div>
       </section>
 
-      <section style={{ background:'#f8fafc', padding:'96px 0' }}>
+      <section style={{ background:'#F4F5F3', padding:'96px 0' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color:'#1D4ED8' }}>ECX coverage</p>
-          <h2 className="font-serif font-bold text-slate-950 mb-10"
+          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color:'#1C7C4C' }}>ECX coverage</p>
+          <h2 className="font-bold text-slate-950 mb-10"
             style={{ fontSize:'clamp(26px, 3vw, 38px)', letterSpacing:'-0.5px' }}>
             Commodities and origins on the ECX.
           </h2>
@@ -120,12 +113,12 @@ export default function EcxGuidePage() {
             {COMMODITIES_TRADED.map(c => (
               <Link key={c.name} href={c.href}
                 className="group bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-blue-300 hover:shadow-lg transition-all">
-                <div style={{ height:4, background:'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+                <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                 <div style={{ padding:'24px' }}>
                   <p className="font-bold text-slate-900 mb-2" style={{ fontSize:'16px' }}>{c.name}</p>
-                  <p className="text-xs font-bold mb-1" style={{ color:'#1D4ED8' }}>{c.codes}</p>
+                  <p className="text-xs font-bold mb-1" style={{ color:'#1C7C4C' }}>{c.codes}</p>
                   <p className="text-xs text-slate-400 mb-4" style={{ lineHeight:1.6 }}>{c.origins}</p>
-                  <div className="flex items-center gap-1 text-xs font-bold group-hover:gap-2 transition-all" style={{ color:'#1D4ED8' }}>
+                  <div className="flex items-center gap-1 text-xs font-bold group-hover:gap-2 transition-all" style={{ color:'#1C7C4C' }}>
                     View prices <ChevronRight size={11} />
                   </div>
                 </div>
@@ -137,17 +130,17 @@ export default function EcxGuidePage() {
 
       <section style={{ background:'#ffffff', padding:'96px 0' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color:'#1D4ED8' }}>Glossary</p>
-          <h2 className="font-serif font-bold text-slate-950 mb-10"
+          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color:'#1C7C4C' }}>Glossary</p>
+          <h2 className="font-bold text-slate-950 mb-10"
             style={{ fontSize:'clamp(26px, 3vw, 38px)', letterSpacing:'-0.5px' }}>
             ECX terminology explained.
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             {KEY_TERMS.map(t => (
               <div key={t.term} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-blue-300 hover:shadow-md transition-all">
-                <div style={{ height:4, background:'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+                <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                 <div style={{ padding:'24px' }}>
-                  <p className="font-mono font-black mb-2" style={{ fontSize:'16px', color:'#1D4ED8' }}>{t.term}</p>
+                  <p className="font-mono font-black mb-2" style={{ fontSize:'16px', color:'#1C7C4C' }}>{t.term}</p>
                   <p className="text-sm text-slate-500" style={{ lineHeight:1.75 }}>{t.def}</p>
                 </div>
               </div>
@@ -156,17 +149,17 @@ export default function EcxGuidePage() {
         </div>
       </section>
 
-      <section style={{ background:'#f8fafc', padding:'96px 0' }}>
+      <section style={{ background:'#F4F5F3', padding:'96px 0' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color:'#1D4ED8' }}>FAQ</p>
-          <h2 className="font-serif font-bold text-slate-950 mb-10"
+          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color:'#1C7C4C' }}>FAQ</p>
+          <h2 className="font-bold text-slate-950 mb-10"
             style={{ fontSize:'clamp(26px, 3vw, 38px)', letterSpacing:'-0.5px' }}>
             Common questions about the ECX.
           </h2>
           <div className="space-y-4 max-w-3xl">
             {FAQS.map(faq => (
               <div key={faq.q} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-blue-200 transition-all">
-                <div style={{ height:4, background:'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+                <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                 <div style={{ padding:'24px 28px' }}>
                   <p className="font-bold text-slate-900 mb-3" style={{ fontSize:'15px' }}>{faq.q}</p>
                   <p className="text-sm text-slate-500" style={{ lineHeight:1.8 }}>{faq.a}</p>
@@ -177,19 +170,19 @@ export default function EcxGuidePage() {
         </div>
       </section>
 
-      <section style={{ background:'#0f172a', padding:'72px 0', borderTop:'1px solid #1e293b' }}>
+      <section style={{ background:'#1C7C4C', padding:'72px 0', borderTop:'1px solid #155F3A' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-8">
           <div>
-            <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color:'#93c5fd' }}>About this guide</p>
-            <h3 className="font-serif font-bold mb-2" style={{ fontSize:'clamp(22px, 2.5vw, 30px)', color:'#ffffff', letterSpacing:'-0.5px' }}>
+            <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color:'#ffffff' }}>About this guide</p>
+            <h3 className="font-bold mb-2" style={{ fontSize:'clamp(22px, 2.5vw, 30px)', color:'#ffffff', letterSpacing:'-0.5px' }}>
               Based on official ECX documentation.
             </h3>
-            <p style={{ color:'#94a3b8', fontSize:'15px', lineHeight:1.75, maxWidth:480 }}>
+            <p style={{ color:'#5B6472', fontSize:'15px', lineHeight:1.75, maxWidth:480 }}>
               This guide is based on official ECX trading rules, grading standards and public documentation. For the most current rules, always refer directly to ecx.com.et.
             </p>
           </div>
           <Link href="/birrbank/commodities" className="font-bold rounded-full shrink-0"
-            style={{ fontSize:14, padding:'14px 28px', background:'#1D4ED8', color:'#fff', whiteSpace:'nowrap' }}>
+            style={{ fontSize:14, padding:'14px 28px', background:'#1C7C4C', color:'#fff', whiteSpace:'nowrap' }}>
             View commodity prices
           </Link>
         </div>
@@ -198,8 +191,8 @@ export default function EcxGuidePage() {
       <section style={{ background:'#ffffff', padding:'96px 0' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
-            <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color:'#1D4ED8' }}>Stay informed</p>
-            <h2 className="font-serif font-bold text-slate-950 mb-5"
+            <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color:'#1C7C4C' }}>Stay informed</p>
+            <h2 className="font-bold text-slate-950 mb-5"
               style={{ fontSize:'clamp(30px, 3.5vw, 42px)', letterSpacing:'-0.5px', lineHeight:1.1 }}>
               ECX prices and market news, weekly to your inbox.
             </h2>
@@ -209,7 +202,7 @@ export default function EcxGuidePage() {
             <ul className="space-y-3 mb-8">
               {['Weekly ECX settlement price summary — all commodities','Coffee, sesame and grain market movements','ECX rule changes and new commodity listings','Ethiopian agricultural export policy updates'].map(item => (
                 <li key={item} className="flex items-center gap-3 text-sm text-slate-600">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1C7C4C" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
                   {item}
                 </li>
               ))}

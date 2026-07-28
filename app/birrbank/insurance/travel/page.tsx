@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import EmailCapture from '@/components/EmailCapture'
 import { createBirrBankAdminClient } from '@/lib/supabase-birrbank'
-import { ChevronRight } from 'lucide-react'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
@@ -55,25 +54,19 @@ export default async function TravelInsurancePage() {
     <main className="bg-white flex-1">
 
       {/* DARK HERO */}
-      <section className="relative overflow-hidden" style={{ background: '#0f172a' }}>
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 60% 0%, rgba(29,78,216,0.18) 0%, transparent 60%), radial-gradient(ellipse at 0% 100%, rgba(14,30,80,0.4) 0%, transparent 50%)' }} />
+      <section className="relative overflow-hidden bg-green">
+        <div className="absolute inset-0 opacity-[0.07]" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px'}} />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] opacity-10 pointer-events-none" style={{background: 'radial-gradient(circle at top right, #fff 0%, transparent 60%)'}} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-0">
-          <nav className="flex items-center gap-2 text-xs text-slate-500 mb-8">
-            <Link href="/" className="hover:text-slate-300 transition-colors">Home</Link>
-            <ChevronRight size={12} />
-            <Link href="/birrbank/insurance" className="hover:text-slate-300 transition-colors">Insurance</Link>
-            <ChevronRight size={12} />
-            <span className="text-slate-400">Travel Insurance</span>
-          </nav>
           <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold mb-6"
-            style={{ background: 'rgba(29,78,216,0.15)', color: '#93c5fd', border: '1px solid rgba(29,78,216,0.3)' }}>
+            style={{ background: 'rgba(255,255,255,0.15)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.3)' }}>
             Insurance - Travel
           </div>
-          <h1 className="font-serif font-bold text-white mb-4"
+          <h1 className="font-bold text-white mb-4"
             style={{ fontSize: 'clamp(38px, 4.5vw, 56px)', letterSpacing: '-0.025em', lineHeight: 1.08 }}>
             Travel insurance in Ethiopia - all {insurerCount} insurers compared.
           </h1>
-          <p className="text-slate-400 mb-8" style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '520px' }}>
+          <p className="text-white/65 mb-8" style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '520px' }}>
             Compare travel insurance products from every NBE-licensed insurer in Ethiopia. Essential for Ethiopians travelling abroad and diaspora visiting home.
           </p>
           <div className="flex flex-wrap gap-3 mb-10">
@@ -84,15 +77,15 @@ export default async function TravelInsurancePage() {
               All insurance types
             </Link>
           </div>
-          <div className="grid grid-cols-3 mt-2 pt-8 border-t border-slate-800">
+          <div className="grid grid-cols-3 mt-2 pt-8 border-t border-white/20">
             {[
               { value: String(insurerCount), label: 'Licensed insurers' },
               { value: products.length > 0 ? String(products.length) : 'Pending', label: 'Travel products' },
               { value: 'Free', label: 'No broker fees' },
             ].map(s => (
-              <div key={s.label} className="text-center py-6 border-r border-slate-800 last:border-r-0">
+              <div key={s.label} className="text-center py-6 border-r border-white/20 last:border-r-0">
                 <div className="font-mono font-black text-white mb-1" style={{ fontSize: 'clamp(22px, 3vw, 36px)', letterSpacing: '-1px' }}>{s.value}</div>
-                <div className="text-xs font-semibold text-slate-500">{s.label}</div>
+                <div className="text-xs font-semibold text-white/40">{s.label}</div>
               </div>
             ))}
           </div>
@@ -102,17 +95,17 @@ export default async function TravelInsurancePage() {
       {/* PRODUCTS TABLE */}
       <section style={{ background: '#ffffff', padding: '64px 0 96px' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#1D4ED8' }}>Live data</p>
-          <h2 className="font-serif font-bold text-slate-950 mb-8"
+          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#1C7C4C' }}>Live data</p>
+          <h2 className="font-bold text-slate-950 mb-8"
             style={{ fontSize: 'clamp(22px, 3vw, 36px)', letterSpacing: '-0.5px' }}>
             Travel insurance - premium comparison.
           </h2>
 
           {products.length > 0 ? (
             <div className="rounded-2xl overflow-hidden border border-slate-200" style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
-              <div style={{ height: 4, background: 'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+              <div style={{ height: 4, background: 'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
               <div className="hidden sm:grid border-b border-slate-200"
-                style={{ gridTemplateColumns: '1fr 160px 140px 140px 110px', padding: '13px 24px', background: '#f8fafc' }}>
+                style={{ gridTemplateColumns: '1fr 160px 140px 140px 110px', padding: '13px 24px', background: '#F4F5F3' }}>
                 {['Insurer', 'Product', 'Premium from', 'Coverage from', 'Verified'].map(h => (
                   <p key={h} className="text-xs font-black text-slate-400 uppercase tracking-widest">{h}</p>
                 ))}
@@ -144,17 +137,17 @@ export default async function TravelInsurancePage() {
                   </div>
                 </Link>
               ))}
-              <div className="flex items-center justify-between border-t border-slate-200" style={{ background: '#f8fafc', padding: '14px 24px' }}>
+              <div className="flex items-center justify-between border-t border-slate-200" style={{ background: '#F4F5F3', padding: '14px 24px' }}>
                 <p className="text-xs text-slate-400">Premiums sourced from official insurer websites - For comparison only - Sorted by lowest premium</p>
-                <Link href="/birrbank/insurance" className="text-xs font-bold" style={{ color: '#1D4ED8' }}>All insurance types</Link>
+                <Link href="/birrbank/insurance" className="text-xs font-bold" style={{ color: '#1C7C4C' }}>All insurance types</Link>
               </div>
             </div>
           ) : (
             <div className="rounded-2xl border border-slate-200 overflow-hidden" style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
-              <div style={{ height: 4, background: 'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+              <div style={{ height: 4, background: 'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
               <div className="py-16 text-center px-8">
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4" style={{ background: '#dbeafe' }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <div className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4" style={{ background: '#E9F5EE' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1C7C4C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                   </svg>
                 </div>
@@ -175,10 +168,10 @@ export default async function TravelInsurancePage() {
       </section>
 
       {/* GUIDE */}
-      <section style={{ background: '#f8fafc', padding: '96px 0' }}>
+      <section style={{ background: '#F4F5F3', padding: '96px 0' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#1D4ED8' }}>Coverage guide</p>
-          <h2 className="font-serif font-bold text-slate-950 mb-10"
+          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#1C7C4C' }}>Coverage guide</p>
+          <h2 className="font-bold text-slate-950 mb-10"
             style={{ fontSize: 'clamp(26px, 3vw, 38px)', letterSpacing: '-0.5px' }}>
             What Ethiopian travel insurance covers.
           </h2>
@@ -189,9 +182,9 @@ export default async function TravelInsurancePage() {
               { step: '03', title: 'Baggage and personal effects', body: 'Covers loss, theft or damage to luggage and personal items. Ethiopian insurers typically cover up to ETB 50,000 in personal effects. High-value items such as cameras or laptops often require separate declaration.' },
             ].map(s => (
               <div key={s.step} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-blue-300 hover:shadow-lg transition-all">
-                <div style={{ height: 4, background: 'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+                <div style={{ height: 4, background: 'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                 <div style={{ padding: '28px 24px' }}>
-                  <p className="font-mono font-black mb-3" style={{ fontSize: '32px', color: '#e2e8f0', lineHeight: 1 }}>{s.step}</p>
+                  <p className="font-mono font-black mb-3" style={{ fontSize: '32px', color: '#E4E6E3', lineHeight: 1 }}>{s.step}</p>
                   <p className="font-bold text-slate-900 mb-3" style={{ fontSize: '15px' }}>{s.title}</p>
                   <p className="text-sm text-slate-500" style={{ lineHeight: 1.75 }}>{s.body}</p>
                 </div>
@@ -202,20 +195,20 @@ export default async function TravelInsurancePage() {
       </section>
 
       {/* DARK TRUST */}
-      <section style={{ background: '#0f172a', padding: '72px 0', borderTop: '1px solid #1e293b' }}>
+      <section style={{ background: '#1C7C4C', padding: '72px 0', borderTop: '1px solid #155F3A' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-8">
           <div>
-            <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color: '#93c5fd' }}>Source integrity</p>
-            <h3 className="font-serif font-bold mb-2"
+            <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color: '#ffffff' }}>Source integrity</p>
+            <h3 className="font-bold mb-2"
               style={{ fontSize: 'clamp(20px, 2.5vw, 28px)', color: '#ffffff', letterSpacing: '-0.5px' }}>
               Only NBE-licensed insurers. No unverified operators.
             </h3>
-            <p style={{ color: '#94a3b8', fontSize: '15px', lineHeight: 1.75, maxWidth: 480 }}>
+            <p style={{ color: '#5B6472', fontSize: '15px', lineHeight: 1.75, maxWidth: 480 }}>
               Every insurer on BirrBank is verified against the NBE registry. BirrBank earns nothing from the insurers it compares.
             </p>
           </div>
           <Link href="/birrbank/institutions?type=insurer" className="font-bold rounded-full transition-all shrink-0"
-            style={{ fontSize: 14, padding: '14px 28px', background: '#1D4ED8', color: '#fff', whiteSpace: 'nowrap' }}>
+            style={{ fontSize: 14, padding: '14px 28px', background: '#1C7C4C', color: '#fff', whiteSpace: 'nowrap' }}>
             View all insurers
           </Link>
         </div>
@@ -225,8 +218,8 @@ export default async function TravelInsurancePage() {
       <section style={{ background: '#ffffff', padding: '96px 0' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
-            <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#1D4ED8' }}>Travel insurance alerts</p>
-            <h2 className="font-serif font-bold text-slate-950 mb-5"
+            <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#1C7C4C' }}>Travel insurance alerts</p>
+            <h2 className="font-bold text-slate-950 mb-5"
               style={{ fontSize: 'clamp(30px, 3.5vw, 42px)', letterSpacing: '-0.5px', lineHeight: 1.1 }}>
               New products and rate changes, direct to your inbox.
             </h2>

@@ -2,7 +2,6 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { createBirrBankAdminClient } from "@/lib/supabase-birrbank"
-import { ChevronRight } from "lucide-react"
 import EmailCapture from "@/components/EmailCapture"
 
 export const dynamic = "force-dynamic"
@@ -100,27 +99,18 @@ export default async function CommoditySlugPage({
   return (
     <main className="bg-white flex-1">
       {/* Dark hero */}
-      <section className="relative overflow-hidden" style={{ background: "#0f172a" }}>
+      <section className="relative overflow-hidden" style={{ background: "#1C7C4C" }}>
         <div
           className="absolute inset-0 pointer-events-none"
           style={{ background: "radial-gradient(ellipse at 60% 0%, rgba(29,78,216,0.18) 0%, transparent 60%)" }}
         />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-12">
           {/* Breadcrumb */}
-          <nav className="flex items-center gap-2 text-xs text-slate-500 mb-8">
-            <Link href="/" className="hover:text-slate-300 transition-colors">Home</Link>
-            <ChevronRight size={12} />
-            <Link href="/birrbank/commodities" className="hover:text-slate-300 transition-colors">Commodities</Link>
-            <ChevronRight size={12} />
-            <Link href={parent.href} className="hover:text-slate-300 transition-colors">{parent.label}</Link>
-            <ChevronRight size={12} />
-            <span className="text-slate-400">{c.commodity_code}</span>
-          </nav>
 
           {/* Eyebrow */}
           <div
             className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold mb-6"
-            style={{ background: "rgba(29,78,216,0.15)", color: "#93c5fd", border: "1px solid rgba(29,78,216,0.3)" }}
+            style={{ background: "rgba(29,78,216,0.15)", color: "#ffffff", border: "1px solid rgba(29,78,216,0.3)" }}
           >
             ECX Settlement Price
           </div>
@@ -129,13 +119,13 @@ export default async function CommoditySlugPage({
           <div className="flex items-start gap-4 mb-3 flex-wrap">
             <span
               className="font-mono font-black text-white rounded-xl px-3 py-1.5 shrink-0"
-              style={{ background: "#1D4ED8", fontSize: "14px", letterSpacing: "0.05em" }}
+              style={{ background: "#1C7C4C", fontSize: "14px", letterSpacing: "0.05em" }}
             >
               {c.commodity_code}
             </span>
           </div>
           <h1
-            className="font-serif font-bold text-white mb-4"
+            className="font-bold text-white mb-4"
             style={{ fontSize: "clamp(30px, 4vw, 52px)", letterSpacing: "-0.025em", lineHeight: 1.08 }}
           >
             {c.commodity_name}
@@ -184,7 +174,7 @@ export default async function CommoditySlugPage({
       </section>
 
       {/* Grade info strip */}
-      <section style={{ background: "#f8fafc", borderBottom: "1px solid #e2e8f0", padding: "24px 0" }}>
+      <section style={{ background: "#F4F5F3", borderBottom: "1px solid #E4E6E3", padding: "24px 0" }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-wrap gap-6">
             {[
@@ -208,11 +198,11 @@ export default async function CommoditySlugPage({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: "#1D4ED8" }}>
+              <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: "#1C7C4C" }}>
                 Price history
               </p>
               <h2
-                className="font-serif font-bold text-slate-950"
+                className="font-bold text-slate-950"
                 style={{ fontSize: "clamp(22px, 3vw, 36px)", letterSpacing: "-0.5px" }}
               >
                 30-day settlement prices.
@@ -233,11 +223,11 @@ export default async function CommoditySlugPage({
             </div>
           ) : (
             <div className="rounded-2xl overflow-hidden border border-slate-200" style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}>
-              <div style={{ height: 4, background: "linear-gradient(90deg, #1D4ED8, #f59e0b)" }} />
+              <div style={{ height: 4, background: "linear-gradient(90deg, #1C7C4C, #f59e0b)" }} />
               <div className="overflow-x-auto">
                 <table className="w-full" style={{ minWidth: "480px" }}>
                   <thead>
-                    <tr className="border-b border-slate-200" style={{ background: "#f8fafc" }}>
+                    <tr className="border-b border-slate-200" style={{ background: "#F4F5F3" }}>
                       {["Trade date", "Price (ETB/kg)", "Day change", "Change %", "Volume"].map((h) => (
                         <th
                           key={h}
@@ -252,7 +242,7 @@ export default async function CommoditySlugPage({
                   <tbody>
                     {historyWithChange.map((row, i) => {
                       const pos = (row.change ?? 0) >= 0
-                      const rowChangeColour = row.change === null ? "#94a3b8" : pos ? "#16a34a" : "#dc2626"
+                      const rowChangeColour = row.change === null ? "#5B6472" : pos ? "#16a34a" : "#dc2626"
                       return (
                         <tr
                           key={row.trade_date}
@@ -263,7 +253,7 @@ export default async function CommoditySlugPage({
                             {i === 0 && (
                               <span
                                 className="ml-2 text-xs font-bold rounded-full px-2 py-0.5"
-                                style={{ background: "#eff6ff", color: "#1D4ED8" }}
+                                style={{ background: "#E9F5EE", color: "#1C7C4C" }}
                               >
                                 Latest
                               </span>
@@ -312,13 +302,13 @@ export default async function CommoditySlugPage({
       </section>
 
       {/* About ECX section */}
-      <section style={{ background: "#f8fafc", padding: "64px 0 80px", borderTop: "1px solid #e2e8f0" }}>
+      <section style={{ background: "#F4F5F3", padding: "64px 0 80px", borderTop: "1px solid #E4E6E3" }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: "#1D4ED8" }}>
+          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: "#1C7C4C" }}>
             About ECX grades
           </p>
           <h2
-            className="font-serif font-bold text-slate-950 mb-6"
+            className="font-bold text-slate-950 mb-6"
             style={{ fontSize: "clamp(22px, 3vw, 36px)", letterSpacing: "-0.5px", maxWidth: "560px" }}
           >
             How ECX commodity codes work.
@@ -343,8 +333,8 @@ export default async function CommoditySlugPage({
                 className="bg-white rounded-2xl border border-slate-200 p-6"
                 style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}
               >
-                <div style={{ height: 4, background: "linear-gradient(90deg, #1D4ED8, #1E40AF)", borderRadius: "9999px", marginBottom: "20px" }} />
-                <h3 className="font-serif font-bold text-slate-900 mb-3" style={{ fontSize: "17px" }}>{card.title}</h3>
+                <div style={{ height: 4, background: "linear-gradient(90deg, #1C7C4C, #155F3A)", borderRadius: "9999px", marginBottom: "20px" }} />
+                <h3 className="font-bold text-slate-900 mb-3" style={{ fontSize: "17px" }}>{card.title}</h3>
                 <p className="text-slate-500 text-sm leading-relaxed">{card.body}</p>
               </div>
             ))}
@@ -353,13 +343,13 @@ export default async function CommoditySlugPage({
       </section>
 
       {/* Dark CTA */}
-      <section style={{ background: "#0f172a", padding: "72px 0", borderTop: "1px solid #1e293b" }}>
+      <section style={{ background: "#1C7C4C", padding: "72px 0", borderTop: "1px solid #155F3A" }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: "#93c5fd" }}>
+          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: "#ffffff" }}>
             ECX commodities
           </p>
           <h2
-            className="font-serif font-bold text-white mb-4"
+            className="font-bold text-white mb-4"
             style={{ fontSize: "clamp(24px, 3.5vw, 42px)", letterSpacing: "-0.5px" }}
           >
             Track all Ethiopian commodity prices.

@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import EmailCapture from '@/components/EmailCapture'
 import { createBirrBankAdminClient } from '@/lib/supabase-birrbank'
-import { ChevronRight } from 'lucide-react'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
@@ -24,19 +23,14 @@ export default async function BankAccountPage() {
 
   return (
     <main className="bg-white flex-1">
-      <section className="relative overflow-hidden" style={{ background:'#0f172a' }}>
+      <section className="relative overflow-hidden" style={{ background:'#1C7C4C' }}>
         <div className="absolute inset-0 pointer-events-none" style={{ background:'radial-gradient(ellipse at 60% 0%, rgba(29,78,216,0.18) 0%, transparent 60%)' }} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-12">
-          <nav className="flex items-center gap-2 text-xs text-slate-500 mb-8">
-            <Link href="/" className="hover:text-slate-300 transition-colors">Home</Link>
-            <ChevronRight size={12} /><Link href="/birrbank/diaspora" className="hover:text-slate-300 transition-colors">Diaspora</Link>
-            <ChevronRight size={12} /><span className="text-slate-400">Open a Bank Account</span>
-          </nav>
           <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold mb-6"
-            style={{ background:'rgba(29,78,216,0.15)', color:'#93c5fd', border:'1px solid rgba(29,78,216,0.3)' }}>
+            style={{ background:'rgba(29,78,216,0.15)', color:'#ffffff', border:'1px solid rgba(29,78,216,0.3)' }}>
             Diaspora — Bank Account
           </div>
-          <h1 className="font-serif font-bold text-white mb-4"
+          <h1 className="font-bold text-white mb-4"
             style={{ fontSize:'clamp(38px, 4.5vw, 56px)', letterSpacing:'-0.025em', lineHeight:1.08 }}>
             Open an Ethiopian bank account from anywhere in the world.
           </h1>
@@ -68,8 +62,8 @@ export default async function BankAccountPage() {
 
       <section style={{ background:'#ffffff', padding:'64px 0 96px' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color:'#1D4ED8' }}>Step by step</p>
-          <h2 className="font-serif font-bold text-slate-950 mb-10"
+          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color:'#1C7C4C' }}>Step by step</p>
+          <h2 className="font-bold text-slate-950 mb-10"
             style={{ fontSize:'clamp(26px, 3vw, 38px)', letterSpacing:'-0.5px' }}>
             How to open a diaspora account.
           </h2>
@@ -81,9 +75,9 @@ export default async function BankAccountPage() {
               { step:'04', title:'Fund and activate', body:'Transfer your initial deposit via SWIFT. Once received, your account is activated and you can manage it online or through the bank mobile app.' },
             ].map(s => (
               <div key={s.step} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-blue-300 hover:shadow-lg transition-all">
-                <div style={{ height:4, background:'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+                <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                 <div style={{ padding:'24px' }}>
-                  <p className="font-mono font-black mb-3" style={{ fontSize:'32px', color:'#e2e8f0', lineHeight:1 }}>{s.step}</p>
+                  <p className="font-mono font-black mb-3" style={{ fontSize:'32px', color:'#E4E6E3', lineHeight:1 }}>{s.step}</p>
                   <p className="font-bold text-slate-900 mb-2" style={{ fontSize:'14px' }}>{s.title}</p>
                   <p className="text-sm text-slate-500" style={{ lineHeight:1.75 }}>{s.body}</p>
                 </div>
@@ -91,15 +85,15 @@ export default async function BankAccountPage() {
             ))}
           </div>
 
-          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color:'#1D4ED8' }}>NBE registry</p>
-          <h2 className="font-serif font-bold text-slate-950 mb-8"
+          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color:'#1C7C4C' }}>NBE registry</p>
+          <h2 className="font-bold text-slate-950 mb-8"
             style={{ fontSize:'clamp(22px, 2.8vw, 32px)', letterSpacing:'-0.5px' }}>
             Banks that accept international transfers
           </h2>
           <div className="rounded-2xl overflow-hidden border border-slate-200" style={{ boxShadow:'0 4px 24px rgba(0,0,0,0.06)' }}>
-            <div style={{ height:4, background:'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+            <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
             <div className="hidden sm:grid border-b border-slate-200"
-              style={{ gridTemplateColumns:'1fr 160px 120px', padding:'13px 24px', background:'#f8fafc' }}>
+              style={{ gridTemplateColumns:'1fr 160px 120px', padding:'13px 24px', background:'#F4F5F3' }}>
               {['Bank','SWIFT code','Founded'].map(h => (
                 <p key={h} className="text-xs font-black text-slate-400 uppercase tracking-widest">{h}</p>
               ))}
@@ -118,26 +112,26 @@ export default async function BankAccountPage() {
                 </div>
               </Link>
             ))}
-            <div className="border-t border-slate-200" style={{ background:'#f8fafc', padding:'14px 24px' }}>
+            <div className="border-t border-slate-200" style={{ background:'#F4F5F3', padding:'14px 24px' }}>
               <p className="text-xs text-slate-400">Banks with active SWIFT codes · Source: NBE registry · Click any bank for full profile</p>
             </div>
           </div>
         </div>
       </section>
 
-      <section style={{ background:'#0f172a', padding:'72px 0', borderTop:'1px solid #1e293b' }}>
+      <section style={{ background:'#1C7C4C', padding:'72px 0', borderTop:'1px solid #155F3A' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-8">
           <div>
-            <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color:'#93c5fd' }}>Next step</p>
-            <h3 className="font-serif font-bold mb-2" style={{ fontSize:'clamp(22px, 2.5vw, 30px)', color:'#ffffff', letterSpacing:'-0.5px' }}>
+            <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color:'#ffffff' }}>Next step</p>
+            <h3 className="font-bold mb-2" style={{ fontSize:'clamp(22px, 2.5vw, 30px)', color:'#ffffff', letterSpacing:'-0.5px' }}>
               Compare savings rates before opening.
             </h3>
-            <p style={{ color:'#94a3b8', fontSize:'15px', lineHeight:1.75, maxWidth:480 }}>
+            <p style={{ color:'#5B6472', fontSize:'15px', lineHeight:1.75, maxWidth:480 }}>
               Fixed deposit rates vary significantly between banks. Check which bank offers the best rate before choosing where to open your diaspora account.
             </p>
           </div>
           <Link href="/birrbank/banking/savings-rates" className="font-bold rounded-full shrink-0"
-            style={{ fontSize:14, padding:'14px 28px', background:'#1D4ED8', color:'#fff', whiteSpace:'nowrap' }}>
+            style={{ fontSize:14, padding:'14px 28px', background:'#1C7C4C', color:'#fff', whiteSpace:'nowrap' }}>
             Compare savings rates
           </Link>
         </div>
@@ -146,8 +140,8 @@ export default async function BankAccountPage() {
       <section style={{ background:'#ffffff', padding:'96px 0' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
-            <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color:'#1D4ED8' }}>Stay connected</p>
-            <h2 className="font-serif font-bold text-slate-950 mb-5"
+            <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color:'#1C7C4C' }}>Stay connected</p>
+            <h2 className="font-bold text-slate-950 mb-5"
               style={{ fontSize:'clamp(30px, 3.5vw, 42px)', letterSpacing:'-0.5px', lineHeight:1.1 }}>
               Stay informed, wherever you are.
             </h2>

@@ -3,7 +3,6 @@ import Link from 'next/link'
 import EmailCapture from '@/components/EmailCapture'
 import EmiCalculator from '@/components/EmiCalculator'
 import { createBirrBankAdminClient } from '@/lib/supabase-birrbank'
-import { ChevronRight } from 'lucide-react'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
@@ -38,13 +37,13 @@ interface LoanRow {
 function LoanTable({ loans, title }: { loans: LoanRow[]; title: string }) {
   return (
     <div className="mb-12">
-      <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#1D4ED8' }}>Live data</p>
-      <h3 className="font-serif font-bold text-slate-950 mb-6"
+      <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#1C7C4C' }}>Live data</p>
+      <h3 className="font-bold text-slate-950 mb-6"
         style={{ fontSize:'clamp(20px, 2.5vw, 26px)', letterSpacing:'-0.5px' }}>{title}</h3>
       <div className="rounded-2xl overflow-hidden border border-slate-200" style={{ boxShadow:'0 4px 24px rgba(0,0,0,0.06)' }}>
-        <div style={{ height:4, background:'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+        <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
         <div className="hidden sm:grid border-b border-slate-200"
-          style={{ gridTemplateColumns:'44px 1fr 130px 130px 120px 130px 110px', padding:'13px 24px', background:'#f8fafc' }}>
+          style={{ gridTemplateColumns:'44px 1fr 130px 130px 120px 130px 110px', padding:'13px 24px', background:'#F4F5F3' }}>
           {['#','Bank','Min rate','Max rate','Max term','Max amount','Verified'].map(h => (
             <p key={h} className="text-xs font-black text-slate-400 uppercase tracking-widest">{h}</p>
           ))}
@@ -54,7 +53,7 @@ function LoanTable({ loans, title }: { loans: LoanRow[]; title: string }) {
             <div className="hidden sm:grid items-center"
               style={{ gridTemplateColumns:'44px 1fr 130px 130px 120px 130px 110px', padding:i===0?'18px 24px':'13px 24px' }}>
               <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black"
-                style={i===0 ? { background:'#1D4ED8', color:'#fff' } : { background:'#f1f5f9', color:'#94a3b8' }}>
+                style={i===0 ? { background:'#1C7C4C', color:'#fff' } : { background:'#F4F5F3', color:'#5B6472' }}>
                 {i===0 ? <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> : i+1}
               </div>
               <Link href={`/birrbank/institutions/${r.institutions?.[0]?.slug ?? r.institution_slug}`}
@@ -80,9 +79,9 @@ function LoanTable({ loans, title }: { loans: LoanRow[]; title: string }) {
         )) : (
           <div className="py-10 text-center"><p className="text-slate-500 text-sm">Loan rate data is being verified. Check back soon.</p></div>
         )}
-        <div className="flex items-center justify-between border-t border-slate-200" style={{ background:'#f8fafc', padding:'14px 24px' }}>
+        <div className="flex items-center justify-between border-t border-slate-200" style={{ background:'#F4F5F3', padding:'14px 24px' }}>
           <p className="text-xs text-slate-400">Rates sourced from official bank websites · For comparison only · Sorted by minimum rate</p>
-          <Link href="/birrbank/banking/savings-rates" className="text-xs font-bold" style={{ color:'#1D4ED8' }}>Compare savings rates →</Link>
+          <Link href="/birrbank/banking/savings-rates" className="text-xs font-bold" style={{ color:'#1C7C4C' }}>Compare savings rates →</Link>
         </div>
       </div>
     </div>
@@ -110,21 +109,14 @@ export default async function LoansPage() {
     <main className="bg-white flex-1">
 
       {/* DARK HERO */}
-      <section className="relative overflow-hidden" style={{ background:'#0f172a' }}>
+      <section className="relative overflow-hidden" style={{ background:'#1C7C4C' }}>
         <div className="absolute inset-0 pointer-events-none" style={{ background:'radial-gradient(ellipse at 60% 0%, rgba(29,78,216,0.18) 0%, transparent 60%), radial-gradient(ellipse at 0% 100%, rgba(14,30,80,0.4) 0%, transparent 50%)' }} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-0">
-          <nav className="flex items-center gap-2 text-xs text-slate-500 mb-8">
-            <Link href="/" className="hover:text-slate-300 transition-colors">Home</Link>
-            <ChevronRight size={12} />
-            <Link href="/birrbank/banking" className="hover:text-slate-300 transition-colors">Banking</Link>
-            <ChevronRight size={12} />
-            <span className="text-slate-400">Loan Comparison</span>
-          </nav>
           <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold mb-6"
-            style={{ background:'rgba(29,78,216,0.15)', color:'#93c5fd', border:'1px solid rgba(29,78,216,0.3)' }}>
+            style={{ background:'rgba(29,78,216,0.15)', color:'#ffffff', border:'1px solid rgba(29,78,216,0.3)' }}>
             Banking — Loans
           </div>
-          <h1 className="font-serif font-bold text-white mb-4"
+          <h1 className="font-bold text-white mb-4"
             style={{ fontSize:'clamp(38px, 4.5vw, 56px)', letterSpacing:'-0.025em', lineHeight:1.08 }}>
             Best loan rates in Ethiopia — all {bankCount} banks compared.
           </h1>
@@ -169,10 +161,10 @@ export default async function LoansPage() {
       </section>
 
       {/* EMI CALCULATOR */}
-      <section style={{ background:'#f8fafc', padding:'0 0 96px' }}>
+      <section style={{ background:'#F4F5F3', padding:'0 0 96px' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-xs font-black uppercase tracking-widest mb-3 pt-16" style={{ color: '#1D4ED8' }}>EMI calculator</p>
-          <h2 className="font-serif font-bold text-slate-950 mb-4"
+          <p className="text-xs font-black uppercase tracking-widest mb-3 pt-16" style={{ color: '#1C7C4C' }}>EMI calculator</p>
+          <h2 className="font-bold text-slate-950 mb-4"
             style={{ fontSize:'clamp(26px, 3vw, 36px)', letterSpacing:'-0.5px' }}>
             Calculate your monthly repayment.
           </h2>
@@ -186,8 +178,8 @@ export default async function LoansPage() {
       {/* GUIDE */}
       <section style={{ background:'#ffffff', padding:'96px 0' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#1D4ED8' }}>Borrowing guide</p>
-          <h2 className="font-serif font-bold text-slate-950 mb-10"
+          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#1C7C4C' }}>Borrowing guide</p>
+          <h2 className="font-bold text-slate-950 mb-10"
             style={{ fontSize:'clamp(26px, 3vw, 38px)', letterSpacing:'-0.5px' }}>
             How to choose the best loan in Ethiopia.
           </h2>
@@ -198,9 +190,9 @@ export default async function LoansPage() {
               { step:'03', title:'Collateral requirements vary significantly', body:'Most Ethiopian banks require collateral for personal loans above ETB 50,000. CBE accepts vehicle logbooks and land title deeds. Some private banks offer unsecured personal loans at higher rates.' },
             ].map(s => (
               <div key={s.step} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-blue-300 hover:shadow-lg transition-all">
-                <div style={{ height:4, background:'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+                <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                 <div style={{ padding:'28px 24px' }}>
-                  <p className="font-mono font-black mb-3" style={{ fontSize:'32px', color:'#e2e8f0', lineHeight:1 }}>{s.step}</p>
+                  <p className="font-mono font-black mb-3" style={{ fontSize:'32px', color:'#E4E6E3', lineHeight:1 }}>{s.step}</p>
                   <p className="font-bold text-slate-900 mb-3" style={{ fontSize:'15px' }}>{s.title}</p>
                   <p className="text-sm text-slate-500" style={{ lineHeight:1.75 }}>{s.body}</p>
                 </div>
@@ -211,21 +203,21 @@ export default async function LoansPage() {
       </section>
 
       {/* DARK TRUST */}
-      <section style={{ background:'#0f172a', padding:'72px 0', borderTop:'1px solid #1e293b' }}>
+      <section style={{ background:'#1C7C4C', padding:'72px 0', borderTop:'1px solid #155F3A' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-8">
           <div>
-            <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color:'#93c5fd' }}>Data integrity</p>
-            <h3 className="font-serif font-bold mb-2"
+            <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color:'#ffffff' }}>Data integrity</p>
+            <h3 className="font-bold mb-2"
               style={{ fontSize:'clamp(22px, 2.5vw, 30px)', color:'#ffffff', letterSpacing:'-0.5px' }}>
               Every rate has a verified date. Always.
             </h3>
-            <p style={{ color:'#94a3b8', fontSize:'15px', lineHeight:1.75, maxWidth:480 }}>
+            <p style={{ color:'#5B6472', fontSize:'15px', lineHeight:1.75, maxWidth:480 }}>
               Loan rates are sourced from official bank websites and verified weekly. Any rate older than 7 days is flagged automatically.
             </p>
           </div>
           <Link href="/birrbank/banking/savings-rates"
             className="font-bold rounded-full shrink-0"
-            style={{ fontSize:14, padding:'14px 28px', background:'#1D4ED8', color:'#fff', whiteSpace:'nowrap' }}>
+            style={{ fontSize:14, padding:'14px 28px', background:'#1C7C4C', color:'#fff', whiteSpace:'nowrap' }}>
             Compare savings rates
           </Link>
         </div>
@@ -235,7 +227,7 @@ export default async function LoansPage() {
       <section style={{ background:'#ffffff', padding:'96px 0' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
-            <h2 className="font-serif font-bold text-slate-950 mb-5"
+            <h2 className="font-bold text-slate-950 mb-5"
               style={{ fontSize:'clamp(30px, 3.5vw, 42px)', letterSpacing:'-0.5px', lineHeight:1.1 }}>
               Loan rate changes, direct to your inbox.
             </h2>
@@ -245,7 +237,7 @@ export default async function LoansPage() {
             <ul className="space-y-3 mb-8">
               {['Personal, home and business loan rate changes','New loan products and promotional rates','NBE lending rate directive changes','Collateral requirement updates'].map(item => (
                 <li key={item} className="flex items-center gap-3 text-sm text-slate-600">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1C7C4C" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
                   {item}
                 </li>
               ))}

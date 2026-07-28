@@ -30,11 +30,11 @@ body { overflow-x: hidden !important; }
   text-align: center;
 }
 .hero-btn-primary {
-  background: #1D4ED8;
-  color: #fff;
+  background: #fff;
+  color: #1C7C4C;
 }
 .hero-btn-primary:hover {
-  background: #1e40af;
+  background: #E9F5EE;
 }
 .hero-btn-secondary {
   border: 1.5px solid rgba(255,255,255,0.2);

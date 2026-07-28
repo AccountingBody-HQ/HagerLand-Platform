@@ -48,21 +48,14 @@ const CLAIM_TYPES = [
 export default function ClaimsGuidePage() {
   return (
     <main className="bg-white flex-1">
-      <section className="relative overflow-hidden" style={{ background:'#0f172a' }}>
+      <section className="relative overflow-hidden" style={{ background:'#1C7C4C' }}>
         <div className="absolute inset-0 pointer-events-none" style={{ background:'radial-gradient(ellipse at 60% 0%, rgba(29,78,216,0.18) 0%, transparent 60%)' }} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-0">
-          <nav className="flex items-center gap-2 text-xs text-slate-500 mb-8">
-            <Link href="/" className="hover:text-slate-300 transition-colors">Home</Link>
-            <ChevronRight size={12} />
-            <Link href="/birrbank/insurance" className="hover:text-slate-300 transition-colors">Insurance</Link>
-            <ChevronRight size={12} />
-            <span className="text-slate-400">Claims Guide</span>
-          </nav>
           <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold mb-6"
-            style={{ background:'rgba(29,78,216,0.15)', color:'#93c5fd', border:'1px solid rgba(29,78,216,0.3)' }}>
+            style={{ background:'rgba(29,78,216,0.15)', color:'#ffffff', border:'1px solid rgba(29,78,216,0.3)' }}>
             Insurance — Claims Guide
           </div>
-          <h1 className="font-serif font-bold text-white mb-4"
+          <h1 className="font-bold text-white mb-4"
             style={{ fontSize:'clamp(38px, 4.5vw, 56px)', letterSpacing:'-0.025em', lineHeight:1.08 }}>
             How to make an insurance claim in Ethiopia.
           </h1>
@@ -93,16 +86,16 @@ export default function ClaimsGuidePage() {
       </section>
 
       {CLAIM_TYPES.map(ct => (
-        <section key={ct.type} style={{ background: CLAIM_TYPES.indexOf(ct) % 2 === 0 ? '#ffffff' : '#f8fafc', padding:'96px 0', borderTop:'1px solid #e2e8f0' }}>
+        <section key={ct.type} style={{ background: CLAIM_TYPES.indexOf(ct) % 2 === 0 ? '#ffffff' : '#F4F5F3', padding:'96px 0', borderTop:'1px solid #E4E6E3' }}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="mb-10">
-              <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#1D4ED8' }}>Step-by-step guide</p>
+              <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#1C7C4C' }}>Step-by-step guide</p>
               <div className="flex items-center gap-3">
-                <h2 className="font-serif font-bold text-slate-950"
+                <h2 className="font-bold text-slate-950"
                   style={{ fontSize:'clamp(22px, 3vw, 34px)', letterSpacing:'-0.5px' }}>
                   {ct.type}
                 </h2>
-                <Link href={ct.href} className="text-xs font-bold" style={{ color:'#1D4ED8' }}>
+                <Link href={ct.href} className="text-xs font-bold" style={{ color:'#1C7C4C' }}>
                   Compare products <ChevronRight size={11} className="inline" />
                 </Link>
               </div>
@@ -110,9 +103,9 @@ export default function ClaimsGuidePage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {ct.steps.map(s => (
                 <div key={s.step} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-blue-300 hover:shadow-lg transition-all">
-                  <div style={{ height:4, background:'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+                  <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                   <div style={{ padding:'28px 24px' }}>
-                    <p className="font-mono font-black mb-3" style={{ fontSize:'32px', color:'#e2e8f0', lineHeight:1 }}>{s.step}</p>
+                    <p className="font-mono font-black mb-3" style={{ fontSize:'32px', color:'#E4E6E3', lineHeight:1 }}>{s.step}</p>
                     <p className="font-bold text-slate-900 mb-3" style={{ fontSize:'15px' }}>{s.title}</p>
                     <p className="text-sm text-slate-500" style={{ lineHeight:1.75 }}>{s.body}</p>
                   </div>
@@ -123,19 +116,19 @@ export default function ClaimsGuidePage() {
         </section>
       ))}
 
-      <section style={{ background:'#0f172a', padding:'72px 0', borderTop:'1px solid #1e293b' }}>
+      <section style={{ background:'#1C7C4C', padding:'72px 0', borderTop:'1px solid #155F3A' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-8">
           <div>
-            <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color:'#93c5fd' }}>Compare providers</p>
-            <h3 className="font-serif font-bold mb-2" style={{ fontSize:'clamp(22px, 2.5vw, 30px)', color:'#ffffff', letterSpacing:'-0.5px' }}>
+            <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color:'#ffffff' }}>Compare providers</p>
+            <h3 className="font-bold mb-2" style={{ fontSize:'clamp(22px, 2.5vw, 30px)', color:'#ffffff', letterSpacing:'-0.5px' }}>
               Already have a claim? Compare your next policy.
             </h3>
-            <p style={{ color:'#94a3b8', fontSize:'15px', lineHeight:1.75, maxWidth:480 }}>
+            <p style={{ color:'#5B6472', fontSize:'15px', lineHeight:1.75, maxWidth:480 }}>
               BirrBank compares premiums across all NBE-licensed insurers — free, with no broker involved.
             </p>
           </div>
           <Link href="/birrbank/insurance" className="font-bold rounded-full shrink-0"
-            style={{ fontSize:14, padding:'14px 28px', background:'#1D4ED8', color:'#fff', whiteSpace:'nowrap' }}>
+            style={{ fontSize:14, padding:'14px 28px', background:'#1C7C4C', color:'#fff', whiteSpace:'nowrap' }}>
             Compare all insurance
           </Link>
         </div>
@@ -144,8 +137,8 @@ export default function ClaimsGuidePage() {
       <section style={{ background:'#ffffff', padding:'96px 0' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
-            <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#1D4ED8' }}>Stay informed</p>
-            <h2 className="font-serif font-bold text-slate-950 mb-5"
+            <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#1C7C4C' }}>Stay informed</p>
+            <h2 className="font-bold text-slate-950 mb-5"
               style={{ fontSize:'clamp(30px, 3.5vw, 42px)', letterSpacing:'-0.5px', lineHeight:1.1 }}>
               Insurance updates, direct to your inbox.
             </h2>

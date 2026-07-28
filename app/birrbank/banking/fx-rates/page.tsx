@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import EmailCapture from '@/components/EmailCapture'
 import { createBirrBankAdminClient } from '@/lib/supabase-birrbank'
-import { ChevronRight } from 'lucide-react'
 import RateTypeToggle from '@/components/RateTypeToggle'
 export const dynamic = 'force-dynamic'
 
@@ -146,36 +145,30 @@ export default async function FxRatesPage({ searchParams }: { searchParams: { ty
     <main className="bg-white flex-1">
 
       {/* DARK HERO */}
-      <section className="relative overflow-hidden" style={{ background: '#0f172a' }}>
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 60% 0%, rgba(29,78,216,0.18) 0%, transparent 60%), radial-gradient(ellipse at 0% 100%, rgba(14,30,80,0.4) 0%, transparent 50%)' }} />
+      <section className="relative overflow-hidden bg-green">
+        <div className="absolute inset-0 opacity-[0.07]" style={{backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px'}} />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] opacity-10 pointer-events-none" style={{background: 'radial-gradient(circle at top right, #fff 0%, transparent 60%)'}} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-0">
-          <nav className="flex items-center gap-2 text-xs text-slate-500 mb-8">
-            <Link href="/" className="hover:text-slate-300 transition-colors">Home</Link>
-            <ChevronRight size={12} />
-            <Link href="/birrbank/banking" className="hover:text-slate-300 transition-colors">Banking</Link>
-            <ChevronRight size={12} />
-            <span className="text-slate-400">FX Rates</span>
-          </nav>
           <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold mb-6"
-            style={{ background: 'rgba(29,78,216,0.15)', color: '#93c5fd', border: '1px solid rgba(29,78,216,0.3)' }}>
+            style={{ background: 'rgba(255,255,255,0.15)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.3)' }}>
             Banking &#8212; FX Rates
           </div>
-          <h1 className="font-serif font-bold text-white mb-4"
+          <h1 className="font-bold text-white mb-4"
             style={{ fontSize: 'clamp(32px, 4vw, 52px)', letterSpacing: '-0.025em', lineHeight: 1.08 }}>
             Ethiopian FX rates &#8212; NBE official &amp; all banks.
           </h1>
-          <p className="text-slate-400 mb-10" style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '520px' }}>
+          <p className="text-white/65 mb-10" style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '520px' }}>
             The National Bank of Ethiopia publishes indicative rates daily at 09:30 EAT. All rates are ETB per 1 foreign currency unit.
           </p>
-          <div className="grid grid-cols-3 mt-2 pt-8 border-t border-slate-800">
+          <div className="grid grid-cols-3 mt-2 pt-8 border-t border-white/20">
             {[
               { value: String(NBE_RATES.length), label: 'Currencies tracked' },
               { value: 'Daily', label: 'NBE update frequency' },
               { value: String(BANK_RATES.length || 0), label: 'Banks with FX data' },
             ].map(s => (
-              <div key={s.label} className="text-center py-6 border-r border-slate-800 last:border-r-0">
+              <div key={s.label} className="text-center py-6 border-r border-white/20 last:border-r-0">
                 <div className="font-mono font-black text-white mb-1" style={{ fontSize: 'clamp(22px, 3vw, 36px)', letterSpacing: '-1px' }}>{s.value}</div>
-                <div className="text-xs font-semibold text-slate-500">{s.label}</div>
+                <div className="text-xs font-semibold text-white/40">{s.label}</div>
               </div>
             ))}
           </div>
@@ -189,8 +182,8 @@ export default async function FxRatesPage({ searchParams }: { searchParams: { ty
           {/* NBE TABLE */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
             <div>
-              <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color: '#1D4ED8' }}>Live data</p>
-              <h2 className="font-serif font-bold text-slate-950" style={{ fontSize: 'clamp(20px, 2.5vw, 28px)', letterSpacing: '-0.5px' }}>
+              <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color: '#1C7C4C' }}>Live data</p>
+              <h2 className="font-bold text-slate-950" style={{ fontSize: 'clamp(20px, 2.5vw, 28px)', letterSpacing: '-0.5px' }}>
                 NBE indicative rates
               </h2>
               <p className="text-slate-500 mt-1" style={{ fontSize: '13px' }}>Official weighted average published by the National Bank of Ethiopia</p>
@@ -205,11 +198,11 @@ export default async function FxRatesPage({ searchParams }: { searchParams: { ty
 
           {NBE_RATES.length > 0 ? (
             <div className="rounded-2xl overflow-hidden border border-slate-200" style={{ boxShadow: '0 2px 16px rgba(0,0,0,0.04)' }}>
-              <div style={{ height: 4, background: 'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+              <div style={{ height: 4, background: 'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
               <div className="overflow-x-auto">
               <table className="w-full" style={{ minWidth: 480 }}>
                 <thead>
-                  <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                  <tr style={{ background: '#F4F5F3', borderBottom: '1px solid #E4E6E3' }}>
                     <th className="text-left text-xs font-black text-slate-400 uppercase tracking-widest" style={{ padding: '12px 20px' }}>Currency</th>
                     <th className="text-left text-xs font-black text-slate-400 uppercase tracking-widest hidden sm:table-cell" style={{ padding: '12px 16px' }}>Code</th>
                     <th className="text-right text-xs font-black text-slate-400 uppercase tracking-widest" style={{ padding: '12px 20px' }}>Buying (ETB)</th>
@@ -225,14 +218,14 @@ export default async function FxRatesPage({ searchParams }: { searchParams: { ty
                       : '\u2014'
                     return (
                       <tr key={r.currency_code}
-                        style={{ borderBottom: i < NBE_RATES.length - 1 ? '1px solid #f1f5f9' : 'none', background: i % 2 === 0 ? '#ffffff' : '#fafbfc' }}>
+                        style={{ borderBottom: i < NBE_RATES.length - 1 ? '1px solid #F4F5F3' : 'none', background: i % 2 === 0 ? '#ffffff' : '#F4F5F3' }}>
                         <td style={{ padding: '13px 20px' }}>
                           <span className="font-semibold text-slate-800" style={{ fontSize: '14px' }}>
                             {CURRENCY_NAMES[r.currency_code] ?? r.currency_code}
                           </span>
                         </td>
                         <td className="hidden sm:table-cell" style={{ padding: '13px 16px' }}>
-                          <span className="font-mono font-black text-xs rounded px-2 py-0.5" style={{ background: '#1D4ED8', color: '#fff' }}>
+                          <span className="font-mono font-black text-xs rounded px-2 py-0.5" style={{ background: '#1C7C4C', color: '#fff' }}>
                             {r.currency_code}
                           </span>
                         </td>
@@ -254,7 +247,7 @@ export default async function FxRatesPage({ searchParams }: { searchParams: { ty
                 </tbody>
               </table>
               </div>
-              <div className="flex items-center justify-between border-t border-slate-100" style={{ background: '#f8fafc', padding: '12px 20px' }}>
+              <div className="flex items-center justify-between border-t border-slate-100" style={{ background: '#F4F5F3', padding: '12px 20px' }}>
                 <p className="text-xs text-slate-400">Source: National Bank of Ethiopia &#8212; nbe.gov.et</p>
                 <p className="text-xs text-slate-400">All rates ETB per 1 foreign unit</p>
               </div>
@@ -269,8 +262,8 @@ export default async function FxRatesPage({ searchParams }: { searchParams: { ty
           <div className="mt-16">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
               <div>
-                <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color: '#1D4ED8' }}>Compare banks</p>
-                <h2 className="font-serif font-bold text-slate-950" style={{ fontSize: 'clamp(20px, 2.5vw, 28px)', letterSpacing: '-0.5px' }}>
+                <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color: '#1C7C4C' }}>Compare banks</p>
+                <h2 className="font-bold text-slate-950" style={{ fontSize: 'clamp(20px, 2.5vw, 28px)', letterSpacing: '-0.5px' }}>
                   USD, EUR &amp; GBP &#8212; all banks compared
                 </h2>
                 <p className="text-slate-500 mt-1" style={{ fontSize: '13px' }}>Sell rate is what you pay when buying foreign currency. Buy rate is what you receive when selling.</p>
@@ -287,11 +280,11 @@ export default async function FxRatesPage({ searchParams }: { searchParams: { ty
             </div>
 
             <div className="rounded-2xl overflow-hidden border border-slate-200" style={{ boxShadow: '0 2px 16px rgba(0,0,0,0.04)' }}>
-              <div style={{ height: 4, background: 'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+              <div style={{ height: 4, background: 'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
               <div className="overflow-x-auto">
                 <table className="w-full" style={{ minWidth: 700 }}>
                   <thead>
-                    <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                    <tr style={{ background: '#F4F5F3', borderBottom: '1px solid #E4E6E3' }}>
                       <th className="text-left text-xs font-black text-slate-400 uppercase tracking-widest" style={{ padding: '12px 20px', minWidth: 180 }}>Bank</th>
                       <th className="text-right text-xs font-black text-slate-400 uppercase tracking-widest" style={{ padding: '12px 16px' }}>USD Buy</th>
                       <th className="text-right text-xs font-black text-slate-400 uppercase tracking-widest" style={{ padding: '12px 16px' }}>USD Sell</th>
@@ -304,10 +297,10 @@ export default async function FxRatesPage({ searchParams }: { searchParams: { ty
                   </thead>
                   <tbody>
                     {/* NBE reference row */}
-                    <tr style={{ background: '#eff6ff', borderBottom: '2px solid #bfdbfe' }}>
+                    <tr style={{ background: '#E9F5EE', borderBottom: '2px solid #BFE3CC' }}>
                       <td style={{ padding: '13px 20px' }}>
                         <div className="flex items-center gap-2">
-                          <span className="font-black text-xs rounded-full px-2 py-0.5" style={{ background: '#1D4ED8', color: '#fff' }}>NBE</span>
+                          <span className="font-black text-xs rounded-full px-2 py-0.5" style={{ background: '#1C7C4C', color: '#fff' }}>NBE</span>
                           <span className="font-bold text-blue-900" style={{ fontSize: '13px' }}>Official NBE Indicative</span>
                         </div>
                       </td>
@@ -328,10 +321,10 @@ export default async function FxRatesPage({ searchParams }: { searchParams: { ty
                       const isBestGbpBuy  = parseNum(r.gbp_buy)  === bestGbpBuy
                       const isBestGbpSell = parseNum(r.gbp_sell) === bestGbpSell
                       const bestCell = { background: '#f0fdf4', color: '#15803d', fontWeight: 800 }
-                      const normalBuyCell  = { color: '#475569', fontWeight: 400 }
-                      const normalSellCell = { color: '#0f172a', fontWeight: 700 }
+                      const normalBuyCell  = { color: '#5B6472', fontWeight: 400 }
+                      const normalSellCell = { color: '#1C7C4C', fontWeight: 700 }
                       return (
-                      <tr key={r.slug} style={{ borderBottom: '1px solid #f1f5f9', background: i % 2 === 0 ? '#ffffff' : '#fafbfc' }}>
+                      <tr key={r.slug} style={{ borderBottom: '1px solid #F4F5F3', background: i % 2 === 0 ? '#ffffff' : '#F4F5F3' }}>
                         <td style={{ padding: '13px 20px' }}>
                           <Link href={`/birrbank/institutions/${r.slug}`} className="font-semibold text-slate-800 hover:text-blue-700 transition-colors" style={{ fontSize: '14px' }}>
                             {r.bank}
@@ -380,9 +373,9 @@ export default async function FxRatesPage({ searchParams }: { searchParams: { ty
                   </tbody>
                 </table>
               </div>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-t border-slate-100" style={{ background: '#f8fafc', padding: '12px 20px' }}>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-t border-slate-100" style={{ background: '#F4F5F3', padding: '12px 20px' }}>
                 <p className="text-xs text-slate-400">Showing {rateType} rates &#8212; NBE rate from nbe.gov.et &#8212; All rates ETB per 1 foreign unit</p>
-                <Link href="/birrbank/institutions?type=bank" className="text-xs font-bold shrink-0" style={{ color: '#1D4ED8' }}>View all bank profiles &#8594;</Link>
+                <Link href="/birrbank/institutions?type=bank" className="text-xs font-bold shrink-0" style={{ color: '#1C7C4C' }}>View all bank profiles &#8594;</Link>
               </div>
             </div>
             <p className="text-xs text-slate-400 mt-4 text-center">FX rates for comparison only. Confirm with the institution before any currency exchange.</p>
@@ -391,10 +384,10 @@ export default async function FxRatesPage({ searchParams }: { searchParams: { ty
       </section>
 
       {/* EMAIL CAPTURE */}
-      <section style={{ background:'#f8fafc', padding:'96px 0', borderTop: '1px solid #e2e8f0' }}>
+      <section style={{ background:'#F4F5F3', padding:'96px 0', borderTop: '1px solid #E4E6E3' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
-            <h2 className="font-serif font-bold text-slate-950 mb-5"
+            <h2 className="font-bold text-slate-950 mb-5"
               style={{ fontSize:'clamp(28px, 3vw, 40px)', letterSpacing:'-0.5px', lineHeight:1.1 }}>
               Track ETB exchange rates from anywhere in the world.
             </h2>

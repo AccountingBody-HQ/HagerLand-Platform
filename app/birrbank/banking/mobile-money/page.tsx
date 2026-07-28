@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import EmailCapture from '@/components/EmailCapture'
 import { createBirrBankAdminClient } from '@/lib/supabase-birrbank'
-import { ChevronRight, Globe } from 'lucide-react'
+import { Globe } from 'lucide-react'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
@@ -33,21 +33,14 @@ export default async function MobileMoneyPage() {
     <main className="bg-white flex-1">
 
       {/* DARK HERO */}
-      <section className="relative overflow-hidden" style={{ background:'#0f172a' }}>
+      <section className="relative overflow-hidden" style={{ background:'#1C7C4C' }}>
         <div className="absolute inset-0 pointer-events-none" style={{ background:'radial-gradient(ellipse at 60% 0%, rgba(29,78,216,0.18) 0%, transparent 60%), radial-gradient(ellipse at 0% 100%, rgba(14,30,80,0.4) 0%, transparent 50%)' }} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-0">
-          <nav className="flex items-center gap-2 text-xs text-slate-500 mb-8">
-            <Link href="/" className="hover:text-slate-300 transition-colors">Home</Link>
-            <ChevronRight size={12} />
-            <Link href="/birrbank/banking" className="hover:text-slate-300 transition-colors">Banking</Link>
-            <ChevronRight size={12} />
-            <span className="text-slate-400">Mobile Money</span>
-          </nav>
           <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold mb-6"
-            style={{ background:'rgba(29,78,216,0.15)', color:'#93c5fd', border:'1px solid rgba(29,78,216,0.3)' }}>
+            style={{ background:'rgba(29,78,216,0.15)', color:'#ffffff', border:'1px solid rgba(29,78,216,0.3)' }}>
             Banking — Mobile Money
           </div>
-          <h1 className="font-serif font-bold text-white mb-4"
+          <h1 className="font-bold text-white mb-4"
             style={{ fontSize:'clamp(38px, 4.5vw, 56px)', letterSpacing:'-0.025em', lineHeight:1.08 }}>
             Mobile money in Ethiopia — TeleBirr, CBEBirr, Amole and more.
           </h1>
@@ -82,8 +75,8 @@ export default async function MobileMoneyPage() {
       {/* OPERATORS GRID */}
       <section style={{ background:'#ffffff', padding:'64px 0 96px' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#1D4ED8' }}>NBE registry</p>
-          <h2 className="font-serif font-bold text-slate-950 mb-8"
+          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#1C7C4C' }}>NBE registry</p>
+          <h2 className="font-bold text-slate-950 mb-8"
             style={{ fontSize:'clamp(22px, 3vw, 36px)', letterSpacing:'-0.5px' }}>
             All {operatorCount} licensed payment operators
           </h2>
@@ -91,13 +84,13 @@ export default async function MobileMoneyPage() {
             {operators.length > 0 ? operators.map((op, i) => (
               <div key={op.slug} className="relative bg-white rounded-2xl border border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all overflow-hidden">
                 <Link href={`/birrbank/institutions/${op.slug}`} className="absolute inset-0 z-0" aria-label={op.name} />
-                <div style={{ height:4, background:'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+                <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                 <div style={{ padding:'24px' }}>
                   <div className="flex items-center justify-between mb-3">
                     <p className="font-bold text-slate-900" style={{ fontSize:'15px' }}>{op.name}</p>
-                    {i === 0 && <span className="text-xs font-bold rounded-full px-2 py-0.5" style={{ background:'#dbeafe', color:'#1D4ED8' }}>Largest</span>}
+                    {i === 0 && <span className="text-xs font-bold rounded-full px-2 py-0.5" style={{ background:'#E9F5EE', color:'#1C7C4C' }}>Largest</span>}
                   </div>
-                  {op.service_type && <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color:'#1D4ED8' }}>{op.service_type}</p>}
+                  {op.service_type && <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color:'#1C7C4C' }}>{op.service_type}</p>}
                   {op.description && <p className="text-sm text-slate-500 mb-4" style={{ lineHeight:1.75 }}>{op.description}</p>}
                   <div className="pt-3 border-t border-slate-100 space-y-1.5">
                     {op.nbe_licence_number && (
@@ -116,7 +109,7 @@ export default async function MobileMoneyPage() {
                       <div className="flex justify-between text-xs">
                         <span className="text-slate-400">Website</span>
                         <a href={op.website_url} target="_blank" rel="noopener noreferrer"
-                          className="relative z-10 font-semibold hover:underline flex items-center gap-1" style={{ color:'#1D4ED8' }}>
+                          className="relative z-10 font-semibold hover:underline flex items-center gap-1" style={{ color:'#1C7C4C' }}>
                           <Globe size={10} />{op.website_url.replace('https://','').replace('http://','').replace('www.','').split('/')[0]}
                         </a>
                       </div>
@@ -133,10 +126,10 @@ export default async function MobileMoneyPage() {
       </section>
 
       {/* GUIDE */}
-      <section style={{ background:'#f8fafc', padding:'96px 0' }}>
+      <section style={{ background:'#F4F5F3', padding:'96px 0' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#1D4ED8' }}>Platform guide</p>
-          <h2 className="font-serif font-bold text-slate-950 mb-10"
+          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#1C7C4C' }}>Platform guide</p>
+          <h2 className="font-bold text-slate-950 mb-10"
             style={{ fontSize:'clamp(26px, 3vw, 38px)', letterSpacing:'-0.5px' }}>
             Ethiopian mobile money explained.
           </h2>
@@ -147,9 +140,9 @@ export default async function MobileMoneyPage() {
               { step:'03', title:'Bank-linked vs standalone wallets', body:'CBEBirr and Amole are bank-linked platforms — directly connected to your bank account. TeleBirr and HelloCash operate as standalone wallets you load with cash. Bank-linked wallets offer higher limits and easier fund management.' },
             ].map(s => (
               <div key={s.step} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-blue-300 hover:shadow-lg transition-all">
-                <div style={{ height:4, background:'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+                <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                 <div style={{ padding:'28px 24px' }}>
-                  <p className="font-mono font-black mb-3" style={{ fontSize:'32px', color:'#e2e8f0', lineHeight:1 }}>{s.step}</p>
+                  <p className="font-mono font-black mb-3" style={{ fontSize:'32px', color:'#E4E6E3', lineHeight:1 }}>{s.step}</p>
                   <p className="font-bold text-slate-900 mb-3" style={{ fontSize:'15px' }}>{s.title}</p>
                   <p className="text-sm text-slate-500" style={{ lineHeight:1.75 }}>{s.body}</p>
                 </div>
@@ -160,21 +153,21 @@ export default async function MobileMoneyPage() {
       </section>
 
       {/* DARK TRUST */}
-      <section style={{ background:'#0f172a', padding:'72px 0', borderTop:'1px solid #1e293b' }}>
+      <section style={{ background:'#1C7C4C', padding:'72px 0', borderTop:'1px solid #155F3A' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-8">
           <div>
-            <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color:'#93c5fd' }}>NBE licensed only</p>
-            <h3 className="font-serif font-bold mb-2"
+            <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color:'#ffffff' }}>NBE licensed only</p>
+            <h3 className="font-bold mb-2"
               style={{ fontSize:'clamp(22px, 2.5vw, 30px)', color:'#ffffff', letterSpacing:'-0.5px' }}>
               Every operator verified against the NBE registry.
             </h3>
-            <p style={{ color:'#94a3b8', fontSize:'15px', lineHeight:1.75, maxWidth:480 }}>
+            <p style={{ color:'#5B6472', fontSize:'15px', lineHeight:1.75, maxWidth:480 }}>
               BirrBank only lists payment operators holding a valid National Payment System licence from the National Bank of Ethiopia.
             </p>
           </div>
           <Link href="/birrbank/institutions?type=payment_operator"
             className="font-bold rounded-full transition-all shrink-0"
-            style={{ fontSize:14, padding:'14px 28px', background:'#1D4ED8', color:'#fff', whiteSpace:'nowrap' }}>
+            style={{ fontSize:14, padding:'14px 28px', background:'#1C7C4C', color:'#fff', whiteSpace:'nowrap' }}>
             View all operator profiles
           </Link>
         </div>
@@ -184,7 +177,7 @@ export default async function MobileMoneyPage() {
       <section style={{ background:'#ffffff', padding:'96px 0' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
-            <h2 className="font-serif font-bold text-slate-950 mb-5"
+            <h2 className="font-bold text-slate-950 mb-5"
               style={{ fontSize:'clamp(30px, 3.5vw, 42px)', letterSpacing:'-0.5px', lineHeight:1.1 }}>
               Digital payments news, direct to your inbox.
             </h2>

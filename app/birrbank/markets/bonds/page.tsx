@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import EmailCapture from '@/components/EmailCapture'
 import { createBirrBankAdminClient } from '@/lib/supabase-birrbank'
-import { ChevronRight } from 'lucide-react'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
@@ -41,21 +40,14 @@ export default async function BondsPage() {
 
   return (
     <main className="bg-white flex-1">
-      <section className="relative overflow-hidden" style={{ background:'#0f172a' }}>
+      <section className="relative overflow-hidden" style={{ background:'#1C7C4C' }}>
         <div className="absolute inset-0 pointer-events-none" style={{ background:'radial-gradient(ellipse at 60% 0%, rgba(29,78,216,0.18) 0%, transparent 60%)' }} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-0">
-          <nav className="flex items-center gap-2 text-xs text-slate-500 mb-8">
-            <Link href="/" className="hover:text-slate-300 transition-colors">Home</Link>
-            <ChevronRight size={12} />
-            <Link href="/birrbank/markets" className="hover:text-slate-300 transition-colors">Markets</Link>
-            <ChevronRight size={12} />
-            <span className="text-slate-400">Bonds & T-Bills</span>
-          </nav>
           <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold mb-6"
-            style={{ background:'rgba(29,78,216,0.15)', color:'#93c5fd', border:'1px solid rgba(29,78,216,0.3)' }}>
+            style={{ background:'rgba(29,78,216,0.15)', color:'#ffffff', border:'1px solid rgba(29,78,216,0.3)' }}>
             Markets — Bonds & T-Bills
           </div>
-          <h1 className="font-serif font-bold text-white mb-4"
+          <h1 className="font-bold text-white mb-4"
             style={{ fontSize:'clamp(38px, 4.5vw, 56px)', letterSpacing:'-0.025em', lineHeight:1.08 }}>
             Ethiopian bonds & T-bills — NBE auction yields.
           </h1>
@@ -87,7 +79,7 @@ export default async function BondsPage() {
 
       <section style={{ background:'#ffffff', padding:'64px 0 96px' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="font-serif font-bold text-slate-950 mb-8"
+          <h2 className="font-bold text-slate-950 mb-8"
             style={{ fontSize:'clamp(22px, 2.8vw, 32px)', letterSpacing:'-0.5px' }}>
             NBE Treasury bill yields
           </h2>
@@ -95,9 +87,9 @@ export default async function BondsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
               {tbills.map((t) => (
                 <div key={t.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-blue-300 hover:shadow-md transition-all">
-                  <div style={{ height:4, background:'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+                  <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                   <div style={{ padding:'24px' }}>
-                    <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color:'#1D4ED8' }}>
+                    <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color:'#1C7C4C' }}>
                       {t.instrument_type.replace('tbill_','').replace('d','-day')} T-Bill
                     </p>
                     <p className="font-mono font-black text-slate-950 mb-1" style={{ fontSize:'32px', letterSpacing:'-1px', lineHeight:1 }}>
@@ -130,14 +122,14 @@ export default async function BondsPage() {
 
           {bonds.length > 0 && (
             <>
-              <h2 className="font-serif font-bold text-slate-950 mb-8"
+              <h2 className="font-bold text-slate-950 mb-8"
                 style={{ fontSize:'clamp(22px, 2.8vw, 32px)', letterSpacing:'-0.5px' }}>
                 Government & corporate bonds
               </h2>
               <div className="rounded-2xl overflow-hidden border border-slate-200" style={{ boxShadow:'0 4px 24px rgba(0,0,0,0.06)' }}>
-                <div style={{ height:4, background:'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+                <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                 <div className="hidden sm:grid border-b border-slate-200"
-                  style={{ gridTemplateColumns:'1fr 120px 100px 130px 120px 110px', padding:'13px 24px', background:'#f8fafc' }}>
+                  style={{ gridTemplateColumns:'1fr 120px 100px 130px 120px 110px', padding:'13px 24px', background:'#F4F5F3' }}>
                   {['Bond','Issuer','Yield','Coupon rate','Maturity','Min. invest'].map(h => (
                     <p key={h} className="text-xs font-black text-slate-400 uppercase tracking-widest">{h}</p>
                   ))}
@@ -161,7 +153,7 @@ export default async function BondsPage() {
                     </div>
                   </div>
                 ))}
-                <div className="border-t border-slate-200" style={{ background:'#f8fafc', padding:'14px 24px' }}>
+                <div className="border-t border-slate-200" style={{ background:'#F4F5F3', padding:'14px 24px' }}>
                   <p className="text-xs text-slate-400">Source: NBE auction results · nbe.gov.et · For comparison only</p>
                 </div>
               </div>
@@ -171,19 +163,19 @@ export default async function BondsPage() {
         </div>
       </section>
 
-      <section style={{ background:'#0f172a', padding:'72px 0', borderTop:'1px solid #1e293b' }}>
+      <section style={{ background:'#1C7C4C', padding:'72px 0', borderTop:'1px solid #155F3A' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-8">
           <div>
-            <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color:'#93c5fd' }}>Fixed income</p>
-            <h3 className="font-serif font-bold mb-2" style={{ fontSize:'clamp(22px, 2.5vw, 30px)', color:'#ffffff', letterSpacing:'-0.5px' }}>
+            <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color:'#ffffff' }}>Fixed income</p>
+            <h3 className="font-bold mb-2" style={{ fontSize:'clamp(22px, 2.5vw, 30px)', color:'#ffffff', letterSpacing:'-0.5px' }}>
               T-bills offer a guaranteed government-backed return.
             </h3>
-            <p style={{ color:'#94a3b8', fontSize:'15px', lineHeight:1.75, maxWidth:480 }}>
+            <p style={{ color:'#5B6472', fontSize:'15px', lineHeight:1.75, maxWidth:480 }}>
               Ethiopian Treasury bills are issued by the NBE and backed by the government. They are considered the lowest-risk investment available in Ethiopia.
             </p>
           </div>
           <Link href="/birrbank/markets/how-to-invest" className="font-bold rounded-full shrink-0"
-            style={{ fontSize:14, padding:'14px 28px', background:'#1D4ED8', color:'#fff', whiteSpace:'nowrap' }}>
+            style={{ fontSize:14, padding:'14px 28px', background:'#1C7C4C', color:'#fff', whiteSpace:'nowrap' }}>
             How to invest guide
           </Link>
         </div>
@@ -192,8 +184,8 @@ export default async function BondsPage() {
       <section style={{ background:'#ffffff', padding:'96px 0' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
-            <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color:'#1D4ED8' }}>Stay informed</p>
-            <h2 className="font-serif font-bold text-slate-950 mb-5"
+            <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color:'#1C7C4C' }}>Stay informed</p>
+            <h2 className="font-bold text-slate-950 mb-5"
               style={{ fontSize:'clamp(30px, 3.5vw, 42px)', letterSpacing:'-0.5px', lineHeight:1.1 }}>
               T-bill auction results, direct to your inbox.
             </h2>

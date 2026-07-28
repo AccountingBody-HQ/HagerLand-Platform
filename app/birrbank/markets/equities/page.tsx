@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import EmailCapture from '@/components/EmailCapture'
 import { createBirrBankAdminClient } from '@/lib/supabase-birrbank'
-import { ChevronRight } from 'lucide-react'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
@@ -37,21 +36,14 @@ export default async function EquitiesPage() {
 
   return (
     <main className="bg-white flex-1">
-      <section className="relative overflow-hidden" style={{ background:'#0f172a' }}>
+      <section className="relative overflow-hidden" style={{ background:'#1C7C4C' }}>
         <div className="absolute inset-0 pointer-events-none" style={{ background:'radial-gradient(ellipse at 60% 0%, rgba(29,78,216,0.18) 0%, transparent 60%)' }} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-0">
-          <nav className="flex items-center gap-2 text-xs text-slate-500 mb-8">
-            <Link href="/" className="hover:text-slate-300 transition-colors">Home</Link>
-            <ChevronRight size={12} />
-            <Link href="/birrbank/markets" className="hover:text-slate-300 transition-colors">Markets</Link>
-            <ChevronRight size={12} />
-            <span className="text-slate-400">Listed Equities</span>
-          </nav>
           <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold mb-6"
-            style={{ background:'rgba(29,78,216,0.15)', color:'#93c5fd', border:'1px solid rgba(29,78,216,0.3)' }}>
+            style={{ background:'rgba(29,78,216,0.15)', color:'#ffffff', border:'1px solid rgba(29,78,216,0.3)' }}>
             Markets — ESX Equities
           </div>
-          <h1 className="font-serif font-bold text-white mb-4"
+          <h1 className="font-bold text-white mb-4"
             style={{ fontSize:'clamp(38px, 4.5vw, 56px)', letterSpacing:'-0.025em', lineHeight:1.08 }}>
             All ESX-listed equities — end-of-day prices.
           </h1>
@@ -90,9 +82,9 @@ export default async function EquitiesPage() {
             </span>
           </div>
           <div className="rounded-2xl overflow-hidden border border-slate-200" style={{ boxShadow:'0 4px 24px rgba(0,0,0,0.06)' }}>
-            <div style={{ height:4, background:'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+            <div style={{ height:4, background:'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
             <div className="hidden sm:grid border-b border-slate-200"
-              style={{ gridTemplateColumns:'80px 1fr 120px 120px 100px 110px 100px 100px', padding:'12px 24px', background:'#f8fafc' }}>
+              style={{ gridTemplateColumns:'80px 1fr 120px 120px 100px 110px 100px 100px', padding:'12px 24px', background:'#F4F5F3' }}>
               {['Ticker','Company','Sector','Price (ETB)','Change','Volume','Mkt Cap','P/E'].map(h => (
                 <p key={h} className="text-xs font-black text-slate-400 uppercase tracking-widest">{h}</p>
               ))}
@@ -104,7 +96,7 @@ export default async function EquitiesPage() {
                   className="block border-b border-slate-100 bg-white hover:bg-slate-50 transition-colors">
                   <div className="hidden sm:grid items-center"
                     style={{ gridTemplateColumns:'80px 1fr 120px 120px 100px 110px 100px 100px', padding:'16px 24px' }}>
-                    <span className="font-mono font-black text-sm rounded-lg px-2 py-1 text-center" style={{ background:'#eff6ff', color:'#1D4ED8' }}>{s.ticker}</span>
+                    <span className="font-mono font-black text-sm rounded-lg px-2 py-1 text-center" style={{ background:'#E9F5EE', color:'#1C7C4C' }}>{s.ticker}</span>
                     <p className="font-bold text-slate-800" style={{ fontSize:'14px' }}>{s.company_name}</p>
                     <p className="text-sm text-slate-500">{s.sector ?? '—'}</p>
                     <p className="font-mono font-black text-slate-900" style={{ fontSize:'18px', letterSpacing:'-0.5px' }}>{fmt(s.last_price_etb)}</p>
@@ -116,7 +108,7 @@ export default async function EquitiesPage() {
                     <p className="text-slate-600 text-sm">{s.pe_ratio ? fmt(s.pe_ratio, 1) : '—'}</p>
                   </div>
                   <div className="sm:hidden flex items-center gap-3" style={{ padding:'14px 16px' }}>
-                    <span className="font-mono font-black text-xs rounded-lg px-2 py-1.5 shrink-0" style={{ background:'#eff6ff', color:'#1D4ED8' }}>{s.ticker}</span>
+                    <span className="font-mono font-black text-xs rounded-lg px-2 py-1.5 shrink-0" style={{ background:'#E9F5EE', color:'#1C7C4C' }}>{s.ticker}</span>
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-slate-800 text-sm truncate">{s.company_name}</p>
                       <p className="text-xs text-slate-400">{s.sector ?? '—'}</p>
@@ -133,28 +125,28 @@ export default async function EquitiesPage() {
             }) : (
               <div className="py-12 text-center"><p className="text-slate-500 text-sm">No equities data available. Check back after market hours.</p></div>
             )}
-            <div className="flex items-center justify-between border-t border-slate-200" style={{ background:'#f8fafc', padding:'14px 24px' }}>
+            <div className="flex items-center justify-between border-t border-slate-200" style={{ background:'#F4F5F3', padding:'14px 24px' }}>
               <p className="text-xs text-slate-400">Source: Ethiopian Securities Exchange (esx.et) · Prices sourced from ESX and updated manually</p>
-              <Link href="/birrbank/markets/ipo-pipeline" className="text-xs font-bold" style={{ color:'#1D4ED8' }}>IPO pipeline →</Link>
+              <Link href="/birrbank/markets/ipo-pipeline" className="text-xs font-bold" style={{ color:'#1C7C4C' }}>IPO pipeline →</Link>
             </div>
           </div>
           <p className="text-xs text-slate-400 mt-5 text-center">Prices are for information only. BirrBank is not a licensed broker. Always trade through an ECMA-licensed broker.</p>
         </div>
       </section>
 
-      <section style={{ background:'#0f172a', padding:'72px 0', borderTop:'1px solid #1e293b' }}>
+      <section style={{ background:'#1C7C4C', padding:'72px 0', borderTop:'1px solid #155F3A' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-8">
           <div>
-            <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color:'#93c5fd' }}>New to investing?</p>
-            <h3 className="font-serif font-bold mb-2" style={{ fontSize:'clamp(22px, 2.5vw, 30px)', color:'#ffffff', letterSpacing:'-0.5px' }}>
+            <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color:'#ffffff' }}>New to investing?</p>
+            <h3 className="font-bold mb-2" style={{ fontSize:'clamp(22px, 2.5vw, 30px)', color:'#ffffff', letterSpacing:'-0.5px' }}>
               Learn how to buy ESX-listed shares.
             </h3>
-            <p style={{ color:'#94a3b8', fontSize:'15px', lineHeight:1.75, maxWidth:480 }}>
+            <p style={{ color:'#5B6472', fontSize:'15px', lineHeight:1.75, maxWidth:480 }}>
               Step-by-step guide to opening a brokerage account and making your first investment on the Ethiopian Securities Exchange.
             </p>
           </div>
           <Link href="/birrbank/markets/how-to-invest" className="font-bold rounded-full shrink-0"
-            style={{ fontSize:14, padding:'14px 28px', background:'#1D4ED8', color:'#fff', whiteSpace:'nowrap' }}>
+            style={{ fontSize:14, padding:'14px 28px', background:'#1C7C4C', color:'#fff', whiteSpace:'nowrap' }}>
             How to invest guide
           </Link>
         </div>
@@ -163,7 +155,7 @@ export default async function EquitiesPage() {
       <section style={{ background:'#ffffff', padding:'96px 0' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
-            <h2 className="font-serif font-bold text-slate-950 mb-5"
+            <h2 className="font-bold text-slate-950 mb-5"
               style={{ fontSize:'clamp(30px, 3.5vw, 42px)', letterSpacing:'-0.5px', lineHeight:1.1 }}>
               ESX price alerts, direct to your inbox.
             </h2>

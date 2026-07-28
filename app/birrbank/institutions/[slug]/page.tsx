@@ -131,23 +131,16 @@ export default async function InstitutionPage({ params }: { params: { slug: stri
     <main className="bg-white flex-1">
 
       {/* DARK HERO */}
-      <section className="relative overflow-hidden" style={{ background: '#0f172a' }}>
+      <section className="relative overflow-hidden" style={{ background: '#1C7C4C' }}>
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 60% 0%, rgba(29,78,216,0.18) 0%, transparent 60%)' }} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-0">
-          <nav className="flex items-center gap-2 text-xs text-slate-500 mb-8">
-            <Link href="/" className="hover:text-slate-300 transition-colors">Home</Link>
-            <ChevronRight size={12} />
-            <Link href="/birrbank/institutions" className="hover:text-slate-300 transition-colors">Institutions</Link>
-            <ChevronRight size={12} />
-            <span className="text-slate-400">{inst.name}</span>
-          </nav>
           <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold mb-5"
-            style={{ background: 'rgba(29,78,216,0.15)', color: '#93c5fd', border: '1px solid rgba(29,78,216,0.3)' }}>
+            style={{ background: 'rgba(255,255,255,0.15)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.3)' }}>
             {typeLabel}
           </div>
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8 mb-10">
             <div className="flex-1">
-              <h1 className="font-serif font-bold text-white mb-4"
+              <h1 className="font-bold text-white mb-4"
                 style={{ fontSize: 'clamp(32px, 4vw, 52px)', letterSpacing: '-0.025em', lineHeight: 1.08 }}>
                 {inst.name}
               </h1>
@@ -166,9 +159,9 @@ export default async function InstitutionPage({ params }: { params: { slug: stri
             {/* At a glance card */}
             <div className="hidden lg:block shrink-0 w-72 rounded-2xl overflow-hidden"
               style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-              <div style={{ height: 4, background: 'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+              <div style={{ height: 4, background: 'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
               <div className="px-5 py-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
-                <p className="text-xs font-black uppercase tracking-widest" style={{ color: '#475569' }}>At a glance</p>
+                <p className="text-xs font-black uppercase tracking-widest" style={{ color: '#5B6472' }}>At a glance</p>
               </div>
               <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
                 {[
@@ -178,7 +171,7 @@ export default async function InstitutionPage({ params }: { params: { slug: stri
                   { label: 'Coverage', value: inst.coverage_level === 'full' ? 'Verified' : inst.coverage_level === 'standard' ? 'Standard' : 'Profiled' },
                 ].map(row => (
                   <div key={row.label} className="flex items-center justify-between px-5 py-3">
-                    <span className="text-xs" style={{ color: '#475569' }}>{row.label}</span>
+                    <span className="text-xs" style={{ color: '#5B6472' }}>{row.label}</span>
                     <span className="text-sm font-bold text-white font-mono">{row.value}</span>
                   </div>
                 ))}
@@ -187,7 +180,7 @@ export default async function InstitutionPage({ params }: { params: { slug: stri
                 <div className="px-5 py-4 border-t" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
                   <a href={inst.website_url} target="_blank" rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 w-full font-bold rounded-xl text-xs transition-all"
-                    style={{ background: '#1D4ED8', color: '#fff', padding: '10px 16px' }}>
+                    style={{ background: '#1C7C4C', color: '#fff', padding: '10px 16px' }}>
                     <Globe size={13} /> Visit website
                   </a>
                 </div>
@@ -216,13 +209,13 @@ export default async function InstitutionPage({ params }: { params: { slug: stri
             {/* SAVINGS RATES */}
             {(inst.type === 'bank' || inst.type === 'microfinance') && (
               <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-                <div style={{ height: 4, background: 'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+                <div style={{ height: 4, background: 'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                 <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
                   <div>
                     <h2 className="font-bold text-slate-900" style={{ fontSize: '17px' }}>Savings Rates</h2>
                     <p className="text-xs text-slate-400 mt-0.5">Current deposit rates — verified</p>
                   </div>
-                  <Link href="/birrbank/banking/savings-rates" className="flex items-center gap-1 text-xs font-bold transition-colors" style={{ color: '#1D4ED8' }}>
+                  <Link href="/birrbank/banking/savings-rates" className="flex items-center gap-1 text-xs font-bold transition-colors" style={{ color: '#1C7C4C' }}>
                     Compare all <ChevronRight size={12} />
                   </Link>
                 </div>
@@ -237,7 +230,7 @@ export default async function InstitutionPage({ params }: { params: { slug: stri
                             {s.is_sharia_compliant && <span className="text-xs font-bold rounded-full px-2 py-0.5 mt-1 inline-block" style={{ background: '#fef3c7', color: '#92400e' }}>Sharia</span>}
                             <p className="text-xs text-slate-400 mt-0.5">Min ETB {fmtMin(s.minimum_balance_etb)}</p>
                           </div>
-                          <span className="font-mono font-black shrink-0 ml-4" style={{ fontSize: i === 0 ? '22px' : '18px', color: '#1D4ED8' }}>{Number(s.annual_rate).toFixed(2)}%</span>
+                          <span className="font-mono font-black shrink-0 ml-4" style={{ fontSize: i === 0 ? '22px' : '18px', color: '#1C7C4C' }}>{Number(s.annual_rate).toFixed(2)}%</span>
                         </div>
                       ))}
                     </div>
@@ -245,7 +238,7 @@ export default async function InstitutionPage({ params }: { params: { slug: stri
                     <div className="hidden sm:block overflow-x-auto">
                       <table className="w-full">
                         <thead>
-                          <tr style={{ background: '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
+                          <tr style={{ background: '#F4F5F3', borderBottom: '1px solid #F4F5F3' }}>
                             {['Product','Annual Rate','Min. Balance','Term','Last Verified'].map(h => (
                               <th key={h} className="px-6 py-3 text-left text-xs font-black uppercase tracking-widest text-slate-400">{h}</th>
                             ))}
@@ -259,7 +252,7 @@ export default async function InstitutionPage({ params }: { params: { slug: stri
                                 {s.is_sharia_compliant && <span className="text-xs font-bold rounded-full px-2 py-0.5 mt-1 inline-block" style={{ background: '#fef3c7', color: '#92400e' }}>Sharia</span>}
                               </td>
                               <td className="px-6 py-4">
-                                <span className="font-mono font-black" style={{ fontSize: i === 0 ? '22px' : '17px', color: '#1D4ED8' }}>{Number(s.annual_rate).toFixed(2)}%</span>
+                                <span className="font-mono font-black" style={{ fontSize: i === 0 ? '22px' : '17px', color: '#1C7C4C' }}>{Number(s.annual_rate).toFixed(2)}%</span>
                               </td>
                               <td className="px-6 py-4 font-mono text-sm text-slate-600">ETB {fmtMin(s.minimum_balance_etb)}</td>
                               <td className="px-6 py-4 text-sm text-slate-500">{s.minimum_tenure_days ? Math.round(s.minimum_tenure_days/30) + ' mo' : 'Flexible'}</td>
@@ -281,13 +274,13 @@ export default async function InstitutionPage({ params }: { params: { slug: stri
             {/* LOAN RATES */}
             {(inst.type === 'bank' || inst.type === 'microfinance' || inst.type === 'capital_goods_finance') && (
               <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-                <div style={{ height: 4, background: 'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+                <div style={{ height: 4, background: 'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                 <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
                   <div>
                     <h2 className="font-bold text-slate-900" style={{ fontSize: '17px' }}>Loan Rates</h2>
                     <p className="text-xs text-slate-400 mt-0.5">Current lending rates — verified</p>
                   </div>
-                  <Link href="/birrbank/banking/loans" className="flex items-center gap-1 text-xs font-bold transition-colors" style={{ color: '#1D4ED8' }}>
+                  <Link href="/birrbank/banking/loans" className="flex items-center gap-1 text-xs font-bold transition-colors" style={{ color: '#1C7C4C' }}>
                     Compare all <ChevronRight size={12} />
                   </Link>
                 </div>
@@ -315,13 +308,13 @@ export default async function InstitutionPage({ params }: { params: { slug: stri
             {/* FX RATES — banks only */}
             {inst.type === 'bank' && (
               <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-                <div style={{ height: 4, background: 'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+                <div style={{ height: 4, background: 'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                 <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
                   <div>
                     <h2 className="font-bold text-slate-900" style={{ fontSize: '17px' }}>FX Rates</h2>
                     <p className="text-xs text-slate-400 mt-0.5">Most recent available rates</p>
                   </div>
-                  <Link href="/birrbank/banking/fx-rates" className="flex items-center gap-1 text-xs font-bold" style={{ color: '#1D4ED8' }}>
+                  <Link href="/birrbank/banking/fx-rates" className="flex items-center gap-1 text-xs font-bold" style={{ color: '#1C7C4C' }}>
                     Compare all <ChevronRight size={12} />
                   </Link>
                 </div>
@@ -377,7 +370,7 @@ export default async function InstitutionPage({ params }: { params: { slug: stri
 
             {/* INSTITUTION DETAILS */}
             <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-              <div style={{ height: 4, background: 'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+              <div style={{ height: 4, background: 'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
               <div className="px-6 py-5 border-b border-slate-100">
                 <h2 className="font-bold text-slate-900" style={{ fontSize: '17px' }}>Institution Details</h2>
                 <p className="text-xs text-slate-400 mt-0.5">Contact and regulatory information</p>
@@ -392,8 +385,8 @@ export default async function InstitutionPage({ params }: { params: { slug: stri
                   { icon: Mail, label: 'Email', value: inst.email ?? '—' },
                 ].map(item => (
                   <div key={item.label} className="px-6 py-4 flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: '#eff6ff' }}>
-                      <item.icon size={15} style={{ color: '#1D4ED8' }} />
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: '#E9F5EE' }}>
+                      <item.icon size={15} style={{ color: '#1C7C4C' }} />
                     </div>
                     <div>
                       <p className="text-xs font-bold uppercase tracking-widest text-slate-400">{item.label}</p>
@@ -405,7 +398,7 @@ export default async function InstitutionPage({ params }: { params: { slug: stri
               {inst.website_url && (
                 <div className="px-6 py-4 border-t border-slate-100">
                   <a href={inst.website_url} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-sm font-bold transition-colors hover:underline" style={{ color: '#1D4ED8' }}>
+                    className="flex items-center gap-2 text-sm font-bold transition-colors hover:underline" style={{ color: '#1C7C4C' }}>
                     <Globe size={14} /> {inst.website_url.replace('https://','').replace('http://','').replace('www.','')}
                   </a>
                 </div>
@@ -420,7 +413,7 @@ export default async function InstitutionPage({ params }: { params: { slug: stri
             {/* DIGITAL SERVICES — banks */}
             {digital && (
               <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-                <div style={{ height: 4, background: 'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+                <div style={{ height: 4, background: 'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                 <div className="px-5 py-4 border-b border-slate-100">
                   <p className="text-xs font-black uppercase tracking-widest text-slate-500">Digital Services</p>
                 </div>
@@ -437,7 +430,7 @@ export default async function InstitutionPage({ params }: { params: { slug: stri
                         <span className="text-sm text-slate-600">{d.label}</span>
                       </div>
                       <span className="text-xs font-bold rounded-full px-2 py-0.5"
-                        style={d.value ? { background:'#dcfce7', color:'#16a34a' } : { background:'#f1f5f9', color:'#64748b' }}>
+                        style={d.value ? { background:'#dcfce7', color:'#16a34a' } : { background:'#F4F5F3', color:'#64748b' }}>
                         {d.value ? 'Yes' : 'No'}
                       </span>
                     </div>
@@ -455,7 +448,7 @@ export default async function InstitutionPage({ params }: { params: { slug: stri
             {/* ESX CARD */}
             {security && (
               <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-                <div style={{ height: 4, background: 'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+                <div style={{ height: 4, background: 'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                 <div className="px-5 py-4 border-b border-slate-100">
                   <p className="text-xs font-black uppercase tracking-widest text-slate-500">ESX Listed Security</p>
                 </div>
@@ -473,7 +466,7 @@ export default async function InstitutionPage({ params }: { params: { slug: stri
                   ))}
                   <Link href={`/birrbank/markets/${security.ticker?.toLowerCase()}`}
                     className="flex items-center justify-center gap-2 w-full font-bold rounded-xl text-xs mt-2 transition-all"
-                    style={{ background: '#1D4ED8', color: '#fff', padding: '10px 16px' }}>
+                    style={{ background: '#1C7C4C', color: '#fff', padding: '10px 16px' }}>
                     View on ESX <ChevronRight size={12} />
                   </Link>
                 </div>
@@ -494,17 +487,17 @@ export default async function InstitutionPage({ params }: { params: { slug: stri
 
       {/* RELATED INSTITUTIONS */}
       {related.length > 0 && (
-        <section style={{ background: '#f8fafc', padding: '80px 0', borderTop: '1px solid #e2e8f0' }}>
+        <section style={{ background: '#F4F5F3', padding: '80px 0', borderTop: '1px solid #E4E6E3' }}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-end justify-between mb-8">
               <div>
-                <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#1D4ED8' }}>More like this</p>
-                <h2 className="font-serif font-bold text-slate-950"
+                <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#1C7C4C' }}>More like this</p>
+                <h2 className="font-bold text-slate-950"
                   style={{ fontSize: 'clamp(20px, 2.5vw, 30px)', letterSpacing: '-0.5px' }}>
                   Related institutions
                 </h2>
               </div>
-              <Link href={`/birrbank/institutions?type=${inst.type}`} className="flex items-center gap-1 text-sm font-bold transition-colors" style={{ color: '#1D4ED8' }}>
+              <Link href={`/birrbank/institutions?type=${inst.type}`} className="flex items-center gap-1 text-sm font-bold transition-colors" style={{ color: '#1C7C4C' }}>
                 View all <ChevronRight size={14} />
               </Link>
             </div>
@@ -512,7 +505,7 @@ export default async function InstitutionPage({ params }: { params: { slug: stri
               {related.map((r) => (
                 <Link key={r.slug} href={`/birrbank/institutions/${r.slug}`}
                   className="group bg-white rounded-2xl border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all overflow-hidden">
-                  <div style={{ height: 4, background: 'linear-gradient(90deg, #1D4ED8, #1E40AF)' }} />
+                  <div style={{ height: 4, background: 'linear-gradient(90deg, #1C7C4C, #155F3A)' }} />
                   <div className="p-5">
                     <p className="font-bold text-slate-900 text-sm mb-2 group-hover:text-blue-700 transition-colors leading-snug">{r.name}</p>
                     <div className="flex items-center justify-between">
@@ -528,27 +521,27 @@ export default async function InstitutionPage({ params }: { params: { slug: stri
       )}
 
       {/* DARK CTA */}
-      <section style={{ background: '#0f172a', padding: '72px 0', borderTop: '1px solid #1e293b' }}>
+      <section style={{ background: '#1C7C4C', padding: '72px 0', borderTop: '1px solid #155F3A' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-8">
           <div>
-            <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color: '#93c5fd' }}>Compare further</p>
-            <h3 className="font-serif font-bold mb-2"
+            <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color: '#ffffff' }}>Compare further</p>
+            <h3 className="font-bold mb-2"
               style={{ fontSize: 'clamp(20px, 2.5vw, 28px)', color: '#ffffff', letterSpacing: '-0.5px' }}>
               See how {inst.name} compares.
             </h3>
-            <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: 1.75, maxWidth: 440 }}>
+            <p style={{ color: '#5B6472', fontSize: '14px', lineHeight: 1.75, maxWidth: 440 }}>
               BirrBank ranks every institution by rates, digital services and regulatory standing — all on one comparison page.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 shrink-0">
             <Link href="/birrbank/banking/savings-rates"
               className="font-bold rounded-full text-center transition-all"
-              style={{ fontSize: 14, padding: '14px 28px', background: '#1D4ED8', color: '#fff' }}>
+              style={{ fontSize: 14, padding: '14px 28px', background: '#1C7C4C', color: '#fff' }}>
               Compare savings rates
             </Link>
             <Link href="/birrbank/institutions"
               className="font-bold rounded-full text-center transition-all"
-              style={{ fontSize: 14, padding: '14px 28px', border: '1.5px solid #334155', color: '#94a3b8' }}>
+              style={{ fontSize: 14, padding: '14px 28px', border: '1.5px solid #152238', color: '#5B6472' }}>
               All institutions
             </Link>
           </div>

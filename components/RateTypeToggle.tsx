@@ -23,8 +23,8 @@ export default function RateTypeToggle({ rateType }: { rateType: string }) {
             padding: '6px 0',
             textAlign: 'center',
             textTransform: 'capitalize',
-            background: rateType === type ? '#1D4ED8' : '#f1f5f9',
-            color: rateType === type ? '#fff' : '#64748b',
+            background: rateType === type ? '#1C7C4C' : '#f1f5f9',
+            color: rateType === type ? '#fff' : '#5B6472',
             border: 'none',
             cursor: 'pointer',
           }}
