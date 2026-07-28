@@ -110,10 +110,6 @@ export function MobileNav() {
                       <p className="font-semibold text-sm leading-tight">{MADE_IN_ETHIOPIA.label}</p>
                       <p className={`text-xs leading-tight mt-0.5 ${active ? 'text-white/70' : 'text-white/40'}`}>{MADE_IN_ETHIOPIA.desc}</p>
                     </div>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
-                      className={active ? 'text-white/60' : 'text-white/20'}>
-                      <path d="M5 12h14M12 5l7 7-7 7"/>
-                    </svg>
                   </Link>
                 )
               })()}
@@ -130,10 +126,6 @@ export function MobileNav() {
                       <p className="font-semibold text-sm leading-tight">{PROPERTY.label}</p>
                       <p className={`text-xs leading-tight mt-0.5 ${active ? 'text-white/70' : 'text-white/40'}`}>{PROPERTY.desc}</p>
                     </div>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
-                      className={active ? 'text-white/60' : 'text-white/20'}>
-                      <path d="M5 12h14M12 5l7 7-7 7"/>
-                    </svg>
                   </Link>
                 )
               })()}
@@ -155,6 +147,10 @@ export function MobileNav() {
               </button>
               {birrbankOpen && (
                 <div className="pl-4 space-y-0.5 border-l border-white/10 ml-6 my-1">
+                  <Link href="/birrbank" onClick={closeMenu}
+                    className="flex items-center gap-3 px-3 py-2 rounded-xl text-white/50 hover:bg-white/8 hover:text-white transition-all text-xs font-semibold">
+                    View BirrBank Main Page →
+                  </Link>
                   {BIRRBANK_SECTIONS.map((section) => {
                     const active = pathname.startsWith(section.href)
                     return (
@@ -195,7 +191,7 @@ export function MobileNav() {
                 <div className="pl-4 space-y-0.5 border-l border-white/10 ml-6 my-1">
                   <Link href="/diaspora" onClick={closeMenu}
                     className="flex items-center gap-3 px-3 py-2 rounded-xl text-white/50 hover:bg-white/8 hover:text-white transition-all text-xs font-semibold">
-                    View all diaspora sections →
+                    View Diaspora Main Page →
                   </Link>
                   {DIASPORA_SECTIONS.map((section) => {
                     const active = pathname.startsWith(section.href)
@@ -230,10 +226,6 @@ export function MobileNav() {
                       <p className="font-semibold text-sm leading-tight">{section.label}</p>
                       <p className={`text-xs leading-tight mt-0.5 ${active ? 'text-white/70' : 'text-white/40'}`}>{section.desc}</p>
                     </div>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
-                      className={active ? 'text-white/60' : 'text-white/20'}>
-                      <path d="M5 12h14M12 5l7 7-7 7"/>
-                    </svg>
                   </Link>
                 )
               })}
