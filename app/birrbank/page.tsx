@@ -1,6 +1,4 @@
 import Link from 'next/link'
-import { SiteNav } from '@/components/SiteNav'
-import { SiteFooter } from '@/components/SiteFooter'
 
 export const dynamic = 'force-dynamic'
 
@@ -34,9 +32,7 @@ const SECTIONS: Section[] = [
 
 export default function BirrBankHubPage() {
   return (
-    <main className="min-h-screen bg-bg flex flex-col">
-      <SiteNav />
-
+    <main className="bg-white flex-1">
       {/* HERO */}
       <section className="relative overflow-hidden bg-green">
         <div className="absolute inset-0" style={{background: 'linear-gradient(135deg, #155F3A 0%, #1C7C4C 60%, #1e8a55 100%)'}} />
@@ -94,8 +90,6 @@ export default function BirrBankHubPage() {
           </div>
         </div>
       </section>
-
-      <SiteFooter />
     </main>
   )
 }
