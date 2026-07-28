@@ -7,11 +7,11 @@ import { MobileLangSwitcher } from '@/components/LanguageSwitcher'
 
 const MADE_IN_ETHIOPIA = { href: '/made-in-ethiopia', label: 'Made in Ethiopia', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M20.59 13.41L13.42 20.58a2 2 0 01-2.83 0L2.59 12.58A2 2 0 012 11.17V4a2 2 0 012-2h7.17a2 2 0 011.42.59l8 8a2 2 0 010 2.82z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>', desc: 'Authentic Ethiopian products' }
 
+const PROPERTY = { href: '/housing', label: 'Property', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>', desc: 'Rooms, rentals, and properties' }
+
 const DIASPORA_SECTIONS = [
   { href: '/business', label: 'Businesses', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M8 3v18M2 9h20"/></svg>', desc: 'Find verified businesses' },
   { href: '/jobs', label: 'Jobs', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>', desc: 'Work in the community' },
-  { href: '/housing', label: 'Housing', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>', desc: 'Rooms and rentals' },
-  { href: '/money', label: 'Money', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>', desc: 'Transfers and finance' },
   { href: '/cars', label: 'Cars', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="1" y="8" width="22" height="10" rx="2"/><path d="M5 8l2-4h10l2 4"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>', desc: 'Cars and taxi services' },
   { href: '/tutors', label: 'Tutors', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 14l9-5-9-5-9 5 9 5z"/><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>', desc: 'Teaching and mentoring' },
   { href: '/delivery', label: 'Delivery', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>', desc: 'Courier, freight and cargo' },
@@ -19,6 +19,7 @@ const DIASPORA_SECTIONS = [
 
 const BIRRBANK_SECTIONS = [
   { href: '/birrbank/banking', label: 'Banking', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>', desc: 'Savings, FX & loans' },
+  { href: '/money', label: 'Money', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>', desc: 'Financial services for the diaspora' },
   { href: '/birrbank/institutions', label: 'Institutions', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 21h18M5 21V7l8-4v18M13 21V11l6-3v13"/></svg>', desc: 'NBE-licensed institutions' },
   { href: '/birrbank/insurance', label: 'Insurance', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>', desc: 'Compare insurance products' },
   { href: '/birrbank/markets', label: 'Markets', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>', desc: 'ESX equities & bonds' },
@@ -118,47 +119,25 @@ export function MobileNav() {
                 )
               })()}
 
-              {/* Diaspora Businesses group */}
-              <button onClick={() => setDiasporaOpen(v => !v)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${diasporaActive ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/8 hover:text-white'}`}>
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${diasporaActive ? 'bg-white/20' : 'bg-white/8'}`}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M8 3v18M16 3v18M2 9h20M2 15h20"/></svg>
-                </div>
-                <div className="flex-1 min-w-0 text-left">
-                  <p className="font-semibold text-sm leading-tight">Diaspora Businesses</p>
-                  <p className="text-xs leading-tight mt-0.5 text-white/40">Businesses, jobs, housing & more</p>
-                </div>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
-                  className={`transition-transform text-white/40 ${diasporaOpen ? 'rotate-180' : ''}`}>
-                  <path d="M6 9l6 6 6-6"/>
-                </svg>
-              </button>
-              {diasporaOpen && (
-                <div className="pl-4 space-y-0.5 border-l border-white/10 ml-6 my-1">
-                  <Link href="/diaspora" onClick={closeMenu}
-                    className="flex items-center gap-3 px-3 py-2 rounded-xl text-white/50 hover:bg-white/8 hover:text-white transition-all text-xs font-semibold">
-                    View all diaspora sections →
+              {/* Property */}
+              {(() => {
+                const active = pathname.startsWith(PROPERTY.href)
+                return (
+                  <Link href={PROPERTY.href} onClick={closeMenu}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${active ? 'bg-green text-white' : 'text-white/70 hover:bg-white/8 hover:text-white'}`}>
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${active ? 'bg-white/20' : 'bg-white/8'}`}
+                      dangerouslySetInnerHTML={{ __html: PROPERTY.icon }} />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-sm leading-tight">{PROPERTY.label}</p>
+                      <p className={`text-xs leading-tight mt-0.5 ${active ? 'text-white/70' : 'text-white/40'}`}>{PROPERTY.desc}</p>
+                    </div>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+                      className={active ? 'text-white/60' : 'text-white/20'}>
+                      <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
                   </Link>
-                  {DIASPORA_SECTIONS.map((section) => {
-                    const active = pathname.startsWith(section.href)
-                    return (
-                      <Link key={section.href} href={section.href} onClick={closeMenu}
-                        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${active ? 'bg-green text-white' : 'text-white/70 hover:bg-white/8 hover:text-white'}`}>
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${active ? 'bg-white/20' : 'bg-white/8'}`}
-                          dangerouslySetInnerHTML={{ __html: section.icon }} />
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-sm leading-tight">{section.label}</p>
-                          <p className={`text-xs leading-tight mt-0.5 ${active ? 'text-white/70' : 'text-white/40'}`}>{section.desc}</p>
-                        </div>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
-                          className={active ? 'text-white/60' : 'text-white/20'}>
-                          <path d="M5 12h14M12 5l7 7-7 7"/>
-                        </svg>
-                      </Link>
-                    )
-                  })}
-                </div>
-              )}
+                )
+              })()}
 
               {/* BirrBank group */}
               <button onClick={() => setBirrbankOpen(v => !v)}
@@ -167,7 +146,7 @@ export function MobileNav() {
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
                 </div>
                 <div className="flex-1 min-w-0 text-left">
-                  <p className="font-semibold text-sm leading-tight">BirrBank<span style={{fontSize:'0.7em',position:'relative',top:'-0.4em',marginLeft:'1px'}}>&reg;</span></p>
+                  <p className="font-semibold text-sm leading-tight">BirrBank<span style={{ fontSize: '0.5em', verticalAlign: 'super', lineHeight: 0, marginLeft: '1px', fontWeight: 400, opacity: 1 }}>®</span></p>
                   <p className="text-xs leading-tight mt-0.5 text-white/40">Banking, insurance & markets</p>
                 </div>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
@@ -192,6 +171,48 @@ export function MobileNav() {
                         </div>
                       )
                     }
+                    return (
+                      <Link key={section.href} href={section.href} onClick={closeMenu}
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${active ? 'bg-green text-white' : 'text-white/70 hover:bg-white/8 hover:text-white'}`}>
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${active ? 'bg-white/20' : 'bg-white/8'}`}
+                          dangerouslySetInnerHTML={{ __html: section.icon }} />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm leading-tight">{section.label}</p>
+                          <p className={`text-xs leading-tight mt-0.5 ${active ? 'text-white/70' : 'text-white/40'}`}>{section.desc}</p>
+                        </div>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+                          className={active ? 'text-white/60' : 'text-white/20'}>
+                          <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                      </Link>
+                    )
+                  })}
+                </div>
+              )}
+
+              {/* Diaspora Businesses group */}
+              <button onClick={() => setDiasporaOpen(v => !v)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${diasporaActive ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/8 hover:text-white'}`}>
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${diasporaActive ? 'bg-white/20' : 'bg-white/8'}`}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M8 3v18M16 3v18M2 9h20M2 15h20"/></svg>
+                </div>
+                <div className="flex-1 min-w-0 text-left">
+                  <p className="font-semibold text-sm leading-tight">Diaspora Businesses</p>
+                  <p className="text-xs leading-tight mt-0.5 text-white/40">Businesses, jobs, housing & more</p>
+                </div>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+                  className={`transition-transform text-white/40 ${diasporaOpen ? 'rotate-180' : ''}`}>
+                  <path d="M6 9l6 6 6-6"/>
+                </svg>
+              </button>
+              {diasporaOpen && (
+                <div className="pl-4 space-y-0.5 border-l border-white/10 ml-6 my-1">
+                  <Link href="/diaspora" onClick={closeMenu}
+                    className="flex items-center gap-3 px-3 py-2 rounded-xl text-white/50 hover:bg-white/8 hover:text-white transition-all text-xs font-semibold">
+                    View all diaspora sections →
+                  </Link>
+                  {DIASPORA_SECTIONS.map((section) => {
+                    const active = pathname.startsWith(section.href)
                     return (
                       <Link key={section.href} href={section.href} onClick={closeMenu}
                         className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${active ? 'bg-green text-white' : 'text-white/70 hover:bg-white/8 hover:text-white'}`}>

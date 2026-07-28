@@ -9,8 +9,6 @@ import { usePathname } from 'next/navigation'
 const diasporaSections = [
   { href: '/business', label: 'Businesses', desc: 'Verified Ethiopian businesses worldwide', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M8 3v18M16 3v18M2 9h20M2 15h20"/></svg>' },
   { href: '/jobs', label: 'Jobs', desc: 'Work within the community', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>' },
-  { href: '/housing', label: 'Housing', desc: 'Rooms, rentals, and properties', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>' },
-  { href: '/money', label: 'Money', desc: 'Transfers, exchange, and financial services', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>' },
   { href: '/cars', label: 'Cars', desc: 'Buy, sell, or find a trusted driver', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="1" y="8" width="22" height="10" rx="2"/><path d="M5 8l2-4h10l2 4"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>' },
   { href: '/tutors', label: 'Tutors', desc: 'Expert teaching and mentoring', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 14l9-5-9-5-9 5 9 5z"/><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>' },
   { href: '/delivery', label: 'Delivery', desc: 'Courier, freight, and cargo services', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>' },
@@ -18,6 +16,7 @@ const diasporaSections = [
 
 const birrbankSections = [
   { href: '/birrbank/banking', label: 'Banking', desc: 'Savings rates, FX, loans & money transfer', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>' },
+  { href: '/money', label: 'Money', desc: 'Financial services for the diaspora', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>' },
   { href: '/birrbank/institutions', label: 'Institutions', desc: 'NBE-licensed banks & financial institutions', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 21h18M5 21V7l8-4v18M13 21V11l6-3v13"/></svg>' },
   { href: '/birrbank/insurance', label: 'Insurance', desc: 'Compare insurance products', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>' },
   { href: '/birrbank/markets', label: 'Markets', desc: 'ESX equities, IPO pipeline & bonds', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>' },
@@ -27,10 +26,11 @@ const birrbankSections = [
 
 const groups = [
   { href: '/made-in-ethiopia', label: 'Made in Ethiopia' },
+  { href: '/housing', label: 'Property' },
+  { href: '/birrbank', label: 'BirrBank', trademark: true, dropdown: birrbankSections },
   { href: '/diaspora', label: 'Diaspora Businesses', dropdown: diasporaSections },
   { href: '/community', label: 'Community' },
   { href: '/events', label: 'Events' },
-  { href: '/birrbank', label: 'BirrBank', trademark: true, dropdown: birrbankSections },
 ]
 
 function DiasporaDropdown({ isActive }: { isActive: boolean }) {
@@ -104,7 +104,7 @@ function BirrBankDropdown({ isActive }: { isActive: boolean }) {
         className={`relative flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[12.5px] font-medium transition-colors whitespace-nowrap
           ${isActive ? 'text-green font-semibold' : 'text-muted hover:text-ink hover:bg-section'}`}
       >
-        BirrBank<span style={{fontSize:'0.55em',display:'inline-block',position:'relative',top:'-0.85em',opacity:1,marginLeft:'2px',fontWeight:400}}>&reg;</span>
+        BirrBank<span style={{ fontSize: '0.5em', verticalAlign: 'super', lineHeight: 0, marginLeft: '1px', fontWeight: 400, opacity: 1 }}>®</span>
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={`transition-transform ${open ? 'rotate-180' : ''}`}>
           <path d="M6 9l6 6 6-6"/>
         </svg>
@@ -118,7 +118,7 @@ function BirrBankDropdown({ isActive }: { isActive: boolean }) {
                 s.comingSoon ? (
                   <div key={s.href}
                     className="flex items-start gap-3 px-3 py-2.5 rounded-xl cursor-default">
-                    <div className="w-9 h-9 rounded-lg bg-section text-white/40 flex items-center justify-center shrink-0"
+                    <div className="w-9 h-9 rounded-lg bg-section text-muted/40 flex items-center justify-center shrink-0"
                       dangerouslySetInnerHTML={{ __html: s.icon }} />
                     <div className="min-w-0 pt-0.5">
                       <p className="text-[13.5px] font-semibold text-muted/60">{s.label}</p>
@@ -128,10 +128,10 @@ function BirrBankDropdown({ isActive }: { isActive: boolean }) {
                 ) : (
                   <Link key={s.href} href={s.href}
                     className="group/item flex items-start gap-3 px-3 py-2.5 rounded-xl hover:bg-section transition-colors">
-                    <div className="w-9 h-9 rounded-lg bg-blue-50 text-[#1D4ED8] flex items-center justify-center shrink-0 group-hover/item:bg-[#1D4ED8] group-hover/item:text-white transition-colors"
+                    <div className="w-9 h-9 rounded-lg bg-green-soft text-green flex items-center justify-center shrink-0 group-hover/item:bg-green group-hover/item:text-white transition-colors"
                       dangerouslySetInnerHTML={{ __html: s.icon }} />
                     <div className="min-w-0 pt-0.5">
-                      <p className="text-[13.5px] font-semibold text-ink group-hover/item:text-[#1D4ED8] transition-colors">{s.label}</p>
+                      <p className="text-[13.5px] font-semibold text-ink group-hover/item:text-green transition-colors">{s.label}</p>
                       <p className="text-xs text-muted leading-snug mt-0.5">{s.desc}</p>
                     </div>
                   </Link>
@@ -139,7 +139,7 @@ function BirrBankDropdown({ isActive }: { isActive: boolean }) {
               ))}
             </div>
             <div className="mx-1 my-2 border-t border-border/70" />
-            <Link href="/birrbank/banking" className="block px-3 py-2.5 rounded-xl text-[13.5px] font-semibold text-[#1D4ED8] hover:bg-blue-50 transition-colors">
+            <Link href="/birrbank/banking" className="block px-3 py-2.5 rounded-xl text-[13.5px] font-semibold text-green hover:bg-green-soft transition-colors">
               View all →
             </Link>
           </div>

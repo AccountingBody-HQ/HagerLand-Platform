@@ -6,8 +6,6 @@ const browseLinks = [
   { href: '/diaspora', label: 'Diaspora Businesses' },
   { href: '/business', label: 'Business directory' },
   { href: '/jobs', label: 'Jobs' },
-  { href: '/housing', label: 'Housing' },
-  { href: '/money', label: 'Money' },
   { href: '/cars', label: 'Cars & taxi' },
   { href: '/tutors', label: 'Tutors' },
   { href: '/community', label: 'Community' },
@@ -15,8 +13,13 @@ const browseLinks = [
   { href: '/delivery', label: 'Delivery & courier' },
 ]
 
+const propertyLinks = [
+  { href: '/housing', label: 'Housing' },
+]
+
 const birrbankLinks = [
   { href: '/birrbank/banking', label: 'Banking' },
+  { href: '/money', label: 'Money' },
   { href: '/birrbank/institutions', label: 'Institutions' },
   { href: '/birrbank/insurance', label: 'Insurance' },
   { href: '/birrbank/markets', label: 'Markets' },
@@ -57,7 +60,7 @@ export function SiteFooter() {
   return (
     <footer className="bg-ink text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-10 lg:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-10 lg:gap-8">
           <div className="lg:col-span-2">
             <Link href="/" className="flex items-center gap-2.5 mb-5">
               <Logo className="w-8 h-8" />
@@ -92,8 +95,16 @@ export function SiteFooter() {
             </ul>
           </div>
           <div>
+            <h3 className="text-xs font-bold uppercase tracking-widest text-white/30 mb-5">Property</h3>
+            <ul className="space-y-3">
+              {propertyLinks.map((l) => (
+                <li key={l.href}><Link href={l.href} className="text-sm text-white/55 hover:text-white transition-colors">{l.label}</Link></li>
+              ))}
+            </ul>
+          </div>
+          <div>
             <h3 className="text-xs font-bold uppercase tracking-widest text-white/30 mb-5">
-              BirrBank<span style={{fontSize:'0.7em',position:'relative',top:'-0.4em',marginLeft:'1px'}}>&reg;</span>
+              BirrBank<span style={{ fontSize: '0.5em', verticalAlign: 'super', lineHeight: 0, marginLeft: '1px', fontWeight: 400, opacity: 1 }}>®</span>
             </h3>
             <ul className="space-y-3">
               {birrbankLinks.map((l) => (
