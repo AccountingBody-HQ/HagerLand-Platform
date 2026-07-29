@@ -426,11 +426,11 @@ export default async function BusinessProfilePage({ params }: Props) {
               </div>
               <div className='divide-y divide-border'>
                 {[
-                  { href: '/business', label: 'All businesses', sub: 'Community directory' },
+                  { href: '/business', label: 'All businesses', sub: 'Verified Ethiopian businesses' },
                   { href: '/jobs', label: 'Jobs', sub: 'Community employment' },
                   { href: '/housing', label: 'Housing', sub: 'Rooms and rentals' },
                   { href: '/events', label: 'Events', sub: 'Community events' },
-                  { href: '/community', label: 'Community', sub: 'Organisations and groups' },
+                  { href: '/community', label: 'Diaspora Network', sub: 'Organisations and groups' },
                 ].map((l) => (
                   <Link key={l.href} href={l.href} className='flex items-center justify-between px-5 py-3.5 hover:bg-section transition-colors group'>
                     <div>

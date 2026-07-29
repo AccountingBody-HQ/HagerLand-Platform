@@ -66,7 +66,7 @@ export default async function AdminCommunityPage({ searchParams }: { searchParam
     <div style={{ padding: 32, maxWidth: 1000, margin: '0 auto' }}>
       <div style={{ marginBottom: 28 }}>
         <Link href='/roodber8' style={{ color: C.faint, fontSize: 12, textDecoration: 'none' }}>← Command Centre</Link>
-        <h1 style={{ fontSize: 24, fontWeight: 800, color: C.text, margin: '8px 0 4px' }}>Community</h1>
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: C.text, margin: '8px 0 4px' }}>Diaspora Network</h1>
         <p style={{ fontSize: 13, color: C.faint, margin: 0 }}>
           {count ?? 0} total · {active.length} active · {pending.length} pending · {unverified.length} unverified · {rejected.length} rejected — page {page} of {totalPages}
         </p>

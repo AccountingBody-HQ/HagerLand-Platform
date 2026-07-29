@@ -28,7 +28,7 @@ const sections = [
     icon: '<path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/>'
   },
   {
-    href: '/community/edit-link', label: 'Community', sub: 'Organisations & groups',
+    href: '/community/edit-link', label: 'Diaspora Network', sub: 'Organisations & groups',
     icon: '<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>'
   },
   {

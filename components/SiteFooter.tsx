@@ -8,7 +8,7 @@ const browseLinks = [
   { href: '/jobs', label: 'Jobs' },
   { href: '/cars', label: 'Cars & taxi' },
   { href: '/tutors', label: 'Tutors' },
-  { href: '/community', label: 'Community' },
+  { href: '/community', label: 'Diaspora Network' },
   { href: '/events', label: 'Events' },
   { href: '/delivery', label: 'Delivery & courier' },
 ]

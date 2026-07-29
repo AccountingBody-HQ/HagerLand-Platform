@@ -47,7 +47,7 @@ export default async function AdminBusinessDetailPage({ params, searchParams }: 
 
       {/* Breadcrumb */}
       <div style={{ marginBottom: 24 }}>
-        <Link href='/roodber8/community' style={{ color: C.faint, fontSize: 13, textDecoration: 'none' }}>← All Community</Link>
+        <Link href='/roodber8/community' style={{ color: C.faint, fontSize: 13, textDecoration: 'none' }}>← All Diaspora Network</Link>
       </div>
 
       {searchParams.saved && (

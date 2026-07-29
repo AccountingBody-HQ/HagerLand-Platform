@@ -21,7 +21,7 @@ const SECTIONS = [
   { table: 'money',     label: 'Money',      color: '#f59e0b', href: '/roodber8/money' },
   { table: 'cars',      label: 'Cars',       color: '#ec4899', href: '/roodber8/cars' },
   { table: 'tutors',    label: 'Tutors',     color: '#14b8a6', href: '/roodber8/tutors' },
-  { table: 'community', label: 'Community',  color: '#f97316', href: '/roodber8/community' },
+  { table: 'community', label: 'Diaspora Network', color: '#f97316', href: '/roodber8/community' },
   { table: 'events',    label: 'Events',     color: '#a855f7', href: '/roodber8/events' },
   { table: 'delivery',  label: 'Delivery',   color: '#0ea5e9', href: '/roodber8/delivery' },
   { table: 'made_in_ethiopia', label: 'Made in Ethiopia', color: '#B8862E', href: '/roodber8/made-in-ethiopia' },
@@ -191,7 +191,7 @@ export default async function AdminPage() {
               { label: 'Money', sub: `${sectionStats[3].active} active · ${sectionStats[3].pending} pending`, href: '/roodber8/money', color: '#f59e0b' },
               { label: 'Cars', sub: `${sectionStats[4].active} active · ${sectionStats[4].pending} pending`, href: '/roodber8/cars', color: '#ec4899' },
               { label: 'Tutors', sub: `${sectionStats[5].active} active · ${sectionStats[5].pending} pending`, href: '/roodber8/tutors', color: '#14b8a6' },
-              { label: 'Community', sub: `${sectionStats[6].active} active · ${sectionStats[6].pending} pending`, href: '/roodber8/community', color: '#f97316' },
+              { label: 'Diaspora Network', sub: `${sectionStats[6].active} active · ${sectionStats[6].pending} pending`, href: '/roodber8/community', color: '#f97316' },
               { label: 'Events', sub: `${sectionStats[7].active} active · ${sectionStats[7].pending} pending`, href: '/roodber8/events', color: '#a855f7' },
               { label: 'Delivery', sub: `${sectionStats[8].active} active · ${sectionStats[8].pending} pending`, href: '/roodber8/delivery', color: '#0ea5e9' },
             ].map(action => (

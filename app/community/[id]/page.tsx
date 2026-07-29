@@ -62,7 +62,7 @@ export default async function CommunityDetailPage({ params }: Props) {
             <span className="w-1 h-1 rounded-full bg-white/30" />
             Homeland
             <span className="w-1 h-1 rounded-full bg-white/30" />
-            Community directory
+            Diaspora Network
           </p>
 
           <div className="flex flex-col sm:flex-row items-start gap-5 sm:gap-7 mb-8">
@@ -74,7 +74,7 @@ export default async function CommunityDetailPage({ params }: Props) {
               <div className="flex flex-wrap gap-2 mb-4">
                 <span className="inline-flex items-center justify-center gap-1.5 h-5 bg-white/10 border border-white/20 text-white/70 text-[11px] font-normal px-4 rounded-full">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-                  Community listing
+                  Diaspora Network listing
                 </span>
                 {listing.category && (
                   <span className="inline-flex items-center justify-center gap-1.5 h-5 bg-white/15 border border-white/20 text-white/90 text-[11px] font-normal px-4 rounded-full">
@@ -132,7 +132,7 @@ export default async function CommunityDetailPage({ params }: Props) {
           <div className='flex flex-wrap divide-x divide-border'>
             {[
               { label: 'Status', value: 'Active' },
-              { label: 'Category', value: listing.category || 'Community' },
+              { label: 'Category', value: listing.category || 'Diaspora Network' },
               { label: 'Location', value: listing.city || 'United Kingdom' },
               { label: 'Listed on', value: 'HagerLand — Free & verified' },
             ].map((s) => (
@@ -265,7 +265,7 @@ export default async function CommunityDetailPage({ params }: Props) {
                         </div>
                         <div className='flex-1 min-w-0'>
                           <p className='text-sm font-semibold text-ink group-hover:text-green transition-colors truncate'>{b.name}</p>
-                          <p className='text-xs text-muted'>{b.category || b.city || 'Community'}</p>
+                          <p className='text-xs text-muted'>{b.category || b.city || 'Diaspora Network'}</p>
                         </div>
                         <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' className='text-muted group-hover:text-green transition-colors shrink-0'><path d='M9 18l6-6-6-6'/></svg>
                       </a>
@@ -370,8 +370,8 @@ export default async function CommunityDetailPage({ params }: Props) {
               </div>
               <div className='divide-y divide-border'>
                 {[
-                  { href: '/community', label: 'All community', sub: 'Organisations and groups' },
-                  { href: '/business', label: 'Businesses', sub: 'Community directory' },
+                  { href: '/community', label: 'Diaspora Network', sub: 'Organisations and groups' },
+                  { href: '/business', label: 'Businesses', sub: 'Verified Ethiopian businesses' },
                   { href: '/jobs', label: 'Jobs', sub: 'Community employment' },
                   { href: '/housing', label: 'Housing', sub: 'Rooms and rentals' },
                   { href: '/events', label: 'Events', sub: 'Community events' },

@@ -24,7 +24,7 @@ const FILTERS: { id: ResultType; label: string }[] = [
   { id: 'money', label: 'Money' },
   { id: 'car', label: 'Cars' },
   { id: 'tutor', label: 'Tutors' },
-  { id: 'community', label: 'Community' },
+  { id: 'community', label: 'Diaspora Network' },
   { id: 'event', label: 'Events' },
   { id: 'made_in_ethiopia', label: 'Made in Ethiopia' },
 ]

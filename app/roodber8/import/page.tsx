@@ -25,7 +25,7 @@ const SECTIONS = [
   { value: 'money',     label: 'Money',      adminPath: '/roodber8/money/' },
   { value: 'cars',      label: 'Cars',       adminPath: '/roodber8/cars/' },
   { value: 'tutors',    label: 'Tutors',     adminPath: '/roodber8/tutors/' },
-  { value: 'community', label: 'Community',  adminPath: '/roodber8/community/' },
+  { value: 'community', label: 'Diaspora Network', adminPath: '/roodber8/community/' },
   { value: 'events',    label: 'Events',     adminPath: '/roodber8/events/' },
 ]
 
@@ -424,7 +424,7 @@ export default function ImportPage() {
               <p style={{ color: C.text, lineHeight: 1.6 }}>{imported.ai_description}</p>
             </div>
             <div>
-              <p style={{ color: C.muted, fontSize: '0.78rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.25rem' }}>Community relevant</p>
+              <p style={{ color: C.muted, fontSize: '0.78rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.25rem' }}>Diaspora Network relevant</p>
               <p style={{ color: imported.community_relevant ? C.green : C.muted }}>{imported.community_relevant ? 'Yes' : 'No'}</p>
             </div>
           </div>

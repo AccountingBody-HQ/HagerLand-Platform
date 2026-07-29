@@ -23,7 +23,7 @@ const SECTIONS = [
   { table: 'housing', label: 'Housing', titleField: 'title', subtitleFields: ['category', 'city'], adminPath: 'housing' },
   { table: 'cars', label: 'Cars', titleField: 'title', subtitleFields: ['category', 'city'], adminPath: 'cars' },
   { table: 'tutors', label: 'Tutors', titleField: 'name', subtitleFields: ['category', 'city'], adminPath: 'tutors' },
-  { table: 'community', label: 'Community', titleField: 'name', subtitleFields: ['category', 'city'], adminPath: 'community' },
+  { table: 'community', label: 'Diaspora Network', titleField: 'name', subtitleFields: ['category', 'city'], adminPath: 'community' },
   { table: 'events', label: 'Events', titleField: 'title', subtitleFields: ['category', 'city'], adminPath: 'events' },
   { table: 'companies', label: 'Business', titleField: 'company_name', subtitleFields: ['sic_description', 'trading_address_city'], adminPath: 'businesses' },
   { table: 'money', label: 'Money', titleField: 'title', subtitleFields: ['category', 'city'], adminPath: 'money' },

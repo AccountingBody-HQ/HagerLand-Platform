@@ -34,7 +34,7 @@ export default async function ClaimPage({
         <Breadcrumb
           crumbs={[
             { href: '/', label: 'Home' },
-            { href: '/community', label: 'Community' },
+            { href: '/community', label: 'Diaspora Network' },
             { href: `/community/${params.id}`, label: listing.name },
             { href: `/community/${params.id}/claim`, label: 'Claim listing' },
           ]}

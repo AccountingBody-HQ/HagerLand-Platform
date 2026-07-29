@@ -17,7 +17,7 @@ const C = {
 const SECTION_LABELS: Record<string, string> = {
   companies: 'Business', jobs: 'Jobs', housing: 'Housing',
   money: 'Money', cars: 'Cars', tutors: 'Tutors',
-  community: 'Community', events: 'Events', delivery: 'Delivery',
+  community: 'Diaspora Network', events: 'Events', delivery: 'Delivery',
   made_in_ethiopia: 'Made in Ethiopia',
 }
 

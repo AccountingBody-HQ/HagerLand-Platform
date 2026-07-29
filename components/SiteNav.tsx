@@ -28,7 +28,7 @@ const groups = [
   { href: '/housing', label: 'Property' },
   { href: '/birrbank', label: 'BirrBank', trademark: true, dropdown: birrbankSections },
   { href: '/diaspora', label: 'Diaspora Businesses', dropdown: diasporaSections },
-  { href: '/community', label: 'Community' },
+  { href: '/community', label: 'Diaspora Network' },
   { href: '/events', label: 'Events' },
 ]
 
@@ -148,7 +148,6 @@ export function SiteNav() {
           <Logo className='w-7 h-7' />
           <span className='flex flex-col leading-none'>
             <span className='font-brand font-extrabold text-[20px] text-ink tracking-tight' translate="no">HagerLand<span style={{fontSize:'0.55em',display:'inline-block',position:'relative',top:'-0.85em',opacity:1,marginLeft:'2px',fontWeight:400}}>®</span></span>
-            <span className='text-[7px] font-medium uppercase tracking-[0.14em] text-green antialiased mt-[6px]' translate="no">Connect and Cooperate</span>
           </span>
         </Link>
 

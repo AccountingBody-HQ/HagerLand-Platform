@@ -16,7 +16,7 @@ const PAGE_SIZE = 50
 
 const SECTION_LABELS: Record<string, string> = {
   companies: 'Businesses', jobs: 'Jobs', housing: 'Housing', money: 'Money',
-  cars: 'Cars', tutors: 'Tutors', community: 'Community', events: 'Events',
+  cars: 'Cars', tutors: 'Tutors', community: 'Diaspora Network', events: 'Events',
 }
 
 function adminPath(section: string, listingId: string | null): string | null {
