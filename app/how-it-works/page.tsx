@@ -3,15 +3,15 @@ import { SiteNav } from '@/components/SiteNav'
 import { SiteFooter } from '@/components/SiteFooter'
 
 export const metadata = {
-  title: 'How HagerLand works — Free verified Ethiopian platform',
-  description: 'Learn how HagerLand works — search, list, claim, and connect with the Ethiopian diaspora community.',
+  title: 'How It Works — HagerLand',
+  description: 'How HagerLand works — submit your listing, get verified, and reach anyone interested in the Ethiopian economy.',
 }
 
 const STEPS = [
   {
     n: '01',
     title: 'Search or browse',
-    body: 'Use the search bar to find businesses, jobs, housing, or events by name, category, or city. Every section has filter pills to narrow results instantly. All 8 sections are fully searchable from a single query.',
+    body: 'Use the search bar to find businesses, jobs, housing, or events by name, category, or city. Every section has filter pills to narrow results instantly. All 10 HagerLand sections — plus BirrBank — are fully searchable from a single query.',
     icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35" strokeLinecap="round"/></svg>`,
   },
   {
@@ -23,7 +23,7 @@ const STEPS = [
   {
     n: '03',
     title: 'List for free',
-    body: 'Submitting a listing takes under two minutes. Fill in the form, submit, and our team will review it within 48 hours. Once approved it goes live immediately. Listing is completely free and will always remain free.',
+    body: 'Submitting a listing takes under two minutes. Fill in the form, submit, and our team will review it within 48 hours — every listing is checked for accuracy and authority before it goes live. Once approved it goes live immediately. Listing is completely free and will always remain free.',
     icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 5v14M5 12h14"/></svg>`,
   },
   {
@@ -37,7 +37,7 @@ const STEPS = [
 const FAQ = [
   {
     q: 'Is HagerLand really free?',
-    a: 'Yes — completely free. Listing your business, job, housing, or event costs nothing. There are no premium tiers, no featured placement fees, and no subscriptions. The platform is funded by the community, for the community.',
+    a: "Yes — completely free. Listing your business, job, housing, or event costs nothing. There are no premium tiers, no featured placement fees, and no subscriptions. The platform is built to lower the barrier to Ethiopia's economy for everyone.",
   },
   {
     q: 'How long does review take?',
@@ -45,7 +45,7 @@ const FAQ = [
   },
   {
     q: 'What gets rejected?',
-    a: 'Listings that are not connected to the Ethiopian community, that contain misleading information, or that violate our terms of use will be declined. Our team reviews every submission individually.',
+    a: 'Listings that are not connected to Ethiopia or its diaspora, that contain misleading information, or that violate our terms of use will be declined. Our team reviews every submission individually.',
   },
   {
     q: 'What is the gold verified badge?',
@@ -57,7 +57,7 @@ const FAQ = [
   },
   {
     q: 'Is HagerLand only for UK businesses?',
-    a: 'No — HagerLand is global. We welcome verified community businesses, community groups, and listings from anywhere in the world. Our current focus is the UK diaspora but the platform is open to all.',
+    a: "No — HagerLand is global. We are Ethiopia's business and financial platform, welcoming verified businesses, institutions, and listings from anywhere in the world. Our current focus is the UK diaspora but the platform is open to all.",
   },
 ]
 
@@ -87,10 +87,10 @@ export default function HowItWorksPage() {
               How it works
             </p>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.05] tracking-tight mb-6">
-              Simple. Trusted.<br />Community-first.
+              Simple. Trusted.<br />Built for Ethiopia.
             </h1>
             <p className="text-white/65 text-lg sm:text-xl leading-relaxed">
-              Everything on HagerLand is free, human-reviewed, and built to connect the Ethiopian diaspora directly.
+              Everything on HagerLand is free, human-reviewed, and built on trust — connecting Ethiopia&apos;s businesses, markets, and diaspora in one place.
             </p>
           </div>
         </div>
