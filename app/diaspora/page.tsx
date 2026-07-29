@@ -77,7 +77,7 @@ export default async function DiasporaPage() {
             <div className="flex items-end justify-between mb-10">
               <div>
                 <p className="text-xs font-bold uppercase tracking-widest text-gold mb-3">Featured</p>
-                <h2 className="text-2xl sm:text-3xl font-bold text-ink">Spotlight on the community</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold text-ink">Spotlight on Ethiopian Business</h2>
               </div>
               <Link href="/business" className="hidden sm:flex items-center gap-1.5 text-sm font-semibold text-ink hover:text-green transition-colors">
                 View all

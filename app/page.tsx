@@ -7,49 +7,42 @@ import { SearchBox } from '@/components/SearchBox'
 export const revalidate = 60
 
 export const metadata = {
-  title: 'HagerLand — Made in Ethiopia. Carried by its people.',
-  description: 'Discover authentic products made in Ethiopia, and connect with verified diaspora businesses, jobs, housing, and more — the free, verified platform serving Ethiopians and Eritreans worldwide.',
+  title: 'HagerLand — Where Ethiopia Does Business',
+  description: "Financial markets, verified businesses, products made in Ethiopia, and opportunities across the diaspora. Ethiopia's business and financial platform — built for Ethiopia, open to the world.",
   openGraph: {
-    title: 'HagerLand — Made in Ethiopia. Carried by its people.',
-    description: 'Discover authentic products made in Ethiopia, and connect with verified diaspora businesses, jobs, housing, and more.',
+    title: 'HagerLand — Where Ethiopia Does Business',
+    description: "Financial markets, verified businesses, products made in Ethiopia, and opportunities across the diaspora. Ethiopia's business and financial platform — built for Ethiopia, open to the world.",
     url: 'https://hagerland.com',
     siteName: 'HagerLand',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'HagerLand — Made in Ethiopia. Carried by its people.',
-    description: 'Discover authentic products made in Ethiopia, and connect with verified diaspora businesses, jobs, housing, and more.',
+    title: 'HagerLand — Where Ethiopia Does Business',
+    description: "Financial markets, verified businesses, products made in Ethiopia, and opportunities across the diaspora.",
   },
 }
 
-const DIASPORA_SECTIONS = [
-  { href: '/jobs', label: 'Jobs', description: 'Work within the Ethiopian community', table: 'jobs',
-    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>` },
-  { href: '/housing', label: 'Housing', description: 'Rooms, rentals, and properties', table: 'housing',
-    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>` },
-  { href: '/money', label: 'Money', description: 'Transfers, exchange, and financial services', table: 'money',
-    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>` },
-  { href: '/cars', label: 'Cars & taxi', description: 'Buy, sell, or find a trusted driver', table: 'cars',
-    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="1" y="8" width="22" height="10" rx="2"/><path d="M5 8l2-4h10l2 4"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>` },
-  { href: '/tutors', label: 'Tutors', description: 'Expert teaching and mentoring', table: 'tutors',
-    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 14l9-5-9-5-9 5 9 5z"/><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>` },
-  { href: '/delivery', label: 'Delivery', description: 'Courier, freight, and cargo services', table: 'delivery',
-    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>` },
-] as const
-
-const COMMUNITY_EVENTS = [
-  { href: '/community', label: 'Community', description: 'Churches, associations, and groups', table: 'community',
+const PILLARS = [
+  { href: '/made-in-ethiopia', label: 'Made in Ethiopia', description: 'Products grown, made, and crafted in Ethiopia — verified at source', table: 'made_in_ethiopia',
+    icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M20.59 13.41L13.42 20.58a2 2 0 01-2.83 0L2.59 12.58A2 2 0 012 11.17V4a2 2 0 012-2h7.17a2 2 0 011.42.59l8 8a2 2 0 010 2.82z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>` },
+  { href: '/birrbank', label: 'BirrBank®', description: 'Ethiopian financial intelligence — rates, markets, institutions, and investment', table: null,
+    icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>` },
+  { href: '/housing', label: 'Property', description: 'Ethiopian real estate — listings, intelligence, and market insight', table: 'housing',
+    icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>` },
+  { href: '/diaspora', label: 'Diaspora Businesses', description: 'The Ethiopian economy abroad — businesses, jobs, housing, money, and more', table: null,
+    icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M8 3v18M16 3v18M2 9h20M2 15h20"/></svg>` },
+  { href: '/community', label: 'Diaspora Network', description: 'The institutional layer — associations, churches, charities, and civic organisations', table: 'community',
     icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>` },
-  { href: '/events', label: 'Events', description: 'Celebrations and networking', table: 'events',
+  { href: '/events', label: 'Events', description: 'The Ethiopian business calendar — trade missions, summits, and commercial events', table: 'events',
     icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>` },
 ] as const
 
 const TRUST = [
   { stat: '100%', label: 'Verified listings', body: 'Every submission reviewed by our team before going live.' },
-  { stat: 'Free', label: 'Always free to list', body: 'No fees, no subscriptions. Community first, always.' },
-  { stat: '4', label: 'Groups', body: 'Made in Ethiopia, Diaspora Businesses, Community, and Events.' },
-  { stat: 'Global', label: 'Diaspora-wide', body: 'Serving the Ethiopian community wherever in the world you are.' },
+  { stat: 'Free', label: 'Always free to list', body: 'No fees, no subscriptions — built to last.' },
+  { stat: '6', label: 'Pillars', body: 'Made in Ethiopia, BirrBank, Property, Diaspora Businesses, Diaspora Network, and Events.' },
+  { stat: 'Global', label: 'Worldwide', body: 'Built for Ethiopia. Open to the world.' },
 ] as const
 
 export default async function HomePage() {
@@ -94,12 +87,14 @@ export default async function HomePage() {
               Ethiopian Network
             </p>
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white leading-[1.05] tracking-tight mb-6">
-              Made in Ethiopia.
-              <br /><span className="text-white/60">Carried by</span>
-              <br /><span className="text-white/60">its people.</span>
+              Where Ethiopia
+              <br /><span className="text-white/60">Does Business.</span>
             </h1>
-            <p className="text-white/65 text-lg sm:text-xl max-w-xl mb-10 leading-relaxed">
-              Discover authentic products manufactured, grown, and produced in Ethiopia — and connect with the diaspora businesses, jobs, and services that carry them worldwide.
+            <p className="text-white/65 text-lg sm:text-xl max-w-xl mb-4 leading-relaxed">
+              Financial markets, verified businesses, products made in Ethiopia, and opportunities across the diaspora — in one place.
+            </p>
+            <p className="text-white/45 text-sm font-semibold uppercase tracking-wider max-w-xl mb-10">
+              Built for Ethiopia. Open to the world.
             </p>
             <div className="max-w-xl mb-10">
               <SearchBox className="shadow-2xl shadow-black/20" />
@@ -108,15 +103,15 @@ export default async function HomePage() {
               <Link href="/made-in-ethiopia" className="flex-1 inline-flex items-center justify-center gap-2 bg-white text-green font-bold rounded-full px-6 py-3.5 text-sm hover:bg-green-soft transition-colors whitespace-nowrap">
                 Shop Made in Ethiopia →
               </Link>
-              <Link href="/diaspora" className="flex-1 inline-flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 border border-white/30 text-white font-bold rounded-full px-6 py-3.5 text-sm transition-colors whitespace-nowrap">
-                Explore Diaspora Businesses
+              <Link href="/birrbank" className="flex-1 inline-flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 border border-white/30 text-white font-bold rounded-full px-6 py-3.5 text-sm transition-colors whitespace-nowrap">
+                Explore BirrBank®
               </Link>
             </div>
             <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
               {[
                 { value: totalListings.toLocaleString(), label: 'active listings' },
                 { value: counts.made_in_ethiopia.toLocaleString(), label: 'Made in Ethiopia' },
-                { value: '4', label: 'groups' },
+                { value: '6', label: 'pillars' },
                 { value: 'Free', label: 'to list' },
               ].map((s) => (
                 <div key={s.label} className="flex items-baseline gap-2">
@@ -136,7 +131,7 @@ export default async function HomePage() {
             <div>
               <p className="text-xs font-bold uppercase tracking-widest text-green mb-3">New on HagerLand</p>
               <h2 className="text-3xl sm:text-4xl font-bold text-ink leading-tight mb-3">
-                BirrBank<span style={{fontSize:'0.55em',position:'relative',top:'-0.6em',marginLeft:'2px',fontWeight:400}}>®</span> — Ethiopia&apos;s financial directory
+                BirrBank<span style={{fontSize:'0.55em',position:'relative',top:'-0.6em',marginLeft:'2px',fontWeight:400}}>®</span> — Ethiopian financial intelligence
               </h2>
               <p className="text-muted text-base leading-relaxed max-w-xl">
                 Compare savings rates, FX rates, insurance, markets and commodities across all NBE-licensed institutions.
@@ -163,101 +158,25 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ══ BROWSE THE PLATFORM */}
+      {/* ══ BROWSE THE PLATFORM — SIX PILLARS */}
       <section className="bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
           <div className="mb-12">
             <p className="text-xs font-bold uppercase tracking-widest text-green mb-3">Browse the platform</p>
-            <h2 className="text-3xl sm:text-4xl font-bold text-ink leading-tight">Four ways to connect<br className="hidden sm:block"/> with Ethiopia and its diaspora</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold text-ink leading-tight">Six pillars.<br className="hidden sm:block"/> One Ethiopian economy.</h2>
           </div>
-
-          {/* Made in Ethiopia — featured group */}
-          <Link href="/made-in-ethiopia"
-            className="group relative rounded-2xl p-8 sm:p-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 overflow-hidden mb-6"
-            style={{background: 'linear-gradient(120deg, #155F3A 0%, #1C7C4C 55%, #B8862E 130%)'}}>
-            <div className="absolute inset-0 opacity-10" style={{backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '20px 20px'}} />
-            <div className="relative flex items-start gap-5">
-              <div className="w-14 h-14 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8"><path d="M20.59 13.41L13.42 20.58a2 2 0 01-2.83 0L2.59 12.58A2 2 0 012 11.17V4a2 2 0 012-2h7.17a2 2 0 011.42.59l8 8a2 2 0 010 2.82z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>
-              </div>
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-widest text-white/60 mb-2">Made in Ethiopia</p>
-                <h3 className="text-2xl font-bold text-white mb-2">Authentic products, straight from origin</h3>
-                <p className="text-white/70 text-sm leading-relaxed max-w-lg">Coffee, honey & spices, textiles, leather goods, crafts, and more — every listing declares exactly how and where it&apos;s made in Ethiopia.</p>
-              </div>
-            </div>
-            <div className="relative flex items-center gap-4 shrink-0 self-stretch sm:self-auto">
-              <div>
-                <p className="text-3xl font-bold text-white" translate="no">{counts.made_in_ethiopia}</p>
-                <p className="text-white/60 text-xs mt-1">products listed</p>
-              </div>
-              <div className="w-11 h-11 rounded-full bg-white/20 group-hover:bg-white/30 flex items-center justify-center transition-colors shrink-0">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-              </div>
-            </div>
-          </Link>
-
-          {/* Diaspora Businesses group */}
-          <div className="flex items-end justify-between mb-4 mt-10">
-            <p className="text-xs font-bold uppercase tracking-widest text-muted">Diaspora Businesses</p>
-            <Link href="/diaspora" className="text-xs font-semibold text-green hover:underline">View all →</Link>
-          </div>
-          <div className="grid lg:grid-cols-5 gap-5 mb-10">
-            <Link href="/business"
-              className="lg:col-span-2 group relative bg-green rounded-2xl p-8 flex flex-col justify-between min-h-[240px] overflow-hidden">
-              <div className="absolute inset-0 opacity-10" style={{backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '20px 20px'}} />
-              <div className="relative">
-                <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center mb-6">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M8 3v18M16 3v18M2 9h20M2 15h20"/></svg>
-                </div>
-                <h2 className="text-2xl font-bold text-white mb-3">Businesses</h2>
-                <p className="text-white/65 text-sm leading-relaxed">Discover and support verified community businesses across the UK and worldwide.</p>
-              </div>
-              <div className="relative flex items-end justify-between mt-8">
-                <div>
-                  <p className="text-4xl font-bold text-white" translate="no">{counts.companies}</p>
-                  <p className="text-white/50 text-xs mt-1">businesses listed</p>
-                </div>
-                <div className="w-11 h-11 rounded-full bg-white/20 group-hover:bg-white/30 flex items-center justify-center transition-colors">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </div>
-              </div>
-            </Link>
-            <div className="lg:col-span-3 grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {DIASPORA_SECTIONS.map((section) => (
-                <Link key={section.href} href={section.href}
-                  className="group bg-white border border-border rounded-2xl p-5 hover:border-green/50 hover:shadow-lg transition-all duration-200 flex flex-col">
-                  <div className="w-10 h-10 rounded-xl bg-green-soft text-green flex items-center justify-center mb-4 shrink-0"
-                    dangerouslySetInnerHTML={{ __html: section.icon }} />
-                  <h3 className="font-bold text-ink text-sm mb-1 group-hover:text-green transition-colors">{section.label}</h3>
-                  <p className="text-xs text-muted leading-relaxed flex-1">{section.description}</p>
-                  {counts[section.table] > 0 && (
-                    <p className="text-xs font-bold text-green mt-3" translate="no">{counts[section.table].toLocaleString()} listings</p>
-                  )}
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* Community + Events groups */}
-          <div className="grid sm:grid-cols-2 gap-5">
-            {COMMUNITY_EVENTS.map((section) => (
-              <div key={section.href}>
-                <p className="text-xs font-bold uppercase tracking-widest text-muted mb-4">{section.label}</p>
-                <Link href={section.href}
-                  className="group bg-white border border-border rounded-2xl p-6 hover:border-green/50 hover:shadow-lg transition-all duration-200 flex items-center gap-5">
-                  <div className="w-12 h-12 rounded-xl bg-green-soft text-green flex items-center justify-center shrink-0"
-                    dangerouslySetInnerHTML={{ __html: section.icon }} />
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-ink text-base mb-1 group-hover:text-green transition-colors">{section.label}</h3>
-                    <p className="text-sm text-muted leading-relaxed">{section.description}</p>
-                    {counts[section.table] > 0 && (
-                      <p className="text-xs font-bold text-green mt-2" translate="no">{counts[section.table].toLocaleString()} listings</p>
-                    )}
-                  </div>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-muted group-hover:text-green transition-colors shrink-0"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </Link>
-              </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {PILLARS.map((p) => (
+              <Link key={p.href} href={p.href}
+                className="group bg-white border border-border rounded-2xl p-7 hover:border-green/50 hover:shadow-lg transition-all duration-200 flex flex-col">
+                <div className="w-12 h-12 rounded-xl bg-green-soft text-green flex items-center justify-center mb-5 shrink-0"
+                  dangerouslySetInnerHTML={{ __html: p.icon }} />
+                <h3 className="font-bold text-ink text-lg mb-2 group-hover:text-green transition-colors">{p.label}</h3>
+                <p className="text-sm text-muted leading-relaxed flex-1">{p.description}</p>
+                {p.table && counts[p.table] > 0 && (
+                  <p className="text-xs font-bold text-green mt-4" translate="no">{counts[p.table].toLocaleString()} listings</p>
+                )}
+              </Link>
             ))}
           </div>
         </div>
@@ -269,8 +188,8 @@ export default async function HomePage() {
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-24 items-center">
             <div>
               <p className="text-xs font-bold uppercase tracking-widest text-green mb-4">How it works</p>
-              <h2 className="text-3xl sm:text-4xl font-bold text-ink leading-tight mb-6">Simple. Trusted.<br/>Community-first.</h2>
-              <p className="text-muted leading-relaxed text-base mb-8">HagerLand connects the Ethiopian diaspora with trusted, verified listings. Every business, job, and event is reviewed by our team before going live — no spam, no fakes.</p>
+              <h2 className="text-3xl sm:text-4xl font-bold text-ink leading-tight mb-6">Simple. Trusted.<br/>Built for Ethiopia.</h2>
+              <p className="text-muted leading-relaxed text-base mb-8">HagerLand brings Ethiopia&apos;s financial markets, verified businesses, and diaspora opportunities together with trusted, verified listings. Every business, job, and event is reviewed by our team before going live — no spam, no fakes.</p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link href="/business" className="flex-1 text-center bg-green hover:bg-green-dark text-white font-semibold rounded-full px-6 py-3 transition-colors text-sm">
                   Browse businesses
@@ -347,7 +266,7 @@ export default async function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
           <div className="mb-12">
             <p className="text-xs font-bold uppercase tracking-widest text-green mb-3">Why HagerLand</p>
-            <h2 className="text-3xl sm:text-4xl font-bold text-ink leading-tight">Built for trust.<br/>Built for the community.</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold text-ink leading-tight">Built for Ethiopia.<br/>Open to the world.</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-14">
             {TRUST.map((item) => (

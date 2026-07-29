@@ -21,11 +21,11 @@ const manrope = Manrope({
 })
 export const metadata: Metadata = {
   title: {
-    default: 'HagerLand — The global network for Ethiopian business',
+    default: 'HagerLand — Where Ethiopia Does Business',
     template: '%s | HagerLand',
   },
   description:
-    'Find and support verified community businesses, jobs, housing, events, and community across the diaspora.',
+    "Financial markets, verified businesses, products made in Ethiopia, and opportunities across the diaspora. Ethiopia's business and financial platform — built for Ethiopia, open to the world.",
   metadataBase: new URL('https://hagerland.com'),
   openGraph: {
     siteName: 'HagerLand',
