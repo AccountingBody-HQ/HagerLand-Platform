@@ -127,7 +127,7 @@ function BirrBankDropdown({ isActive }: { isActive: boolean }) {
         className={`relative flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[12.5px] font-medium transition-colors whitespace-nowrap
           ${isActive ? 'text-green font-semibold' : 'text-muted hover:text-ink hover:bg-section'}`}
       >
-        BirrBank<sup style={{ fontSize: '1em', verticalAlign: 'top', position: 'relative', top: '0.15em' }}>®</sup>
+        BirrBank<span style={{ fontSize: '0.55em', verticalAlign: 'super', lineHeight: 0, marginLeft: '2px', fontWeight: 400, opacity: 1, position: 'relative', top: '-0.1em' }}>®</span>
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={`transition-transform ${open ? 'rotate-180' : ''}`}>
           <path d="M6 9l6 6 6-6"/>
         </svg>
