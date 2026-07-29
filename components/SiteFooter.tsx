@@ -1,50 +1,32 @@
 import Link from 'next/link'
 import { Logo } from '@/components/Logo'
 
-const browseLinks = [
+const platformLinks = [
   { href: '/made-in-ethiopia', label: 'Made in Ethiopia' },
+  { href: '/birrbank', label: 'BirrBank®' },
+  { href: '/housing', label: 'Property' },
   { href: '/diaspora', label: 'Diaspora Businesses' },
-  { href: '/business', label: 'Business directory' },
-  { href: '/jobs', label: 'Jobs' },
-  { href: '/cars', label: 'Cars & taxi' },
-  { href: '/tutors', label: 'Tutors' },
   { href: '/community', label: 'Diaspora Network' },
   { href: '/events', label: 'Events' },
-  { href: '/delivery', label: 'Delivery & courier' },
 ]
 
-const propertyLinks = [
+const diasporaBusinessLinks = [
+  { href: '/business', label: 'Businesses' },
+  { href: '/jobs', label: 'Jobs' },
   { href: '/housing', label: 'Housing' },
-]
-
-const birrbankLinks = [
-  { href: '/birrbank/banking', label: 'Banking' },
   { href: '/money', label: 'Money' },
-  { href: '/birrbank/institutions', label: 'Institutions' },
-  { href: '/birrbank/insurance', label: 'Insurance' },
-  { href: '/birrbank/markets', label: 'Markets' },
-  { href: '/birrbank/commodities', label: 'Commodities' },
+  { href: '/cars', label: 'Cars' },
+  { href: '/tutors', label: 'Tutors' },
+  { href: '/delivery', label: 'Delivery' },
 ]
 
-const companyLinks = [
-  { href: '/about', label: 'About HagerLand' },
+const hagerlandLinks = [
+  { href: '/about', label: 'About' },
   { href: '/how-it-works', label: 'How it works' },
-  { href: '/contact', label: 'Contact us' },
+  { href: '/contact', label: 'Contact' },
   { href: '/privacy', label: 'Privacy policy' },
   { href: '/terms', label: 'Terms of use' },
-]
-
-const listLinks = [
-  { href: '/made-in-ethiopia/post', label: 'List a Made in Ethiopia product' },
-  { href: '/business/post', label: 'List your business' },
-  { href: '/jobs/post', label: 'Post a job' },
-  { href: '/housing/post', label: 'List a property' },
-  { href: '/money/post', label: 'List a financial service' },
-  { href: '/cars/post', label: 'List a car & taxi service' },
-  { href: '/events/post', label: 'Post an event' },
-  { href: '/tutors/post', label: 'List as a tutor' },
-  { href: '/community/post', label: 'List an organisation' },
-  { href: '/delivery/post', label: 'List a delivery service' },
+  { href: '/edit-link', label: 'Edit your listing' },
 ]
 
 const socialLinks = [
@@ -59,14 +41,15 @@ export function SiteFooter() {
   return (
     <footer className="bg-ink text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-10 lg:gap-8">
-          <div className="lg:col-span-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
+          <div>
             <Link href="/" className="flex items-center gap-2.5 mb-5">
               <Logo className="w-8 h-8" />
               <span className="font-brand font-extrabold text-2xl text-white tracking-tight" translate="no">HagerLand<span style={{fontSize:'0.55em',display:'inline-block',position:'relative',top:'-0.85em',opacity:1,marginLeft:'2px',fontWeight:400}}>®</span></span>
             </Link>
+            <p className="text-white/70 text-xs font-bold uppercase tracking-wider mb-3">Where Ethiopia Does Business</p>
             <p className="text-white/50 text-sm leading-relaxed max-w-xs mb-4">
-              The global network for Ethiopian business, community, and culture. Supporting the diaspora wherever in the world you are.
+              Ethiopia&apos;s business and financial platform — built for Ethiopia, open to the world.
             </p>
             <p className="text-white/25 text-xs mb-8">ሃገር — <span className="italic text-white/35">homeland</span></p>
             <div className="flex items-center gap-2.5">
@@ -78,43 +61,25 @@ export function SiteFooter() {
             </div>
           </div>
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-widest text-white/30 mb-5">Browse</h3>
+            <h3 className="text-xs font-bold uppercase tracking-widest text-white/30 mb-5">Platform</h3>
             <ul className="space-y-3">
-              {browseLinks.map((l) => (
+              {platformLinks.map((l) => (
                 <li key={l.href}><Link href={l.href} className="text-sm text-white/55 hover:text-white transition-colors">{l.label}</Link></li>
               ))}
             </ul>
           </div>
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-widest text-white/30 mb-5">List for free</h3>
+            <h3 className="text-xs font-bold uppercase tracking-widest text-white/30 mb-5">Diaspora Businesses</h3>
             <ul className="space-y-3">
-              {listLinks.map((l) => (
+              {diasporaBusinessLinks.map((l) => (
                 <li key={l.href}><Link href={l.href} className="text-sm text-white/55 hover:text-white transition-colors">{l.label}</Link></li>
               ))}
             </ul>
           </div>
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-widest text-white/30 mb-5">Property</h3>
+            <h3 className="text-xs font-bold uppercase tracking-widest text-white/30 mb-5">HagerLand</h3>
             <ul className="space-y-3">
-              {propertyLinks.map((l) => (
-                <li key={l.href}><Link href={l.href} className="text-sm text-white/55 hover:text-white transition-colors">{l.label}</Link></li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h3 className="text-xs font-bold uppercase tracking-widest text-white/30 mb-5">
-              BirrBank<span style={{ fontSize: '0.5em', verticalAlign: 'super', lineHeight: 0, marginLeft: '1px', fontWeight: 400, opacity: 1 }}>®</span>
-            </h3>
-            <ul className="space-y-3">
-              {birrbankLinks.map((l) => (
-                <li key={l.href}><Link href={l.href} className="text-sm text-white/55 hover:text-white transition-colors">{l.label}</Link></li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h3 className="text-xs font-bold uppercase tracking-widest text-white/30 mb-5">Company</h3>
-            <ul className="space-y-3">
-              {companyLinks.map((l) => (
+              {hagerlandLinks.map((l) => (
                 <li key={l.href}><Link href={l.href} className="text-sm text-white/55 hover:text-white transition-colors">{l.label}</Link></li>
               ))}
             </ul>
@@ -135,7 +100,7 @@ export function SiteFooter() {
       </div>
       {/* Bottom bar — no divider line, just padding */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <p className="text-xs text-white/20">© {new Date().getFullYear()} HagerLand. Built for the Ethiopian diaspora, worldwide.</p>
+        <p className="text-xs text-white/20">© {new Date().getFullYear()} HagerLand. Built for Ethiopia. Open to the world.</p>
         <div className="flex items-center gap-5">
           <Link href="/privacy" className="text-xs text-white/20 hover:text-white/50 transition-colors">Privacy</Link>
           <Link href="/terms" className="text-xs text-white/20 hover:text-white/50 transition-colors">Terms</Link>
