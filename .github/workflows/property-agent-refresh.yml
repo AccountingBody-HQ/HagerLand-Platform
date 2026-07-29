@@ -1,0 +1,32 @@
+name: Property Data Refresh Agent
+on:
+  schedule:
+    - cron: '0 4 * * 3'
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Refresh property agency data for all active listings.
+            Query all properties where status='active' AND
+            (agent_last_run < now()-7days OR agent_last_run IS NULL).
+            Limit 20 per run.
+            For each: re-call Google Place Details, update phone,
+            hours, rating, review_count, agent_last_run.
+            If website exists re-scrape for new listings.
+            Insert new listings to property_listings only if
+            source_url not already in table.
+            Never change status. Never overwrite ai_description.
+            Log all changes to agent_log.
+        env:
+          SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          GOOGLE_PLACES_API_KEY: ${{ secrets.GOOGLE_PLACES_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
