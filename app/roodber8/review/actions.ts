@@ -67,6 +67,8 @@ function revalidateAll() {
   revalidatePath('/roodber8/events')
   revalidatePath('/roodber8/delivery')
   revalidatePath('/roodber8/made-in-ethiopia')
+  revalidatePath('/roodber8/properties')
+  revalidatePath('/roodber8/properties/[id]', 'page')
 }
 
 export async function toggleFeatured(id: string, featured: boolean) {
@@ -406,6 +408,49 @@ export async function restoreListing(table: string, id: string) {
   const { error } = await supabase.from(table).update({ status: 'pending' }).eq('id', id)
   if (error) throw new Error(error.message)
   await logAudit('restore', table, id)
+  revalidateAll()
+}
+
+// Property agencies discovered by the discovery agent live in their own
+// table with a schema that doesn't match the generic TABLES union above
+// (no contact_email/manage_token flow), so they get dedicated actions
+// mirroring the shape of approveListing/rejectListing/deleteListing.
+export async function approveProperty(id: string) {
+  requireAdminSession()
+  const supabase = getAdmin()
+  const { data: property } = await supabase
+    .from('properties')
+    .select('company_name')
+    .eq('id', id)
+    .single()
+  const { error } = await supabase.from('properties').update({ status: 'active' }).eq('id', id)
+  if (error) throw new Error(error.message)
+  await logAudit('approve', 'properties', id, property?.company_name)
+  revalidateAll()
+}
+
+export async function rejectProperty(id: string) {
+  requireAdminSession()
+  const supabase = getAdmin()
+  const { data: property } = await supabase
+    .from('properties')
+    .select('company_name')
+    .eq('id', id)
+    .single()
+  const { error } = await supabase.from('properties').update({ status: 'rejected' }).eq('id', id)
+  if (error) throw new Error(error.message)
+  await logAudit('reject', 'properties', id, property?.company_name)
+  revalidateAll()
+}
+
+export async function deleteProperty(id: string) {
+  const token = cookies().get(SESSION_COOKIE)?.value
+  if (!verifySessionToken(token)) throw new Error('Unauthorized')
+  const supabase = getAdmin()
+  const { data: doomed } = await supabase.from('properties').select('company_name').eq('id', id).single()
+  const { error } = await supabase.from('properties').delete().eq('id', id)
+  if (error) throw new Error(error.message)
+  await logAudit('delete', 'properties', id, doomed?.company_name)
   revalidateAll()
 }
 
