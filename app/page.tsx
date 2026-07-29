@@ -26,7 +26,7 @@ export const metadata = {
 const PILLARS = [
   { href: '/made-in-ethiopia', label: 'Made in Ethiopia', description: 'Products grown, made, and crafted in Ethiopia — verified at source', table: 'made_in_ethiopia',
     icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M20.59 13.41L13.42 20.58a2 2 0 01-2.83 0L2.59 12.58A2 2 0 012 11.17V4a2 2 0 012-2h7.17a2 2 0 011.42.59l8 8a2 2 0 010 2.82z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>` },
-  { href: '/birrbank', label: 'BirrBank®', description: 'Ethiopian financial intelligence — rates, markets, institutions, and investment', table: null,
+  { href: '/birrbank', label: 'BirrBank', description: 'Ethiopian financial intelligence — rates, markets, institutions, and investment', table: null,
     icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>` },
   { href: '/housing', label: 'Property', description: 'Ethiopian real estate — listings, intelligence, and market insight', table: 'housing',
     icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>` },
@@ -104,7 +104,7 @@ export default async function HomePage() {
                 Shop Made in Ethiopia →
               </Link>
               <Link href="/birrbank" className="flex-1 inline-flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 border border-white/30 text-white font-bold rounded-full px-6 py-3.5 text-sm transition-colors whitespace-nowrap">
-                Explore BirrBank®
+                Explore BirrBank<sup style={{ fontSize: '1em', verticalAlign: 'top', position: 'relative', top: '0.15em' }}>®</sup>
               </Link>
             </div>
             <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
@@ -131,7 +131,7 @@ export default async function HomePage() {
             <div>
               <p className="text-xs font-bold uppercase tracking-widest text-green mb-3">New on HagerLand</p>
               <h2 className="text-3xl sm:text-4xl font-bold text-ink leading-tight mb-3">
-                BirrBank<span style={{fontSize:'0.55em',position:'relative',top:'-0.6em',marginLeft:'2px',fontWeight:400}}>®</span> — Ethiopian financial intelligence
+                BirrBank<sup style={{ fontSize: '1em', verticalAlign: 'top', position: 'relative', top: '0.15em' }}>®</sup> — Ethiopian financial intelligence
               </h2>
               <p className="text-muted text-base leading-relaxed max-w-xl">
                 Compare savings rates, FX rates, insurance, markets and commodities across all NBE-licensed institutions.
@@ -139,7 +139,7 @@ export default async function HomePage() {
             </div>
             <Link href="/birrbank/banking"
               className="inline-flex items-center justify-center gap-2 bg-green hover:bg-green-dark text-white font-bold rounded-full px-6 py-3.5 text-sm transition-colors whitespace-nowrap shrink-0">
-              Explore BirrBank® →
+              Explore BirrBank<sup style={{ fontSize: '1em', verticalAlign: 'top', position: 'relative', top: '0.15em' }}>®</sup> →
             </Link>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
@@ -171,7 +171,12 @@ export default async function HomePage() {
                 className="group bg-white border border-border rounded-2xl p-7 hover:border-green/50 hover:shadow-lg transition-all duration-200 flex flex-col">
                 <div className="w-12 h-12 rounded-xl bg-green-soft text-green flex items-center justify-center mb-5 shrink-0"
                   dangerouslySetInnerHTML={{ __html: p.icon }} />
-                <h3 className="font-bold text-ink text-lg mb-2 group-hover:text-green transition-colors">{p.label}</h3>
+                <h3 className="font-bold text-ink text-lg mb-2 group-hover:text-green transition-colors">
+                  {p.label}
+                  {p.href === '/birrbank' && (
+                    <sup style={{ fontSize: '1em', verticalAlign: 'top', position: 'relative', top: '0.15em' }}>®</sup>
+                  )}
+                </h3>
                 <p className="text-sm text-muted leading-relaxed flex-1">{p.description}</p>
                 {p.table && counts[p.table] > 0 && (
                   <p className="text-xs font-bold text-green mt-4" translate="no">{counts[p.table].toLocaleString()} listings</p>
