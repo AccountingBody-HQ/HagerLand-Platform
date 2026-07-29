@@ -83,7 +83,7 @@ export function AdminSidebar({ pathname }: { pathname: string }) {
         })}
         {/* BirrBank section divider */}
         <div style={{ margin: '14px 12px 8px', paddingTop: 12, borderTop: '1px solid #1a2238', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ color: '#3b82f6', fontSize: 11, fontWeight: 800, letterSpacing: '0.06em' }}>BIRRBANK<sup style={{ fontSize: '1em', verticalAlign: 'top', position: 'relative', top: '0.15em' }}>®</sup></span>
+          <span style={{ color: '#3b82f6', fontSize: 11, fontWeight: 800, letterSpacing: '0.06em' }}>BIRRBANK<span style={{ fontSize: '0.7em', position: 'relative', top: '-0.4em' }}>®</span></span>
         </div>
         {BIRRBANK_NAV.map(item => {
           const active = isActive(currentPath, item.href, item.exact)

@@ -82,7 +82,7 @@ export function MobileNav() {
           <div className="flex items-center justify-between px-5 h-14 shrink-0 border-b border-white/10">
             <Link href="/" onClick={closeMenu} className="flex items-center gap-2.5">
               <Logo className="w-6 h-6" />
-              <span className="font-brand font-extrabold text-2xl text-white tracking-tight" translate="no">HagerLand<sup style={{ fontSize: '1em', verticalAlign: 'top', position: 'relative', top: '0.15em' }}>®</sup></span>
+              <span className="font-brand font-extrabold text-2xl text-white tracking-tight" translate="no">HagerLand<sup className="text-[1em] -top-1">®</sup></span>
             </Link>
             <button onClick={closeMenu} aria-label="Close menu" className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 transition-colors">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12" strokeLinecap="round"/></svg>
@@ -137,7 +137,7 @@ export function MobileNav() {
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
                 </div>
                 <div className="flex-1 min-w-0 text-left">
-                  <p className="font-semibold text-sm leading-tight">BirrBank<sup style={{ fontSize: '1em', verticalAlign: 'top', position: 'relative', top: '0.15em' }}>®</sup></p>
+                  <p className="font-semibold text-sm leading-tight">BirrBank<sup className="text-[1em] -top-1">®</sup></p>
                   <p className="text-xs leading-tight mt-0.5 text-white/40">Banking, insurance & markets</p>
                 </div>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
