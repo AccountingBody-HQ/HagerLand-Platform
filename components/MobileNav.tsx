@@ -137,7 +137,7 @@ export function MobileNav() {
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
                 </div>
                 <div className="flex-1 min-w-0 text-left">
-                  <p className="font-semibold text-sm leading-tight">BirrBank<span style={{ fontSize: '0.55em', verticalAlign: 'super', lineHeight: 0, marginLeft: '2px', fontWeight: 400, opacity: 1, position: 'relative', top: '-0.1em' }}>®</span></p>
+                  <p className="font-semibold text-sm leading-tight">BirrBank<sup style={{ fontSize: '1em', verticalAlign: 'top', position: 'relative', top: '0.15em' }}>®</sup></p>
                   <p className="text-xs leading-tight mt-0.5 text-white/40">Banking, insurance & markets</p>
                 </div>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"

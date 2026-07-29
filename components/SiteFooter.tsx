@@ -67,7 +67,7 @@ export function SiteFooter() {
                 <li key={l.href}>
                   <Link href={l.href} className="text-sm text-white/55 hover:text-white transition-colors">
                     {l.label}
-                    {l.href === '/birrbank' && <span style={{ fontSize: '0.55em', verticalAlign: 'super', lineHeight: 0, marginLeft: '2px', fontWeight: 400, opacity: 1, position: 'relative', top: '-0.1em' }}>®</span>}
+                    {l.href === '/birrbank' && <sup style={{ fontSize: '1em', verticalAlign: 'top', position: 'relative', top: '0.15em' }}>®</sup>}
                   </Link>
                 </li>
               ))}
