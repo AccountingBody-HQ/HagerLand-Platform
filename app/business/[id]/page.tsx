@@ -39,7 +39,7 @@ export default async function BusinessProfilePage({ params }: Props) {
   const enquiryEmail = business.contact_email || business.email || null
   const promoActive = business.promo_text && (!business.promo_expires_at || (() => { const exp = new Date(business.promo_expires_at); exp.setHours(23,59,59,999); return exp > new Date(); })())
   const description = business.ai_description || business.sic_description
-    ? `${business.company_name} is a verified community business${business.trading_address_city ? ` based in ${business.trading_address_city}` : ''}${business.sic_description ? `, specialising in ${business.sic_description}` : ''}. Listed on HagerLand — the free, verified community directory.`
+    ? `${business.company_name} is a verified community business${business.trading_address_city ? ` based in ${business.trading_address_city}` : ''}${business.sic_description ? `, specialising in ${business.sic_description}` : ''}. Listed on HagerLand — Ethiopia's business and financial platform.`
     : null
 
   return (
@@ -222,7 +222,7 @@ export default async function BusinessProfilePage({ params }: Props) {
               </div>
               <div className='px-6 py-6'>
                 <p className='text-sm leading-relaxed text-ink/80'>
-                  {business.ai_description || description || `${business.company_name} is a verified community business listed on HagerLand — the free, verified community directory.`}
+                  {business.ai_description || description || `${business.company_name} is a verified business listed on HagerLand — Ethiopia's business and financial platform.`}
                 </p>
               </div>
               {/* Trust signals strip */}
@@ -447,7 +447,7 @@ export default async function BusinessProfilePage({ params }: Props) {
             <div className='bg-green rounded-2xl p-5'>
               <p className='text-xs font-bold text-white/60 uppercase tracking-wider mb-1'>Free listing</p>
               <p className='text-base font-bold text-white mb-3'>List your business</p>
-              <p className='text-xs text-white/70 mb-4'>Join the community directory — free for everyone, always.</p>
+              <p className='text-xs text-white/70 mb-4'>Join Ethiopia&apos;s business and financial platform — free for everyone, always.</p>
               <Link href='/business/post' className='block text-center bg-white text-green font-bold text-sm rounded-full px-4 py-2.5 hover:bg-green-soft transition-colors' translate='no'>
                 Get listed — free
               </Link>

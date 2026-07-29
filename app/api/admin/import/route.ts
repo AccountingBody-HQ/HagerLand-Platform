@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
   }
 
   const categoryList = HAGERLAND_CATEGORIES[section].join(', ')
-  const prompt = `You are a professional content writer for HagerLand — the verified directory for the Ethiopian and Eritrean diaspora worldwide.
+  const prompt = `You are a professional content writer for HagerLand — Ethiopia's business and financial platform, serving the Ethiopian and Eritrean diaspora worldwide.
 A listing has been discovered via Google Places. Your task is to create a high-quality directory listing for the ${section} section.
 
 LISTING DATA FROM GOOGLE:

@@ -36,7 +36,7 @@ export default async function TutorsDetailPage({ params }: Props) {
   const initial = listing.name.split(' ').slice(0, 2).map((w: string) => w[0]).join('').toUpperCase()
   const enquiryEmail = listing.contact_email || null
   const promoActive = listing.promo_text && (!listing.promo_expires_at || (() => { const exp = new Date(listing.promo_expires_at); exp.setHours(23,59,59,999); return exp > new Date(); })())
-  const description = listing.ai_description || `${listing.name} is a community listing${listing.city ? ` based in ${listing.city}` : ''}${listing.category ? `, specialising in ${listing.category}` : ''}. Listed on HagerLand — the free, verified community directory.`
+  const description = listing.ai_description || `${listing.name} is a community listing${listing.city ? ` based in ${listing.city}` : ''}${listing.category ? `, specialising in ${listing.category}` : ''}. Listed on HagerLand — Ethiopia's business and financial platform.`
 
   return (
     <main className='min-h-screen bg-section flex flex-col'>

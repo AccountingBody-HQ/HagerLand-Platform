@@ -36,7 +36,7 @@ export default async function CarsDetailPage({ params }: Props) {
   const initial = listing.title.split(' ').slice(0, 2).map((w: string) => w[0]).join('').toUpperCase()
   const enquiryEmail = listing.contact_email || null
   const promoActive = listing.promo_text && (!listing.promo_expires_at || (() => { const exp = new Date(listing.promo_expires_at); exp.setHours(23,59,59,999); return exp > new Date(); })())
-  const description = listing.ai_description || `${listing.title} is a community listing${listing.city ? ` based in ${listing.city}` : ''}${listing.category ? `, specialising in ${listing.category}` : ''}. Listed on HagerLand — the free, verified community directory.`
+  const description = listing.ai_description || `${listing.title} is a community listing${listing.city ? ` based in ${listing.city}` : ''}${listing.category ? `, specialising in ${listing.category}` : ''}. Listed on HagerLand — Ethiopia's business and financial platform.`
 
   return (
     <main className='min-h-screen bg-section flex flex-col'>
@@ -391,7 +391,7 @@ export default async function CarsDetailPage({ params }: Props) {
             <div className='bg-green rounded-2xl p-5'>
               <p className='text-xs font-bold text-white/60 uppercase tracking-wider mb-1'>Free listing</p>
               <p className='text-base font-bold text-white mb-3'>List your car or service</p>
-              <p className='text-xs text-white/70 mb-4'>Join the community directory — free for everyone, always.</p>
+              <p className='text-xs text-white/70 mb-4'>Join Ethiopia&apos;s business and financial platform — free for everyone, always.</p>
               <Link href='/cars/post' className='block text-center bg-white text-green font-bold text-sm rounded-full px-4 py-2.5 hover:bg-green-soft transition-colors' translate='no'>
                 Get listed — free
               </Link>
