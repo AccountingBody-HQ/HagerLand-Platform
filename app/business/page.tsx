@@ -65,15 +65,13 @@ export default async function BusinessPage({
               <span className="w-1 h-1 rounded-full bg-white/30" translate="no" />
               Homeland
               <span className="w-1 h-1 rounded-full bg-white/30" translate="no" />
-              Business directory
+              Diaspora Businesses
             </p>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.05] tracking-tight mb-6">
-              Find businesses
-              <br /><span className="text-white/60">in the community,</span>
-              <br /><span className="text-white/60">worldwide.</span>
+              Ethiopian Businesses
             </h1>
             <p className="text-white/65 text-lg sm:text-xl max-w-xl mb-10 leading-relaxed">
-              Discover and support verified businesses across the diaspora. Every listing reviewed by our team.
+              Verified Ethiopian businesses across the diaspora — restaurants, professional services, retail, and more.
             </p>
             <div className="flex flex-wrap items-center gap-x-8 gap-y-4 mb-10">
               {count != null && count > 0 && (

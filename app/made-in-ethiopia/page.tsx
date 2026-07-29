@@ -9,8 +9,8 @@ import { SubmissionBanner } from '@/components/SubmissionBanner'
 import { FilterDropdown } from '@/components/FilterDropdown' // eslint-disable-line
 
 export const metadata = {
-  title: 'Made in Ethiopia | HagerLand',
-  description: 'Discover authentic products manufactured, grown, or produced in Ethiopia — coffee, honey & spices, textiles, leather goods, crafts, and more.',
+  title: 'Made in Ethiopia — HagerLand',
+  description: 'Discover products physically manufactured, grown, and produced in Ethiopia. Verified origin. Trusted quality.',
 }
 
 const PAGE_SIZE = 20
@@ -48,8 +48,8 @@ export default async function MadeInEthiopiaPage({ searchParams }: { searchParam
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
           <div className="max-w-3xl">
             <p className="inline-flex items-center gap-2.5 text-white/50 text-[11px] font-bold tracking-[0.18em] uppercase mb-8">ሃገር <span className="w-1 h-1 rounded-full bg-white/30" translate="no" /> Homeland <span className="w-1 h-1 rounded-full bg-white/30" translate="no" /> Made in Ethiopia</p>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.05] tracking-tight mb-6">Made in Ethiopia.<br /><span className="text-white/60">Carried by</span><br /><span className="text-white/60">its people.</span></h1>
-            <p className="text-white/65 text-lg sm:text-xl max-w-xl mb-10 leading-relaxed">Authentic products manufactured, grown, or produced in Ethiopia — coffee, honey & spices, textiles, leather goods, crafts, and more. Every listing declares its origin.</p>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.05] tracking-tight mb-6">The Origin Economy</h1>
+            <p className="text-white/65 text-lg sm:text-xl max-w-xl mb-10 leading-relaxed">Products grown, made, and crafted in Ethiopia — verified at source. From Yirgacheffe coffee to handwoven textiles, this is Ethiopia&apos;s output to the world.</p>
             <div className="flex flex-wrap items-center gap-x-8 gap-y-4 mb-10">
               {count != null && count > 0 && <div className="flex items-baseline gap-2"><span className="text-2xl font-bold text-white" translate="no">{count.toLocaleString()}</span><span className="text-white/40 text-sm">listings</span></div>}
               <div className="flex items-baseline gap-2"><span className="text-2xl font-bold text-white" translate="no">Free</span><span className="text-white/40 text-sm">to post</span></div>

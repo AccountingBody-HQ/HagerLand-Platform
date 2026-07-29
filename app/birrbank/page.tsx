@@ -3,8 +3,8 @@ import Link from 'next/link'
 export const dynamic = 'force-dynamic'
 
 export const metadata = {
-  title: 'BirrBank® — Ethiopia\'s Financial Directory | HagerLand',
-  description: 'Compare savings rates, FX rates, insurance, markets and commodities across all NBE-licensed institutions in Ethiopia.',
+  title: 'BirrBank — Ethiopian Financial Intelligence · HagerLand',
+  description: "Ethiopia's financial intelligence platform. Exchange rates, savings rates, loan comparisons, market indices, and institutional data in one place.",
 }
 
 interface Section {
@@ -40,8 +40,8 @@ export default function BirrBankHubPage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
           <div className="max-w-3xl">
             <p className="inline-flex items-center gap-2.5 text-white/50 text-[11px] font-bold tracking-[0.18em] uppercase mb-8">ሃገር <span className="w-1 h-1 rounded-full bg-white/30" translate="no" /> Homeland <span className="w-1 h-1 rounded-full bg-white/30" translate="no" /> BirrBank<span translate="no">&reg;</span></p>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.05] tracking-tight mb-6">Ethiopia&rsquo;s<br /><span className="text-white/60">Financial</span><br /><span className="text-white/60">Directory</span></h1>
-            <p className="text-white/65 text-lg sm:text-xl max-w-xl leading-relaxed">Compare savings rates, FX rates, insurance, markets and commodities across all NBE-licensed institutions.</p>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.05] tracking-tight mb-6">Ethiopian<br /><span className="text-white/60">Financial</span><br /><span className="text-white/60">Intelligence</span></h1>
+            <p className="text-white/65 text-lg sm:text-xl max-w-xl leading-relaxed">Exchange rates, savings rates, loan comparisons, market data, and institutional intelligence — the financial backbone of the Ethiopian economy.</p>
           </div>
         </div>
       </section>

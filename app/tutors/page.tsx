@@ -47,9 +47,9 @@ export default async function TutorsPage({ searchParams }: { searchParams: { mod
         <div className="absolute top-0 right-0 w-[500px] h-[500px] opacity-10 pointer-events-none" style={{background: 'radial-gradient(circle at top right, #fff 0%, transparent 60%)'}} />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
           <div className="max-w-3xl">
-            <p className="inline-flex items-center gap-2.5 text-white/50 text-[11px] font-bold tracking-[0.18em] uppercase mb-8">ሃገር <span className="w-1 h-1 rounded-full bg-white/30" translate="no" /> Homeland <span className="w-1 h-1 rounded-full bg-white/30" translate="no" /> Tutors</p>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.05] tracking-tight mb-6">Find tutors<br /><span className="text-white/60">in the community,</span><br /><span className="text-white/60">worldwide.</span></h1>
-            <p className="text-white/65 text-lg sm:text-xl max-w-xl mb-10 leading-relaxed">Find trusted tutors, or offer your own teaching and mentoring services.</p>
+            <p className="inline-flex items-center gap-2.5 text-white/50 text-[11px] font-bold tracking-[0.18em] uppercase mb-8">ሃገር <span className="w-1 h-1 rounded-full bg-white/30" translate="no" /> Homeland <span className="w-1 h-1 rounded-full bg-white/30" translate="no" /> Diaspora Businesses</p>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.05] tracking-tight mb-6">Tutors &amp; Education</h1>
+            <p className="text-white/65 text-lg sm:text-xl max-w-xl mb-10 leading-relaxed">Tutoring, language classes, exam preparation, and educational services across the diaspora.</p>
             <div className="flex flex-wrap items-center gap-x-8 gap-y-4 mb-10">
               {count != null && count > 0 && <div className="flex items-baseline gap-2"><span className="text-2xl font-bold text-white" translate="no">{count.toLocaleString()}</span><span className="text-white/40 text-sm">tutors listed</span></div>}
               <div className="flex items-baseline gap-2"><span className="text-2xl font-bold text-white" translate="no">Free</span><span className="text-white/40 text-sm">to list</span></div>

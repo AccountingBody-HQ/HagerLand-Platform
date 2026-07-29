@@ -56,8 +56,8 @@ export default async function DiasporaPage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
           <div className="max-w-3xl">
             <p className="inline-flex items-center gap-2.5 text-white/50 text-[11px] font-bold tracking-[0.18em] uppercase mb-8">ሃገር <span className="w-1 h-1 rounded-full bg-white/30" translate="no" /> Homeland <span className="w-1 h-1 rounded-full bg-white/30" translate="no" /> Diaspora Businesses</p>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.05] tracking-tight mb-6">Everything the<br /><span className="text-white/60">diaspora</span><br /><span className="text-white/60">needs.</span></h1>
-            <p className="text-white/65 text-lg sm:text-xl max-w-xl mb-10 leading-relaxed">Businesses, jobs, housing, money, cars, tutors, and delivery — verified listings for Ethiopians and Eritreans wherever in the world you are.</p>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.05] tracking-tight mb-6">The Ethiopian Economy Abroad</h1>
+            <p className="text-white/65 text-lg sm:text-xl max-w-xl mb-10 leading-relaxed">Every Ethiopian business outside Ethiopia is an extension of the economy. Businesses, jobs, housing, money, cars, tutors, and delivery — the diaspora at work.</p>
             <div className="flex flex-wrap items-center gap-x-8 gap-y-4 mb-10">
               <div className="flex items-baseline gap-2"><span className="text-2xl font-bold text-white" translate="no">{totalListings.toLocaleString()}</span><span className="text-white/40 text-sm">listings</span></div>
               <div className="flex items-baseline gap-2"><span className="text-2xl font-bold text-white" translate="no">{SECTIONS.length}</span><span className="text-white/40 text-sm">sections</span></div>

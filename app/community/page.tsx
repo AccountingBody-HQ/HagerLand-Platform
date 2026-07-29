@@ -9,8 +9,8 @@ import { SubmissionBanner } from '@/components/SubmissionBanner'
 import { FilterDropdown } from '@/components/FilterDropdown' // eslint-disable-line
 
 export const metadata = {
-  title: 'Diaspora Network | HagerLand',
-  description: 'Churches, associations, and support networks for the diaspora community.',
+  title: 'Diaspora Network — HagerLand',
+  description: 'Ethiopian community associations, churches, charities, and civic organisations across the diaspora.',
 }
 
 const PAGE_SIZE = 20
@@ -48,8 +48,8 @@ export default async function CommunityPage({ searchParams }: { searchParams: { 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
           <div className="max-w-3xl">
             <p className="inline-flex items-center gap-2.5 text-white/50 text-[11px] font-bold tracking-[0.18em] uppercase mb-8">ሃገር <span className="w-1 h-1 rounded-full bg-white/30" translate="no" /> Homeland <span className="w-1 h-1 rounded-full bg-white/30" translate="no" /> Diaspora Network</p>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.05] tracking-tight mb-6">Diaspora Network<br /><span className="text-white/60">organisations,</span><br /><span className="text-white/60">worldwide.</span></h1>
-            <p className="text-white/65 text-lg sm:text-xl max-w-xl mb-10 leading-relaxed">Churches, associations, and support networks across the diaspora.</p>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.05] tracking-tight mb-6">The Institutional Layer</h1>
+            <p className="text-white/65 text-lg sm:text-xl max-w-xl mb-10 leading-relaxed">Community associations, churches, charities, and civic organisations — the social infrastructure that holds the Ethiopian economy together.</p>
             <div className="flex flex-wrap items-center gap-x-8 gap-y-4 mb-10">
               {count != null && count > 0 && <div className="flex items-baseline gap-2"><span className="text-2xl font-bold text-white" translate="no">{count.toLocaleString()}</span><span className="text-white/40 text-sm">organisations</span></div>}
               <div className="flex items-baseline gap-2"><span className="text-2xl font-bold text-white" translate="no">Free</span><span className="text-white/40 text-sm">to list</span></div>
