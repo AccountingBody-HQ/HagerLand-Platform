@@ -45,7 +45,7 @@ export function SiteFooter() {
           <div>
             <Link href="/" className="flex items-center gap-2.5 mb-5">
               <Logo className="w-8 h-8" />
-              <span className="font-brand font-extrabold text-2xl text-white tracking-tight" translate="no">HagerLand<span className="align-super text-[0.6em] font-normal tracking-normal">®</span></span>
+              <span className="font-brand font-extrabold text-2xl text-white tracking-tight" translate="no">HagerLand<sup style={{fontSize: '0.7em', fontWeight: 400, color: 'inherit', verticalAlign: 'super', lineHeight: 0}}>®</sup></span>
             </Link>
             <p className="text-white/70 text-xs font-bold uppercase tracking-wider mb-3">Where Ethiopia Does Business</p>
             <p className="text-white/50 text-sm leading-relaxed max-w-xs mb-4">
@@ -67,7 +67,7 @@ export function SiteFooter() {
                 <li key={l.href}>
                   <Link href={l.href} className="text-sm text-white/55 hover:text-white transition-colors">
                     {l.label}
-                    {l.href === '/birrbank' && <span className="align-super text-[0.6em] font-normal tracking-normal">®</span>}
+                    {l.href === '/birrbank' && <sup style={{fontSize: '0.7em', fontWeight: 400, color: 'inherit', verticalAlign: 'super', lineHeight: 0}}>®</sup>}
                   </Link>
                 </li>
               ))}
