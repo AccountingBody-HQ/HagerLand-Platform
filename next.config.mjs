@@ -10,6 +10,15 @@ const nextConfig = {
       ],
     },
   },
+  async redirects() {
+    return [
+      {
+        source: '/property',
+        destination: '/housing',
+        permanent: false,
+      },
+    ]
+  },
   async headers() {
     return [
       {
