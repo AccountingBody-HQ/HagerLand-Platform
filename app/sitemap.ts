@@ -5,6 +5,7 @@ const BASE = 'https://hagerland.com'
 const STATIC_PAGES = [
   { url: '/', priority: 1.0, changeFrequency: 'daily' as const },
   { url: '/business', priority: 0.9, changeFrequency: 'daily' as const },
+  { url: '/property', priority: 0.8, changeFrequency: 'daily' as const },
   { url: '/jobs', priority: 0.9, changeFrequency: 'daily' as const },
   { url: '/housing', priority: 0.8, changeFrequency: 'weekly' as const },
   { url: '/money', priority: 0.8, changeFrequency: 'weekly' as const },
