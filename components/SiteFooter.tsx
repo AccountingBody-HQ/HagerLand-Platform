@@ -4,7 +4,7 @@ import { Logo } from '@/components/Logo'
 const platformLinks = [
   { href: '/made-in-ethiopia', label: 'Made in Ethiopia' },
   { href: '/birrbank', label: 'BirrBank' },
-  { href: '/housing', label: 'Property' },
+  { href: '/property', label: 'Property' },
   { href: '/diaspora', label: 'Diaspora Businesses' },
   { href: '/community', label: 'Diaspora Network' },
   { href: '/events', label: 'Events' },
@@ -13,7 +13,7 @@ const platformLinks = [
 const diasporaBusinessLinks = [
   { href: '/business', label: 'Businesses' },
   { href: '/jobs', label: 'Jobs' },
-  { href: '/housing', label: 'Housing' },
+  { href: '/property', label: 'Property' },
   { href: '/money', label: 'Money' },
   { href: '/cars', label: 'Cars' },
   { href: '/tutors', label: 'Tutors' },

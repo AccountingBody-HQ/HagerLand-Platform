@@ -7,7 +7,7 @@ import { MobileLangSwitcher } from '@/components/LanguageSwitcher'
 
 const MADE_IN_ETHIOPIA = { href: '/made-in-ethiopia', label: 'Made in Ethiopia', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M20.59 13.41L13.42 20.58a2 2 0 01-2.83 0L2.59 12.58A2 2 0 012 11.17V4a2 2 0 012-2h7.17a2 2 0 011.42.59l8 8a2 2 0 010 2.82z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>', desc: 'Authentic Ethiopian products' }
 
-const PROPERTY = { href: '/housing', label: 'Property', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>', desc: 'Rooms, rentals, and properties' }
+const PROPERTY = { href: '/property', label: 'Property', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>', desc: 'Rooms, rentals, and properties' }
 
 const DIASPORA_SECTIONS = [
   { href: '/business', label: 'Businesses', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M8 3v18M2 9h20"/></svg>', desc: 'Find verified businesses' },
