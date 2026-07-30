@@ -1,4 +1,5 @@
 export const dynamic = 'force-dynamic'
+import { unstable_noStore as noStore } from 'next/cache'
 
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
@@ -16,6 +17,7 @@ export const metadata = {
 const PAGE_SIZE = 20
 
 export default async function HousingPage({ searchParams }: { searchParams: { type?: string; page?: string } }) {
+  noStore()
   const listingType = searchParams.type
   const page = Math.max(1, parseInt(searchParams.page ?? '1', 10))
   const from = (page - 1) * PAGE_SIZE
