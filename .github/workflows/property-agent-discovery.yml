@@ -29,6 +29,16 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           show_full_output: true
+          settings: |
+            {
+              "permissions": {
+                "allow": [
+                  "Bash(curl:*)",
+                  "WebFetch(*)",
+                  "WebSearch(*)"
+                ]
+              }
+            }
           prompt: |
             # HagerLand Property Discovery Agent
 
