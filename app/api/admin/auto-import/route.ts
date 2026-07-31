@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json()
-  const { query, section = 'companies', max = 10 } = body
+  const { query, section = 'companies', page = 1 } = body
 
   if (!query?.trim()) {
     return NextResponse.json({ error: 'Query required' }, { status: 400 })
@@ -158,7 +158,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid section' }, { status: 400 })
   }
 
-  const limit = Math.min(Math.max(1, parseInt(String(max))), 20)
+  const pageNum = Math.min(Math.max(1, parseInt(String(page))), 3)
 
   const apiKey = process.env.GOOGLE_PLACES_API_KEY
   if (!apiKey) {
@@ -170,26 +170,37 @@ export async function POST(request: NextRequest) {
     process.env.SUPABASE_SECRET_KEY!
   )
 
-  // Step 1 — Search Google Places
-  const searchRes = await fetch('https://places.googleapis.com/v1/places:searchText', {
-    method: 'POST',
-    cache: 'no-store',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Goog-Api-Key': apiKey,
-      'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.addressComponents,places.types,places.websiteUri,places.internationalPhoneNumber,places.regularOpeningHours',
-    },
-    body: JSON.stringify({ textQuery: query, pageSize: limit }),
-  })
-
-  const searchData = await searchRes.json()
-  if (!searchRes.ok || searchData.error) {
-    return NextResponse.json({ error: 'Google Places search failed' }, { status: 500 })
+  // Step 1 — Search Google Places with pagination support
+  // Fetch up to the requested page by following pageTokens
+  let places: PlaceResult[] = []
+  let pageToken: string | undefined
+  for (let p = 1; p <= pageNum; p++) {
+    const searchBody: Record<string, unknown> = { textQuery: query, pageSize: 20 }
+    if (pageToken) searchBody.pageToken = pageToken
+    const searchRes = await fetch('https://places.googleapis.com/v1/places:searchText', {
+      method: 'POST',
+      cache: 'no-store',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Goog-Api-Key': apiKey,
+        'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.addressComponents,places.types,places.websiteUri,places.internationalPhoneNumber,places.regularOpeningHours,nextPageToken',
+      },
+      body: JSON.stringify(searchBody),
+    })
+    const searchData = await searchRes.json()
+    if (!searchRes.ok || searchData.error) {
+      if (p === 1) return NextResponse.json({ error: 'Google Places search failed' }, { status: 500 })
+      break
+    }
+    if (p === pageNum) {
+      // Only use results from the requested page
+      places = searchData.places || []
+    }
+    pageToken = searchData.nextPageToken
+    if (!pageToken) break
   }
-
-  const places: PlaceResult[] = searchData.places || []
   if (places.length === 0) {
-    return NextResponse.json({ results: [], message: 'No places found' })
+    return NextResponse.json({ results: [], message: 'No places found for this page' })
   }
 
   // Step 2 — Filter out already imported (only block if listing still exists and is not deleted)

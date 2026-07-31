@@ -38,7 +38,8 @@ interface RunResult {
 export default function AutoImportPage() {
   const [query, setQuery] = useState('')
   const [section, setSection] = useState('companies')
-  const [max, setMax] = useState(10)
+  const [max, setMax] = useState(20)
+  const [page, setPage] = useState(1)
   const [running, setRunning] = useState(false)
   const [result, setResult] = useState<RunResult | null>(null)
   const [error, setError] = useState('')
@@ -52,7 +53,7 @@ export default function AutoImportPage() {
       const res = await fetch('/api/admin/auto-import', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: query.trim(), section, max }),
+        body: JSON.stringify({ query: query.trim(), section, max, page }),
       })
       const data = await res.json()
       if (data.error) { setError(data.error); return }
@@ -129,7 +130,16 @@ export default function AutoImportPage() {
             onChange={e => setMax(parseInt(e.target.value))}
             style={{ background: C.bg, border: '1px solid ' + C.border, borderRadius: '8px', padding: '0.75rem 1rem', color: C.text, fontSize: '0.9rem', outline: 'none', cursor: 'pointer' }}
           >
-            {[5, 10, 15, 20].map(n => <option key={n} value={n}>{n} businesses</option>)}
+            {[5, 10, 15, 20].map(n => <option key={n} value={n}>{n} results</option>)}
+          </select>
+          <select
+            value={page}
+            onChange={e => { setPage(parseInt(e.target.value)); setResult(null); }}
+            style={{ background: C.bg, border: '1px solid ' + C.border, borderRadius: '8px', padding: '0.75rem 1rem', color: C.text, fontSize: '0.9rem', outline: 'none', cursor: 'pointer' }}
+          >
+            <option value={1}>Page 1 (1–20)</option>
+            <option value={2}>Page 2 (21–40)</option>
+            <option value={3}>Page 3 (41–60)</option>
           </select>
         </div>
         <div style={{ background: C.bg, border: '1px solid ' + C.border, borderRadius: '8px', padding: '0.75rem 1rem', marginBottom: '1rem' }}>
