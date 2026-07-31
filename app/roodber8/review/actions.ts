@@ -465,7 +465,7 @@ export async function purgeListing(table: string, id: string) {
   if (error) throw new Error(error.message)
   // Also remove from import_log so the business can be reimported if needed
   // Look up by listing_id — works for all sections, not just companies
-  await supabase.from('import_log').delete().eq('listing_id', id).eq('section', table === 'housing' ? 'housing' : table)
+  await supabase.from('import_log').delete().eq('listing_id', id).eq('section', table)
   await logAudit('purge', table, id, (doomed as Record<string, string> | null)?.[titleField])
   revalidateAll()
 }
