@@ -5,7 +5,7 @@ import { verifySessionToken, SESSION_COOKIE } from '@/lib/admin-auth'
 import { createClient } from '@supabase/supabase-js'
 import { unstable_noStore as noStore } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { approveListing, rejectListing, deleteListing, deactivateListing, restoreListing, purgeListing } from '@/app/roodber8/review/actions'
+import { approveListing, rejectListing, deleteListing, deactivateListing, restoreFrozen } from '@/app/roodber8/review/actions'
 import Link from 'next/link'
 
 const C = {
@@ -184,11 +184,8 @@ export default async function AdminDeliveryPage({ searchParams }: { searchParams
                 )}
                 {item.status === 'frozen' ? (
                   <>
-                    <form action={restoreListing.bind(null, 'delivery', item.id)}>
-                      <button type='submit' style={{ background: 'rgba(28,124,76,0.12)', color: C.green, border: 'none', borderRadius: 8, padding: '5px 10px', fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>Restore</button>
-                    </form>
-                    <form action={purgeListing.bind(null, 'delivery', item.id)}>
-                      <button type='submit' style={{ background: 'rgba(239,68,68,0.15)', color: C.danger, border: `1px solid ${C.danger}`, borderRadius: 8, padding: '5px 10px', fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>Delete forever</button>
+                    <form action={restoreFrozen.bind(null, 'delivery', item.id)}>
+                      <button type='submit' style={{ background: 'rgba(139,92,246,0.15)', color: '#8b5cf6', border: '1px solid rgba(139,92,246,0.4)', borderRadius: 8, padding: '5px 10px', fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>Reinstate</button>
                     </form>
                   </>
                 ) : (
