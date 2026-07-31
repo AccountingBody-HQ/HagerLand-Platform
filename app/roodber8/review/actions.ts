@@ -450,6 +450,8 @@ export async function deleteProperty(id: string) {
   const { data: doomed } = await supabase.from('properties').select('company_name').eq('id', id).single()
   const { error } = await supabase.from('properties').delete().eq('id', id)
   if (error) throw new Error(error.message)
+  // Clean up import_log so the property can be reimported if needed
+  await supabase.from('import_log').delete().eq('listing_id', id).eq('section', 'properties')
   await logAudit('delete', 'properties', id, doomed?.company_name)
   revalidateAll()
 }
