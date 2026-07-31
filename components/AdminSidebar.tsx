@@ -17,9 +17,9 @@ const NAV = [
   { href: '/roodber8/delivery',   exact: false, label: 'Delivery',       sub: 'Delivery listings',         icon: 'M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z M3.27 6.96L12 12.01l8.73-5.05 M12 22.08V12' },
   { href: '/roodber8/made-in-ethiopia', exact: false, label: 'Made in Ethiopia', sub: 'Origin-verified products', icon: 'M20.59 13.41L13.42 20.58a2 2 0 01-2.83 0L2.59 12.58A2 2 0 012 11.17V4a2 2 0 012-2h7.17a2 2 0 011.42.59l8 8a2 2 0 010 2.82z M7.5 7.5h.01' },
   { href: '/roodber8/claims',     exact: false, label: 'Claims',         sub: 'All section claim requests',   icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' },
-  { href: '/roodber8/import',     exact: false, label: 'Import',         sub: 'Google Places AI import',   icon: 'M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12' },
+  { href: '/roodber8/import',     exact: true,  label: 'Import',         sub: 'Google Places AI import',   icon: 'M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12' },
   { href: '/roodber8/import/auto', exact: false, label: 'Auto Import',   sub: 'Automated import pipeline',  icon: 'M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12' },
-  { href: '/roodber8/properties', exact: false, label: 'Properties',     sub: 'Discovery agent agencies',  icon: 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z' },
+  { href: '/roodber8/housing',    exact: false, label: 'Properties',     sub: 'Property listings',         icon: 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z' },
 ]
 
 const BIRRBANK_NAV = [
