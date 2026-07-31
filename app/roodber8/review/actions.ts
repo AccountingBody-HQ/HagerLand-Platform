@@ -464,10 +464,8 @@ export async function purgeListing(table: string, id: string) {
   const { error } = await supabase.from(table).delete().eq('id', id)
   if (error) throw new Error(error.message)
   // Also remove from import_log so the business can be reimported if needed
-  const googlePlaceId = (doomed as Record<string, string> | null)?.google_place_id
-  if (googlePlaceId) {
-    await supabase.from('import_log').delete().eq('google_place_id', googlePlaceId).eq('section', table === 'companies' ? 'companies' : table)
-  }
+  // Look up by listing_id — works for all sections, not just companies
+  await supabase.from('import_log').delete().eq('listing_id', id).eq('section', table === 'housing' ? 'housing' : table)
   await logAudit('purge', table, id, (doomed as Record<string, string> | null)?.[titleField])
   revalidateAll()
 }
