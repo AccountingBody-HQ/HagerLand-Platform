@@ -218,9 +218,10 @@ RESPOND IN THIS EXACT JSON FORMAT WITH NO OTHER TEXT OR MARKDOWN:
   if (section === 'companies') {
     row.is_verified = false
     row.community_relevant = community_relevant
-    row.source = 'admin_import'
-    row.google_place_id = google_place_id || null
   }
+  // Store google_place_id and source on all sections for dedup
+  row.google_place_id = google_place_id || null
+  row.source = 'admin_import'
 
   const { data, error } = await supabase.from(section).insert(row).select('id').single()
 
