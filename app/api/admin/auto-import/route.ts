@@ -343,9 +343,10 @@ RESPOND IN THIS EXACT JSON FORMAT WITH NO OTHER TEXT OR MARKDOWN:
     if (section === 'companies') {
       row.is_verified = false
       row.community_relevant = community_relevant
-      row.source = 'admin_import'
-      row.google_place_id = place.id
     }
+    // Store google_place_id and source on all sections for dedup
+    row.google_place_id = place.id
+    row.source = 'admin_import'
 
     const { data: inserted, error: insertError } = await supabase
       .from(section)
