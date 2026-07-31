@@ -228,38 +228,40 @@ export async function POST(request: NextRequest) {
 
     // Step 5 — Claude AI profile
     const categoryList = HAGERLAND_CATEGORIES[section].join(', ')
-    const prompt = `You are a professional content writer for HagerLand — Ethiopia's business and financial platform.
-A listing has been discovered automatically. Write a complete, professional directory profile.
+    const prompt = `You are a professional content writer for HagerLand — Ethiopia's business and financial platform, serving the Ethiopian and Eritrean diaspora worldwide.
+A listing has been discovered automatically. Your task is to create a high-quality directory listing for the ${section} section.
 
-LISTING DATA:
+LISTING DATA FROM GOOGLE:
 Name: ${name}
-Address: ${address}
+Full Address: ${address}
 City: ${city}
 Country: ${country}
 Phone: ${phone || 'Not available'}
 Website: ${website || 'Not available'}
 Opening Hours: ${opening_hours || 'Not available'}
-Google Types: ${(place.types || []).join(', ')}
-${websiteContent ? `Website Content: ${websiteContent}` : ''}
+Google Place Types: ${(place.types || []).join(', ')}
+${websiteContent ? `\nWEBSITE CONTENT (use this to write a richer, more specific description):\n${websiteContent}` : ''}
 
 YOUR TASKS:
 
 1. DESCRIPTION (ai_description)
 Write 3 sentences that:
-- Open with a strong specific statement about what this business does
-- Include specific services, specialities, or unique qualities from the website content if available
-- Close with a welcoming sentence about why people should use them
-- Sound natural and professional — not generic
-- Never use: Habesha, Ethiopian-owned, Eritrean-owned
-- Never invent details not supported by the data
+- Open with a strong specific statement about what this listing is and does
+- Mention specific services, specialities, or unique qualities — use website content if available, otherwise use the name, address, and Google types
+- Close with a welcoming sentence about why people should use it
+- Sound natural and professional
+- Are grounded in the data — do not invent details not supported by the data
+- Never use: Habesha, Ethiopian-owned, Eritrean-owned, diaspora-owned
+- Never use vague filler like "a wide range of services" or "committed to excellence"
 
-2. CATEGORY
-Pick the single most accurate from: ${categoryList}
+2. CATEGORY (category)
+Pick the single most accurate from this list for the ${section} section:
+${categoryList}
 
 3. COMMUNITY RELEVANCE (community_relevant)
-true if it serves the Ethiopian or Eritrean community. When uncertain, set true.
+true if the name, location, or type suggests it serves the Ethiopian or Eritrean community. When uncertain, set true.
 
-RESPOND IN THIS EXACT JSON FORMAT ONLY — NO OTHER TEXT:
+RESPOND IN THIS EXACT JSON FORMAT WITH NO OTHER TEXT OR MARKDOWN:
 {"ai_description": "...", "category": "...", "community_relevant": true}`
 
     let ai_description = ''
