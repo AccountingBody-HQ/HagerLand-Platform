@@ -17,6 +17,11 @@ const nextConfig = {
         destination: '/property',
         permanent: false,
       },
+      {
+        source: '/housing/:path*',
+        destination: '/property/:path*',
+        permanent: false,
+      },
     ]
   },
   async headers() {
