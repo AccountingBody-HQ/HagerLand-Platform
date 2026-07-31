@@ -192,16 +192,33 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ results: [], message: 'No places found' })
   }
 
-  // Step 2 — Filter out already imported
+  // Step 2 — Filter out already imported (only block if listing still exists and is not deleted)
   const placeIds = places.map((p) => p.id)
   const { data: alreadyImported } = await supabase
     .from('import_log')
-    .select('google_place_id')
+    .select('google_place_id, listing_id')
     .eq('section', section)
     .eq('status', 'imported')
     .in('google_place_id', placeIds)
 
-  const importedSet = new Set((alreadyImported || []).map((r) => r.google_place_id))
+  // Cross-check listing_id against actual table — if deleted or missing, allow reimport
+  const importedSet = new Set<string>()
+  for (const row of alreadyImported || []) {
+    if (!row.listing_id) continue
+    const { data: existing } = await supabase
+      .from(section)
+      .select('id, status')
+      .eq('id', row.listing_id)
+      .single()
+    if (existing && existing.status !== 'deleted') {
+      importedSet.add(row.google_place_id)
+    } else {
+      // Listing is deleted or gone — clean up import_log so it can be reimported
+      await supabase.from('import_log').delete()
+        .eq('google_place_id', row.google_place_id)
+        .eq('section', section)
+    }
+  }
   const toProcess = places.filter((p) => !importedSet.has(p.id))
 
   const results: Array<{ name: string; status: string; error?: string; id?: string }> = []
