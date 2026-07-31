@@ -236,10 +236,38 @@ export async function deleteListing(table: string, id: string) {
   const supabase = getAdmin()
   const titleField = table === 'companies' ? 'company_name' : (table === 'tutors' || table === 'community') ? 'name' : 'title'
   const { data: doomed } = await supabase.from(table).select(titleField).eq('id', id).single()
-  // Soft delete: hide the listing, keep the data. Use purgeListing for permanent removal.
-  const { error } = await supabase.from(table).update({ status: 'deleted' }).eq('id', id)
+  // Freeze: hide from public and workflow, clear import_log so business can be reimported
+  const { error } = await supabase.from(table).update({ status: 'frozen' }).eq('id', id)
   if (error) throw new Error(error.message)
-  await logAudit('delete', table, id, (doomed as Record<string, string> | null)?.[titleField])
+  // Clear import_log so the business can be reimported fresh if needed
+  await supabase.from('import_log').delete().eq('listing_id', id).eq('section', table)
+  await logAudit('freeze', table, id, (doomed as Record<string, string> | null)?.[titleField])
+  revalidateAll()
+}
+
+export async function restoreFrozen(table: string, id: string) {
+  const token = cookies().get(SESSION_COOKIE)?.value
+  if (!verifySessionToken(token)) throw new Error('Unauthorized')
+  if (!isValidTable(table)) throw new Error('Invalid table')
+  const supabase = getAdmin()
+  const titleField = table === 'companies' ? 'company_name' : (table === 'tutors' || table === 'community') ? 'name' : 'title'
+  const { data: listing } = await supabase.from(table).select(titleField).eq('id', id).single()
+  // Check for active/pending duplicate before reinstating
+  const titleValue = (listing as Record<string, string> | null)?.[titleField]
+  if (titleValue) {
+    const { data: existing } = await supabase.from(table)
+      .select('id, status')
+      .eq(titleField, titleValue)
+      .neq('id', id)
+      .in('status', ['active', 'pending'])
+      .maybeSingle()
+    if (existing) {
+      throw new Error('DUPLICATE_EXISTS:' + existing.id)
+    }
+  }
+  const { error } = await supabase.from(table).update({ status: 'pending' }).eq('id', id)
+  if (error) throw new Error(error.message)
+  await logAudit('restore_frozen', table, id, titleValue)
   revalidateAll()
 }
 

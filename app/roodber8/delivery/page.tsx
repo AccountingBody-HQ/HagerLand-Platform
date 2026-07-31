@@ -22,7 +22,7 @@ const STATUS_FILTERS: [string, string][] = [
   ['pending', 'Pending'],
   ['active', 'Active'],
   ['rejected', 'Rejected'],
-  ['deleted', 'Deleted'],
+  ['frozen', 'Frozen'],
 ]
 
 export default async function AdminDeliveryPage({ searchParams }: { searchParams: { page?: string; q?: string; status?: string } }) {
@@ -50,7 +50,7 @@ export default async function AdminDeliveryPage({ searchParams }: { searchParams
 
   let queryBuilder = supabase.from('delivery').select('*', { count: 'exact' })
   if (q) queryBuilder = queryBuilder.ilike('title', '%' + q + '%')
-  if (statusFilter) { queryBuilder = queryBuilder.eq('status', statusFilter) } else { queryBuilder = queryBuilder.neq('status', 'deleted') }
+  if (statusFilter) { queryBuilder = queryBuilder.eq('status', statusFilter) } else { queryBuilder = queryBuilder.neq('status', 'frozen') }
   const { data: items, count } = await queryBuilder
     .order('created_at', { ascending: false })
     .range(from, to)
@@ -182,7 +182,7 @@ export default async function AdminDeliveryPage({ searchParams }: { searchParams
                     <button type='submit' style={{ background: 'rgba(28,124,76,0.12)', color: C.green, border: 'none', borderRadius: 8, padding: '5px 10px', fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>Approve</button>
                   </form>
                 )}
-                {item.status === 'deleted' ? (
+                {item.status === 'frozen' ? (
                   <>
                     <form action={restoreListing.bind(null, 'delivery', item.id)}>
                       <button type='submit' style={{ background: 'rgba(28,124,76,0.12)', color: C.green, border: 'none', borderRadius: 8, padding: '5px 10px', fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>Restore</button>

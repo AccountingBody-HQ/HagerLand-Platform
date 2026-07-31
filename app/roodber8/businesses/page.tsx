@@ -24,7 +24,7 @@ const STATUS_FILTERS: [string, string][] = [
   ['pending_verification', 'Unverified'],
   ['active', 'Active'],
   ['rejected', 'Rejected'],
-  ['deleted', 'Deleted'],
+  ['frozen', 'Frozen'],
 ]
 
 export default async function AdminBusinessesPage({ searchParams }: { searchParams: { page?: string; q?: string; status?: string } }) {
@@ -54,7 +54,7 @@ export default async function AdminBusinessesPage({ searchParams }: { searchPara
     .from('companies')
     .select('id, company_name, trading_address_city, sic_description, contact_email, submitter_name, status, email_verified_at, first_seen_at, is_verified, phone, website, is_featured', { count: 'exact' })
   if (q) queryBuilder = queryBuilder.ilike('company_name', '%' + q + '%')
-  if (statusFilter) { queryBuilder = queryBuilder.eq('status', statusFilter) } else { queryBuilder = queryBuilder.neq('status', 'deleted') }
+  if (statusFilter) { queryBuilder = queryBuilder.eq('status', statusFilter) } else { queryBuilder = queryBuilder.neq('status', 'frozen') }
   const { data: items, count } = await queryBuilder
     .order('first_seen_at', { ascending: false })
     .range(from, to)
@@ -73,7 +73,7 @@ export default async function AdminBusinessesPage({ searchParams }: { searchPara
       pending:              { color: C.gold,    bg: C.goldSoft,                label: 'Pending' },
       pending_verification: { color: C.blue,    bg: C.blueSoft,                label: 'Unverified' },
       rejected:             { color: C.danger,  bg: 'rgba(239,68,68,0.12)',    label: 'Rejected' },
-      deleted:              { color: C.danger,  bg: 'rgba(239,68,68,0.18)',    label: 'Deleted' },
+      deleted:              { color: C.danger,  bg: 'rgba(239,68,68,0.18)',    label: 'Frozen' },
     }
     const s = map[status] ?? { color: C.faint, bg: 'transparent', label: status }
     return <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', padding: '3px 8px', borderRadius: 20, color: s.color, background: s.bg }}>{s.label}</span>
@@ -118,7 +118,7 @@ export default async function AdminBusinessesPage({ searchParams }: { searchPara
               <button type='submit' title={item.is_featured ? 'Unfeature' : 'Feature'} style={{ background: item.is_featured ? C.gold : 'transparent', color: item.is_featured ? '#fff' : C.gold, border: `1px solid ${C.gold}`, borderRadius: 8, padding: '5px 10px', fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>{item.is_featured ? '★' : '☆'}</button>
             </form>
           )}
-          {item.status === 'deleted' ? (
+          {item.status === 'frozen' ? (
             <>
               <form action={restoreListing.bind(null, 'companies', item.id)}>
                 <button type='submit' style={{ background: 'rgba(28,124,76,0.12)', color: C.green, border: 'none', borderRadius: 8, padding: '5px 10px', fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>Restore</button>
