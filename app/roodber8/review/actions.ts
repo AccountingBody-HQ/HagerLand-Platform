@@ -460,9 +460,14 @@ export async function purgeListing(table: string, id: string) {
   if (!isValidTable(table)) throw new Error('Invalid table')
   const supabase = getAdmin()
   const titleField = table === 'companies' ? 'company_name' : (table === 'tutors' || table === 'community') ? 'name' : 'title'
-  const { data: doomed } = await supabase.from(table).select(titleField).eq('id', id).single()
+  const { data: doomed } = await supabase.from(table).select(titleField + ', google_place_id').eq('id', id).single()
   const { error } = await supabase.from(table).delete().eq('id', id)
   if (error) throw new Error(error.message)
+  // Also remove from import_log so the business can be reimported if needed
+  const googlePlaceId = (doomed as Record<string, string> | null)?.google_place_id
+  if (googlePlaceId) {
+    await supabase.from('import_log').delete().eq('google_place_id', googlePlaceId).eq('section', table === 'companies' ? 'companies' : table)
+  }
   await logAudit('purge', table, id, (doomed as Record<string, string> | null)?.[titleField])
   revalidateAll()
 }
