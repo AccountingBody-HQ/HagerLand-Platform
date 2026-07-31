@@ -148,7 +148,8 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json()
-  const { query, section = 'companies', page = 1 } = body
+  const { query, section = 'companies', max = 20, page = 1 } = body
+  const limit = Math.min(Math.max(1, parseInt(String(max))), 20)
 
   if (!query?.trim()) {
     return NextResponse.json({ error: 'Query required' }, { status: 400 })
@@ -175,7 +176,7 @@ export async function POST(request: NextRequest) {
   let places: PlaceResult[] = []
   let pageToken: string | undefined
   for (let p = 1; p <= pageNum; p++) {
-    const searchBody: Record<string, unknown> = { textQuery: query, pageSize: 20 }
+    const searchBody: Record<string, unknown> = { textQuery: query, pageSize: limit }
     if (pageToken) searchBody.pageToken = pageToken
     const searchRes = await fetch('https://places.googleapis.com/v1/places:searchText', {
       method: 'POST',
