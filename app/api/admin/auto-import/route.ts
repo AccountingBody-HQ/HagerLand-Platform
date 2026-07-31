@@ -85,24 +85,57 @@ function countryFromComponents(components?: AddressComponent[]): string {
   return match?.longText ?? ''
 }
 
+function extractText(html: string): string {
+  return html
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function findAboutUrl(html: string, baseUrl: string): string | null {
+  const matches = Array.from(html.matchAll(/href=["']([^"']*(?:about|company|who-we-are|our-story|etamina)[^"']*)["']/gi))
+  for (const match of matches) {
+    const href = match[1]
+    if (!href || href.startsWith('#') || href.startsWith('mailto:')) continue
+    try {
+      return new URL(href, baseUrl).href
+    } catch {
+      continue
+    }
+  }
+  return null
+}
+
 async function scrapeWebsite(url: string): Promise<string> {
   if (!url) return ''
+  const headers = { 'User-Agent': 'Mozilla/5.0 (compatible; HagerLand/1.0)' }
   try {
-    const res = await fetch(url, {
-      signal: AbortSignal.timeout(8000),
-      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; HagerLand/1.0)' },
-    })
+    // Scrape homepage
+    const res = await fetch(url, { signal: AbortSignal.timeout(8000), headers })
     if (!res.ok) return ''
     const html = await res.text()
-    // Strip HTML tags and collapse whitespace
-    const text = html
-      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, ' ')
-      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, ' ')
-      .replace(/<[^>]+>/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim()
-      .slice(0, 3000)
-    return text
+    const homeText = extractText(html).slice(0, 2000)
+
+    // Try to find and scrape About page
+    let aboutText = ''
+    const aboutUrl = findAboutUrl(html, url)
+    if (aboutUrl && aboutUrl !== url) {
+      try {
+        const aboutRes = await fetch(aboutUrl, { signal: AbortSignal.timeout(8000), headers })
+        if (aboutRes.ok) {
+          const aboutHtml = await aboutRes.text()
+          aboutText = extractText(aboutHtml).slice(0, 2000)
+        }
+      } catch {
+        // About page failed — homepage content is enough
+      }
+    }
+
+    return aboutText
+      ? `Homepage: ${homeText}\n\nAbout page: ${aboutText}`
+      : homeText
   } catch {
     return ''
   }
