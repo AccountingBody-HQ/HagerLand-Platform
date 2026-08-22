@@ -176,9 +176,24 @@ export default async function BusinessPage({
               )}
             </div>
             {count != null && (
-              <p className="text-sm text-muted ml-auto">{count.toLocaleString()} {count === 1 ? 'business' : 'businesses'}</p>
+              <p className="text-sm text-muted ml-auto">{count.toLocaleString()} {category ? `${category} ` : ''}{count === 1 ? 'business' : 'businesses'}</p>
             )}
           </div>
+          {category && (
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <p className="text-sm font-semibold text-ink flex items-center gap-2 flex-wrap">
+                Showing:
+                <span className="inline-flex items-center bg-green-soft text-green text-sm font-bold px-3 py-1 rounded-full">{category}</span>
+                {city && (
+                  <>
+                    <span className="text-muted">·</span>
+                    <span className="inline-flex items-center bg-green-soft text-green text-sm font-bold px-3 py-1 rounded-full">{city}</span>
+                  </>
+                )}
+              </p>
+              <Link href={clearCategoryUrl()} className="text-sm font-semibold text-muted hover:text-ink">✕ Clear</Link>
+            </div>
+          )}
           {error && <p className="text-sm text-red-600 mb-6">Error loading businesses: {error.message}</p>}
 
           {/* CARDS */}
