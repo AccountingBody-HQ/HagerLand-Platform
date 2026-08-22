@@ -61,7 +61,7 @@ export default async function VerifyClaimPage({
       from: 'HagerLand <info@accountingbody.com>',
       to: 'info@accountingbody.com',
       subject: `New verified claim — ${companyName}`,
-      html: `<p><strong>${claim.claimant_name}</strong> (${claim.claimant_email}) has verified their claim for <strong>${companyName}</strong>.</p><p>Review and approve at <a href="https://hagerland.com/roodber8/review">https://hagerland.com/roodber8/review</a></p>`,
+      html: `<p><strong>${claim.claimant_name}</strong> (${claim.claimant_email}) has verified their claim for <strong>${companyName}</strong>.</p><p>Review and approve at <a href="https://www.hagerland.com/roodber8/review">https://www.hagerland.com/roodber8/review</a></p>`,
     })
   } catch (err) {
     console.error('Admin notification email failed:', err)

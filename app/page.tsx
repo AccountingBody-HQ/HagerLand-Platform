@@ -12,7 +12,7 @@ export const metadata = {
   openGraph: {
     title: 'HagerLand — Where Ethiopia Does Business',
     description: "Financial markets, verified businesses, products made in Ethiopia, and opportunities across the diaspora. Ethiopia's business and financial platform — built for Ethiopia, open to the world.",
-    url: 'https://hagerland.com',
+    url: 'https://www.hagerland.com',
     siteName: 'HagerLand',
     type: 'website',
   },

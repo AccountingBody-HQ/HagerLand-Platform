@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   },
   description:
     "Financial markets, verified businesses, products made in Ethiopia, and opportunities across the diaspora. Ethiopia's business and financial platform — built for Ethiopia, open to the world.",
-  metadataBase: new URL('https://hagerland.com'),
+  metadataBase: new URL('https://www.hagerland.com'),
   openGraph: {
     siteName: 'HagerLand',
     type: 'website',
