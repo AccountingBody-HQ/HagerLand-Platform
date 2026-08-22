@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /roodber8
 Disallow: /api/
-Sitemap: https://hagerland.com/sitemap.xml
+Sitemap: https://www.hagerland.com/sitemap.xml

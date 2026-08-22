@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next'
 
-const BASE = 'https://hagerland.com'
+const BASE = 'https://www.hagerland.com'
 
 const STATIC_PAGES = [
   { url: '/', priority: 1.0, changeFrequency: 'daily' as const },
