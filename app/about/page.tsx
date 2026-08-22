@@ -9,15 +9,15 @@ export const metadata = {
 
 const PILLARS = [
   { href: '/made-in-ethiopia', label: 'Made in Ethiopia', description: 'Verified products grown, made, and crafted in Ethiopia.' },
-  { href: '/birrbank', label: 'BirrBank', description: 'Ethiopian financial intelligence: rates, markets, institutions, and investment data.' },
-  { href: '/housing', label: 'Property', description: 'Ethiopian real estate listings and market intelligence.' },
-  { href: '/diaspora', label: 'Diaspora Businesses', description: 'The Ethiopian economy abroad: businesses, jobs, housing, money, cars, tutors, and delivery.' },
+  { href: '/delivery', label: 'Delivery', description: 'Courier, freight and logistics across Ethiopia and the diaspora.' },
+  { href: '/money', label: 'Money', description: 'Financial services for the diaspora — transfers, savings and more.' },
+  { href: '/diaspora', label: 'Diaspora Businesses', description: 'The Ethiopian economy abroad: businesses, jobs, cars, and tutors.' },
   { href: '/community', label: 'Diaspora Network', description: 'The institutional layer: associations, churches, charities, and civic organisations.' },
   { href: '/events', label: 'Events', description: 'The Ethiopian business calendar: trade missions, summits, and commercial events.' },
 ]
 
 const STATS = [
-  { stat: '6', label: 'Pillars', body: 'Made in Ethiopia, BirrBank, Property, Diaspora Businesses, Diaspora Network, and Events.' },
+  { stat: '6', label: 'Pillars', body: 'Made in Ethiopia, Delivery, Money, Diaspora Businesses, Diaspora Network, and Events.' },
   { stat: '100%', label: 'Human-reviewed', body: 'Every submission checked by our team before going live.' },
   { stat: 'Free', label: 'Always free to list', body: 'No fees, no subscriptions — built to last.' },
   { stat: 'Global', label: 'Worldwide', body: 'Built for Ethiopia. Open to the world.' },
