@@ -12,11 +12,11 @@ const platformLinks = [
 
 const diasporaBusinessLinks = [
   { href: '/business', label: 'Businesses' },
-  { href: '/jobs', label: 'Jobs' },
+  { href: '/delivery', label: 'Delivery' },
   { href: '/money', label: 'Money' },
+  { href: '/jobs', label: 'Jobs' },
   { href: '/cars', label: 'Cars' },
   { href: '/tutors', label: 'Tutors' },
-  { href: '/delivery', label: 'Delivery' },
 ]
 
 const hagerlandLinks = [
