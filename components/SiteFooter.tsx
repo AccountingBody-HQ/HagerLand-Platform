@@ -3,8 +3,8 @@ import { Logo } from '@/components/Logo'
 
 const platformLinks = [
   { href: '/made-in-ethiopia', label: 'Made in Ethiopia' },
-  { href: '/birrbank', label: 'BirrBank' },
-  { href: '/property', label: 'Property' },
+  { href: '/delivery', label: 'Delivery' },
+  { href: '/money', label: 'Money' },
   { href: '/diaspora', label: 'Diaspora Businesses' },
   { href: '/community', label: 'Diaspora Network' },
   { href: '/events', label: 'Events' },
@@ -13,7 +13,6 @@ const platformLinks = [
 const diasporaBusinessLinks = [
   { href: '/business', label: 'Businesses' },
   { href: '/jobs', label: 'Jobs' },
-  { href: '/property', label: 'Property' },
   { href: '/money', label: 'Money' },
   { href: '/cars', label: 'Cars' },
   { href: '/tutors', label: 'Tutors' },
@@ -67,7 +66,6 @@ export function SiteFooter() {
                 <li key={l.href}>
                   <Link href={l.href} className="text-sm text-white/55 hover:text-white transition-colors">
                     {l.label}
-                    {l.href === '/birrbank' && <sup className="text-[1em] -top-1">®</sup>}
                   </Link>
                 </li>
               ))}

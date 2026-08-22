@@ -26,11 +26,11 @@ export const metadata = {
 const PILLARS = [
   { href: '/made-in-ethiopia', label: 'Made in Ethiopia', description: 'Products grown, made, and crafted in Ethiopia — verified at source', table: 'made_in_ethiopia',
     icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M20.59 13.41L13.42 20.58a2 2 0 01-2.83 0L2.59 12.58A2 2 0 012 11.17V4a2 2 0 012-2h7.17a2 2 0 011.42.59l8 8a2 2 0 010 2.82z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>` },
-  { href: '/birrbank', label: 'BirrBank®', description: 'Ethiopian financial intelligence — rates, markets, institutions, and investment', table: null,
+  { href: '/delivery', label: 'Delivery', description: 'Courier, freight and logistics — moving goods across Ethiopia and the diaspora', table: 'delivery',
+    icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>` },
+  { href: '/money', label: 'Money', description: 'Financial services for the diaspora — transfers, savings and more', table: 'money',
     icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>` },
-  { href: '/housing', label: 'Property', description: 'Ethiopian real estate — listings, intelligence, and market insight', table: 'housing',
-    icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>` },
-  { href: '/diaspora', label: 'Diaspora Businesses', description: 'The Ethiopian economy abroad — businesses, jobs, housing, money, and more', table: null,
+  { href: '/diaspora', label: 'Diaspora Businesses', description: 'The Ethiopian economy abroad — businesses, jobs, cars, tutors and more', table: null,
     icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M8 3v18M16 3v18M2 9h20M2 15h20"/></svg>` },
   { href: '/community', label: 'Diaspora Network', description: 'The institutional layer — associations, churches, charities, and civic organisations', table: 'community',
     icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>` },
@@ -41,7 +41,7 @@ const PILLARS = [
 const TRUST = [
   { stat: '100%', label: 'Verified listings', body: 'Every submission reviewed by our team before going live.' },
   { stat: 'Free', label: 'Always free to list', body: 'No fees, no subscriptions — built to last.' },
-  { stat: '6', label: 'Pillars', body: 'Made in Ethiopia, BirrBank, Property, Diaspora Businesses, Diaspora Network, and Events.' },
+  { stat: '6', label: 'Pillars', body: 'Made in Ethiopia, Delivery, Money, Diaspora Businesses, Diaspora Network, and Events.' },
   { stat: 'Global', label: 'Worldwide', body: 'Built for Ethiopia. Open to the world.' },
 ] as const
 
@@ -103,9 +103,6 @@ export default async function HomePage() {
               <Link href="/made-in-ethiopia" className="flex-1 inline-flex items-center justify-center gap-2 bg-white text-green font-bold rounded-full px-6 py-3.5 text-sm hover:bg-green-soft transition-colors whitespace-nowrap">
                 Shop Made in Ethiopia →
               </Link>
-              <Link href="/birrbank" className="flex-1 inline-flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 border border-white/30 text-white font-bold rounded-full px-6 py-3.5 text-sm transition-colors whitespace-nowrap">
-                Explore BirrBank®
-              </Link>
             </div>
             <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
               {[
@@ -120,40 +117,6 @@ export default async function HomePage() {
                 </div>
               ))}
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ══ BIRRBANK */}
-      <section className="bg-green-soft">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8 mb-10">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-green mb-3">New on HagerLand</p>
-              <h2 className="text-3xl sm:text-4xl font-bold text-ink leading-tight mb-3">
-                BirrBank<span style={{fontSize:'0.55em',position:'relative',top:'-0.6em',marginLeft:'2px',fontWeight:400}}>®</span> — Ethiopian financial intelligence
-              </h2>
-              <p className="text-muted text-base leading-relaxed max-w-xl">
-                Compare savings rates, FX rates, insurance, markets and commodities across all NBE-licensed institutions.
-              </p>
-            </div>
-            <Link href="/birrbank/banking"
-              className="inline-flex items-center justify-center gap-2 bg-green hover:bg-green-dark text-white font-bold rounded-full px-6 py-3.5 text-sm transition-colors whitespace-nowrap shrink-0">
-              Explore BirrBank® →
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
-            {[
-              { value: '220+', label: 'Institutions' },
-              { value: 'Live', label: 'FX Rates' },
-              { value: 'ESX', label: 'Markets' },
-              { value: 'ECX', label: 'Commodities' },
-            ].map((s) => (
-              <div key={s.label} className="bg-white border border-green/15 rounded-2xl p-6 text-center">
-                <p className="text-2xl font-bold text-green mb-1" translate="no">{s.value}</p>
-                <p className="text-sm font-semibold text-ink">{s.label}</p>
-              </div>
-            ))}
           </div>
         </div>
       </section>
