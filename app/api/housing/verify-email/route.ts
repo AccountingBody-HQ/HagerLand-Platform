@@ -10,10 +10,10 @@ function emailWrapper(content: string) {
   <tr><td align='center'><table width='100%' cellpadding='0' cellspacing='0' style='max-width:540px;'>
   <tr><td style='background:${GREEN};border-radius:16px 16px 0 0;padding:32px 40px;'>
   <p style='margin:0 0 4px;color:rgba(255,255,255,0.6);font-size:11px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;'>ሃገር · Homeland · HagerLand</p>
-  <p style='margin:0;color:#fff;font-size:22px;font-weight:700;'>Community Directory</p></td></tr>
+  <p style='margin:0;color:#fff;font-size:22px;font-weight:700;'>Where Ethiopia Does Business</p></td></tr>
   <tr><td style='background:#ffffff;padding:40px;border-left:1px solid #e4e6e3;border-right:1px solid #e4e6e3;'>${content}</td></tr>
   <tr><td style='background:#f4f5f3;border-radius:0 0 16px 16px;padding:24px 40px;border:1px solid #e4e6e3;border-top:none;'>
-  <p style='margin:0;color:#9ca3af;font-size:12px;'>HagerLand — The free, verified community directory.</p>
+  <p style='margin:0;color:#9ca3af;font-size:12px;'>HagerLand — Where Ethiopia Does Business.</p>
   </td></tr></table></td></tr></table></body></html>`
 }
 export async function GET(req: NextRequest) {

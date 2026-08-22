@@ -88,7 +88,7 @@ export async function submitClaim(listingId: string, formData: FormData) {
             <p style="color:#6B7280;font-size:11px;margin:0;word-break:break-all">Or copy this link: ${verifyUrl}</p>
           </div>
           <div style="background:#F4F5F3;padding:20px 40px;border-top:1px solid #E4E6E3">
-            <p style="color:#6B7280;font-size:12px;margin:0;text-align:center">HagerLand — The free, verified community directory.</p>
+            <p style="color:#6B7280;font-size:12px;margin:0;text-align:center">HagerLand — Where Ethiopia Does Business.</p>
           </div>
         </div>`,
     })

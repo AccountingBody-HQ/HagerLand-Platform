@@ -391,7 +391,7 @@ export default async function MadeInEthiopiaDetailPage({ params }: Props) {
               <div className='divide-y divide-border'>
                 {[
                   { href: '/made-in-ethiopia', label: 'All Made in Ethiopia listings', sub: 'Authentic Ethiopian products' },
-                  { href: '/business', label: 'Businesses', sub: 'Community directory' },
+                  { href: '/business', label: 'Businesses', sub: 'The platform' },
                   { href: '/jobs', label: 'Jobs', sub: 'Community employment' },
                   { href: '/housing', label: 'Housing', sub: 'Rooms and rentals' },
                   { href: '/events', label: 'Events', sub: 'Community events' },

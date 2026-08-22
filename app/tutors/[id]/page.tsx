@@ -371,7 +371,7 @@ export default async function TutorsDetailPage({ params }: Props) {
               <div className='divide-y divide-border'>
                 {[
                   { href: '/tutors', label: 'All tutors', sub: 'Community tutors' },
-                  { href: '/business', label: 'Businesses', sub: 'Community directory' },
+                  { href: '/business', label: 'Businesses', sub: 'The platform' },
                   { href: '/jobs', label: 'Jobs', sub: 'Community employment' },
                   { href: '/housing', label: 'Housing', sub: 'Rooms and rentals' },
                   { href: '/events', label: 'Events', sub: 'Community events' },

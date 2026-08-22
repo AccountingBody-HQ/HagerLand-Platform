@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
                 <p style='color:#6b7280;font-size:12px;margin:20px 0 0;'>Save these links — you will need them to make future changes to your listings.</p>
               </td></tr>
               <tr><td style='background:#f4f5f3;border-radius:0 0 16px 16px;padding:20px 40px;border:1px solid #e4e6e3;border-top:none;'>
-                <p style='margin:0;color:#9ca3af;font-size:12px;'>HagerLand — The free, verified community directory. Serving the diaspora worldwide.</p>
+                <p style='margin:0;color:#9ca3af;font-size:12px;'>HagerLand — Where Ethiopia Does Business.</p>
               </td></tr>
             </table>
           </td></tr>

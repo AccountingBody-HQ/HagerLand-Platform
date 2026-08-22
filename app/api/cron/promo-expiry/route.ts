@@ -68,7 +68,7 @@ export async function GET(request: Request) {
         <div style="font-family:sans-serif;max-width:560px;margin:0 auto">
           <div style="background:#1C7C4C;padding:24px 32px;border-radius:12px 12px 0 0">
             <p style="color:rgba(255,255,255,0.6);font-size:11px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;margin:0 0 4px">ሃገር · Homeland · HagerLand</p>
-            <p style="color:rgba(255,255,255,0.5);font-size:11px;margin:0">Community Directory</p>
+            <p style="color:rgba(255,255,255,0.5);font-size:11px;margin:0">Where Ethiopia Does Business</p>
           </div>
           <div style="background:#ffffff;padding:40px 32px">
             <h1 style="font-size:20px;font-weight:700;color:#152238;margin:0 0 16px">Your promotion expires in 3 days</h1>
@@ -87,7 +87,7 @@ export async function GET(request: Request) {
             </a>
           </div>
           <div style="background:#f4f5f3;padding:16px 32px;border-radius:0 0 12px 12px">
-            <p style="color:#6B7280;font-size:12px;margin:0">HagerLand — The free, verified community directory.</p>
+            <p style="color:#6B7280;font-size:12px;margin:0">HagerLand — Where Ethiopia Does Business.</p>
           </div>
         </div>
       `

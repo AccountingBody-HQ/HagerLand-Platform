@@ -11,7 +11,7 @@ const SECTIONS = [
   {
     title: 'Who we are',
     body: [
-      'HagerLand is a free, verified community directory platform serving the Ethiopian and Eritrean diaspora worldwide.',
+      'HagerLand is a free, verified platform connecting the Ethiopian diaspora worldwide.',
       'HagerLand is operated by AccountingBody HQ, based in the United Kingdom.',
       'For any privacy-related questions, contact us at team@hagerland.com.',
     ],

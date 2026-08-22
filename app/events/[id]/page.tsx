@@ -371,7 +371,7 @@ export default async function EventsDetailPage({ params }: Props) {
               <div className='divide-y divide-border'>
                 {[
                   { href: '/events', label: 'All events', sub: 'Community events' },
-                  { href: '/business', label: 'Businesses', sub: 'Community directory' },
+                  { href: '/business', label: 'Businesses', sub: 'The platform' },
                   { href: '/jobs', label: 'Jobs', sub: 'Community employment' },
                   { href: '/housing', label: 'Housing', sub: 'Rooms and rentals' },
                   { href: '/events', label: 'Events', sub: 'Community events' },

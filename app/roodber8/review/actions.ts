@@ -131,7 +131,7 @@ export async function approveListing(table: string, id: string) {
                 <table width="100%" cellpadding="0" cellspacing="0" style="max-width:540px;">
                   <tr><td style="background:${GREEN};border-radius:16px 16px 0 0;padding:32px 40px;">
                     <p style="margin:0 0 4px;color:rgba(255,255,255,0.6);font-size:11px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;">ሃገር · Homeland · HagerLand</p>
-                    <p style="margin:0;color:#fff;font-size:22px;font-weight:700;line-height:1.3;">Community Directory</p>
+                    <p style="margin:0;color:#fff;font-size:22px;font-weight:700;line-height:1.3;">Where Ethiopia Does Business</p>
                   </td></tr>
                   <tr><td style="background:#ffffff;padding:40px;border-left:1px solid #e4e6e3;border-right:1px solid #e4e6e3;">
                     <h2 style="margin:0 0 16px;font-size:20px;font-weight:700;color:#152238;">Your changes have been approved</h2>
@@ -143,7 +143,7 @@ export async function approveListing(table: string, id: string) {
                     </a>
                   </td></tr>
                   <tr><td style="background:#f4f5f3;border-radius:0 0 16px 16px;padding:24px 40px;border:1px solid #e4e6e3;border-top:none;">
-                    <p style="margin:0;color:#9ca3af;font-size:12px;line-height:1.6;">HagerLand — The free, verified community directory.<br>Serving the diaspora worldwide.</p>
+                    <p style="margin:0;color:#9ca3af;font-size:12px;line-height:1.6;">HagerLand — Where Ethiopia Does Business.</p>
                   </td></tr>
                 </table>
               </td></tr>
@@ -200,7 +200,7 @@ export async function approveListing(table: string, id: string) {
           <table width="100%" cellpadding="0" cellspacing="0" style="max-width:540px;">
           <tr><td style="background:${GREEN};border-radius:16px 16px 0 0;padding:32px 40px;">
           <p style="margin:0 0 4px;color:rgba(255,255,255,0.6);font-size:11px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;">ሃገር · Homeland · HagerLand</p>
-          <p style="margin:0;color:#fff;font-size:22px;font-weight:700;">Community Directory</p></td></tr>
+          <p style="margin:0;color:#fff;font-size:22px;font-weight:700;">Where Ethiopia Does Business</p></td></tr>
           <tr><td style="background:#ffffff;padding:40px;border-left:1px solid #e4e6e3;border-right:1px solid #e4e6e3;">
           <h2 style="margin:0 0 16px;font-size:20px;font-weight:700;color:#152238;">Your listing has been approved</h2>
           <p style="margin:0 0 16px;font-size:14px;color:#6B7280;line-height:1.6;">
@@ -209,7 +209,7 @@ export async function approveListing(table: string, id: string) {
           <a href="${manageUrl}" style="display:inline-block;background:${GREEN};color:#ffffff;font-weight:700;font-size:14px;padding:14px 32px;border-radius:100px;text-decoration:none;">View my listing</a>
           </td></tr>
           <tr><td style="background:#f4f5f3;border-radius:0 0 16px 16px;padding:24px 40px;border:1px solid #e4e6e3;border-top:none;">
-          <p style="margin:0;color:#9ca3af;font-size:12px;">HagerLand — The free, verified community directory.</p>
+          <p style="margin:0;color:#9ca3af;font-size:12px;">HagerLand — Where Ethiopia Does Business.</p>
           </td></tr></table></td></tr></table></body></html>`
       })
     }
@@ -385,7 +385,7 @@ export async function approveClaim(claimId: string, companyId: string) {
                 <p style="color:#6B7280;font-size:11px;margin:0;word-break:break-all">Or copy this link: ${manageUrl}</p>
               </div>
               <div style="background:#F4F5F3;padding:20px 40px;border-top:1px solid #E4E6E3">
-                <p style="color:#6B7280;font-size:12px;margin:0;text-align:center">HagerLand — The free, verified community directory.</p>
+                <p style="color:#6B7280;font-size:12px;margin:0;text-align:center">HagerLand — Where Ethiopia Does Business.</p>
               </div>
             </div>`,
         })
