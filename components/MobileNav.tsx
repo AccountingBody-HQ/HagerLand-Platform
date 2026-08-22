@@ -75,7 +75,7 @@ export function MobileNav() {
 
           {/* Eyebrow + Language switcher */}
           <div className="px-5 pt-2.5 pb-1.5 flex items-center justify-between shrink-0">
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted">Browse the directory</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted">Browse the platform</p>
             <MobileLangSwitcher />
           </div>
 
@@ -138,7 +138,7 @@ export function MobileNav() {
                 </div>
                 <div className="flex-1 min-w-0 text-left">
                   <p className="font-semibold text-sm leading-tight">Diaspora Businesses</p>
-                  <p className="text-xs leading-tight mt-0.5 text-muted">Businesses, jobs, housing & more</p>
+                  <p className="text-xs leading-tight mt-0.5 text-muted">Businesses, jobs, cars & more</p>
                 </div>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
                   className={`transition-transform text-muted ${diasporaOpen ? 'rotate-180' : ''}`}>
@@ -177,12 +177,12 @@ export function MobileNav() {
                 const active = pathname.startsWith(section.href)
                 return (
                   <Link key={section.href} href={section.href} onClick={closeMenu}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${active ? 'bg-green text-white' : 'text-white/70 hover:bg-white/8 hover:text-white'}`}>
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${active ? 'bg-white/20' : 'bg-white/8'}`}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${active ? 'bg-green text-white' : 'text-muted hover:bg-section hover:text-ink'}`}>
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${active ? 'bg-white/20' : 'bg-section'}`}
                       dangerouslySetInnerHTML={{ __html: section.icon }} />
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-sm leading-tight">{section.label}</p>
-                      <p className={`text-xs leading-tight mt-0.5 ${active ? 'text-white/70' : 'text-white/40'}`}>{section.desc}</p>
+                      <p className={`text-xs leading-tight mt-0.5 ${active ? 'text-white/70' : 'text-muted'}`}>{section.desc}</p>
                     </div>
                   </Link>
                 )
