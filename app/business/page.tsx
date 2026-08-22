@@ -7,7 +7,7 @@ import { SiteFooter } from '@/components/SiteFooter'
 import { SearchBox } from '@/components/SearchBox'
 import { SubmissionBanner } from '@/components/SubmissionBanner'
 import { FilterDropdown } from '@/components/FilterDropdown'
-import { CATEGORIES } from '@/components/CategorySelect'
+import { CATEGORIES } from '@/lib/categories'
 
 export const metadata = {
   title: 'Business directory | HagerLand',
