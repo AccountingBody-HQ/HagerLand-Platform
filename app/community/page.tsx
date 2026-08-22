@@ -69,8 +69,16 @@ export default async function CommunityPage({ searchParams }: { searchParams: { 
               {categories.length > 0 && <FilterDropdown options={categories} value={category} basePath="/community" paramName="category" allLabel="All categories" />}
               {category && <Link href="/community" className="text-xs font-semibold text-green hover:underline">Clear</Link>}
             </div>
-            {count != null && <p className="text-sm text-muted ml-auto">{count.toLocaleString()} {count === 1 ? 'organisation' : 'organisations'}</p>}
+            {count != null && <p className="text-sm text-muted ml-auto">{count.toLocaleString()} {category ? `${category} ` : ''}{count === 1 ? 'organisation' : 'organisations'}</p>}
           </div>
+          {category && (
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <p className="text-sm font-semibold text-ink flex items-center gap-2 flex-wrap">
+                Showing: <span className="inline-flex items-center bg-green-soft text-green text-sm font-bold px-3 py-1 rounded-full">{category}</span>
+              </p>
+              <Link href="/community" className="text-sm font-semibold text-muted hover:text-ink">✕ Clear</Link>
+            </div>
+          )}
           {error && <p className="text-sm text-red-600 mb-4">Error loading organisations.</p>}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {orgs && orgs.length > 0 ? orgs.map((org) => (

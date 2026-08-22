@@ -69,8 +69,16 @@ export default async function MadeInEthiopiaPage({ searchParams }: { searchParam
               {listingTypes.length > 0 && <FilterDropdown options={listingTypes} value={listingType} basePath="/made-in-ethiopia" paramName="type" allLabel="All types" />}
               {listingType && <Link href="/made-in-ethiopia" className="text-xs font-semibold text-green hover:underline">Clear</Link>}
             </div>
-            {count != null && <p className="text-sm text-muted ml-auto">{count.toLocaleString()} {count === 1 ? 'listing' : 'listings'}</p>}
+            {count != null && <p className="text-sm text-muted ml-auto">{count.toLocaleString()} {listingType ? `${listingType} ` : ''}{count === 1 ? 'listing' : 'listings'}</p>}
           </div>
+          {listingType && (
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <p className="text-sm font-semibold text-ink flex items-center gap-2 flex-wrap">
+                Showing: <span className="inline-flex items-center bg-green-soft text-green text-sm font-bold px-3 py-1 rounded-full">{listingType}</span>
+              </p>
+              <Link href="/made-in-ethiopia" className="text-sm font-semibold text-muted hover:text-ink">✕ Clear</Link>
+            </div>
+          )}
           {error && <p className="text-sm text-red-600 mb-4">Error loading listings.</p>}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {listings && listings.length > 0 ? listings.map((listing) => (

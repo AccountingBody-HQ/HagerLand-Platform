@@ -69,8 +69,16 @@ export default async function TutorsPage({ searchParams }: { searchParams: { mod
               {modes.length > 0 && <FilterDropdown options={modes} value={deliveryMode} basePath="/tutors" paramName="mode" allLabel="All modes" />}
               {deliveryMode && <Link href="/tutors" className="text-xs font-semibold text-green hover:underline">Clear</Link>}
             </div>
-            {count != null && <p className="text-sm text-muted ml-auto">{count.toLocaleString()} {count === 1 ? 'tutor' : 'tutors'}</p>}
+            {count != null && <p className="text-sm text-muted ml-auto">{count.toLocaleString()} {deliveryMode ? `${deliveryMode} ` : ''}{count === 1 ? 'tutor' : 'tutors'}</p>}
           </div>
+          {deliveryMode && (
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <p className="text-sm font-semibold text-ink flex items-center gap-2 flex-wrap">
+                Showing: <span className="inline-flex items-center bg-green-soft text-green text-sm font-bold px-3 py-1 rounded-full">{deliveryMode}</span>
+              </p>
+              <Link href="/tutors" className="text-sm font-semibold text-muted hover:text-ink">✕ Clear</Link>
+            </div>
+          )}
           {error && <p className="text-sm text-red-600 mb-4">Error loading tutors.</p>}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {tutors && tutors.length > 0 ? tutors.map((tutor) => (
