@@ -7,6 +7,7 @@ import { SiteFooter } from '@/components/SiteFooter'
 import { SearchBox } from '@/components/SearchBox'
 import { SubmissionBanner } from '@/components/SubmissionBanner'
 import { FilterDropdown } from '@/components/FilterDropdown'
+import { CATEGORIES } from '@/components/CategorySelect'
 
 export const metadata = {
   title: 'Business directory | HagerLand',
@@ -19,12 +20,18 @@ export const metadata = {
 
 const PAGE_SIZE = 20
 
+function matchValues(group: string) {
+  const items = CATEGORIES.find(c => c.group === group)?.items ?? []
+  return [group, ...items]
+}
+
 export default async function BusinessPage({
   searchParams,
 }: {
-  searchParams: { city?: string; page?: string }
+  searchParams: { city?: string; page?: string; category?: string }
 }) {
   const city = searchParams.city
+  const category = searchParams.category
   const page = Math.max(1, parseInt(searchParams.page ?? '1', 10))
   const from = (page - 1) * PAGE_SIZE
   const to = from + PAGE_SIZE - 1
@@ -34,6 +41,7 @@ export default async function BusinessPage({
     .select('id, company_name, sic_description, trading_address_city, phone, is_verified', { count: 'exact' })
     .eq('status', 'active').order('company_name', { ascending: true }).range(from, to)
   if (city) query = query.eq('trading_address_city', city)
+  if (category) query = query.in('sic_description', matchValues(category))
 
   const { data: businesses, count, error } = await query
 
@@ -41,12 +49,32 @@ export default async function BusinessPage({
     .select('trading_address_city').eq('status', 'active').not('trading_address_city', 'is', null)
   const cities = Array.from(new Set((cityRows ?? []).map((r) => r.trading_address_city).filter(Boolean) as string[])).sort()
 
+  const categoryCounts = Object.fromEntries(
+    await Promise.all(CATEGORIES.map(async (c) => {
+      const { count: catCount } = await supabase.from('companies').select('id', { count: 'exact', head: true })
+        .eq('status', 'active').in('sic_description', matchValues(c.group))
+      return [c.group, catCount ?? 0]
+    }))
+  )
+
   const totalPages = Math.ceil((count ?? 0) / PAGE_SIZE)
   function paginationUrl(p: number) {
     const params = new URLSearchParams()
     if (city) params.set('city', city)
+    if (category) params.set('category', category)
     params.set('page', String(p))
     return `/business?${params.toString()}`
+  }
+  function categoryUrl(cat: string) {
+    const params = new URLSearchParams()
+    if (city) params.set('city', city)
+    params.set('category', cat)
+    return `/business?${params.toString()}`
+  }
+  function clearCategoryUrl() {
+    const params = new URLSearchParams()
+    if (city) params.set('city', city)
+    return `/business${params.toString() ? '?' + params.toString() : ''}`
   }
 
   return (
@@ -97,6 +125,31 @@ export default async function BusinessPage({
                 List your business →
               </Link>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CATEGORY BROWSE */}
+      <section className="bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="flex items-center justify-between mb-6">
+            <p className="text-xs font-bold uppercase tracking-widest text-green">Browse by category</p>
+            {category && <Link href={clearCategoryUrl()} className="text-xs font-semibold text-muted hover:text-ink">Clear category ✕</Link>}
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            {CATEGORIES.map((c) => {
+              const active = category === c.group
+              const catCount = categoryCounts[c.group] ?? 0
+              return (
+                <Link key={c.group} href={active ? clearCategoryUrl() : categoryUrl(c.group)}
+                  className={`rounded-2xl p-5 border transition-all duration-200 flex flex-col gap-1 ${
+                    active ? 'bg-green border-green shadow-lg' : 'bg-white border-border hover:border-green/50 hover:shadow-lg'
+                  } ${!active && catCount === 0 ? 'opacity-60' : ''}`}>
+                  <h3 className={`font-bold text-sm leading-snug ${active ? 'text-white' : 'text-ink'}`}>{c.group}</h3>
+                  <p className={`text-xs font-semibold ${active ? 'text-white/70' : 'text-muted'}`}>{catCount.toLocaleString()} {catCount === 1 ? 'listing' : 'listings'}</p>
+                </Link>
+              )
+            })}
           </div>
         </div>
       </section>
@@ -157,7 +210,9 @@ export default async function BusinessPage({
                 </div>
               </Link>
             )) : (
-              <p className="text-muted col-span-full text-center py-16">{city ? `No businesses listed in ${city} yet.` : 'No businesses listed yet.'}</p>
+              <p className="text-muted col-span-full text-center py-16">
+                {city && category ? `No ${category} businesses in ${city} yet.` : city ? `No businesses listed in ${city} yet.` : category ? `No ${category} businesses listed yet.` : 'No businesses listed yet.'}
+              </p>
             )}
           </div>
           {totalPages > 1 && (

@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 
-const CATEGORIES = [
+export const CATEGORIES = [
   { group: 'Food & Hospitality', items: ['Ethiopian Restaurant','Eritrean Restaurant','Cafe & Coffee Shop','Catering & Events','Food Delivery','Bakery & Pastry'] },
   { group: 'Professional Services', items: ['Accounting & Tax','Legal Services','Financial Advice','Immigration & Visa','Mortgage & Property','Insurance','Business Consulting'] },
   { group: 'Health & Wellbeing', items: ['GP & Medical','Dentist','Pharmacy','Mental Health & Counselling','Physiotherapy','Alternative Medicine'] },
