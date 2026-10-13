@@ -1,0 +1,86 @@
+import { expect, test } from '@playwright/test'
+import { adminSession, db, signUp, trackErrors } from '../helpers'
+
+test('a contractor creates a business profile, HagerLand approves it, and it goes live', async ({ browser, page }) => {
+  test.setTimeout(180_000)
+  const errors = trackErrors(page)
+  const name = `Tsehay Building Works ${Date.now()}`
+  await signUp(page, { type: 'professional', name: 'Tsehay Alemu' })
+  if (!/business=1|company/.test(page.url())) await page.goto('/onboarding?business=1')
+  await page.fill('#org-name', name)
+  await page.selectOption('#org-kind', 'contractor')
+  await page.fill('#org-description', 'General building contractor for homes and small commercial buildings in Addis Ababa, from foundations to finishing.')
+  await page.locator('input[name=service_ids]').first().check()
+  await page.fill('#org-location', 'Bole')
+  await page.getByRole('option', { name: /Bole/ }).first().click()
+  await page.fill('#org-phone', '0911556677')
+  await page.locator('form button[type=submit]').last().click()
+  // Earlier runs leave similar names behind: the duplicate check then asks first (that check is part of the journey).
+  const notMine = page.getByRole('button', { name: /none of these/i })
+  await Promise.race([page.waitForURL(/\/account(\?|$)/), notMine.waitFor()])
+  if (await notMine.isVisible()) await notMine.click()
+  await page.waitForURL(/\/account(\?|$)/)
+  const { data: org } = await db().from('organisations').select('id, slug, status').eq('name', name).single()
+  expect(org?.status).toBe('pending_review')
+  const { count } = await db().from('organisation_members').select('user_id', { count: 'exact', head: true }).eq('org_id', org!.id).eq('role', 'owner')
+  expect(count).toBe(1)
+
+  const admin = await browser.newPage()
+  await adminSession(admin)
+  await admin.goto(`/roodber8/organisations/${org!.id}`)
+  await admin.getByRole('button', { name: 'Approve' }).first().click()
+  await expect.poll(async () => (await db().from('organisations').select('status').eq('id', org!.id).single()).data?.status).toBe('published')
+  await admin.close()
+
+  const visitor = await browser.newPage()
+  await visitor.goto(`/company/${org!.slug}`)
+  await expect(visitor.getByRole('heading', { level: 1, name })).toBeVisible()
+  await expect(visitor.getByRole('link', { name: 'Claim this business' })).toHaveCount(0)
+  await visitor.close()
+
+  // Verification: the owner uploads documents, HagerLand marks the business Verified.
+  const pdf = (n: string) => ({ name: `${n}.pdf`, mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF') })
+  await page.goto('/account/company/verification')
+  await page.getByLabel('Upload trade licence').setInputFiles(pdf('licence'))
+  await expect(page.getByRole('button', { name: 'Replace' })).toHaveCount(1, { timeout: 20_000 })
+  await page.getByLabel('Upload tin certificate').setInputFiles(pdf('tin'))
+  await expect(page.getByRole('button', { name: 'Replace' })).toHaveCount(2, { timeout: 20_000 })
+  await page.getByRole('button', { name: 'Submit for verification' }).click()
+  await expect.poll(async () => (await db().from('verification_requests').select('status').eq('org_id', org!.id).maybeSingle()).data?.status).toBe('pending')
+  const reviewer = await browser.newPage()
+  await adminSession(reviewer)
+  await reviewer.goto('/roodber8/review?tab=verification')
+  await reviewer.locator('section', { hasText: name }).getByRole('button', { name: 'Mark Verified' }).click()
+  await expect.poll(async () => (await db().from('organisations').select('verification_level').eq('id', org!.id).single()).data?.verification_level).toBe('verified')
+  await reviewer.close()
+  expect(errors).toEqual([])
+})
+
+test('someone claims an imported business and HagerLand approves the claim', async ({ browser, page }) => {
+  test.setTimeout(180_000)
+  const name = `Imported Cement Traders ${Date.now()}`
+  const { data: org } = await db().from('organisations').insert({ kind: 'supplier', name, slug: `imported-cement-${Date.now()}`, description: 'Cement and aggregates supplier.', source: 'import', status: 'published', verification_level: 'listed' }).select('id, slug').single()
+
+  await signUp(page, { type: 'supplier', name: 'Dawit Bekele' })
+  await page.goto(`/company/${org!.slug}`)
+  await page.getByRole('link', { name: 'Claim this business' }).click()
+  await page.selectOption('#cl-rel', 'owner')
+  await page.fill('#cl-phone', '0911223344')
+  await page.getByRole('button', { name: 'Submit claim' }).click()
+  await expect(page.getByText(/claim/i).first()).toBeVisible()
+  await expect.poll(async () => (await db().from('claims').select('status').eq('org_id', org!.id).maybeSingle()).data?.status).toBe('pending')
+
+  const admin = await browser.newPage()
+  await adminSession(admin)
+  await admin.goto('/roodber8/review?tab=claims')
+  const card = admin.locator('section', { hasText: name })
+  await card.getByRole('button', { name: 'Approve' }).click()
+  await expect.poll(async () => (await db().from('claims').select('status').eq('org_id', org!.id).single()).data?.status).toBe('approved')
+  const { data: o } = await db().from('organisations').select('verification_level, claimed_at').eq('id', org!.id).single()
+  expect(o?.verification_level).toBe('claimed')
+  expect(o?.claimed_at).not.toBeNull()
+  await admin.close()
+
+  await page.goto('/account/company')
+  await expect(page.getByRole('textbox', { name: /Business name|Name/ }).first()).toHaveValue(name)
+})

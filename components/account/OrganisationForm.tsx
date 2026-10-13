@@ -95,7 +95,18 @@ export function OrganisationForm({
               </li>
             ))}
           </ul>
-          <button type="submit" onClick={() => setConfirmNew(true)} className="mt-4 min-h-11 text-small font-semibold text-green underline">
+          <button
+            type="button"
+            onClick={(e) => {
+              // Submit before re-rendering: hiding this panel first would remove the button and the browser
+              // would drop the submission. The hidden field must also be set now, not via state.
+              const form = e.currentTarget.form
+              const field = form?.elements.namedItem('confirm_new')
+              if (field instanceof HTMLInputElement) field.value = '1'
+              form?.requestSubmit()
+              setConfirmNew(true)
+            }}
+            className="mt-4 min-h-11 text-small font-semibold text-green underline">
             No, none of these. Create my business.
           </button>
         </div>
