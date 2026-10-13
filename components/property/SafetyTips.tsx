@@ -11,7 +11,7 @@ export function SafetyTips({ variant = 'property' }: { variant?: 'property' | 'o
           {variant === 'offplan'
             ? "Check the developer's licence and the project's permits, and never pay without a signed contract."
             : 'Never pay a deposit before viewing and verifying ownership documents. Ask to see the title deed (carta) and lease documents.'}{' '}
-          <Link href="/help#safety" className="font-semibold text-gold-dark underline">
+          <Link href="/help#safety" className="font-semibold text-ink underline">
             More safety advice
           </Link>
         </p>

@@ -25,7 +25,7 @@ const COLOURS: { name: string; className: string; hex: string }[] = [
   { name: 'green-soft', className: 'bg-green-soft', hex: '#E9F5EE' },
   { name: 'green-tint', className: 'bg-green-tint', hex: '#F3FAF6' },
   { name: 'gold', className: 'bg-gold', hex: '#B8862E' },
-  { name: 'gold-dark', className: 'bg-gold-dark', hex: '#946B22' },
+  { name: 'gold-dark', className: 'bg-gold-dark', hex: '#805C1C' },
   { name: 'gold-soft', className: 'bg-gold-soft', hex: '#FBF1DE' },
   { name: 'ink', className: 'bg-ink', hex: '#152238' },
   { name: 'ink-2', className: 'bg-ink-2', hex: '#24324A' },

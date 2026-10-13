@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react'
 import { useFormStatus } from 'react-dom'
-import { CircleAlert, CircleCheck } from 'lucide-react'
+import { CircleAlert, CircleCheck, Info } from 'lucide-react'
 import { Button, type ButtonProps } from '@/components/ui/Button'
 import { cn } from '@/lib/cn'
 
@@ -25,11 +25,11 @@ export function FormAlert({ tone = 'error', children, className }: { tone?: 'err
         'flex items-start gap-3 rounded-md px-4 py-3 text-small',
         tone === 'error' && 'bg-error/10 text-error',
         tone === 'success' && 'bg-green-soft text-green-darker',
-        tone === 'info' && 'bg-info/10 text-info',
+        tone === 'info' && 'bg-info/10 text-ink',
         className,
       )}
     >
-      {tone === 'error' ? <CircleAlert className="mt-0.5 size-4 shrink-0" aria-hidden /> : <CircleCheck className="mt-0.5 size-4 shrink-0" aria-hidden />}
+      {tone === 'error' ? <CircleAlert className="mt-0.5 size-4 shrink-0" aria-hidden /> : tone === 'info' ? <Info className="mt-0.5 size-4 shrink-0 text-info" aria-hidden /> : <CircleCheck className="mt-0.5 size-4 shrink-0" aria-hidden />}
       <div>{children}</div>
     </div>
   )

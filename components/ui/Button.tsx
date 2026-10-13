@@ -10,7 +10,7 @@ const variants: Record<ButtonVariant, string> = {
   primary: 'bg-green text-white hover:bg-green-dark active:bg-green-darker',
   secondary: 'border border-ink/80 bg-white text-ink hover:bg-stone-100',
   ghost: 'text-ink hover:bg-stone-100',
-  gold: 'bg-gold text-white hover:bg-gold-dark',
+  gold: 'bg-gold-dark text-white hover:brightness-90',
   danger: 'bg-error text-white hover:bg-error/90',
   inverse: 'bg-white text-ink hover:bg-stone-100',
   'outline-inverse': 'border border-white/40 text-white hover:bg-white/10',

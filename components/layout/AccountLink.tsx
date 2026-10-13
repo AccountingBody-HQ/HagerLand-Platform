@@ -1,22 +1,26 @@
 'use client'
 
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { CircleUserRound } from 'lucide-react'
-import { getBrowserSupabase } from '@/lib/supabase/browser'
 import { cn } from '@/lib/cn'
 
-/** "Sign in" or "My account", decided in the browser so public pages stay cacheable. */
+/** Supabase keeps the session in "sb-<project>-auth-token" cookies (split into .0, .1 … when large). */
+const SESSION_COOKIE = /(?:^|;\s*)sb-[a-z0-9-]+-auth-token(?:\.\d+)?=/
+
+/**
+ * "Sign in" or "My account", decided in the browser so public pages stay cacheable.
+ * Reads the session cookie instead of loading the Supabase client (keeps ~60 KB off every page);
+ * re-checked on each navigation so it updates after signing in or out.
+ */
 export function AccountLink({ className, inverse }: { className?: string; inverse?: boolean }) {
   const [signedIn, setSignedIn] = useState(false)
+  const pathname = usePathname()
 
   useEffect(() => {
-    const supabase = getBrowserSupabase()
-    if (!supabase) return
-    supabase.auth.getSession().then(({ data }) => setSignedIn(Boolean(data.session)))
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => setSignedIn(Boolean(session)))
-    return () => data.subscription.unsubscribe()
-  }, [])
+    setSignedIn(SESSION_COOKIE.test(document.cookie))
+  }, [pathname])
 
   return (
     <Link

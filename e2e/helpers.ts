@@ -117,3 +117,62 @@ export async function seedPublishedProperty(opts: { purpose?: 'sale' | 'rent'; l
   await d.from('properties').update({ slug }).eq('id', data.id)
   return { id: data.id, slug, shortId: data.short_id }
 }
+
+async function seedPhoto(entityType: string, entityId: string, hue: number): Promise<void> {
+  const d = db()
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1067"><defs><linearGradient id="g" x2="0" y2="1"><stop offset="0" stop-color="hsl(${hue},45%,72%)"/><stop offset="1" stop-color="hsl(${hue},35%,40%)"/></linearGradient></defs><rect width="1600" height="1067" fill="url(#g)"/><rect x="420" y="420" width="760" height="520" fill="hsl(${hue + 30},25%,85%)"/><polygon points="360,430 800,170 1240,430" fill="hsl(${hue + 180},35%,35%)"/></svg>`
+  const full = await sharp(Buffer.from(svg)).webp({ quality: 80 }).toBuffer()
+  const thumb = await sharp(full).resize(640).webp({ quality: 72 }).toBuffer()
+  const base = `${entityType}/${entityId}/${crypto.randomUUID()}`
+  await d.storage.from('public-media').upload(`${base}.webp`, full, { contentType: 'image/webp', upsert: true })
+  await d.storage.from('public-media').upload(`${base}-640.webp`, thumb, { contentType: 'image/webp', upsert: true })
+  await d.from('media').insert({ entity_type: entityType, entity_id: entityId, kind: 'image', storage_path: `${base}.webp`, thumb_path: `${base}-640.webp`, width: 1600, height: 1067, is_cover: true, status: 'approved', alt: 'Photo' })
+}
+
+export interface Showcase {
+  propertySlugs: string[]
+  orgSlug: string
+  productSlug: string
+  developmentSlug: string
+  cleanup: () => Promise<void>
+}
+
+/** Realistic published content with photos (local stack only) for speed and accessibility checks. */
+export async function seedShowcase(): Promise<Showcase> {
+  const d = db()
+  const stamp = Date.now()
+  const props = await Promise.all(
+    [0, 1, 2, 3, 4, 5].map(async (i) => {
+      const p = await seedPublishedProperty({ purpose: i % 2 ? 'rent' : 'sale', title: `E2E apartment showcase ${stamp}-${i}`, price: i % 2 ? 45_000 : 6_500_000 + i * 250_000 })
+      await seedPhoto('property', p.id, 20 + i * 40)
+      return p
+    }),
+  )
+  const { data: org } = await d.from('organisations').insert({ kind: 'contractor', name: `E2E Abebe Construction ${stamp}`, slug: `e2e-abebe-${stamp}`, description: 'Grade 3 building contractor working on residential and commercial projects across Addis Ababa.', source: 'admin', status: 'published', verification_level: 'verified' }).select('id, slug').single()
+  await seedPhoto('organisation', org!.id, 200)
+  const { data: services } = await d.from('service_categories').select('id').not('parent_id', 'is', null).limit(2)
+  await d.from('organisation_services').insert((services ?? []).map((s) => ({ org_id: org!.id, service_id: s.id })))
+  const [{ data: cat }, { data: supply }] = await Promise.all([
+    d.from('product_categories').select('id').not('parent_id', 'is', null).limit(1).single(),
+    d.from('organisations').select('id').eq('kind', 'hagerland').ilike('name', '%supply%').single(),
+  ])
+  const { data: product } = await d.from('products').insert({ name: `E2E Portland cement 50 kg ${stamp}`, slug: `e2e-cement-${stamp}`, category_id: cat!.id, seller_org_id: supply!.id, unit: 'bag', price_type: 'fixed', price_etb_cents: 145_000, stock_status: 'in_stock', summary: 'OPC 42.5R cement for structural concrete.', status: 'published' }).select('id, slug').single()
+  await seedPhoto('product', product!.id, 30)
+  const { data: loc } = await d.from('locations').select('id').eq('path', 'addis-ababa/bole').single()
+  const { data: dev } = await d.from('developments').insert({ name: `E2E Bole Heights ${stamp}`, slug: `e2e-bole-heights-${stamp}`, location_id: loc!.id, description: 'A twelve-storey residential building with two and three bedroom apartments.', status: 'published' }).select('id, slug').single()
+  await seedPhoto('development', dev!.id, 120)
+  return {
+    propertySlugs: props.map((p) => p.slug),
+    orgSlug: org!.slug,
+    productSlug: product!.slug,
+    developmentSlug: dev!.slug,
+    cleanup: async () => {
+      const ids = [...props.map((p) => p.id), org!.id, product!.id, dev!.id]
+      await d.from('media').delete().in('entity_id', ids)
+      await d.from('properties').delete().in('id', props.map((p) => p.id))
+      await d.from('products').delete().eq('id', product!.id)
+      await d.from('developments').delete().eq('id', dev!.id)
+      await d.from('organisations').delete().eq('id', org!.id)
+    },
+  }
+}

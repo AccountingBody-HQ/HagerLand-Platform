@@ -43,6 +43,7 @@ function Links({ badges, onNavigate }: { badges: Record<string, number>; onNavig
           <li key={item.href}>
             <Link
               href={item.href}
+              prefetch={false}
               onClick={onNavigate}
               aria-current={active ? 'page' : undefined}
               className={cn('flex min-h-10 items-center gap-3 rounded-md px-3 text-small font-medium', active ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white')}

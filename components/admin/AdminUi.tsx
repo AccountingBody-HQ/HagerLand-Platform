@@ -37,10 +37,11 @@ export interface Column<T> {
 }
 
 /** Dense, scrollable table for admin lists. */
-export function DataTable<T>({ rows, columns, rowKey, empty = 'Nothing here.' }: { rows: T[]; columns: Column<T>[]; rowKey: (row: T) => string; empty?: string }) {
+export function DataTable<T>({ rows, columns, rowKey, empty = 'Nothing here.', label = 'Table' }: { rows: T[]; columns: Column<T>[]; rowKey: (row: T) => string; empty?: string; label?: string }) {
   if (rows.length === 0) return <p className="rounded-lg border border-dashed border-border-strong bg-white p-8 text-center text-small text-muted">{empty}</p>
   return (
-    <div className="overflow-x-auto rounded-lg border border-border bg-white">
+    // Focusable so keyboard users can scroll wide tables sideways.
+    <div className="overflow-x-auto rounded-lg border border-border bg-white" role="region" aria-label={label} tabIndex={0}>
       <table className="w-full min-w-[720px] text-left text-small">
         <thead className="bg-stone-50 text-caption uppercase tracking-wide text-muted">
           <tr>

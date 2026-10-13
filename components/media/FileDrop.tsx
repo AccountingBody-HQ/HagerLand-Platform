@@ -133,7 +133,7 @@ export function FileDrop({
         <span className="font-semibold text-ink">{label}</span>
         {hint && <span className="text-small text-muted">{hint}</span>}
       </button>
-      <input ref={inputRef} type="file" accept={accept} multiple={multiple} className="sr-only" tabIndex={-1} onChange={(e) => void handle(e.target.files)} />
+      <input ref={inputRef} type="file" aria-label={label} accept={accept} multiple={multiple} className="sr-only" tabIndex={-1} onChange={(e) => void handle(e.target.files)} />
       {items.length > 0 && (
         <ul className="mt-3 space-y-2" aria-live="polite">
           {items.map((i) => (
