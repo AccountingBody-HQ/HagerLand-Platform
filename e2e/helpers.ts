@@ -112,7 +112,7 @@ export async function seedPublishedProperty(opts: { purpose?: 'sale' | 'rent'; l
   const title = opts.title ?? `E2E apartment ${Date.now()}`
   const { data, error } = await d
     .from('properties')
-    .insert({ title, slug: `e2e-${Date.now()}`, purpose: opts.purpose ?? 'sale', property_type: 'apartment', location_id: loc!.id, bedrooms: 2, bathrooms: 1, price_etb: opts.price ?? 4_500_000, description: 'A bright two-bedroom apartment used by automated tests.', lister_type: 'hagerland', status: 'published' })
+    .insert({ title, slug: `e2e-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`, purpose: opts.purpose ?? 'sale', property_type: 'apartment', location_id: loc!.id, bedrooms: 2, bathrooms: 1, price_etb: opts.price ?? 4_500_000, description: 'A bright two-bedroom apartment used by automated tests.', lister_type: 'hagerland', status: 'published' })
     .select('id, short_id')
     .single()
   if (error || !data) throw new Error(`seed failed: ${error?.message}`)
@@ -178,4 +178,13 @@ export async function seedShowcase(): Promise<Showcase> {
       await d.from('organisations').delete().eq('id', org!.id)
     },
   }
+}
+
+/**
+ * Gives this page its own simulated visitor address for requests to the site only (not to storage,
+ * which rejects unknown cross-site headers), so per-visitor rate limits never leak between test runs.
+ */
+export async function asFreshVisitor(page: Page): Promise<void> {
+  const ip = `10.6.${Math.floor(Math.random() * 250)}.${Math.floor(Math.random() * 250)}`
+  await page.route('http://localhost:3100/**', (route) => route.continue({ headers: { ...route.request().headers(), 'x-forwarded-for': ip } }))
 }

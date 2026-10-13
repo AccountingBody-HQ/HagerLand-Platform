@@ -211,7 +211,7 @@ export default function StyleguidePage() {
         <div className="mt-6 max-w-2xl">
           <Accordion
             items={[
-              { id: 'faq-1', title: 'Can diaspora buyers purchase property?', content: 'Answer text appears here.' },
+              { id: 'faq-1', title: 'When does my listing go live?', content: 'After a quick check by the HagerLand team. We email you as soon as it is live.' },
               { id: 'faq-2', title: 'How are businesses verified?', content: 'We check the trade licence and TIN certificate.' },
             ]}
           />

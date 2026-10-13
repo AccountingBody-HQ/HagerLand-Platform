@@ -45,3 +45,30 @@ test.describe('SEO', () => {
     await db().from('properties').delete().eq('id', p.id)
   })
 })
+
+test('structured data (JSON-LD) is valid on key pages', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop', 'markup is identical at every width')
+  const { seedShowcase } = await import('./helpers')
+  const s = await seedShowcase()
+  const expected: [string, string[]][] = [
+    ['/', ['Organization', 'WebSite']],
+    [`/property/${s.propertySlugs[0]}`, ['BreadcrumbList']],
+    [`/supplies/product/${s.productSlug}`, ['Product']],
+    [`/company/${s.orgSlug}`, ['BreadcrumbList']],
+    ['/help', ['FAQPage']],
+  ]
+  for (const [path, types] of expected) {
+    await page.goto(path)
+    const blocks = await page.locator('script[type="application/ld+json"]').allTextContents()
+    expect(blocks.length, path).toBeGreaterThan(0)
+    const found = blocks.flatMap((b) => {
+      const j = JSON.parse(b) as Record<string, unknown> | Record<string, unknown>[]
+      return (Array.isArray(j) ? j : [j]).map((x) => {
+        expect(x['@context'], path).toBe('https://schema.org')
+        return String(x['@type'])
+      })
+    })
+    for (const t of types) expect(found, path).toContain(t)
+  }
+  await s.cleanup()
+})

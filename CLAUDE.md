@@ -20,6 +20,9 @@ HagerLand is being relaunched as **Ethiopia's construction and property platform
 ## Commands
 ```bash
 npm run dev                      # local dev server
+npm test                         # unit tests (Vitest)
+npm run stack                    # start the local Supabase copy (Docker)
+npm run test:e2e:build && npm run test:e2e   # Playwright against the local copy
 npm run lint                     # ESLint (next lint)
 npx tsc --noEmit                 # typecheck
 rm -rf .next && npm run build    # clean production build
@@ -47,7 +50,7 @@ Next.js 14.2 App Router · TypeScript strict · Tailwind · Supabase (Postgres, 
 - Paired buttons equal width (`flex-1`). Nothing may depend on hover to look right.
 - Tokens, typography and components: spec Section 5.
 
-## Target architecture (being built; see spec Sections 4, 6, 7)
+## Architecture (spec Sections 4, 6, 7)
 - Unified entity model: `profiles`, `organisations` (+ members, services, product categories), `locations` tree, `properties`, `developments`, `products`, `media`, `enquiries`, `quote_requests`, `claims`, `verification_requests`, `promotions`, `site_settings`, `audit_log`.
 - RLS on every new table; anon reads only through `*_public` views and SECURITY DEFINER search functions. Contact details only via `/api/contact-reveal`.
 - Supabase Auth via `@supabase/ssr`; accounts at `/account`, admin at `/roodber8`.
@@ -55,6 +58,13 @@ Next.js 14.2 App Router · TypeScript strict · Tailwind · Supabase (Postgres, 
 
 ## Gotchas
 - Google Places imports use Places API (New): `POST places.googleapis.com/v1/places:searchText` with `pageToken` **in the POST body**. Do not reintroduce legacy Places pagination.
-- Admin GET routes authenticate with `cookies()`. Keep that pattern.
+- Admin GET routes authenticate with `cookies()`. Keep that pattern. Admin pages/actions also call `requireAdminPage()` / `assertAdmin()` (lib/admin/guard.ts) and record actions with `audit()`.
 - Google Places content may only be used to discover businesses: store `place_id`, never Google reviews/ratings/photos.
-- Legacy (being removed in WP-1): `next.config.mjs` sets `Cache-Control: no-store` on every route; `middleware.ts` is empty; `vercel.json` schedules a non-existent `/api/cron/property-discovery`; base URL falls back to `hagerland-platform.vercel.app`; emails send from accountingbody.com.
+- Tests that write data run only against the local Supabase copy (`supabase/local-stack`, `.env.test.local`, `scripts/with-test-env.sh` refuses non-localhost URLs). Never point tests at the live project.
+- `rate_limits` and `import_log` are pre-existing (legacy) tables the app still uses: never delete their data without AB's agreement (the daily job's rate-limit purge is opt-in via `CRON_PURGE_RATE_LIMITS`).
+- Photos are stored as WebP. `next/og` cannot read WebP: share images convert with sharp first (`lib/og.tsx`).
+- Hidden form fields that must change after a click (e.g. confirmations) must be set before submitting; a button that hides itself on click loses the submission (see `OrganisationForm`).
+- Admin nav links use `prefetch={false}`: every admin page is a dynamic, database-backed render.
+
+## Status
+Phase 1 (WP-0 to WP-19) is built; see `docs/LAUNCH_REPORT.md` and `docs/RELAUNCH_PROGRESS.md`. WP-20 (cutover) is AB's go-ahead only.

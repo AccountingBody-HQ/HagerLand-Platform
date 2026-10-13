@@ -28,7 +28,7 @@ Status values: todo · in progress · done · blocked
 | WP-16 | Analytics, monitoring, cron | done | 2026-10-13 | 73c4841 | /api/cron/daily (Bearer CRON_SECRET, constant-time) at 06:00 UTC via vercel.json. Server errors counted in the errors table and listed in the digest. Purging old rate_limits rows (a pre-existing table) is off unless CRON_PURGE_RATE_LIMITS=true, because of the no-deleting-legacy-data rule |
 | WP-17 | Security hardening | done | 2026-10-13 | 5823b29 | Headers/CSP, upload abuse, rate limits, admin lock and bundle secret scan covered by e2e; RLS 28/28 on local. npm audit: low-risk dev fixes applied; remaining high/critical advisories are in Next.js 14.2 (newest 14.2 release installed) and Tailwind 3 build tools; fixing needs Next 15 (major upgrade, AB decision). Mitigations: AVIF off, image optimiser limited to our photo bucket, Vercel hosting. Env validated at start-up (instrumentation.ts). docs/RUNBOOK.md written |
 | WP-18 | Performance & accessibility | done | 2026-10-13 | b45c878 | axe: 0 serious/critical on 26 public pages (mobile + desktop) and 9 admin pages. Lighthouse: docs/qa/lighthouse-2026-10-13.md (simulated 82–97; applied throttling 89–98; LCP 1.7–2.0 s). Home/property/product below 90 in the simulated run only. gold-dark token darkened to 128 92 28 for contrast (brand gold unchanged) |
-| WP-19 | QA, legacy sweep, final checklist [STOP-GATE] | todo | | | |
+| WP-19 | QA, legacy sweep, final checklist [STOP-GATE] | done | 2026-10-13 | see git log (final commit) | 145 e2e passed (journeys, admin, SEO, security, a11y, widths), 85 unit, RLS 28/28, crawl 290 pages 0 broken. Fixed: guest enquiries hidden from owners' inbox; duplicate-business confirm did nothing; tap targets; tooltip overflow. Legacy sweep clean (remaining hits are redirects). Report: docs/LAUNCH_REPORT.md |
 | WP-20 | Cutover [STOP-GATE] | todo | | | |
 
 ## WP-0 checklist
@@ -90,5 +90,8 @@ Order: backup → legacy hotfix → migrations 0001–0009 → RLS test.
 - Schema snapshot taken 13 Oct 2026 (`docs/legacy-schema-snapshot.md`): no name clashes with migrations 0001–0009; `import_log` and `rate_limits` match what the code expects. Database is PostgreSQL 17.6.
 
 ## Pre-launch tasks for AB
+
+The full ordered list is in `docs/LAUNCH_REPORT.md` section 3 (migration 0010, Vercel variables, Supabase Auth, Resend domain, Supabase Pro before 3 Nov 2026, Section 23 items).
+
 
 - Legal pages (/terms, /privacy, /cookies) must be reviewed by a lawyer before launch.

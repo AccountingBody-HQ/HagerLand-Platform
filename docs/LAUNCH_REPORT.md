@@ -1,0 +1,353 @@
+# HagerLand relaunch — Launch report
+
+**Date:** 13 October 2026 · **Branch:** `relaunch/construction` · **Status:** Phase 1 (WP-3 to WP-19) is built and tested. Nothing has been changed on the live site. WP-20 (cutover) waits for you.
+
+This report is in four parts:
+
+1. What is finished, and the evidence
+2. A page-by-page checklist for you to review
+3. Your to-do list before launch, in order
+4. Known limitations and Phase 2
+
+---
+
+## 1. What is finished
+
+### The website
+
+| Area | What it does |
+|---|---|
+| **Homepage** | Search with tabs (Buy, Rent, Supplies, Professionals). The sections follow the spec and only show when they have real content. Business details come from admin Settings. |
+| **Property marketplace** | Results for sale and to rent, filtered by place, plus listing pages with photo gallery, key facts, safety tips, contact reveal and an enquiry form. Owners list through a step-by-step wizard. Every listing is reviewed before it goes live and expires after 60 days, with a reminder email first. |
+| **HagerLand Supply** | Catalogue by category, product pages, a quote list, a materials-list upload and a "quote sent" page. Customers can download their quote PDF from their account. |
+| **Professionals** | Service and location directories, company profiles with portfolio, claiming of imported businesses, and Verified badges. |
+| **Developments** | Third-party developments and your own HagerLand Developments, always labelled as yours, with a register-interest form. |
+| **Search** | One search across property, supplies, professionals and developments. Searches with no results are logged so you can see what people want. |
+| **Accounts** | Sign up (by audience), email confirmation, sign in (password or email link), onboarding, listings, enquiries inbox, quotes, company profile, portfolio, verification, developments and settings (including "delete my account"). |
+| **Content pages** | About, How it works, List with us, Contact, Help (with safety advice), Terms, Privacy and Cookies. |
+
+### The admin (`/roodber8`)
+
+All 17 sections in spec 18.2 are built: dashboard, review queue (9 tabs), properties, developments (with CSV import), organisations (members, merge, verification documents), products (specs builder, photos, CSV price and stock update), categories, locations (Amharic names, page intros, merge), enquiries, quotes (issue a quote with a PDF and email), HagerLand sales, users (suspend, password reset, carry out deletion requests), promotions, Google imports (with AI-drafted descriptions and bulk review), reports (CSV and simple charts), settings, the audit log and a global search. Every admin action is recorded in the audit log.
+
+### Behind the scenes
+
+- **Daily job** at 06:00 UTC, which:
+  - expires old listings and emails their owners;
+  - sends reminders 7 days before expiry;
+  - expires quotes 14 days after they are issued;
+  - switches featured badges on and off;
+  - deletes old verification documents and old contact-reveal records;
+  - emails you a digest, only when there is something to report.
+- **Search engines:** sitemaps split by type, robots.txt, a canonical address on every page, structured data, and branded share images for WhatsApp, Facebook and Telegram previews.
+- **Security:**
+  - row-level security on every table;
+  - security headers on every page;
+  - rate limits on sign-ups, enquiries, quotes, contact reveals and admin sign-in;
+  - upload checks (file type, size and content);
+  - no secrets in the browser.
+- **Monitoring:** server errors are counted in the `errors` table and appear in the daily digest. Vercel Analytics and Speed Insights record cookieless events on Vercel.
+
+### Evidence (final commit on `relaunch/construction`)
+
+| Check | Result |
+|---|---|
+| Lint (`npm run lint`) | No warnings or errors |
+| Type check (`npx tsc --noEmit`) | 0 errors |
+| Clean production build (`rm -rf .next && npm run build`) | Succeeds. JavaScript shared by every page: 87.5 kB |
+| Unit tests (Vitest) | 85 passed, in 17 files |
+| Browser tests (Playwright, local copy of the database) | **145 passed**, 3 skipped by design (checks that are the same at every width run once), 0 failed |
+| Database security test (`supabase/tests/rls_test.sql`) | 28 of 28 PASS (local copy; 28 of 28 on live after migrations 0001–0009) |
+| Accessibility (axe, WCAG 2.2 AA) | 0 serious or critical problems on 26 public pages (phone and desktop) and 9 admin screens |
+| Phone and screen widths | No sideways scrolling on 25 page types at 360, 390, 768, 1024 and 1440 px |
+| Link crawl | 290 internal pages followed: 0 broken links, 0 errors |
+| Secrets in browser code | Every secret value checked against all browser files: none found |
+| Speed (Lighthouse, phone) | See below |
+
+The browser tests cover these complete journeys:
+
+- An owner signs up, lists a property with photos, HagerLand approves it, a visitor reveals the phone number and sends an enquiry, and the owner sees it in their inbox.
+- A contractor creates a business profile, it is approved, they upload verification documents and are marked Verified.
+- Someone claims an imported business.
+- A guest builds a quote list and HagerLand issues a quote.
+- A guest sends a materials list with a file.
+- A visitor registers interest in HagerLand Developments.
+- A visitor sends the contact form.
+
+They also cover every admin screen, admin sign-in and lock-out, the daily job, sitemaps, share images, canonicals, structured data, security headers, upload abuse and rate limits.
+
+**Lighthouse (phone settings, test build).** Full table: `docs/qa/lighthouse-2026-10-13.md`.
+
+| Page | Performance | Accessibility | Best practices |
+|---|---|---|---|
+| Homepage | 84 (89 with real throttling) | 100 | 100 |
+| For sale results | 93 | 98 | 100 |
+| Property page | 82 (95 with real throttling) | 100 | 100 |
+| Supplies | 94 | 100 | 100 |
+| Product page | 86 (98 with real throttling) | 100 | 100 |
+| Professionals | 97 | 100 | 100 |
+| Company page | 90 | 100 | 100 |
+| Development page | 88 | 100 | 100 |
+| Our developments | 95 | 100 | 100 |
+| List with us | 95 | 100 | 100 |
+
+- **Largest paint with real slow-4G throttling:** 1.7–2.0 s (target under 2.5 s).
+- **Layout shift:** at most 0.089 (target under 0.1).
+- **SEO scores:** these read 66–69 only because test and preview builds are deliberately marked "do not index". Production pages are indexable.
+- **Next step:** please re-run Lighthouse on the Vercel preview. Real hosting is normally faster than this test machine.
+
+### Problems found and fixed during final testing
+
+1. **Owners could not see enquiries from visitors without an account.** These are most enquiries. The inbox, the unread badge and the overview count are fixed and tested.
+2. **The duplicate-business warning blocked sign-up.** Clicking "No, none of these. Create my business." did nothing. It now works and is tested.
+3. **Accessibility fixes:**
+   - the gold buttons and gold text are a little darker so they are readable (the brand gold #B8862E itself is unchanged);
+   - the blue info messages and badges are darker for the same reason;
+   - breadcrumb links and the links on the "page not found" screen are bigger, so they are easier to tap.
+4. **Speed fixes:**
+   - about 60 kB less code on every page;
+   - admin screens no longer load all the other admin screens in the background.
+
+### Decisions I made where the spec left a choice
+
+| Decision | Why |
+|---|---|
+| Business details (phone, email, legal name, social links, delivery area, quote reply time, "why buy" points, announcement, homepage picks) are edited in **admin → Settings**, not in code | You can change them without a developer. Anything empty is hidden. |
+| Migration **0010** lets the website read the new settings | Additive only. It changes no data. |
+| The daily job does **not** delete expired rows from the old `rate_limits` table unless you set `CRON_PURGE_RATE_LIMITS=true` | The rules forbid deleting data from pre-existing tables without your agreement. The rows are only short-lived counters, so switching it on is safe. |
+| Quotes are valid for **14 days** | This is the spec's quote terms. The daily job then marks them expired. |
+| No map pin at launch | No map provider has been confirmed. If you add `NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY`, places that have coordinates (for example imported businesses) show a Google map. Otherwise they show an "Open in Google Maps" link. |
+| Sentry is not added | Errors are counted in the `errors` table and reported in the daily digest instead. |
+| Rate limiter counts per fixed time window, not a sliding window | Simpler and good enough at launch. |
+| HEIC photos (iPhone) | The image library cannot read HEIC. Phones convert to JPEG when uploading through a browser, so this is not a problem in practice. |
+| Turnstile (anti-bot check) | Skipped only when its secret is not set, which is the case on previews and tests. Production must have it. |
+| AI drafts for imported businesses use `claude-sonnet-5-5` | You can change the model with `ANTHROPIC_MODEL`. Every draft is reviewed by you before going live. |
+| The old About, Contact and Terms pages were removed in WP-1 | They were rebuilt in WP-13. |
+| The `gold-dark` and `info-dark` colour tokens are slightly darker | Needed for readable contrast (WCAG AA). |
+
+---
+
+## 2. Page-by-page review checklist
+
+**Where to open the preview:** Vercel → project **hagerland-platform** → **Deployments** → the newest deployment from branch `relaunch/construction` → **Visit**. Then add each path below to the end of that address (for example `…vercel.app/property/for-sale`).
+
+On a fresh preview most lists will be empty until content is added. Check that the empty states look deliberate and helpful.
+
+For each page, check it on your phone and on a computer:
+
+- it looks right;
+- the wording is right;
+- nothing looks unfinished;
+- buttons are easy to tap.
+
+### Public pages
+
+| ✓ | Path | What to check |
+|---|---|---|
+| ☐ | `/` | Hero, search tabs, sections, footer (your details appear only once set in Settings) |
+| ☐ | `/property` | Property hub |
+| ☐ | `/property/for-sale` and `/property/to-rent` | Filters (phone: the filter sheet), sorting, empty state |
+| ☐ | `/property/for-sale/addis-ababa/bole` | Location page and its intro text |
+| ☐ | `/property/<a listing>` | Gallery, price, key facts, safety tips, "Show phone number", enquiry form |
+| ☐ | `/supplies` | Categories and how quotes work |
+| ☐ | `/supplies/<category>` | Category page |
+| ☐ | `/supplies/product/<a product>` | Product page and "Add to quote" |
+| ☐ | `/supplies/quote` | Quote list and request form |
+| ☐ | `/supplies/materials-list` | Upload a list and request a quote |
+| ☐ | `/professionals` and `/professionals/<service>` | Directory and service pages |
+| ☐ | `/agents`, `/developers`, `/suppliers` | Directory hubs |
+| ☐ | `/company/<a company>` | Profile, portfolio, Verified badge, "Claim this business" (unclaimed only) |
+| ☐ | `/company/<a company>/claim` | Claim form |
+| ☐ | `/developments` and `/developments/<one>` | Third-party developments |
+| ☐ | `/our-developments` | HagerLand Developments, gold treatment, register interest |
+| ☐ | `/search?q=bole` | Combined search |
+| ☐ | `/about`, `/how-it-works`, `/list-with-us` | Wording |
+| ☐ | `/contact` | Contact options (from Settings) and the form |
+| ☐ | `/help` | FAQs and safety advice |
+| ☐ | `/terms`, `/privacy`, `/cookies` | **For your lawyer** (see to-do list) |
+| ☐ | `/login`, `/signup`, `/signup?type=owner` | Sign-in and sign-up |
+| ☐ | `/any-wrong-address` | "Page not found" screen |
+
+### Account pages (sign up with a test email first)
+
+| ✓ | Path | What to check |
+|---|---|---|
+| ☐ | `/onboarding` | Welcome and choices |
+| ☐ | `/account` | Overview |
+| ☐ | `/account/listings`, `/account/listings/new` | Listing wizard (all steps), pause, renew, edit |
+| ☐ | `/account/enquiries` | Inbox (Received, Sent by me, statuses) |
+| ☐ | `/account/quotes` | Quote requests and quote PDF download |
+| ☐ | `/account/company` | Business profile |
+| ☐ | `/account/company/portfolio` | Portfolio projects |
+| ☐ | `/account/company/verification` | Document upload |
+| ☐ | `/account/developments` | Developer's developments |
+| ☐ | `/account/settings` | Profile, password, delete account |
+
+### Admin (sign in at `/roodber8-login`)
+
+| ✓ | Path | What to check |
+|---|---|---|
+| ☐ | `/roodber8` | Dashboard numbers and queues |
+| ☐ | `/roodber8/review` | All 9 tabs: approve, reject with reason, request changes, bulk approve |
+| ☐ | `/roodber8/properties` (and `/new`, one listing) | Filters, editing, feature, notes, audit trail |
+| ☐ | `/roodber8/developments` (and `/new`, `/import`) | CSV import preview |
+| ☐ | `/roodber8/organisations` (and `/new`, one company) | Members, merge, verification documents |
+| ☐ | `/roodber8/products` (and `/new`, `/prices`) | Product editor and CSV price update |
+| ☐ | `/roodber8/categories` (both tabs) | Add, rename, reorder, switch off |
+| ☐ | `/roodber8/locations` | Add an area, Amharic name, merge |
+| ☐ | `/roodber8/enquiries` (and one enquiry) | Filters, "unopened over 48 h", CSV |
+| ☐ | `/roodber8/quotes` (and one quote) | Pipeline, issue a quote with a PDF |
+| ☐ | `/roodber8/sales` | HagerLand Developments leads |
+| ☐ | `/roodber8/users` (and one user) | Search, suspend, password reset, delete |
+| ☐ | `/roodber8/promotions` | Create and end a promotion |
+| ☐ | `/roodber8/import` | Search Google, import, review tab, history |
+| ☐ | `/roodber8/reports` | Tables, charts, CSV |
+| ☐ | `/roodber8/settings` | Fill in your details here (see section 3) |
+| ☐ | `/roodber8/audit` | Every action you took above appears |
+| ☐ | `/roodber8/search` | Search by name, reference, phone or email |
+
+---
+
+## 3. Your to-do list before launch, in order
+
+### Step 1 — Take a backup
+
+Follow `docs/RUNBOOK.md` section 1.
+
+### Step 2 — Run the new migration on live
+
+There is one: **`supabase/migrations/0010_public_settings.sql`**. It lets the website read the business details you enter in Settings. It adds empty settings and changes no existing data.
+
+1. Supabase → **SQL Editor → New query**. Paste the whole file and click **Run**.
+2. Check it worked:
+   ```sql
+   select count(*) from site_settings_public;
+   ```
+   **You should see:** `14`
+3. Run `supabase/tests/rls_test.sql` again. **You should see:** 28 rows, all starting with `PASS`.
+
+### Step 3 — Vercel environment variables
+
+Go to Vercel → Project **hagerland-platform** → Settings → Environment Variables.
+
+Set each one for **Production**, and also for **Preview** where the last column says so. Never paste the values anywhere else.
+
+| Variable | Where the value comes from | Preview too? |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase → Project Settings → API → Project URL | Yes |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase → Project Settings → API keys → publishable key | Yes |
+| `SUPABASE_SECRET_KEY` | Supabase → Project Settings → API keys → secret key | Yes |
+| `NEXT_PUBLIC_SITE_URL` | `https://www.hagerland.com` | **No** (Production only) |
+| `ADMIN_USERNAME`, `ADMIN_PASSWORD` | Your choice: use a new long password at launch | Yes |
+| `ADMIN_SESSION_SECRET` | Run `openssl rand -hex 32` in the Codespace terminal | Yes |
+| `ADMIN_TOTP_SECRET` | Your existing authenticator secret | Yes |
+| `ADMIN_DIGEST_EMAIL` | The address that should receive the daily digest | Optional |
+| `IP_HASH_SALT` | Run `openssl rand -hex 32` | Yes |
+| `CRON_SECRET` | Run `openssl rand -hex 32` (Vercel Cron sends it automatically) | No |
+| `RESEND_API_KEY` | Resend → API Keys | No (keep previews from emailing real people) |
+| `EMAIL_FROM` | `HagerLand <hello@hagerland.com>` | No |
+| `EMAIL_FROM_SUPPLY` | `HagerLand Supply <supply@hagerland.com>` | No |
+| `EMAIL_REPLY_TO` | The address replies should go to | No |
+| `HAGERLAND_INBOX_EMAIL` | Where contact-form and general enquiries go (otherwise the email in Settings is used) | No |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | Cloudflare → Turnstile → your site (hostname www.hagerland.com) | **No** (Production only) |
+| `GOOGLE_PLACES_API_KEY` | Google Cloud → APIs & Services → Credentials (Places API (New) enabled) | Optional |
+| `ANTHROPIC_API_KEY` | Anthropic Console → API keys (for AI drafts of imported businesses) | Optional |
+| `NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY` | Google Cloud, Maps Embed API, restricted to hagerland.com | Optional |
+| `NEXT_PUBLIC_GOOGLE_AUTH_ENABLED` | `true` only after step 4's Google set-up | Optional |
+| `CRON_PURGE_RATE_LIMITS` | `true` if you agree to the daily clean-up of old rate-limit counters | Optional |
+| `ANTHROPIC_MODEL` | Leave empty unless you want a different model | Optional |
+
+After saving, redeploy: Deployments → latest → ⋯ → **Redeploy**. If anything is missing or malformed, Vercel's logs show a clear "Invalid environment configuration" line at start-up.
+
+### Step 4 — Supabase Auth settings
+
+All of these are in Supabase → **Authentication**. Details are in `docs/auth-email-templates/README.md`.
+
+1. **URL Configuration:**
+   - Site URL: `https://www.hagerland.com`.
+   - Redirect URLs: `https://www.hagerland.com/**`, plus your Vercel preview pattern, for example `https://*-accountingbodys-projects.vercel.app/**`.
+2. **Emails → Templates:** paste the four templates from `docs/auth-email-templates/`, with the subjects listed there.
+3. **SMTP:** use Resend once the domain is verified (step 5): host `smtp.resend.com`, port 465, user `resend`, password = your Resend API key, sender `hello@hagerland.com`.
+4. **Sign-in settings:** keep **Confirm email** on and set the minimum password length to 10.
+5. **Google sign-in (optional):** create an OAuth client in Google Cloud, add it under Providers → Google, then set `NEXT_PUBLIC_GOOGLE_AUTH_ENABLED=true` in Vercel. Until then the Google button stays hidden.
+
+### Step 5 — Resend domain
+
+1. Resend → **Domains → Add domain** → `hagerland.com`.
+2. Add the DNS records Resend shows (at your DNS provider), then wait for **Verified**.
+3. If your free plan's single domain is already used by accountingbody.com, upgrade to **Resend Pro** (about US$20 a month).
+4. Send yourself a test: sign up with your own email on the preview, after adding `RESEND_API_KEY` to Preview **temporarily**. Remove it again afterwards.
+
+### Step 6 — Supabase Pro
+
+Upgrade the project to **Pro** (about US$25 a month) before launch. You get daily backups, no project pausing and more storage.
+
+**Note:** your Supabase organisation has a quota restriction date of **3 November 2026**. Upgrade before then to avoid restrictions.
+
+### Step 7 — Fill in the Section 23 items
+
+Most of these are in **admin → Settings**. Anything left empty stays hidden, so you can launch with some still blank.
+
+| # | Item | Where you set it |
+|---|---|---|
+| 1 | Tagline "Build. Buy. Live." (shown in the footer) | Confirm, or ask a developer to change `lib/brand.ts` |
+| 2 | Free listing at launch | Settings → Business promises → "Listing is free". Private owners are limited to 3 live listings (Settings → Rules) |
+| 3 | Legal entity (name, registration number, address, governing law) | Settings → Legal entity. **Then have a lawyer review `/terms`, `/privacy` and `/cookies`**, and set their dates in Settings → Legal pages dates |
+| 4 | Contact details (phone, WhatsApp, Telegram, email, Supply email, address, hours) | Settings → Contact details |
+| 4 | Delivery area and quote reply time | Settings → Business promises |
+| 5 | Brand photography | No stock photos are used. Add real photos to listings, products and developments in admin. Add your first HagerLand project in admin → Developments → New, choosing HagerLand as the developer (it is then labelled as yours automatically) |
+| 6 | "Why buy from HagerLand Developments" points | Settings → Business promises → Add a point. Hidden until at least one is filled in |
+| 7 | Regions, cities and neighbourhoods | Admin → Locations (add areas, Amharic names, merge duplicates) |
+| 8 | Launch content | Products: admin → Products, and CSV for prices. Businesses: admin → Imports. Developments: admin → Developments, and CSV import. Properties: admin → Properties → New |
+| 9 | Map provider | Optional. Add `NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY` (step 3). No map pin picker at launch |
+| 10 | Google sign-in | Step 4 |
+| 11 | Sentry | Not used. The daily digest reports errors instead |
+| 12 | Social media links | Settings → Social media (https links only; only filled ones show) |
+| — | Announcement bar | Settings → Announcement bar (optional) |
+| — | Homepage picks | Settings → Homepage picks (8-character property references) |
+
+Also confirm this wording is true for your business. Edit it if not:
+
+- **"usually within one business day"** for reviewing listings and profiles (onboarding, How it works, List with us, emails);
+- **"Delivered to site"** and **"quoted fast and delivered to site"** on supplies pages;
+- the HagerLand Developments FAQ and "How we build" text.
+
+### Step 8 — Final checks on the preview, then cutover (WP-20)
+
+1. Work through the checklist in section 2.
+2. Re-run Lighthouse on 2–3 key preview pages.
+3. Paste one property, product, company page and the homepage into Google's Rich Results Test.
+4. Check securityheaders.com on the preview.
+5. When you are happy, ask for **WP-20 (cutover)**.
+
+WP-20 merges to `main`, applies the legacy lockdown (making the old tables private) and rotates the admin secrets (`docs/RUNBOOK.md` section 3). After it, resubmit the sitemap in Google Search Console (`/sitemap/<type>.xml`, listed in robots.txt).
+
+---
+
+## 4. Known limitations and Phase 2
+
+### Known limitations
+
+- **Next.js version (security advisories):** `npm audit` reports advisories in Next.js 14.2, which is already the newest 14.2 release. Fixing them needs **Next.js 15**, a major upgrade the project rules reserve for your decision.
+  - Already reduced: AVIF image conversion is off, image resizing only accepts our own photo bucket, and the site runs on Vercel's own infrastructure.
+  - **Recommendation:** schedule the Next.js 15 upgrade soon after launch, as its own piece of work with full re-testing.
+- **Tailwind 3 build tools** have audit warnings too. They only run while building, never on the live site.
+- **Lighthouse scores:** in the simulated phone test, the homepage, property page and product page score 82–86, just below the 90 target. With real throttling they score 89–98, and the largest paint is under 2.5 s. Please confirm on the Vercel preview.
+- **Layout shift on property pages:** the heading fonts swap in after loading, which moves the page slightly (0.089, under the 0.1 limit).
+- **Imports:** with no `GOOGLE_PLACES_API_KEY` the Imports screen shows a set-up message. With no `ANTHROPIC_API_KEY` you write each description yourself during review.
+- **Admin user search by email** scans the account list page by page. This is fine for thousands of users; a faster lookup is a Phase 2 item.
+- **Legacy tables:** the old tables stay readable as before until the WP-20 lockdown.
+- **Legal pages:** these must be reviewed by a lawyer before launch.
+
+### Phase 2 (from the spec)
+
+- Amharic version of the site (`/am`) with translated pages and listings.
+- Property-type landing pages (for example `/property/for-sale/addis-ababa/bole/apartments`) once there is enough content.
+- Map pin picker for listings (after a map provider is chosen).
+- Phone (SMS) sign-in and WhatsApp notifications.
+- USD price display for buyers abroad.
+- Special buys in Supplies; online orders and payments.
+- Paid plans and paid promotions (the promotions screen already records price and paid status).
+- Slug change with automatic redirects for categories and locations.
+- A deals table for commissions on sales HagerLand brokers.
+- Guides and articles.

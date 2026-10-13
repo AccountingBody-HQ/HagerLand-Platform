@@ -1,9 +1,10 @@
 import { expect, test } from '@playwright/test'
-import { adminSession, db, trackErrors } from '../helpers'
+import { adminSession, asFreshVisitor, db, trackErrors } from '../helpers'
 
 test('a guest builds a quote list, requests a quote, and HagerLand issues it', async ({ browser, page }) => {
   test.setTimeout(180_000)
   const errors = trackErrors(page)
+  await asFreshVisitor(page)
   const d = db()
   const [{ data: cat }, { data: supply }] = await Promise.all([
     d.from('product_categories').select('id').not('parent_id', 'is', null).limit(1).single(),
@@ -41,6 +42,7 @@ test('a guest builds a quote list, requests a quote, and HagerLand issues it', a
 
 test('a guest sends a materials list with a file', async ({ page }) => {
   test.setTimeout(120_000)
+  await asFreshVisitor(page)
   await page.goto('/supplies/materials-list')
   await page.fill('#q-notes', '40 bags of cement, 2 tonnes of 12 mm rebar, 10 m³ sand')
   await page.locator('input[type=file]').setInputFiles({ name: 'list.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF') })
@@ -58,6 +60,8 @@ test('a guest sends a materials list with a file', async ({ page }) => {
 })
 
 test('register interest in HagerLand Developments and send a contact message', async ({ page }) => {
+  // Own simulated visitor address: enquiries are limited to 10 an hour per visitor.
+  await asFreshVisitor(page)
   await page.goto('/our-developments')
   const form = page.locator('form', { has: page.locator('#ri-empty-name') })
   await page.fill('#ri-empty-name', 'Yonas Bekele')

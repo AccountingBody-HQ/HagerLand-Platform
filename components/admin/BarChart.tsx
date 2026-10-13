@@ -10,7 +10,7 @@ export function BarChart({ data, label, empty = 'Nothing recorded in this period
   const step = data.length > 8 ? 2 : 1
   return (
     <figure className="min-w-0">
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto" role="region" aria-label={label} tabIndex={0}>
         <svg viewBox={`0 0 ${width} ${h + 24}`} width={width} height={h + 24} role="img" aria-label={label} className="text-green">
           {data.map((d, i) => {
             const bh = Math.round((d.value / max) * (h - 14))

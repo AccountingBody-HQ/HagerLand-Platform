@@ -20,10 +20,10 @@ export function ErrorPanel({ code, title, message, actions }: { code: string; ti
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center [&>*]:sm:flex-1">{actions}</div>
         <nav aria-label="Helpful links" className="mt-12 border-t border-border pt-8">
           <p className="text-small font-semibold text-ink">You might be looking for</p>
-          <ul className="mt-3 flex flex-wrap justify-center gap-x-5 gap-y-2">
+          <ul className="mt-1 flex flex-wrap justify-center gap-x-5">
             {HELPFUL_LINKS.map((l) => (
               <li key={l.href}>
-                <Link href={l.href} className="text-small font-medium text-green hover:underline">
+                <Link href={l.href} className="inline-flex min-h-11 items-center text-small font-medium text-green hover:underline">
                   {l.label}
                 </Link>
               </li>

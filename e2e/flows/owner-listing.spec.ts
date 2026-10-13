@@ -60,7 +60,7 @@ test('owner lists a property, admin approves, visitor enquires, owner receives i
   await admin.close()
 
   // 4. A visitor finds it, reveals the phone and sends an enquiry.
-  const visitor = await browser.newPage()
+  const visitor = await browser.newPage({ extraHTTPHeaders: { 'x-forwarded-for': `10.7.${Math.floor(Math.random() * 250)}.${Math.floor(Math.random() * 250)}` } })
   await visitor.goto(`/property/${row!.slug}`)
   await expect(visitor.getByRole('heading', { level: 1, name: title })).toBeVisible()
   await visitor.getByRole('button', { name: /Show phone number/ }).first().click()

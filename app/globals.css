@@ -28,6 +28,7 @@
   --hl-danger: 194 65 12;
   --hl-error: 180 35 24;
   --hl-info: 37 99 235;
+  --hl-info-dark: 29 78 216;
 }
 
 @layer base {

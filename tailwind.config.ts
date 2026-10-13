@@ -33,7 +33,7 @@ const config: Config = {
         warning: token('warning'),
         danger: token('danger'),
         error: token('error'),
-        info: token('info'),
+        info: { DEFAULT: token('info'), dark: token('info-dark') },
       },
       fontFamily: {
         sans: ['var(--font-sans)', 'var(--font-ethiopic)', 'system-ui', 'sans-serif'],
