@@ -1,6 +1,6 @@
 # HagerLand Relaunch — Progress
 
-Spec: `docs/HAGERLAND_RELAUNCH_SPEC.md` (v1.0, 13 Oct 2026; sha256 `37d6252628bcd738a7e6d229388cfbedd07e5654f94d71f485325248d54480be`)
+Spec: `docs/HAGERLAND_RELAUNCH_SPEC.md` (v1.0, 13 Oct 2026, sha256 `37d62526…`; v1.1 with Sections 24 and 25 appended verbatim from `docs/BRIEF_PHASE_1_5_AND_GO_LIVE.md`, 13 Oct 2026). Vision: `docs/PLATFORM_VISION.md`. Requirements matrix: `docs/REQUIREMENTS_MATRIX.md`
 Branch: `relaunch/construction` · Rollback tag: `pre-construction-relaunch` → `00de73c` on `main`
 
 Status values: todo · in progress · done · blocked
@@ -30,6 +30,32 @@ Status values: todo · in progress · done · blocked
 | WP-18 | Performance & accessibility | done | 2026-10-13 | b45c878 | axe: 0 serious/critical on 26 public pages (mobile + desktop) and 9 admin pages. Lighthouse: docs/qa/lighthouse-2026-10-13.md (simulated 82–97; applied throttling 89–98; LCP 1.7–2.0 s). Home/property/product below 90 in the simulated run only. gold-dark token darkened to 128 92 28 for contrast (brand gold unchanged) |
 | WP-19 | QA, legacy sweep, final checklist [STOP-GATE] | done | 2026-10-13 | cea90ab | 145 e2e passed (journeys, admin, SEO, security, a11y, widths), 85 unit, RLS 28/28, crawl 290 pages 0 broken. Fixed: guest enquiries hidden from owners' inbox; duplicate-business confirm did nothing; tap targets; tooltip overflow. Legacy sweep clean (remaining hits are redirects). Report: docs/LAUNCH_REPORT.md |
 | WP-20 | Cutover [STOP-GATE] | todo | | | |
+
+## Phase 1.5 and Section 25 work packages
+
+Authorised by AB on 13 Oct 2026 (brief: `docs/BRIEF_PHASE_1_5_AND_GO_LIVE.md`), to run autonomously in this order. The Section 25.2 items that are not part of an E package have their own H packages. Migrations 0011+ are tested on the local stack only and handed to AB (they are applied to the live database only in the cutover, after AB types GO LIVE).
+
+| WP | Title | Status | Date | Commit | Notes / deviations |
+|----|-------|--------|------|--------|--------------------|
+| 25.1 | Requirements traceability matrix | done (kept updated) | 2026-10-13 | see git log | `docs/REQUIREMENTS_MATRIX.md`, kept up to date to the end |
+| E1 | Vertical registry, navigation, homepage ecosystem section (+ schema_migrations record) | todo | | | |
+| E2 | International locations and currency (+ 25.2f approximate prices) | todo | | | |
+| E3 | Service request engine: customer, admin, provider (+ 25.2k deals and commission ledger) | todo | | | |
+| E4 | Repairs & maintenance and contractors on the engine | todo | | | |
+| E5 | Diaspora services and HagerLand Property Care | todo | | | |
+| E6 | Estate agency services, save, compare, valuation, finance ask (+ 25.2a saved items/searches/alerts, 25.2b map, 25.2l path SEO pages) | todo | | | |
+| E7 | Finance and insurance (coming soon, partner forms) | todo | | | |
+| E8 | Jobs & recruitment (full, flagged coming soon) and Our Developments coming soon (+ 25.2j progress updates) | todo | | | |
+| H1 | Supplies marketplace: supplier self-serve products, Special Buys, trade accounts (25.2c, d, e) | todo | | | |
+| H2 | Guides hub and build-cost estimator (25.2g, h) | todo | | | |
+| H3 | Organisation team members and branches (25.2i) | todo | | | |
+| H4 | Amharic i18n architecture, /am locale behind an admin switch (25.2m) | todo | | | |
+| H5 | Health endpoints (25.2n) | todo | | | |
+| H6 | Edge cases and cross-cutting hardening (25.4) | todo | | | |
+| E9 | Content, legal, admin additions, SEO, full QA pass | todo | | | |
+| E10 | Next.js 15 upgrade (or clean revert with reasons), npm audit | todo | | | |
+| 25.5 | Go-live readiness: full re-run, preflight script, final report | todo | | | |
+| 25.6 | Cutover (only after AB types GO LIVE) | todo | | | Replaces WP-20 |
 
 ## WP-0 checklist
 

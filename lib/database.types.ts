@@ -478,32 +478,32 @@ export type Database = {
           entity_type: string | null
           error: string | null
           google_place_id: string
-          imported_at: string | null
+          imported_at: string
           listing_id: string | null
           listing_name: string | null
           section: string
-          status: string | null
+          status: string
         }
         ComputedFields: never
         Insert: {
           entity_type?: string | null
           error?: string | null
           google_place_id: string
-          imported_at?: string | null
+          imported_at?: string
           listing_id?: string | null
           listing_name?: string | null
           section: string
-          status?: string | null
+          status?: string
         }
         Update: {
           entity_type?: string | null
           error?: string | null
           google_place_id?: string
-          imported_at?: string | null
+          imported_at?: string
           listing_id?: string | null
           listing_name?: string | null
           section?: string
-          status?: string | null
+          status?: string
         }
         Relationships: []
       }
@@ -2447,16 +2447,10 @@ export type Database = {
       is_active_user: { Args: Record<PropertyKey, never>; Returns: boolean }
       is_end_user: { Args: Record<PropertyKey, never>; Returns: boolean }
       is_org_member: { Args: { org: string; roles?: Database['public']['Enums']['org_role'][] }; Returns: boolean }
-      location_summary: {
-        Args: { p_location_id: string; p_purpose: Database['public']['Enums']['listing_purpose'] }
-        Returns: Json
-      }
+      location_summary: { Args: { p_location_id: string; p_purpose: Database['public']['Enums']['listing_purpose'] }; Returns: Json }
       locations_descendants: { Args: { root: string }; Returns: string[] }
       next_reference: { Args: { p_prefix: string }; Returns: string }
-      popular_locations: {
-        Args: { p_limit?: number; p_purpose?: Database['public']['Enums']['listing_purpose'] }
-        Returns: Json
-      }
+      popular_locations: { Args: { p_limit?: number; p_purpose?: Database['public']['Enums']['listing_purpose'] }; Returns: Json }
       property_type_words: { Args: { t: Database['public']['Enums']['property_type'] }; Returns: string }
       property_unavailable: {
         Args: { p_short_id: string }
@@ -2569,18 +2563,9 @@ export type Database = {
       finishing_status: 'shell' | 'semi_finished' | 'fully_finished' | 'not_applicable'
       furnishing: 'unfurnished' | 'semi_furnished' | 'furnished'
       listing_purpose: 'sale' | 'rent'
-      listing_status:
-        'draft' | 'pending_review' | 'published' | 'paused' | 'expired' | 'rejected' | 'archived' | 'removed'
+      listing_status: 'draft' | 'pending_review' | 'published' | 'paused' | 'expired' | 'rejected' | 'archived' | 'removed'
       location_level: 'region' | 'city' | 'sub_city' | 'area'
-      org_kind:
-        | 'agency'
-        | 'developer'
-        | 'supplier'
-        | 'manufacturer'
-        | 'contractor'
-        | 'professional_firm'
-        | 'sole_trader'
-        | 'hagerland'
+      org_kind: 'agency' | 'developer' | 'supplier' | 'manufacturer' | 'contractor' | 'professional_firm' | 'sole_trader' | 'hagerland'
       org_role: 'owner' | 'admin' | 'member'
       price_type: 'fixed' | 'from' | 'on_request'
       property_type:
@@ -2695,8 +2680,7 @@ export type Enums<
     : never
 
 export type CompositeTypes<
-  PublicCompositeTypeNameOrOptions extends
-    keyof DefaultSchema['CompositeTypes'] | { schema: keyof DatabaseWithoutInternals },
+  PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes'] | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
@@ -2720,16 +2704,7 @@ export const Constants = {
       listing_purpose: ['sale', 'rent'],
       listing_status: ['draft', 'pending_review', 'published', 'paused', 'expired', 'rejected', 'archived', 'removed'],
       location_level: ['region', 'city', 'sub_city', 'area'],
-      org_kind: [
-        'agency',
-        'developer',
-        'supplier',
-        'manufacturer',
-        'contractor',
-        'professional_firm',
-        'sole_trader',
-        'hagerland',
-      ],
+      org_kind: ['agency', 'developer', 'supplier', 'manufacturer', 'contractor', 'professional_firm', 'sole_trader', 'hagerland'],
       org_role: ['owner', 'admin', 'member'],
       price_type: ['fixed', 'from', 'on_request'],
       property_type: [
