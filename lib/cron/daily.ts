@@ -2,7 +2,9 @@ import 'server-only'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { PRIVATE_BUCKET } from '@/lib/media'
 import { sendEmail } from '@/lib/email/send'
-import { adminDigestEmail, listingExpiredEmail, listingExpiringEmail } from '@/lib/email/templates'
+import { adminDigestEmail, listingExpiredEmail, listingExpiringEmail, providerReminderEmail } from '@/lib/email/templates'
+import { orgManagerEmails } from '@/lib/enquiries'
+import { MATCH_REMINDER_HOURS } from '@/lib/service-requests/labels'
 import { firstName, ownerEmails } from '@/lib/admin/notify'
 import { purgeExpiredRateLimits } from '@/lib/rate-limit'
 import { revalidateEntity } from '@/lib/revalidate'
@@ -22,6 +24,7 @@ export interface DailySummary {
   verificationDocsPurged: number
   revealsPurged: number
   rateLimitsPurged: boolean
+  matchReminders: number
   digestSent: boolean
 }
 
@@ -56,6 +59,32 @@ async function remindExpiring(now: number): Promise<number> {
     // Marked even without an address, so nobody is reminded twice.
     await db.from('properties').update({ expiry_reminder_sent_at: iso(now) }).eq('id', p.id)
     sent++
+  }
+  return sent
+}
+
+/** Providers who have not answered a matched request within 48 hours get one reminder (spec 25.4). */
+async function remindUnansweredMatches(now: number): Promise<number> {
+  const db = getAdminSupabase()
+  const { data } = await db
+    .from('service_request_matches')
+    .select('id, org_id, request_id')
+    .eq('status', 'offered')
+    .is('reminder_sent_at', null)
+    .lt('offered_at', iso(now - MATCH_REMINDER_HOURS * 3_600_000))
+    .limit(BATCH)
+  let sent = 0
+  for (const m of data ?? []) {
+    const [{ data: r }, { data: org }] = await Promise.all([
+      db.from('service_requests').select('reference, title, status').eq('id', m.request_id).maybeSingle(),
+      db.from('organisations').select('name').eq('id', m.org_id).maybeSingle(),
+    ])
+    if (r && !['won', 'lost', 'cancelled'].includes(r.status)) {
+      const to = await orgManagerEmails(m.org_id)
+      if (to.length && (await sendEmail({ to, ...providerReminderEmail({ orgName: org?.name ?? 'your business', reference: r.reference, title: r.title, url: canonicalUrl(`/account/requests/${m.id}`) }) }))) sent++
+    }
+    // Marked even when nothing was sent, so no provider is reminded twice.
+    await db.from('service_request_matches').update({ reminder_sent_at: iso(now) }).eq('id', m.id)
   }
   return sent
 }
@@ -95,7 +124,7 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
   const db = getAdminSupabase()
   const head = { count: 'exact' as const, head: true }
   const since = iso(now - DAY)
-  const [pProps, pDevs, pOrgs, pPortfolio, claims, verifs, reports, enq, enqUnanswered, quotes, quotesOpen, signups, expiring, errors, interest, partners] = await Promise.all([
+  const [pProps, pDevs, pOrgs, pPortfolio, claims, verifs, reports, enq, enqUnanswered, quotes, quotesOpen, signups, expiring, errors, interest, partners, srNew, srEmergency, srToMatch, srUnanswered, srAllDeclined] = await Promise.all([
     db.from('properties').select('id', head).eq('status', 'pending_review'),
     db.from('developments').select('id', head).eq('status', 'pending_review'),
     db.from('organisations').select('id', head).eq('status', 'pending_review'),
@@ -112,6 +141,11 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
     db.from('errors').select('route, message, count').gte('last_seen_at', since).order('count', { ascending: false }).limit(5),
     db.from('interest_registrations').select('id', head).gte('created_at', since),
     db.from('partner_applications').select('id', head).eq('status', 'new'),
+    db.from('service_requests').select('id', head).gte('created_at', since),
+    db.from('service_requests').select('id', head).eq('urgency', 'emergency').in('status', ['submitted', 'triaged', 'matched']),
+    db.from('service_requests').select('id', head).in('status', ['submitted', 'triaged']),
+    db.from('service_request_matches').select('id', head).eq('status', 'offered').lt('offered_at', iso(now - MATCH_REMINDER_HOURS * 3_600_000)),
+    db.from('service_requests').select('id', head).eq('status', 'triaged').not('admin_alerted_at', 'is', null),
   ])
   const n = (r: { count: number | null }) => r.count ?? 0
   const lines: [string, string][] = []
@@ -128,6 +162,11 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
   add('New quote requests (24 h)', n(quotes))
   add('Quotes waiting for a price', n(quotesOpen))
   add('New sign-ups (24 h)', n(signups))
+  add('EMERGENCY service requests still open', n(srEmergency))
+  add('New service requests (24 h)', n(srNew))
+  add('Service requests waiting to be matched', n(srToMatch))
+  add('Requests every provider declined', n(srAllDeclined))
+  add('Provider answers overdue (48 h)', n(srUnanswered))
   add('New interest registrations (24 h)', n(interest))
   add('Partner applications to review', n(partners))
   add('Listings expiring within 7 days', n(expiring))
@@ -150,12 +189,13 @@ export async function runDaily(now = Date.now()): Promise<DailySummary> {
   const { expired, emailed } = await step('expire listings', () => expireListings(now), { expired: 0, emailed: 0 })
   const reminded = await step('reminders', () => remindExpiring(now), 0)
   const quotesExpired = await step('expire quotes', () => expireQuotes(now), 0)
+  const matchReminders = await step('match reminders', () => remindUnansweredMatches(now), 0)
   await step('featured', async () => void (await getAdminSupabase().rpc('refresh_all_featured')), undefined)
   const verificationDocsPurged = await step('verification purge', () => purgeVerificationDocs(now), 0)
   const revealsPurged = await step('reveals purge', () => purgeReveals(now), 0)
   // rate_limits is a pre-existing (legacy) table: expired counters are only deleted when AB switches this on.
   const rateLimitsPurged = process.env.CRON_PURGE_RATE_LIMITS === 'true' ? await step('rate limit purge', async () => (await purgeExpiredRateLimits(7), true), false) : false
-  const summary = { expired, expiredEmailed: emailed, reminded, quotesExpired, verificationDocsPurged, revealsPurged, rateLimitsPurged }
+  const summary = { expired, expiredEmailed: emailed, reminded, quotesExpired, verificationDocsPurged, revealsPurged, rateLimitsPurged, matchReminders }
   let digestSent = false
   const to = process.env.ADMIN_DIGEST_EMAIL
   if (to) {

@@ -46,3 +46,56 @@ export function sumBy<T>(rows: T[], key: (r: T) => string, value: (r: T) => numb
   }
   return Array.from(m, ([k, v]) => ({ key: k, ...v })).sort((a, b) => a.key.localeCompare(b.key))
 }
+
+/** The last `months` calendar months (UTC) as YYYY-MM, oldest first. */
+export function lastMonths(months: number, now: Date = new Date()): string[] {
+  const out: string[] = []
+  for (let i = months - 1; i >= 0; i--) {
+    const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1))
+    out.push(d.toISOString().slice(0, 7))
+  }
+  return out
+}
+
+export interface MonthlyRow {
+  month: string
+  requests: number
+  enquiries: number
+  quoteRequests: number
+  dealsWon: number
+  /** Per currency: deal value, commission and lead fees (in minor units). */
+  money: Record<string, { value: number; commission: number; leadFees: number }>
+}
+
+/** Monthly lead and revenue report (spec 25.2k). Inputs are created/closed timestamps and deal amounts. */
+export function monthlyReport(
+  months: string[],
+  input: {
+    requests: string[]
+    enquiries: string[]
+    quoteRequests: string[]
+    deals: { closed_at: string | null; created_at: string; status: string; currency: string; value_minor: number | null; commission_minor: number | null; lead_fee_minor: number | null }[]
+  },
+): MonthlyRow[] {
+  const rows = new Map<string, MonthlyRow>(months.map((m) => [m, { month: m, requests: 0, enquiries: 0, quoteRequests: 0, dealsWon: 0, money: {} }]))
+  const bump = (list: string[], field: 'requests' | 'enquiries' | 'quoteRequests') => {
+    for (const d of list) {
+      const r = rows.get(d.slice(0, 7))
+      if (r) r[field]++
+    }
+  }
+  bump(input.requests, 'requests')
+  bump(input.enquiries, 'enquiries')
+  bump(input.quoteRequests, 'quoteRequests')
+  for (const d of input.deals) {
+    if (!['won', 'invoiced', 'paid'].includes(d.status)) continue
+    const r = rows.get((d.closed_at ?? d.created_at).slice(0, 7))
+    if (!r) continue
+    r.dealsWon++
+    const m = (r.money[d.currency] ??= { value: 0, commission: 0, leadFees: 0 })
+    m.value += d.value_minor ?? 0
+    m.commission += d.commission_minor ?? 0
+    m.leadFees += d.lead_fee_minor ?? 0
+  }
+  return months.map((m) => rows.get(m) as MonthlyRow)
+}

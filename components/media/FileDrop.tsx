@@ -4,10 +4,11 @@ import { useRef, useState } from 'react'
 import { CircleAlert, CircleCheck, LoaderCircle, Upload } from 'lucide-react'
 import { processMediaUploadAction, processPrivateUploadAction, type MediaItem } from '@/lib/media-actions'
 import { cn } from '@/lib/cn'
+import type { PrivateArea } from '@/lib/media'
 
 export type UploadTarget =
   | { purpose: 'media'; entity_type: 'property' | 'development' | 'organisation' | 'portfolio' | 'product'; entity_id: string; kind: 'image' | 'floorplan' | 'logo' | 'cover' }
-  | { purpose: 'private'; area: 'verification' | 'claim' | 'materials' | 'quote' | 'brochure'; id: string }
+  | { purpose: 'private'; area: PrivateArea; id: string }
 
 export interface UploadedDoc {
   path: string

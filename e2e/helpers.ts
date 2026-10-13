@@ -202,3 +202,72 @@ export async function adminSwitchVertical(page: Page, name: string, label: 'Live
   await page.getByRole('group', { name: `Status of ${name}` }).getByRole('button', { name: label }).click()
   await expect(page.getByText(new RegExp(`${name} is now ${label}`))).toBeVisible()
 }
+
+/** A confirmed user created directly (local stack only), with an optional published business they own. */
+export async function createUser(opts: { name?: string } = {}): Promise<{ id: string; email: string; password: string }> {
+  const d = db()
+  const email = uniqueEmail('user')
+  const password = 'correct-horse-battery'
+  const { data, error } = await d.auth.admin.createUser({ email, password, email_confirm: true, user_metadata: { full_name: opts.name ?? 'Test User' } })
+  if (error || !data.user) throw new Error(`createUser failed: ${error?.message}`)
+  return { id: data.user.id, email, password }
+}
+
+export async function createProvider(opts: { name: string; serviceSlug: string; locationPath: string; verified?: boolean }): Promise<{ orgId: string; orgSlug: string; user: { id: string; email: string; password: string } }> {
+  const d = db()
+  const user = await createUser({ name: 'Provider Owner' })
+  const [{ data: loc }, { data: svc }] = await Promise.all([
+    d.from('locations').select('id').eq('path', opts.locationPath).single(),
+    d.from('service_categories').select('id').eq('slug', opts.serviceSlug).single(),
+  ])
+  const slug = `e2e-${opts.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now()}`
+  const { data: org, error } = await d
+    .from('organisations')
+    .insert({ kind: 'sole_trader', name: opts.name, slug, location_id: loc!.id, phone: '+251911000111', source: 'admin', status: 'published', verification_level: opts.verified ? 'verified' : 'listed' })
+    .select('id, slug')
+    .single()
+  if (error || !org) throw new Error(`provider org failed: ${error?.message}`)
+  await d.from('organisation_members').insert({ org_id: org.id, user_id: user.id, role: 'owner' })
+  await d.from('organisation_services').insert({ org_id: org.id, service_id: svc!.id })
+  return { orgId: org.id, orgSlug: org.slug, user }
+}
+
+/** Signs in with email and password through the real form. */
+export async function signIn(page: Page, email: string, password: string): Promise<void> {
+  // Each sign-in looks like a new visitor, so the per-visitor sign-in limit never blocks the suite.
+  await asFreshVisitor(page)
+  await page.goto('/login')
+  await page.fill('#login-email', email)
+  await page.fill('#login-password', password)
+  await page.getByRole('button', { name: 'Sign in', exact: true }).click()
+  await page.waitForURL((u) => u.pathname.startsWith('/account') || u.pathname.startsWith('/onboarding'))
+}
+
+/** All emails sent to an address, newest first (local mail catcher). */
+export async function allMail(to: string): Promise<{ subject: string; html: string; text: string }[]> {
+  const list = (await (await fetch(`http://localhost:8025/api/v1/search?query=${encodeURIComponent(`to:"${to}"`)}`)).json()) as { messages: { ID: string }[] }
+  return Promise.all(
+    list.messages.map(async (m) => {
+      const full = (await (await fetch(`http://localhost:8025/api/v1/message/${m.ID}`)).json()) as { HTML: string; Text: string; Subject: string }
+      return { subject: full.Subject, html: full.HTML, text: full.Text }
+    }),
+  )
+}
+
+/** Waits for an email to `to` whose subject contains `subjectPart`. */
+export async function mailWithSubject(to: string, subjectPart: string): Promise<{ subject: string; html: string; text: string }> {
+  for (let i = 0; i < 40; i++) {
+    const found = (await allMail(to)).find((m) => m.subject.includes(subjectPart))
+    if (found) return found
+    await new Promise((r) => setTimeout(r, 500))
+  }
+  throw new Error(`No email to ${to} with subject containing "${subjectPart}"`)
+}
+
+/** The first link in an email that matches a pattern. */
+export function linkMatching(html: string, pattern: RegExp): string {
+  const links = Array.from(html.matchAll(/href="([^"]+)"/g)).map((m) => m[1].replace(/&amp;/g, '&'))
+  const found = links.find((l) => pattern.test(l))
+  if (!found) throw new Error(`No link matching ${pattern}`)
+  return found
+}

@@ -5,6 +5,7 @@ import { countMedia, createIncomingUpload, isAllowedUpload, mediaLimit } from '@
 import { rateLimit } from '@/lib/rate-limit'
 import { getClientIp, hashIp } from '@/lib/security'
 import { log } from '@/lib/log'
+import { PRIVATE_AREAS } from '@/lib/media'
 
 const bodySchema = z.discriminatedUnion('purpose', [
   z.object({
@@ -17,7 +18,7 @@ const bodySchema = z.discriminatedUnion('purpose', [
   }),
   z.object({
     purpose: z.literal('private'),
-    area: z.enum(['verification', 'claim', 'materials', 'quote', 'brochure']),
+    area: z.enum(PRIVATE_AREAS),
     id: z.uuid(),
     content_type: z.string().max(120),
     size: z.number().int().positive(),

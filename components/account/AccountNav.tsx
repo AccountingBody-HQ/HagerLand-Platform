@@ -2,13 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Building2, ClipboardList, FolderKanban, House, Inbox, LayoutDashboard, Settings, Store, type LucideIcon } from 'lucide-react'
+import { Building2, ClipboardList, FolderKanban, Handshake, House, Inbox, LayoutDashboard, Settings, Store, Wrench, type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/cn'
 
 export interface AccountNavItem {
   href: string
   label: string
-  icon: 'overview' | 'listings' | 'developments' | 'company' | 'portfolio' | 'enquiries' | 'quotes' | 'settings' | 'products'
+  icon: 'overview' | 'listings' | 'developments' | 'company' | 'portfolio' | 'enquiries' | 'quotes' | 'settings' | 'products' | 'requests' | 'leads'
   badge?: number
 }
 
@@ -22,6 +22,8 @@ const ICONS: Record<AccountNavItem['icon'], LucideIcon> = {
   quotes: ClipboardList,
   settings: Settings,
   products: Store,
+  requests: Wrench,
+  leads: Handshake,
 }
 
 function isActive(pathname: string, href: string): boolean {

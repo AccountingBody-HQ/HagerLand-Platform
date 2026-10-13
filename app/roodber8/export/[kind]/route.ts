@@ -4,6 +4,7 @@ import { audit } from '@/lib/admin/guard'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { toCsv } from '@/lib/admin/csv'
 import { enquiriesPerOrg, listingReport, periodFrom, quoteReport, signupSeries } from '@/lib/admin/reports'
+import { lastMonths, monthlyReport } from '@/lib/admin/aggregate'
 
 export const dynamic = 'force-dynamic'
 
@@ -65,6 +66,43 @@ export async function GET(request: NextRequest, { params }: { params: { kind: st
     case 'partners': {
       const { data } = await db.from('partner_applications').select('reference, created_at, vertical_key, partner_type, organisation_name, contact_name, email, phone, country_code, website, licence_details, message, status').order('created_at', { ascending: false }).limit(20000)
       rows = data ?? []
+      break
+    }
+    case 'service-requests': {
+      let q = db.from('service_requests').select('reference, created_at, status, closed_reason, urgency, vertical_key, title, budget_band, country_code, currency, name, phone, email, source_url').order('created_at', { ascending: false }).limit(50000)
+      const st = sp.get('status')
+      if (st === 'open') q = q.in('status', ['submitted', 'triaged', 'matched', 'quoted'])
+      else if (st) q = q.eq('status', st)
+      if (sp.get('vertical')) q = q.eq('vertical_key', sp.get('vertical') ?? '')
+      if (sp.get('urgency')) q = q.eq('urgency', sp.get('urgency') ?? '')
+      const { data } = await q
+      rows = data ?? []
+      break
+    }
+    case 'deals': {
+      const { data } = await db.from('deals').select('reference, created_at, closed_at, source_type, title, status, currency, value_minor, commission_minor, lead_fee_minor, notes').order('created_at', { ascending: false }).limit(50000)
+      const major = (n: number | null) => (n === null ? '' : (n / 100).toFixed(2))
+      rows = (data ?? []).map((d) => ({ ...d, value: major(d.value_minor), commission: major(d.commission_minor), lead_fee: major(d.lead_fee_minor) }))
+      columns = ['reference', 'created_at', 'closed_at', 'source_type', 'title', 'status', 'currency', 'value', 'commission', 'lead_fee', 'notes']
+      break
+    }
+    case 'report-revenue': {
+      const months = lastMonths(12)
+      const since = `${months[0]}-01T00:00:00Z`
+      const [{ data: deals }, { data: reqs }, { data: enqs }, { data: quotes }] = await Promise.all([
+        db.from('deals').select('closed_at, created_at, status, currency, value_minor, commission_minor, lead_fee_minor').limit(50000),
+        db.from('service_requests').select('created_at').gte('created_at', since).limit(50000),
+        db.from('enquiries').select('created_at').gte('created_at', since).limit(50000),
+        db.from('quote_requests').select('created_at').gte('created_at', since).limit(50000),
+      ])
+      const report = monthlyReport(months, { requests: (reqs ?? []).map((r) => r.created_at), enquiries: (enqs ?? []).map((r) => r.created_at), quoteRequests: (quotes ?? []).map((r) => r.created_at), deals: deals ?? [] })
+      rows = report.flatMap((r) => {
+        const base = { month: r.month, service_requests: r.requests, enquiries: r.enquiries, supply_quotes: r.quoteRequests, deals_won: r.dealsWon }
+        const money = Object.entries(r.money)
+        return money.length
+          ? money.map(([currency, m]) => ({ ...base, currency, deal_value: (m.value / 100).toFixed(2), commission: (m.commission / 100).toFixed(2), lead_fees: (m.leadFees / 100).toFixed(2) }))
+          : [{ ...base, currency: '', deal_value: '', commission: '', lead_fees: '' }]
+      })
       break
     }
     case 'audit': {

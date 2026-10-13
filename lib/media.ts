@@ -3,6 +3,11 @@
 export type MediaEntity = 'property' | 'development' | 'organisation' | 'portfolio' | 'product'
 export type MediaKind = 'image' | 'floorplan' | 'document' | 'logo' | 'cover'
 
+/** Private upload areas: verification and claim evidence, materials lists, admin quotes, brochures,
+ * service-request attachments ("request") and provider quote documents ("match"). */
+export const PRIVATE_AREAS = ['verification', 'claim', 'materials', 'quote', 'brochure', 'request', 'match'] as const
+export type PrivateArea = (typeof PRIVATE_AREAS)[number]
+
 export const PUBLIC_BUCKET = 'public-media'
 export const PRIVATE_BUCKET = 'private-docs'
 

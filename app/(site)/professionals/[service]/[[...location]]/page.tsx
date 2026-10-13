@@ -9,6 +9,7 @@ import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { ChipLink } from '@/components/ui/Chip'
 import { DirectoryFiltersForm } from '@/components/company/DirectoryFilters'
 import { OrgResults } from '@/components/company/OrgResults'
+import { RequestCta } from '@/components/service-requests/RequestCta'
 
 export const revalidate = 300
 const PAGE_SIZE = 24
@@ -104,6 +105,9 @@ export default async function ServicePage({ params, searchParams }: { params: { 
           ))}
         </nav>
       )}
+      <div className="mt-6">
+        <RequestCta serviceSlug={ctx.service.slug} serviceName={ctx.service.name} abroad={Boolean(ctx.location && ctx.location.country_code !== 'ET')} />
+      </div>
       <div className="mt-8 lg:grid lg:grid-cols-[280px_1fr] lg:gap-8">
         <aside className="mb-6 lg:mb-0" aria-label="Filters">
           <DirectoryFiltersForm

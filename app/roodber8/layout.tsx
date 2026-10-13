@@ -13,12 +13,13 @@ export const metadata = { title: { default: 'Admin', template: '%s · HagerLand 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   requireAdminPage()
   const db = getAdminSupabase()
-  const [queue, quotes, interest] = await Promise.all([
+  const [queue, quotes, interest, requests] = await Promise.all([
     queueCounts(),
     db.from('quote_requests').select('id', { count: 'exact', head: true }).eq('status', 'submitted'),
     db.from('interest_registrations').select('id', { count: 'exact', head: true }).eq('status', 'new'),
+    db.from('service_requests').select('id', { count: 'exact', head: true }).in('status', ['submitted', 'triaged']),
   ])
-  const badges = { review: totalQueue(queue), quotes: quotes.count ?? 0, interest: interest.count ?? 0 }
+  const badges = { review: totalQueue(queue), quotes: quotes.count ?? 0, interest: interest.count ?? 0, requests: requests.count ?? 0 }
   return (
     <div className="flex min-h-dvh flex-col bg-stone-100">
       <header className="sticky top-0 z-40 flex h-14 items-center gap-3 border-b border-white/10 bg-ink px-3 text-white">

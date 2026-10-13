@@ -199,6 +199,93 @@ export type Database = {
         }
         Relationships: []
       }
+      deals: {
+        Row: {
+          closed_at: string | null
+          commission_minor: number | null
+          created_at: string
+          currency: string
+          id: string
+          lead_fee_minor: number | null
+          match_id: string | null
+          notes: string | null
+          org_id: string | null
+          reference: string
+          source_id: string | null
+          source_type: string
+          status: string
+          title: string
+          updated_at: string
+          value_minor: number | null
+        }
+        ComputedFields: never
+        Insert: {
+          closed_at?: string | null
+          commission_minor?: number | null
+          created_at?: string
+          currency?: string
+          id?: string
+          lead_fee_minor?: number | null
+          match_id?: string | null
+          notes?: string | null
+          org_id?: string | null
+          reference?: string
+          source_id?: string | null
+          source_type: string
+          status?: string
+          title: string
+          updated_at?: string
+          value_minor?: number | null
+        }
+        Update: {
+          closed_at?: string | null
+          commission_minor?: number | null
+          created_at?: string
+          currency?: string
+          id?: string
+          lead_fee_minor?: number | null
+          match_id?: string | null
+          notes?: string | null
+          org_id?: string | null
+          reference?: string
+          source_id?: string | null
+          source_type?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          value_minor?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'deals_match_id_fkey'
+            columns: ['match_id']
+            isOneToOne: false
+            referencedRelation: 'service_request_matches'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'deals_match_id_fkey'
+            columns: ['match_id']
+            isOneToOne: false
+            referencedRelation: 'service_requests_for_provider'
+            referencedColumns: ['match_id']
+          },
+          {
+            foreignKeyName: 'deals_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'deals_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       developments: {
         Row: {
           address_line: string | null
@@ -2019,6 +2106,7 @@ export type Database = {
       }
       service_categories: {
         Row: {
+          allows_emergency: boolean
           created_at: string
           description: string | null
           icon: string | null
@@ -2026,14 +2114,17 @@ export type Database = {
           is_active: boolean
           name: string
           parent_id: string | null
+          question_schema: NonNullable<Json>
           seo_intro: string | null
           seo_title: string | null
           slug: string
           sort: number
           updated_at: string
+          vertical_key: string | null
         }
         ComputedFields: never
         Insert: {
+          allows_emergency?: boolean
           created_at?: string
           description?: string | null
           icon?: string | null
@@ -2041,13 +2132,16 @@ export type Database = {
           is_active?: boolean
           name: string
           parent_id?: string | null
+          question_schema?: NonNullable<Json>
           seo_intro?: string | null
           seo_title?: string | null
           slug: string
           sort?: number
           updated_at?: string
+          vertical_key?: string | null
         }
         Update: {
+          allows_emergency?: boolean
           created_at?: string
           description?: string | null
           icon?: string | null
@@ -2055,11 +2149,13 @@ export type Database = {
           is_active?: boolean
           name?: string
           parent_id?: string | null
+          question_schema?: NonNullable<Json>
           seo_intro?: string | null
           seo_title?: string | null
           slug?: string
           sort?: number
           updated_at?: string
+          vertical_key?: string | null
         }
         Relationships: [
           {
@@ -2075,6 +2171,270 @@ export type Database = {
             isOneToOne: false
             referencedRelation: 'service_categories'
             referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'service_categories_vertical_key_fkey'
+            columns: ['vertical_key']
+            isOneToOne: false
+            referencedRelation: 'verticals'
+            referencedColumns: ['key']
+          },
+          {
+            foreignKeyName: 'service_categories_vertical_key_fkey'
+            columns: ['vertical_key']
+            isOneToOne: false
+            referencedRelation: 'verticals_public'
+            referencedColumns: ['key']
+          },
+        ]
+      }
+      service_request_matches: {
+        Row: {
+          commission_minor: number | null
+          commission_rate: number | null
+          created_at: string
+          declined_reason: string | null
+          id: string
+          invoiced: boolean
+          invoiced_at: string | null
+          lead_fee_minor: number | null
+          offered_at: string
+          org_id: string
+          quote_amount_minor: number | null
+          quote_currency: string | null
+          quote_document_path: string | null
+          quote_message: string | null
+          quote_valid_until: string | null
+          quoted_at: string | null
+          reminder_sent_at: string | null
+          request_id: string
+          responded_at: string | null
+          status: string
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          commission_minor?: number | null
+          commission_rate?: number | null
+          created_at?: string
+          declined_reason?: string | null
+          id?: string
+          invoiced?: boolean
+          invoiced_at?: string | null
+          lead_fee_minor?: number | null
+          offered_at?: string
+          org_id: string
+          quote_amount_minor?: number | null
+          quote_currency?: string | null
+          quote_document_path?: string | null
+          quote_message?: string | null
+          quote_valid_until?: string | null
+          quoted_at?: string | null
+          reminder_sent_at?: string | null
+          request_id: string
+          responded_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          commission_minor?: number | null
+          commission_rate?: number | null
+          created_at?: string
+          declined_reason?: string | null
+          id?: string
+          invoiced?: boolean
+          invoiced_at?: string | null
+          lead_fee_minor?: number | null
+          offered_at?: string
+          org_id?: string
+          quote_amount_minor?: number | null
+          quote_currency?: string | null
+          quote_document_path?: string | null
+          quote_message?: string | null
+          quote_valid_until?: string | null
+          quoted_at?: string | null
+          reminder_sent_at?: string | null
+          request_id?: string
+          responded_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'service_request_matches_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'service_request_matches_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'service_request_matches_request_id_fkey'
+            columns: ['request_id']
+            isOneToOne: false
+            referencedRelation: 'service_requests'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'service_request_matches_request_id_fkey'
+            columns: ['request_id']
+            isOneToOne: false
+            referencedRelation: 'service_requests_for_provider'
+            referencedColumns: ['request_id']
+          },
+        ]
+      }
+      service_requests: {
+        Row: {
+          access_token_expires_at: string | null
+          access_token_hash: string | null
+          admin_alerted_at: string | null
+          admin_notes: string | null
+          answers: NonNullable<Json>
+          attachment_paths: string[]
+          budget_band: string | null
+          closed_at: string | null
+          closed_reason: string | null
+          country_code: string
+          created_at: string
+          currency: string
+          details: string
+          email: string | null
+          id: string
+          ip_hash: string | null
+          location_id: string | null
+          location_text: string | null
+          matched_at: string | null
+          name: string
+          phone: string
+          preferred_contact: string | null
+          reference: string
+          requester_user_id: string | null
+          service_category_id: string | null
+          source: string
+          source_url: string | null
+          status: string
+          title: string
+          triaged_at: string | null
+          updated_at: string
+          urgency: string
+          utm: Json | null
+          vertical_key: string
+        }
+        ComputedFields: never
+        Insert: {
+          access_token_expires_at?: string | null
+          access_token_hash?: string | null
+          admin_alerted_at?: string | null
+          admin_notes?: string | null
+          answers?: NonNullable<Json>
+          attachment_paths?: string[]
+          budget_band?: string | null
+          closed_at?: string | null
+          closed_reason?: string | null
+          country_code?: string
+          created_at?: string
+          currency?: string
+          details?: string
+          email?: string | null
+          id?: string
+          ip_hash?: string | null
+          location_id?: string | null
+          location_text?: string | null
+          matched_at?: string | null
+          name: string
+          phone: string
+          preferred_contact?: string | null
+          reference?: string
+          requester_user_id?: string | null
+          service_category_id?: string | null
+          source?: string
+          source_url?: string | null
+          status?: string
+          title: string
+          triaged_at?: string | null
+          updated_at?: string
+          urgency?: string
+          utm?: Json | null
+          vertical_key: string
+        }
+        Update: {
+          access_token_expires_at?: string | null
+          access_token_hash?: string | null
+          admin_alerted_at?: string | null
+          admin_notes?: string | null
+          answers?: NonNullable<Json>
+          attachment_paths?: string[]
+          budget_band?: string | null
+          closed_at?: string | null
+          closed_reason?: string | null
+          country_code?: string
+          created_at?: string
+          currency?: string
+          details?: string
+          email?: string | null
+          id?: string
+          ip_hash?: string | null
+          location_id?: string | null
+          location_text?: string | null
+          matched_at?: string | null
+          name?: string
+          phone?: string
+          preferred_contact?: string | null
+          reference?: string
+          requester_user_id?: string | null
+          service_category_id?: string | null
+          source?: string
+          source_url?: string | null
+          status?: string
+          title?: string
+          triaged_at?: string | null
+          updated_at?: string
+          urgency?: string
+          utm?: Json | null
+          vertical_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'service_requests_location_id_fkey'
+            columns: ['location_id']
+            isOneToOne: false
+            referencedRelation: 'locations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'service_requests_service_category_id_fkey'
+            columns: ['service_category_id']
+            isOneToOne: false
+            referencedRelation: 'organisation_services_public'
+            referencedColumns: ['service_id']
+          },
+          {
+            foreignKeyName: 'service_requests_service_category_id_fkey'
+            columns: ['service_category_id']
+            isOneToOne: false
+            referencedRelation: 'service_categories'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'service_requests_vertical_key_fkey'
+            columns: ['vertical_key']
+            isOneToOne: false
+            referencedRelation: 'verticals'
+            referencedColumns: ['key']
+          },
+          {
+            foreignKeyName: 'service_requests_vertical_key_fkey'
+            columns: ['vertical_key']
+            isOneToOne: false
+            referencedRelation: 'verticals_public'
+            referencedColumns: ['key']
           },
         ]
       }
@@ -2710,6 +3070,94 @@ export type Database = {
             isOneToOne: false
             referencedRelation: 'locations'
             referencedColumns: ['id']
+          },
+        ]
+      }
+      service_requests_for_provider: {
+        Row: {
+          answers: Json | null
+          attachment_count: number | null
+          budget_band: string | null
+          country_code: string | null
+          created_at: string | null
+          currency: string | null
+          details: string | null
+          location_display: string | null
+          location_id: string | null
+          location_text: string | null
+          match_id: string | null
+          match_status: string | null
+          offered_at: string | null
+          org_id: string | null
+          preferred_contact: string | null
+          quote_amount_minor: number | null
+          quote_currency: string | null
+          quote_message: string | null
+          quote_valid_until: string | null
+          quoted_at: string | null
+          reference: string | null
+          request_id: string | null
+          request_status: string | null
+          requester_email: string | null
+          requester_name: string | null
+          requester_phone: string | null
+          responded_at: string | null
+          service_category_id: string | null
+          service_name: string | null
+          title: string | null
+          urgency: string | null
+          vertical_key: string | null
+        }
+        ComputedFields: never
+        Relationships: [
+          {
+            foreignKeyName: 'service_request_matches_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'service_request_matches_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'service_requests_location_id_fkey'
+            columns: ['location_id']
+            isOneToOne: false
+            referencedRelation: 'locations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'service_requests_service_category_id_fkey'
+            columns: ['service_category_id']
+            isOneToOne: false
+            referencedRelation: 'organisation_services_public'
+            referencedColumns: ['service_id']
+          },
+          {
+            foreignKeyName: 'service_requests_service_category_id_fkey'
+            columns: ['service_category_id']
+            isOneToOne: false
+            referencedRelation: 'service_categories'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'service_requests_vertical_key_fkey'
+            columns: ['vertical_key']
+            isOneToOne: false
+            referencedRelation: 'verticals'
+            referencedColumns: ['key']
+          },
+          {
+            foreignKeyName: 'service_requests_vertical_key_fkey'
+            columns: ['vertical_key']
+            isOneToOne: false
+            referencedRelation: 'verticals_public'
+            referencedColumns: ['key']
           },
         ]
       }

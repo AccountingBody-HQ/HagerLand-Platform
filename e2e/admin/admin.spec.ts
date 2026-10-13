@@ -34,6 +34,10 @@ const PAGES: [string, string][] = [
   ['/roodber8/interest', 'Interest registrations'],
   ['/roodber8/partners', 'Partner applications'],
   ['/roodber8/exchange-rates', 'Exchange rates'],
+  ['/roodber8/service-requests', 'Service requests'],
+  ['/roodber8/service-requests?status=cancelled', 'Service requests'],
+  ['/roodber8/request-questions', 'Request questions'],
+  ['/roodber8/deals', 'Deals and commissions'],
 ]
 
 test('admin signs in with username, password and one-time code', async ({ page }) => {

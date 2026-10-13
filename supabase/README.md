@@ -152,6 +152,23 @@ select (select count(*) from locations where level = 'country') as countries,
 ```
 **You should see:** `12 | 22 | 39 | 3 | 0` (Ethiopian places: 39 plus any you have added since).
 
+## 0014_service_requests.sql (Phase 1.5, E3)
+**What it does:** adds "Request a service". Customers describe a job; HagerLand sends it to up to three
+businesses; they accept or decline, send a quote, and the customer chooses one. New private tables:
+service requests, provider matches (with lead fee and commission figures that only HagerLand can see),
+and a deals ledger for commissions and lead fees. Each service category can now have its own questions
+(edited in admin → Request questions) and an "emergency" option. Businesses see a request only when it is
+sent to them, and the customer's phone and email only after they accept. It changes no existing data
+except linking each existing service category to the Professionals or Contractors service.
+
+**Check:**
+```sql
+select (select count(*) from information_schema.tables where table_schema = 'public' and table_name in ('service_requests', 'service_request_matches', 'deals')) as new_tables,
+       (select count(*) from service_categories where vertical_key is null) as categories_without_vertical,
+       (select count(*) from information_schema.views where table_name = 'service_requests_for_provider') as provider_view;
+```
+**You should see:** `3 | 0 | 1`
+
 ---
 
 ## Security test (run after all migrations)
@@ -160,7 +177,7 @@ statements: that is the test cleaning up after itself; click **Run this query**.
 It temporarily creates two test users and a test listing, tries things that should and should not be
 allowed, then deletes everything it created.
 
-**You should see:** every row starting with `PASS` (38 rows after migration 0011, 42 after 0013; each later migration adds its own checks and its section below says the new total).
+**You should see:** every row starting with `PASS` (38 rows after migration 0011, 42 after 0013, 57 after 0014; each later migration adds its own checks and its section below says the new total).
 
 ## TypeScript types
 `lib/database.types.ts` was generated from these exact migrations. After all migrations are applied,

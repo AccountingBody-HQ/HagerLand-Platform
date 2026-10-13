@@ -446,7 +446,7 @@ Summary (updated at the end of every work package): see the last section.
 | S17-01 | Featured listings via promotions (max 2, labelled) | 17 | Done | 0002 promotions, PromotionTools | e2e:cron.spec.ts (featured sync) |
 | S17-02 | organisations.plan + feature gates in lib/entitlements.ts (all plans unlimited except private-owner cap) | 17 | Not done | — | H6: add lib/entitlements.ts and use it for the owner cap |
 | S17-03 | Lead ledger: enquiries per org per month in admin reports | 17 | Done | lib/admin/reports.ts | e2e:admin/admin.spec.ts (reports screen) |
-| S17-04 | Commission tracking (deals table, 25.2k) | 17 / 25.2k | Not done | — | E3 |
+| S17-04 | Commission tracking (deals table, 25.2k) | 17 / 25.2k | Done | 0014 deals | see X-252-23 |
 | S17-05 | Quote values available for revenue reporting | 17 | Done | lib/admin/reports.ts | e2e:admin/admin.spec.ts (reports) |
 | S17-06 | Own developments routed to HagerLand sales pipeline | 17 | Done | app/roodber8/sales | e2e:flows/supplies-and-contact.spec.ts › register interest… |
 | S17-07 | Owner dashboards show views, reveals and enquiries | 17 | Done | app/(account)/account/listings | e2e:flows/owner-listing.spec.ts |
@@ -599,21 +599,21 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | S24-37 | Property listings stay Ethiopia-only | 24.4 | Done | 0013 require_ethiopian_location trigger, lib/data/reference.ts isEthiopianLocation, /api/locations default scope ET | rls:A listing cannot be moved outside Ethiopia; e2e:international.spec.ts › property pages stay Ethiopia-only; › location search is Ethiopia-only… |
 | S24-38 | Organisations can be marked as serving the Ethiopian community abroad | 24.4 | Done | organisations.serves_diaspora, OrganisationForm | e2e:flows/business.spec.ts › a contractor creates… (ticks the box); e2e:international.spec.ts › a business abroad… (badge) |
 | S24-39 | International organisations searchable by country and city | 24.4 | Done | 0013 search_organisations(p_country_code, p_serves_diaspora), lib/data/organisations.ts | e2e:international.spec.ts › a business abroad is found by country and city… |
-| S24-40 | service_requests table with all listed fields and reference HLS-YYYY-NNNNNN | 24.5 | Not done | migration 0013 | E3 |
-| S24-41 | Request statuses submitted → triaged → matched → quoted → won/lost/cancelled | 24.5 | Not done | migration 0013 | E3 |
-| S24-42 | Attachments in private-docs | 24.5 | Not done | — | E3 |
-| S24-43 | service_request_matches (offered → accepted/declined → quoted, amount, currency, message, document) | 24.5 | Not done | migration 0013 | E3 |
-| S24-44 | Commercial fields (lead fee, commission rate/amount, invoiced) admin-only | 24.5 | Not done | migration 0013 | E3 + rls test |
+| S24-40 | service_requests table with all listed fields and reference HLS-YYYY-NNNNNN | 24.5 | Done | supabase/migrations/0014_service_requests.sql | sql: 0014 check → 3 · 0 · 1 (local); e2e:flows/service-requests.spec.ts › a guest requests a plumber… (reference HLS-…) |
+| S24-41 | Request statuses submitted → triaged → matched → quoted → won/lost/cancelled | 24.5 | Done | 0014, app/roodber8/actions/service-requests.ts | e2e:flows/service-requests.spec.ts › a guest requests… (submitted → matched → quoted → won); › when every provider declines… (→ triaged → cancelled) |
+| S24-42 | Attachments in private-docs | 24.5 | Done | lib/media.ts PRIVATE_AREAS 'request', ServiceRequestForm | e2e:flows/service-requests.spec.ts › a guest requests… (photo attached, provider opens it after accepting) |
+| S24-43 | service_request_matches (offered → accepted/declined → quoted, amount, currency, message, document) | 24.5 | Done | 0014 service_request_matches | e2e:flows/service-requests.spec.ts › a guest requests… ; rls:Provider sees contact details after accepting |
+| S24-44 | Commercial fields (lead fee, commission rate/amount, invoiced) admin-only | 24.5 | Done | 0014 grants (no commercial columns for users) | rls:Provider cannot read commercial fields; rls:Provider cannot change commercial fields; e2e:flows/service-requests.spec.ts › …HagerLand records its lead fee |
 | S24-45 | "Request a service" reachable from every relevant page | 24.5 | Not done | components/service-requests | E3/E4 |
-| S24-46 | Category-specific questions from a JSON schema per service category | 24.5 | Not done | service_categories.question_schema | E3 |
-| S24-47 | Question schema editable in admin | 24.5 | Not done | app/roodber8/categories | E3 |
-| S24-48 | Contact details, Turnstile, confirmation email | 24.5 | Not done | app/actions/service-request-actions.ts | E3 |
-| S24-49 | Admin triage queue | 24.5 | Not done | app/roodber8/service-requests | E3 |
-| S24-4A | Match up to 3 providers, suggested by category + location + verification | 24.5 | Not done | — | E3 |
-| S24-4B | Providers notified by email | 24.5 | Not done | — | E3 |
-| S24-4C | Provider dashboard: offered requests, accept/decline, submit quote | 24.5 | Not done | app/(account)/account/requests | E3 |
-| S24-4D | Customer sees quotes in account | 24.5 | Not done | app/(account)/account/service-requests | E3 |
-| S24-4E | Guest sees quotes by secure emailed link | 24.5 | Not done | app/(site)/requests/[token] | E3 |
+| S24-46 | Category-specific questions from a JSON schema per service category | 24.5 | Done | lib/service-requests/questions.ts, ServiceRequestForm | unit:service-requests.test.ts; e2e:flows/service-requests.spec.ts › a guest requests… (answers stored) |
+| S24-47 | Question schema editable in admin | 24.5 | Done | app/roodber8/request-questions, components/admin/QuestionEditor.tsx | e2e:flows/service-requests.spec.ts › a guest requests… (questions set through the admin editor) |
+| S24-48 | Contact details, Turnstile, confirmation email | 24.5 | Done | app/actions/service-request-actions.ts | e2e:flows/service-requests.spec.ts › a guest requests… (confirmation email); verify: verifyTurnstileToken + isHoneypotFilled in submitServiceRequestAction |
+| S24-49 | Admin triage queue | 24.5 | Done | app/roodber8/service-requests | e2e:flows/service-requests.spec.ts › a guest requests…; e2e:admin/admin.spec.ts › every admin screen loads… |
+| S24-4A | Match up to 3 providers, suggested by category + location + verification | 24.5 | Done | app/roodber8/service-requests/[id] (suggestions by service, nearest location, verified first) | e2e:flows/service-requests.spec.ts › a guest requests… (provider chosen from suggestions) |
+| S24-4B | Providers notified by email | 24.5 | Done | matchProvidersAction, providerOfferedEmail | e2e:flows/service-requests.spec.ts › a guest requests… (provider email with link) |
+| S24-4C | Provider dashboard: offered requests, accept/decline, submit quote | 24.5 | Done | app/(account)/account/requests | e2e:flows/service-requests.spec.ts › a guest requests… (accept, quote); › when every provider declines… |
+| S24-4D | Customer sees quotes in account | 24.5 | Done | app/(account)/account/service-requests | verify: same RequestView as the guest page; RLS rls:Requester reads their own request / sees the quote once it is sent |
+| S24-4E | Guest sees quotes by secure emailed link | 24.5 | Done | app/(site)/requests/[token] | e2e:flows/service-requests.spec.ts › a guest requests… (quote seen and chosen through the emailed link); › guest links expire… |
 | S24-4F | Engine used for contractors, repairs (emergency), valuations, finance, insurance, diaspora, staffing | 24.5 | Not done | — | E4–E8 |
 | S24-4G | Materials quote_requests unchanged | 24.5 | Not done | — | verify: e2e supplies flow still green at E3 |
 | S24-50 | Diaspora landing with two directions | 24.6 | Not done | app/(site)/diaspora | E5 |
@@ -659,12 +659,12 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | S24-B1 | Admin: vertical registry switches | 24.12 | Done | app/roodber8/verticals | e2e:verticals.spec.ts › hiding a vertical… (switched through the admin screen) |
 | S24-B2 | Admin: interest registrations with vertical/category filter and CSV | 24.12 | Done | app/roodber8/interest, export/interest | e2e:verticals.spec.ts › register interest… listed in admin with CSV export |
 | S24-B3 | Admin: partner applications | 24.12 | Done | app/roodber8/partners | e2e:verticals.spec.ts › become a partner is stored and listed in admin |
-| S24-B4 | Admin: service request triage and matching board | 24.12 | Not done | — | E3 |
-| S24-B5 | Admin: provider quotes | 24.12 | Not done | — | E3 |
-| S24-B6 | Admin: commissions and lead-fee ledger with simple reports | 24.12 | Not done | — | E3 |
+| S24-B4 | Admin: service request triage and matching board | 24.12 | Done | app/roodber8/service-requests | e2e:flows/service-requests.spec.ts › a guest requests… |
+| S24-B5 | Admin: provider quotes | 24.12 | Done | app/roodber8/service-requests/[id] (quotes per match) | e2e:flows/service-requests.spec.ts › a guest requests… |
+| S24-B6 | Admin: commissions and lead-fee ledger with simple reports | 24.12 | Done | app/roodber8/deals, lib/admin/aggregate.ts monthlyReport | unit:aggregate.test.ts › monthly revenue and lead report; e2e:flows/service-requests.spec.ts (deal created on choice); e2e:admin/admin.spec.ts (Deals screen) |
 | S24-B7 | Admin: Property Care pipeline and managed-property records | 24.12 | Not done | — | E5 |
 | S24-B8 | Admin: jobs and applications moderation | 24.12 | Not done | — | E8 |
-| S24-B9 | Admin: question-schema editor per service category | 24.12 | Not done | — | E3 |
+| S24-B9 | Admin: question-schema editor per service category | 24.12 | Done | app/roodber8/request-questions | e2e:flows/service-requests.spec.ts › a guest requests… |
 | S24-BA | Admin: countries and international locations in the locations editor | 24.12 | Done | app/roodber8/locations | e2e:international.spec.ts › admin adds a country and a city under it; e2e:admin/admin.spec.ts › add and rename a category, add a location |
 | S24-BB | Every new admin action audit-logged | 24.12 | Not done | — | each package + E9 test |
 | S24-C1 | E9: sitemap respects registry; noindex for coming soon; full QA re-run (accessibility, widths, link crawl, Lighthouse) | 24 WPs | Not done | — | E9 |
@@ -745,7 +745,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | V4-18 | Contractor category: Interior contractors | Vision §4 | Not done | service_categories seed | E4 sql check |
 | V4-19 | Contractor category: Groundworks contractors | Vision §4 | Not done | service_categories seed | E4 sql check |
 | V4-20 | Contractor category: Specialist subcontractors | Vision §4 | Not done | service_categories seed | E4 sql check |
-| V4-21 | Customers submit requirements and request quotations from providers | Vision §4 | Not done | service request engine | E3/E4 |
+| V4-21 | Customers submit requirements and request quotations from providers | Vision §4 | Done | service request engine | e2e:flows/service-requests.spec.ts (all) |
 | V5-01 | Professional category: Architects | Vision §5 | Not done | service_categories seed | E4 sql check |
 | V5-02 | Professional category: Civil engineers | Vision §5 | Not done | service_categories seed | E4 sql check |
 | V5-03 | Professional category: Structural engineers | Vision §5 | Not done | service_categories seed | E4 sql check |
@@ -837,7 +837,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | V9-26 | Services abroad provider type: Handymen | Vision §9 | Not done | international org search | E5 |
 | V9-27 | Services abroad provider type: Removal companies | Vision §9 | Not done | international org search | E5 |
 | V9-28 | Services abroad provider type: Other home and property services | Vision §9 | Not done | international org search | E5 |
-| V9-29 | Customer abroad submits requirement, platform matches provider, earns commission/referral/lead/booking fee | Vision §9 | Not done | engine + ledger | E3/E5 |
+| V9-29 | Customer abroad submits requirement, platform matches provider, earns commission/referral/lead/booking fee | Vision §9 | Done | matches + deals ledger | e2e:flows/service-requests.spec.ts › a guest requests… (deal with lead fee) |
 | V9-30 | Architecture international from the outset; Ethiopia core | Vision §9 | Done | lib/countries.ts, 0013 | e2e:international.spec.ts (all tests) |
 | V9-31 | Property Care: Manages the property | Vision §9 | Not done | property care page + data model | E5 |
 | V9-32 | Property Care: Maintains | Vision §9 | Not done | property care page + data model | E5 |
@@ -896,7 +896,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | V12-06 | Supporting area: Become a supplier | Vision: model/positioning/launch | Done | lib/navigation.ts | e2e:verticals.spec.ts › header shows… List with us items |
 | V12-07 | Supporting area: Join as a professional | Vision: model/positioning/launch | Done | lib/navigation.ts | e2e:verticals.spec.ts › header shows… List with us items |
 | V12-08 | Supporting area: Post a job | Vision: model/positioning/launch | Not done | — | E1/E9 |
-| V12-09 | Supporting area: Request a service | Vision: model/positioning/launch | Not done | — | E1/E9 |
+| V12-09 | Supporting area: Request a service | Vision: model/positioning/launch | Done | /request-service | e2e:smoke.spec.ts › loads /request-service; e2e:flows/service-requests.spec.ts |
 | V12-10 | Supporting area: Request a quote | Vision: model/positioning/launch | Done | lib/navigation.ts | e2e:verticals.spec.ts › mobile drawer… (Request a quote) |
 | V12-11 | Supporting area: Advertise | Vision: model/positioning/launch | Done | app/(site)/advertise/page.tsx | e2e:smoke.spec.ts › loads /advertise |
 | V12-12 | Supporting area: Help & advice | Vision: model/positioning/launch | Done | lib/navigation.ts | e2e:verticals.spec.ts › mobile drawer… (Help & advice) |
@@ -931,8 +931,8 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | X-252-20 | Ownership transfer with last-owner protection | 25.2i | Not done | — | H3 |
 | X-252-21 | Agent/company branches | 25.2i | Not done | — | H3 |
 | X-252-22 | Development progress updates (dated posts with photos) | 25.2j | Not done | — | E8 |
-| X-252-23 | Deals/commission tracking linked to enquiries and service requests | 25.2k | Not done | — | E3 |
-| X-252-24 | Monthly revenue and lead reports with CSV | 25.2k | Not done | — | E3 |
+| X-252-23 | Deals/commission tracking linked to enquiries and service requests | 25.2k | Done | 0014 deals, chooseQuoteAction, app/roodber8/deals | e2e:flows/service-requests.spec.ts › a guest requests… (deal won with value); admin deals form |
+| X-252-24 | Monthly revenue and lead reports with CSV | 25.2k | Done | app/roodber8/deals, export report-revenue | unit:aggregate.test.ts › monthly revenue and lead report; e2e:admin/admin.spec.ts (Deals screen) |
 | X-252-25 | Path-based property-type SEO pages respecting min-results noindex | 25.2l | Not done | — | E6 |
 | X-252-26 | i18n architecture for UI text | 25.2m | Not done | — | H4 |
 | X-252-27 | /am locale with hreflang and Ethiopic font | 25.2m | Not done | — | H4 |
@@ -985,12 +985,12 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | X-FORM-04 | Double submit | 25.4 | Not done | — | H6/E9 |
 | X-FORM-05 | Server error with input preserved | 25.4 | Not done | — | H6/E9 |
 | X-FORM-06 | Email failure never blocks submission (logged, visible to admin, retried by cron) | 25.4 | Not done | — | H6/E9 |
-| X-SR-01 | No matching provider: customer informed, admin alerted | 25.4 | Not done | — | H6/E9 |
-| X-SR-02 | All providers decline | 25.4 | Not done | — | H6/E9 |
-| X-SR-03 | Quote expiry | 25.4 | Not done | — | H6/E9 |
-| X-SR-04 | Guest secure-link expiry and re-send | 25.4 | Not done | — | H6/E9 |
-| X-SR-05 | Emergency priority in admin and digest | 25.4 | Not done | — | H6/E9 |
-| X-SR-06 | International location and currency | 25.4 | Not done | — | H6/E9 |
+| X-SR-01 | No matching provider: customer informed, admin alerted | 25.4 | Done | noProviderAction, serviceNoProviderEmail | e2e:flows/service-requests.spec.ts › when every provider declines… (customer emailed); digest line "waiting to be matched" |
+| X-SR-02 | All providers decline | 25.4 | Done | checkAllDeclined | e2e:flows/service-requests.spec.ts › when every provider declines, the request goes back to HagerLand and admins are told |
+| X-SR-03 | Quote expiry | 25.4 | Done | lib/service-requests/labels.ts isQuoteExpired, chooseQuoteAction | unit:service-requests.test.ts › quote expiry; verify: expired quotes cannot be chosen (chooseQuoteAction) |
+| X-SR-04 | Guest secure-link expiry and re-send | 25.4 | Done | app/(site)/requests/[token], resendRequestLinkAction | e2e:flows/service-requests.spec.ts › guest links expire, and a new one can be requested without revealing whether a request exists |
+| X-SR-05 | Emergency priority in admin and digest | 25.4 | Done | adminNoticeEmail EMERGENCY, cron digest, queue order | e2e:flows/service-requests.spec.ts › a guest requests… (EMERGENCY admin email) |
+| X-SR-06 | International location and currency | 25.4 | Done | 0014 service_requests_sync_country | e2e:flows/service-requests.spec.ts › guest links expire… (London, GB, GBP) |
 | X-ADM-01 | Every action permission-checked server-side and audit-logged | 25.4 | Not done | — | H6/E9 |
 | X-ADM-02 | Bulk actions report partial failures | 25.4 | Not done | — | H6/E9 |
 | X-ADM-03 | CSV imports: validation preview, no partial writes | 25.4 | Not done | — | H6/E9 |
@@ -1042,7 +1042,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | X-SEO-04 | Structured data per page type (JobPosting only when jobs live) | 25.4 | Not done | — | H6/E9 |
 | X-SEO-05 | OG images for all detail page types | 25.4 | Not done | — | H6/E9 |
 | X-OPS-01 | Cron: listing/quote/job expiry | 25.4 | Not done | — | H6/E9 |
-| X-OPS-02 | Cron: service-request reminders (unanswered matches > 48h) | 25.4 | Not done | — | H6/E9 |
+| X-OPS-02 | Cron: service-request reminders (unanswered matches > 48h) | 25.4 | Done | lib/cron/daily.ts remindUnansweredMatches | e2e:flows/service-requests.spec.ts › the daily job reminds providers who have not answered within 48 hours, once |
 | X-OPS-03 | Cron: saved-search alerts | 25.4 | Not done | — | H6/E9 |
 | X-OPS-04 | Cron: email retries | 25.4 | Not done | — | H6/E9 |
 | X-OPS-05 | Cron: retention purges | 25.4 | Not done | — | H6/E9 |

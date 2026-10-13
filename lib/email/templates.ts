@@ -307,3 +307,99 @@ export function partnerApplicationEmail(p: { name: string; organisation: string;
     reason: 'You are receiving this because you applied to become a HagerLand partner.',
   })
 }
+
+const REQUESTER_REASON = 'You are receiving this because you requested a service on HagerLand.'
+const PROVIDER_REASON = 'You are receiving this because your business is listed on HagerLand and a customer request was sent to you.'
+
+export function serviceRequestReceivedEmail(p: { name: string; reference: string; title: string; link: string; emergency: boolean; linkDays: number }): RenderedEmail {
+  return renderEmail({
+    subject: `We've received your request (${p.reference})`,
+    preheader: p.emergency ? 'Marked as an emergency: we are looking at it now.' : 'We are finding the right providers for you.',
+    heading: 'Your request is with us',
+    paragraphs: [
+      `Hello ${p.name},`,
+      `Thanks for your request: "${p.title}".`,
+      p.emergency
+        ? 'You marked it as an emergency, so we are looking at it first. If anyone is in danger, call the emergency services.'
+        : 'We will match it with up to three suitable providers. Each one contacts you directly, and their quotes appear on your request page.',
+      `Keep this email: the button below opens your request${p.linkDays ? ` (the link works for ${p.linkDays} days; you can ask for a new one at any time)` : ''}.`,
+    ],
+    details: [['Reference', p.reference]],
+    button: { label: 'View your request', href: p.link },
+    reason: REQUESTER_REASON,
+  })
+}
+
+export function serviceRequestLinkEmail(p: { name: string; reference: string; link: string; linkDays: number }): RenderedEmail {
+  return renderEmail({
+    subject: `Your link to request ${p.reference}`,
+    preheader: 'A new link to view your request and quotes.',
+    heading: 'Here is your new link',
+    paragraphs: [`Hello ${p.name},`, `Use the button to see request ${p.reference} and any quotes. The link works for ${p.linkDays} days. Older links no longer work.`],
+    button: { label: 'View your request', href: p.link },
+    reason: REQUESTER_REASON,
+  })
+}
+
+export function providerOfferedEmail(p: { orgName: string; reference: string; title: string; serviceName: string | null; place: string | null; urgency: string; url: string }): RenderedEmail {
+  return renderEmail({
+    subject: `${p.urgency === 'Emergency' ? 'Emergency request' : 'New customer request'}: ${p.title}`,
+    preheader: `A customer needs ${p.serviceName ?? 'your services'}${p.place ? ` in ${p.place}` : ''}.`,
+    heading: 'A customer request for you',
+    paragraphs: [`HagerLand matched ${p.orgName} with this customer request. Accept it to see the customer's contact details and send a quote. If you can't take it on, decline so we can find someone else.`],
+    details: [['Reference', p.reference], ['Request', p.title], ...(p.serviceName ? ([['Service', p.serviceName]] as [string, string][]) : []), ...(p.place ? ([['Where', p.place]] as [string, string][]) : []), ['How soon', p.urgency]],
+    button: { label: 'Open the request', href: p.url },
+    reason: PROVIDER_REASON,
+  })
+}
+
+export function providerReminderEmail(p: { orgName: string; reference: string; title: string; url: string }): RenderedEmail {
+  return renderEmail({
+    subject: `Reminder: a customer is waiting (${p.reference})`,
+    preheader: 'Please accept or decline this request.',
+    heading: 'A customer is waiting for your answer',
+    paragraphs: [`HagerLand sent ${p.orgName} the request "${p.title}" two days ago. Please accept or decline it so the customer is not left waiting.`],
+    details: [['Reference', p.reference]],
+    button: { label: 'Answer the request', href: p.url },
+    reason: PROVIDER_REASON,
+  })
+}
+
+export function serviceQuoteReceivedEmail(p: { name: string; reference: string; providerName: string; amount: string; link: string }): RenderedEmail {
+  return renderEmail({
+    subject: `New quote for your request (${p.reference})`,
+    preheader: `${p.providerName} sent a quote.`,
+    heading: 'You have a new quote',
+    paragraphs: [`Hello ${p.name},`, `${p.providerName} sent a quote of ${p.amount} for your request. Compare quotes on your request page and choose the one you want when you are ready.`, 'Before you pay anything, agree the work, price and timing in writing.'],
+    details: [['Reference', p.reference], ['From', p.providerName], ['Quote', p.amount]],
+    button: { label: 'See your quotes', href: p.link },
+    reason: REQUESTER_REASON,
+  })
+}
+
+export function serviceNoProviderEmail(p: { name: string; reference: string; title: string }): RenderedEmail {
+  return renderEmail({
+    subject: `About your request (${p.reference})`,
+    preheader: 'We could not find a suitable provider this time.',
+    heading: "We couldn't find a provider this time",
+    paragraphs: [
+      `Hello ${p.name},`,
+      `We're sorry: we could not find a suitable provider on HagerLand for "${p.title}" right now. We have closed the request so you are not left waiting.`,
+      'New businesses join HagerLand every week. You are welcome to send a new request later, or reply to this email and we will try to help.',
+    ],
+    details: [['Reference', p.reference]],
+    reason: REQUESTER_REASON,
+  })
+}
+
+export function providerChosenEmail(p: { orgName: string; reference: string; title: string; url: string }): RenderedEmail {
+  return renderEmail({
+    subject: `The customer chose your quote (${p.reference})`,
+    preheader: 'Get in touch to agree the details.',
+    heading: 'The customer chose your quote',
+    paragraphs: [`Good news: the customer chose ${p.orgName}'s quote for "${p.title}". Contact them to agree the work, price and timing in writing.`],
+    details: [['Reference', p.reference]],
+    button: { label: 'Open the request', href: p.url },
+    reason: PROVIDER_REASON,
+  })
+}

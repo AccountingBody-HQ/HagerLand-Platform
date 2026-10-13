@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import {
-  BarChart3, Building2, LayoutGrid, Handshake, UserPlus, Coins, ClipboardCheck, ClipboardList, FileClock, FolderTree, Gauge, Import, Inbox, MapPin, Megaphone, Menu, Package, Settings, Store, Users, X, HandCoins, House,
+  BarChart3, Building2, LayoutGrid, Handshake, UserPlus, Coins, Wrench, ListChecks, Receipt, ClipboardCheck, ClipboardList, FileClock, FolderTree, Gauge, Import, Inbox, MapPin, Megaphone, Menu, Package, Settings, Store, Users, X, HandCoins, House,
 } from 'lucide-react'
 import { cn } from '@/lib/cn'
 
@@ -21,6 +21,9 @@ export const ADMIN_NAV = [
   { href: '/roodber8/exchange-rates', label: 'Exchange rates', icon: Coins },
   { href: '/roodber8/enquiries', label: 'Enquiries', icon: Inbox },
   { href: '/roodber8/quotes', label: 'Quotes', icon: ClipboardList, badgeKey: 'quotes' },
+  { href: '/roodber8/service-requests', label: 'Service requests', icon: Wrench, badgeKey: 'requests' },
+  { href: '/roodber8/request-questions', label: 'Request questions', icon: ListChecks },
+  { href: '/roodber8/deals', label: 'Deals and commissions', icon: Receipt },
   { href: '/roodber8/sales', label: 'HagerLand sales', icon: HandCoins },
   { href: '/roodber8/interest', label: 'Interest registrations', icon: UserPlus, badgeKey: 'interest' },
   { href: '/roodber8/partners', label: 'Partner applications', icon: Handshake },

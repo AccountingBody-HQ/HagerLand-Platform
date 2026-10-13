@@ -11,7 +11,10 @@ export default async function AccountLayout({ children }: { children: React.Reac
   const user = await requireUser('/account')
   const [profile, memberships, active] = await Promise.all([getProfile(), getMemberships(), getActiveMembership()])
   const { count } = await getServerSupabase().from('enquiries').select('id', { count: 'exact', head: true }).eq('status', 'new').or(`sender_user_id.is.null,sender_user_id.neq.${user.id}`)
-  const items = accountNavItems(active, count ?? 0)
+  const { count: offered } = active
+    ? await getServerSupabase().from('service_request_matches').select('id', { count: 'exact', head: true }).eq('org_id', active.org.id).eq('status', 'offered')
+    : { count: 0 }
+  const items = accountNavItems(active, count ?? 0, offered ?? 0)
 
   return (
     <Container className="py-6 lg:py-10">

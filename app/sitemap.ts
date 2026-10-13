@@ -15,7 +15,7 @@ export async function generateSitemaps() {
   return SITEMAP_IDS.map((id) => ({ id }))
 }
 
-const STATIC_PATHS = ['/', '/property', '/property/for-sale', '/property/to-rent', '/supplies', '/supplies/materials-list', '/professionals', '/agents', '/developers', '/suppliers', '/developments', '/our-developments', '/about', '/how-it-works', '/list-with-us', '/advertise', '/contact', '/help', '/terms', '/privacy', '/cookies']
+const STATIC_PATHS = ['/', '/property', '/property/for-sale', '/property/to-rent', '/supplies', '/supplies/materials-list', '/professionals', '/agents', '/developers', '/suppliers', '/developments', '/our-developments', '/about', '/how-it-works', '/list-with-us', '/advertise', '/request-service', '/contact', '/help', '/terms', '/privacy', '/cookies']
 const LIMIT = 50_000
 
 type Entry = MetadataRoute.Sitemap[number]

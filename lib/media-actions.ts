@@ -9,7 +9,7 @@ import { countMedia, deletePublicFiles, mediaLimit, processIncomingDocument, pro
 import { fail, ok, type ActionResult } from '@/lib/action-result'
 import { revalidateEntity } from '@/lib/revalidate'
 import { log } from '@/lib/log'
-import type { MediaEntity } from '@/lib/media'
+import { PRIVATE_AREAS, type MediaEntity } from '@/lib/media'
 
 const entitySchema = z.enum(['property', 'development', 'organisation', 'portfolio', 'product'])
 
@@ -108,7 +108,7 @@ export async function processMediaUploadAction(input: { incoming_path: string; e
 
 export async function processPrivateUploadAction(input: { incoming_path: string; area: string; id: string; content_type: string }): Promise<ActionResult<{ path: string }>> {
   const parsed = z
-    .object({ incoming_path: z.string().max(300), area: z.enum(['verification', 'claim', 'materials', 'quote', 'brochure']), id: z.uuid(), content_type: z.string().max(120) })
+    .object({ incoming_path: z.string().max(300), area: z.enum(PRIVATE_AREAS), id: z.uuid(), content_type: z.string().max(120) })
     .safeParse(input)
   if (!parsed.success) return fail('Invalid upload.')
   const d = parsed.data

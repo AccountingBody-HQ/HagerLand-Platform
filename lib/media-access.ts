@@ -2,11 +2,12 @@ import 'server-only'
 import { isAdminRequest } from '@/lib/admin-auth'
 import { getUser, getMemberships } from '@/lib/auth'
 import { userCanEditEntity } from '@/lib/storage'
-import type { MediaEntity } from '@/lib/media'
+import type { MediaEntity, PrivateArea } from '@/lib/media'
+import { getServerSupabase } from '@/lib/supabase/server'
 
 export type UploadScope =
   | { purpose: 'media'; entityType: MediaEntity; entityId: string }
-  | { purpose: 'private'; area: 'verification' | 'claim' | 'materials' | 'quote' | 'brochure'; id: string }
+  | { purpose: 'private'; area: PrivateArea; id: string }
 
 /** Who may upload where. Admins may upload anywhere; guests only to their own materials-list folder. */
 export async function canUpload(scope: UploadScope): Promise<boolean> {
@@ -14,7 +15,15 @@ export async function canUpload(scope: UploadScope): Promise<boolean> {
   if (scope.purpose === 'media') return (await getUser()) ? userCanEditEntity(scope.entityType, scope.entityId) : false
   switch (scope.area) {
     case 'materials':
+    case 'request':
+      // Guests upload into a folder named by a random id their form created; the file is only linked on submit.
       return /^[0-9a-f-]{36}$/.test(scope.id)
+    case 'match': {
+      // Quote documents: only members of the provider the request was offered to (RLS checks membership).
+      if (!(await getUser())) return false
+      const { data } = await getServerSupabase().from('service_request_matches').select('id').eq('id', scope.id).maybeSingle()
+      return Boolean(data)
+    }
     case 'claim':
       return Boolean(await getUser())
     case 'verification':

@@ -185,6 +185,54 @@ exception when check_violation then
   perform pg_temp.record_check('A listing cannot be moved outside Ethiopia', true);
 end $$;
 
+-- ---------- Service requests (0014) ----------
+reset role;
+select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);
+insert into public.service_requests (id, vertical_key, title, details, name, phone, email, requester_user_id)
+values ('00000000-0000-4000-8000-0000000000c1', 'contractors', 'RLS TEST request', 'Fix the roof', 'Requester Two', '+251922000000', 'rls-other@test.hagerland.invalid', '00000000-0000-4000-8000-000000000002');
+insert into public.service_request_matches (id, request_id, org_id, lead_fee_minor) values ('00000000-0000-4000-8000-0000000000c2', '00000000-0000-4000-8000-0000000000c1', '00000000-0000-4000-8000-0000000000b1', 50000);
+
+-- The provider (user 1 owns organisation b1)
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000001", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', false);
+select pg_temp.record_check('Provider sees the request offered to them, without contact details',
+  (select requester_phone is null and title = 'RLS TEST request' from public.service_requests_for_provider where match_id = '00000000-0000-4000-8000-0000000000c2'));
+select pg_temp.record_check('Provider cannot read the request table directly', not exists (select 1 from public.service_requests where id = '00000000-0000-4000-8000-0000000000c1'));
+do $$ begin
+  perform lead_fee_minor from public.service_request_matches limit 1;
+  perform pg_temp.record_check('Provider cannot read commercial fields', false);
+exception when insufficient_privilege then
+  perform pg_temp.record_check('Provider cannot read commercial fields', true);
+end $$;
+update public.service_request_matches set status = 'accepted', responded_at = now() where id = '00000000-0000-4000-8000-0000000000c2';
+select pg_temp.record_check('Provider sees contact details after accepting',
+  (select requester_phone = '+251922000000' from public.service_requests_for_provider where match_id = '00000000-0000-4000-8000-0000000000c2'));
+do $$ begin
+  update public.service_request_matches set status = 'won' where id = '00000000-0000-4000-8000-0000000000c2';
+  perform pg_temp.record_check('Provider cannot mark their own match as won', false);
+exception when insufficient_privilege then
+  perform pg_temp.record_check('Provider cannot mark their own match as won', true);
+end $$;
+do $$ begin
+  update public.service_request_matches set lead_fee_minor = 0 where id = '00000000-0000-4000-8000-0000000000c2';
+  perform pg_temp.record_check('Provider cannot change commercial fields', false);
+exception when insufficient_privilege then
+  perform pg_temp.record_check('Provider cannot change commercial fields', true);
+end $$;
+
+-- The requester (user 2)
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000002", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000002', false);
+select pg_temp.record_check('Requester reads their own request', exists (select 1 from public.service_requests where id = '00000000-0000-4000-8000-0000000000c1'));
+select pg_temp.record_check('Requester does not see a match before it is quoted', not exists (select 1 from public.service_request_matches where id = '00000000-0000-4000-8000-0000000000c2'));
+select pg_temp.record_check('Requester is not shown the request in the provider view', not exists (select 1 from public.service_requests_for_provider where match_id = '00000000-0000-4000-8000-0000000000c2'));
+reset role;
+update public.service_request_matches set status = 'quoted', quote_amount_minor = 1500000, quote_currency = 'ETB', quoted_at = now() where id = '00000000-0000-4000-8000-0000000000c2';
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000002", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000002', false);
+select pg_temp.record_check('Requester sees the quote once it is sent', exists (select 1 from public.service_request_matches where id = '00000000-0000-4000-8000-0000000000c2' and quote_amount_minor = 1500000));
+reset role;
+delete from public.service_requests where id = '00000000-0000-4000-8000-0000000000c1';
+
 -- ---------- Phase 1.5 tables (migrations 0011+) ----------
 reset role;
 select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);
@@ -200,10 +248,12 @@ exception when insufficient_privilege then
 end $$;
 
 -- Tables only the server (service role) may touch: anonymous and signed-in users are refused.
-select set_config('hl.private_tables', 'schema_migrations,verticals,interest_registrations,partner_applications,exchange_rates', false);
+select set_config('hl.private_tables', 'schema_migrations,verticals,interest_registrations,partner_applications,exchange_rates,deals', false);
 
 set role anon;
 select pg_temp.record_check('Anonymous cannot read ' || name, pg_temp.read_denied(name)) from unnest(string_to_array(current_setting('hl.private_tables'), ',')) as t(name);
+-- Signed-in users read these through their own policies; anonymous visitors get nothing.
+select pg_temp.record_check('Anonymous cannot read ' || name, pg_temp.read_denied(name)) from unnest(array['service_requests', 'service_request_matches', 'service_requests_for_provider']) as t(name);
 select pg_temp.record_check('Anonymous can read exchange rates through the public view only', (select count(*) >= 0 from public.exchange_rates_public));
 select pg_temp.record_check('Anonymous reads live and coming-soon verticals only',
   (select count(*) from public.verticals_public) > 0 and not exists (select 1 from public.verticals_public where status = 'hidden'));

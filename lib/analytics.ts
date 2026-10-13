@@ -18,6 +18,14 @@ export type AnalyticsEvent =
   | 'org_created'
   | 'claim_submitted'
   | 'verification_submitted'
+  | 'service_request_submitted'
+  | 'service_quote_submitted'
+  | 'service_quote_chosen'
+  | 'partner_application_submitted'
+  | 'property_care_requested'
+  | 'job_application_submitted'
+  | 'property_saved'
+  | 'search_saved'
 
 /** Cookieless analytics event. Never pass personal data (names, phones, emails, free text). */
 export function track(event: AnalyticsEvent, props?: Record<string, string | number | boolean | null>): void {
