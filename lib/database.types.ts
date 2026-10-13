@@ -2421,6 +2421,7 @@ export type Database = {
       can_edit_entity: { Args: { p_entity_id: string; p_entity_type: string }; Returns: boolean }
       category_descendants: { Args: { root: string; tbl: string }; Returns: string[] }
       f_unaccent: { Args: { '': string }; Returns: string }
+      find_similar_organisations: { Args: { p_limit?: number; p_location_id?: string; p_name: string }; Returns: Json }
       gen_short_id: { Args: Record<PropertyKey, never>; Returns: string }
       increment_view: { Args: { p_entity_type: string; p_id: string }; Returns: undefined }
       is_active_user: { Args: Record<PropertyKey, never>; Returns: boolean }
