@@ -17,7 +17,7 @@ export function AdminHeader({ title, description, actions }: { title: string; de
 
 export function Panel({ title, children, className, actions }: { title?: string; children: ReactNode; className?: string; actions?: ReactNode }) {
   return (
-    <section className={cn('rounded-lg border border-border bg-white', className)}>
+    <section className={cn('min-w-0 rounded-lg border border-border bg-white', className)}>
       {(title || actions) && (
         <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
           {title && <h2 className="font-semibold text-ink">{title}</h2>}
@@ -73,6 +73,7 @@ const STATUS_TONES: Record<string, BadgeTone> = {
   new: 'green', contacted: 'info', qualified: 'gold', won: 'ink', lost: 'neutral', spam: 'danger',
   submitted: 'info', in_review: 'info', quoted: 'gold', accepted: 'green', declined: 'neutral', cancelled: 'neutral',
   listed: 'neutral', claimed: 'green', verified: 'gold',
+  imported: 'green', failed: 'danger', skipped: 'neutral',
 }
 
 export function StatusBadge({ status }: { status: string | null | undefined }) {

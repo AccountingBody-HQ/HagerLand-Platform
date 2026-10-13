@@ -18,12 +18,12 @@ Status values: todo · in progress · done · blocked
 | WP-6 | Property marketplace | done | 2026-10-13 | 36d5579 | End-to-end tested on local Supabase stack. Map pin omitted (no provider confirmed) |
 | WP-7 | Companies, professionals, suppliers, agents, developers | done | 2026-10-13 | 36d5579 |  |
 | WP-8 | Developments & HagerLand Developments | done | 2026-10-13 | bffb4a1 | "Why buy" claims hidden until AB confirms |
-| WP-9 | Supplies | done (not yet e2e-tested) | 2026-10-13 | see git log |  |
-| WP-10 | Enquiries & leads | partly done | 2026-10-13 | | Enquiry form/action/emails built; /account/enquiries inbox still to do |
-| WP-11 | Unified search | todo | | | |
-| WP-12 | Homepage [STOP-GATE] | todo | | | |
-| WP-13 | Content pages & emails | todo | | | |
-| WP-14 | Admin rebuild | todo | | | |
+| WP-9 | Supplies | done | 2026-10-13 | 3122b0b | Quote flow covered by admin e2e (issue quote) |
+| WP-10 | Enquiries & leads | done | 2026-10-13 | 220196f | Inbox with status, private notes, reply shortcuts |
+| WP-11 | Unified search | done | 2026-10-13 | 203a513 + d93745d | Location/service/category-only matches count as results |
+| WP-12 | Homepage [STOP-GATE] | done | 2026-10-13 | e53385b | Design direction approved by AB; homepage picks from admin Settings added in WP-14 |
+| WP-13 | Content pages & emails | done | 2026-10-13 | e53385b | Business details come from site_settings (migration 0010); empty values hidden |
+| WP-14 | Admin rebuild | done | 2026-10-13 | 78da435 + next commit | All 17 sections of spec 18.2. Admin e2e suite (e2e/admin). Users email search scans auth pages (no email filter in the auth admin API) |
 | WP-15 | SEO | todo | | | |
 | WP-16 | Analytics, monitoring, cron | todo | | | |
 | WP-17 | Security hardening | todo | | | |

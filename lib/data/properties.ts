@@ -78,6 +78,16 @@ export const getPropertyByShortId = cache(async (shortId: string): Promise<Publi
   }),
 )
 
+/** Published properties by id, in the given order (homepage picks set in admin → Settings). */
+export async function getPropertiesByIds(ids: string[]): Promise<PublicProperty[]> {
+  if (!ids.length) return []
+  return safeQuery('properties by id', [], async () => {
+    const rows = unwrap(await getPublicSupabase({ tags: [listTag('property'), 'home'], revalidate: 300 }).from('properties_public').select('*').in('id', ids.slice(0, 24)), 'properties by id') ?? []
+    const byId = new Map(rows.map((r) => [r.id as string, r as PublicProperty]))
+    return ids.map((id) => byId.get(id)).filter((r): r is PublicProperty => Boolean(r))
+  })
+}
+
 export async function getEntityMedia(entityType: 'property' | 'development' | 'organisation' | 'portfolio' | 'product', id: string): Promise<PublicMedia[]> {
   return safeQuery('media', [], async () =>
     unwrap(

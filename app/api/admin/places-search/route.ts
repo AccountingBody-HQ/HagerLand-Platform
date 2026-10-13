@@ -1,154 +1,37 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server'
 import { cookies } from 'next/headers'
-import { verifySessionToken } from '@/lib/admin-auth'
-import { createClient } from '@supabase/supabase-js'
+import { z } from 'zod'
+import { SESSION_COOKIE, verifySessionToken } from '@/lib/admin-auth'
+import { getAdminSupabase } from '@/lib/supabase/admin'
+import { PlacesError, searchPlaces } from '@/lib/admin/places'
+import { importSection } from '@/lib/admin/place-mapping'
 
-const SESSION_COOKIE = 'hl_admin_session'
-const MAX_PAGES = 3
-
+export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
-interface AddressComponent {
-  longText?: string
-  types?: string[]
-}
+const ORG_KINDS = ['agency', 'developer', 'supplier', 'manufacturer', 'contractor', 'professional_firm', 'sole_trader'] as const
 
-interface NewPlace {
-  id: string
-  displayName?: { text?: string }
-  formattedAddress?: string
-  addressComponents?: AddressComponent[]
-  types?: string[]
-}
-
-interface NewApiResponse {
-  places?: NewPlace[]
-  nextPageToken?: string
-  error?: { code: number; message: string; status: string }
-}
-
+/** Admin: search Google Places and flag places already imported (by import log or an existing organisation). */
 export async function GET(request: NextRequest) {
-  const token = cookies().get(SESSION_COOKIE)?.value
-  if (!verifySessionToken(token)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  const { searchParams } = new URL(request.url)
-  const query = searchParams.get('query')
-  const section = searchParams.get('section') || 'companies'
-
-  if (!query) {
-    return NextResponse.json({ error: 'Query required' }, { status: 400 })
-  }
-
-  const apiKey = process.env.GOOGLE_PLACES_API_KEY
-  if (!apiKey) {
-    return NextResponse.json({ error: 'API key not configured' }, { status: 500 })
-  }
-
-  // Places API (New): POST searchText, paginate via pageToken in the body.
-  // Tokens are valid immediately — no delay needed between pages.
-  const allPlaces: NewPlace[] = []
-  let pageToken: string | undefined
-
-  for (let page = 0; page < MAX_PAGES; page++) {
-    const body: Record<string, unknown> = { textQuery: query, pageSize: 20 }
-    if (pageToken) body.pageToken = pageToken
-
-    const res = await fetch('https://places.googleapis.com/v1/places:searchText', {
-      method: 'POST',
-      cache: 'no-store',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Goog-Api-Key': apiKey,
-        'X-Goog-FieldMask':
-          'places.id,places.displayName,places.formattedAddress,places.addressComponents,places.types,nextPageToken',
-      },
-      body: JSON.stringify(body),
-    })
-    const data = (await res.json()) as NewApiResponse
-
-    if (!res.ok || data.error) {
-      const status = data.error?.status ?? `HTTP_${res.status}`
-      console.error(`places-search: page ${page + 1} failed with status ${status}`)
-      if (page === 0) {
-        return NextResponse.json({ error: status }, { status: 500 })
-      }
-      break // later pages fail soft — return what we have
-    }
-
-    allPlaces.push(...(data.places || []))
-    pageToken = data.nextPageToken
-    if (!pageToken) break
-  }
-
-  const results = allPlaces.map((place) => ({
-    google_place_id: place.id,
-    name: place.displayName?.text ?? '',
-    address: place.formattedAddress ?? '',
-    city: cityFromComponents(place.addressComponents) || extractCity(place.formattedAddress ?? ''),
-    country: countryFromComponents(place.addressComponents) || extractCountry(place.formattedAddress ?? ''),
-    types: place.types ?? [],
-  }))
-
-  // Flag results already imported into this section (best-effort)
-  let importedIds = new Set<string>()
+  if (!verifySessionToken(cookies().get(SESSION_COOKIE)?.value)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const sp = new URL(request.url).searchParams
+  const parsed = z.object({ query: z.string().trim().min(2).max(200), kind: z.enum(ORG_KINDS) }).safeParse({ query: sp.get('query'), kind: sp.get('kind') })
+  if (!parsed.success) return NextResponse.json({ error: 'Enter a search and choose a business type.' }, { status: 400 })
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SECRET_KEY!
-    )
-    const ids = results.map((r) => r.google_place_id)
-    if (ids.length > 0) {
-      const { data: logged } = await supabase
-        .from('import_log')
-        .select('google_place_id')
-        .eq('section', section)
-        .eq('status', 'imported')
-        .in('google_place_id', ids)
-      importedIds = new Set((logged || []).map((l) => l.google_place_id))
-    }
+    const places = await searchPlaces(parsed.data.query)
+    const ids = places.map((p) => p.google_place_id)
+    const db = getAdminSupabase()
+    const [{ data: logged }, { data: orgs }] = ids.length
+      ? await Promise.all([
+          db.from('import_log').select('google_place_id').eq('section', importSection(parsed.data.kind)).eq('status', 'imported').in('google_place_id', ids),
+          db.from('organisations').select('google_place_id').in('google_place_id', ids),
+        ])
+      : [{ data: [] }, { data: [] }]
+    const done = new Set([...(logged ?? []).map((l) => l.google_place_id), ...(orgs ?? []).map((o) => o.google_place_id as string)])
+    return NextResponse.json({
+      results: places.map((p) => ({ google_place_id: p.google_place_id, name: p.name, address: p.address, types: p.types, already_imported: done.has(p.google_place_id) })),
+    })
   } catch (err) {
-    console.error('admin/places-search error:', err)
-    // flagging failed — search still works, badges just won't show
+    return NextResponse.json({ error: err instanceof PlacesError ? err.message : 'Search failed. Try again.' }, { status: 502 })
   }
-
-  const flagged = results.map((r) => ({
-    ...r,
-    already_imported: importedIds.has(r.google_place_id),
-  }))
-
-  return NextResponse.json({
-    results: flagged,
-    total: flagged.length,
-  })
-}
-
-function cityFromComponents(components?: AddressComponent[]): string {
-  if (!components) return ''
-  const priority = ['locality', 'postal_town', 'administrative_area_level_2', 'administrative_area_level_1']
-  for (const wanted of priority) {
-    const match = components.find((c) => (c.types || []).includes(wanted))
-    if (match?.longText) return match.longText
-  }
-  return ''
-}
-
-function countryFromComponents(components?: AddressComponent[]): string {
-  if (!components) return ''
-  const match = components.find((c) => (c.types || []).includes('country'))
-  return match?.longText ?? ''
-}
-
-function extractCity(address: string): string {
-  if (!address) return ''
-  const parts = address.split(',')
-  const raw = parts.length >= 2 ? parts[parts.length - 2].trim() : parts[0].trim()
-  return raw.replace(/^[0-9A-Z\s-]{2,10}\s+/, '').trim()
-}
-
-function extractCountry(address: string): string {
-  if (!address) return ''
-  const parts = address.split(',')
-  return parts[parts.length - 1].trim()
 }

@@ -61,9 +61,11 @@ function Links({ badges, onNavigate }: { badges: Record<string, number>; onNavig
 /** Desktop sidebar. */
 export function AdminSidebar({ badges }: { badges: Record<string, number> }) {
   return (
-    <nav aria-label="Admin" className="sticky top-14 hidden h-[calc(100dvh-3.5rem)] w-60 shrink-0 overflow-y-auto border-r border-white/10 bg-ink p-3 lg:block">
-      <Links badges={badges} />
-    </nav>
+    <div className="hidden w-60 shrink-0 border-r border-white/10 bg-ink lg:block">
+      <nav aria-label="Admin" className="sticky top-14 h-[calc(100dvh-3.5rem)] overflow-y-auto p-3">
+        <Links badges={badges} />
+      </nav>
+    </div>
   )
 }
 

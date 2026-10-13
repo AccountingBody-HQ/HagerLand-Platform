@@ -262,3 +262,17 @@ export function contactMessageEmail(p: { name: string; phone: string; email: str
     reason: 'Internal notification for the HagerLand team.',
   })
 }
+
+export function accountDeletedEmail(p: { name: string }): RenderedEmail {
+  return renderEmail({
+    subject: 'Your HagerLand account has been deleted',
+    preheader: 'We have deleted your account as you asked.',
+    heading: 'Your account has been deleted',
+    paragraphs: [
+      `Hello ${p.name},`,
+      'As you asked, we have deleted your HagerLand account and your profile. Listings you posted as a private owner have been taken down.',
+      'Enquiries you sent to others may still be kept by the people who received them. If you have any questions, reply to this email.',
+    ],
+    reason: 'You are receiving this because you asked us to delete your HagerLand account.',
+  })
+}

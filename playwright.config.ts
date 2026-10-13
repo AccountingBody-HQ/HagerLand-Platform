@@ -16,7 +16,7 @@ export default defineConfig({
   use: { baseURL: 'http://localhost:3100', trace: 'retain-on-failure', screenshot: 'only-on-failure' },
   projects: [
     { name: 'setup', testMatch: /global\.setup\.ts/ },
-    { name: 'mobile', use: { ...devices['Pixel 7'], viewport: { width: 390, height: 844 } }, dependencies: ['setup'] },
+    { name: 'mobile', use: { ...devices['Pixel 7'], viewport: { width: 390, height: 844 } }, dependencies: ['setup'], testIgnore: /admin\// },
     { name: 'desktop', use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 900 } }, dependencies: ['setup'], testIgnore: /flows\// },
   ],
   webServer: {

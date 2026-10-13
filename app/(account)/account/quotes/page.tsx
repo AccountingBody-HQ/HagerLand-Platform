@@ -21,7 +21,7 @@ const STATUS: Record<string, { label: string; tone: 'neutral' | 'info' | 'green'
 
 export default async function MyQuotesPage() {
   const user = await requireUser('/account/quotes')
-  const { data } = await getServerSupabase().from('quote_requests').select('id, reference, status, created_at, quoted_total_etb_cents, quoted_at, source').eq('requester_user_id', user.id).order('created_at', { ascending: false })
+  const { data } = await getServerSupabase().from('quote_requests').select('id, reference, status, created_at, quoted_total_etb_cents, quoted_at, source, quote_document_path').eq('requester_user_id', user.id).order('created_at', { ascending: false })
   const quotes = data ?? []
   return (
     <div>
@@ -43,6 +43,11 @@ export default async function MyQuotesPage() {
                 <div className="flex items-center gap-3">
                   {q.quoted_total_etb_cents !== null && <span className="font-display font-bold tabular-nums">{formatETBCents(q.quoted_total_etb_cents)}</span>}
                   <Badge tone={s.tone}>{s.label}</Badge>
+                  {q.quote_document_path && (
+                    <a href={`/api/quote-document/${q.id}`} className="inline-flex min-h-11 items-center text-small font-semibold text-green underline-offset-2 hover:underline">
+                      Download quote
+                    </a>
+                  )}
                 </div>
               </li>
             )

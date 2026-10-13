@@ -3,8 +3,8 @@ import { ArrowRight, BadgeCheck, Building2, ClipboardList, Clock, Hammer, House,
 import { brand } from '@/lib/brand'
 import { buildMetadata, organizationJsonLd, websiteJsonLd } from '@/lib/seo'
 import { getBusinessDetails } from '@/lib/data/business'
-import { getLocationByPath, getServiceCategories } from '@/lib/data/reference'
-import { getPopularLocations, searchProperties, type PublicProperty } from '@/lib/data/properties'
+import { getLocationByPath, getServiceCategories, getSiteSettings } from '@/lib/data/reference'
+import { getPopularLocations, getPropertiesByIds, searchProperties, type PublicProperty } from '@/lib/data/properties'
 import { searchOrganisations } from '@/lib/data/organisations'
 import { searchDevelopments } from '@/lib/data/developments'
 import { SUPPLY_TOP_CATEGORIES } from '@/lib/navigation'
@@ -41,12 +41,14 @@ const PRO_CHIPS: [string, string][] = [
 
 /** Featured first, then newest, without duplicates. */
 function featuredThenNewest(featured: PublicProperty[], newest: PublicProperty[], n: number): PublicProperty[] {
-  const seen = new Set(featured.map((p) => p.id))
-  return [...featured, ...newest.filter((p) => !seen.has(p.id))].slice(0, n)
+  const seen = new Set<string | null>()
+  return [...featured, ...newest].filter((p) => (seen.has(p.id) ? false : (seen.add(p.id), true))).slice(0, n)
 }
 
 export default async function HomePage() {
-  const [bole, services] = await Promise.all([getLocationByPath('addis-ababa/bole'), getServiceCategories()])
+  const [bole, services, settings] = await Promise.all([getLocationByPath('addis-ababa/bole'), getServiceCategories(), getSiteSettings()])
+  const pickIds = Array.isArray(settings.homepage_featured_ids) ? settings.homepage_featured_ids.filter((x): x is string => typeof x === 'string') : []
+  const picks = await getPropertiesByIds(pickIds)
   const architectsService = services.flatMap((g) => g.children).find((c) => c.slug === 'architects')
   const [business, saleFeatured, saleNewest, rentFeatured, rentNewest, boleApartments, land, architects, ownDevs, newDevs, verifiedPros, verifiedCount, popular] = await Promise.all([
     getBusinessDetails(),
@@ -155,7 +157,7 @@ export default async function HomePage() {
         {totalProperties >= 4 ? (
           <>
             <SectionHeader title="Latest properties" />
-            <LatestProperties sale={featuredThenNewest(saleFeatured.items, saleNewest.items, 8)} rent={featuredThenNewest(rentFeatured.items, rentNewest.items, 8)} />
+            <LatestProperties sale={featuredThenNewest([...picks.filter((p) => p.purpose === 'sale'), ...saleFeatured.items], saleNewest.items, 8)} rent={featuredThenNewest([...picks.filter((p) => p.purpose === 'rent'), ...rentFeatured.items], rentNewest.items, 8)} />
           </>
         ) : (
           <div className="flex flex-col items-start justify-between gap-6 rounded-xl border border-border bg-white p-6 sm:flex-row sm:items-center sm:p-10">

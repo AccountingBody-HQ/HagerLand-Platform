@@ -1,41 +1,19 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server'
 import { cookies } from 'next/headers'
-import { verifySessionToken } from '@/lib/admin-auth'
-const SESSION_COOKIE = 'hl_admin_session'
+import { SESSION_COOKIE, verifySessionToken } from '@/lib/admin-auth'
+import { PlacesError, placeDetails } from '@/lib/admin/places'
+import { placePhone, placeWebsite } from '@/lib/admin/place-mapping'
 
+export const dynamic = 'force-dynamic'
+
+/** Admin: contact details for one place (Places API New). */
 export async function GET(request: NextRequest) {
-  const token = cookies().get(SESSION_COOKIE)?.value
-  if (!verifySessionToken(token)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!verifySessionToken(cookies().get(SESSION_COOKIE)?.value)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const placeId = new URL(request.url).searchParams.get('place_id') ?? ''
+  try {
+    const d = await placeDetails(placeId)
+    return NextResponse.json({ name: d.name, address: d.address, phone: placePhone(d.internationalPhone, d.nationalPhone), website: placeWebsite(d.website), business_status: d.businessStatus ?? null })
+  } catch (err) {
+    return NextResponse.json({ error: err instanceof PlacesError ? err.message : 'Lookup failed.' }, { status: 502 })
   }
-  const { searchParams } = new URL(request.url)
-  const placeId = searchParams.get('place_id')
-  if (!placeId) {
-    return NextResponse.json({ error: 'place_id required' }, { status: 400 })
-  }
-  const apiKey = process.env.GOOGLE_PLACES_API_KEY
-  if (!apiKey) {
-    return NextResponse.json({ error: 'API key not configured' }, { status: 500 })
-  }
-  const fields = 'address_components,formatted_phone_number,website'
-  const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=${fields}&key=${apiKey}`
-  const res = await fetch(url)
-  const data = await res.json()
-  if (data.status !== 'OK') {
-    return NextResponse.json({ error: data.status }, { status: 500 })
-  }
-  const components: { long_name: string; short_name: string; types: string[] }[] = data.result?.address_components || []
-  function getComponent(type: string): string {
-    return components.find(c => c.types.includes(type))?.long_name || ''
-  }
-  const city =
-    getComponent('locality') ||
-    getComponent('postal_town') ||
-    getComponent('administrative_area_level_2') ||
-    getComponent('administrative_area_level_1') ||
-    ''
-  const country = getComponent('country')
-  const phone = data.result?.formatted_phone_number || ''
-  const website = data.result?.website || ''
-  return NextResponse.json({ city, country, phone, website })
 }

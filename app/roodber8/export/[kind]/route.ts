@@ -3,6 +3,7 @@ import { isAdminRequest } from '@/lib/admin-auth'
 import { audit } from '@/lib/admin/guard'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { toCsv } from '@/lib/admin/csv'
+import { enquiriesPerOrg, listingReport, periodFrom, quoteReport, signupSeries } from '@/lib/admin/reports'
 
 export const dynamic = 'force-dynamic'
 
@@ -59,6 +60,25 @@ export async function GET(request: NextRequest, { params }: { params: { kind: st
     case 'search-misses': {
       const { data } = await db.from('search_misses').select('q_normalised, vertical, count, last_seen_at').order('count', { ascending: false }).limit(5000)
       rows = data ?? []
+      break
+    }
+    case 'report-listings': {
+      const r = await listingReport()
+      rows = [...r.byStatus.map((x) => ({ group: 'status', value: x.key, count: x.count })), ...r.byType.map((x) => ({ group: 'live by type', value: x.key, count: x.count })), ...r.byLocation.map((x) => ({ group: 'live by location', value: x.key, count: x.count }))]
+      break
+    }
+    case 'report-enquiries-per-org': {
+      rows = await enquiriesPerOrg(periodFrom(sp.get('period') ?? undefined).since)
+      break
+    }
+    case 'report-quotes': {
+      const r = await quoteReport(periodFrom(sp.get('period') ?? undefined).since)
+      rows = r.byMonth.map((m) => ({ month: m.key, quotes: m.count, total_etb: (m.total / 100).toFixed(2) }))
+      break
+    }
+    case 'report-signups': {
+      const r = await signupSeries(52)
+      rows = r.signups.map((s, i) => ({ week_starting: s.week, signups: s.count, enquiries: r.enquiries[i]?.count ?? 0 }))
       break
     }
     default:

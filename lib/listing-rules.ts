@@ -13,3 +13,6 @@ export function canRenew(row: { status: string; expires_at: string | null }, now
   if (row.status === 'published') return expiresAt - now < 14 * 86_400_000
   return false
 }
+
+/** A quote is valid for this many days after it is issued; the daily job then marks it expired. */
+export const QUOTE_VALID_DAYS = 14

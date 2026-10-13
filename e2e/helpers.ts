@@ -82,3 +82,22 @@ export function trackErrors(page: Page): string[] {
   })
   return errors
 }
+
+/** Real admin sign-in through /roodber8-login with a fresh one-time code from the local TOTP secret. */
+export async function adminLogin(page: Page): Promise<void> {
+  const { authenticator } = await import('otplib')
+  await page.goto('/roodber8-login')
+  await page.fill('#adm-user', process.env.ADMIN_USERNAME ?? '')
+  await page.fill('#adm-pass', process.env.ADMIN_PASSWORD ?? '')
+  await page.fill('#adm-code', authenticator.generate(process.env.ADMIN_TOTP_SECRET ?? ''))
+  await page.getByRole('button', { name: /sign in/i }).click()
+  await page.waitForURL('**/roodber8')
+}
+
+/** Adds a valid admin session cookie directly (same HMAC as lib/admin-auth), for tests after the login test. */
+export async function adminSession(page: Page): Promise<void> {
+  const crypto = await import('node:crypto')
+  const expires = `${Date.now() + 3600_000}`
+  const hmac = crypto.createHmac('sha256', process.env.ADMIN_SESSION_SECRET ?? '').update(expires).digest('hex')
+  await page.context().addCookies([{ name: 'hl_admin_session', value: `${expires}.${hmac}`, domain: 'localhost', path: '/', httpOnly: true, secure: true, sameSite: 'Lax' }])
+}

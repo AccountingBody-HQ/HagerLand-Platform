@@ -31,3 +31,21 @@ export async function developerOptions(): Promise<{ id: string; label: string }[
   const { data } = await getAdminSupabase().from('organisations').select('id, name, kind').in('kind', ['hagerland', 'developer']).neq('status', 'removed').order('is_hagerland', { ascending: false }).order('name').limit(2000)
   return (data ?? []).map((o) => ({ id: o.id, label: o.kind === 'hagerland' ? `${o.name} (HagerLand)` : o.name }))
 }
+
+export async function productFormOptions() {
+  const db = getAdminSupabase()
+  const [{ data: cats }, { data: brands }, { data: sellers }] = await Promise.all([
+    db.from('product_categories').select('id, name, parent_id, sort').order('sort'),
+    db.from('brands').select('id, name').order('name'),
+    db.from('organisations').select('id, name, kind, is_hagerland').in('kind', ['hagerland', 'supplier', 'manufacturer']).neq('status', 'removed').order('is_hagerland', { ascending: false }).order('name'),
+  ])
+  const all = cats ?? []
+  const categories = all
+    .filter((c) => !c.parent_id)
+    .flatMap((root) => [{ id: root.id, label: root.name }, ...all.filter((c) => c.parent_id === root.id).map((c) => ({ id: c.id, label: `${root.name} › ${c.name}` }))])
+  return {
+    categories,
+    brands: brands ?? [],
+    sellers: (sellers ?? []).filter((s) => s.kind !== 'hagerland' || s.name.toLowerCase().includes('supply')).map((s) => ({ id: s.id, label: s.name })),
+  }
+}
