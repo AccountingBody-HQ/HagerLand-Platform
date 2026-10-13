@@ -24,7 +24,7 @@ Status values: todo · in progress · done · blocked
 | WP-12 | Homepage [STOP-GATE] | done | 2026-10-13 | e53385b | Design direction approved by AB; homepage picks from admin Settings added in WP-14 |
 | WP-13 | Content pages & emails | done | 2026-10-13 | e53385b | Business details come from site_settings (migration 0010); empty values hidden |
 | WP-14 | Admin rebuild | done | 2026-10-13 | 78da435 + 7e5a30c | All 17 sections of spec 18.2. Admin e2e suite (e2e/admin). Users email search scans auth pages (no email filter in the auth admin API) |
-| WP-15 | SEO | done | 2026-10-13 | see next row's commit | Sitemaps split by type (/sitemap/<type>.xml, listed in robots.txt); landing pages listed only when they meet min_results_for_index; share images at /og/<kind>/<slug> (WebP photos converted with sharp, Manrope font bundled under OFL); admin homepage picks |
+| WP-15 | SEO | done | 2026-10-13 | 3d50dbc | Sitemaps split by type (/sitemap/<type>.xml, listed in robots.txt); landing pages listed only when they meet min_results_for_index; share images at /og/<kind>/<slug> (WebP photos converted with sharp, Manrope font bundled under OFL); admin homepage picks |
 | WP-16 | Analytics, monitoring, cron | todo | | | |
 | WP-17 | Security hardening | todo | | | |
 | WP-18 | Performance & accessibility | todo | | | |
