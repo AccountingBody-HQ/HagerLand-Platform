@@ -123,6 +123,28 @@ end $$;
 
 select pg_temp.record_check('Anonymous can read active locations', (select count(*) from public.locations) > 0);
 
+do $$ begin
+  update public.site_settings_public set value = '"changed"' where key = 'listing_expiry_days';
+  perform pg_temp.record_check('Anonymous cannot change site settings through the public view', false);
+exception when insufficient_privilege then
+  perform pg_temp.record_check('Anonymous cannot change site settings through the public view', true);
+end $$;
+
+do $$ begin
+  delete from public.media_public;
+  perform pg_temp.record_check('Anonymous cannot delete media through the public view', false);
+exception when insufficient_privilege then
+  perform pg_temp.record_check('Anonymous cannot delete media through the public view', true);
+end $$;
+
+do $$ begin
+  insert into public.properties_public (id) values (gen_random_uuid());
+  perform pg_temp.record_check('Anonymous cannot insert into the public properties view', false);
+-- Postgres refuses either for lack of permission or because this view is not insertable at all.
+exception when insufficient_privilege or object_not_in_prerequisite_state then
+  perform pg_temp.record_check('Anonymous cannot insert into the public properties view', true);
+end $$;
+
 -- ---------- HagerLand publishes the listing ----------
 reset role;
 update public.properties set status = 'published' where id = '00000000-0000-4000-8000-0000000000a1';

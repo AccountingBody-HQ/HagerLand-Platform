@@ -2,8 +2,9 @@
 -- Each view is owned by postgres and therefore deliberately bypasses RLS on the base tables.
 -- Safety comes from the view itself: it filters to published rows and selects only safe columns
 -- (never contact details, pending changes, tax or licence numbers, or internal notes).
+-- Views are security barriers and read-only: visitors get SELECT and nothing else.
 
-create view public.organisations_public as
+create view public.organisations_public with (security_barrier = true) as
 select
   o.id, o.kind, o.name, o.slug, o.short_id, o.tagline, o.description, o.logo_path, o.cover_path,
   o.website, o.location_id, l.display_name as location_display, l.path as location_path,
@@ -22,7 +23,7 @@ where o.status = 'published';
 comment on view public.organisations_public is
   'Bypasses RLS on purpose (owned by postgres): exposes only published organisations and only public-safe columns.';
 
-create view public.developments_public as
+create view public.developments_public with (security_barrier = true) as
 select
   d.id, d.kind, d.name, d.slug, d.short_id, d.developer_org_id,
   org.name as developer_name, org.slug as developer_slug, org.verification_level as developer_verification,
@@ -43,7 +44,7 @@ where d.status = 'published';
 comment on view public.developments_public is
   'Bypasses RLS on purpose (owned by postgres): exposes only published developments and only public-safe columns.';
 
-create view public.properties_public as
+create view public.properties_public with (security_barrier = true) as
 select
   p.id, p.short_id, p.slug, p.purpose, p.property_type, p.title, p.description,
   p.price_etb, p.price_period, p.price_negotiable, p.price_on_request, p.advance_months, p.service_charge_etb,
@@ -79,7 +80,7 @@ where p.status = 'published' and p.expires_at > now();
 comment on view public.properties_public is
   'Bypasses RLS on purpose (owned by postgres): exposes only published, unexpired listings; contact details are never included (they come from /api/contact-reveal).';
 
-create view public.products_public as
+create view public.products_public with (security_barrier = true) as
 select
   pr.id, pr.short_id, pr.slug, pr.name, pr.category_id, c.name as category_name, c.slug as category_slug,
   c.parent_id as category_parent_id, pr.brand_id, b.name as brand_name, b.slug as brand_slug,
@@ -101,7 +102,7 @@ where pr.status = 'published';
 comment on view public.products_public is
   'Bypasses RLS on purpose (owned by postgres): exposes only published products from published sellers; trade prices excluded.';
 
-create view public.portfolio_public as
+create view public.portfolio_public with (security_barrier = true) as
 select
   pp.id, pp.org_id, pp.title, pp.description, pp.location_id, l.display_name as location_display,
   pp.year, pp.project_value_band, pp.development_id, pp.cover_path, pp.sort, pp.updated_at
@@ -112,7 +113,7 @@ where pp.status = 'published';
 comment on view public.portfolio_public is
   'Bypasses RLS on purpose (owned by postgres): exposes only published portfolio projects of published organisations.';
 
-create view public.media_public as
+create view public.media_public with (security_barrier = true) as
 select m.id, m.entity_type, m.entity_id, m.kind, m.storage_path, m.thumb_path, m.width, m.height, m.alt, m.sort, m.is_cover
 from public.media m
 where m.status = 'approved'
@@ -129,7 +130,7 @@ where m.status = 'approved'
 comment on view public.media_public is
   'Bypasses RLS on purpose (owned by postgres): exposes only approved images whose parent record is public.';
 
-create view public.site_settings_public as
+create view public.site_settings_public with (security_barrier = true) as
 select s.key, s.value
 from public.site_settings s
 where s.key in (
@@ -141,7 +142,7 @@ comment on view public.site_settings_public is
   'Bypasses RLS on purpose (owned by postgres): exposes only a whitelist of public settings.';
 
 -- Org service and supply-category links for published organisations (used by profile pages).
-create view public.organisation_services_public as
+create view public.organisation_services_public with (security_barrier = true) as
 select os.org_id, sc.id as service_id, sc.name, sc.slug, sc.parent_id
 from public.organisation_services os
 join public.organisations o on o.id = os.org_id and o.status = 'published'
@@ -149,13 +150,22 @@ join public.service_categories sc on sc.id = os.service_id and sc.is_active;
 comment on view public.organisation_services_public is
   'Bypasses RLS on purpose (owned by postgres): services offered by published organisations.';
 
-create view public.org_product_categories_public as
+create view public.org_product_categories_public with (security_barrier = true) as
 select opc.org_id, pc.id as product_category_id, pc.name, pc.slug, pc.parent_id
 from public.org_product_categories opc
 join public.organisations o on o.id = opc.org_id and o.status = 'published'
 join public.product_categories pc on pc.id = opc.product_category_id and pc.is_active;
 comment on view public.org_product_categories_public is
   'Bypasses RLS on purpose (owned by postgres): product categories supplied by published organisations.';
+
+-- Supabase's default privileges grant ALL on new views to anon and authenticated, and simple
+-- views (site_settings_public, media_public) are auto-updatable. Remove everything first so the
+-- views are strictly read-only, then grant SELECT alone.
+revoke all on
+  public.organisations_public, public.developments_public, public.properties_public, public.products_public,
+  public.portfolio_public, public.media_public, public.site_settings_public,
+  public.organisation_services_public, public.org_product_categories_public
+from public, anon, authenticated;
 
 grant select on
   public.organisations_public, public.developments_public, public.properties_public, public.products_public,

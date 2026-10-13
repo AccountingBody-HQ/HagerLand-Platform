@@ -1,6 +1,46 @@
 -- 0001 · Extensions, enums and shared helper functions for the HagerLand relaunch.
 -- Additive only: creates new types and functions; touches no existing table.
 
+-- Pre-flight: stop before creating anything if a name we need is already taken.
+-- If this raises an error, nothing has been changed. Send the message to Claude.
+do $$
+declare
+  tables text[] := array[
+    'locations', 'service_categories', 'product_categories', 'brands', 'profiles', 'organisations',
+    'organisation_members', 'organisation_services', 'org_product_categories', 'developments',
+    'portfolio_projects', 'properties', 'products', 'media', 'reference_counters', 'quote_requests',
+    'quote_request_items', 'enquiries', 'contact_reveals', 'claims', 'verification_requests', 'reports',
+    'admin_notes', 'search_misses', 'promotions', 'site_settings', 'audit_log', 'errors'];
+  views text[] := array[
+    'organisations_public', 'developments_public', 'properties_public', 'products_public', 'portfolio_public',
+    'media_public', 'site_settings_public', 'organisation_services_public', 'org_product_categories_public'];
+  enums text[] := array[
+    'account_type', 'org_kind', 'org_role', 'verification_level', 'listing_status', 'listing_purpose',
+    'property_type', 'finishing_status', 'furnishing', 'tenure', 'completion_status', 'development_kind',
+    'price_type', 'stock_status', 'enquiry_status', 'quote_status', 'location_level'];
+  clashes text[] := '{}';
+  n text;
+begin
+  foreach n in array tables || views loop
+    if exists (select 1 from pg_class c join pg_namespace s on s.oid = c.relnamespace where s.nspname = 'public' and c.relname = n) then
+      clashes := clashes || format('a table or view called "%s" already exists', n);
+    end if;
+  end loop;
+  foreach n in array enums loop
+    if exists (select 1 from pg_type t join pg_namespace s on s.oid = t.typnamespace where s.nspname = 'public' and t.typname = n) then
+      clashes := clashes || format('a type called "%s" already exists', n);
+    end if;
+  end loop;
+  if exists (select 1 from pg_trigger t join pg_class c on c.oid = t.tgrelid join pg_namespace s on s.oid = c.relnamespace
+             where s.nspname = 'auth' and c.relname = 'users' and t.tgname = 'on_auth_user_created_hagerland') then
+    clashes := clashes || 'a trigger called "on_auth_user_created_hagerland" already exists on auth.users'::text;
+  end if;
+  if cardinality(clashes) > 0 then
+    raise exception 'HagerLand migration stopped: nothing was changed. These names are already in use: %', array_to_string(clashes, '; ');
+  end if;
+end
+$$;
+
 create extension if not exists pgcrypto with schema extensions;
 create extension if not exists pg_trgm with schema extensions;
 create extension if not exists unaccent with schema extensions;

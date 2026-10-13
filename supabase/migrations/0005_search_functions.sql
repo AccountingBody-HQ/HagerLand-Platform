@@ -347,16 +347,20 @@ language sql stable
 security definer
 set search_path = public, extensions
 as $$
-  select coalesce(jsonb_agg(to_jsonb(x) order by x.count desc, x.name), '[]'::jsonb)
+  select coalesce(jsonb_agg(to_jsonb(top) order by top.count desc, top.name), '[]'::jsonb)
   from (
-    select l.id, l.name, l.display_name, l.path, l.level,
-      (select count(*)::int from public.properties_public v
-        where v.location_id in (select public.locations_descendants(l.id)) and (p_purpose is null or v.purpose = p_purpose)) as count
-    from public.locations l
-    where l.is_active and l.level in ('sub_city', 'city', 'area')
-  ) x
-  where x.count > 0
-  limit greatest(1, least(coalesce(p_limit, 8), 50))
+    select x.*
+    from (
+      select l.id, l.name, l.display_name, l.path, l.level,
+        (select count(*)::int from public.properties_public v
+          where v.location_id in (select public.locations_descendants(l.id)) and (p_purpose is null or v.purpose = p_purpose)) as count
+      from public.locations l
+      where l.is_active and l.level in ('sub_city', 'city', 'area')
+    ) x
+    where x.count > 0
+    order by x.count desc, x.name
+    limit greatest(1, least(coalesce(p_limit, 8), 50))
+  ) top
 $$;
 
 -- Facts for a location landing page: count, price range, common types and child areas.
