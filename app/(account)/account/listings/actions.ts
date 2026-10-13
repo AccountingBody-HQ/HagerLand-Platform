@@ -9,7 +9,7 @@ import { getActiveMembership, getProfile, isEmailConfirmed, requireUser } from '
 import { basicsSchema, contactSchema, declarationsSchema, detailsSchema, formToObject, locationSchema, MIN_PHOTOS, type WizardStep } from '@/lib/validation/property'
 import { fail, invalid, ok, type ActionResult } from '@/lib/action-result'
 import { listingSlug, shortId } from '@/lib/slug'
-import { getLocationChain, getSettingNumber } from '@/lib/data/reference'
+import { getLocationChain, getSettingNumber, isEthiopianLocation, NOT_IN_ETHIOPIA } from '@/lib/data/reference'
 import { propertyHeadline } from '@/lib/labels'
 import { revalidateEntity } from '@/lib/revalidate'
 import { sendEmail } from '@/lib/email/send'
@@ -68,6 +68,7 @@ export async function saveListingStepAction(_prev: WizardState, formData: FormDa
     if (!basics.success) return invalid(basics.error)
     const loc = locationSchema.safeParse(raw)
     if (!loc.success) return invalid(loc.error)
+    if (!(await isEthiopianLocation(loc.data.location_id))) return fail(NOT_IN_ETHIOPIA, { location_id: 'Choose a place in Ethiopia' })
     const active = await getActiveMembership()
     const listerType = active?.org.kind === 'agency' ? 'agent' : active?.org.kind === 'developer' ? 'developer' : 'owner'
     const sid = shortId()
@@ -113,6 +114,7 @@ export async function saveListingStepAction(_prev: WizardState, formData: FormDa
   } else if (step === 'location') {
     const r = locationSchema.safeParse(raw)
     if (!r.success) return invalid(r.error)
+    if (!(await isEthiopianLocation(r.data.location_id))) return fail(NOT_IN_ETHIOPIA, { location_id: 'Choose a place in Ethiopia' })
     changes = { location_id: r.data.location_id, address_line: r.data.address_line ?? null, show_exact_location: r.data.show_exact_location, development_id: await ownDevelopment(r.data.development_id) }
     if (r.data.requested_area) await getAdminSupabase().from('admin_notes').insert({ entity_type: 'property', entity_id: id, note: `Lister asked for a new area: "${r.data.requested_area}"` })
   } else if (step === 'details') {

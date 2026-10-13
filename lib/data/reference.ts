@@ -4,14 +4,14 @@ import type { Database } from '@/lib/database.types'
 import { getPublicSupabase } from '@/lib/supabase/public'
 import { safeQuery, unwrap } from './safe'
 
-export type Location = Pick<Database['public']['Tables']['locations']['Row'], 'id' | 'parent_id' | 'level' | 'name' | 'name_am' | 'slug' | 'path' | 'display_name' | 'sort' | 'lat' | 'lng' | 'seo_intro_sale' | 'seo_intro_rent' | 'seo_intro_professionals'>
+export type Location = Pick<Database['public']['Tables']['locations']['Row'], 'id' | 'parent_id' | 'level' | 'name' | 'name_am' | 'slug' | 'path' | 'display_name' | 'sort' | 'lat' | 'lng' | 'seo_intro_sale' | 'seo_intro_rent' | 'seo_intro_professionals' | 'country_code'>
 export type Category = Pick<Database['public']['Tables']['service_categories']['Row'], 'id' | 'parent_id' | 'name' | 'slug' | 'description' | 'icon' | 'sort' | 'seo_title' | 'seo_intro'>
 export interface CategoryNode extends Category {
   children: Category[]
 }
 
 const REF = { tags: ['reference'], revalidate: 3600 }
-const LOCATION_COLUMNS = 'id, parent_id, level, name, name_am, slug, path, display_name, sort, lat, lng, seo_intro_sale, seo_intro_rent, seo_intro_professionals'
+const LOCATION_COLUMNS = 'id, parent_id, level, name, name_am, slug, path, display_name, sort, lat, lng, seo_intro_sale, seo_intro_rent, seo_intro_professionals, country_code'
 const CATEGORY_COLUMNS = 'id, parent_id, name, slug, description, icon, sort, seo_title, seo_intro'
 
 function toTree(rows: Category[]): CategoryNode[] {
@@ -90,3 +90,11 @@ export async function getSettingNumber(key: string, fallback: number): Promise<n
   const n = typeof v === 'number' ? v : Number(v)
   return Number.isFinite(n) ? n : fallback
 }
+
+/** Property listings and developments must be in Ethiopia (spec 24.4). */
+export async function isEthiopianLocation(id: string | null | undefined): Promise<boolean> {
+  const loc = await getLocationById(id)
+  return Boolean(loc && loc.country_code === 'ET')
+}
+
+export const NOT_IN_ETHIOPIA = 'Property listings and developments must be in Ethiopia. Choose a place in Ethiopia.'

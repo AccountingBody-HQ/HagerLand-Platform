@@ -1,5 +1,6 @@
 'use server'
 
+
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
@@ -8,7 +9,7 @@ import { assertAdmin, audit, changedFields } from '@/lib/admin/guard'
 import { basicsSchema, contactSchema, detailsSchema, formToObject, locationSchema } from '@/lib/validation/property'
 import { fail, invalid, ok, type ActionResult } from '@/lib/action-result'
 import { listingSlug, shortId } from '@/lib/slug'
-import { getLocationChain } from '@/lib/data/reference'
+import { getLocationChain, isEthiopianLocation, NOT_IN_ETHIOPIA } from '@/lib/data/reference'
 import { propertyHeadline } from '@/lib/labels'
 import { revalidateEntity } from '@/lib/revalidate'
 import type { Database } from '@/lib/database.types'
@@ -38,6 +39,7 @@ export async function saveAdminPropertyAction(_prev: AdminPropertyState, formDat
   const c = contactSchema.safeParse(raw)
   for (const r of [l, b, loc, d, c]) if (!r.success) return invalid(r.error)
   if (!l.success || !b.success || !loc.success || !d.success || !c.success) return fail('Please check the form.')
+  if (!(await isEthiopianLocation(loc.data.location_id))) return fail(NOT_IN_ETHIOPIA, { location_id: 'Choose a place in Ethiopia' })
   const db = getAdminSupabase()
 
   let listerOrgId: string | null = null

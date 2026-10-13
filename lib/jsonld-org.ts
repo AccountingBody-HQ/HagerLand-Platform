@@ -12,6 +12,9 @@ const TYPE_BY_KIND: Record<string, string> = {
   sole_trader: 'HomeAndConstructionBusiness',
   supplier: 'Store',
   manufacturer: 'Store',
+  lender: 'FinancialService',
+  insurer: 'InsuranceAgency',
+  broker: 'FinancialService',
   hagerland: 'HomeAndConstructionBusiness',
 }
 
@@ -26,7 +29,7 @@ export function organisationJsonLd(o: PublicOrganisation, city: string | null, r
     ...(o.description ? { description: o.description.slice(0, 500) } : {}),
     ...(logo ? { logo, image: logo } : {}),
     ...(o.website ? { sameAs: [o.website, ...sameAs] } : sameAs.length ? { sameAs } : {}),
-    address: postalAddress(city, region),
+    address: postalAddress(city, region, null, o.country_code && o.country_code !== 'ZZ' ? o.country_code : 'ET'),
     ...(o.year_established ? { foundingDate: String(o.year_established) } : {}),
   }
 }

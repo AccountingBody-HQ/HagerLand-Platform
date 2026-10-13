@@ -121,6 +121,37 @@ select (select count(*) from verticals) as verticals,
 ```
 **You should see:** `10 | 6 | 11 | 2`
 
+## 0012_enum_values.sql (Phase 1.5, E2)
+**What it does:** adds new choices to two existing lists: a "country" level for places, and three new
+kinds of organisation (lender, insurer, broker) for finance and insurance partners. Postgres needs these
+in a separate step before they can be used, which is why this file is small. It changes no data.
+
+**Check:**
+```sql
+select count(*) from pg_enum e join pg_type t on t.oid = e.enumtypid
+where (t.typname = 'location_level' and e.enumlabel = 'country')
+   or (t.typname = 'org_kind' and e.enumlabel in ('lender', 'insurer', 'broker'));
+```
+**You should see:** `4`
+
+## 0013_international.sql (Phase 1.5, E2)
+**What it does:** makes HagerLand international without changing any Ethiopian address. Every place
+gets a country (all existing places are Ethiopia), and 12 countries where many Ethiopians live are added
+with their main cities (London, Washington DC, Toronto, Dubai and others). Businesses get a country,
+a currency and a "serves the Ethiopian community abroad" option. Property listings and developments
+are kept to Ethiopia. It also adds a private table of exchange rates you set in admin → Exchange rates,
+used only to show visitors abroad an "approx." price next to the ETB price.
+
+**Check:**
+```sql
+select (select count(*) from locations where level = 'country') as countries,
+       (select count(*) from locations where country_code <> 'ET' and level = 'city') as cities_abroad,
+       (select count(*) from locations where country_code = 'ET') as ethiopian_places,
+       (select count(*) from information_schema.columns where table_name = 'organisations' and column_name in ('country_code', 'currency', 'serves_diaspora')) as new_org_columns,
+       (select count(*) from exchange_rates) as rates;
+```
+**You should see:** `12 | 22 | 39 | 3 | 0` (Ethiopian places: 39 plus any you have added since).
+
 ---
 
 ## Security test (run after all migrations)
@@ -129,7 +160,7 @@ statements: that is the test cleaning up after itself; click **Run this query**.
 It temporarily creates two test users and a test listing, tries things that should and should not be
 allowed, then deletes everything it created.
 
-**You should see:** every row starting with `PASS` (38 rows after migration 0011; each later migration adds its own checks and its section below says the new total).
+**You should see:** every row starting with `PASS` (38 rows after migration 0011, 42 after 0013; each later migration adds its own checks and its section below says the new total).
 
 ## TypeScript types
 `lib/database.types.ts` was generated from these exact migrations. After all migrations are applied,

@@ -23,6 +23,7 @@ import { AskQuestion } from '@/components/supplies/AskQuestion'
 import { ProfessionalsModule } from '@/components/company/ProfessionalsModule'
 import { ViewTracker } from '@/components/analytics/ViewTracker'
 import { JsonLd } from '@/components/seo/JsonLd'
+import { ApproxPrice } from '@/components/currency/ApproxPrice'
 
 export const revalidate = 600
 
@@ -90,6 +91,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
           </div>
           <div className="rounded-lg bg-stone-50 p-4">
             <p className="font-display text-h2 font-bold tabular-nums">{productPrice(p)}</p>
+            {p.price_type !== 'on_request' && p.price_etb_cents !== null && <ApproxPrice etb={p.price_etb_cents / 100} className="block" />}
             {p.price_type !== 'on_request' && p.price_updated_at && <p className="mt-1 text-small text-muted">Price updated {formatDate(p.price_updated_at)}</p>}
             {volatile && <p className="mt-1 text-small text-warning">Prices change often — we confirm today&apos;s price on your quote.</p>}
             <ul className="mt-3 space-y-1 text-small text-muted">

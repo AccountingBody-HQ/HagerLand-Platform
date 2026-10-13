@@ -35,6 +35,7 @@ export async function saveAdminOrgAction(_prev: OrgFormState | null, formData: F
     description: d.description ?? null,
     location_id: d.location_id,
     areas_served: Array.from(new Set(d.areas_served)),
+    serves_diaspora: d.serves_diaspora,
     phone: d.phone,
     whatsapp: d.whatsapp ?? null,
     telegram: d.telegram ?? null,

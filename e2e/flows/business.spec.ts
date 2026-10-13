@@ -14,14 +14,15 @@ test('a contractor creates a business profile, HagerLand approves it, and it goe
   await page.fill('#org-location', 'Bole')
   await page.getByRole('option', { name: /Bole/ }).first().click()
   await page.fill('#org-phone', '0911556677')
+  await page.check('#org-diaspora')
   await page.locator('form button[type=submit]').last().click()
   // Earlier runs leave similar names behind: the duplicate check then asks first (that check is part of the journey).
   const notMine = page.getByRole('button', { name: /none of these/i })
   await Promise.race([page.waitForURL(/\/account(\?|$)/), notMine.waitFor()])
   if (await notMine.isVisible()) await notMine.click()
   await page.waitForURL(/\/account(\?|$)/)
-  const { data: org } = await db().from('organisations').select('id, slug, status').eq('name', name).single()
-  expect(org?.status).toBe('pending_review')
+  const { data: org } = await db().from('organisations').select('id, slug, status, serves_diaspora, country_code, currency').eq('name', name).single()
+  expect(org).toMatchObject({ status: 'pending_review', serves_diaspora: true, country_code: 'ET', currency: 'ETB' })
   const { count } = await db().from('organisation_members').select('user_id', { count: 'exact', head: true }).eq('org_id', org!.id).eq('role', 'owner')
   expect(count).toBe(1)
 

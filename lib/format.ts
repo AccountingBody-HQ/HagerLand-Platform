@@ -95,3 +95,29 @@ export function telegramLink(username: string): string | null {
 export function pluralise(count: number, singular: string, plural = `${singular}s`): string {
   return `${formatNumber(count)} ${count === 1 ? singular : plural}`
 }
+
+const moneyFormatters = new Map<string, Intl.NumberFormat>()
+
+/**
+ * Money in a record's own currency (spec 24.4): ETB as "ETB 4,500,000" (no decimals for property),
+ * other currencies with their usual symbol or code, e.g. "£1,250", "US$900", "AED 3,000".
+ */
+export function formatMoney(amount: number | null | undefined, currency: string, opts: { decimals?: number } = {}): string {
+  if (amount === null || amount === undefined || !Number.isFinite(amount)) return ''
+  const decimals = opts.decimals ?? 0
+  if (currency === 'ETB') return decimals === 0 ? formatETB(Math.round(amount)) : `ETB ${new Intl.NumberFormat('en-ET', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(amount)}`
+  const key = `${currency}:${decimals}`
+  let f = moneyFormatters.get(key)
+  if (!f) {
+    f = new Intl.NumberFormat('en-GB', { style: 'currency', currency, minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+    moneyFormatters.set(key, f)
+  }
+  return f.format(amount)
+}
+
+/** An ETB amount converted with an admin-set rate (ETB per one unit of the other currency), rounded for display. */
+export function convertFromEtb(etb: number, etbPerUnit: number): number | null {
+  if (!Number.isFinite(etb) || !Number.isFinite(etbPerUnit) || etbPerUnit <= 0) return null
+  const v = etb / etbPerUnit
+  return v >= 1000 ? Math.round(v / 10) * 10 : Math.round(v)
+}

@@ -7,6 +7,7 @@ import { MediaImage } from '@/components/media/MediaImage'
 import { Badge } from '@/components/ui/Badge'
 import { AddToQuote } from './AddToQuote'
 import { brand } from '@/lib/brand'
+import { ApproxPrice } from '@/components/currency/ApproxPrice'
 
 
 export function ProductCard({ product: p }: { product: PublicProduct }) {
@@ -33,6 +34,7 @@ export function ProductCard({ product: p }: { product: PublicProduct }) {
         </h3>
         {firstSpec?.label && <p className="text-small text-muted">{firstSpec.label}: {firstSpec.value}</p>}
         <p className="font-display font-bold tabular-nums text-ink">{productPrice(p)}</p>
+        {p.price_type !== 'on_request' && p.price_etb_cents !== null && <ApproxPrice etb={p.price_etb_cents / 100} className="block" />}
         <div className="flex flex-wrap gap-1.5">
           <Badge tone={stock.tone}>{stock.label}</Badge>
           {p.seller_is_hagerland && <Badge tone="gold">{brand.divisions.supply}</Badge>}

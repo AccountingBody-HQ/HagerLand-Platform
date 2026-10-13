@@ -76,7 +76,7 @@ export async function saveLocationAction(_prev: Msg | null, formData: FormData):
   if (!id) {
     const slug = slugify(values.name, 60)
     if (!slug) return fail('Use Latin letters or numbers in the English name.')
-    let parentLevel: 'region' | 'city' | 'sub_city' | 'area' | null = null
+    let parentLevel: 'country' | 'region' | 'city' | 'sub_city' | 'area' | null = null
     if (values.parent_id) {
       const { data: parent } = await db.from('locations').select('level').eq('id', values.parent_id).maybeSingle()
       if (!parent) return fail('Choose a valid parent.')
@@ -152,4 +152,31 @@ export async function mergeLocationAction(fromId: string, intoId: string): Promi
   revalidatePath('/', 'layout')
   const total = Object.values(moved).reduce((a, b) => a + b, 0)
   return done('/roodber8/locations', `Merged into ${into.display_name}. ${total} record${total === 1 ? '' : 's'} moved.`)
+}
+
+const countrySchema = z.object({
+  name: z.string().trim().min(2, 'Enter the country name.').max(120),
+  code: z
+    .string()
+    .trim()
+    .toUpperCase()
+    .regex(/^[A-Z]{2}$/, 'Use the two-letter country code, e.g. FR.')
+    .refine((c) => c !== 'ET', 'Ethiopia is already set up.'),
+})
+
+/** Adds a country for diaspora services (spec 24.4). Cities are then added under it. */
+export async function addCountryAction(_prev: Msg | null, formData: FormData): Promise<Msg> {
+  assertAdmin()
+  const parsed = countrySchema.safeParse(Object.fromEntries(formData))
+  if (!parsed.success) return invalid(parsed.error)
+  const { name, code } = parsed.data
+  const slug = slugify(name, 60)
+  if (!slug) return fail('Use Latin letters in the English name.')
+  const db = getAdminSupabase()
+  const { count } = await db.from('locations').select('id', { count: 'exact', head: true }).eq('level', 'country').eq('country_code', code)
+  if (count) return fail(`A country with code ${code} already exists.`)
+  const { data, error } = await db.from('locations').insert({ name, slug, path: slug, level: 'country', country_code: code, sort: 2000 }).select('id').single()
+  if (error || !data) return fail(error?.code === '23505' ? 'A location with this name already exists.' : 'Could not add the country.')
+  await audit('location.create', { type: 'location', id: data.id, label: `${name} (${code})` })
+  return done('/roodber8/locations', `Added ${name}. Now add its cities below.`)
 }

@@ -39,7 +39,7 @@ Authorised by AB on 13 Oct 2026 (brief: `docs/BRIEF_PHASE_1_5_AND_GO_LIVE.md`), 
 |----|-------|--------|------|--------|--------------------|
 | 25.1 | Requirements traceability matrix | done (kept updated) | 2026-10-13 | see git log | `docs/REQUIREMENTS_MATRIX.md`, kept up to date to the end |
 | E1 | Vertical registry, navigation, homepage ecosystem section (+ schema_migrations record) | done | 2026-10-13 | see git log | Migration 0011 (local only; for AB at cutover). RLS 38/38 local. 183 e2e passed. Decisions in LAUNCH_REPORT Phase 1.5 log |
-| E2 | International locations and currency (+ 25.2f approximate prices) | todo | | | |
+| E2 | International locations and currency (+ 25.2f approximate prices) | done | 2026-10-13 | see git log | Migrations 0012 (new list values) and 0013. RLS 42/42 local. 177 e2e + 93 unit passed |
 | E3 | Service request engine: customer, admin, provider (+ 25.2k deals and commission ledger) | todo | | | |
 | E4 | Repairs & maintenance and contractors on the engine | todo | | | |
 | E5 | Diaspora services and HagerLand Property Care | todo | | | |

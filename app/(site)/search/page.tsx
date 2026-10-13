@@ -50,7 +50,7 @@ export default async function SearchPage({ searchParams }: { searchParams: { q?:
     vertical === 'property' ? searchProperties({ filters: { q, sort: 'relevance', page }, pageSize: PAGE_SIZE }) : null,
     vertical === 'developments' ? searchDevelopments({ q, page, pageSize: PAGE_SIZE }) : null,
     vertical === 'supplies' ? searchProducts({ q, page, pageSize: PAGE_SIZE }) : null,
-    vertical === 'companies' ? searchOrganisations({ q, page, pageSize: PAGE_SIZE }) : null,
+    vertical === 'companies' ? searchOrganisations({ q, page, pageSize: PAGE_SIZE, anyCountry: true }) : null,
   ])
   const active = props ?? devs ?? prods ?? orgs
 

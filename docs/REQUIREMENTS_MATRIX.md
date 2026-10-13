@@ -464,7 +464,7 @@ Summary (updated at the end of every work package): see the last section.
 | S18-07 | Organisations: edit, members, services, categories, documents, verification, merge | 18.2.5 | Done | app/roodber8/organisations | e2e:flows/business.spec.ts |
 | S18-08 | Products: editor, specs, images, CSV price/stock update | 18.2.6 | Done | app/roodber8/products | e2e:admin/admin.spec.ts › create a product, change its price, update stock by CSV… |
 | S18-09 | Categories tree editors | 18.2.7 | Done | app/roodber8/categories | e2e:admin/admin.spec.ts › add and rename a category… |
-| S18-10 | Locations tree editor (Amharic names, SEO intros, active, merge); countries and international locations (24.12) | 18.2.8 / 24.12 | Not done | app/roodber8/locations | E2 |
+| S18-10 | Locations tree editor (Amharic names, SEO intros, active, merge); countries and international locations (24.12) | 18.2.8 / 24.12 | Done | app/roodber8/locations | e2e:admin/admin.spec.ts › …add a location; e2e:international.spec.ts › admin adds a country… |
 | S18-11 | Enquiries with filters, CSV, unanswered > 48 h | 18.2.9 | Done | app/roodber8/enquiries | e2e:admin/admin.spec.ts |
 | S18-12 | Quotes pipeline, issue quote with PDF and email, CSV | 18.2.10 | Done | app/roodber8/quotes | e2e:admin/admin.spec.ts › issue a quote… |
 | S18-13 | HagerLand sales view | 18.2.11 | Done | app/roodber8/sales | e2e:admin/admin.spec.ts |
@@ -589,16 +589,16 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | S24-24 | Mobile drawer: ten verticals + Request a service, Request a quote, Help & advice, My account | 24.3 | Done | MobileDrawer.tsx | e2e:verticals.spec.ts › mobile drawer lists all ten verticals and the service shortcuts |
 | S24-25 | Homepage "Everything around your property" section: ten tiles with live/soon status | 24.3 | Done | app/(site)/page.tsx | e2e:verticals.spec.ts › homepage shows… ten ecosystem tiles |
 | S24-26 | Journey strip: find land → finance → design → build → supply → insure → maintain → sell or rent | 24.3 | Done | app/(site)/page.tsx | e2e:verticals.spec.ts › homepage shows… journey strip |
-| S24-30 | locations.country_code (default ET); Ethiopian URLs unchanged | 24.4 | Not done | migration 0012 | E2 |
-| S24-31 | Country root locations for 12 diaspora markets | 24.4 | Not done | migration 0012 | E2 |
-| S24-32 | Key cities under each country | 24.4 | Not done | migration 0012 | E2 |
-| S24-33 | Admin can add countries and cities | 24.4 | Not done | app/roodber8/locations | E2 |
-| S24-34 | organisations, service_requests, jobs, interest_registrations carry country_code and currency | 24.4 | Not done | migrations 0011–0018 | E2/E3/E8 |
-| S24-35 | Currency list ETB, GBP, USD, EUR, CAD, AED, SEK, NOK, SAR, ILS, ZAR, KES | 24.4 | Not done | lib/currency.ts | E2 |
-| S24-36 | Money displayed in the record's currency | 24.4 | Not done | lib/format.ts | E2 |
-| S24-37 | Property listings stay Ethiopia-only | 24.4 | Not done | validation + wizard | E2 |
-| S24-38 | Organisations can be marked as serving the Ethiopian community abroad | 24.4 | Not done | organisations.serves_diaspora | E2 |
-| S24-39 | International organisations searchable by country and city | 24.4 | Not done | search_organisations | E2 |
+| S24-30 | locations.country_code (default ET); Ethiopian URLs unchanged | 24.4 | Done | supabase/migrations/0013_international.sql | sql: 0013 check → 12 · 22 · 39 · 3 · 0 (local); e2e:international.spec.ts › property pages stay Ethiopia-only |
+| S24-31 | Country root locations for 12 diaspora markets | 24.4 | Done | 0013 | sql: 0013 check (12 countries) |
+| S24-32 | Key cities under each country | 24.4 | Done | 0013 | sql: 0013 check (22 cities); e2e:international.spec.ts › location search… (London, United Kingdom) |
+| S24-33 | Admin can add countries and cities | 24.4 | Done | app/roodber8/locations, actions/taxonomy.ts addCountryAction | e2e:international.spec.ts › admin adds a country and a city under it |
+| S24-34 | organisations, service_requests, jobs, interest_registrations carry country_code and currency | 24.4 | Not done | 0011 (interest_registrations), 0013 (organisations) | organisations and interest registrations done (e2e:verticals › register interest…, e2e:international.spec.ts › a business abroad…); service_requests (E3) and jobs (E8) pending |
+| S24-35 | Currency list ETB, GBP, USD, EUR, CAD, AED, SEK, NOK, SAR, ILS, ZAR, KES | 24.4 | Done | lib/countries.ts, check constraints in 0011/0013 | unit:currency.test.ts › countries |
+| S24-36 | Money displayed in the record's currency | 24.4 | Not done | lib/format.ts formatMoney | unit:currency.test.ts › money in a record’s currency; used for service-request quotes in E3 |
+| S24-37 | Property listings stay Ethiopia-only | 24.4 | Done | 0013 require_ethiopian_location trigger, lib/data/reference.ts isEthiopianLocation, /api/locations default scope ET | rls:A listing cannot be moved outside Ethiopia; e2e:international.spec.ts › property pages stay Ethiopia-only; › location search is Ethiopia-only… |
+| S24-38 | Organisations can be marked as serving the Ethiopian community abroad | 24.4 | Done | organisations.serves_diaspora, OrganisationForm | e2e:flows/business.spec.ts › a contractor creates… (ticks the box); e2e:international.spec.ts › a business abroad… (badge) |
+| S24-39 | International organisations searchable by country and city | 24.4 | Done | 0013 search_organisations(p_country_code, p_serves_diaspora), lib/data/organisations.ts | e2e:international.spec.ts › a business abroad is found by country and city… |
 | S24-40 | service_requests table with all listed fields and reference HLS-YYYY-NNNNNN | 24.5 | Not done | migration 0013 | E3 |
 | S24-41 | Request statuses submitted → triaged → matched → quoted → won/lost/cancelled | 24.5 | Not done | migration 0013 | E3 |
 | S24-42 | Attachments in private-docs | 24.5 | Not done | — | E3 |
@@ -665,7 +665,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | S24-B7 | Admin: Property Care pipeline and managed-property records | 24.12 | Not done | — | E5 |
 | S24-B8 | Admin: jobs and applications moderation | 24.12 | Not done | — | E8 |
 | S24-B9 | Admin: question-schema editor per service category | 24.12 | Not done | — | E3 |
-| S24-BA | Admin: countries and international locations in the locations editor | 24.12 | Not done | — | E2 |
+| S24-BA | Admin: countries and international locations in the locations editor | 24.12 | Done | app/roodber8/locations | e2e:international.spec.ts › admin adds a country and a city under it; e2e:admin/admin.spec.ts › add and rename a category, add a location |
 | S24-BB | Every new admin action audit-logged | 24.12 | Not done | — | each package + E9 test |
 | S24-C1 | E9: sitemap respects registry; noindex for coming soon; full QA re-run (accessibility, widths, link crawl, Lighthouse) | 24 WPs | Not done | — | E9 |
 | S24-C2 | E10: Next.js 15 upgrade fully green, or clean revert with documented reasons | 24 WPs | Not done | — | E10 |
@@ -838,7 +838,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | V9-27 | Services abroad provider type: Removal companies | Vision §9 | Not done | international org search | E5 |
 | V9-28 | Services abroad provider type: Other home and property services | Vision §9 | Not done | international org search | E5 |
 | V9-29 | Customer abroad submits requirement, platform matches provider, earns commission/referral/lead/booking fee | Vision §9 | Not done | engine + ledger | E3/E5 |
-| V9-30 | Architecture international from the outset; Ethiopia core | Vision §9 | Not done | country dimension | E2 |
+| V9-30 | Architecture international from the outset; Ethiopia core | Vision §9 | Done | lib/countries.ts, 0013 | e2e:international.spec.ts (all tests) |
 | V9-31 | Property Care: Manages the property | Vision §9 | Not done | property care page + data model | E5 |
 | V9-32 | Property Care: Maintains | Vision §9 | Not done | property care page + data model | E5 |
 | V9-33 | Property Care: Secures | Vision §9 | Not done | property care page + data model | E5 |
@@ -923,7 +923,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | X-252-12 | Special Buys admin-managed; /supplies/special-buys | 25.2d | Not done | — | H1 |
 | X-252-13 | Trade application and admin approval | 25.2e | Not done | — | H1 |
 | X-252-14 | Trade price shown only to approved trade accounts, never public | 25.2e | Not done | — | H1 |
-| X-252-15 | Approximate prices in the visitor's chosen currency; admin rates with last-updated date; labelled approx.; ETB price of record | 25.2f | Not done | — | E2 |
+| X-252-15 | Approximate prices in the visitor's chosen currency; admin rates with last-updated date; labelled approx.; ETB price of record | 25.2f | Done | 0013 exchange_rates(+ public view), app/roodber8/exchange-rates, components/currency/* | e2e:international.spec.ts › approximate prices appear only after rates are set and the visitor picks a currency |
 | X-252-16 | /guides hub with admin editor (draft/publish, SEO, FAQ schema) | 25.2g | Not done | — | H2 |
 | X-252-17 | Starter guides only as unpublished drafts marked Needs AB review | 25.2g | Not done | — | H2 |
 | X-252-18 | Build-cost estimator from admin rates per m² by finish and location; 'estimate only'; hidden until rates exist | 25.2h | Not done | — | H2 |
@@ -1001,7 +1001,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | X-MAIL-03 | Correct sender and reply-to | 25.4 | Not done | — | H6/E9 |
 | X-MAIL-04 | User content escaped | 25.4 | Not done | — | H6/E9 |
 | X-MAIL-05 | Marketing only with consent and unsubscribe link | 25.4 | Not done | — | H6/E9 |
-| X-I18N-01 | Currency formatting per currency (ETB no decimals for property) | 25.4 | Not done | — | H6/E9 |
+| X-I18N-01 | Currency formatting per currency (ETB no decimals for property) | 25.4 | Done | lib/format.ts formatETB/formatMoney | unit:currency.test.ts › keeps ETB… no decimals; › uses symbols or codes… |
 | X-I18N-02 | Timestamps UTC, shown in user's time zone | 25.4 | Not done | — | H6/E9 |
 | X-I18N-03 | Gregorian dates | 25.4 | Not done | — | H6/E9 |
 | X-I18N-04 | Ethiopic names render | 25.4 | Not done | — | H6/E9 |

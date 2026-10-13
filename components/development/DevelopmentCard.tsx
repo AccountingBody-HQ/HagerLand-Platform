@@ -6,6 +6,7 @@ import { formatDate, formatETB } from '@/lib/format'
 import { MediaImage } from '@/components/media/MediaImage'
 import { Badge } from '@/components/ui/Badge'
 import { brand } from '@/lib/brand'
+import { ApproxPrice } from '@/components/currency/ApproxPrice'
 
 type Card = Pick<DevelopmentListItem, 'slug' | 'name' | 'kind' | 'is_hagerland' | 'cover_path' | 'location_display' | 'completion_status' | 'expected_completion' | 'price_from_etb' | 'developer_name' | 'floors_label' | 'total_units'>
 
@@ -40,6 +41,7 @@ export function DevelopmentCard({ development: d }: { development: Card }) {
         {d.developer_name && !d.is_hagerland && <p className="text-small text-ink">By {d.developer_name}</p>}
         <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-3">
           <p className="font-display font-bold tabular-nums text-ink">{d.price_from_etb ? `From ${formatETB(d.price_from_etb)}` : 'Price on request'}</p>
+          {d.price_from_etb ? <ApproxPrice etb={d.price_from_etb} className="block" /> : null}
           {d.expected_completion && d.completion_status !== 'ready' && (
             <span className="inline-flex items-center gap-1 text-caption text-muted">
               <CalendarClock className="size-3.5" aria-hidden /> {formatDate(d.expected_completion)}

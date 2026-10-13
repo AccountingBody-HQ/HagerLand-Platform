@@ -40,6 +40,7 @@ export function CompanyCard({ org }: { org: OrganisationListItem }) {
           <div className="relative z-10 mt-2 flex flex-wrap gap-1.5">
             <VerificationBadge level={org.verification_level} verifiedAt={org.verified_at} />
             {org.is_hagerland && <Badge tone="gold">HagerLand</Badge>}
+            {org.serves_diaspora && <Badge tone="info">Serves the Ethiopian community abroad</Badge>}
           </div>
         </div>
       </div>

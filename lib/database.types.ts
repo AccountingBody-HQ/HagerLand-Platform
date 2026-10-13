@@ -473,6 +473,25 @@ export type Database = {
         }
         Relationships: []
       }
+      exchange_rates: {
+        Row: {
+          currency: string
+          etb_per_unit: number
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          currency: string
+          etb_per_unit: number
+          updated_at?: string
+        }
+        Update: {
+          currency?: string
+          etb_per_unit?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       import_log: {
         Row: {
           entity_type: string | null
@@ -600,6 +619,7 @@ export type Database = {
       }
       locations: {
         Row: {
+          country_code: string
           created_at: string
           display_name: string
           id: string
@@ -621,6 +641,7 @@ export type Database = {
         }
         ComputedFields: never
         Insert: {
+          country_code?: string
           created_at?: string
           display_name?: string
           id?: string
@@ -641,6 +662,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          country_code?: string
           created_at?: string
           display_name?: string
           id?: string
@@ -860,9 +882,11 @@ export type Database = {
           address_line: string | null
           areas_served: string[]
           claimed_at: string | null
+          country_code: string
           cover_path: string | null
           created_at: string
           created_by: string | null
+          currency: string
           description: string | null
           email: string | null
           enquiries_count: number
@@ -886,6 +910,7 @@ export type Database = {
           published_at: string | null
           rejection_reason: string | null
           search_tsv: unknown
+          serves_diaspora: boolean
           short_id: string
           slug: string
           social: NonNullable<Json>
@@ -909,9 +934,11 @@ export type Database = {
           address_line?: string | null
           areas_served?: string[]
           claimed_at?: string | null
+          country_code?: string
           cover_path?: string | null
           created_at?: string
           created_by?: string | null
+          currency?: string
           description?: string | null
           email?: string | null
           enquiries_count?: number
@@ -935,6 +962,7 @@ export type Database = {
           published_at?: string | null
           rejection_reason?: string | null
           search_tsv?: never
+          serves_diaspora?: boolean
           short_id?: string
           slug: string
           social?: NonNullable<Json>
@@ -957,9 +985,11 @@ export type Database = {
           address_line?: string | null
           areas_served?: string[]
           claimed_at?: string | null
+          country_code?: string
           cover_path?: string | null
           created_at?: string
           created_by?: string | null
+          currency?: string
           description?: string | null
           email?: string | null
           enquiries_count?: number
@@ -983,6 +1013,7 @@ export type Database = {
           published_at?: string | null
           rejection_reason?: string | null
           search_tsv?: never
+          serves_diaspora?: boolean
           short_id?: string
           slug?: string
           social?: NonNullable<Json>
@@ -2243,6 +2274,25 @@ export type Database = {
           },
         ]
       }
+      exchange_rates_public: {
+        Row: {
+          currency: string | null
+          etb_per_unit: number | null
+          updated_at: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          currency?: string | null
+          etb_per_unit?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          currency?: string | null
+          etb_per_unit?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       media_public: {
         Row: {
           alt: string | null
@@ -2369,7 +2419,9 @@ export type Database = {
       organisations_public: {
         Row: {
           areas_served: string[] | null
+          country_code: string | null
           cover_path: string | null
+          currency: string | null
           description: string | null
           featured_until: string | null
           has_email: boolean | null
@@ -2391,6 +2443,7 @@ export type Database = {
           opening_hours: Json | null
           published_at: string | null
           search_tsv: unknown
+          serves_diaspora: boolean | null
           short_id: string | null
           slug: string | null
           social: Json | null
@@ -2732,6 +2785,7 @@ export type Database = {
     Functions: {
       can_edit_entity: { Args: { p_entity_id: string; p_entity_type: string }; Returns: boolean }
       category_descendants: { Args: { root: string; tbl: string }; Returns: string[] }
+      country_currency: { Args: { p_country: string }; Returns: string }
       f_unaccent: { Args: { '': string }; Returns: string }
       find_similar_organisations: { Args: { p_limit?: number; p_location_id?: string; p_name: string }; Returns: Json }
       gen_short_id: { Args: Record<PropertyKey, never>; Returns: string }
@@ -2779,9 +2833,10 @@ export type Database = {
         }
         Returns: Json
       }
-      search_locations: { Args: { p_limit?: number; p_q: string }; Returns: Json }
+      search_locations: { Args: { p_limit?: number; p_q: string; p_scope?: string }; Returns: Json }
       search_organisations: {
         Args: {
+          p_country_code?: string
           p_exclude_id?: string
           p_has_portfolio?: boolean
           p_kinds?: Database['public']['Enums']['org_kind'][]
@@ -2791,6 +2846,7 @@ export type Database = {
           p_page_size?: number
           p_product_category_id?: string
           p_q?: string
+          p_serves_diaspora?: boolean
           p_service_id?: string
           p_sort?: string
           p_verified_only?: boolean
@@ -2857,8 +2913,19 @@ export type Database = {
       furnishing: 'unfurnished' | 'semi_furnished' | 'furnished'
       listing_purpose: 'sale' | 'rent'
       listing_status: 'draft' | 'pending_review' | 'published' | 'paused' | 'expired' | 'rejected' | 'archived' | 'removed'
-      location_level: 'region' | 'city' | 'sub_city' | 'area'
-      org_kind: 'agency' | 'developer' | 'supplier' | 'manufacturer' | 'contractor' | 'professional_firm' | 'sole_trader' | 'hagerland'
+      location_level: 'country' | 'region' | 'city' | 'sub_city' | 'area'
+      org_kind:
+        | 'agency'
+        | 'developer'
+        | 'supplier'
+        | 'manufacturer'
+        | 'contractor'
+        | 'professional_firm'
+        | 'sole_trader'
+        | 'hagerland'
+        | 'lender'
+        | 'insurer'
+        | 'broker'
       org_role: 'owner' | 'admin' | 'member'
       price_type: 'fixed' | 'from' | 'on_request'
       property_type:
@@ -2997,8 +3064,20 @@ export const Constants = {
       furnishing: ['unfurnished', 'semi_furnished', 'furnished'],
       listing_purpose: ['sale', 'rent'],
       listing_status: ['draft', 'pending_review', 'published', 'paused', 'expired', 'rejected', 'archived', 'removed'],
-      location_level: ['region', 'city', 'sub_city', 'area'],
-      org_kind: ['agency', 'developer', 'supplier', 'manufacturer', 'contractor', 'professional_firm', 'sole_trader', 'hagerland'],
+      location_level: ['country', 'region', 'city', 'sub_city', 'area'],
+      org_kind: [
+        'agency',
+        'developer',
+        'supplier',
+        'manufacturer',
+        'contractor',
+        'professional_firm',
+        'sole_trader',
+        'hagerland',
+        'lender',
+        'insurer',
+        'broker',
+      ],
       org_role: ['owner', 'admin', 'member'],
       price_type: ['fixed', 'from', 'on_request'],
       property_type: [

@@ -82,13 +82,13 @@ export function faqJsonLd(items: { question: string; answer: string }[]): Record
   }
 }
 
-export function postalAddress(locality?: string | null, region?: string | null, street?: string | null): Record<string, unknown> {
+export function postalAddress(locality?: string | null, region?: string | null, street?: string | null, country = 'ET'): Record<string, unknown> {
   return {
     '@type': 'PostalAddress',
     ...(street ? { streetAddress: street } : {}),
     ...(locality ? { addressLocality: locality } : {}),
     ...(region ? { addressRegion: region } : {}),
-    addressCountry: 'ET',
+    addressCountry: country,
   }
 }
 

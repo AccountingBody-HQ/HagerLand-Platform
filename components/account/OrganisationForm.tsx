@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { useFormState } from 'react-dom'
 import type { ComboOption } from '@/components/ui/Combobox'
 import { Combobox } from '@/components/ui/Combobox'
-import { Field, Input, Select, Textarea, describedBy } from '@/components/ui/Field'
+import { Checkbox, Field, Input, Select, Textarea, describedBy } from '@/components/ui/Field'
 import { PhoneInput } from '@/components/ui/PhoneInput'
 import { Badge } from '@/components/ui/Badge'
 import { FormAlert, SubmitButton } from '@/components/forms/FormParts'
@@ -27,6 +27,7 @@ export interface OrgFormDefaults {
   description?: string | null
   location?: ComboOption | null
   areas?: ComboOption[]
+  serves_diaspora?: boolean
   service_ids?: string[]
   product_category_ids?: string[]
   phone?: string | null
@@ -180,11 +181,18 @@ export function OrganisationForm({
       <fieldset className="space-y-5">
         <legend className="hl-h3 mb-4">Where you work</legend>
         <Field label="Where you are based" htmlFor="org-location" error={errors.location_id} required hint="Start typing a city, sub-city or area.">
-          <Combobox id="org-location" name="location_id" endpoint="/api/locations" defaultValue={defaults.location} invalid={Boolean(errors.location_id)} describedById={describedBy('org-location', errors.location_id, 'hint')} />
+          <Combobox id="org-location" name="location_id" endpoint="/api/locations?scope=all" defaultValue={defaults.location} invalid={Boolean(errors.location_id)} describedById={describedBy('org-location', errors.location_id, 'hint')} />
         </Field>
         <Field label="Areas you serve" htmlFor="org-areas" optional hint="Add every city or sub-city you cover.">
           <LocationMultiPicker id="org-areas" name="areas_served" defaultValue={defaults.areas} />
         </Field>
+        <Checkbox
+          id="org-diaspora"
+          name="serves_diaspora"
+          defaultChecked={Boolean(defaults.serves_diaspora)}
+          label="We serve the Ethiopian community abroad"
+          description="Tick this if you are based outside Ethiopia and work with Ethiopian customers, or if you help Ethiopians abroad with property at home. It helps people find you in Diaspora Services."
+        />
         <Field label="Address" htmlFor="org-address" optional error={errors.address_line}>
           <Input id="org-address" name="address_line" defaultValue={defaults.address_line ?? ''} maxLength={200} />
         </Field>

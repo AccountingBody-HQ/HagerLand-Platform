@@ -24,6 +24,12 @@ export interface OrganisationQuery {
   hasPortfolio?: boolean
   licenceGrade?: string
   excludeId?: string
+  /** ISO country code (spec 24.4). */
+  countryCode?: string
+  /** Only businesses that serve the Ethiopian community abroad. */
+  servesDiaspora?: boolean
+  /** Include businesses in every country. Otherwise, without a location or country, results are Ethiopian only. */
+  anyCountry?: boolean
   sort?: 'verified' | 'projects' | 'newest' | 'relevance' | 'listings'
   page?: number
   pageSize?: number
@@ -46,6 +52,8 @@ export async function searchOrganisations(query: OrganisationQuery): Promise<Sea
       p_sort: query.sort ?? (query.q ? 'relevance' : 'verified'),
       p_page: query.page ?? 1,
       p_page_size: query.pageSize ?? 24,
+      p_country_code: query.countryCode ?? (query.anyCountry || query.locationId ? undefined : 'ET'),
+      p_serves_diaspora: query.servesDiaspora,
     })
     if (error) throw error
     return (data as unknown as SearchResult<OrganisationListItem>) ?? EMPTY

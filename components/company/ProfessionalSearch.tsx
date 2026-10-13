@@ -34,7 +34,7 @@ export function ProfessionalSearch({ services, idPrefix = 'ps' }: { services: { 
         <label htmlFor={`${idPrefix}-loc`} className="sr-only">
           Location
         </label>
-        <Combobox id={`${idPrefix}-loc`} endpoint="/api/locations?value=path" placeholder="Where? City or sub-city" onChange={(o) => setLocation(o?.value ?? null)} />
+        <Combobox id={`${idPrefix}-loc`} endpoint="/api/locations?value=path&scope=all" placeholder="Where? City or sub-city" onChange={(o) => setLocation(o?.value ?? null)} />
       </div>
       <Button type="submit" className="px-6">
         <Search /> Find

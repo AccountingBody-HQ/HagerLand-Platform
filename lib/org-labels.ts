@@ -6,6 +6,9 @@ export const ORG_KIND_LABEL: Record<string, string> = {
   contractor: 'Contractor',
   professional_firm: 'Professional firm',
   sole_trader: 'Tradesperson',
+  lender: 'Lender',
+  insurer: 'Insurer',
+  broker: 'Broker',
   hagerland: 'HagerLand',
 }
 

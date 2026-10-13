@@ -4,6 +4,7 @@ import { getBusinessDetails } from '@/lib/data/business'
 import { buildFooterColumns } from '@/lib/navigation'
 import { getVerticals } from '@/lib/data/verticals'
 import { SoonBadge } from '@/components/verticals/SoonBadge'
+import { CurrencySwitcher } from '@/components/currency/CurrencySwitcher'
 import { Wordmark } from '@/components/brand/Logo'
 import { SocialIcon, socialLabel } from '@/components/brand/SocialIcon'
 import { Container } from '@/components/ui/Layout'
@@ -22,6 +23,7 @@ export async function SiteFooter() {
             <p className="mt-4 max-w-xs font-display font-bold text-white">{brand.masterLine}</p>
             <p className="mt-2 max-w-xs text-small text-white/75">{brand.supportLine}</p>
             <p className="mt-2 max-w-xs text-small text-gold">{brand.audienceLine}</p>
+            <CurrencySwitcher className="mt-6" />
             {socials.length > 0 && (
               <ul className="mt-6 flex gap-2">
                 {socials.map((s) => (

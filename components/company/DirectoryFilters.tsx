@@ -39,7 +39,7 @@ export function DirectoryFiltersForm({
           <label htmlFor="d-loc" className="mb-2 block text-small font-semibold">
             Location
           </label>
-          <Combobox id="d-loc" name="loc" endpoint="/api/locations?value=path" placeholder="Anywhere in Ethiopia" defaultValue={filters.loc ? { value: filters.loc, label: locationLabel ?? filters.loc } : null} />
+          <Combobox id="d-loc" name="loc" endpoint="/api/locations?value=path&scope=all" placeholder="Anywhere" defaultValue={filters.loc ? { value: filters.loc, label: locationLabel ?? filters.loc } : null} />
         </div>
       )}
       {categories && (

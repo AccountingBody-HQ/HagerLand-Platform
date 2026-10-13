@@ -12,6 +12,7 @@ import { shortId, slugify } from '@/lib/slug'
 import { revalidateEntity } from '@/lib/revalidate'
 import { parseCsv } from '@/lib/admin/csv'
 import { prepareImport, type ImportRow } from '@/lib/admin/dev-import'
+import { isEthiopianLocation, NOT_IN_ETHIOPIA } from '@/lib/data/reference'
 
 type DevUpdate = Database['public']['Tables']['developments']['Update']
 
@@ -20,6 +21,7 @@ export async function saveAdminDevelopmentAction(_prev: ActionResult<{ id: strin
   assertAdmin()
   const parsed = developmentSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
+  if (!(await isEthiopianLocation(parsed.data.location_id))) return fail(NOT_IN_ETHIOPIA, { location_id: 'Choose a place in Ethiopia' })
   const devId = z.preprocess((v) => (v === '' || v === null ? null : v), z.uuid().nullable()).safeParse(formData.get('developer_org_id'))
   if (!devId.success) return fail('Choose a valid developer.')
   const d = parsed.data

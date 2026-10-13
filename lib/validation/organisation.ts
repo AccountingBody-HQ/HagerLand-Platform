@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { optionalEmailSchema, optionalPhoneSchema, optionalText, optionalUrl, optionalUuid, phoneSchema, telegramSchema, textSchema, intFromForm } from './common'
+import { checkbox, optionalEmailSchema, optionalPhoneSchema, optionalText, optionalUrl, optionalUuid, phoneSchema, telegramSchema, textSchema, intFromForm } from './common'
 
 export const USER_ORG_KINDS = ['agency', 'developer', 'supplier', 'manufacturer', 'contractor', 'professional_firm', 'sole_trader'] as const
 
@@ -11,6 +11,9 @@ export const ORG_KIND_LABELS: Record<string, string> = {
   contractor: 'Contractor',
   professional_firm: 'Professional firm',
   sole_trader: 'Tradesperson',
+  lender: 'Lender',
+  insurer: 'Insurer',
+  broker: 'Broker',
   hagerland: 'HagerLand',
 }
 
@@ -23,6 +26,7 @@ export const organisationSchema = z.object({
   description: optionalText(5000, 'Description'),
   location_id: z.uuid({ error: 'Choose where you are based' }),
   areas_served: idList,
+  serves_diaspora: checkbox,
   service_ids: idList,
   product_category_ids: idList,
   phone: phoneSchema,

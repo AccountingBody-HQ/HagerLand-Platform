@@ -33,6 +33,7 @@ const PAGES: [string, string][] = [
   ['/roodber8/verticals', 'Verticals'],
   ['/roodber8/interest', 'Interest registrations'],
   ['/roodber8/partners', 'Partner applications'],
+  ['/roodber8/exchange-rates', 'Exchange rates'],
 ]
 
 test('admin signs in with username, password and one-time code', async ({ page }) => {
@@ -106,7 +107,7 @@ test('add and rename a category, add a location', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Name', exact: true }).first().fill(name)
   await page.getByRole('button', { name: 'Add', exact: true }).click()
   await expect(page.getByText(`Added “${name}”.`)).toBeVisible()
-  await page.fill('#tax-filter', name)
+  await page.getByPlaceholder('Find by name').first().fill(name)
   await page.getByRole('button', { name: 'Edit' }).first().click()
   await page.getByRole('textbox', { name: 'Name', exact: true }).last().fill(`${name} renamed`)
   await page.getByRole('button', { name: 'Save', exact: true }).click()
@@ -115,7 +116,7 @@ test('add and rename a category, add a location', async ({ page }) => {
 
   const area = `E2E Area ${Date.now()}`
   await page.goto('/roodber8/locations')
-  await page.getByText('Add a location').click()
+  await page.getByText('Add a place in Ethiopia').click()
   await page.getByRole('textbox', { name: 'Name (English)', exact: true }).first().fill(area)
   const parent = await page.locator('select[name="parent_id"]').first().locator('option', { hasText: 'Bole, Addis Ababa' }).first().getAttribute('value')
   await page.locator('select[name="parent_id"]').first().selectOption(parent ?? '')

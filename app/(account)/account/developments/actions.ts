@@ -11,6 +11,7 @@ import { fail, invalid, ok, type ActionResult } from '@/lib/action-result'
 import { shortId, slugify } from '@/lib/slug'
 import { revalidateEntity } from '@/lib/revalidate'
 import { log } from '@/lib/log'
+import { isEthiopianLocation, NOT_IN_ETHIOPIA } from '@/lib/data/reference'
 
 type DevUpdate = Database['public']['Tables']['developments']['Update']
 
@@ -46,6 +47,7 @@ export async function saveDevelopmentAction(_prev: DevelopmentState, formData: F
   if (!active || active.org.kind !== 'developer') return fail('Only developer accounts can add developments.')
   const parsed = developmentSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
+  if (!(await isEthiopianLocation(parsed.data.location_id))) return fail(NOT_IN_ETHIOPIA, { location_id: 'Choose a place in Ethiopia' })
   const d = parsed.data
   if (d.brochure_path && !d.brochure_path.startsWith(`docs/brochure/`)) return fail('Please upload the brochure again.')
   const supabase = getServerSupabase()

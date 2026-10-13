@@ -29,7 +29,7 @@ export function PortfolioForm({ defaults, status }: { defaults: { id?: string; t
       </Field>
       <div className="grid gap-5 sm:grid-cols-3">
         <Field label="Location" htmlFor="pp-loc" optional>
-          <Combobox id="pp-loc" name="location_id" endpoint="/api/locations" defaultValue={defaults.location} />
+          <Combobox id="pp-loc" name="location_id" endpoint="/api/locations?scope=all" defaultValue={defaults.location} />
         </Field>
         <Field label="Year completed" htmlFor="pp-year" optional error={errors.year}>
           <Input id="pp-year" name="year" inputMode="numeric" defaultValue={defaults.year ?? ''} />

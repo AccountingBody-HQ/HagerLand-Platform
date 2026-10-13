@@ -48,9 +48,9 @@ export const locationSchema = z.object({
 })
 
 /** The level a new child location gets, from its parent's level. */
-export function childLevel(parent: 'region' | 'city' | 'sub_city' | 'area' | null): 'region' | 'city' | 'sub_city' | 'area' {
+export function childLevel(parent: 'country' | 'region' | 'city' | 'sub_city' | 'area' | null): 'region' | 'city' | 'sub_city' | 'area' {
   if (!parent) return 'region'
-  if (parent === 'region') return 'city'
+  if (parent === 'region' || parent === 'country') return 'city'
   if (parent === 'city') return 'sub_city'
   return 'area'
 }

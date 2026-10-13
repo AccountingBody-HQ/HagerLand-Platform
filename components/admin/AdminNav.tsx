@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import {
-  BarChart3, Building2, LayoutGrid, Handshake, UserPlus, ClipboardCheck, ClipboardList, FileClock, FolderTree, Gauge, Import, Inbox, MapPin, Megaphone, Menu, Package, Settings, Store, Users, X, HandCoins, House,
+  BarChart3, Building2, LayoutGrid, Handshake, UserPlus, Coins, ClipboardCheck, ClipboardList, FileClock, FolderTree, Gauge, Import, Inbox, MapPin, Megaphone, Menu, Package, Settings, Store, Users, X, HandCoins, House,
 } from 'lucide-react'
 import { cn } from '@/lib/cn'
 
@@ -18,6 +18,7 @@ export const ADMIN_NAV = [
   { href: '/roodber8/products', label: 'Products', icon: Package },
   { href: '/roodber8/categories', label: 'Categories', icon: FolderTree },
   { href: '/roodber8/locations', label: 'Locations', icon: MapPin },
+  { href: '/roodber8/exchange-rates', label: 'Exchange rates', icon: Coins },
   { href: '/roodber8/enquiries', label: 'Enquiries', icon: Inbox },
   { href: '/roodber8/quotes', label: 'Quotes', icon: ClipboardList, badgeKey: 'quotes' },
   { href: '/roodber8/sales', label: 'HagerLand sales', icon: HandCoins },

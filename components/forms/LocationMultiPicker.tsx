@@ -17,7 +17,7 @@ export function LocationMultiPicker({ id, name, defaultValue = [], max = 30 }: {
         <Combobox
           key={pickerKey}
           id={id}
-          endpoint="/api/locations"
+          endpoint="/api/locations?scope=all"
           placeholder="Add an area, sub-city or city"
           onChange={(o) => {
             if (o && !items.some((x) => x.value === o.value)) setItems([...items, o])

@@ -177,6 +177,14 @@ update public.properties set status = 'paused' where id = '00000000-0000-4000-80
 select pg_temp.record_check('Owner can pause a live listing',
   (select status = 'paused' from public.properties where id = '00000000-0000-4000-8000-0000000000a1'));
 
+-- ---------- International (0013): property listings stay in Ethiopia ----------
+do $$ begin
+  update public.properties set location_id = (select id from public.locations where path = 'united-kingdom/london') where id = '00000000-0000-4000-8000-0000000000a1';
+  perform pg_temp.record_check('A listing cannot be moved outside Ethiopia', false);
+exception when check_violation then
+  perform pg_temp.record_check('A listing cannot be moved outside Ethiopia', true);
+end $$;
+
 -- ---------- Phase 1.5 tables (migrations 0011+) ----------
 reset role;
 select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);
@@ -192,10 +200,11 @@ exception when insufficient_privilege then
 end $$;
 
 -- Tables only the server (service role) may touch: anonymous and signed-in users are refused.
-select set_config('hl.private_tables', 'schema_migrations,verticals,interest_registrations,partner_applications', false);
+select set_config('hl.private_tables', 'schema_migrations,verticals,interest_registrations,partner_applications,exchange_rates', false);
 
 set role anon;
 select pg_temp.record_check('Anonymous cannot read ' || name, pg_temp.read_denied(name)) from unnest(string_to_array(current_setting('hl.private_tables'), ',')) as t(name);
+select pg_temp.record_check('Anonymous can read exchange rates through the public view only', (select count(*) >= 0 from public.exchange_rates_public));
 select pg_temp.record_check('Anonymous reads live and coming-soon verticals only',
   (select count(*) from public.verticals_public) > 0 and not exists (select 1 from public.verticals_public where status = 'hidden'));
 reset role;

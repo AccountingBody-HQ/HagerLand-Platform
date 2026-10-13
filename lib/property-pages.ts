@@ -21,7 +21,8 @@ export async function resolveResults(purpose: ListingPurpose, segments: string[]
   let location: Location | null = null
   if (segments?.length) {
     location = await getLocationByPath(segments.map((s) => s.toLowerCase()).join('/'))
-    if (!location) notFound()
+    // Property listings are Ethiopia-only (spec 24.4): no landing pages for places abroad.
+    if (!location || location.country_code !== 'ET') notFound()
   }
   return {
     purpose,

@@ -54,7 +54,7 @@ function useSave(mode: Mode) {
   return useFormState<Msg | null, FormData>(bound, null)
 }
 
-function NodeForm({ mode, node, parents, onDone }: { mode: Mode; node?: TreeNode; parents: { id: string; label: string }[]; onDone?: () => void }) {
+function NodeForm({ mode, node, parents, onDone, allowRoot = true }: { mode: Mode; node?: TreeNode; parents: { id: string; label: string }[]; onDone?: () => void; allowRoot?: boolean }) {
   const [state, action] = useSave(mode)
   const router = useRouter()
   const uid = useId()
@@ -79,7 +79,7 @@ function NodeForm({ mode, node, parents, onDone }: { mode: Mode; node?: TreeNode
       ) : (
         <Field label="Parent" htmlFor={`${uid}-parent`} hint={mode.kind === 'location' ? 'The level is set from the parent.' : undefined}>
           <Select id={`${uid}-parent`} name="parent_id" defaultValue={node?.parent_id ?? ''}>
-            <option value="">{mode.kind === 'location' ? 'None (new region)' : 'None (top level)'}</option>
+            {allowRoot && <option value="">{mode.kind === 'location' ? 'None (new region)' : 'None (top level)'}</option>}
             {parents
               .filter((p) => p.id !== node?.id)
               .map((p) => (
@@ -239,8 +239,9 @@ function Row({ mode, node, all, depth, parents, mergeTargets }: { mode: Mode; no
 }
 
 /** Editable tree for product categories, service categories or locations. */
-export function TaxonomyEditor({ mode, nodes, parents, mergeTargets = [], addTitle }: { mode: Mode; nodes: TreeNode[]; parents: { id: string; label: string }[]; mergeTargets?: { id: string; label: string }[]; addTitle: string }) {
+export function TaxonomyEditor({ mode, nodes, parents, mergeTargets = [], addTitle, allowRoot = true }: { mode: Mode; nodes: TreeNode[]; parents: { id: string; label: string }[]; mergeTargets?: { id: string; label: string }[]; addTitle: string; allowRoot?: boolean }) {
   const [filter, setFilter] = useState('')
+  const filterId = useId()
   const roots = nodes.filter((n) => !n.parent_id).sort((a, b) => a.sort - b.sort || a.name.localeCompare(b.name))
   const term = filter.trim().toLowerCase()
   const matches = term ? nodes.filter((n) => n.name.toLowerCase().includes(term) || (n.meta ?? '').toLowerCase().includes(term)) : []
@@ -249,15 +250,15 @@ export function TaxonomyEditor({ mode, nodes, parents, mergeTargets = [], addTit
       <details className="rounded-lg border border-border bg-white p-4">
         <summary className="cursor-pointer font-semibold text-ink">{addTitle}</summary>
         <div className="mt-4">
-          <NodeForm mode={mode} parents={parents} />
+          <NodeForm mode={mode} parents={parents} allowRoot={allowRoot} />
         </div>
       </details>
       <div className="rounded-lg border border-border bg-white">
         <div className="border-b border-border p-3">
-          <label className="sr-only" htmlFor="tax-filter">
+          <label className="sr-only" htmlFor={filterId}>
             Find
           </label>
-          <Input id="tax-filter" value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Find by name" className="h-10 max-w-sm" />
+          <Input id={filterId} value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Find by name" className="h-10 max-w-sm" />
         </div>
         {term ? (
           matches.length ? (
