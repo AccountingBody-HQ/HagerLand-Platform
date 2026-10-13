@@ -1,12 +1,14 @@
 import Link from 'next/link'
-import { brand, configuredSocialLinks } from '@/lib/brand'
+import { brand } from '@/lib/brand'
+import { getBusinessDetails } from '@/lib/data/business'
 import { FOOTER_COLUMNS } from '@/lib/navigation'
 import { Wordmark } from '@/components/brand/Logo'
 import { SocialIcon, socialLabel } from '@/components/brand/SocialIcon'
 import { Container } from '@/components/ui/Layout'
 
-export function SiteFooter() {
-  const socials = configuredSocialLinks()
+export async function SiteFooter() {
+  const business = await getBusinessDetails()
+  const socials = business.social
   const year = new Date().getFullYear()
   return (
     <footer className="bg-ink text-white">
@@ -54,7 +56,7 @@ export function SiteFooter() {
         <Container className="flex flex-col gap-3 py-6 text-small text-white/60 sm:flex-row sm:items-center sm:justify-between">
           <p>
             © {year} {brand.name}
-            {brand.legalEntityLine && <span> · {brand.legalEntityLine}</span>}
+            {business.legalLine && <span> · {business.legalLine}</span>}
           </p>
           <ul className="flex flex-wrap gap-x-5 gap-y-1">
             <li><Link href="/terms" className="hover:text-white">Terms</Link></li>

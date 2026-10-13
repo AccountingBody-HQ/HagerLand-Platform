@@ -3,7 +3,10 @@ import { Inter, Manrope, Noto_Sans_Ethiopic } from 'next/font/google'
 import './globals.css'
 import { brand } from '@/lib/brand'
 import { SITE_URL } from '@/lib/site'
+import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import { ToastProvider } from '@/components/ui/Toast'
+import { UtmCapture } from '@/components/enquiry/UtmCapture'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'swap' })
 const manrope = Manrope({ subsets: ['latin'], weight: ['600', '700', '800'], variable: '--font-display', display: 'swap' })
@@ -18,6 +21,9 @@ export const metadata: Metadata = {
   formatDetection: { telephone: false },
 }
 
+/** Vercel serves the analytics scripts; elsewhere (local builds, tests) they would 404. */
+const onVercel = Boolean(process.env.VERCEL)
+
 export const viewport: Viewport = {
   themeColor: '#152238',
   width: 'device-width',
@@ -29,6 +35,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${inter.variable} ${manrope.variable} ${ethiopic.variable}`}>
       <body className="min-h-dvh font-sans antialiased">
         <ToastProvider>{children}</ToastProvider>
+        <UtmCapture />
+        {onVercel && <Analytics />}
+        {onVercel && <SpeedInsights />}
       </body>
     </html>
   )

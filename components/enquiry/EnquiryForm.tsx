@@ -32,6 +32,7 @@ export function EnquiryForm({
   extraFields,
   submitLabel = 'Send enquiry',
   topic,
+  topicOptions,
   idPrefix = 'enq',
 }: {
   target: EnquiryTarget
@@ -40,6 +41,8 @@ export function EnquiryForm({
   extraFields?: 'register_interest'
   submitLabel?: string
   topic?: string
+  /** Shows a "What is it about?" dropdown instead of a fixed topic. */
+  topicOptions?: { value: string; label: string }[]
   idPrefix?: string
 }) {
   const [state, action] = useFormState(submitEnquiryAction, null)
@@ -83,7 +86,7 @@ export function EnquiryForm({
       <input type="hidden" name="target_id" value={target.id ?? ''} />
       <input type="hidden" name="utm" value={utm} />
       <input type="hidden" name="source_url" value={sourceUrl} />
-      {topic && <input type="hidden" name="topic" value={topic} />}
+      {topic && !topicOptions && <input type="hidden" name="topic" value={topic} />}
       <Honeypot />
       {state && !state.ok && <FormAlert>{state.error}</FormAlert>}
 
@@ -115,6 +118,17 @@ export function EnquiryForm({
         <input type="hidden" name="intent" value={intent?.value ?? 'more_info'} />
       )}
 
+      {topicOptions && (
+        <Field label="What is it about?" htmlFor={id('topic')}>
+          <Select id={id('topic')} name="topic" defaultValue={topicOptions.find((o) => o.value === topic)?.label ?? topicOptions[0]?.label}>
+            {topicOptions.map((o) => (
+              <option key={o.value} value={o.label}>
+                {o.label}
+              </option>
+            ))}
+          </Select>
+        </Field>
+      )}
       <Field label="Your name" htmlFor={id('name')} error={errors.name} required>
         <Input id={id('name')} name="name" autoComplete="name" invalid={Boolean(errors.name)} aria-describedby={describedBy(id('name'), errors.name)} />
       </Field>

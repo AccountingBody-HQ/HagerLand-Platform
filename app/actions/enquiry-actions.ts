@@ -101,7 +101,7 @@ export async function submitEnquiryAction(_prev: EnquiryState, formData: FormDat
   }
 
   const recipients = target.toHagerland
-    ? [hagerlandInbox(target.inbox)].filter((x): x is string => Boolean(x))
+    ? [await hagerlandInbox(target.inbox)].filter((x): x is string => Boolean(x))
     : target.recipientOrgId
       ? await orgManagerEmails(target.recipientOrgId)
       : target.recipientUserId

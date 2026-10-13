@@ -93,9 +93,21 @@ select (select count(*) from locations) as locations, (select count(*) from serv
 ```
 **You should see:** `39 | 60 | 87 | 2 | 10`
 
+## 0010_public_settings.sql (added after launch prep, run after 0009)
+**What it does:** lets the website read a few more settings that you fill in from the admin
+Settings screen: your legal company details, whether listing is free, the "Why buy from HagerLand"
+points and your delivery area. They all start empty, and the website hides anything empty.
+It changes no data.
+
+**Check:**
+```sql
+select count(*) from site_settings_public;
+```
+**You should see:** `14`
+
 ---
 
-## Security test (run after all seven)
+## Security test (run after all migrations)
 Paste `supabase/tests/rls_test.sql` and run it. Supabase may warn that the query contains `delete`
 statements: that is the test cleaning up after itself; click **Run this query**.
 It temporarily creates two test users and a test listing, tries things that should and should not be

@@ -122,7 +122,7 @@ export async function submitQuoteAction(_prev: QuoteState, formData: FormData): 
   if (d.email) {
     await sendEmail({ to: d.email, from: 'supply', ...quoteReceivedEmail({ name: d.name.split(' ')[0], reference: q.reference, itemCount: d.items.length, hasFiles: d.files.length > 0, responseTarget }) })
   }
-  const inbox = hagerlandInbox('supply')
+  const inbox = await hagerlandInbox('supply')
   if (inbox) {
     await sendEmail({
       to: inbox,

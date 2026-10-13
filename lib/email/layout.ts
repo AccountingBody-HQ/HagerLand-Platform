@@ -59,7 +59,7 @@ export function renderEmail(input: LayoutInput): RenderedEmail {
 ${p}${rows}${q}${btn}
 </td></tr>
 <tr><td style="padding:20px 28px;background:#FAF9F7;font-size:12px;line-height:18px;color:${muted}">
-${escapeHtml(reason)}<br>Questions? <a href="${canonicalUrl('/contact')}" style="color:${green}">Contact HagerLand</a>${brand.legalEntityLine ? `<br>${escapeHtml(brand.legalEntityLine)}` : ''}
+${escapeHtml(reason)}<br>Questions? <a href="${canonicalUrl('/contact')}" style="color:${green}">Contact HagerLand</a>
 </td></tr></table></td></tr></table></body></html>`
 
   const textParts = [

@@ -24,6 +24,15 @@ const PUBLIC_ROUTES = [
   '/login',
   '/signup',
   '/auth/reset-password',
+  '/about',
+  '/how-it-works',
+  '/list-with-us',
+  '/contact',
+  '/contact?topic=property-request',
+  '/help',
+  '/terms',
+  '/privacy',
+  '/cookies',
 ]
 
 for (const route of PUBLIC_ROUTES) {

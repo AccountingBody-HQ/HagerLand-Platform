@@ -6,7 +6,7 @@ import { rateLimit } from '@/lib/rate-limit'
 import { getClientIp, hashIp } from '@/lib/security'
 import { formatPhone, telegramLink, whatsappLink } from '@/lib/format'
 import { canonicalUrl } from '@/lib/site'
-import { brand } from '@/lib/brand'
+import { getBusinessDetails } from '@/lib/data/business'
 import { log } from '@/lib/log'
 
 const bodySchema = z.object({
@@ -25,7 +25,8 @@ interface Contacts {
 
 async function contactsFor(type: z.infer<typeof bodySchema>['target_type'], id: string): Promise<Contacts | null> {
   const db = getAdminSupabase()
-  const hagerland = (url: string): Contacts => ({ phone: brand.contact.phone || null, whatsapp: brand.contact.whatsapp || null, telegram: brand.contact.telegram || null, email: brand.contact.email || null, url })
+  const { contact } = await getBusinessDetails()
+  const hagerland = (url: string): Contacts => ({ phone: contact.phone || null, whatsapp: contact.whatsapp || null, telegram: contact.telegram || null, email: contact.email || null, url })
   if (type === 'property') {
     const { data } = await db.from('properties').select('slug, status, expires_at, is_hagerland, contact_phone, contact_whatsapp, contact_telegram, contact_email').eq('id', id).maybeSingle()
     if (!data || data.status !== 'published' || !data.expires_at || new Date(data.expires_at) < new Date()) return null

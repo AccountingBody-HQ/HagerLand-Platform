@@ -1,5 +1,5 @@
-// Single place for brand names and public business details.
-// Values left empty are unknown and are hidden in the UI until supplied (spec Section 23).
+// Fixed brand text. Business details that AB fills in later (contact details, social links,
+// legal entity, claims, delivery area) live in site_settings: see lib/data/business.ts.
 
 export const brand = {
   name: 'HagerLand',
@@ -12,33 +12,7 @@ export const brand = {
     supply: 'HagerLand Supply',
     developments: 'HagerLand Developments',
   },
-  legalEntityLine: '',
-  /** "Why buy from HagerLand" points. Shown only once AB confirms each is true (spec 9.3, Section 23 #6). */
-  developmentsClaims: [] as { title: string; text: string }[],
-  contact: {
-    phone: '',
-    whatsapp: '',
-    telegram: '',
-    email: '',
-    supplyEmail: '',
-    address: '',
-    hours: '',
-  },
-  social: {
-    facebook: '',
-    instagram: '',
-    linkedin: '',
-    tiktok: '',
-    youtube: '',
-    x: '',
-    telegram: '',
-  },
 } as const
 
-export type SocialKey = keyof typeof brand.social
-
-export function configuredSocialLinks(): { key: SocialKey; url: string }[] {
-  return (Object.keys(brand.social) as SocialKey[])
-    .map((key) => ({ key, url: brand.social[key] as string }))
-    .filter((s) => s.url.length > 0)
-}
+export const SOCIAL_KEYS = ['facebook', 'instagram', 'linkedin', 'tiktok', 'youtube', 'x', 'telegram'] as const
+export type SocialKey = (typeof SOCIAL_KEYS)[number]

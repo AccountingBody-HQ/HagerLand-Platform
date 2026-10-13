@@ -1,5 +1,6 @@
 import { ArrowRight, Hammer, LandPlot, PencilRuler, Truck } from 'lucide-react'
 import { searchDevelopments } from '@/lib/data/developments'
+import { getBusinessDetails } from '@/lib/data/business'
 import { buildMetadata, faqJsonLd } from '@/lib/seo'
 import { brand } from '@/lib/brand'
 import { DEVELOPMENTS_FAQ } from '@/lib/content/developments-faq'
@@ -27,7 +28,8 @@ const STEPS = [
 ]
 
 export default async function OurDevelopmentsPage() {
-  const { items } = await searchDevelopments({ isHagerland: true, pageSize: 12 })
+  const [{ items }, business] = await Promise.all([searchDevelopments({ isHagerland: true, pageSize: 12 }), getBusinessDetails()])
+  const claims = business.developmentsClaims
   return (
     <>
       <section className="hl-blueprint relative bg-ink text-white">
@@ -88,11 +90,11 @@ export default async function OurDevelopmentsPage() {
         </ol>
       </Section>
 
-      {brand.developmentsClaims.length > 0 && (
+      {claims.length > 0 && (
         <Section>
           <SectionHeader title={`Why buy from ${brand.name}`} />
           <ul className="grid gap-4 sm:grid-cols-2">
-            {brand.developmentsClaims.map((c) => (
+            {claims.map((c) => (
               <li key={c.title} className="rounded-lg border border-border p-6">
                 <h3 className="hl-h3">{c.title}</h3>
                 <p className="mt-2 text-muted">{c.text}</p>
@@ -102,7 +104,7 @@ export default async function OurDevelopmentsPage() {
         </Section>
       )}
 
-      <Section tone={brand.developmentsClaims.length > 0 ? 'stone' : 'white'}>
+      <Section tone={claims.length > 0 ? 'stone' : 'white'}>
         <SectionHeader title="Questions buyers ask" />
         <div className="max-w-3xl">
           <Accordion items={DEVELOPMENTS_FAQ.map((f, i) => ({ id: `faq-${i}`, title: f.question, content: f.answer }))} />

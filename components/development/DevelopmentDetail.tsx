@@ -21,6 +21,7 @@ import { Badge } from '@/components/ui/Badge'
 import { DevelopmentCard } from './DevelopmentCard'
 import { VerificationBadge } from '@/components/company/VerificationBadge'
 import { getOrganisationBySlug } from '@/lib/data/organisations'
+import { getBusinessDetails } from '@/lib/data/business'
 
 /** Shared body for third-party developments and HagerLand's own projects (premium variant). */
 export async function DevelopmentDetail({ d, premium }: { d: PublicDevelopment; premium?: boolean }) {
@@ -34,8 +35,9 @@ export async function DevelopmentDetail({ d, premium }: { d: PublicDevelopment; 
   const plans = media.filter((m) => m.kind === 'floorplan').map((m, i) => ({ path: m.storage_path ?? '', alt: m.alt ?? `${d.name}: plan ${i + 1}`, width: m.width, height: m.height }))
   const unitTypes = parseUnitTypes(d.unit_types)
   const developer = !d.is_hagerland && d.developer_slug ? await getOrganisationBySlug(d.developer_slug) : null
+  const { contact } = await getBusinessDetails()
   const channels = d.is_hagerland
-    ? { phone: Boolean(brand.contact.phone), whatsapp: Boolean(brand.contact.whatsapp), telegram: Boolean(brand.contact.telegram) }
+    ? { phone: Boolean(contact.phone), whatsapp: Boolean(contact.whatsapp), telegram: Boolean(contact.telegram) }
     : { phone: Boolean(developer?.has_phone), whatsapp: Boolean(developer?.has_whatsapp), telegram: Boolean(developer?.has_telegram) }
   const developerLabel = d.is_hagerland ? brand.divisions.developments : d.developer_name ?? 'the developer'
   const priceText = d.price_from_etb ? (d.price_to_etb && d.price_to_etb > d.price_from_etb ? `${formatETB(d.price_from_etb)} – ${formatETB(d.price_to_etb)}` : `From ${formatETB(d.price_from_etb)}`) : 'Price on request'

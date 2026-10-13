@@ -1,6 +1,7 @@
 import 'server-only'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { brand } from '@/lib/brand'
+import { getBusinessDetails } from '@/lib/data/business'
 import { canonicalUrl } from '@/lib/site'
 import { propertyHeadline } from '@/lib/labels'
 
@@ -104,10 +105,11 @@ export async function userEmail(userId: string): Promise<string | null> {
 }
 
 /** HagerLand's own inboxes (sales, supply, general), falling back to the main inbox. */
-export function hagerlandInbox(kind: 'sales' | 'supply' | 'general' | null): string | null {
-  const main = process.env.HAGERLAND_INBOX_EMAIL ?? brand.contact.email ?? null
-  if (kind === 'supply') return brand.contact.supplyEmail || main || null
-  return main || null
+export async function hagerlandInbox(kind: 'sales' | 'supply' | 'general' | null): Promise<string | null> {
+  const { contact } = await getBusinessDetails()
+  const main = process.env.HAGERLAND_INBOX_EMAIL || contact.email || null
+  if (kind === 'supply') return contact.supplyEmail || main
+  return main
 }
 
 export const INTENT_LABELS: Record<string, string> = {
