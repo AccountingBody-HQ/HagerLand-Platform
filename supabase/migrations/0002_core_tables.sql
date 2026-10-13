@@ -605,7 +605,7 @@ create table public.reference_counters (
 );
 
 -- Human-friendly references such as HLE-2026-000001 and HLQ-2026-000001.
-create function public.next_reference(prefix text)
+create function public.next_reference(p_prefix text)
 returns text
 language plpgsql
 security definer
@@ -615,13 +615,13 @@ declare
   y int := extract(year from now())::int;
   n int;
 begin
-  if prefix !~ '^[A-Z]{2,5}$' then
+  if p_prefix !~ '^[A-Z]{2,5}$' then
     raise exception 'Invalid reference prefix';
   end if;
-  insert into public.reference_counters (prefix, year, value) values (prefix, y, 1)
-  on conflict (prefix, year) do update set value = public.reference_counters.value + 1
-  returning value into n;
-  return format('%s-%s-%s', prefix, y, lpad(n::text, 6, '0'));
+  insert into public.reference_counters as rc (prefix, year, value) values (p_prefix, y, 1)
+  on conflict (prefix, year) do update set value = rc.value + 1
+  returning rc.value into n;
+  return format('%s-%s-%s', p_prefix, y, lpad(n::text, 6, '0'));
 end
 $$;
 

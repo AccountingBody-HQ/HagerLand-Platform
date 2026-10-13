@@ -1697,6 +1697,25 @@ export type Database = {
           },
         ]
       }
+      rate_limits: {
+        Row: {
+          count: number
+          key: string
+          reset_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          count?: number
+          key: string
+          reset_at: string
+        }
+        Update: {
+          count?: number
+          key?: string
+          reset_at?: string
+        }
+        Relationships: []
+      }
       reference_counters: {
         Row: {
           prefix: string
@@ -2423,6 +2442,7 @@ export type Database = {
       f_unaccent: { Args: { '': string }; Returns: string }
       find_similar_organisations: { Args: { p_limit?: number; p_location_id?: string; p_name: string }; Returns: Json }
       gen_short_id: { Args: Record<PropertyKey, never>; Returns: string }
+      increment_enquiries: { Args: { p_entity_type: string; p_id: string }; Returns: undefined }
       increment_view: { Args: { p_entity_type: string; p_id: string }; Returns: undefined }
       is_active_user: { Args: Record<PropertyKey, never>; Returns: boolean }
       is_end_user: { Args: Record<PropertyKey, never>; Returns: boolean }
@@ -2432,7 +2452,7 @@ export type Database = {
         Returns: Json
       }
       locations_descendants: { Args: { root: string }; Returns: string[] }
-      next_reference: { Args: { prefix: string }; Returns: string }
+      next_reference: { Args: { p_prefix: string }; Returns: string }
       popular_locations: {
         Args: { p_limit?: number; p_purpose?: Database['public']['Enums']['listing_purpose'] }
         Returns: Json

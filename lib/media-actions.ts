@@ -96,6 +96,7 @@ export async function processMediaUploadAction(input: { incoming_path: string; e
     if (d.entity_type === 'organisation' && (d.kind === 'logo' || d.kind === 'cover')) {
       await admin.from('organisations').update(d.kind === 'logo' ? { logo_path: image.thumb_path } : { cover_path: image.storage_path }).eq('id', d.entity_id)
     }
+    await syncPortfolioCover(d.entity_type, d.entity_id)
     revalidateEntity(d.entity_type, d.entity_id)
     return ok(data as MediaItem)
   } catch (err) {
@@ -124,6 +125,14 @@ export async function processPrivateUploadAction(input: { incoming_path: string;
   }
 }
 
+/** Portfolio projects store their cover photo path for fast listing. */
+async function syncPortfolioCover(entityType: MediaEntity, entityId: string): Promise<void> {
+  if (entityType !== 'portfolio') return
+  const admin = getAdminSupabase()
+  const { data } = await admin.from('media').select('storage_path').eq('entity_type', 'portfolio').eq('entity_id', entityId).eq('kind', 'image').order('is_cover', { ascending: false }).order('sort').limit(1).maybeSingle()
+  await admin.from('portfolio_projects').update({ cover_path: data?.storage_path ?? null }).eq('id', entityId)
+}
+
 async function loadEditable(mediaId: string): Promise<MediaItem & { entity_type: MediaEntity; entity_id: string } | null> {
   const { data } = await getAdminSupabase().from('media').select(`${MEDIA_COLUMNS}, entity_type, entity_id`).eq('id', mediaId).maybeSingle()
   if (!data) return null
@@ -141,6 +150,7 @@ export async function deleteMediaAction(mediaId: string): Promise<ActionResult> 
     const { data: next } = await admin.from('media').select('id').eq('entity_type', row.entity_type).eq('entity_id', row.entity_id).eq('kind', 'image').order('sort').limit(1).maybeSingle()
     if (next) await admin.from('media').update({ is_cover: true }).eq('id', next.id)
   }
+  await syncPortfolioCover(row.entity_type, row.entity_id)
   revalidateEntity(row.entity_type, row.entity_id)
   return ok(undefined)
 }
@@ -151,6 +161,7 @@ export async function setCoverAction(mediaId: string): Promise<ActionResult> {
   const admin = getAdminSupabase()
   await admin.from('media').update({ is_cover: false }).eq('entity_type', row.entity_type).eq('entity_id', row.entity_id)
   await admin.from('media').update({ is_cover: true }).eq('id', row.id)
+  await syncPortfolioCover(row.entity_type, row.entity_id)
   revalidateEntity(row.entity_type, row.entity_id)
   return ok(undefined)
 }

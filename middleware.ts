@@ -4,12 +4,21 @@ import { ADMIN_SESSION_COOKIE, verifyAdminSessionEdge } from '@/lib/admin-sessio
 
 const isDev = process.env.NODE_ENV !== 'production'
 
+function origin(url: string | undefined): string {
+  try {
+    return url ? new URL(url).origin : ''
+  } catch {
+    return ''
+  }
+}
+const SUPABASE = origin(process.env.NEXT_PUBLIC_SUPABASE_URL)
+
 const CSP = [
   "default-src 'self'",
-  "img-src 'self' data: blob: https://*.supabase.co https://maps.gstatic.com https://*.googleapis.com https://*.ggpht.com https://i.ytimg.com",
+  `img-src 'self' data: blob: https://*.supabase.co ${SUPABASE} https://maps.gstatic.com https://*.googleapis.com https://*.ggpht.com https://i.ytimg.com`,
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://challenges.cloudflare.com https://va.vercel-scripts.com`,
   'frame-src https://challenges.cloudflare.com https://www.google.com https://www.youtube-nocookie.com',
-  `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://vitals.vercel-insights.com https://challenges.cloudflare.com${isDev ? ' ws:' : ''}`,
+  `connect-src 'self' https://*.supabase.co wss://*.supabase.co ${SUPABASE} https://vitals.vercel-insights.com https://challenges.cloudflare.com${isDev ? ' ws:' : ''}`,
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self'",
   "object-src 'none'",
