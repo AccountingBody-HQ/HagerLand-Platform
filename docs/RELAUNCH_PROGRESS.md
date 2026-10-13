@@ -9,7 +9,7 @@ Status values: todo · in progress · done · blocked
 
 | WP | Title | Status | Date | Commit | Notes / deviations |
 |----|-------|--------|------|--------|--------------------|
-| WP-0 | Safety & setup | in progress | 2026-10-13 | | Waiting on AB: manual backup + schema snapshot (see below) |
+| WP-0 | Safety & setup | in progress | 2026-10-13 | 080a4da | Waiting on AB: manual backup + schema snapshot (see below) |
 | WP-1 | Strip legacy & fix foundations | todo | | | |
 | WP-2 | Database foundation [STOP-GATE] | todo | | | Needs backup confirmed first |
 | WP-3 | Design system & layout [STOP-GATE] | todo | | | |

@@ -1,5 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /roodber8
-Disallow: /api/
-Sitemap: https://www.hagerland.com/sitemap.xml
