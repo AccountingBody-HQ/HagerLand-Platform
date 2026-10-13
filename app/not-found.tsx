@@ -1,12 +1,30 @@
-import Link from 'next/link'
+import { SiteHeader } from '@/components/layout/SiteHeader'
+import { SiteFooter } from '@/components/layout/SiteFooter'
+import { ErrorPanel } from '@/components/layout/ErrorPanel'
+import { ButtonLink } from '@/components/ui/Button'
+
+export const metadata = { title: 'Page not found', robots: { index: false } }
 
 export default function NotFound() {
   return (
-    <main className="min-h-screen flex items-center justify-center px-4">
-      <div className="max-w-md text-center">
-        <h1 className="font-display text-2xl font-bold">Page not found</h1>
-        <Link href="/" className="mt-6 inline-block text-green font-semibold">Go to homepage</Link>
-      </div>
-    </main>
+    <div className="flex min-h-dvh flex-col">
+      <SiteHeader />
+      <main id="main" className="flex-1">
+        <ErrorPanel
+          code="404"
+          title="We couldn't find that page"
+          message="The link may be out of date, or the listing may have been removed. Try a search or start from one of the sections below."
+          actions={
+            <>
+              <ButtonLink href="/">Go to the homepage</ButtonLink>
+              <ButtonLink href="/search" variant="secondary">
+                Search HagerLand
+              </ButtonLink>
+            </>
+          }
+        />
+      </main>
+      <SiteFooter />
+    </div>
   )
 }

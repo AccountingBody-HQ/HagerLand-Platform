@@ -1,3 +1,75 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Design tokens (spec 5.2). Values are RGB channels so Tailwind opacity modifiers work. */
+:root {
+  --hl-green: 28 124 76;
+  --hl-green-dark: 21 95 58;
+  --hl-green-darker: 15 74 44;
+  --hl-green-soft: 233 245 238;
+  --hl-green-tint: 243 250 246;
+  --hl-gold: 184 134 46;
+  --hl-gold-dark: 148 107 34;
+  --hl-gold-soft: 251 241 222;
+  --hl-ink: 21 34 56;
+  --hl-ink-2: 36 50 74;
+  --hl-stone-50: 250 249 247;
+  --hl-stone-100: 244 242 238;
+  --hl-stone-200: 232 229 223;
+  --hl-stone-300: 214 210 202;
+  --hl-stone-500: 138 133 124;
+  --hl-muted: 91 100 114;
+  --hl-subtle: 138 147 163;
+  --hl-border: 228 230 227;
+  --hl-border-strong: 203 208 204;
+  --hl-success: 28 124 76;
+  --hl-warning: 183 121 31;
+  --hl-danger: 194 65 12;
+  --hl-error: 180 35 24;
+  --hl-info: 37 99 235;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-white text-ink text-body;
+  }
+  h1, h2, h3, h4 {
+    @apply font-display text-ink;
+  }
+  :focus-visible {
+    @apply outline-none ring-2 ring-green ring-offset-2;
+  }
+  ::selection {
+    @apply bg-green-soft text-ink;
+  }
+}
+
+@layer components {
+  .hl-display { @apply font-display font-extrabold text-display sm:text-display-md lg:text-display-lg; }
+  .hl-h1 { @apply font-display font-extrabold text-h1 lg:text-h1-lg; }
+  .hl-h2 { @apply font-display font-bold text-h2 lg:text-h2-lg; }
+  .hl-h3 { @apply font-display font-bold text-h3 lg:text-h3-lg; }
+  .hl-eyebrow { @apply text-small font-semibold uppercase tracking-[0.12em]; }
+  .hl-prose { @apply prose prose-slate max-w-none prose-headings:font-display prose-a:text-green; }
+  .hl-blueprint {
+    background-image:
+      linear-gradient(rgb(255 255 255 / 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 0.06) 1px, transparent 1px),
+      linear-gradient(rgb(255 255 255 / 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 0.03) 1px, transparent 1px);
+    background-size: 96px 96px, 96px 96px, 24px 24px, 24px 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
