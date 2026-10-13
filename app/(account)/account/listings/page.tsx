@@ -10,6 +10,7 @@ import { EmptyState } from '@/components/ui/Layout'
 import { MediaImage } from '@/components/media/MediaImage'
 import { LISTING_STATUS_LABELS } from '@/lib/labels'
 import { formatETB } from '@/lib/format'
+import { canRenew } from '@/lib/listing-rules'
 
 export const metadata = { title: 'My listings' }
 
@@ -51,8 +52,7 @@ export default async function MyListingsPage() {
           {listings.map((l) => {
             const status = LISTING_STATUS_LABELS[l.status]
             const left = l.status === 'published' ? daysLeft(l.expires_at) : null
-            const expiredDays = l.status === 'expired' ? -(daysLeft(l.expires_at) ?? 0) : null
-            const canRenew = (left !== null && left <= 14) || (expiredDays !== null && expiredDays <= 30)
+            const renewable = canRenew(l, Date.now())
             const cover = coverOf(l.id)
             return (
               <li key={l.id} className="flex flex-col gap-4 rounded-lg border border-border bg-white p-4 shadow-sm sm:flex-row">
@@ -86,7 +86,7 @@ export default async function MyListingsPage() {
                       <Inbox className="size-4" aria-hidden /> {l.enquiries_count} enquiries
                     </span>
                   </p>
-                  <ListingActions id={l.id} status={l.status} canRenew={canRenew} />
+                  <ListingActions id={l.id} status={l.status} canRenew={renewable} />
                 </div>
               </li>
             )

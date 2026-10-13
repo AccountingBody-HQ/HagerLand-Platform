@@ -11,6 +11,7 @@
 
 # next.js
 /.next/
+/.next-test/
 /out/
 
 # production
@@ -40,3 +41,9 @@ next-env.d.ts
 # database backups (contain personal data, never commit)
 /backups/
 *.dump
+
+# test output
+/e2e/.results/
+/playwright-report/
+/test-results/
+/lighthouse/

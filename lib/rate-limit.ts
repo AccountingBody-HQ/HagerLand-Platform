@@ -17,6 +17,20 @@ export interface RateLimitResult {
   remaining: number
 }
 
+export type RateLimitDecision =
+  | { action: 'reset'; result: RateLimitResult; resetAt: Date }
+  | { action: 'increment'; result: RateLimitResult; count: number }
+  | { action: 'block'; result: RateLimitResult }
+
+/** Pure fixed-window decision: start a new window, count this hit, or block. */
+export function decideRateLimit(row: { count: number; reset_at: string } | null, now: Date, limit: number, windowSeconds: number): RateLimitDecision {
+  if (!row || new Date(row.reset_at) < now) {
+    return { action: 'reset', result: { allowed: true, remaining: limit - 1 }, resetAt: new Date(now.getTime() + windowSeconds * 1000) }
+  }
+  if (row.count >= limit) return { action: 'block', result: { allowed: false, remaining: 0 } }
+  return { action: 'increment', result: { allowed: true, remaining: limit - row.count - 1 }, count: row.count + 1 }
+}
+
 /**
  * Counts one hit against `key` (namespace it, e.g. "enquiry:ip:<hash>") and reports whether
  * the caller is still under `limit` hits per `windowSeconds`. Fails open if the store is unavailable.
@@ -27,13 +41,10 @@ export async function rateLimit(key: string, limit: number, windowSeconds: numbe
   const now = new Date()
   try {
     const { data } = await supabase.from('rate_limits').select('count, reset_at').eq('key', key).maybeSingle<{ count: number; reset_at: string }>()
-    if (!data || new Date(data.reset_at) < now) {
-      await supabase.from('rate_limits').upsert({ key, count: 1, reset_at: new Date(now.getTime() + windowSeconds * 1000).toISOString() })
-      return { allowed: true, remaining: limit - 1 }
-    }
-    if (data.count >= limit) return { allowed: false, remaining: 0 }
-    await supabase.from('rate_limits').update({ count: data.count + 1 }).eq('key', key)
-    return { allowed: true, remaining: limit - data.count - 1 }
+    const decision = decideRateLimit(data, now, limit, windowSeconds)
+    if (decision.action === 'reset') await supabase.from('rate_limits').upsert({ key, count: 1, reset_at: decision.resetAt.toISOString() })
+    else if (decision.action === 'increment') await supabase.from('rate_limits').update({ count: decision.count }).eq('key', key)
+    return decision.result
   } catch (err) {
     log.error('rate-limit', 'rate limit check failed', err, { key: key.split(':')[0] })
     return { allowed: true, remaining: limit }

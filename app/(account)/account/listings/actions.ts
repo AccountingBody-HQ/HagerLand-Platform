@@ -15,6 +15,7 @@ import { revalidateEntity } from '@/lib/revalidate'
 import { sendEmail } from '@/lib/email/send'
 import { listingSubmittedEmail } from '@/lib/email/templates'
 import { log } from '@/lib/log'
+import { canRenew, resumeOutcome } from '@/lib/listing-rules'
 
 type PropertyUpdate = Database['public']['Tables']['properties']['Update']
 type PropertyRow = Database['public']['Tables']['properties']['Row']
@@ -234,15 +235,23 @@ export async function listingStatusAction(id: string, action: 'pause' | 'resume'
     message = 'Paused. It is hidden until you resume it.'
   } else if (action === 'resume') {
     if (row.status !== 'paused') return fail('Only paused listings can be resumed.')
-    const expired = row.expires_at && new Date(row.expires_at).getTime() < now
-    const { error } = await admin.from('properties').update({ status: expired ? 'expired' : 'published' }).eq('id', id)
-    if (error) return fail('Please try again.')
-    message = expired ? 'This listing had expired while paused. Renew it to make it live.' : 'Your listing is live again.'
+    // Spec 6.8: paused → published without review only if nothing changed and it has not expired.
+    const outcome = resumeOutcome(row, now)
+    if (outcome === 'expire') {
+      const { error } = await admin.from('properties').update({ status: 'expired' }).eq('id', id)
+      if (error) return fail('Please try again.')
+      message = 'This listing expired while it was paused. Renew it to make it live again.'
+    } else if (outcome === 'review') {
+      const { error } = await supabase.from('properties').update({ status: 'pending_review' }).eq('id', id)
+      if (error) return fail('Please try again.')
+      message = 'You changed this listing while it was paused, so it goes back for a quick review. It will be live again once approved.'
+    } else {
+      const { error } = await admin.from('properties').update({ status: 'published' }).eq('id', id).eq('status', 'paused')
+      if (error) return fail('Please try again.')
+      message = 'Your listing is live again.'
+    }
   } else if (action === 'renew') {
-    const expiresAt = row.expires_at ? new Date(row.expires_at).getTime() : 0
-    const withinGrace = row.status === 'expired' && now - expiresAt < 30 * 86_400_000
-    const nearlyDue = row.status === 'published' && expiresAt - now < 14 * 86_400_000
-    if (!withinGrace && !nearlyDue) return fail(row.status === 'expired' ? 'This listing expired more than 30 days ago. Edit it and resubmit for review.' : 'You can renew in the last two weeks before it expires.')
+    if (!canRenew(row, now)) return fail(row.status === 'expired' ? 'This listing expired more than 30 days ago. Edit it and resubmit for review.' : 'You can renew in the last two weeks before it expires.')
     const days = await getSettingNumber('listing_expiry_days', 60)
     const { error } = await admin
       .from('properties')

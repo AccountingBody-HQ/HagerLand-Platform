@@ -20,6 +20,8 @@ const legacyRedirects = [
 ].map((r) => ({ ...r, permanent: true }))
 
 const nextConfig = {
+  // Test builds (scripts/with-test-env.sh) use a separate folder so they never mix with real builds.
+  distDir: process.env.NEXT_DIST_DIR || '.next',
   poweredByHeader: false,
   images: {
     formats: ['image/avif', 'image/webp'],
