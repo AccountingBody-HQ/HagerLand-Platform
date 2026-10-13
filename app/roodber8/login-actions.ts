@@ -1,11 +1,14 @@
 'use server'
+
 import { cookies, headers } from 'next/headers'
-import { verifyCredentials, verifyCode, createSessionToken, SESSION_COOKIE } from '@/lib/admin-auth'
 import { redirect } from 'next/navigation'
+import { verifyCredentials, verifyCode, createSessionToken, SESSION_COOKIE } from '@/lib/admin-auth'
 import { isAdminLoginRateLimited, clearAdminLoginRateLimit } from '@/lib/rate-limit'
+import { getClientIp } from '@/lib/security'
+import { audit } from '@/lib/admin/guard'
 
 export async function login(formData: FormData) {
-  const ip = headers().get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
+  const ip = getClientIp(headers())
 
   if (await isAdminLoginRateLimited(ip)) {
     redirect('/roodber8-login?error=rate_limited')
@@ -31,10 +34,6 @@ export async function login(formData: FormData) {
     path: '/',
     maxAge: session.maxAge,
   })
-  redirect('/roodber8')
-}
-
-export async function logout() {
-  cookies().delete(SESSION_COOKIE)
+  await audit('admin.login', {})
   redirect('/roodber8')
 }

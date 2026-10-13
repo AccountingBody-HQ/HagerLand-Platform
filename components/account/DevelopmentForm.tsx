@@ -41,7 +41,18 @@ export interface DevelopmentDefaults {
 
 const n = (v: string): number | null => (v.trim() === '' ? null : Number(v.replace(/[,\s]/g, '')))
 
-export function DevelopmentForm({ defaults, action = saveDevelopmentAction }: { defaults: DevelopmentDefaults; action?: typeof saveDevelopmentAction }) {
+export function DevelopmentForm({
+  defaults,
+  action = saveDevelopmentAction,
+  developerOptions,
+  currentDeveloper,
+}: {
+  defaults: DevelopmentDefaults
+  action?: typeof saveDevelopmentAction
+  /** Admin only: choose the developer (or HagerLand Developments). */
+  developerOptions?: { id: string; label: string }[]
+  currentDeveloper?: string | null
+}) {
   const [state, formAction] = useFormState(action, null)
   const [units, setUnits] = useState<UnitType[]>(defaults.unit_types ?? [])
   const [brochure, setBrochure] = useState<string | null>(defaults.brochure_path ?? null)
@@ -61,6 +72,18 @@ export function DevelopmentForm({ defaults, action = saveDevelopmentAction }: { 
 
       <fieldset className="space-y-5">
         <legend className="hl-h3 mb-4">The development</legend>
+        {developerOptions && (
+          <Field label="Developer" htmlFor="dv-dev" hint="Choose HagerLand Developments for our own projects.">
+            <Select id="dv-dev" name="developer_org_id" defaultValue={currentDeveloper ?? ''}>
+              <option value="">Unknown developer</option>
+              {developerOptions.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {o.label}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        )}
         <div className="grid gap-5 sm:grid-cols-2">
           <Field label="Name" htmlFor="dv-name" error={errors.name} required>
             <Input id="dv-name" name="name" defaultValue={defaults.name} />

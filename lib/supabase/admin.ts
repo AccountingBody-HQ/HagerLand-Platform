@@ -17,3 +17,11 @@ export function getAdminSupabase(): TypedClient {
   })
   return client
 }
+
+/**
+ * Same service-role client without table types, for the few admin operations where the table is
+ * chosen at runtime from a fixed list (e.g. moderation across properties/developments/organisations).
+ */
+export function getAdminSupabaseDynamic(): import('@supabase/supabase-js').SupabaseClient {
+  return getAdminSupabase() as unknown as import('@supabase/supabase-js').SupabaseClient
+}

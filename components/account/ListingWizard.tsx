@@ -109,7 +109,7 @@ function NavRow({ back, submitLabel = 'Save and continue' }: { back?: string; su
   )
 }
 
-function BasicsFields({ v, errors }: { v: WizardValues; errors: Record<string, string> }) {
+export function BasicsFields({ v, errors }: { v: WizardValues; errors: Record<string, string> }) {
   return (
     <div className="space-y-5">
       <fieldset>
@@ -148,7 +148,7 @@ function BasicsFields({ v, errors }: { v: WizardValues; errors: Record<string, s
   )
 }
 
-function LocationFields({ v, errors, developments }: { v: WizardValues; errors: Record<string, string>; developments: { id: string; name: string }[] }) {
+export function LocationFields({ v, errors, developments }: { v: WizardValues; errors: Record<string, string>; developments: { id: string; name: string }[] }) {
   const [missing, setMissing] = useState(false)
   return (
     <div className="space-y-5">
@@ -186,7 +186,7 @@ function LocationFields({ v, errors, developments }: { v: WizardValues; errors: 
   )
 }
 
-function DetailsFields({ v, errors, purpose }: { v: WizardValues; errors: Record<string, string>; purpose: string }) {
+export function DetailsFields({ v, errors, purpose }: { v: WizardValues; errors: Record<string, string>; purpose: string }) {
   const [onRequest, setOnRequest] = useState(Boolean(v.price_on_request))
   const num = (n: number | null | undefined) => (n === null || n === undefined ? '' : String(n))
   return (
@@ -322,7 +322,7 @@ function DetailsFields({ v, errors, purpose }: { v: WizardValues; errors: Record
   )
 }
 
-function ContactFields({ v, errors }: { v: WizardValues; errors: Record<string, string> }) {
+export function ContactFields({ v, errors }: { v: WizardValues; errors: Record<string, string> }) {
   return (
     <div className="space-y-5">
       <p className="text-muted">Buyers tap to reveal these. We pre-filled your account details; change them if someone else handles enquiries.</p>
