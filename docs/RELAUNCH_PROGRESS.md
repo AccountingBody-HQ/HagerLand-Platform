@@ -9,17 +9,17 @@ Status values: todo · in progress · done · blocked
 
 | WP | Title | Status | Date | Commit | Notes / deviations |
 |----|-------|--------|------|--------|--------------------|
-| WP-0 | Safety & setup | in progress | 2026-10-13 | 080a4da | Waiting on AB: manual backup + schema snapshot (see below) |
-| WP-1 | Strip legacy & fix foundations | todo | | | |
-| WP-2 | Database foundation [STOP-GATE] | todo | | | Needs backup confirmed first |
-| WP-3 | Design system & layout [STOP-GATE] | todo | | | |
-| WP-4 | Auth & accounts | todo | | | |
-| WP-5 | Media pipeline | todo | | | |
-| WP-6 | Property marketplace | todo | | | |
-| WP-7 | Companies, professionals, suppliers, agents, developers | todo | | | |
-| WP-8 | Developments & HagerLand Developments | todo | | | |
-| WP-9 | Supplies | todo | | | |
-| WP-10 | Enquiries & leads | todo | | | |
+| WP-0 | Safety & setup | done (code) | 2026-10-13 | 080a4da | AB still to take backup + run snapshot query |
+| WP-1 | Strip legacy & fix foundations | done | 2026-10-13 | e7dade5 | Also removed old about/contact/terms pages and admin import UI (rebuilt in WP-13/14) |
+| WP-2 | Database foundation [STOP-GATE] | done (written + tested locally) | 2026-10-13 | dacbf08 | AB must run migrations 0001–0009 (see supabase/README.md); 0008/0009 added later. next_reference fixed in 0002 |
+| WP-3 | Design system & layout [STOP-GATE] | done | 2026-10-13 | 05ef6be | Styleguide sign-off waived by AB ("don't stop") |
+| WP-4 | Auth & accounts | done | 2026-10-13 | 0fcf8d3 | Google sign-in hidden until NEXT_PUBLIC_GOOGLE_AUTH_ENABLED=true |
+| WP-5 | Media pipeline | done | 2026-10-13 | 71cc2ee | HEIC not decodable by prebuilt sharp: browsers convert on upload |
+| WP-6 | Property marketplace | done | 2026-10-13 | 36d5579 | End-to-end tested on local Supabase stack. Map pin omitted (no provider confirmed) |
+| WP-7 | Companies, professionals, suppliers, agents, developers | done | 2026-10-13 | 36d5579 |  |
+| WP-8 | Developments & HagerLand Developments | done | 2026-10-13 | bffb4a1 | "Why buy" claims hidden until AB confirms |
+| WP-9 | Supplies | done (not yet e2e-tested) | 2026-10-13 | see git log |  |
+| WP-10 | Enquiries & leads | partly done | 2026-10-13 | | Enquiry form/action/emails built; /account/enquiries inbox still to do |
 | WP-11 | Unified search | todo | | | |
 | WP-12 | Homepage [STOP-GATE] | todo | | | |
 | WP-13 | Content pages & emails | todo | | | |
