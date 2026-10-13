@@ -36,3 +36,7 @@ yarn-error.log*
 next-env.d.ts
 *.save
 .env*
+
+# database backups (contain personal data, never commit)
+/backups/
+*.dump
