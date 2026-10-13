@@ -35,7 +35,9 @@ export default async function SearchPage({ searchParams }: { searchParams: { q?:
   const page = Math.max(1, Number(searchParams.page) || 1)
   const counts = await searchAll(q, vertical === 'all' ? 4 : 1)
   const total = counts.properties.total + counts.developments.total + counts.products.total + counts.organisations.total
-  if (q.length >= 2 && total === 0) await recordSearchMiss(q, vertical)
+  // Places, services and categories count as results too (e.g. "bole" matches the Bole location).
+  const anything = total > 0 || counts.locations.length > 0 || counts.services.length > 0 || counts.product_categories.length > 0
+  if (q.length >= 2 && !anything) await recordSearchMiss(q, vertical)
 
   const tabCount: Record<Vertical, number> = { all: total, property: counts.properties.total, developments: counts.developments.total, supplies: counts.products.total, companies: counts.organisations.total }
   const href = (v: Vertical, p = 1) => `/search?q=${encodeURIComponent(q)}${v !== 'all' ? `&vertical=${v}` : ''}${p > 1 ? `&page=${p}` : ''}`
@@ -70,7 +72,7 @@ export default async function SearchPage({ searchParams }: { searchParams: { q?:
 
       {q.length < 2 ? (
         <p className="mt-8 text-muted">Type at least two letters, for example “apartment Bole”, “cement” or “architect”.</p>
-      ) : total === 0 ? (
+      ) : !anything ? (
         <EmptyState
           className="mt-8"
           icon={<SearchX />}
@@ -95,6 +97,27 @@ export default async function SearchPage({ searchParams }: { searchParams: { q?:
                   <li key={l.id} className="flex gap-2">
                     <Link href={`/property/for-sale/${l.path}`} className="inline-flex min-h-10 items-center rounded-full border border-border-strong px-4 text-small font-medium hover:border-ink">
                       Property for sale in {l.display_name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+          {(counts.services.length > 0 || counts.product_categories.length > 0) && (
+            <section>
+              <h2 className="hl-h3 mb-3">Services and categories</h2>
+              <ul className="flex flex-wrap gap-2">
+                {counts.services.map((sv) => (
+                  <li key={`s-${sv.slug}`}>
+                    <Link href={`/professionals/${sv.slug}`} className="inline-flex min-h-10 items-center rounded-full border border-border-strong px-4 text-small font-medium hover:border-ink">
+                      {sv.name} <span className="ml-1 text-muted">· Professionals</span>
+                    </Link>
+                  </li>
+                ))}
+                {counts.product_categories.map((c) => (
+                  <li key={`c-${c.slug}`}>
+                    <Link href={c.parent_slug ? `/supplies/${c.parent_slug}/${c.slug}` : `/supplies/${c.slug}`} className="inline-flex min-h-10 items-center rounded-full border border-border-strong px-4 text-small font-medium hover:border-ink">
+                      {c.name} <span className="ml-1 text-muted">· Supplies</span>
                     </Link>
                   </li>
                 ))}
