@@ -70,3 +70,8 @@ export function requireAdminSession(): void {
     throw new Error('Unauthorized')
   }
 }
+
+/** True when the current request carries a valid admin session (no throw). */
+export function isAdminRequest(): boolean {
+  return verifySessionToken(cookies().get(SESSION_COOKIE)?.value)
+}
