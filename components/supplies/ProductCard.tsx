@@ -1,17 +1,13 @@
 import Link from 'next/link'
 import { Package } from 'lucide-react'
 import type { PublicProduct } from '@/lib/data/products'
-import { formatETBCents } from '@/lib/format'
-import { STOCK_LABEL, unitLabel } from '@/lib/units'
+import { STOCK_LABEL } from '@/lib/units'
+import { productPrice } from '@/lib/product-price'
 import { MediaImage } from '@/components/media/MediaImage'
 import { Badge } from '@/components/ui/Badge'
 import { AddToQuote } from './AddToQuote'
 import { brand } from '@/lib/brand'
 
-export function productPrice(p: Pick<PublicProduct, 'price_type' | 'price_etb_cents' | 'unit'>): string {
-  if (p.price_type === 'on_request' || p.price_etb_cents === null) return 'Price on request'
-  return `${p.price_type === 'from' ? 'From ' : ''}${formatETBCents(p.price_etb_cents)} / ${unitLabel(p.unit)}`
-}
 
 export function ProductCard({ product: p }: { product: PublicProduct }) {
   const stock = STOCK_LABEL[p.stock_status ?? 'available_on_request']
