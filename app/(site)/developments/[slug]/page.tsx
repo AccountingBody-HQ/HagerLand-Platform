@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     title: `${d.name} — ${d.location_display?.split(', ').slice(0, 2).join(', ')}`,
     description: truncateDescription(d.summary ?? d.description ?? `${d.name}: new development in ${d.location_display}. Unit types, prices and payment plan on HagerLand.`),
     path: `/developments/${d.slug}`,
-    image: publicMediaUrl(d.cover_path) ?? undefined,
+    image: `/og/development/${d.slug}`,
   })
 }
 

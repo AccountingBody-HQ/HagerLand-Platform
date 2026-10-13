@@ -17,7 +17,8 @@ export const metadata: Metadata = {
   title: { default: `${brand.name} — ${brand.descriptor}`, template: `%s | ${brand.name}` },
   description: brand.heroSupport,
   applicationName: brand.name,
-  openGraph: { siteName: brand.name, type: 'website', locale: 'en_US' },
+  openGraph: { siteName: brand.name, type: 'website', locale: 'en_US', images: [{ url: '/og/default', width: 1200, height: 630 }] },
+  twitter: { card: 'summary_large_image', images: ['/og/default'] },
   formatDetection: { telephone: false },
 }
 

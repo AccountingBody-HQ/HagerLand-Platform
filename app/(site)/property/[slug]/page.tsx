@@ -57,8 +57,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const place = placeLabel(p, chain)
   const price = p.price_etb && !p.price_on_request ? ` — ${formatETB(p.price_etb)}` : ''
   const title = `${propertyHeadline(p.property_type ?? '', p.bedrooms)} for ${p.purpose === 'rent' ? 'rent' : 'sale'} in ${place}${price}`
-  const cover = publicMediaUrl(p.cover_path)
-  return buildMetadata({ title, description: truncateDescription(p.description || p.title || ''), path: `/property/${p.slug}`, image: cover ?? undefined })
+  return buildMetadata({ title, description: truncateDescription(p.description || p.title || ''), path: `/property/${p.slug}`, image: `/og/property/${p.slug}` })
 }
 
 export default async function PropertyPage({ params }: { params: { slug: string } }) {

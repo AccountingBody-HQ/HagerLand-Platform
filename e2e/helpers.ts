@@ -101,3 +101,19 @@ export async function adminSession(page: Page): Promise<void> {
   const hmac = crypto.createHmac('sha256', process.env.ADMIN_SESSION_SECRET ?? '').update(expires).digest('hex')
   await page.context().addCookies([{ name: 'hl_admin_session', value: `${expires}.${hmac}`, domain: 'localhost', path: '/', httpOnly: true, secure: true, sameSite: 'Lax' }])
 }
+
+/** Inserts a published property directly in the local database (for read-only page tests). Returns id and slug. */
+export async function seedPublishedProperty(opts: { purpose?: 'sale' | 'rent'; locationPath?: string; title?: string; price?: number } = {}): Promise<{ id: string; slug: string; shortId: string }> {
+  const d = db()
+  const { data: loc } = await d.from('locations').select('id').eq('path', opts.locationPath ?? 'addis-ababa/bole').single()
+  const title = opts.title ?? `E2E apartment ${Date.now()}`
+  const { data, error } = await d
+    .from('properties')
+    .insert({ title, slug: `e2e-${Date.now()}`, purpose: opts.purpose ?? 'sale', property_type: 'apartment', location_id: loc!.id, bedrooms: 2, bathrooms: 1, price_etb: opts.price ?? 4_500_000, description: 'A bright two-bedroom apartment used by automated tests.', lister_type: 'hagerland', status: 'published' })
+    .select('id, short_id')
+    .single()
+  if (error || !data) throw new Error(`seed failed: ${error?.message}`)
+  const slug = `e2e-apartment-${data.short_id}`
+  await d.from('properties').update({ slug }).eq('id', data.id)
+  return { id: data.id, slug, shortId: data.short_id }
+}

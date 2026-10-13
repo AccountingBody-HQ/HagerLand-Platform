@@ -28,6 +28,8 @@ const nextConfig = {
     remotePatterns: [{ protocol: 'https', hostname: '*.supabase.co', pathname: '/storage/v1/**' }],
   },
   experimental: {
+    // Share-image routes read the bundled Manrope font files at runtime.
+    outputFileTracingIncludes: { '/og/**': ['./lib/fonts/**'] },
     serverActions: {
       bodySizeLimit: '4mb',
       allowedOrigins: [

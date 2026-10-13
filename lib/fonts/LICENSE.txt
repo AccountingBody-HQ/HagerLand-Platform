@@ -1,0 +1,2 @@
+Manrope (Mikhail Sharanda), SIL Open Font License 1.1 — https://fonts.google.com/specimen/Manrope/license
+Used by lib/og.tsx for share images.

@@ -2,7 +2,6 @@ import { notFound, permanentRedirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import { getDevelopmentBySlug } from '@/lib/data/developments'
 import { buildMetadata, truncateDescription } from '@/lib/seo'
-import { publicMediaUrl } from '@/lib/media'
 import { brand } from '@/lib/brand'
 import { Container } from '@/components/ui/Layout'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
@@ -19,7 +18,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     title: `${d.name} by ${brand.divisions.developments}`,
     description: truncateDescription(d.summary ?? d.description ?? `${d.name}: homes built by HagerLand in ${d.location_display}.`),
     path: `/our-developments/${d.slug}`,
-    image: publicMediaUrl(d.cover_path) ?? undefined,
+    image: `/og/development/${d.slug}`,
   })
 }
 

@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     title: `${o.name} — ${ORG_KIND_LABEL[o.kind ?? ''] ?? 'Business'} in ${city}`,
     description: truncateDescription(o.tagline ?? o.description ?? `${o.name} on HagerLand: ${ORG_KIND_LABEL[o.kind ?? '']?.toLowerCase()} in ${city}. See their work and contact them directly.`),
     path: `/company/${o.slug}`,
-    image: publicMediaUrl(o.cover_path) ?? publicMediaUrl(o.logo_path) ?? undefined,
+    image: `/og/company/${o.slug}`,
   })
 }
 

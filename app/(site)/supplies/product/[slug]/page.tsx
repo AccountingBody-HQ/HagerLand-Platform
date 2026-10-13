@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     absoluteTitle: true,
     description: truncateDescription(p.summary ?? p.description ?? `${p.name} from ${brand.divisions.supply}. Add to your quote list for a clear price with delivery.`),
     path: `/supplies/product/${p.slug}`,
-    image: publicMediaUrl(p.image_path) ?? undefined,
+    image: `/og/product/${p.slug}`,
   })
 }
 

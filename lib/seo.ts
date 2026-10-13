@@ -7,6 +7,7 @@ export interface MetadataInput {
   description: string
   path: string
   noindex?: boolean
+  /** Share image path, e.g. /og/property/<slug>. Defaults to the branded /og/default. */
   image?: string
   absoluteTitle?: boolean
   type?: 'website' | 'article'
@@ -28,9 +29,9 @@ export function buildMetadata({ title, description, path, noindex, image, absolu
       siteName: brand.name,
       type,
       locale: 'en_US',
-      ...(image ? { images: [{ url: image }] } : {}),
+      images: [{ url: image ?? '/og/default', width: 1200, height: 630, alt: title }],
     },
-    twitter: { card: 'summary_large_image', title, description },
+    twitter: { card: 'summary_large_image', title, description, images: [image ?? '/og/default'] },
   }
 }
 
