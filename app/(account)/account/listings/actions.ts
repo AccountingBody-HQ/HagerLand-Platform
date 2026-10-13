@@ -29,6 +29,13 @@ async function slugFor(p: { purpose: string; property_type: string; bedrooms?: n
   return listingSlug(`${propertyHeadline(p.property_type, p.bedrooms ?? null)} ${p.purpose === 'rent' ? 'to rent' : 'for sale'} ${names}`, sid)
 }
 
+/** Only developments the user's organisation owns can be linked (RLS hides others). */
+async function ownDevelopment(id: string | undefined): Promise<string | null> {
+  if (!id) return null
+  const { data } = await getServerSupabase().from('developments').select('id').eq('id', id).maybeSingle()
+  return data?.id ?? null
+}
+
 async function loadOwn(id: string): Promise<PropertyRow | null> {
   const { data } = await getServerSupabase().from('properties').select('*').eq('id', id).maybeSingle()
   return data
@@ -74,6 +81,7 @@ export async function saveListingStepAction(_prev: WizardState, formData: FormDa
         location_id: loc.data.location_id,
         address_line: loc.data.address_line ?? null,
         show_exact_location: loc.data.show_exact_location,
+        development_id: await ownDevelopment(loc.data.development_id),
         lister_type: listerType,
         lister_user_id: user.id,
         lister_org_id: listerType === 'owner' ? null : active?.org.id ?? null,
@@ -104,7 +112,7 @@ export async function saveListingStepAction(_prev: WizardState, formData: FormDa
   } else if (step === 'location') {
     const r = locationSchema.safeParse(raw)
     if (!r.success) return invalid(r.error)
-    changes = { location_id: r.data.location_id, address_line: r.data.address_line ?? null, show_exact_location: r.data.show_exact_location }
+    changes = { location_id: r.data.location_id, address_line: r.data.address_line ?? null, show_exact_location: r.data.show_exact_location, development_id: await ownDevelopment(r.data.development_id) }
     if (r.data.requested_area) await getAdminSupabase().from('admin_notes').insert({ entity_type: 'property', entity_id: id, note: `Lister asked for a new area: "${r.data.requested_area}"` })
   } else if (step === 'details') {
     const r = detailsSchema.safeParse(raw)

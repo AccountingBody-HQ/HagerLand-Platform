@@ -13,6 +13,8 @@ export const brand = {
     developments: 'HagerLand Developments',
   },
   legalEntityLine: '',
+  /** "Why buy from HagerLand" points. Shown only once AB confirms each is true (spec 9.3, Section 23 #6). */
+  developmentsClaims: [] as { title: string; text: string }[],
   contact: {
     phone: '',
     whatsapp: '',

@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import { requireUser } from '@/lib/auth'
+import { getOwnDevelopments } from '@/lib/data/owner-dev'
 import { loadOwnerListing } from '@/lib/data/owner-listings'
 import { WIZARD_STEPS, type WizardStep } from '@/lib/validation/property'
 import { AccountPageHeader } from '@/components/account/PageHeader'
@@ -62,7 +63,7 @@ export default async function EditListingPage({ params, searchParams }: { params
         </FormAlert>
       )}
       {row.pending_changes && isLive && <FormAlert tone="info" className="mb-6">You have changes waiting for review.</FormAlert>}
-      <ListingWizard id={row.id} step={step} values={values} media={media} isLive={isLive} reviewSlot={review} />
+      <ListingWizard developments={await getOwnDevelopments()} id={row.id} step={step} values={values} media={media} isLive={isLive} reviewSlot={review} />
     </div>
   )
 }

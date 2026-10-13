@@ -18,6 +18,7 @@ export const locationSchema = z.object({
   address_line: optionalText(200, 'Address'),
   show_exact_location: checkbox,
   requested_area: optionalText(80, 'Area name'),
+  development_id: z.preprocess((v) => (v === '' ? undefined : v), z.uuid().optional()),
 })
 
 export const detailsSchema = z

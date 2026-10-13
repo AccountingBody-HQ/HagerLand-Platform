@@ -1,4 +1,5 @@
 import { requireUser } from '@/lib/auth'
+import { getOwnDevelopments } from '@/lib/data/owner-dev'
 import { AccountPageHeader } from '@/components/account/PageHeader'
 import { ListingWizard } from '@/components/account/ListingWizard'
 
@@ -9,7 +10,7 @@ export default async function NewListingPage() {
   return (
     <div>
       <AccountPageHeader title="List a property" description="It takes about 10 minutes. Your progress is saved after each step." />
-      <ListingWizard id={null} step="basics" values={{}} media={[]} isLive={false} />
+      <ListingWizard developments={await getOwnDevelopments()} id={null} step="basics" values={{}} media={[]} isLive={false} />
     </div>
   )
 }

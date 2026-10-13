@@ -52,6 +52,7 @@ export interface WizardValues {
   contact_telegram?: string | null
   contact_email?: string | null
   preferred_contact?: string | null
+  development_id?: string | null
 }
 
 function Progress({ step, id }: { step: WizardStep; id: string | null }) {
@@ -147,7 +148,7 @@ function BasicsFields({ v, errors }: { v: WizardValues; errors: Record<string, s
   )
 }
 
-function LocationFields({ v, errors }: { v: WizardValues; errors: Record<string, string> }) {
+function LocationFields({ v, errors, developments }: { v: WizardValues; errors: Record<string, string>; developments: { id: string; name: string }[] }) {
   const [missing, setMissing] = useState(false)
   return (
     <div className="space-y-5">
@@ -165,6 +166,18 @@ function LocationFields({ v, errors }: { v: WizardValues; errors: Record<string,
       <Field label="Address or nearby landmark" htmlFor="w-addr" optional hint="Not shown publicly unless you choose below." error={errors.address_line}>
         <Input id="w-addr" name="address_line" defaultValue={v.address_line ?? ''} maxLength={200} />
       </Field>
+      {developments.length > 0 && (
+        <Field label="Part of a development?" htmlFor="w-dev" optional>
+          <Select id="w-dev" name="development_id" defaultValue={v.development_id ?? ''}>
+            <option value="">No</option>
+            {developments.map((d) => (
+              <option key={d.id} value={d.id}>
+                {d.name}
+              </option>
+            ))}
+          </Select>
+        </Field>
+      )}
       <div className="flex min-h-11 items-start gap-3">
         <input id="w-exact" name="show_exact_location" type="checkbox" defaultChecked={v.show_exact_location} className="mt-1 size-5 accent-green" />
         <label htmlFor="w-exact">Show the address publicly. Otherwise visitors only see the area.</label>
@@ -341,7 +354,7 @@ function ContactFields({ v, errors }: { v: WizardValues; errors: Record<string, 
 }
 
 /** Six-step listing wizard (spec 7.4). Each step saves, then moves on. */
-export function ListingWizard({ id, step, values, media, isLive, reviewSlot }: { id: string | null; step: WizardStep; values: WizardValues; media: MediaItem[]; isLive: boolean; reviewSlot?: React.ReactNode }) {
+export function ListingWizard({ id, step, values, media, isLive, reviewSlot, developments = [] }: { id: string | null; step: WizardStep; values: WizardValues; media: MediaItem[]; isLive: boolean; reviewSlot?: React.ReactNode; developments?: { id: string; name: string }[] }) {
   const router = useRouter()
   const [localStep, setLocalStep] = useState<WizardStep>(id ? step : 'basics')
   const [basics, setBasics] = useState<FormData | null>(null)
@@ -410,7 +423,7 @@ export function ListingWizard({ id, step, values, media, isLive, reviewSlot }: {
               </button>
             </FormAlert>
           )}
-          <LocationFields v={values} errors={errors} />
+          <LocationFields v={values} errors={errors} developments={developments} />
           <div className="flex flex-col-reverse gap-3 border-t border-border pt-6 sm:flex-row sm:justify-between">
             <button type="button" onClick={() => setLocalStep('basics')} className="inline-flex h-11 items-center gap-2 rounded-md px-5 font-semibold hover:bg-stone-100">
               <ArrowLeft className="size-[18px]" /> Back
@@ -427,7 +440,7 @@ export function ListingWizard({ id, step, values, media, isLive, reviewSlot }: {
           <input type="hidden" name="step" value={current} />
           <input type="hidden" name="property_id" value={id} />
           {current === 'basics' && <BasicsFields v={values} errors={errors} />}
-          {current === 'location' && <LocationFields v={values} errors={errors} />}
+          {current === 'location' && <LocationFields v={values} errors={errors} developments={developments} />}
           {current === 'details' && <DetailsFields v={values} errors={errors} purpose={purpose} />}
           {current === 'photos' && (
             <div className="space-y-8">
