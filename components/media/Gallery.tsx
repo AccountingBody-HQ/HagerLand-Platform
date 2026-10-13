@@ -71,7 +71,7 @@ export function Gallery({ images, floorplans = [], videoEmbed, aspect = 'aspect-
     return (
       <div className={cn('flex items-center justify-center rounded-xl bg-stone-100 text-muted', aspect)}>
         <span className="flex items-center gap-2">
-          <Images className="size-5" aria-hidden /> Photos coming soon
+          <Images className="size-5" aria-hidden /> No photos added yet
         </span>
       </div>
     )

@@ -26,7 +26,7 @@ Status values: todo · in progress · done · blocked
 | WP-14 | Admin rebuild | done | 2026-10-13 | 78da435 + 7e5a30c | All 17 sections of spec 18.2. Admin e2e suite (e2e/admin). Users email search scans auth pages (no email filter in the auth admin API) |
 | WP-15 | SEO | done | 2026-10-13 | 3d50dbc | Sitemaps split by type (/sitemap/<type>.xml, listed in robots.txt); landing pages listed only when they meet min_results_for_index; share images at /og/<kind>/<slug> (WebP photos converted with sharp, Manrope font bundled under OFL); admin homepage picks |
 | WP-16 | Analytics, monitoring, cron | done | 2026-10-13 | 73c4841 | /api/cron/daily (Bearer CRON_SECRET, constant-time) at 06:00 UTC via vercel.json. Server errors counted in the errors table and listed in the digest. Purging old rate_limits rows (a pre-existing table) is off unless CRON_PURGE_RATE_LIMITS=true, because of the no-deleting-legacy-data rule |
-| WP-17 | Security hardening | todo | | | |
+| WP-17 | Security hardening | done | 2026-10-13 | HASH17 | Headers/CSP, upload abuse, rate limits, admin lock and bundle secret scan covered by e2e; RLS 28/28 on local. npm audit: low-risk dev fixes applied; remaining high/critical advisories are in Next.js 14.2 (newest 14.2 release installed) and Tailwind 3 build tools; fixing needs Next 15 (major upgrade, AB decision). Mitigations: AVIF off, image optimiser limited to our photo bucket, Vercel hosting. Env validated at start-up (instrumentation.ts). docs/RUNBOOK.md written |
 | WP-18 | Performance & accessibility | todo | | | |
 | WP-19 | QA, legacy sweep, final checklist [STOP-GATE] | todo | | | |
 | WP-20 | Cutover [STOP-GATE] | todo | | | |
