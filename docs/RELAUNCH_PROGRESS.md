@@ -9,9 +9,9 @@ Status values: todo · in progress · done · blocked
 
 | WP | Title | Status | Date | Commit | Notes / deviations |
 |----|-------|--------|------|--------|--------------------|
-| WP-0 | Safety & setup | done (code) | 2026-10-13 | 080a4da | AB still to take backup + run snapshot query |
+| WP-0 | Safety & setup | done | 2026-10-13 | 080a4da | Manual backup taken and downloaded by AB before any database change; schema snapshot saved (13 Oct 2026) |
 | WP-1 | Strip legacy & fix foundations | done | 2026-10-13 | e7dade5 | Also removed old about/contact/terms pages and admin import UI (rebuilt in WP-13/14) |
-| WP-2 | Database foundation [STOP-GATE] | done (written + tested locally) | 2026-10-13 | dacbf08 | AB must run migrations 0001–0009 (see supabase/README.md); 0008/0009 added later. next_reference fixed in 0002 |
+| WP-2 | Database foundation [STOP-GATE] | done (applied to live + verified) | 2026-10-13 | dacbf08 + fixes | AB applied 0001–0009 to the live project on 13 Oct 2026; every check matched; RLS test 28/28 PASS. Fixes before applying: next_reference, read-only views, collision pre-flight, popular_locations |
 | WP-3 | Design system & layout [STOP-GATE] | done | 2026-10-13 | 05ef6be | Styleguide sign-off waived by AB ("don't stop") |
 | WP-4 | Auth & accounts | done | 2026-10-13 | 0fcf8d3 | Google sign-in hidden until NEXT_PUBLIC_GOOGLE_AUTH_ENABLED=true |
 | WP-5 | Media pipeline | done | 2026-10-13 | 71cc2ee | HEIC not decodable by prebuilt sharp: browsers convert on upload |
@@ -40,9 +40,28 @@ Status values: todo · in progress · done · blocked
 - [x] Backup tooling: `scripts/backup-supabase.sh`, PostgreSQL 17 client installed in the Codespace, `backups/` git-ignored
 - [x] Schema snapshot query written and tested: `docs/sql/wp0_legacy_schema_snapshot.sql`
 - [x] `CLAUDE.md` (initial)
-- [ ] AB: manual Supabase backup taken and downloaded to his computer
-- [ ] AB: snapshot result pasted back → saved as `docs/legacy-schema-snapshot.md`
-- [ ] Name-collision check confirmed against the live database
+- [x] AB: manual Supabase backup taken and downloaded (13 Oct 2026, before any database change)
+- [x] AB: snapshot result saved → `docs/legacy-schema-snapshot.md`
+- [x] Name-collision check confirmed against the live database (no clashes)
+
+## Database changes applied to the live project (13 Oct 2026, by AB)
+
+Order: backup → legacy hotfix → migrations 0001–0009 → RLS test.
+
+| Step | Check | Result |
+|------|-------|--------|
+| Backup | Downloaded before any change | Done |
+| Legacy hotfix `supabase/legacy/2026-10-13_drop_open_read_policies.sql` | Non-active rows visible to anon (7 tables) | 0 in all seven; active rows still visible |
+| 0001 extensions, enums | Enum count | 17 |
+| 0002 core tables | Table count | 28 |
+| 0003 RLS | Tables without RLS | 0 |
+| 0004 public views | View count | 9 |
+| 0005 search functions | Function count | 9 |
+| 0006 storage | Buckets | private-docs false, public-media true |
+| 0007 seed | locations, services, product categories, organisations, settings | 39, 60, 87, 2, 10 |
+| 0008 account helpers | Function present | 1 |
+| 0009 counters | Function present | 1 |
+| `supabase/tests/rls_test.sql` | Security checks | 28 of 28 PASS |
 
 ## Answers from AB (Section 23)
 
@@ -66,6 +85,9 @@ Status values: todo · in progress · done · blocked
 
 - Supabase Free plan: no automatic daily backups and the project can pause after a week of inactivity. Upgrade to Pro before WP-20; until then take a manual backup before every migration.
 - Resend Free: needs hagerland.com verified as a sending domain (and Pro if the free domain slot is used by accountingbody.com) before emails go live.
+- Legacy live-site security (13 Oct 2026): hotfix `supabase/legacy/2026-10-13_drop_open_read_policies.sql` removes the seven `USING (true)` anon read policies (cars, community, companies, events, housing, jobs, tutors) so non-active rows are hidden. **Still exposed, deliberately, until the WP-20 legacy lockdown:** ACTIVE rows on the legacy tables remain readable by the public anon key in full, including `manage_token`, `verification_token`, `contact_email`, `contact_phone` and similar columns. The live site's anon `select('*')` queries (detail pages) and claim pages (which select `manage_token`) depend on this, so tightening it now would break the live site. It is closed at cutover by the legacy lockdown migration (Section 20.3).
+- Legacy tables also grant ALL privileges to anon/authenticated (Supabase defaults); writes are blocked only because no INSERT/UPDATE/DELETE policies exist. Revoke at the WP-20 lockdown.
+- Schema snapshot taken 13 Oct 2026 (`docs/legacy-schema-snapshot.md`): no name clashes with migrations 0001–0009; `import_log` and `rate_limits` match what the code expects. Database is PostgreSQL 17.6.
 
 ## Pre-launch tasks for AB
 
