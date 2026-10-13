@@ -351,3 +351,24 @@ WP-20 merges to `main`, applies the legacy lockdown (making the old tables priva
 - Slug change with automatic redirects for categories and locations.
 - A deals table for commissions on sales HagerLand brokers.
 - Guides and articles.
+
+---
+
+## Phase 1.5 decisions log (Sections 24–25)
+
+Decisions made while building Phase 1.5, recorded as the brief asks. The final report section replaces this log at the end.
+
+| Package | Decision | Why |
+|---|---|---|
+| E1 | The tagline "Build. Buy. Live." and the old hero lines are replaced by the three 24.1 lines (master, support, audience) in `lib/brand.ts`. The descriptor "Ethiopia's construction and property platform" stays for emails. | Section 24.1 sets the new positioning; the tagline was never confirmed (Section 23 item 1). |
+| E1 | The homepage proof point "Built and supplied by us: HagerLand develops and supplies" became "We know construction: HagerLand Supply sources building materials". | PLATFORM_VISION §11: HagerLand is not developing yet, so we must not say it is. |
+| E1 | On desktop the header has two rows (logo, search, sign in and "List with us" on top; the six menus below). Below 1024 px the menu button opens the drawer. | The six menus in 24.3 do not fit on one row next to the logo at common laptop widths. |
+| E1 | Every vertical has honest "coming soon" copy, so AB can switch any of them (even Property) to Coming soon and still get a complete page. Live pages owned by a vertical (e.g. `/property/…`) show that landing while it is coming soon and return 404 while hidden. | Section 24.2: admin can switch any vertical. |
+| E1 | Pages of a vertical that is not live carry an `X-Robots-Tag: noindex` header (set by the middleware from the registry, refreshed every minute) as well as noindex metadata. | Guarantees noindex even on deep pages whose own metadata says "index". |
+| E1 | While Our Developments is coming soon, its register-interest form saves to Interest registrations (admin → Interest registrations). When switched live, the full hub returns and interest goes to the HagerLand sales inbox as before. | One place for all coming-soon interest; the live sales flow is unchanged. |
+| E1 | "Register your interest" asks for email (required), phone (optional), country and city, plus a separate optional tick box for other HagerLand news, stored with the time of consent. | Interest emails are expected by the person; marketing needs separate consent (25.4). |
+| E1 | Added an `/advertise` page with an enquiry form and no prices. | PLATFORM_VISION lists "Advertise" as a supporting area; prices are not set. |
+| E1 | In the local test copy every site email goes to the local mail catcher (Mailpit) through `EMAIL_TEST_MAILPIT_URL`, which only accepts a localhost address. | Lets tests read real emails; impossible to send real email this way. |
+| E1 | Server errors are never recorded in the database during `next build`. | A local build reads the live database; a failed read must never cause a write there (checked: the live `errors` table is empty). |
+| E1 | `/finance`, `/insurance` and `/jobs` show their coming-soon landing; their "live" pages are built in E7 and E8. | Work-package order. |
+| E1 | Phone numbers typed with a leading 0 after a non-Ethiopian country code (e.g. UK 07…) now drop the 0. Norway (+47) and South Africa (+27) added to the code list. | Bug fix found while adding international forms. |

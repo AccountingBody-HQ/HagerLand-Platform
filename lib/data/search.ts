@@ -3,6 +3,8 @@ import { getPublicSupabase } from '@/lib/supabase/public'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { listTag } from '@/lib/revalidate'
 import { safeQuery } from './safe'
+import { getVerticals } from './verticals'
+import { isLive } from '@/lib/verticals'
 import type { SearchResult } from './properties'
 import type { PublicProperty } from './properties'
 import type { DevelopmentListItem } from './developments'
@@ -34,8 +36,25 @@ export async function searchAll(q: string, limit = 4): Promise<SearchAll> {
   return safeQuery('search_all', EMPTY, async () => {
     const { data, error } = await getPublicSupabase({ tags: [listTag('property'), listTag('product'), listTag('organisation'), listTag('development')], revalidate: 120 }).rpc('search_all', { p_q: q, p_limit: limit })
     if (error) throw error
-    return { ...EMPTY, ...(data as unknown as Partial<SearchAll>) }
+    return withoutClosedVerticals({ ...EMPTY, ...(data as unknown as Partial<SearchAll>) })
   })
+}
+
+/** Results only from live verticals (spec 24.2): a coming-soon or hidden vertical returns nothing. */
+async function withoutClosedVerticals(r: SearchAll): Promise<SearchAll> {
+  const v = await getVerticals()
+  const property = isLive(v, 'property')
+  const supplies = isLive(v, 'building-supplies')
+  const services = isLive(v, 'professionals') || isLive(v, 'contractors') || isLive(v, 'repairs-maintenance')
+  return {
+    properties: property ? r.properties : EMPTY.properties,
+    developments: property ? r.developments : EMPTY.developments,
+    locations: property ? r.locations : [],
+    products: supplies ? r.products : EMPTY.products,
+    product_categories: supplies ? r.product_categories : [],
+    services: services ? r.services : [],
+    organisations: r.organisations,
+  }
 }
 
 /** Aggregated zero-result queries (no user link) to guide content and stock decisions (spec 13). */

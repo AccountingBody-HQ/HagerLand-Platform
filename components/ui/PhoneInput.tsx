@@ -16,6 +16,8 @@ const CODES = [
   { code: '+61', label: 'Australia +61' },
   { code: '+254', label: 'Kenya +254' },
   { code: '+972', label: 'Israel +972' },
+  { code: '+47', label: 'Norway +47' },
+  { code: '+27', label: 'South Africa +27' },
 ]
 
 /** Phone number with country code (+251 by default). Submits the combined value as `name`. */
@@ -38,7 +40,8 @@ export function PhoneInput({
   const [code, setCode] = useState(initialCode)
   const [local, setLocal] = useState(defaultValue ? defaultValue.slice(initialCode.length) : '')
   const trimmed = local.trim()
-  const combined = !trimmed ? '' : trimmed.startsWith('+') || trimmed.startsWith('00') ? trimmed : code === '+251' && trimmed.startsWith('0') ? `+251${trimmed.slice(1)}` : `${code}${trimmed}`
+  // A leading 0 is the national trunk prefix (09…, 07…) and is dropped after a country code.
+  const combined = !trimmed ? '' : trimmed.startsWith('+') || trimmed.startsWith('00') ? trimmed : `${code}${trimmed.replace(/^0/, '')}`
 
   return (
     <div className="flex gap-2">

@@ -52,6 +52,21 @@ export async function GET(request: NextRequest, { params }: { params: { kind: st
       columns = ['reference', 'created_at', 'status', 'source', 'name', 'phone', 'email', 'company_name', 'delivery_address', 'needed_by', 'quoted_total_etb', 'quoted_at', 'assigned_to', 'notes']
       break
     }
+    case 'interest': {
+      let q = db.from('interest_registrations').select('reference, created_at, vertical_key, audience, category, name, email, phone, country_code, city, message, marketing_consent, consent_at, status, source_url').order('created_at', { ascending: false }).limit(50000)
+      const v = sp.get('vertical')
+      if (v) q = q.eq('vertical_key', v)
+      if (sp.get('category')) q = q.eq('category', sp.get('category') ?? '')
+      if (sp.get('status')) q = q.eq('status', sp.get('status') ?? '')
+      const { data } = await q
+      rows = data ?? []
+      break
+    }
+    case 'partners': {
+      const { data } = await db.from('partner_applications').select('reference, created_at, vertical_key, partner_type, organisation_name, contact_name, email, phone, country_code, website, licence_details, message, status').order('created_at', { ascending: false }).limit(20000)
+      rows = data ?? []
+      break
+    }
     case 'audit': {
       const { data } = await db.from('audit_log').select('created_at, actor, action, entity_type, entity_label, entity_id, diff').order('created_at', { ascending: false }).limit(20000)
       rows = data ?? []

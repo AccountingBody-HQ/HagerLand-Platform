@@ -1,23 +1,27 @@
 import Link from 'next/link'
 import { brand } from '@/lib/brand'
 import { getBusinessDetails } from '@/lib/data/business'
-import { FOOTER_COLUMNS } from '@/lib/navigation'
+import { buildFooterColumns } from '@/lib/navigation'
+import { getVerticals } from '@/lib/data/verticals'
+import { SoonBadge } from '@/components/verticals/SoonBadge'
 import { Wordmark } from '@/components/brand/Logo'
 import { SocialIcon, socialLabel } from '@/components/brand/SocialIcon'
 import { Container } from '@/components/ui/Layout'
 
 export async function SiteFooter() {
-  const business = await getBusinessDetails()
+  const [business, verticals] = await Promise.all([getBusinessDetails(), getVerticals()])
+  const columns = buildFooterColumns(verticals)
   const socials = business.social
   const year = new Date().getFullYear()
   return (
     <footer className="bg-ink text-white">
       <Container className="py-14">
-        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
+        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1fr]">
           <div>
             <Wordmark inverse />
-            <p className="mt-4 max-w-xs text-white/75">{brand.descriptor}</p>
-            <p className="mt-1 font-display font-bold text-gold">{brand.tagline}</p>
+            <p className="mt-4 max-w-xs font-display font-bold text-white">{brand.masterLine}</p>
+            <p className="mt-2 max-w-xs text-small text-white/75">{brand.supportLine}</p>
+            <p className="mt-2 max-w-xs text-small text-gold">{brand.audienceLine}</p>
             {socials.length > 0 && (
               <ul className="mt-6 flex gap-2">
                 {socials.map((s) => (
@@ -36,14 +40,15 @@ export async function SiteFooter() {
               </ul>
             )}
           </div>
-          {FOOTER_COLUMNS.map((col) => (
+          {columns.map((col) => (
             <nav key={col.title} aria-label={col.title}>
               <h2 className="font-display text-body font-bold text-white">{col.title}</h2>
               <ul className="mt-4 space-y-1">
                 {col.links.map((l) => (
                   <li key={l.href}>
-                    <Link href={l.href} className="inline-flex min-h-9 items-center text-white/75 hover:text-white">
+                    <Link href={l.href} className="inline-flex min-h-9 items-center gap-2 text-white/75 hover:text-white">
                       {l.label}
+                      {l.soon && <SoonBadge />}
                     </Link>
                   </li>
                 ))}

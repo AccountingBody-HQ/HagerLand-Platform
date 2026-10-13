@@ -34,7 +34,8 @@ export const log = {
     const detail = errorDetail(err)
     write('error', route, message, { ...data, error: detail })
     // Server only: also count it in the errors table for the admin digest (loaded lazily, never awaited).
-    if (typeof window === 'undefined' && process.env.NEXT_RUNTIME !== 'edge') {
+    // Never during `next build`: builds read data but must never write to any database.
+    if (typeof window === 'undefined' && process.env.NEXT_RUNTIME !== 'edge' && process.env.NEXT_PHASE !== 'phase-production-build') {
       import('./error-store').then((m) => m.recordError(route, detail ? `${message}: ${detail}` : message)).catch(() => undefined)
     }
   },

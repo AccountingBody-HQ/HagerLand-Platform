@@ -1,4 +1,4 @@
--- RLS test script (spec WP-2). Run in Supabase → SQL Editor after migrations 0001–0007.
+-- RLS test script (spec WP-2, extended for migrations 0011+). Run in Supabase → SQL Editor after all migrations.
 -- It creates two temporary test users and records, acts as anonymous and signed-in users,
 -- checks what each can and cannot do, deletes everything it created, and returns one row per check.
 -- Every row should say PASS.
@@ -176,6 +176,38 @@ select pg_temp.record_check('Owner can propose changes to a live listing',
 update public.properties set status = 'paused' where id = '00000000-0000-4000-8000-0000000000a1';
 select pg_temp.record_check('Owner can pause a live listing',
   (select status = 'paused' from public.properties where id = '00000000-0000-4000-8000-0000000000a1'));
+
+-- ---------- Phase 1.5 tables (migrations 0011+) ----------
+reset role;
+select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);
+
+-- True when the current role is refused any read of the table.
+create or replace function pg_temp.read_denied(tbl text)
+returns boolean language plpgsql as $$
+begin
+  execute format('select 1 from public.%I limit 1', tbl);
+  return false;
+exception when insufficient_privilege then
+  return true;
+end $$;
+
+-- Tables only the server (service role) may touch: anonymous and signed-in users are refused.
+select set_config('hl.private_tables', 'schema_migrations,verticals,interest_registrations,partner_applications', false);
+
+set role anon;
+select pg_temp.record_check('Anonymous cannot read ' || name, pg_temp.read_denied(name)) from unnest(string_to_array(current_setting('hl.private_tables'), ',')) as t(name);
+select pg_temp.record_check('Anonymous reads live and coming-soon verticals only',
+  (select count(*) from public.verticals_public) > 0 and not exists (select 1 from public.verticals_public where status = 'hidden'));
+reset role;
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000002", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000002', false);
+select pg_temp.record_check('Signed-in user cannot read ' || name, pg_temp.read_denied(name)) from unnest(string_to_array(current_setting('hl.private_tables'), ',')) as t(name);
+do $$ begin
+  update public.verticals_public set status = 'live' where key = 'finance';
+  perform pg_temp.record_check('Signed-in user cannot change verticals through the public view', false);
+exception when insufficient_privilege then
+  perform pg_temp.record_check('Signed-in user cannot change verticals through the public view', true);
+end $$;
 
 -- ---------- Clean up ----------
 reset role;

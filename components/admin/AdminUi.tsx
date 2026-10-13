@@ -75,6 +75,7 @@ const STATUS_TONES: Record<string, BadgeTone> = {
   submitted: 'info', in_review: 'info', quoted: 'gold', accepted: 'green', declined: 'neutral', cancelled: 'neutral',
   listed: 'neutral', claimed: 'green', verified: 'gold',
   imported: 'green', failed: 'danger', skipped: 'neutral',
+  live: 'green', coming_soon: 'gold', hidden: 'ink', reviewing: 'info', closed: 'neutral',
 }
 
 export function StatusBadge({ status }: { status: string | null | undefined }) {

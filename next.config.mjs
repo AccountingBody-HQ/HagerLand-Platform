@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 
-const legacyToHome = ['diaspora', 'money', 'birrbank', 'jobs', 'cars', 'tutors', 'community', 'events']
+// /diaspora and /jobs are verticals again (spec 24.2): only old job detail and posting URLs still redirect.
+const legacyToHome = ['money', 'birrbank', 'cars', 'tutors', 'community', 'events']
 
 const legacyRedirects = [
   ...['post', 'manage', 'edit-link'].map((p) => ({ source: `/property/${p}`, destination: '/list-with-us' })),
@@ -16,6 +17,11 @@ const legacyRedirects = [
     { source: `/${s}`, destination: '/' },
     { source: `/${s}/:path*`, destination: '/' },
   ]),
+  { source: '/jobs/post', destination: '/jobs' },
+  { source: '/jobs/manage', destination: '/jobs' },
+  { source: '/jobs/edit-link', destination: '/jobs' },
+  { source: '/jobs/:id([0-9a-fA-F-]{36})', destination: '/jobs' },
+  { source: '/jobs/:id([0-9a-fA-F-]{36})/:rest*', destination: '/jobs' },
   { source: '/edit-link', destination: '/login' },
 ].map((r) => ({ ...r, permanent: true }))
 

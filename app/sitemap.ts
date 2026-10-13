@@ -5,6 +5,8 @@ import { canonicalUrl } from '@/lib/site'
 import { countByAncestors, indexablePaths, SITEMAP_IDS, type SitemapId } from '@/lib/sitemap-rules'
 import { log } from '@/lib/log'
 import { listTag } from '@/lib/revalidate'
+import { getVerticals } from '@/lib/data/verticals'
+import { verticalForPath, verticalHref, type VerticalKey } from '@/lib/verticals'
 
 export const revalidate = 3600
 
@@ -13,7 +15,7 @@ export async function generateSitemaps() {
   return SITEMAP_IDS.map((id) => ({ id }))
 }
 
-const STATIC_PATHS = ['/', '/property', '/property/for-sale', '/property/to-rent', '/supplies', '/supplies/materials-list', '/professionals', '/agents', '/developers', '/suppliers', '/developments', '/our-developments', '/about', '/how-it-works', '/list-with-us', '/contact', '/help', '/terms', '/privacy', '/cookies']
+const STATIC_PATHS = ['/', '/property', '/property/for-sale', '/property/to-rent', '/supplies', '/supplies/materials-list', '/professionals', '/agents', '/developers', '/suppliers', '/developments', '/our-developments', '/about', '/how-it-works', '/list-with-us', '/advertise', '/contact', '/help', '/terms', '/privacy', '/cookies']
 const LIMIT = 50_000
 
 type Entry = MetadataRoute.Sitemap[number]
@@ -22,20 +24,45 @@ function entry(path: string, lastModified?: string | null, priority?: number): E
   return { url: canonicalUrl(path), ...(lastModified ? { lastModified: new Date(lastModified) } : {}), ...(priority ? { priority } : {}) }
 }
 
+/** Which vertical each sitemap belongs to: its sitemap is empty unless that vertical is live (spec 24.2). */
+const SITEMAP_VERTICAL: Partial<Record<SitemapId, VerticalKey>> = {
+  properties: 'property',
+  developments: 'property',
+  'locations-sale': 'property',
+  'locations-rent': 'property',
+  products: 'building-supplies',
+  categories: 'building-supplies',
+  professionals: 'professionals',
+}
+
 async function build(id: SitemapId): Promise<MetadataRoute.Sitemap> {
+  const verticals = await getVerticals()
+  const live = new Set(verticals.filter((v) => v.status === 'live').map((v) => v.key))
+  const owner = SITEMAP_VERTICAL[id]
+  if (owner && !live.has(owner)) return []
+  const isListed = (path: string) => {
+    const key = verticalForPath(path)
+    return !key || live.has(key)
+  }
   // Tagged with every list tag so publishing, editing or removing a record refreshes the sitemaps too.
   const db = getPublicSupabase({ tags: ['sitemap', listTag('property'), listTag('development'), listTag('organisation'), listTag('product')], revalidate: 3600 })
   const min = await getSettingNumber('min_results_for_index', 3)
   switch (id) {
     case 'static':
-      return STATIC_PATHS.map((p) => entry(p, null, p === '/' ? 1 : 0.7))
+      return Array.from(new Set([...STATIC_PATHS, ...verticals.filter((v) => v.status === 'live').map(verticalHref)]))
+        .filter(isListed)
+        .map((p) => entry(p, null, p === '/' ? 1 : 0.7))
     case 'properties': {
       const { data } = await db.from('properties_public').select('slug, updated_at').order('published_at', { ascending: false }).limit(LIMIT)
       return (data ?? []).filter((r) => r.slug).map((r) => entry(`/property/${r.slug}`, r.updated_at))
     }
     case 'developments': {
       const { data } = await db.from('developments_public').select('slug, updated_at, is_hagerland').limit(LIMIT)
-      return (data ?? []).filter((r) => r.slug).map((r) => entry(`${r.is_hagerland ? '/our-developments' : '/developments'}/${r.slug}`, r.updated_at))
+      return (data ?? [])
+        .filter((r) => r.slug)
+        .map((r) => ({ path: `${r.is_hagerland ? '/our-developments' : '/developments'}/${r.slug}`, updated: r.updated_at }))
+        .filter((r) => isListed(r.path))
+        .map((r) => entry(r.path, r.updated))
     }
     case 'products': {
       const { data } = await db.from('products_public').select('slug, updated_at').limit(LIMIT)

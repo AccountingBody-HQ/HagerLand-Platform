@@ -14,8 +14,8 @@ const ethiopic = Noto_Sans_Ethiopic({ subsets: ['ethiopic'], weight: ['400', '60
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: { default: `${brand.name} — ${brand.descriptor}`, template: `%s | ${brand.name}` },
-  description: brand.heroSupport,
+  title: { default: `${brand.name} — ${brand.titleLine}`, template: `%s | ${brand.name}` },
+  description: `${brand.masterLine} ${brand.audienceLine}`,
   applicationName: brand.name,
   openGraph: { siteName: brand.name, type: 'website', locale: 'en_US', images: [{ url: '/og/default', width: 1200, height: 630 }] },
   twitter: { card: 'summary_large_image', images: ['/og/default'] },

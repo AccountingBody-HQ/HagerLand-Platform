@@ -188,3 +188,17 @@ export async function asFreshVisitor(page: Page): Promise<void> {
   const ip = `10.6.${Math.floor(Math.random() * 250)}.${Math.floor(Math.random() * 250)}`
   await page.route('http://localhost:3100/**', (route) => route.continue({ headers: { ...route.request().headers(), 'x-forwarded-for': ip } }))
 }
+
+/** Sets a vertical's status directly (cleanup only: the public cache refreshes within 5 minutes). */
+export async function setVerticalStatus(key: string, status: 'live' | 'coming_soon' | 'hidden'): Promise<void> {
+  const { error } = await db().from('verticals').update({ status }).eq('key', key)
+  if (error) throw error
+}
+
+/** Switches a vertical through the real admin screen, which refreshes the site at once and writes the audit log. */
+export async function adminSwitchVertical(page: Page, name: string, label: 'Live' | 'Coming soon' | 'Hidden'): Promise<void> {
+  await adminSession(page)
+  await page.goto('/roodber8/verticals')
+  await page.getByRole('group', { name: `Status of ${name}` }).getByRole('button', { name: label }).click()
+  await expect(page.getByText(new RegExp(`${name} is now ${label}`))).toBeVisible()
+}

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { adminSession, asFreshVisitor, db, trackErrors } from '../helpers'
+import { adminSession, adminSwitchVertical, asFreshVisitor, db, trackErrors } from '../helpers'
 
 test('a guest builds a quote list, requests a quote, and HagerLand issues it', async ({ browser, page }) => {
   test.setTimeout(180_000)
@@ -62,6 +62,13 @@ test('a guest sends a materials list with a file', async ({ page }) => {
 test('register interest in HagerLand Developments and send a contact message', async ({ page }) => {
   // Own simulated visitor address: enquiries are limited to 10 an hour per visitor.
   await asFreshVisitor(page)
+  // While Our Developments is coming soon, interest goes to the interest list (spec 24.10).
+  await page.goto('/our-developments')
+  await expect(page.getByText('Coming soon').first()).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Homes we intend to build')
+  // When AB switches it live, the full hub returns and interest goes to the HagerLand sales inbox.
+  await adminSwitchVertical(page, 'Our Developments', 'Live')
+  await page.context().clearCookies()
   await page.goto('/our-developments')
   const form = page.locator('form', { has: page.locator('#ri-empty-name') })
   await page.fill('#ri-empty-name', 'Yonas Bekele')
@@ -70,6 +77,7 @@ test('register interest in HagerLand Developments and send a contact message', a
   await expect(page.getByText('Thanks, your interest is registered')).toBeVisible()
   const { data: e } = await db().from('enquiries').select('id, target_type, intent').eq('name', 'Yonas Bekele').order('created_at', { ascending: false }).limit(1).single()
   expect(e).toMatchObject({ target_type: 'hagerland_development', intent: 'register_interest' })
+  await adminSwitchVertical(page, 'Our Developments', 'Coming soon')
 
   await page.goto('/contact')
   await page.fill('#contact-name', 'Selam Abebe')

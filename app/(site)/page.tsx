@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowRight, BadgeCheck, Building2, ClipboardList, Clock, Hammer, House, KeyRound, ShieldCheck, Store, Truck, HardHat, FileText } from 'lucide-react'
+import { ArrowRight, BadgeCheck, Building2, ClipboardList, Clock, Hammer, KeyRound, ShieldCheck, Store, Truck, HardHat, FileText } from 'lucide-react'
 import { brand } from '@/lib/brand'
 import { buildMetadata, organizationJsonLd, websiteJsonLd } from '@/lib/seo'
 import { getBusinessDetails } from '@/lib/data/business'
@@ -18,13 +18,18 @@ import { CompanyCard } from '@/components/company/CompanyCard'
 import { DevelopmentCard } from '@/components/development/DevelopmentCard'
 import { RegisterInterest } from '@/components/development/RegisterInterest'
 import { JsonLd } from '@/components/seo/JsonLd'
+import { getVerticals } from '@/lib/data/verticals'
+import { isLive, verticalHref, visibleVertical } from '@/lib/verticals'
+import { COMING_SOON } from '@/lib/content/verticals'
+import { SoonBadge } from '@/components/verticals/SoonBadge'
+import { InterestForm } from '@/components/verticals/InterestForm'
 
 export const revalidate = 300
 
 export const metadata = buildMetadata({
-  title: `${brand.name} — ${brand.descriptor}`,
+  title: `${brand.name} — ${brand.titleLine}`,
   absoluteTitle: true,
-  description: 'Find homes and land, source construction materials, and hire trusted professionals across Ethiopia, all in one place. Every listing is reviewed.',
+  description: 'Property, building supplies, professionals, contractors, repairs and diaspora services in one place, for Ethiopians in Ethiopia and around the world.',
   path: '/',
 })
 
@@ -46,7 +51,13 @@ function featuredThenNewest(featured: PublicProperty[], newest: PublicProperty[]
 }
 
 export default async function HomePage() {
-  const [bole, services, settings] = await Promise.all([getLocationByPath('addis-ababa/bole'), getServiceCategories(), getSiteSettings()])
+  const [bole, services, settings, verticals] = await Promise.all([getLocationByPath('addis-ababa/bole'), getServiceCategories(), getSiteSettings(), getVerticals()])
+  const live = {
+    property: isLive(verticals, 'property'),
+    supplies: isLive(verticals, 'building-supplies'),
+    professionals: isLive(verticals, 'professionals'),
+  }
+  const ourDevs = visibleVertical(verticals, 'our-developments')
   const pickIds = Array.isArray(settings.homepage_featured_ids) ? settings.homepage_featured_ids.filter((x): x is string => typeof x === 'string') : []
   const picks = await getPropertiesByIds(pickIds)
   const architectsService = services.flatMap((g) => g.children).find((c) => c.slug === 'architects')
@@ -68,24 +79,29 @@ export default async function HomePage() {
   const totalProperties = saleNewest.total + rentNewest.total
 
   const quickLinks = [
-    boleApartments.total > 0 && { label: 'Apartments in Bole', href: '/property/for-sale/addis-ababa/bole?type=apartment' },
-    land.total > 0 && { label: 'Land for sale', href: '/property/for-sale?type=land' },
-    { label: 'Request a materials quote', href: '/supplies/materials-list' },
-    architects.total > 0 && { label: 'Find an architect', href: '/professionals/architects' },
+    live.property && boleApartments.total > 0 && { label: 'Apartments in Bole', href: '/property/for-sale/addis-ababa/bole?type=apartment' },
+    live.property && land.total > 0 && { label: 'Land for sale', href: '/property/for-sale?type=land' },
+    live.supplies && { label: 'Request a materials quote', href: '/supplies/materials-list' },
+    live.professionals && architects.total > 0 && { label: 'Find an architect', href: '/professionals/architects' },
   ].filter((x): x is { label: string; href: string } => Boolean(x))
 
-  const pillars = [
-    { title: 'Property', text: 'Homes, land and commercial property for sale and to rent.', href: '/property', icon: House, gold: false },
-    { title: 'Supplies', text: 'Construction materials quoted fast and delivered to site.', href: '/supplies', icon: Truck, gold: false },
-    { title: 'Professionals', text: 'Architects, contractors and trades with real portfolios.', href: '/professionals', icon: HardHat, gold: false },
-    { title: brand.divisions.developments, text: 'Homes we build ourselves, with materials we source ourselves.', href: '/our-developments', icon: Building2, gold: true },
-  ]
+  // "Find land → finance → design → build → supply → insure → maintain → sell or rent" (spec 24.3).
+  const journey = [
+    { label: 'Find land', href: '/property/for-sale?type=land', vertical: 'property' as const },
+    { label: 'Finance', href: '/finance', vertical: 'finance' as const },
+    { label: 'Design', href: '/professionals/architects', vertical: 'professionals' as const },
+    { label: 'Build', href: '/contractors', vertical: 'contractors' as const },
+    { label: 'Supply', href: '/supplies', vertical: 'building-supplies' as const },
+    { label: 'Insure', href: '/insurance', vertical: 'insurance' as const },
+    { label: 'Maintain', href: '/repairs-maintenance', vertical: 'repairs-maintenance' as const },
+    { label: 'Sell or rent', href: '/list-with-us#owners', vertical: 'property' as const },
+  ].map((j) => ({ ...j, v: visibleVertical(verticals, j.vertical) }))
 
   const proofPoints = [
     { icon: ClipboardList, title: 'Every listing reviewed', text: 'Our team checks every listing before it goes live.' },
     { icon: BadgeCheck, title: 'Verified businesses', text: 'The Verified badge appears only after we check documents.' },
     { icon: Clock, title: 'Current, not stale', text: 'Property listings expire unless their owner renews them.' },
-    { icon: Hammer, title: 'Built and supplied by us', text: 'HagerLand develops and supplies, so we know construction.' },
+    { icon: Hammer, title: 'We know construction', text: `${brand.divisions.supply} sources building materials, so we understand costs and quality.` },
   ]
 
   const audiences = [
@@ -113,9 +129,9 @@ export default async function HomePage() {
 
       <section className="hl-blueprint bg-ink text-white">
         <Container className="py-12 sm:py-20">
-          <p className="hl-eyebrow text-gold">{brand.descriptor}</p>
-          <h1 className="hl-display mt-4 max-w-4xl text-white">{brand.heroHeadline}</h1>
-          <p className="mt-5 max-w-2xl text-[1.0625rem] text-white/80">{brand.heroSupport}</p>
+          <p className="hl-eyebrow text-gold">{brand.audienceLine}</p>
+          <h1 className="hl-display mt-4 max-w-4xl text-white">{brand.masterLine}</h1>
+          <p className="mt-5 max-w-2xl text-[1.0625rem] font-semibold text-white/85">{brand.supportLine}</p>
           <div className="mt-8 max-w-4xl">
             <HomeSearch services={services.map((g) => ({ name: g.name, children: g.children.map((c) => ({ name: c.name, slug: c.slug })) }))} />
           </div>
@@ -133,26 +149,51 @@ export default async function HomePage() {
         </Container>
       </section>
 
-      <Section>
-        <SectionHeader title="Everything property and construction, in one place" />
-        <ul className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-          {pillars.map((p) => (
-            <li key={p.title}>
-              <Link href={p.href} className={`group flex h-full flex-col rounded-xl border p-5 transition-shadow hover:shadow-md sm:p-6 ${p.gold ? 'border-gold/40 bg-gold-soft/50' : 'border-border bg-white'}`}>
-                <span className={`flex size-11 items-center justify-center rounded-lg ${p.gold ? 'bg-gold text-white' : 'bg-green-soft text-green'}`}>
-                  <p.icon className="size-6" aria-hidden />
-                </span>
-                <span className="mt-4 font-display text-h3 font-bold text-ink">{p.title}</span>
-                <span className="mt-1 text-small text-muted sm:text-body">{p.text}</span>
-                <span className={`mt-auto inline-flex items-center gap-1 pt-4 text-small font-semibold ${p.gold ? 'text-gold-dark' : 'text-green'}`}>
-                  Explore <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
-                </span>
-              </Link>
-            </li>
-          ))}
+      <Section labelledBy="ecosystem-title">
+        <SectionHeader id="ecosystem-title" title="Everything around your property" description="Services that work together, from finding land to selling or renting what you built." />
+        <ul className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
+          {verticals.map((v) => {
+            const gold = v.key === 'our-developments'
+            return (
+              <li key={v.key}>
+                <Link href={verticalHref(v)} className={`group flex h-full flex-col rounded-xl border p-4 transition-shadow hover:shadow-md sm:p-5 ${gold ? 'border-gold/40 bg-gold-soft/50' : 'border-border bg-white'}`}>
+                  <span className="flex items-start justify-between gap-2">
+                    <span className={`flex size-11 items-center justify-center rounded-lg ${gold ? 'bg-gold text-white' : 'bg-green-soft text-green'}`}>
+                      <DynamicIcon name={v.icon} className="size-6" />
+                    </span>
+                    {v.status === 'coming_soon' && <SoonBadge />}
+                  </span>
+                  <span className="mt-4 font-display text-body font-bold text-ink sm:text-h3">{v.name}</span>
+                  <span className="mt-1 text-small text-muted">{v.shortDescription}</span>
+                  <span className={`mt-auto inline-flex items-center gap-1 pt-4 text-small font-semibold ${gold ? 'text-gold-dark' : 'text-green'}`}>
+                    {v.status === 'live' ? 'Explore' : 'Register interest'} <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
+                  </span>
+                </Link>
+              </li>
+            )
+          })}
         </ul>
+        <div className="mt-10 rounded-xl border border-border bg-stone-50 p-4 sm:p-6">
+          <h3 className="hl-eyebrow text-muted">One journey</h3>
+          <ol className="mt-3 flex flex-wrap items-center gap-x-1 gap-y-2">
+            {journey.map((j, i) => (
+              <li key={j.label} className="flex items-center gap-1">
+                {j.v ? (
+                  <Link href={j.href} className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-white px-3.5 text-small font-semibold text-ink ring-1 ring-border hover:ring-green">
+                    {j.label}
+                    {j.v.status === 'coming_soon' && <SoonBadge />}
+                  </Link>
+                ) : (
+                  <span className="inline-flex min-h-11 items-center rounded-full px-3.5 text-small font-semibold text-muted">{j.label}</span>
+                )}
+                {i < journey.length - 1 && <ArrowRight className="size-4 text-subtle" aria-hidden />}
+              </li>
+            ))}
+          </ol>
+        </div>
       </Section>
 
+      {live.property && (
       <Section tone="stone">
         {totalProperties >= 4 ? (
           <>
@@ -171,7 +212,9 @@ export default async function HomePage() {
           </div>
         )}
       </Section>
+      )}
 
+      {live.supplies && (
       <Section>
         <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
           <div>
@@ -208,7 +251,9 @@ export default async function HomePage() {
           </ul>
         </div>
       </Section>
+      )}
 
+      {ourDevs?.status === 'live' && (
       <section className="hl-blueprint bg-ink text-white">
         <Container className="grid gap-10 py-14 sm:py-20 lg:grid-cols-[1fr_440px] lg:items-start">
           <div>
@@ -254,7 +299,34 @@ export default async function HomePage() {
           )}
         </Container>
       </section>
+      )}
+      {ourDevs?.status === 'coming_soon' && (
+        <section className="hl-blueprint bg-ink text-white">
+          <Container className="grid gap-10 py-14 sm:py-20 lg:grid-cols-[1fr_440px] lg:items-start">
+            <div>
+              <p className="hl-eyebrow flex items-center gap-2 text-gold">
+                {ourDevs.name} <SoonBadge long />
+              </p>
+              <h2 className="hl-h2 mt-2 text-white">{COMING_SOON['our-developments'].headline}</h2>
+              {COMING_SOON['our-developments'].what.map((p) => (
+                <p key={p} className="mt-4 max-w-xl text-white/80">
+                  {p}
+                </p>
+              ))}
+              <ButtonLink href={verticalHref(ourDevs)} variant="gold" className="mt-6">
+                About {ourDevs.name} <ArrowRight />
+              </ButtonLink>
+            </div>
+            <div className="rounded-xl bg-white p-5 text-ink shadow-lg">
+              <h3 className="hl-h3">Hear first when we announce a project</h3>
+              <p className="mb-4 mt-1 text-small text-muted">Register your interest. No obligation.</p>
+              <InterestForm verticalKey="our-developments" verticalName={ourDevs.name} idPrefix="home-ri" />
+            </div>
+          </Container>
+        </section>
+      )}
 
+      {live.professionals && (
       <Section tone="stone">
         <SectionHeader title="Hire trusted professionals" action={<ButtonLink href="/professionals" variant="secondary">All services</ButtonLink>} />
         <ul className="flex flex-wrap gap-2">
@@ -274,8 +346,9 @@ export default async function HomePage() {
           </ul>
         )}
       </Section>
+      )}
 
-      {newDevs.items.length >= 2 && (
+      {live.property && newDevs.items.length >= 2 && (
         <Section>
           <SectionHeader title="New developments" action={<ButtonLink href="/developments" variant="secondary">All developments</ButtonLink>} />
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -288,7 +361,7 @@ export default async function HomePage() {
         </Section>
       )}
 
-      {totalProperties >= 10 && popular.length > 0 && (
+      {live.property && totalProperties >= 10 && popular.length > 0 && (
         <Section>
           <SectionHeader title="Popular locations" />
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">

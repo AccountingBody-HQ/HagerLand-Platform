@@ -276,3 +276,34 @@ export function accountDeletedEmail(p: { name: string }): RenderedEmail {
     reason: 'You are receiving this because you asked us to delete your HagerLand account.',
   })
 }
+
+export function interestConfirmationEmail(p: { name: string; reference: string; verticalName: string; href: string; live: boolean }): RenderedEmail {
+  return renderEmail({
+    subject: `Thanks for registering your interest (${p.reference})`,
+    preheader: p.live ? `${p.verticalName} on HagerLand.` : `We'll tell you when ${p.verticalName} opens on HagerLand.`,
+    heading: 'Thanks for registering your interest',
+    paragraphs: [
+      `Hello ${p.name},`,
+      p.live
+        ? `We've noted your interest in ${p.verticalName}. Our team will be in touch.`
+        : `We've noted your interest in ${p.verticalName}. It isn't open yet: we'll email you when it is, and only about this unless you asked for other news.`,
+    ],
+    details: [['Reference', p.reference]],
+    button: { label: `About ${p.verticalName}`, href: p.href },
+    reason: 'You are receiving this because you registered your interest on HagerLand.',
+  })
+}
+
+export function partnerApplicationEmail(p: { name: string; organisation: string; reference: string; verticalName: string }): RenderedEmail {
+  return renderEmail({
+    subject: `We've received your partner application (${p.reference})`,
+    preheader: `Thanks for your interest in partnering with HagerLand on ${p.verticalName}.`,
+    heading: 'Thanks for your partner application',
+    paragraphs: [
+      `Hello ${p.name},`,
+      `We've received ${p.organisation}'s application to partner with HagerLand on ${p.verticalName}. We'll review it and contact you to discuss next steps, including the licences and approvals that apply.`,
+    ],
+    details: [['Reference', p.reference]],
+    reason: 'You are receiving this because you applied to become a HagerLand partner.',
+  })
+}

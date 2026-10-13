@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { refreshSession } from '@/lib/supabase/middleware'
 import { ADMIN_SESSION_COOKIE, verifyAdminSessionEdge } from '@/lib/admin-session-edge'
+import { verticalForPath } from '@/lib/verticals'
+import { isIndexableVertical, verticalStatusesEdge } from '@/lib/vertical-status-edge'
 
 const isDev = process.env.NODE_ENV !== 'production'
 
@@ -59,6 +61,12 @@ export async function middleware(request: NextRequest) {
 
   const response = await refreshSession(request, NextResponse.next({ request }))
   if (pathname === '/roodber8-login') response.headers.set('X-Robots-Tag', 'noindex, nofollow')
+  // Pages of a vertical that is coming soon or hidden are never indexed (spec 24.2).
+  const vertical = verticalForPath(pathname)
+  if (vertical) {
+    const statuses = await verticalStatusesEdge()
+    if (statuses && !isIndexableVertical(statuses, vertical)) response.headers.set('X-Robots-Tag', 'noindex, follow')
+  }
   return withSecurityHeaders(response)
 }
 

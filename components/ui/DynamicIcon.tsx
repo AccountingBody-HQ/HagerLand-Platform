@@ -1,5 +1,5 @@
 import {
-  AppWindow, ArrowUpDown, Axe, Bath, BatteryCharging, Boxes, BrickWall, Bug, Building, Building2, Cable, Calculator, Cctv,
+  AppWindow, ArrowUpDown, Briefcase, Globe, ShieldCheck, Axe, Bath, BatteryCharging, Boxes, BrickWall, Bug, Building, Building2, Cable, Calculator, Cctv,
   ClipboardList, Construction, CookingPot, Cylinder, DoorOpen, DraftingCompass, Drill, Droplets, Fan, FireExtinguisher, Flame,
   Flower2, Forklift, Grid2x2, Grid3x3, HardHat, Hammer, House, KeyRound, Landmark, Layers, LayoutGrid, Map, Nut, Package,
   PaintBucket, Paintbrush, PaintRoller, PencilRuler, Pickaxe, Pipette, PlugZap, Ruler, Scale, Shield, Shovel, Sofa, Sparkles,
@@ -7,7 +7,7 @@ import {
 } from 'lucide-react'
 
 const icons: Record<string, LucideIcon> = {
-  'app-window': AppWindow, 'arrow-up-down': ArrowUpDown, axe: Axe, bath: Bath, 'battery-charging': BatteryCharging, boxes: Boxes,
+  'app-window': AppWindow, briefcase: Briefcase, globe: Globe, 'shield-check': ShieldCheck, 'arrow-up-down': ArrowUpDown, axe: Axe, bath: Bath, 'battery-charging': BatteryCharging, boxes: Boxes,
   'brick-wall': BrickWall, bug: Bug, building: Building, 'building-2': Building2, cable: Cable, calculator: Calculator, cctv: Cctv,
   'clipboard-list': ClipboardList, construction: Construction, 'cooking-pot': CookingPot, cylinder: Cylinder, 'door-open': DoorOpen,
   'drafting-compass': DraftingCompass, drill: Drill, droplets: Droplets, fan: Fan, 'fire-extinguisher': FireExtinguisher, flame: Flame,

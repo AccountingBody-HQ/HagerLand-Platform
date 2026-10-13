@@ -15,6 +15,8 @@ import { CompanyCard } from '@/components/company/CompanyCard'
 import { DevelopmentCard } from '@/components/development/DevelopmentCard'
 import { SearchPageForm } from '@/components/search/SearchPageForm'
 import { cn } from '@/lib/cn'
+import { getVerticals } from '@/lib/data/verticals'
+import { isLive } from '@/lib/verticals'
 
 export const dynamic = 'force-dynamic'
 export const metadata = buildMetadata({ title: 'Search', description: 'Search property, developments, construction supplies and professionals on HagerLand.', path: '/search', noindex: true })
@@ -31,7 +33,9 @@ const PAGE_SIZE = 24
 
 export default async function SearchPage({ searchParams }: { searchParams: { q?: string; vertical?: string; page?: string } }) {
   const q = (searchParams.q ?? '').trim().slice(0, 100)
-  const vertical: Vertical = (VERTICALS.find((v) => v.id === searchParams.vertical)?.id ?? 'all') as Vertical
+  const registry = await getVerticals()
+  const tabs = VERTICALS.filter((v) => (v.id === 'property' || v.id === 'developments' ? isLive(registry, 'property') : v.id === 'supplies' ? isLive(registry, 'building-supplies') : true))
+  const vertical: Vertical = (tabs.find((v) => v.id === searchParams.vertical)?.id ?? 'all') as Vertical
   const page = Math.max(1, Number(searchParams.page) || 1)
   const counts = await searchAll(q, vertical === 'all' ? 4 : 1)
   const total = counts.properties.total + counts.developments.total + counts.products.total + counts.organisations.total
@@ -59,7 +63,7 @@ export default async function SearchPage({ searchParams }: { searchParams: { q?:
       {q.length >= 2 && (
         <nav aria-label="Result types" className="-mx-4 mt-6 overflow-x-auto border-b border-border px-4">
           <ul className="flex gap-1">
-            {VERTICALS.map((v) => (
+            {tabs.map((v) => (
               <li key={v.id}>
                 <Link href={href(v.id)} aria-current={v.id === vertical ? 'page' : undefined} className={cn('inline-flex min-h-12 items-center gap-1.5 whitespace-nowrap border-b-2 px-3 text-small font-semibold', v.id === vertical ? 'border-green text-ink' : 'border-transparent text-muted hover:text-ink')}>
                   {v.label} <span className="tabular-nums text-muted">({tabCount[v.id]})</span>

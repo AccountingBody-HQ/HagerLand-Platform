@@ -69,10 +69,10 @@ Summary (updated at the end of every work package): see the last section.
 | ID | Requirement | Source | Status | Implementing files | Test / verification |
 |----|-------------|--------|--------|--------------------|---------------------|
 | S3-01 | Name meaning ("Hager" ሀገር) used on About | 3.2 | Done | app/(site)/about/page.tsx | e2e:smoke.spec.ts › loads /about |
-| S3-02 | Tagline configurable in lib/brand.ts | 3.3 | Done | lib/brand.ts | verify: brand.tagline used by footer |
-| S3-03 | Descriptor near the name in metadata, footer and share images | 3.3 | Not done | lib/brand.ts, app/layout.tsx, SiteFooter | to re-verify after E1 changes positioning lines |
-| S3-04 | Hero headline and support line (superseded by 24.1 master and support lines) | 3.3 / 24.1 | Not done | app/(site)/page.tsx | see S24-01 |
-| S3-05 | Proof points only where true at launch | 3.3 | Not done | app/(site)/page.tsx | "Built and supplied by us … HagerLand develops" contradicts PLATFORM_VISION §11 (not yet developing): rewrite in E1 |
+| S3-02 | Tagline configurable in lib/brand.ts (superseded by the 24.1 positioning lines) | 3.3 | Done | lib/brand.ts | e2e:verticals.spec.ts › homepage shows the positioning lines… (tagline replaced by the 24.1 lines; decision in LAUNCH_REPORT) |
+| S3-03 | Descriptor near the name in metadata, footer and share images | 3.3 | Done | lib/brand.ts, app/layout.tsx, SiteFooter.tsx, lib/email/layout.ts | e2e:verticals.spec.ts › homepage shows the positioning lines… (footer); verify: root metadata uses brand.titleLine and masterLine; emails show brand.descriptor |
+| S3-04 | Hero headline and support line (superseded by 24.1 master and support lines) | 3.3 / 24.1 | Done | app/(site)/page.tsx | e2e:verticals.spec.ts › homepage shows the positioning lines… |
+| S3-05 | Proof points only where true at launch | 3.3 | Done | app/(site)/page.tsx | verify: proof point "Built and supplied by us … HagerLand develops" replaced by "We know construction: HagerLand Supply sources building materials" (no development claim) |
 | S3-06 | Voice: no exclamation marks, no hype words in UI | 3.3 | Not done | all UI copy | verify in E9 copy sweep (grep for "!" in JSX text) |
 | S3-07 | Retired phrases absent (directory-era slogans, BirrBank, "Free, always", etc.) | 3.3 | Done | — | verify: WP-19 legacy sweep (docs/LAUNCH_REPORT.md) |
 | S3-08 | Division names in lib/brand.ts (HagerLand Supply, HagerLand Developments) | 3.4 | Done | lib/brand.ts | verify: brand.divisions used across UI |
@@ -83,19 +83,19 @@ Summary (updated at the end of every work package): see the last section.
 
 | ID | Requirement | Source | Status | Implementing files | Test / verification |
 |----|-------------|--------|--------|--------------------|---------------------|
-| S4-01 | Desktop navigation with mega-menus (superseded by 24.3) | 4.1 / 24.3 | Not done | lib/navigation.ts, SiteHeader.tsx | see S24-20…S24-26 |
+| S4-01 | Desktop navigation with mega-menus (superseded by 24.3) | 4.1 / 24.3 | Done | lib/navigation.ts, SiteHeader.tsx | e2e:verticals.spec.ts › header shows the six menus in order… |
 | S4-02 | Mobile sticky top bar (logo, search, menu) | 4.1 | Done | components/layout/SiteHeader.tsx | e2e:smoke.spec.ts (mobile project renders header on every route) |
-| S4-03 | Mobile full-screen drawer with accordion sections (now all ten verticals, 24.3) | 4.1 / 24.3 | Not done | MobileDrawer.tsx | see S24-24 |
+| S4-03 | Mobile full-screen drawer with accordion sections (now all ten verticals, 24.3) | 4.1 / 24.3 | Done | MobileDrawer.tsx | e2e:verticals.spec.ts › mobile drawer lists all ten verticals… |
 | S4-04 | Fixed bottom action bar on detail pages only (Call · WhatsApp · Enquire) | 4.1 | Done | components/enquiry/ContactPanel.tsx | e2e:flows/owner-listing.spec.ts (visitor reveals phone on mobile) |
 | S4-05 | Footer: brand column, link columns, bottom bar with legal line; socials only when configured | 4.2 | Done | SiteFooter.tsx | e2e:admin/admin.spec.ts › settings: contact phone appears on the site once set… |
-| S4-06 | Footer columns reflect the ten-vertical ecosystem (24.11) | 4.2 / 24.11 | Not done | lib/navigation.ts | E1 |
+| S4-06 | Footer columns reflect the ten-vertical ecosystem (24.11) | 4.2 / 24.11 | Done | lib/navigation.ts buildFooterColumns | e2e:verticals.spec.ts › homepage shows… (footer); e2e:smoke.spec.ts |
 | R-01 | / Homepage | 4.3 | Done | app/(site)/page.tsx | e2e:smoke.spec.ts › loads / |
 | R-02 | /search unified search with vertical tabs | 4.3 | Done | app/(site)/search | e2e:smoke.spec.ts › loads /search?q=bole |
 | R-03 | /property hub | 4.3 | Done | app/(site)/property/page.tsx | e2e:smoke.spec.ts › loads /property |
 | R-04 | /property/for-sale | 4.3 | Done | app/(site)/property/for-sale | e2e:smoke.spec.ts › loads /property/for-sale |
 | R-05 | /property/to-rent | 4.3 | Done | app/(site)/property/to-rent | e2e:smoke.spec.ts › loads /property/to-rent |
 | R-06 | /property/for-sale/[...location] | 4.3 | Done | app/(site)/property/for-sale/[...location] | e2e:smoke.spec.ts › loads /property/for-sale/addis-ababa/bole |
-| R-07 | /property/to-rent/[...location] | 4.3 | Not done | app/(site)/property/to-rent/[...location] | add smoke route |
+| R-07 | /property/to-rent/[...location] | 4.3 | Done | app/(site)/property/to-rent/[...location] | e2e:smoke.spec.ts › loads /property/to-rent/addis-ababa |
 | R-08 | /property/[slug] detail, slug ends in short id | 4.3 | Done | app/(site)/property/[slug] | unit:slug.test.ts › builds listing slugs ending in the short id; e2e:a11y.spec.ts (detail page) |
 | R-09 | /developments | 4.3 | Done | app/(site)/developments | e2e:smoke.spec.ts › loads /developments |
 | R-10 | /developments/[slug] | 4.3 | Done | app/(site)/developments/[slug] | e2e:responsive.spec.ts (development page) |
@@ -396,11 +396,11 @@ Summary (updated at the end of every work package): see the last section.
 |----|-------------|--------|--------|--------------------|---------------------|
 | S14-01 | Server component, revalidate 300, revalidateTag('home') | 14 | Done | app/(site)/page.tsx | verify: export const revalidate = 300; revalidateEntity tags home |
 | S14-02 | Announcement bar from settings, hidden by default | 14.1 | Done | app/(site)/page.tsx | e2e:admin/admin.spec.ts › settings… |
-| S14-03 | Hero (ink with blueprint grid), eyebrow, H1, support line (now the 24.1 lines), search card, computed quick links | 14.3 / 24.1 | Not done | app/(site)/page.tsx | E1 |
-| S14-04 | Pillars section (superseded by the 24.3 ten-vertical ecosystem section) | 14.4 / 24.3 | Not done | app/(site)/page.tsx | E1 |
+| S14-03 | Hero (ink with blueprint grid), eyebrow, H1, support line (now the 24.1 lines), search card, computed quick links | 14.3 / 24.1 | Done | app/(site)/page.tsx | e2e:verticals.spec.ts › homepage shows the positioning lines… |
+| S14-04 | Pillars section (superseded by the 24.3 ten-vertical ecosystem section) | 14.4 / 24.3 | Done | app/(site)/page.tsx | e2e:verticals.spec.ts › homepage shows… ten ecosystem tiles… |
 | S14-05 | Latest properties (tabs, featured first, hidden below 4, CTA panel instead) | 14.5 | Done | components/home/LatestProperties.tsx | e2e:smoke.spec.ts › loads / (CTA panel on empty data) |
 | S14-06 | Supplies band (always shown) | 14.6 | Done | app/(site)/page.tsx | e2e:smoke.spec.ts › loads / |
-| S14-07 | HagerLand Developments feature (now coming soon wording, no current-activity claims, 24.10) | 14.7 / 24.10 | Not done | app/(site)/page.tsx | E1 |
+| S14-07 | HagerLand Developments feature (now coming soon wording, no current-activity claims, 24.10) | 14.7 / 24.10 | Done | app/(site)/page.tsx | e2e:verticals.spec.ts › homepage shows… (Our Developments block: "Hear first…", no current-project claims) |
 | S14-08 | Professionals band with chips; verified cards only if any | 14.8 | Done | app/(site)/page.tsx | e2e:smoke.spec.ts › loads / |
 | S14-09 | New developments (hidden if < 2) | 14.9 | Done | app/(site)/page.tsx | verify: conditional on newDevs.items.length >= 2 |
 | S14-10 | Popular locations (hidden if < 10 properties) | 14.10 | Done | app/(site)/page.tsx | verify: conditional on totalProperties >= 10 |
@@ -508,7 +508,7 @@ Summary (updated at the end of every work package): see the last section.
 
 | ID | Requirement | Source | Status | Implementing files | Test / verification |
 |----|-------------|--------|--------|--------------------|---------------------|
-| S20-01 | Legacy URL 301s (housing, business, delivery, made-in-ethiopia, money, birrbank, jobs, cars, tutors, community, events, edit-link) | 20.2 | Not done | next.config.mjs | /diaspora and /jobs now belong to live or registry verticals (24.2): redirects must change (E1/E5/E8) and old detail URLs keep redirecting |
+| S20-01 | Legacy URL 301s (housing, business, delivery, made-in-ethiopia, money, birrbank, jobs, cars, tutors, community, events, edit-link) | 20.2 | Done | next.config.mjs | e2e:redirects.spec.ts (/diaspora and /jobs are verticals again; old job URLs redirect to /jobs) |
 | S20-02 | Old /property/{uuid} URLs 301 to /property/for-sale | 20.2 | Done | app/(site)/property/[slug] | unit:slug.test.ts › treats slugs without a short id as legacy |
 | S20-03 | Legacy lockdown migration (drop public SELECT policies, revoke grants) + reverse script + verification query | 20.3 | Not done | — | 25.5 |
 | S20-04 | Old API endpoints return 410 (25.4) | 20 / 25.4 | Not done | — | H6 |
@@ -541,7 +541,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 
 | ID | Requirement | Source | Status | Implementing files | Test / verification |
 |----|-------------|--------|--------|--------------------|---------------------|
-| S23-01 | Tagline configurable; positioning lines from 24.1 in lib/brand.ts | 23.1 / 24.1 | Not done | lib/brand.ts | E1 |
+| S23-01 | Tagline configurable; positioning lines from 24.1 in lib/brand.ts | 23.1 / 24.1 | Done | lib/brand.ts | e2e:verticals.spec.ts › homepage shows the positioning lines… |
 | S23-02 | "Free while we launch" shown only when confirmed in settings | 23.2 | Done | free_listing_confirmed | verify: S14-12 |
 | S23-03 | Legal entity from settings; hidden when empty | 23.3 | Done | lib/data/business.ts | e2e:admin/admin.spec.ts › settings… |
 | S23-04 | Contact details, delivery area, quote response time from settings; hidden when empty | 23.4 | Done | lib/data/business.ts | e2e:admin/admin.spec.ts › settings… |
@@ -558,37 +558,37 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 
 | ID | Requirement | Source | Status | Implementing files | Test / verification |
 |----|-------------|--------|--------|--------------------|---------------------|
-| S24-01 | Master line "One platform for property, construction and everything around it." in lib/brand.ts | 24.1 | Not done | lib/brand.ts | E1 |
-| S24-02 | Support line "Find it. Buy it. Finance it. Build it. Supply it. Insure it. Maintain it. Sell it. Rent it." | 24.1 | Not done | lib/brand.ts | E1 |
-| S24-03 | Audience line "For Ethiopians in Ethiopia and around the world." | 24.1 | Not done | lib/brand.ts | E1 |
-| S24-04 | Lines used in homepage hero | 24.1 | Not done | app/(site)/page.tsx | E1 |
-| S24-05 | Lines used in default metadata | 24.1 | Not done | app/layout.tsx | E1 |
-| S24-06 | Lines used in footer | 24.1 | Not done | SiteFooter.tsx | E1 |
+| S24-01 | Master line "One platform for property, construction and everything around it." in lib/brand.ts | 24.1 | Done | lib/brand.ts | e2e:verticals.spec.ts › homepage shows the positioning lines… |
+| S24-02 | Support line "Find it. Buy it. Finance it. Build it. Supply it. Insure it. Maintain it. Sell it. Rent it." | 24.1 | Done | lib/brand.ts | e2e:verticals.spec.ts › homepage shows the positioning lines… |
+| S24-03 | Audience line "For Ethiopians in Ethiopia and around the world." | 24.1 | Done | lib/brand.ts | e2e:verticals.spec.ts › homepage shows the positioning lines… |
+| S24-04 | Lines used in homepage hero | 24.1 | Done | app/(site)/page.tsx | e2e:verticals.spec.ts › homepage shows the positioning lines… |
+| S24-05 | Lines used in default metadata | 24.1 | Done | app/layout.tsx, app/(site)/page.tsx | verify: default title "HagerLand — Property, construction and everything around it", description = master + audience line (app/layout.tsx) |
+| S24-06 | Lines used in footer | 24.1 | Done | SiteFooter.tsx | e2e:verticals.spec.ts › homepage shows… (footer contains the master line) |
 | S24-07 | Integrity rules kept for own offers | 24.1 | Not done | — | re-verify after E1–E8 (S1-01, S1-02) |
-| S24-10 | verticals table (key, name, slug, status live/coming_soon/hidden, sort, short description, intro, icon, SEO fields, interest_enabled, partner_signup_enabled) | 24.2 | Not done | migration 0011 | E1 |
-| S24-11 | Ten verticals seeded with default statuses (5 live + diaspora live; finance, insurance, jobs, our-developments coming soon) | 24.2 | Not done | migration 0011 | E1 |
-| S24-12 | Desktop navigation reads the registry | 24.2 | Not done | lib/verticals.ts, SiteHeader | E1 |
-| S24-13 | Homepage tiles read the registry | 24.2 | Not done | app/(site)/page.tsx | E1 |
-| S24-14 | Mobile drawer reads the registry | 24.2 | Not done | MobileDrawer.tsx | E1 |
-| S24-15 | Footer reads the registry | 24.2 | Not done | SiteFooter.tsx | E1 |
-| S24-16 | Sitemap reads the registry (coming soon and hidden excluded) | 24.2 | Not done | app/sitemap.ts | E1 |
-| S24-17 | Search reads the registry (no results from non-live verticals) | 24.2 | Not done | lib/data/search.ts | E1/E8 |
-| S24-18 | Admin reads the registry (vertical list, labels) | 24.2 | Not done | app/roodber8/verticals | E1 |
-| S24-19 | Admin switches a vertical's status in one click, with audit entry | 24.2 | Not done | app/roodber8/verticals | E1 |
-| S24-1A | Coming-soon landing: what, who for, how it will work | 24.2 | Not done | components/verticals/ComingSoon.tsx | E1 |
-| S24-1B | Working "Register your interest" form: stored, listed in admin, CSV, confirmation email | 24.2 | Not done | interest_registrations | E1 |
-| S24-1C | "Become a partner" form where relevant | 24.2 | Not done | partner_applications | E1 |
-| S24-1D | Clearly labelled "Coming soon"; no fake listings, prices, providers or claims | 24.2 | Not done | — | E1 |
-| S24-1E | Coming-soon pages noindex until live | 24.2 | Not done | — | E1 |
+| S24-10 | verticals table (key, name, slug, status live/coming_soon/hidden, sort, short description, intro, icon, SEO fields, interest_enabled, partner_signup_enabled) | 24.2 | Done | supabase/migrations/0011_vertical_registry.sql | sql: 0011 check → 10 · 6 · 11 · 2 (local) |
+| S24-11 | Ten verticals seeded with default statuses (5 live + diaspora live; finance, insurance, jobs, our-developments coming soon) | 24.2 | Done | 0011 | sql: 0011 check (10 verticals, 6 live); e2e:verticals.spec.ts › homepage shows… (4 Soon tiles) |
+| S24-12 | Desktop navigation reads the registry | 24.2 | Done | lib/navigation.ts, SiteHeader.tsx | e2e:verticals.spec.ts › header shows the six menus…; › hiding a vertical removes it from menus… |
+| S24-13 | Homepage tiles read the registry | 24.2 | Done | app/(site)/page.tsx | e2e:verticals.spec.ts › homepage shows… ten ecosystem tiles |
+| S24-14 | Mobile drawer reads the registry | 24.2 | Done | MobileDrawer.tsx | e2e:verticals.spec.ts › mobile drawer lists all ten verticals… |
+| S24-15 | Footer reads the registry | 24.2 | Done | SiteFooter.tsx | e2e:verticals.spec.ts › homepage shows… (footer) |
+| S24-16 | Sitemap reads the registry (coming soon and hidden excluded) | 24.2 | Done | app/sitemap.ts | e2e:verticals.spec.ts › finance is a labelled coming-soon page… (static sitemap excludes /finance, includes /property) |
+| S24-17 | Search reads the registry (no results from non-live verticals) | 24.2 | Done | lib/data/search.ts, app/(site)/search/page.tsx | e2e:verticals.spec.ts › a live vertical switched to coming soon… (typeahead returns no places, properties or developments) |
+| S24-18 | Admin reads the registry (vertical list, labels) | 24.2 | Done | app/roodber8/verticals | e2e:admin/admin.spec.ts › every admin screen loads… (Verticals) |
+| S24-19 | Admin switches a vertical's status in one click, with audit entry | 24.2 | Done | app/roodber8/actions/verticals.ts | e2e:verticals.spec.ts › hiding a vertical… the switch is audit-logged |
+| S24-1A | Coming-soon landing: what, who for, how it will work | 24.2 | Done | components/verticals/ComingSoonPage.tsx, lib/content/verticals.ts | e2e:verticals.spec.ts › finance is a labelled coming-soon page… |
+| S24-1B | Working "Register your interest" form: stored, listed in admin, CSV, confirmation email | 24.2 | Done | app/actions/interest-actions.ts, app/roodber8/interest | e2e:verticals.spec.ts › register interest is stored, emailed and listed in admin with CSV export |
+| S24-1C | "Become a partner" form where relevant | 24.2 | Done | components/verticals/PartnerForm.tsx, app/roodber8/partners | e2e:verticals.spec.ts › become a partner is stored and listed in admin |
+| S24-1D | Clearly labelled "Coming soon"; no fake listings, prices, providers or claims | 24.2 | Done | ComingSoonPage.tsx | e2e:verticals.spec.ts › finance is a labelled coming-soon page… (no rates; "Coming soon" label) |
+| S24-1E | Coming-soon pages noindex until live | 24.2 | Done | middleware.ts, ComingSoonPage.tsx | e2e:verticals.spec.ts › finance… (X-Robots-Tag noindex and meta robots noindex) |
 | S24-1F | "Coming soon" appears only through the registry | 24.2 | Not done | — | E9 grep |
-| S24-1G | Hidden verticals: pages 404 and disappear from navigation | 24.2 | Not done | — | E1 |
-| S24-20 | Desktop header order: Property ▾ · Building Supplies ▾ · Professionals & Contractors ▾ · Repairs & Maintenance · Diaspora Services ▾ · More ▾ · search · Sign in · List with us ▾ | 24.3 | Not done | lib/navigation.ts | E1 |
-| S24-21 | More ▾ holds Finance, Insurance, Jobs & Recruitment, Our Developments | 24.3 | Not done | lib/navigation.ts | E1 |
-| S24-22 | List with us ▾: Sell/let a property, List your business, Become a supplier, Join as a professional, Post a job | 24.3 | Not done | lib/navigation.ts | E1 |
-| S24-23 | Coming-soon items show a small "Soon" badge | 24.3 | Not done | SiteHeader, MobileDrawer | E1 |
-| S24-24 | Mobile drawer: ten verticals + Request a service, Request a quote, Help & advice, My account | 24.3 | Not done | MobileDrawer.tsx | E1 |
-| S24-25 | Homepage "Everything around your property" section: ten tiles with live/soon status | 24.3 | Not done | app/(site)/page.tsx | E1 |
-| S24-26 | Journey strip: find land → finance → design → build → supply → insure → maintain → sell or rent | 24.3 | Not done | app/(site)/page.tsx | E1 |
+| S24-1G | Hidden verticals: pages 404 and disappear from navigation | 24.2 | Done | components/verticals/VerticalGate.tsx | e2e:verticals.spec.ts › hiding a vertical removes it from menus and its page returns 404… |
+| S24-20 | Desktop header order: Property ▾ · Building Supplies ▾ · Professionals & Contractors ▾ · Repairs & Maintenance · Diaspora Services ▾ · More ▾ · search · Sign in · List with us ▾ | 24.3 | Done | lib/navigation.ts | e2e:verticals.spec.ts › header shows the six menus in order… |
+| S24-21 | More ▾ holds Finance, Insurance, Jobs & Recruitment, Our Developments | 24.3 | Done | lib/navigation.ts | e2e:verticals.spec.ts › header shows… (More menu with Soon badges) |
+| S24-22 | List with us ▾: Sell/let a property, List your business, Become a supplier, Join as a professional, Post a job | 24.3 | Done | lib/navigation.ts | e2e:verticals.spec.ts › header shows… List with us items |
+| S24-23 | Coming-soon items show a small "Soon" badge | 24.3 | Done | SoonBadge.tsx | e2e:verticals.spec.ts › header shows… Soon badges |
+| S24-24 | Mobile drawer: ten verticals + Request a service, Request a quote, Help & advice, My account | 24.3 | Done | MobileDrawer.tsx | e2e:verticals.spec.ts › mobile drawer lists all ten verticals and the service shortcuts |
+| S24-25 | Homepage "Everything around your property" section: ten tiles with live/soon status | 24.3 | Done | app/(site)/page.tsx | e2e:verticals.spec.ts › homepage shows… ten ecosystem tiles |
+| S24-26 | Journey strip: find land → finance → design → build → supply → insure → maintain → sell or rent | 24.3 | Done | app/(site)/page.tsx | e2e:verticals.spec.ts › homepage shows… journey strip |
 | S24-30 | locations.country_code (default ET); Ethiopian URLs unchanged | 24.4 | Not done | migration 0012 | E2 |
 | S24-31 | Country root locations for 12 diaspora markets | 24.4 | Not done | migration 0012 | E2 |
 | S24-32 | Key cities under each country | 24.4 | Not done | migration 0012 | E2 |
@@ -656,9 +656,9 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | S24-A1 | Homepage, about, how-it-works, list-with-us, help, footer and metadata updated | 24.11 | Not done | — | E9 |
 | S24-A2 | Terms and privacy updated (service requests, matching, commissions, CVs, international users, partner referrals, no regulated advice) | 24.11 | Not done | lib/content/legal.ts | E9 |
 | S24-A3 | Regulatory checks flagged in LAUNCH_REPORT.md | 24.11 | Not done | docs/LAUNCH_REPORT.md | E9 |
-| S24-B1 | Admin: vertical registry switches | 24.12 | Not done | — | E1 |
-| S24-B2 | Admin: interest registrations with vertical/category filter and CSV | 24.12 | Not done | — | E1 |
-| S24-B3 | Admin: partner applications | 24.12 | Not done | — | E1 |
+| S24-B1 | Admin: vertical registry switches | 24.12 | Done | app/roodber8/verticals | e2e:verticals.spec.ts › hiding a vertical… (switched through the admin screen) |
+| S24-B2 | Admin: interest registrations with vertical/category filter and CSV | 24.12 | Done | app/roodber8/interest, export/interest | e2e:verticals.spec.ts › register interest… listed in admin with CSV export |
+| S24-B3 | Admin: partner applications | 24.12 | Done | app/roodber8/partners | e2e:verticals.spec.ts › become a partner is stored and listed in admin |
 | S24-B4 | Admin: service request triage and matching board | 24.12 | Not done | — | E3 |
 | S24-B5 | Admin: provider quotes | 24.12 | Not done | — | E3 |
 | S24-B6 | Admin: commissions and lead-fee ledger with simple reports | 24.12 | Not done | — | E3 |
@@ -890,18 +890,18 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | V11-07 | Supply-chain advantage explained | Vision §11 | Not done | our-developments | E8 |
 | V12-01 | Verticals cross-link as one ecosystem (land → finance → architect → engineer → contractor → materials → insurance → maintenance → sell/rent → recruit) | Vision: model/positioning/launch | Not done | — | E1/E9 |
 | V12-02 | Positioning: not only a supplier, agent or directory | Vision: model/positioning/launch | Not done | — | E1/E9 |
-| V12-03 | Ten-vertical top-level structure | Vision: model/positioning/launch | Not done | — | E1/E9 |
-| V12-04 | Supporting area: Sell/List a property | Vision: model/positioning/launch | Not done | — | E1/E9 |
+| V12-03 | Ten-vertical top-level structure | Vision: model/positioning/launch | Done | lib/verticals.ts | e2e:verticals.spec.ts › homepage shows… ten ecosystem tiles |
+| V12-04 | Supporting area: Sell/List a property | Vision: model/positioning/launch | Done | lib/navigation.ts | e2e:verticals.spec.ts › header shows… List with us items |
 | V12-05 | Supporting area: List your business | Vision: model/positioning/launch | Not done | — | E1/E9 |
-| V12-06 | Supporting area: Become a supplier | Vision: model/positioning/launch | Not done | — | E1/E9 |
-| V12-07 | Supporting area: Join as a professional | Vision: model/positioning/launch | Not done | — | E1/E9 |
+| V12-06 | Supporting area: Become a supplier | Vision: model/positioning/launch | Done | lib/navigation.ts | e2e:verticals.spec.ts › header shows… List with us items |
+| V12-07 | Supporting area: Join as a professional | Vision: model/positioning/launch | Done | lib/navigation.ts | e2e:verticals.spec.ts › header shows… List with us items |
 | V12-08 | Supporting area: Post a job | Vision: model/positioning/launch | Not done | — | E1/E9 |
 | V12-09 | Supporting area: Request a service | Vision: model/positioning/launch | Not done | — | E1/E9 |
-| V12-10 | Supporting area: Request a quote | Vision: model/positioning/launch | Not done | — | E1/E9 |
-| V12-11 | Supporting area: Advertise | Vision: model/positioning/launch | Not done | — | E1/E9 |
-| V12-12 | Supporting area: Help & advice | Vision: model/positioning/launch | Not done | — | E1/E9 |
-| V12-13 | Supporting area: My account | Vision: model/positioning/launch | Not done | — | E1/E9 |
-| V12-14 | Non-live services use Coming soon / Register interest / Request information / Waiting list / Become a partner | Vision: model/positioning/launch | Not done | — | E1/E9 |
+| V12-10 | Supporting area: Request a quote | Vision: model/positioning/launch | Done | lib/navigation.ts | e2e:verticals.spec.ts › mobile drawer… (Request a quote) |
+| V12-11 | Supporting area: Advertise | Vision: model/positioning/launch | Done | app/(site)/advertise/page.tsx | e2e:smoke.spec.ts › loads /advertise |
+| V12-12 | Supporting area: Help & advice | Vision: model/positioning/launch | Done | lib/navigation.ts | e2e:verticals.spec.ts › mobile drawer… (Help & advice) |
+| V12-13 | Supporting area: My account | Vision: model/positioning/launch | Done | lib/navigation.ts | e2e:verticals.spec.ts › mobile drawer… (My account) |
+| V12-14 | Non-live services use Coming soon / Register interest / Request information / Waiting list / Become a partner | Vision: model/positioning/launch | Done | ComingSoonPage.tsx | e2e:verticals.spec.ts › register interest…; › become a partner… |
 | V12-15 | Never pretend a service exists before it is ready | Vision: model/positioning/launch | Not done | — | E1/E9 |
 
 ## Section 25 — Completeness, hardening and go-live

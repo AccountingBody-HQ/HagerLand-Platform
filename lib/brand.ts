@@ -3,14 +3,17 @@
 
 export const brand = {
   name: 'HagerLand',
-  tagline: 'Build. Buy. Live.',
+  /** Positioning (spec 24.1). Replaces the earlier tagline and hero lines (spec 3.3). */
+  masterLine: 'One platform for property, construction and everything around it.',
+  supportLine: 'Find it. Buy it. Finance it. Build it. Supply it. Insure it. Maintain it. Sell it. Rent it.',
+  audienceLine: 'For Ethiopians in Ethiopia and around the world.',
+  /** Short form of the master line for page titles (≤ 60 characters with the name). */
+  titleLine: 'Property, construction and everything around it',
   descriptor: "Ethiopia's construction and property platform",
-  heroHeadline: 'From the first brick to the front door.',
-  heroSupport:
-    'Find homes and land, source construction materials, and hire trusted professionals across Ethiopia — all in one place.',
   divisions: {
     supply: 'HagerLand Supply',
     developments: 'HagerLand Developments',
+    propertyCare: 'HagerLand Property Care',
   },
 } as const
 

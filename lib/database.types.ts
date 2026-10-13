@@ -507,6 +507,97 @@ export type Database = {
         }
         Relationships: []
       }
+      interest_registrations: {
+        Row: {
+          admin_notes: string | null
+          audience: string | null
+          category: string | null
+          city: string | null
+          consent_at: string | null
+          country_code: string
+          created_at: string
+          currency: string
+          email: string
+          id: string
+          ip_hash: string | null
+          marketing_consent: boolean
+          message: string | null
+          name: string
+          phone: string | null
+          reference: string
+          source_url: string | null
+          status: string
+          updated_at: string
+          user_id: string | null
+          utm: Json | null
+          vertical_key: string
+        }
+        ComputedFields: never
+        Insert: {
+          admin_notes?: string | null
+          audience?: string | null
+          category?: string | null
+          city?: string | null
+          consent_at?: string | null
+          country_code?: string
+          created_at?: string
+          currency?: string
+          email: string
+          id?: string
+          ip_hash?: string | null
+          marketing_consent?: boolean
+          message?: string | null
+          name: string
+          phone?: string | null
+          reference?: string
+          source_url?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+          utm?: Json | null
+          vertical_key: string
+        }
+        Update: {
+          admin_notes?: string | null
+          audience?: string | null
+          category?: string | null
+          city?: string | null
+          consent_at?: string | null
+          country_code?: string
+          created_at?: string
+          currency?: string
+          email?: string
+          id?: string
+          ip_hash?: string | null
+          marketing_consent?: boolean
+          message?: string | null
+          name?: string
+          phone?: string | null
+          reference?: string
+          source_url?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+          utm?: Json | null
+          vertical_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'interest_registrations_vertical_key_fkey'
+            columns: ['vertical_key']
+            isOneToOne: false
+            referencedRelation: 'verticals'
+            referencedColumns: ['key']
+          },
+          {
+            foreignKeyName: 'interest_registrations_vertical_key_fkey'
+            columns: ['vertical_key']
+            isOneToOne: false
+            referencedRelation: 'verticals_public'
+            referencedColumns: ['key']
+          },
+        ]
+      }
       locations: {
         Row: {
           created_at: string
@@ -917,6 +1008,85 @@ export type Database = {
             isOneToOne: false
             referencedRelation: 'locations'
             referencedColumns: ['id']
+          },
+        ]
+      }
+      partner_applications: {
+        Row: {
+          admin_notes: string | null
+          contact_name: string
+          country_code: string
+          created_at: string
+          email: string
+          id: string
+          ip_hash: string | null
+          licence_details: string | null
+          message: string | null
+          organisation_name: string
+          partner_type: string
+          phone: string | null
+          reference: string
+          source_url: string | null
+          status: string
+          updated_at: string
+          vertical_key: string
+          website: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          admin_notes?: string | null
+          contact_name: string
+          country_code?: string
+          created_at?: string
+          email: string
+          id?: string
+          ip_hash?: string | null
+          licence_details?: string | null
+          message?: string | null
+          organisation_name: string
+          partner_type: string
+          phone?: string | null
+          reference?: string
+          source_url?: string | null
+          status?: string
+          updated_at?: string
+          vertical_key: string
+          website?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          contact_name?: string
+          country_code?: string
+          created_at?: string
+          email?: string
+          id?: string
+          ip_hash?: string | null
+          licence_details?: string | null
+          message?: string | null
+          organisation_name?: string
+          partner_type?: string
+          phone?: string | null
+          reference?: string
+          source_url?: string | null
+          status?: string
+          updated_at?: string
+          vertical_key?: string
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'partner_applications_vertical_key_fkey'
+            columns: ['vertical_key']
+            isOneToOne: false
+            referencedRelation: 'verticals'
+            referencedColumns: ['key']
+          },
+          {
+            foreignKeyName: 'partner_applications_vertical_key_fkey'
+            columns: ['vertical_key']
+            isOneToOne: false
+            referencedRelation: 'verticals_public'
+            referencedColumns: ['key']
           },
         ]
       }
@@ -1775,6 +1945,25 @@ export type Database = {
         }
         Relationships: []
       }
+      schema_migrations: {
+        Row: {
+          applied_at: string
+          name: string
+          version: string
+        }
+        ComputedFields: never
+        Insert: {
+          applied_at?: string
+          name: string
+          version: string
+        }
+        Update: {
+          applied_at?: string
+          name?: string
+          version?: string
+        }
+        Relationships: []
+      }
       search_misses: {
         Row: {
           count: number
@@ -1931,6 +2120,58 @@ export type Database = {
             referencedColumns: ['id']
           },
         ]
+      }
+      verticals: {
+        Row: {
+          icon: string
+          interest_enabled: boolean
+          intro: string
+          key: string
+          name: string
+          nav_label: string
+          partner_signup_enabled: boolean
+          seo_description: string | null
+          seo_title: string | null
+          short_description: string
+          slug: string
+          sort: number
+          status: Database['public']['Enums']['vertical_status']
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          icon?: string
+          interest_enabled?: boolean
+          intro?: string
+          key: string
+          name: string
+          nav_label: string
+          partner_signup_enabled?: boolean
+          seo_description?: string | null
+          seo_title?: string | null
+          short_description?: string
+          slug: string
+          sort?: number
+          status?: Database['public']['Enums']['vertical_status']
+          updated_at?: string
+        }
+        Update: {
+          icon?: string
+          interest_enabled?: boolean
+          intro?: string
+          key?: string
+          name?: string
+          nav_label?: string
+          partner_signup_enabled?: boolean
+          seo_description?: string | null
+          seo_title?: string | null
+          short_description?: string
+          slug?: string
+          sort?: number
+          status?: Database['public']['Enums']['vertical_status']
+          updated_at?: string
+        }
+        Relationships: []
       }
     }
     Views: {
@@ -2435,6 +2676,58 @@ export type Database = {
         }
         Relationships: []
       }
+      verticals_public: {
+        Row: {
+          icon: string | null
+          interest_enabled: boolean | null
+          intro: string | null
+          key: string | null
+          name: string | null
+          nav_label: string | null
+          partner_signup_enabled: boolean | null
+          seo_description: string | null
+          seo_title: string | null
+          short_description: string | null
+          slug: string | null
+          sort: number | null
+          status: Database['public']['Enums']['vertical_status'] | null
+          updated_at: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          icon?: string | null
+          interest_enabled?: boolean | null
+          intro?: string | null
+          key?: string | null
+          name?: string | null
+          nav_label?: string | null
+          partner_signup_enabled?: boolean | null
+          seo_description?: string | null
+          seo_title?: string | null
+          short_description?: string | null
+          slug?: string | null
+          sort?: number | null
+          status?: Database['public']['Enums']['vertical_status'] | null
+          updated_at?: string | null
+        }
+        Update: {
+          icon?: string | null
+          interest_enabled?: boolean | null
+          intro?: string | null
+          key?: string | null
+          name?: string | null
+          nav_label?: string | null
+          partner_signup_enabled?: boolean | null
+          seo_description?: string | null
+          seo_title?: string | null
+          short_description?: string | null
+          slug?: string | null
+          sort?: number | null
+          status?: Database['public']['Enums']['vertical_status'] | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       can_edit_entity: { Args: { p_entity_id: string; p_entity_type: string }; Returns: boolean }
@@ -2589,6 +2882,7 @@ export type Database = {
       stock_status: 'in_stock' | 'low_stock' | 'out_of_stock' | 'made_to_order' | 'available_on_request'
       tenure: 'leasehold' | 'freehold_private' | 'condominium_title' | 'cooperative' | 'unknown'
       verification_level: 'listed' | 'claimed' | 'verified'
+      vertical_status: 'live' | 'coming_soon' | 'hidden'
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2729,6 +3023,7 @@ export const Constants = {
       stock_status: ['in_stock', 'low_stock', 'out_of_stock', 'made_to_order', 'available_on_request'],
       tenure: ['leasehold', 'freehold_private', 'condominium_title', 'cooperative', 'unknown'],
       verification_level: ['listed', 'claimed', 'verified'],
+      vertical_status: ['live', 'coming_soon', 'hidden'],
     },
   },
 } as const

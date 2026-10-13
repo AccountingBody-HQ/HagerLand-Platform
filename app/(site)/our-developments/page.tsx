@@ -11,14 +11,19 @@ import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { DevelopmentCard } from '@/components/development/DevelopmentCard'
 import { RegisterInterest } from '@/components/development/RegisterInterest'
 import { JsonLd } from '@/components/seo/JsonLd'
+import { verticalLandingMetadata } from '@/components/verticals/ComingSoonPage'
 
 export const revalidate = 300
 
-export const metadata = buildMetadata({
-  title: `${brand.divisions.developments}: homes we build ourselves`,
-  description: 'Homes built by HagerLand, with materials sourced through HagerLand Supply and every build managed directly. See our projects and register your interest.',
-  path: '/our-developments',
-})
+export function generateMetadata() {
+  return verticalLandingMetadata('our-developments', () =>
+    buildMetadata({
+      title: `${brand.divisions.developments}: homes we build ourselves`,
+      description: 'Homes built by HagerLand, with materials sourced through HagerLand Supply and every build managed directly. See our projects and register your interest.',
+      path: '/our-developments',
+    }),
+  )
+}
 
 const STEPS = [
   { icon: LandPlot, title: 'Land', text: 'We secure land with clear title and lease documents before we plan anything.' },

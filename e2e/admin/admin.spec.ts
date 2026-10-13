@@ -30,6 +30,9 @@ const PAGES: [string, string][] = [
   ['/roodber8/settings', 'Settings'],
   ['/roodber8/audit', 'Audit log'],
   ['/roodber8/search?q=cement', 'Search'],
+  ['/roodber8/verticals', 'Verticals'],
+  ['/roodber8/interest', 'Interest registrations'],
+  ['/roodber8/partners', 'Partner applications'],
 ]
 
 test('admin signs in with username, password and one-time code', async ({ page }) => {

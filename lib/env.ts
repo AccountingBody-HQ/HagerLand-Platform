@@ -30,6 +30,7 @@ const serverSchema = z.object({
   NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY: optional,
   NEXT_PUBLIC_TURNSTILE_SITE_KEY: optional,
   NEXT_PUBLIC_SITE_URL: opt(z.url()),
+  EMAIL_TEST_MAILPIT_URL: opt(z.string().regex(/^http:\/\/(localhost|127\.0\.0\.1):\d+$/, 'must be a localhost URL')),
 })
 
 export type ServerEnv = z.infer<typeof serverSchema>

@@ -105,6 +105,22 @@ select count(*) from site_settings_public;
 ```
 **You should see:** `14`
 
+## 0011_vertical_registry.sql (Phase 1.5, E1)
+**What it does:** adds the list of HagerLand's ten services ("verticals") with their status
+(Live, Coming soon or Hidden), which the menus, homepage, footer, sitemap and search now read.
+You switch them in admin → Verticals. It also adds two private lists: people who register interest
+in a service, and organisations applying to become partners (banks, insurers, brokers). Finally it
+adds a record of which migrations have been applied, used by the health check. It changes no data.
+
+**Check:**
+```sql
+select (select count(*) from verticals) as verticals,
+       (select count(*) from verticals where status = 'live') as live,
+       (select count(*) from schema_migrations) as migrations_recorded,
+       (select count(*) from information_schema.tables where table_schema = 'public' and table_name in ('interest_registrations', 'partner_applications')) as lead_tables;
+```
+**You should see:** `10 | 6 | 11 | 2`
+
 ---
 
 ## Security test (run after all migrations)
@@ -113,7 +129,7 @@ statements: that is the test cleaning up after itself; click **Run this query**.
 It temporarily creates two test users and a test listing, tries things that should and should not be
 allowed, then deletes everything it created.
 
-**You should see:** 28 rows, every one starting with `PASS`.
+**You should see:** every row starting with `PASS` (38 rows after migration 0011; each later migration adds its own checks and its section below says the new total).
 
 ## TypeScript types
 `lib/database.types.ts` was generated from these exact migrations. After all migrations are applied,

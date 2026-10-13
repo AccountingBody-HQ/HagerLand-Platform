@@ -14,6 +14,7 @@ import { sendEmail } from '@/lib/email/send'
 import { enquiryConfirmationEmail, newEnquiryEmail, registerInterestConfirmationEmail } from '@/lib/email/templates'
 import { log } from '@/lib/log'
 import { formatPhone } from '@/lib/format'
+import { parseUtm } from '@/lib/utm'
 
 const schema = z
   .object({
@@ -35,19 +36,6 @@ const schema = z
   .refine((d) => d.preferred_contact !== 'email' || d.email, { message: 'Add your email if you prefer to be contacted by email', path: ['email'] })
 
 export type EnquiryState = ActionResult<{ reference: string }> | null
-
-function parseUtm(raw: string | undefined): Record<string, string> | null {
-  if (!raw) return null
-  try {
-    const v: unknown = JSON.parse(raw)
-    if (v && typeof v === 'object') {
-      return Object.fromEntries(Object.entries(v as Record<string, unknown>).filter(([k, x]) => k.startsWith('utm_') && typeof x === 'string').map(([k, x]) => [k, String(x).slice(0, 100)]))
-    }
-  } catch {
-    // ignore malformed attribution
-  }
-  return null
-}
 
 /** Unified enquiry submission (spec 12). */
 export async function submitEnquiryAction(_prev: EnquiryState, formData: FormData): Promise<EnquiryState> {
