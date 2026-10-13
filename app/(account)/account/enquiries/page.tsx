@@ -17,7 +17,10 @@ export default async function EnquiriesPage({ searchParams }: { searchParams: { 
   const box = searchParams.box === 'sent' ? 'sent' : 'received'
   const status = searchParams.status && ENQUIRY_STATUS[searchParams.status] ? searchParams.status : null
   let query = getServerSupabase().from('enquiries').select('id, reference, name, message, status, intent, target_type, created_at, first_viewed_at').order('created_at', { ascending: false }).limit(200)
-  query = box === 'sent' ? query.eq('sender_user_id', user.id) : query.neq('sender_user_id', user.id)
+  // Received = everything row security lets me read that I did not send. Most senders are guests
+  // (sender_user_id is null), and "<> me" is never true for null, so null must be included explicitly.
+  // user.id is the server-verified account id, not visitor input.
+  query = box === 'sent' ? query.eq('sender_user_id', user.id) : query.or(`sender_user_id.is.null,sender_user_id.neq.${user.id}`)
   if (status && box === 'received') query = query.eq('status', status as 'new')
   const { data } = await query
   const rows = data ?? []

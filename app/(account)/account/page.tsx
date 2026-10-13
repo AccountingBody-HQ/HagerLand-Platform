@@ -26,7 +26,7 @@ export default async function AccountOverview({ searchParams }: { searchParams: 
   const [{ data: listings }, { count: newEnquiries }, verification] = await Promise.all([
     // RLS returns only listings the user owns or that belong to their organisations.
     supabase.from('properties').select('status, expires_at, views_count, enquiries_count'),
-    supabase.from('enquiries').select('id', { count: 'exact', head: true }).eq('status', 'new').neq('sender_user_id', user.id),
+    supabase.from('enquiries').select('id', { count: 'exact', head: true }).eq('status', 'new').or(`sender_user_id.is.null,sender_user_id.neq.${user.id}`),
     active
       ? supabase.from('verification_requests').select('status').eq('org_id', active.org.id).order('created_at', { ascending: false }).limit(1).maybeSingle()
       : Promise.resolve({ data: null }),

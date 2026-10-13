@@ -46,6 +46,8 @@ export function firstLink(html: string): string {
 /** Signs up through the real form and confirms the email link. Leaves the browser signed in. */
 export async function signUp(page: Page, opts: { type: 'owner' | 'agent' | 'developer' | 'professional' | 'supplier' | 'looking'; name?: string; email?: string }): Promise<string> {
   const email = opts.email ?? uniqueEmail(opts.type)
+  // A fresh simulated visitor address per sign-up, so the 5-per-hour sign-up limit never blocks the suite.
+  await page.setExtraHTTPHeaders({ 'x-forwarded-for': `10.9.${Math.floor(Math.random() * 250)}.${Math.floor(Math.random() * 250)}` })
   await page.goto(`/signup?type=${opts.type}`)
   await page.fill('#su-name', opts.name ?? 'Test Person')
   await page.fill('#su-email', email)
@@ -54,6 +56,7 @@ export async function signUp(page: Page, opts: { type: 'owner' | 'agent' | 'deve
   await page.check('#su-terms')
   await page.getByRole('button', { name: 'Create account' }).click()
   await expect(page.getByText('Check your email')).toBeVisible()
+  await page.setExtraHTTPHeaders({})
   const mail = await latestMail(email)
   await page.goto(firstLink(mail.html))
   await page.waitForURL((u) => u.host === 'localhost:3100' && /\/(onboarding|account)/.test(u.pathname))
