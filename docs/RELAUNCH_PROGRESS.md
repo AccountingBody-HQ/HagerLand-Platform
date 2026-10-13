@@ -25,7 +25,7 @@ Status values: todo · in progress · done · blocked
 | WP-13 | Content pages & emails | done | 2026-10-13 | e53385b | Business details come from site_settings (migration 0010); empty values hidden |
 | WP-14 | Admin rebuild | done | 2026-10-13 | 78da435 + 7e5a30c | All 17 sections of spec 18.2. Admin e2e suite (e2e/admin). Users email search scans auth pages (no email filter in the auth admin API) |
 | WP-15 | SEO | done | 2026-10-13 | 3d50dbc | Sitemaps split by type (/sitemap/<type>.xml, listed in robots.txt); landing pages listed only when they meet min_results_for_index; share images at /og/<kind>/<slug> (WebP photos converted with sharp, Manrope font bundled under OFL); admin homepage picks |
-| WP-16 | Analytics, monitoring, cron | todo | | | |
+| WP-16 | Analytics, monitoring, cron | done | 2026-10-13 | HASH16 | /api/cron/daily (Bearer CRON_SECRET, constant-time) at 06:00 UTC via vercel.json. Server errors counted in the errors table and listed in the digest. Purging old rate_limits rows (a pre-existing table) is off unless CRON_PURGE_RATE_LIMITS=true, because of the no-deleting-legacy-data rule |
 | WP-17 | Security hardening | todo | | | |
 | WP-18 | Performance & accessibility | todo | | | |
 | WP-19 | QA, legacy sweep, final checklist [STOP-GATE] | todo | | | |

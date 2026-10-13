@@ -9,6 +9,7 @@ import { organisationFormValues, organisationSchema, type OrganisationInput } fr
 import { fail, invalid, ok, type ActionResult } from '@/lib/action-result'
 import { shortId, slugify } from '@/lib/slug'
 import { revalidateEntity } from '@/lib/revalidate'
+import { trackServer } from '@/lib/analytics-server'
 import { log } from '@/lib/log'
 
 export interface DuplicateOrg {
@@ -85,6 +86,7 @@ export async function createOrganisationAction(_prev: OrgFormState | null, formD
 
   await syncLinks(orgId, d)
   await getAdminSupabase().from('profiles').update({ account_type: 'business' }).eq('id', user.id)
+  await trackServer('org_created', { kind: d.kind })
   cookies().set(ACTIVE_ORG_COOKIE, orgId, { httpOnly: true, sameSite: 'lax', secure: true, path: '/', maxAge: 60 * 60 * 24 * 365 })
   redirect('/account?welcome=business')
 }

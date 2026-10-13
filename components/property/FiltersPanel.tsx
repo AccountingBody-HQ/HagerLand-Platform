@@ -1,5 +1,6 @@
 'use client'
 
+import { track } from '@/lib/analytics'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { SlidersHorizontal } from 'lucide-react'
@@ -180,6 +181,7 @@ export function FiltersPanel(props: Props) {
   const target = (path: string | null) => (path ? `${root}/${path}` : root)
 
   function apply(form: HTMLFormElement | null, path: string | null) {
+    track('filter_applied', { vertical: 'property' })
     if (!form) return
     router.push(`${target(path)}${toQuery(readForm(form, props.filters))}`, { scroll: false })
   }

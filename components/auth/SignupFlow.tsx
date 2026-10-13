@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useFormState } from 'react-dom'
 import { ArrowLeft, Briefcase, Building2, HardHat, House, KeyRound, MailCheck, Search } from 'lucide-react'
 import { signUpAction } from '@/app/(account)/auth-actions'
@@ -11,6 +11,7 @@ import { PhoneInput } from '@/components/ui/PhoneInput'
 import { FormAlert, Honeypot, SubmitButton } from '@/components/forms/FormParts'
 import { Turnstile } from '@/components/forms/Turnstile'
 import { cn } from '@/lib/cn'
+import { track } from '@/lib/analytics'
 
 const CARDS: Record<SignupIntent, { title: string; description: string; icon: React.ReactNode }> = {
   looking: { title: 'Looking for property or materials', description: 'Save time, enquire and request quotes', icon: <Search /> },
@@ -25,6 +26,14 @@ export function SignupFlow({ initialIntent }: { initialIntent: SignupIntent | nu
   const [intent, setIntent] = useState<SignupIntent | null>(initialIntent)
   const [state, action] = useFormState(signUpAction, null)
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
+  const ok = Boolean(state?.ok)
+  useEffect(() => {
+    if (ok) track('signup_completed', { intent: intent ?? 'unknown' })
+  }, [ok, intent])
+  const choose = (key: SignupIntent) => {
+    track('signup_started', { intent: key })
+    setIntent(key)
+  }
 
   if (state?.ok) {
     return (
@@ -50,7 +59,7 @@ export function SignupFlow({ initialIntent }: { initialIntent: SignupIntent | nu
             <li key={key}>
               <button
                 type="button"
-                onClick={() => setIntent(key)}
+                onClick={() => choose(key)}
                 className="flex h-full w-full items-start gap-4 rounded-lg border border-border bg-white p-4 text-left transition-colors hover:border-green hover:bg-green-tint"
               >
                 <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-green-soft text-green [&_svg]:size-5">{CARDS[key].icon}</span>

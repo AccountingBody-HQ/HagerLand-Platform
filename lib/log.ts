@@ -30,6 +30,12 @@ function write(level: Level, route: string, message: string, data?: Record<strin
 export const log = {
   info: (route: string, message: string, data?: Record<string, unknown>) => write('info', route, message, data),
   warn: (route: string, message: string, data?: Record<string, unknown>) => write('warn', route, message, data),
-  error: (route: string, message: string, err?: unknown, data?: Record<string, unknown>) =>
-    write('error', route, message, { ...data, error: errorDetail(err) }),
+  error: (route: string, message: string, err?: unknown, data?: Record<string, unknown>) => {
+    const detail = errorDetail(err)
+    write('error', route, message, { ...data, error: detail })
+    // Server only: also count it in the errors table for the admin digest (loaded lazily, never awaited).
+    if (typeof window === 'undefined' && process.env.NEXT_RUNTIME !== 'edge') {
+      import('./error-store').then((m) => m.recordError(route, detail ? `${message}: ${detail}` : message)).catch(() => undefined)
+    }
+  },
 }
