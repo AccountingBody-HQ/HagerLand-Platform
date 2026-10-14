@@ -124,7 +124,7 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
   const db = getAdminSupabase()
   const head = { count: 'exact' as const, head: true }
   const since = iso(now - DAY)
-  const [pProps, pDevs, pOrgs, pPortfolio, claims, verifs, reports, enq, enqUnanswered, quotes, quotesOpen, signups, expiring, errors, interest, partners, srNew, srEmergency, srToMatch, srUnanswered, srAllDeclined] = await Promise.all([
+  const [pProps, pDevs, pOrgs, pPortfolio, claims, verifs, reports, enq, enqUnanswered, quotes, quotesOpen, signups, expiring, errors, interest, partners, srNew, srEmergency, srToMatch, srUnanswered, srAllDeclined, careNew] = await Promise.all([
     db.from('properties').select('id', head).eq('status', 'pending_review'),
     db.from('developments').select('id', head).eq('status', 'pending_review'),
     db.from('organisations').select('id', head).eq('status', 'pending_review'),
@@ -146,6 +146,7 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
     db.from('service_requests').select('id', head).in('status', ['submitted', 'triaged']),
     db.from('service_request_matches').select('id', head).eq('status', 'offered').lt('offered_at', iso(now - MATCH_REMINDER_HOURS * 3_600_000)),
     db.from('service_requests').select('id', head).eq('status', 'triaged').not('admin_alerted_at', 'is', null),
+    db.from('property_care_requests').select('id', head).eq('status', 'new'),
   ])
   const n = (r: { count: number | null }) => r.count ?? 0
   const lines: [string, string][] = []
@@ -167,6 +168,7 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
   add('Service requests waiting to be matched', n(srToMatch))
   add('Requests every provider declined', n(srAllDeclined))
   add('Provider answers overdue (48 h)', n(srUnanswered))
+  add('Property Care leads to contact', n(careNew))
   add('New interest registrations (24 h)', n(interest))
   add('Partner applications to review', n(partners))
   add('Listings expiring within 7 days', n(expiring))

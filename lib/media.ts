@@ -4,8 +4,8 @@ export type MediaEntity = 'property' | 'development' | 'organisation' | 'portfol
 export type MediaKind = 'image' | 'floorplan' | 'document' | 'logo' | 'cover'
 
 /** Private upload areas: verification and claim evidence, materials lists, admin quotes, brochures,
- * service-request attachments ("request") and provider quote documents ("match"). */
-export const PRIVATE_AREAS = ['verification', 'claim', 'materials', 'quote', 'brochure', 'request', 'match'] as const
+ * service-request attachments ("request"), provider quote documents ("match") and Property Care inspection photos ("inspection", admin only). */
+export const PRIVATE_AREAS = ['verification', 'claim', 'materials', 'quote', 'brochure', 'request', 'match', 'inspection'] as const
 export type PrivateArea = (typeof PRIVATE_AREAS)[number]
 
 export const PUBLIC_BUCKET = 'public-media'

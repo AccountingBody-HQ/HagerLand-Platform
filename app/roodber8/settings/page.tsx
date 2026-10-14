@@ -64,6 +64,7 @@ export default async function SettingsPage() {
             { name: 'free_listing_confirmed', label: 'Listing is free', type: 'checkbox', value: s.free_listing_confirmed === true ? 'true' : '', hint: 'Turn on only when you are sure. Pages then say listing is free.' },
             { name: 'delivery_area', label: 'HagerLand Supply delivery area', value: v(s.delivery_area), placeholder: 'Addis Ababa and surrounding areas', hint: 'Shown on supplies pages when set.' },
             { name: 'quote_response_target', label: 'Quote reply time', value: v(s.quote_response_target), placeholder: 'within one business day', hint: 'Completes the sentence “We reply …”.' },
+            { name: 'property_care_pricing', label: 'Property Care prices', type: 'textarea', value: v(s.property_care_pricing), hint: 'Shown on the Property Care page only when filled in. Leave empty to show no prices.' },
           ]}
         >
           <ClaimsEditor initial={claims} />

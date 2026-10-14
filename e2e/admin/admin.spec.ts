@@ -38,6 +38,9 @@ const PAGES: [string, string][] = [
   ['/roodber8/service-requests?status=cancelled', 'Service requests'],
   ['/roodber8/request-questions', 'Request questions'],
   ['/roodber8/deals', 'Deals and commissions'],
+  ['/roodber8/property-care', 'Property Care pipeline'],
+  ['/roodber8/managed-properties', 'Managed properties'],
+  ['/roodber8/managed-properties/new', 'Add a managed property'],
 ]
 
 test('admin signs in with username, password and one-time code', async ({ page }) => {

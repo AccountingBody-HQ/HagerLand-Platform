@@ -616,16 +616,16 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | S24-4E | Guest sees quotes by secure emailed link | 24.5 | Done | app/(site)/requests/[token] | e2e:flows/service-requests.spec.ts › a guest requests… (quote seen and chosen through the emailed link); › guest links expire… |
 | S24-4F | Engine used for contractors, repairs (emergency), valuations, finance, insurance, diaspora, staffing | 24.5 | Not done | — | contractors and repairs done (e2e:repairs-contractors.spec.ts); valuations (E6), finance and insurance (E7), diaspora (E5), staffing (E8) pending |
 | S24-4G | Materials quote_requests unchanged | 24.5 | Not done | — | verify: e2e supplies flow still green at E3 |
-| S24-50 | Diaspora landing with two directions | 24.6 | Not done | app/(site)/diaspora | E5 |
-| S24-51 | Diaspora → Ethiopia items link to verticals or the engine | 24.6 | Not done | — | E5 |
-| S24-52 | Services abroad: international organisation search with request routing | 24.6 | Not done | — | E5 |
-| S24-53 | HagerLand Property Care premium page (all listed services, the promise) | 24.6 | Not done | app/(site)/diaspora/property-care | E5 |
-| S24-54 | "Request a consultation" with owner details, country, time zone, property location/type, occupancy, services | 24.6 | Not done | — | E5 |
-| S24-55 | Property Care pipeline in admin | 24.6 | Not done | app/roodber8/property-care | E5 |
-| S24-56 | No prices unless set in admin | 24.6 | Not done | site_settings property_care_pricing | E5 |
-| S24-57 | Data model: managed_properties, inspections (photos, notes), rent statements, maintenance log | 24.6 | Not done | migration 0015 | E5 |
-| S24-58 | Admin creates managed properties, inspections, statements, maintenance entries | 24.6 | Not done | — | E5 |
-| S24-59 | Owner portal hidden until enabled | 24.6 | Not done | site setting | E5 |
+| S24-50 | Diaspora landing with two directions | 24.6 | Done | app/(site)/diaspora/page.tsx | e2e:diaspora.spec.ts › the diaspora page offers both directions… |
+| S24-51 | Diaspora → Ethiopia items link to verticals or the engine | 24.6 | Done | app/(site)/diaspora/page.tsx HOME_NEEDS | e2e:diaspora.spec.ts › the diaspora page offers both directions and links into the live services |
+| S24-52 | Services abroad: international organisation search with request routing | 24.6 | Done | app/(site)/diaspora/services-abroad | e2e:diaspora.spec.ts › services abroad finds an Ethiopian-run business… |
+| S24-53 | HagerLand Property Care premium page (all listed services, the promise) | 24.6 | Done | app/(site)/diaspora/property-care | e2e:diaspora.spec.ts › an owner abroad requests a Property Care consultation… |
+| S24-54 | "Request a consultation" with owner details, country, time zone, property location/type, occupancy, services | 24.6 | Done | components/diaspora/PropertyCareForm.tsx, app/actions/property-care-actions.ts | e2e:diaspora.spec.ts › an owner abroad requests… |
+| S24-55 | Property Care pipeline in admin | 24.6 | Done | app/roodber8/property-care | e2e:diaspora.spec.ts › an owner abroad requests… (stage changed in admin) |
+| S24-56 | No prices unless set in admin | 24.6 | Done | property_care_pricing setting | e2e:diaspora.spec.ts › Property Care prices appear only once set in admin settings |
+| S24-57 | Data model: managed_properties, inspections (photos, notes), rent statements, maintenance log | 24.6 | Done | supabase/migrations/0016_property_care.sql | sql: 0016 check → 5 · 0 · 1 (local); rls:Anonymous/Signed-in user cannot read managed_properties etc. |
+| S24-58 | Admin creates managed properties, inspections, statements, maintenance entries | 24.6 | Done | app/roodber8/managed-properties | e2e:diaspora.spec.ts › an owner abroad requests… (inspection with photo, statement, maintenance entry) |
+| S24-59 | Owner portal hidden until enabled | 24.6 | Done | — | verify: no owner-facing routes exist; rls: signed-in users cannot read any Property Care table |
 | S24-60 | Pages: Sell with HagerLand, Let with HagerLand, Buyer representation, Property sourcing for diaspora buyers, Developer sales | 24.7 | Not done | app/(site)/agency/* | E6 |
 | S24-61 | Each agency page has an enquiry form | 24.7 | Not done | — | E6 |
 | S24-62 | "Request a valuation" (service request type) | 24.7 | Not done | — | E6 |
@@ -662,7 +662,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | S24-B4 | Admin: service request triage and matching board | 24.12 | Done | app/roodber8/service-requests | e2e:flows/service-requests.spec.ts › a guest requests… |
 | S24-B5 | Admin: provider quotes | 24.12 | Done | app/roodber8/service-requests/[id] (quotes per match) | e2e:flows/service-requests.spec.ts › a guest requests… |
 | S24-B6 | Admin: commissions and lead-fee ledger with simple reports | 24.12 | Done | app/roodber8/deals, lib/admin/aggregate.ts monthlyReport | unit:aggregate.test.ts › monthly revenue and lead report; e2e:flows/service-requests.spec.ts (deal created on choice); e2e:admin/admin.spec.ts (Deals screen) |
-| S24-B7 | Admin: Property Care pipeline and managed-property records | 24.12 | Not done | — | E5 |
+| S24-B7 | Admin: Property Care pipeline and managed-property records | 24.12 | Done | app/roodber8/property-care, app/roodber8/managed-properties | e2e:diaspora.spec.ts › an owner abroad requests… |
 | S24-B8 | Admin: jobs and applications moderation | 24.12 | Not done | — | E8 |
 | S24-B9 | Admin: question-schema editor per service category | 24.12 | Done | app/roodber8/request-questions | e2e:flows/service-requests.spec.ts › a guest requests… |
 | S24-BA | Admin: countries and international locations in the locations editor | 24.12 | Done | app/roodber8/locations | e2e:international.spec.ts › admin adds a country and a city under it; e2e:admin/admin.spec.ts › add and rename a category, add a location |
@@ -809,48 +809,48 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | V8-12 | Finance category: Equipment finance | Vision §8 | Not done | finance landing + categories | E7 |
 | V8-13 | Finance enquiry from property, construction project and development pages | Vision §8 | Not done | Ask about financing | E6/E7 |
 | V8-14 | Regulated finance only transactional once arrangements exist | Vision §8 | Not done | registry | E7 |
-| V9-01 | Diaspora → Ethiopia: Buying property in Ethiopia | Vision §9 | Not done | diaspora landing | E5 |
-| V9-02 | Diaspora → Ethiopia: Building a house in Ethiopia | Vision §9 | Not done | diaspora landing | E5 |
-| V9-03 | Diaspora → Ethiopia: Renovating family property | Vision §9 | Not done | diaspora landing | E5 |
-| V9-04 | Diaspora → Ethiopia: Finding contractors | Vision §9 | Not done | diaspora landing | E5 |
-| V9-05 | Diaspora → Ethiopia: Purchasing construction materials | Vision §9 | Not done | diaspora landing | E5 |
-| V9-06 | Diaspora → Ethiopia: Supervising construction | Vision §9 | Not done | diaspora landing | E5 |
-| V9-07 | Diaspora → Ethiopia: Finding architects or engineers | Vision §9 | Not done | diaspora landing | E5 |
-| V9-08 | Diaspora → Ethiopia: Maintaining property | Vision §9 | Not done | diaspora landing | E5 |
-| V9-09 | Diaspora → Ethiopia: Insurance | Vision §9 | Not done | diaspora landing | E5 |
-| V9-10 | Diaspora → Ethiopia: Financing | Vision §9 | Not done | diaspora landing | E5 |
-| V9-11 | Diaspora → Ethiopia: Property management | Vision §9 | Not done | diaspora landing | E5 |
-| V9-12 | Diaspora → Ethiopia: Investment | Vision §9 | Not done | diaspora landing | E5 |
-| V9-13 | Diaspora → Ethiopia: Verification and due diligence | Vision §9 | Not done | diaspora landing | E5 |
-| V9-14 | Services abroad provider type: Plumbers | Vision §9 | Not done | international org search | E5 |
-| V9-15 | Services abroad provider type: Electricians | Vision §9 | Not done | international org search | E5 |
-| V9-16 | Services abroad provider type: Builders | Vision §9 | Not done | international org search | E5 |
-| V9-17 | Services abroad provider type: Decorators | Vision §9 | Not done | international org search | E5 |
-| V9-18 | Services abroad provider type: Architects | Vision §9 | Not done | international org search | E5 |
-| V9-19 | Services abroad provider type: Engineers | Vision §9 | Not done | international org search | E5 |
-| V9-20 | Services abroad provider type: Property agents | Vision §9 | Not done | international org search | E5 |
-| V9-21 | Services abroad provider type: Mortgage advisers | Vision §9 | Not done | international org search | E5 |
-| V9-22 | Services abroad provider type: Insurance professionals | Vision §9 | Not done | international org search | E5 |
-| V9-23 | Services abroad provider type: Surveyors | Vision §9 | Not done | international org search | E5 |
-| V9-24 | Services abroad provider type: Conveyancing/property lawyers | Vision §9 | Not done | international org search | E5 |
-| V9-25 | Services abroad provider type: Cleaners | Vision §9 | Not done | international org search | E5 |
-| V9-26 | Services abroad provider type: Handymen | Vision §9 | Not done | international org search | E5 |
-| V9-27 | Services abroad provider type: Removal companies | Vision §9 | Not done | international org search | E5 |
-| V9-28 | Services abroad provider type: Other home and property services | Vision §9 | Not done | international org search | E5 |
+| V9-01 | Diaspora → Ethiopia: Buying property in Ethiopia | Vision §9 | Done | app/(site)/diaspora/page.tsx | e2e:diaspora.spec.ts › the diaspora page offers both directions… |
+| V9-02 | Diaspora → Ethiopia: Building a house in Ethiopia | Vision §9 | Done | app/(site)/diaspora/page.tsx | e2e:diaspora.spec.ts › the diaspora page offers both directions… |
+| V9-03 | Diaspora → Ethiopia: Renovating family property | Vision §9 | Done | app/(site)/diaspora/page.tsx | e2e:diaspora.spec.ts › the diaspora page offers both directions… |
+| V9-04 | Diaspora → Ethiopia: Finding contractors | Vision §9 | Done | app/(site)/diaspora/page.tsx | e2e:diaspora.spec.ts › the diaspora page offers both directions… |
+| V9-05 | Diaspora → Ethiopia: Purchasing construction materials | Vision §9 | Done | app/(site)/diaspora/page.tsx | e2e:diaspora.spec.ts › the diaspora page offers both directions… |
+| V9-06 | Diaspora → Ethiopia: Supervising construction | Vision §9 | Done | app/(site)/diaspora/page.tsx | e2e:diaspora.spec.ts › the diaspora page offers both directions… |
+| V9-07 | Diaspora → Ethiopia: Finding architects or engineers | Vision §9 | Done | app/(site)/diaspora/page.tsx | e2e:diaspora.spec.ts › the diaspora page offers both directions… |
+| V9-08 | Diaspora → Ethiopia: Maintaining property | Vision §9 | Done | app/(site)/diaspora/page.tsx | e2e:diaspora.spec.ts › the diaspora page offers both directions… |
+| V9-09 | Diaspora → Ethiopia: Insurance | Vision §9 | Done | app/(site)/diaspora/page.tsx | e2e:diaspora.spec.ts › the diaspora page offers both directions… |
+| V9-10 | Diaspora → Ethiopia: Financing | Vision §9 | Done | app/(site)/diaspora/page.tsx | e2e:diaspora.spec.ts › the diaspora page offers both directions… |
+| V9-11 | Diaspora → Ethiopia: Property management | Vision §9 | Done | app/(site)/diaspora/page.tsx | e2e:diaspora.spec.ts › the diaspora page offers both directions… |
+| V9-12 | Diaspora → Ethiopia: Investment | Vision §9 | Done | app/(site)/diaspora/page.tsx | e2e:diaspora.spec.ts › the diaspora page offers both directions… |
+| V9-13 | Diaspora → Ethiopia: Verification and due diligence | Vision §9 | Done | app/(site)/diaspora/page.tsx | e2e:diaspora.spec.ts › the diaspora page offers both directions… |
+| V9-14 | Services abroad provider type: Plumbers | Vision §9 | Done | service categories + /diaspora/services-abroad | e2e:diaspora.spec.ts › services abroad finds…; verify: categories exist (plumbers, electricians, building-contractors, painters, architects, civil/structural engineers, estate-agents, mortgage-finance, insurance-professionals, land-surveyors, property-lawyers, cleaning, general-handyman, movers, other-specialists) |
+| V9-15 | Services abroad provider type: Electricians | Vision §9 | Done | service categories + /diaspora/services-abroad | e2e:diaspora.spec.ts › services abroad finds…; verify: categories exist (plumbers, electricians, building-contractors, painters, architects, civil/structural engineers, estate-agents, mortgage-finance, insurance-professionals, land-surveyors, property-lawyers, cleaning, general-handyman, movers, other-specialists) |
+| V9-16 | Services abroad provider type: Builders | Vision §9 | Done | service categories + /diaspora/services-abroad | e2e:diaspora.spec.ts › services abroad finds…; verify: categories exist (plumbers, electricians, building-contractors, painters, architects, civil/structural engineers, estate-agents, mortgage-finance, insurance-professionals, land-surveyors, property-lawyers, cleaning, general-handyman, movers, other-specialists) |
+| V9-17 | Services abroad provider type: Decorators | Vision §9 | Done | service categories + /diaspora/services-abroad | e2e:diaspora.spec.ts › services abroad finds…; verify: categories exist (plumbers, electricians, building-contractors, painters, architects, civil/structural engineers, estate-agents, mortgage-finance, insurance-professionals, land-surveyors, property-lawyers, cleaning, general-handyman, movers, other-specialists) |
+| V9-18 | Services abroad provider type: Architects | Vision §9 | Done | service categories + /diaspora/services-abroad | e2e:diaspora.spec.ts › services abroad finds…; verify: categories exist (plumbers, electricians, building-contractors, painters, architects, civil/structural engineers, estate-agents, mortgage-finance, insurance-professionals, land-surveyors, property-lawyers, cleaning, general-handyman, movers, other-specialists) |
+| V9-19 | Services abroad provider type: Engineers | Vision §9 | Done | service categories + /diaspora/services-abroad | e2e:diaspora.spec.ts › services abroad finds…; verify: categories exist (plumbers, electricians, building-contractors, painters, architects, civil/structural engineers, estate-agents, mortgage-finance, insurance-professionals, land-surveyors, property-lawyers, cleaning, general-handyman, movers, other-specialists) |
+| V9-20 | Services abroad provider type: Property agents | Vision §9 | Done | service categories + /diaspora/services-abroad | e2e:diaspora.spec.ts › services abroad finds…; verify: categories exist (plumbers, electricians, building-contractors, painters, architects, civil/structural engineers, estate-agents, mortgage-finance, insurance-professionals, land-surveyors, property-lawyers, cleaning, general-handyman, movers, other-specialists) |
+| V9-21 | Services abroad provider type: Mortgage advisers | Vision §9 | Done | service categories + /diaspora/services-abroad | e2e:diaspora.spec.ts › services abroad finds…; verify: categories exist (plumbers, electricians, building-contractors, painters, architects, civil/structural engineers, estate-agents, mortgage-finance, insurance-professionals, land-surveyors, property-lawyers, cleaning, general-handyman, movers, other-specialists) |
+| V9-22 | Services abroad provider type: Insurance professionals | Vision §9 | Done | service categories + /diaspora/services-abroad | e2e:diaspora.spec.ts › services abroad finds…; verify: categories exist (plumbers, electricians, building-contractors, painters, architects, civil/structural engineers, estate-agents, mortgage-finance, insurance-professionals, land-surveyors, property-lawyers, cleaning, general-handyman, movers, other-specialists) |
+| V9-23 | Services abroad provider type: Surveyors | Vision §9 | Done | service categories + /diaspora/services-abroad | e2e:diaspora.spec.ts › services abroad finds…; verify: categories exist (plumbers, electricians, building-contractors, painters, architects, civil/structural engineers, estate-agents, mortgage-finance, insurance-professionals, land-surveyors, property-lawyers, cleaning, general-handyman, movers, other-specialists) |
+| V9-24 | Services abroad provider type: Conveyancing/property lawyers | Vision §9 | Done | service categories + /diaspora/services-abroad | e2e:diaspora.spec.ts › services abroad finds…; verify: categories exist (plumbers, electricians, building-contractors, painters, architects, civil/structural engineers, estate-agents, mortgage-finance, insurance-professionals, land-surveyors, property-lawyers, cleaning, general-handyman, movers, other-specialists) |
+| V9-25 | Services abroad provider type: Cleaners | Vision §9 | Done | service categories + /diaspora/services-abroad | e2e:diaspora.spec.ts › services abroad finds…; verify: categories exist (plumbers, electricians, building-contractors, painters, architects, civil/structural engineers, estate-agents, mortgage-finance, insurance-professionals, land-surveyors, property-lawyers, cleaning, general-handyman, movers, other-specialists) |
+| V9-26 | Services abroad provider type: Handymen | Vision §9 | Done | service categories + /diaspora/services-abroad | e2e:diaspora.spec.ts › services abroad finds…; verify: categories exist (plumbers, electricians, building-contractors, painters, architects, civil/structural engineers, estate-agents, mortgage-finance, insurance-professionals, land-surveyors, property-lawyers, cleaning, general-handyman, movers, other-specialists) |
+| V9-27 | Services abroad provider type: Removal companies | Vision §9 | Done | service categories + /diaspora/services-abroad | e2e:diaspora.spec.ts › services abroad finds…; verify: categories exist (plumbers, electricians, building-contractors, painters, architects, civil/structural engineers, estate-agents, mortgage-finance, insurance-professionals, land-surveyors, property-lawyers, cleaning, general-handyman, movers, other-specialists) |
+| V9-28 | Services abroad provider type: Other home and property services | Vision §9 | Done | service categories + /diaspora/services-abroad | e2e:diaspora.spec.ts › services abroad finds…; verify: categories exist (plumbers, electricians, building-contractors, painters, architects, civil/structural engineers, estate-agents, mortgage-finance, insurance-professionals, land-surveyors, property-lawyers, cleaning, general-handyman, movers, other-specialists) |
 | V9-29 | Customer abroad submits requirement, platform matches provider, earns commission/referral/lead/booking fee | Vision §9 | Done | matches + deals ledger | e2e:flows/service-requests.spec.ts › a guest requests… (deal with lead fee) |
 | V9-30 | Architecture international from the outset; Ethiopia core | Vision §9 | Done | lib/countries.ts, 0013 | e2e:international.spec.ts (all tests) |
-| V9-31 | Property Care: Manages the property | Vision §9 | Not done | property care page + data model | E5 |
-| V9-32 | Property Care: Maintains | Vision §9 | Not done | property care page + data model | E5 |
-| V9-33 | Property Care: Secures | Vision §9 | Not done | property care page + data model | E5 |
-| V9-34 | Property Care: Monitors | Vision §9 | Not done | property care page + data model | E5 |
-| V9-35 | Property Care: Tenant management | Vision §9 | Not done | property care page + data model | E5 |
-| V9-36 | Property Care: Property rental | Vision §9 | Not done | property care page + data model | E5 |
-| V9-37 | Property Care: Rent collection | Vision §9 | Not done | property care page + data model | E5 |
-| V9-38 | Property Care: Inspections | Vision §9 | Not done | property care page + data model | E5 |
-| V9-39 | Property Care: Maintenance coordination | Vision §9 | Not done | property care page + data model | E5 |
-| V9-40 | Property Care: Representation of the owner | Vision §9 | Not done | property care page + data model | E5 |
-| V9-41 | Property Care: Managed sale on request | Vision §9 | Not done | property care page + data model | E5 |
-| V9-42 | Property Care: Removes dependence on friends and relatives (promise) | Vision §9 | Not done | property care page + data model | E5 |
+| V9-31 | Property Care: Manages the property | Vision §9 | Done | lib/property-care.ts CARE_SERVICES, property-care page | e2e:diaspora.spec.ts › an owner abroad requests… (services shown and chosen) |
+| V9-32 | Property Care: Maintains | Vision §9 | Done | lib/property-care.ts CARE_SERVICES, property-care page | e2e:diaspora.spec.ts › an owner abroad requests… (services shown and chosen) |
+| V9-33 | Property Care: Secures | Vision §9 | Done | lib/property-care.ts CARE_SERVICES, property-care page | e2e:diaspora.spec.ts › an owner abroad requests… (services shown and chosen) |
+| V9-34 | Property Care: Monitors | Vision §9 | Done | lib/property-care.ts CARE_SERVICES, property-care page | e2e:diaspora.spec.ts › an owner abroad requests… (services shown and chosen) |
+| V9-35 | Property Care: Tenant management | Vision §9 | Done | lib/property-care.ts CARE_SERVICES, property-care page | e2e:diaspora.spec.ts › an owner abroad requests… (services shown and chosen) |
+| V9-36 | Property Care: Property rental | Vision §9 | Done | lib/property-care.ts CARE_SERVICES, property-care page | e2e:diaspora.spec.ts › an owner abroad requests… (services shown and chosen) |
+| V9-37 | Property Care: Rent collection | Vision §9 | Done | lib/property-care.ts CARE_SERVICES, property-care page | e2e:diaspora.spec.ts › an owner abroad requests… (services shown and chosen) |
+| V9-38 | Property Care: Inspections | Vision §9 | Done | lib/property-care.ts CARE_SERVICES, property-care page | e2e:diaspora.spec.ts › an owner abroad requests… (services shown and chosen) |
+| V9-39 | Property Care: Maintenance coordination | Vision §9 | Done | lib/property-care.ts CARE_SERVICES, property-care page | e2e:diaspora.spec.ts › an owner abroad requests… (services shown and chosen) |
+| V9-40 | Property Care: Representation of the owner | Vision §9 | Done | lib/property-care.ts CARE_SERVICES, property-care page | e2e:diaspora.spec.ts › an owner abroad requests… (services shown and chosen) |
+| V9-41 | Property Care: Managed sale on request | Vision §9 | Done | lib/property-care.ts CARE_SERVICES, property-care page | e2e:diaspora.spec.ts › an owner abroad requests… (services shown and chosen) |
+| V9-42 | Property Care: Removes dependence on friends and relatives (promise) | Vision §9 | Done | lib/property-care.ts CARE_SERVICES, property-care page | e2e:diaspora.spec.ts › an owner abroad requests… (services shown and chosen) |
 | V10-01 | Job category: Construction jobs | Vision §10 | Not done | job categories | E8 |
 | V10-02 | Job category: Engineering jobs | Vision §10 | Not done | job categories | E8 |
 | V10-03 | Job category: Architecture jobs | Vision §10 | Not done | job categories | E8 |
@@ -1047,7 +1047,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | X-OPS-04 | Cron: email retries | 25.4 | Not done | — | H6/E9 |
 | X-OPS-05 | Cron: retention purges | 25.4 | Not done | — | H6/E9 |
 | X-OPS-06 | Cron: featured sync | 25.4 | Not done | — | H6/E9 |
-| X-OPS-07 | Admin digest includes interest registrations, service requests, Property Care leads, applications, partner applications | 25.4 | Not done | — | H6/E9 |
+| X-OPS-07 | Admin digest includes interest registrations, service requests, Property Care leads, applications, partner applications | 25.4 | Not done | lib/cron/daily.ts | interest, partner, service requests and Property Care leads in digest; job applications pending (E8) |
 | X-LEG-01 | Every old URL redirects per Section 20 | 25.4 | Not done | — | H6/E9 |
 | X-LEG-02 | Old API endpoints return 410 | 25.4 | Not done | — | H6/E9 |
 | X-LEG-03 | Legacy lockdown migration and reverse script ready | 25.4 | Not done | — | H6/E9 |

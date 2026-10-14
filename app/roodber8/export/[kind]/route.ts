@@ -105,6 +105,11 @@ export async function GET(request: NextRequest, { params }: { params: { kind: st
       })
       break
     }
+    case 'property-care': {
+      const { data } = await db.from('property_care_requests').select('reference, created_at, status, name, email, phone, country_code, city, time_zone, contact_time, property_type, occupancy, services, message, marketing_consent').order('created_at', { ascending: false }).limit(20000)
+      rows = (data ?? []).map((r) => ({ ...r, services: r.services.join('; ') }))
+      break
+    }
     case 'audit': {
       const { data } = await db.from('audit_log').select('created_at, actor, action, entity_type, entity_label, entity_id, diff').order('created_at', { ascending: false }).limit(20000)
       rows = data ?? []

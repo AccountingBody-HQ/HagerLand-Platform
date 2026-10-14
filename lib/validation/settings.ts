@@ -74,6 +74,7 @@ export const businessSchema = z.object({
     .transform((v) => v === 'true'),
   delivery_area: text(300),
   quote_response_target: text(80),
+  property_care_pricing: text(1000),
   claims: z
     .array(z.object({ title: text(80), text: text(400) }))
     .max(8)

@@ -42,7 +42,7 @@ Authorised by AB on 13 Oct 2026 (brief: `docs/BRIEF_PHASE_1_5_AND_GO_LIVE.md`), 
 | E2 | International locations and currency (+ 25.2f approximate prices) | done | 2026-10-13 | see git log | Migrations 0012 (new list values) and 0013. RLS 42/42 local. 177 e2e + 93 unit passed |
 | E3 | Service request engine: customer, admin, provider (+ 25.2k deals and commission ledger) | done | 2026-10-13 | see git log | Migration 0014. RLS 57/57 local. 193 e2e + 102 unit passed |
 | E4 | Repairs & maintenance and contractors on the engine | done | 2026-10-14 | see git log | Migration 0015. 202 e2e + 120 unit passed |
-| E5 | Diaspora services and HagerLand Property Care | todo | | | |
+| E5 | Diaspora services and HagerLand Property Care | done | 2026-10-14 | see git log | Migration 0016. RLS 67/67 local. 214 e2e passed |
 | E6 | Estate agency services, save, compare, valuation, finance ask (+ 25.2a saved items/searches/alerts, 25.2b map, 25.2l path SEO pages) | todo | | | |
 | E7 | Finance and insurance (coming soon, partner forms) | todo | | | |
 | E8 | Jobs & recruitment (full, flagged coming soon) and Our Developments coming soon (+ 25.2j progress updates) | todo | | | |

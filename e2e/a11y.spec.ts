@@ -48,6 +48,12 @@ const PUBLIC = (x: Showcase) => [
   '/jobs',
   '/advertise',
   '/request-service',
+  '/repairs-maintenance',
+  '/diaspora',
+  '/diaspora/property-care',
+  '/diaspora/services-abroad?country=GB',
+  '/contractors',
+  '/request-service/house-builders',
   '/request-service/plumbers',
   '/requests/resend',
   '/search?q=bole',
@@ -72,5 +78,5 @@ test('admin pages have no serious accessibility problems', async ({ page }, info
   test.skip(info.project.name !== 'desktop', 'admin is checked at desktop width')
   test.setTimeout(180_000)
   await adminSession(page)
-  await checkAll(page, ['/roodber8', '/roodber8/review', '/roodber8/properties', '/roodber8/products/new', '/roodber8/quotes', '/roodber8/settings', '/roodber8/import', '/roodber8/reports', '/roodber8/locations', '/roodber8/verticals', '/roodber8/interest', '/roodber8/partners', '/roodber8/exchange-rates', '/roodber8/service-requests', '/roodber8/request-questions', '/roodber8/deals'])
+  await checkAll(page, ['/roodber8', '/roodber8/review', '/roodber8/properties', '/roodber8/products/new', '/roodber8/quotes', '/roodber8/settings', '/roodber8/import', '/roodber8/reports', '/roodber8/locations', '/roodber8/verticals', '/roodber8/interest', '/roodber8/partners', '/roodber8/exchange-rates', '/roodber8/service-requests', '/roodber8/request-questions', '/roodber8/deals', '/roodber8/property-care', '/roodber8/managed-properties/new'])
 })

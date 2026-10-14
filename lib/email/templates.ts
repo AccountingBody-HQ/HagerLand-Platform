@@ -403,3 +403,19 @@ export function providerChosenEmail(p: { orgName: string; reference: string; tit
     reason: PROVIDER_REASON,
   })
 }
+
+export function propertyCareReceivedEmail(p: { name: string; reference: string; contactTime: string | null }): RenderedEmail {
+  return renderEmail({
+    subject: `Your HagerLand Property Care consultation request (${p.reference})`,
+    preheader: 'We will contact you to arrange a consultation.',
+    heading: 'Thank you: we will be in touch',
+    paragraphs: [
+      `Hello ${p.name},`,
+      `We have your request for a consultation about ${brand.divisions.propertyCare}. A member of our team will contact you${p.contactTime ? ` (you said: ${p.contactTime})` : ''} to understand your property and what you need, and then send you a written proposal.`,
+      'There is no obligation, and nothing is agreed until you have read and accepted the proposal.',
+    ],
+    details: [['Reference', p.reference]],
+    button: { label: `About ${brand.divisions.propertyCare}`, href: canonicalUrl('/diaspora/property-care') },
+    reason: `You are receiving this because you asked about ${brand.divisions.propertyCare} on HagerLand.`,
+  })
+}

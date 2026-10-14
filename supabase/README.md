@@ -187,6 +187,21 @@ select (select count(*) from service_categories where vertical_key = 'repairs-ma
 ```
 **You should see:** `17 | 5 | 19 | 1`
 
+## 0016_property_care.sql (Phase 1.5, E5)
+**What it does:** adds HagerLand Property Care. A private list of consultation requests from owners abroad
+(the "Property Care pipeline" in admin), and private records for each property you manage: inspections
+with photos and notes, rent statements and a maintenance log. Owners cannot see these records yet: the
+owner portal is planned for Phase 2. It also adds an empty "Property Care prices" setting; the website shows
+no prices until you fill it in.
+
+**Check:**
+```sql
+select (select count(*) from information_schema.tables where table_schema = 'public' and table_name in ('property_care_requests', 'managed_properties', 'property_inspections', 'rent_statements', 'maintenance_log')) as new_tables,
+       (select count(*) from pg_tables where schemaname = 'public' and not rowsecurity and tablename in ('property_care_requests', 'managed_properties', 'property_inspections', 'rent_statements', 'maintenance_log')) as without_rls,
+       (select count(*) from site_settings_public where key = 'property_care_pricing') as pricing_setting;
+```
+**You should see:** `5 | 0 | 1`
+
 ---
 
 ## Security test (run after all migrations)
@@ -195,7 +210,7 @@ statements: that is the test cleaning up after itself; click **Run this query**.
 It temporarily creates two test users and a test listing, tries things that should and should not be
 allowed, then deletes everything it created.
 
-**You should see:** every row starting with `PASS` (38 rows after migration 0011, 42 after 0013, 57 after 0014; each later migration adds its own checks and its section below says the new total).
+**You should see:** every row starting with `PASS` (38 rows after migration 0011, 42 after 0013, 57 after 0014, 67 after 0016; each later migration adds its own checks and its section below says the new total).
 
 ## TypeScript types
 `lib/database.types.ts` was generated from these exact migrations. After all migrations are applied,
