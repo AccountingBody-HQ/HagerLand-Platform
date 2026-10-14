@@ -24,7 +24,7 @@ export function indexablePaths(counts: Map<string, number>, min: number): string
     .sort()
 }
 
-export const SITEMAP_IDS = ['static', 'properties', 'developments', 'products', 'companies', 'locations-sale', 'locations-rent', 'professionals', 'categories'] as const
+export const SITEMAP_IDS = ['static', 'properties', 'developments', 'products', 'companies', 'locations-sale', 'locations-rent', 'professionals', 'categories', 'jobs'] as const
 export type SitemapId = (typeof SITEMAP_IDS)[number]
 
 /**

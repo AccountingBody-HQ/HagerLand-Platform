@@ -11,6 +11,8 @@ export interface QueueCounts {
   claims: number
   verification: number
   reports: number
+  jobs: number
+  updates: number
 }
 
 const c = (r: { count: number | null }) => r.count ?? 0
@@ -19,7 +21,7 @@ const c = (r: { count: number | null }) => r.count ?? 0
 export async function queueCounts(): Promise<QueueCounts> {
   const db = getAdminSupabase()
   const head = { count: 'exact' as const, head: true }
-  const [p, d, o, pf, m, pc, dc, oc, cl, v, r] = await Promise.all([
+  const [p, d, o, pf, m, pc, dc, oc, cl, v, r, j, u] = await Promise.all([
     db.from('properties').select('id', head).eq('status', 'pending_review'),
     db.from('developments').select('id', head).eq('status', 'pending_review'),
     db.from('organisations').select('id', head).eq('status', 'pending_review'),
@@ -31,10 +33,12 @@ export async function queueCounts(): Promise<QueueCounts> {
     db.from('claims').select('id', head).eq('status', 'pending'),
     db.from('verification_requests').select('id', head).eq('status', 'pending'),
     db.from('reports').select('id', head).eq('status', 'open'),
+    db.from('jobs').select('id', head).eq('status', 'pending_review'),
+    db.from('development_updates').select('id', head).eq('status', 'pending_review'),
   ])
-  return { properties: c(p), developments: c(d), organisations: c(o), portfolio: c(pf), media: c(m), changes: c(pc) + c(dc) + c(oc), claims: c(cl), verification: c(v), reports: c(r) }
+  return { properties: c(p), developments: c(d), organisations: c(o), portfolio: c(pf), media: c(m), changes: c(pc) + c(dc) + c(oc), claims: c(cl), verification: c(v), reports: c(r), jobs: c(j), updates: c(u) }
 }
 
 export function totalQueue(q: QueueCounts): number {
-  return q.properties + q.developments + q.organisations + q.portfolio + q.media + q.changes + q.claims + q.verification + q.reports
+  return q.properties + q.developments + q.organisations + q.portfolio + q.media + q.changes + q.claims + q.verification + q.reports + q.jobs + q.updates
 }

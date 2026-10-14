@@ -2,13 +2,14 @@
 
 import { useRef, useState } from 'react'
 import { CircleAlert, CircleCheck, LoaderCircle, Upload } from 'lucide-react'
-import { processMediaUploadAction, processPrivateUploadAction, type MediaItem } from '@/lib/media-actions'
+import { processMediaUploadAction, processPrivateUploadAction, processUpdatePhotoAction, type MediaItem } from '@/lib/media-actions'
 import { cn } from '@/lib/cn'
 import type { PrivateArea } from '@/lib/media'
 
 export type UploadTarget =
   | { purpose: 'media'; entity_type: 'property' | 'development' | 'organisation' | 'portfolio' | 'product'; entity_id: string; kind: 'image' | 'floorplan' | 'logo' | 'cover' }
   | { purpose: 'private'; area: PrivateArea; id: string }
+  | { purpose: 'update-photo'; development_id: string }
 
 export interface UploadedDoc {
   path: string
@@ -79,7 +80,9 @@ export function FileDrop({
         body: JSON.stringify(
           target.purpose === 'media'
             ? { purpose: 'media', entity_type: target.entity_type, entity_id: target.entity_id, kind: target.kind, content_type: file.type, size: file.size }
-            : { purpose: 'private', area: target.area, id: target.id, content_type: file.type, size: file.size },
+            : target.purpose === 'update-photo'
+              ? { purpose: 'media', entity_type: 'development', entity_id: target.development_id, kind: 'image', content_type: file.type, size: file.size }
+              : { purpose: 'private', area: target.area, id: target.id, content_type: file.type, size: file.size },
         ),
       })
       const signed = (await signRes.json()) as { path?: string; signedUrl?: string; error?: string }
@@ -90,6 +93,10 @@ export function FileDrop({
         const res = await processMediaUploadAction({ incoming_path: signed.path, entity_type: target.entity_type, entity_id: target.entity_id, kind: target.kind })
         if (!res.ok) throw new Error(res.error)
         onMediaUploaded?.(res.data)
+      } else if (target.purpose === 'update-photo') {
+        const res = await processUpdatePhotoAction({ incoming_path: signed.path, development_id: target.development_id })
+        if (!res.ok) throw new Error(res.error)
+        onDocUploaded?.({ path: res.data.path, name: file.name, content_type: 'image/webp' })
       } else {
         const res = await processPrivateUploadAction({ incoming_path: signed.path, area: target.area, id: target.id, content_type: file.type })
         if (!res.ok) throw new Error(res.error)

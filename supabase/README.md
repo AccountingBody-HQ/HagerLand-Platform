@@ -232,13 +232,34 @@ select vertical_key, count(*) from service_categories where vertical_key in ('fi
 
 ---
 
+## 0019_jobs.sql (Phase 1.5, E8)
+**What it does:** adds the jobs board (jobs, applications, candidate profiles) and construction-progress
+updates for developments.
+- **Jobs** are posted by organisations, reviewed by you before going live, and close on their closing date (or 60 days after approval).
+- **Applications** (references `HLA-…`) are created only by the website after checks. Only the applicant, the employer's team and HagerLand can read them. CVs sit in the private document store and are deleted after 12 months.
+- **Candidate profiles** are private unless the candidate chooses "approved employers". Even then, employers never see contact details or CVs.
+- **Progress updates** posted by developers wait for your review before they appear on the development page.
+- It also adds the "Recruitment → Staffing requirement" request type for employers who want hiring help.
+
+Nothing is public while Jobs & Recruitment is "coming soon".
+
+**Check:**
+```sql
+select (select count(*) from information_schema.tables where table_schema = 'public' and table_name in ('jobs', 'job_applications', 'candidate_profiles', 'development_updates')) as new_tables,
+       (select count(*) from service_categories where slug in ('recruitment', 'staffing')) as staffing_categories,
+       (select version from schema_migrations where version = '0019') as recorded;
+```
+**You should see:** `4 | 2 | 0019`. The security test now shows 96 `PASS` rows.
+
+---
+
 ## Security test (run after all migrations)
 Paste `supabase/tests/rls_test.sql` and run it. Supabase may warn that the query contains `delete`
 statements: that is the test cleaning up after itself; click **Run this query**.
 It temporarily creates two test users and a test listing, tries things that should and should not be
 allowed, then deletes everything it created.
 
-**You should see:** every row starting with `PASS` (38 rows after migration 0011, 42 after 0013, 57 after 0014, 67 after 0016, 74 after 0017; each later migration adds its own checks and its section below says the new total).
+**You should see:** every row starting with `PASS` (38 rows after migration 0011, 42 after 0013, 57 after 0014, 67 after 0016, 74 after 0017, 96 after 0019; each later migration adds its own checks and its section below says the new total).
 
 ## TypeScript types
 `lib/database.types.ts` was generated from these exact migrations. After all migrations are applied,

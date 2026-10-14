@@ -14,6 +14,8 @@ import { BulkApprove } from '@/components/admin/BulkApprove'
 import { ChangesDiff } from '@/components/admin/ChangesDiff'
 import { MediaImage } from '@/components/media/MediaImage'
 import { claimDecisionAction, mediaDecisionAction, reportDecisionAction, verificationDecisionAction } from '../actions/moderation'
+import { developmentUpdateDecisionAction, jobDecisionAction } from '../actions/jobs'
+import { EMPLOYMENT_TYPES, categoryLabel, formatSalary, labelFor } from '@/lib/jobs'
 
 export const metadata = { title: 'Review queue' }
 
@@ -27,6 +29,8 @@ const TABS = [
   ['claims', 'Claims'],
   ['verification', 'Verification'],
   ['reports', 'Reports'],
+  ['jobs', 'Jobs'],
+  ['updates', 'Progress updates'],
 ] as const
 type Tab = (typeof TABS)[number][0]
 
@@ -58,7 +62,7 @@ export default async function ReviewPage({ searchParams }: { searchParams: { tab
   const tab: Tab = (TABS.find(([k]) => k === searchParams.tab)?.[0] ?? 'properties') as Tab
   const counts = await queueCounts()
   const db = getAdminSupabase()
-  const countFor: Record<Tab, number> = { properties: counts.properties, developments: counts.developments, organisations: counts.organisations, portfolio: counts.portfolio, media: counts.media, changes: counts.changes, claims: counts.claims, verification: counts.verification, reports: counts.reports }
+  const countFor: Record<Tab, number> = { properties: counts.properties, developments: counts.developments, organisations: counts.organisations, portfolio: counts.portfolio, media: counts.media, changes: counts.changes, claims: counts.claims, verification: counts.verification, reports: counts.reports, jobs: counts.jobs, updates: counts.updates }
 
   let body: React.ReactNode = null
 
@@ -308,6 +312,77 @@ export default async function ReviewPage({ searchParams }: { searchParams: { tab
                 <KeyValue items={[['Details', r.details ?? ''], ['Reporter', r.reporter_contact ?? ''], ['Sent', formatDate(r.created_at)]]} />
                 <div className="mt-3">
                   <DecisionButtons approveLabel="Dealt with" rejectLabel="Dismiss" onApprove={reportDecisionAction.bind(null, r.id, 'actioned')} onReject={reportDecisionAction.bind(null, r.id, 'dismissed')} />
+                </div>
+              </Panel>
+            </li>
+          ))}
+        </ul>
+      )
+  }
+
+  if (tab === 'jobs') {
+    const { data } = await db.from('jobs').select('id, title, category, employment_type, description, requirements, salary_min_minor, salary_max_minor, salary_period, currency, closing_date, employer_org_id, location_id, updated_at').eq('status', 'pending_review').order('updated_at').limit(100)
+    const rows = data ?? []
+    const [{ data: orgs }, { data: locs }] = await Promise.all([
+      db.from('organisations').select('id, name, status, verification_level').in('id', rows.map((r) => r.employer_org_id)),
+      db.from('locations').select('id, display_name').in('id', rows.map((r) => r.location_id).filter((x): x is string => Boolean(x))),
+    ])
+    body =
+      rows.length === 0 ? (
+        <Empty />
+      ) : (
+        <ul className="space-y-3">
+          {rows.map((r) => {
+            const org = (orgs ?? []).find((o) => o.id === r.employer_org_id)
+            return (
+              <li key={r.id}>
+                <Panel title={r.title} actions={<Link href={`/roodber8/jobs/${r.id}`} className="text-small font-semibold text-green">Open job</Link>}>
+                  <KeyValue
+                    items={[
+                      ['Employer', `${org?.name ?? ''}${org && org.status !== 'published' ? ' (profile not live yet)' : ''}`],
+                      ['Category', categoryLabel(r.category)],
+                      ['Type', labelFor(EMPLOYMENT_TYPES, r.employment_type)],
+                      ['Location', (locs ?? []).find((l) => l.id === r.location_id)?.display_name ?? ''],
+                      ['Salary', formatSalary(r.salary_min_minor, r.salary_max_minor, r.currency, r.salary_period) ?? 'Not given'],
+                      ['Closes', r.closing_date ? formatDate(r.closing_date) : '60 days after approval'],
+                    ]}
+                  />
+                  <p className="mt-3 line-clamp-6 whitespace-pre-line text-small">{r.description}</p>
+                  <div className="mt-3">
+                    <DecisionButtons askNote onApprove={jobDecisionAction.bind(null, r.id, true)} onReject={jobDecisionAction.bind(null, r.id, false)} />
+                  </div>
+                </Panel>
+              </li>
+            )
+          })}
+        </ul>
+      )
+  }
+
+  if (tab === 'updates') {
+    const { data } = await db.from('development_updates').select('id, development_id, title, body, happened_on, photo_paths').eq('status', 'pending_review').order('created_at').limit(100)
+    const rows = data ?? []
+    const { data: devs } = await db.from('developments').select('id, name').in('id', rows.map((r) => r.development_id))
+    body =
+      rows.length === 0 ? (
+        <Empty />
+      ) : (
+        <ul className="space-y-3">
+          {rows.map((r) => (
+            <li key={r.id}>
+              <Panel title={`${r.title} · ${formatDate(r.happened_on)}`} actions={<Link href={`/roodber8/developments/${r.development_id}`} className="text-small font-semibold text-green">{(devs ?? []).find((d) => d.id === r.development_id)?.name ?? 'Development'}</Link>}>
+                <p className="whitespace-pre-line text-small">{r.body}</p>
+                {r.photo_paths.length > 0 && (
+                  <div className="mt-3 grid grid-cols-4 gap-1 sm:grid-cols-6">
+                    {r.photo_paths.map((p) => (
+                      <div key={p} className="relative aspect-[4/3] overflow-hidden rounded bg-stone-100">
+                        <MediaImage path={p} alt="" fill sizes="100px" className="object-cover" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="mt-3">
+                  <DecisionButtons askNote approveLabel="Publish" onApprove={developmentUpdateDecisionAction.bind(null, r.id, true)} onReject={developmentUpdateDecisionAction.bind(null, r.id, false)} />
                 </div>
               </Panel>
             </li>

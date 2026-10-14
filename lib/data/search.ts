@@ -10,12 +10,14 @@ import type { PublicProperty } from './properties'
 import type { DevelopmentListItem } from './developments'
 import type { PublicProduct } from './products'
 import type { OrganisationListItem } from './organisations'
+import { searchJobs, type JobListItem } from './jobs'
 
 export interface SearchAll {
   properties: SearchResult<PublicProperty>
   developments: SearchResult<DevelopmentListItem>
   products: SearchResult<PublicProduct>
   organisations: SearchResult<OrganisationListItem>
+  jobs: SearchResult<JobListItem>
   locations: { id: string; name: string; display_name: string; path: string; level: string }[]
   services: { name: string; slug: string }[]
   product_categories: { name: string; slug: string; parent_slug: string | null }[]
@@ -26,6 +28,7 @@ const EMPTY: SearchAll = {
   developments: { total: 0, items: [] },
   products: { total: 0, items: [] },
   organisations: { total: 0, items: [] },
+  jobs: { total: 0, items: [] },
   locations: [],
   services: [],
   product_categories: [],
@@ -36,7 +39,9 @@ export async function searchAll(q: string, limit = 4): Promise<SearchAll> {
   return safeQuery('search_all', EMPTY, async () => {
     const { data, error } = await getPublicSupabase({ tags: [listTag('property'), listTag('product'), listTag('organisation'), listTag('development')], revalidate: 120 }).rpc('search_all', { p_q: q, p_limit: limit })
     if (error) throw error
-    return withoutClosedVerticals({ ...EMPTY, ...(data as unknown as Partial<SearchAll>) })
+    const live = await withoutClosedVerticals({ ...EMPTY, ...(data as unknown as Partial<SearchAll>) })
+    // Jobs are searched separately, and only while the jobs vertical is live.
+    return { ...live, jobs: isLive(await getVerticals(), 'jobs') ? await searchJobs({ q, pageSize: limit }) : EMPTY.jobs }
   })
 }
 
@@ -54,6 +59,7 @@ async function withoutClosedVerticals(r: SearchAll): Promise<SearchAll> {
     product_categories: supplies ? r.product_categories : [],
     services: services ? r.services : [],
     organisations: r.organisations,
+    jobs: EMPTY.jobs,
   }
 }
 

@@ -7,7 +7,7 @@ import { FormAlert, SubmitButton } from '@/components/forms/FormParts'
 
 type Result = { ok: true; data: { message: string } } | { ok: false; error: string; fieldErrors?: Record<string, string> }
 
-/** A plain admin form bound to a server action: shows the result, refreshes the page, and resets after success. */
+/** A plain form bound to a server action: shows the result, refreshes the page, and resets after success. */
 export function ActionForm({ action, submitLabel, children, className, resetOnSuccess = true }: { action: (prev: Result | null, formData: FormData) => Promise<Result>; submitLabel: string; children: ReactNode; className?: string; resetOnSuccess?: boolean }) {
   const [state, formAction] = useFormState(action, null)
   const router = useRouter()

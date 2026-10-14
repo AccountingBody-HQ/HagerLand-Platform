@@ -27,6 +27,8 @@ export interface DailySummary {
   rateLimitsPurged: boolean
   matchReminders: number
   searchAlerts: number
+  jobsExpired: number
+  cvsPurged: number
   digestSent: boolean
 }
 
@@ -116,6 +118,38 @@ async function purgeVerificationDocs(now: number): Promise<number> {
   return purged
 }
 
+/** Open jobs close on their closing date (or 60 days after approval). */
+async function expireJobs(now: number): Promise<number> {
+  const { data } = await getAdminSupabase().from('jobs').update({ status: 'expired' }).eq('status', 'published').lt('expires_at', iso(now)).select('id').limit(BATCH)
+  for (const j of data ?? []) revalidateEntity('job', j.id)
+  return data?.length ?? 0
+}
+
+/** CVs sent with applications are deleted 12 months after the application (privacy policy). The application record is kept. */
+async function purgeApplicationCvs(now: number): Promise<number> {
+  const db = getAdminSupabase()
+  const { data } = await db.from('job_applications').select('id, cv_path').not('cv_path', 'is', null).lt('created_at', iso(now - 365 * DAY)).limit(BATCH)
+  let purged = 0
+  for (const a of data ?? []) {
+    const path = a.cv_path as string
+    // A CV still attached to the candidate's profile, or to a newer application, is kept.
+    const [{ count: inProfile }, { count: newer }] = await Promise.all([
+      db.from('candidate_profiles').select('user_id', { count: 'exact', head: true }).eq('cv_path', path),
+      db.from('job_applications').select('id', { count: 'exact', head: true }).eq('cv_path', path).gte('created_at', iso(now - 365 * DAY)),
+    ])
+    if (!inProfile && !newer && path.startsWith('docs/cv/')) {
+      const { error } = await db.storage.from(PRIVATE_BUCKET).remove([path])
+      if (error) {
+        log.error('cron', 'cv purge failed', error, { application: a.id })
+        continue
+      }
+    }
+    await db.from('job_applications').update({ cv_path: null, cv_purged_at: iso(now) }).eq('id', a.id)
+    purged++
+  }
+  return purged
+}
+
 async function purgeReveals(now: number): Promise<number> {
   const { data } = await getAdminSupabase().from('contact_reveals').delete().lt('created_at', iso(now - 365 * DAY)).select('id')
   return data?.length ?? 0
@@ -126,7 +160,7 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
   const db = getAdminSupabase()
   const head = { count: 'exact' as const, head: true }
   const since = iso(now - DAY)
-  const [pProps, pDevs, pOrgs, pPortfolio, claims, verifs, reports, enq, enqUnanswered, quotes, quotesOpen, signups, expiring, errors, interest, partners, srNew, srEmergency, srToMatch, srUnanswered, srAllDeclined, careNew] = await Promise.all([
+  const [pProps, pDevs, pOrgs, pPortfolio, claims, verifs, reports, enq, enqUnanswered, quotes, quotesOpen, signups, expiring, errors, interest, partners, srNew, srEmergency, srToMatch, srUnanswered, srAllDeclined, careNew, pJobs, pUpdates, applications] = await Promise.all([
     db.from('properties').select('id', head).eq('status', 'pending_review'),
     db.from('developments').select('id', head).eq('status', 'pending_review'),
     db.from('organisations').select('id', head).eq('status', 'pending_review'),
@@ -149,6 +183,9 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
     db.from('service_request_matches').select('id', head).eq('status', 'offered').lt('offered_at', iso(now - MATCH_REMINDER_HOURS * 3_600_000)),
     db.from('service_requests').select('id', head).eq('status', 'triaged').not('admin_alerted_at', 'is', null),
     db.from('property_care_requests').select('id', head).eq('status', 'new'),
+    db.from('jobs').select('id', head).eq('status', 'pending_review'),
+    db.from('development_updates').select('id', head).eq('status', 'pending_review'),
+    db.from('job_applications').select('id', head).gte('created_at', since),
   ])
   const n = (r: { count: number | null }) => r.count ?? 0
   const lines: [string, string][] = []
@@ -157,6 +194,8 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
   add('Developments waiting for review', n(pDevs))
   add('Businesses waiting for review', n(pOrgs))
   add('Portfolio projects waiting for review', n(pPortfolio))
+  add('Jobs waiting for review', n(pJobs))
+  add('Development progress updates waiting for review', n(pUpdates))
   add('Claims to decide', n(claims))
   add('Verification requests', n(verifs))
   add('Open reports', n(reports))
@@ -173,9 +212,11 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
   add('Property Care leads to contact', n(careNew))
   add('New interest registrations (24 h)', n(interest))
   add('Partner applications to review', n(partners))
+  add('New job applications (24 h)', n(applications))
   add('Listings expiring within 7 days', n(expiring))
   add('Listings expired today', s.expired)
   add('Quotes expired today', s.quotesExpired)
+  add('Jobs closed today', s.jobsExpired)
   for (const e of errors.data ?? []) lines.push([`Error ×${e.count}`, `${e.route}: ${e.message}`.slice(0, 160)])
   return lines
 }
@@ -198,9 +239,11 @@ export async function runDaily(now = Date.now()): Promise<DailySummary> {
   await step('featured', async () => void (await getAdminSupabase().rpc('refresh_all_featured')), undefined)
   const verificationDocsPurged = await step('verification purge', () => purgeVerificationDocs(now), 0)
   const revealsPurged = await step('reveals purge', () => purgeReveals(now), 0)
+  const jobsExpired = await step('expire jobs', () => expireJobs(now), 0)
+  const cvsPurged = await step('cv purge', () => purgeApplicationCvs(now), 0)
   // rate_limits is a pre-existing (legacy) table: expired counters are only deleted when AB switches this on.
   const rateLimitsPurged = process.env.CRON_PURGE_RATE_LIMITS === 'true' ? await step('rate limit purge', async () => (await purgeExpiredRateLimits(7), true), false) : false
-  const summary = { expired, expiredEmailed: emailed, reminded, quotesExpired, verificationDocsPurged, revealsPurged, rateLimitsPurged, matchReminders, searchAlerts }
+  const summary = { expired, expiredEmailed: emailed, reminded, quotesExpired, verificationDocsPurged, revealsPurged, rateLimitsPurged, matchReminders, searchAlerts, jobsExpired, cvsPurged }
   let digestSent = false
   const to = process.env.ADMIN_DIGEST_EMAIL
   if (to) {

@@ -71,3 +71,25 @@ export function parseUnitTypes(v: unknown): UnitType[] {
   if (!Array.isArray(v)) return []
   return v.filter((u): u is UnitType => Boolean(u) && typeof u === 'object' && typeof (u as UnitType).type === 'string')
 }
+
+export interface DevelopmentUpdate {
+  id: string
+  title: string
+  body: string
+  happened_on: string
+  photo_paths: string[]
+}
+
+/** Published progress updates of a published development, newest first (spec 25.2j). */
+export async function getDevelopmentUpdates(developmentId: string): Promise<DevelopmentUpdate[]> {
+  return safeQuery('development updates', [], async () => {
+    const { data, error } = await getPublicSupabase({ tags: [listTag('development')], revalidate: 600 })
+      .from('development_updates_public')
+      .select('id, title, body, happened_on, photo_paths')
+      .eq('development_id', developmentId)
+      .order('happened_on', { ascending: false })
+      .limit(30)
+    if (error) throw error
+    return (data ?? []).map((u) => ({ id: u.id ?? '', title: u.title ?? '', body: u.body ?? '', happened_on: u.happened_on ?? '', photo_paths: u.photo_paths ?? [] }))
+  })
+}

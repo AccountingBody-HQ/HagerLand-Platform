@@ -27,6 +27,7 @@ export default async function PrivacyPage() {
             <li><strong>Enquiries:</strong> your name, phone, email, message and the listing you contacted.</li>
             <li><strong>Quote requests:</strong> your contact details, delivery area and address, the items you need and any files you upload.</li>
             <li><strong>Verification documents:</strong> trade licences, TIN certificates and similar documents you upload to get Verified or to claim a business.</li>
+            <li><strong>Jobs:</strong> when you apply for a job, your name, contact details, cover note and CV. If you create a candidate profile, your skills, qualifications, experience, availability and CV.</li>
             <li><strong>Contact reveals:</strong> when you reveal a phone number or other contact detail, we record which listing and a one-way coded version of your internet address, to prevent bulk copying.</li>
             <li><strong>Usage analytics:</strong> anonymous, cookieless statistics about which pages are visited and how fast they load. These do not identify you.</li>
           </ul>
@@ -44,6 +45,7 @@ export default async function PrivacyPage() {
         <TextSection title="Who we share it with">
           <ul>
             <li><strong>The people you contact:</strong> when you send an enquiry, the lister or business receives your name, contact details and message.</li>
+            <li><strong>Employers you apply to:</strong> the employer receives your application and CV. CVs are never public. Your candidate profile is private unless you choose to make it visible to approved employers, and even then they see neither your contact details nor your CV.</li>
             <li><strong>Visitors to your listing:</strong> the contact details you choose to show are revealed to visitors who ask for them.</li>
             <li><strong>Service providers who run the site for us:</strong> Supabase (database, file storage and sign-in), Vercel (hosting), Resend (email), Cloudflare (bot protection) and Google (maps on listing pages). They process data only on our instructions.</li>
             <li><strong>Authorities:</strong> where the law requires it.</li>
@@ -56,6 +58,7 @@ export default async function PrivacyPage() {
             <li>Enquiries: 24 months.</li>
             <li>Verification documents: deleted 90 days after our decision, unless we need them to deal with a dispute or fraud.</li>
             <li>Contact reveal records: 12 months.</li>
+            <li>CVs sent with job applications: deleted 12 months after the application. Your candidate profile and its CV: until you delete them.</li>
           </ul>
         </TextSection>
         <TextSection title="Your rights">

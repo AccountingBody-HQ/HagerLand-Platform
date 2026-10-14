@@ -32,8 +32,15 @@ const STEPS = [
   { icon: Hammer, title: 'Build & handover', text: 'We manage the build directly and hand over with the documents in order.' },
 ]
 
+/** Current, coming-soon and completed projects (Vision §11). */
+const GROUPS: { title: string; match: (c: string | null) => boolean }[] = [
+  { title: 'Current projects', match: (c) => c === 'under_construction' || c === null },
+  { title: 'Coming soon', match: (c) => c === 'off_plan' },
+  { title: 'Completed', match: (c) => c === 'ready' },
+]
+
 export default async function OurDevelopmentsPage() {
-  const [{ items }, business] = await Promise.all([searchDevelopments({ isHagerland: true, pageSize: 12 }), getBusinessDetails()])
+  const [{ items }, business] = await Promise.all([searchDevelopments({ isHagerland: true, pageSize: 48 }), getBusinessDetails()])
   const claims = business.developmentsClaims
   return (
     <>
@@ -59,13 +66,24 @@ export default async function OurDevelopmentsPage() {
       <Section id="projects">
         <SectionHeader title="Our projects" />
         {items.length > 0 ? (
-          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {items.map((d) => (
-              <li key={d.id}>
-                <DevelopmentCard development={d} />
-              </li>
-            ))}
-          </ul>
+          <div className="space-y-10">
+            {GROUPS.map((g) => {
+              const list = items.filter((d) => g.match(d.completion_status))
+              if (list.length === 0) return null
+              return (
+                <div key={g.title}>
+                  <h3 className="hl-h3 mb-4">{g.title}</h3>
+                  <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {list.map((d) => (
+                      <li key={d.id}>
+                        <DevelopmentCard development={d} />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )
+            })}
+          </div>
         ) : (
           <div id="register" className="grid scroll-mt-24 gap-8 rounded-xl border border-gold/30 bg-gold-soft/40 p-6 sm:p-10 lg:grid-cols-[1fr_440px]">
             <div>

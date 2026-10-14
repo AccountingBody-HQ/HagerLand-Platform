@@ -439,3 +439,55 @@ function savedSearchAlertBody(p: { searchName: string; items: { title: string; p
     ],
   })
 }
+
+const EMPLOYER_REASON = 'You are receiving this because your organisation advertises jobs on HagerLand.'
+const CANDIDATE_REASON = 'You are receiving this because you applied for a job on HagerLand.'
+
+export function jobDecisionEmail(p: { name: string; title: string; approved: boolean; reason?: string | null; url: string; expiresAt: string | null }): RenderedEmail {
+  return p.approved
+    ? renderEmail({
+        subject: `Your job is live: ${p.title}`,
+        preheader: 'Candidates can now see and apply for your vacancy.',
+        heading: 'Your job is live',
+        paragraphs: [`Hello ${p.name},`, `"${p.title}" is now on the HagerLand job board.`, p.expiresAt ? `It stays open until ${formatDate(p.expiresAt)}.` : ''].filter(Boolean),
+        button: { label: 'See your job', href: p.url },
+        reason: EMPLOYER_REASON,
+      })
+    : renderEmail({
+        subject: `Changes needed: ${p.title}`,
+        preheader: 'Your job advert needs a few changes before it can go live.',
+        heading: 'Your job advert needs some changes',
+        paragraphs: [`Hello ${p.name},`, `We couldn't publish "${p.title}" yet. Here's what needs to change:`],
+        quote: p.reason ?? undefined,
+        button: { label: 'Edit and resubmit', href: canonicalUrl('/account/jobs') },
+        reason: EMPLOYER_REASON,
+      })
+}
+
+export function newApplicationEmail(p: { orgName: string; title: string; reference: string; applicantName: string; url: string }): RenderedEmail {
+  return renderEmail({
+    subject: `New application for ${p.title} (${p.reference})`,
+    preheader: `${p.applicantName} applied for ${p.title}.`,
+    heading: 'You have a new application',
+    paragraphs: [`Hello ${p.orgName},`, `${p.applicantName} applied for "${p.title}". Open the application to read the cover note and download the CV.`],
+    details: [['Reference', p.reference]],
+    button: { label: 'View the application', href: p.url },
+    reason: EMPLOYER_REASON,
+  })
+}
+
+export function applicationReceivedEmail(p: { name: string; title: string; employer: string; reference: string }): RenderedEmail {
+  return renderEmail({
+    subject: `Application sent: ${p.title} (${p.reference})`,
+    preheader: `We've sent your application to ${p.employer}.`,
+    heading: 'Your application has been sent',
+    paragraphs: [
+      `Hello ${p.name},`,
+      `We've sent your application for "${p.title}" to ${p.employer}. They will contact you directly if they want to take it further.`,
+      'You can follow its progress, or withdraw it, from your account.',
+    ],
+    details: [['Reference', p.reference]],
+    button: { label: 'My applications', href: canonicalUrl('/account/applications') },
+    reason: CANDIDATE_REASON,
+  })
+}

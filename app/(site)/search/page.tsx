@@ -5,6 +5,7 @@ import { searchProperties } from '@/lib/data/properties'
 import { searchProducts } from '@/lib/data/products'
 import { searchOrganisations } from '@/lib/data/organisations'
 import { searchDevelopments } from '@/lib/data/developments'
+import { JobCard } from '@/components/jobs/JobCard'
 import { buildMetadata } from '@/lib/seo'
 import { Container, EmptyState } from '@/components/ui/Layout'
 import { ButtonLink } from '@/components/ui/Button'
@@ -38,7 +39,7 @@ export default async function SearchPage({ searchParams }: { searchParams: { q?:
   const vertical: Vertical = (tabs.find((v) => v.id === searchParams.vertical)?.id ?? 'all') as Vertical
   const page = Math.max(1, Number(searchParams.page) || 1)
   const counts = await searchAll(q, vertical === 'all' ? 4 : 1)
-  const total = counts.properties.total + counts.developments.total + counts.products.total + counts.organisations.total
+  const total = counts.properties.total + counts.developments.total + counts.products.total + counts.organisations.total + counts.jobs.total
   // Places, services and categories count as results too (e.g. "bole" matches the Bole location).
   const anything = total > 0 || counts.locations.length > 0 || counts.services.length > 0 || counts.product_categories.length > 0
   if (q.length >= 2 && !anything) await recordSearchMiss(q, vertical)
@@ -146,6 +147,11 @@ export default async function SearchPage({ searchParams }: { searchParams: { q?:
           {counts.organisations.items.length > 0 && (
             <ResultGroup title="Companies and professionals" more={href('companies')} total={counts.organisations.total}>
               {counts.organisations.items.map((o) => <CompanyCard key={o.id} org={o} />)}
+            </ResultGroup>
+          )}
+          {counts.jobs.items.length > 0 && (
+            <ResultGroup title="Jobs" more={`/jobs?q=${encodeURIComponent(q)}`} total={counts.jobs.total}>
+              {counts.jobs.items.map((j) => <JobCard key={j.id} job={j} />)}
             </ResultGroup>
           )}
         </div>

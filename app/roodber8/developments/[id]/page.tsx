@@ -17,6 +17,10 @@ import { AuditTrail } from '@/components/admin/AuditTrail'
 import { MediaManager } from '@/components/media/MediaManager'
 import { FormAlert } from '@/components/forms/FormParts'
 import type { MediaItem } from '@/lib/media-actions'
+import { UpdateForm } from '@/components/development/UpdateForm'
+import { DecisionButtons } from '@/components/admin/ModerationControls'
+import { ActionButton } from '@/components/forms/ActionButton'
+import { adminPostDevelopmentUpdateAction, developmentUpdateDecisionAction, removeDevelopmentUpdateAction } from '../../actions/jobs'
 
 export const metadata = { title: 'Development' }
 
@@ -25,13 +29,14 @@ export default async function AdminDevelopmentPage({ params, searchParams }: { p
   const db = getAdminSupabase()
   const { data: d } = await db.from('developments').select('*').eq('id', params.id).maybeSingle()
   if (!d) notFound()
-  const [{ data: media }, devs, notes, trail, loc, units] = await Promise.all([
+  const [{ data: media }, devs, notes, trail, loc, units, { data: updates }] = await Promise.all([
     db.from('media').select('id, kind, storage_path, thumb_path, width, height, alt, sort, is_cover, status').eq('entity_type', 'development').eq('entity_id', d.id).order('sort'),
     developerOptions(),
     notesFor('development', d.id),
     auditFor(d.id),
     getLocationById(d.location_id),
     db.from('properties').select('id, title, status').eq('development_id', d.id).limit(50),
+    db.from('development_updates').select('id, title, body, happened_on, status, photo_paths').eq('development_id', d.id).order('happened_on', { ascending: false }),
   ])
   return (
     <div className="space-y-5">
@@ -71,6 +76,32 @@ export default async function AdminDevelopmentPage({ params, searchParams }: { p
             <div className="mt-6">
               <MediaManager entityType="development" entityId={d.id} kind="floorplan" initial={(media ?? []) as MediaItem[]} label="Add plans" />
             </div>
+          </Panel>
+          <Panel title="Construction progress">
+            {updates && updates.length > 0 && (
+              <ul className="mb-5 space-y-3">
+                {updates.map((u) => (
+                  <li key={u.id} className="rounded-md border border-border p-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="font-semibold">
+                        {u.title} <span className="font-normal text-muted">· {formatDate(u.happened_on)} · {u.photo_paths.length} photos</span>
+                      </p>
+                      <StatusBadge status={u.status} />
+                    </div>
+                    <p className="mt-1 line-clamp-3 text-small text-muted">{u.body}</p>
+                    <div className="mt-2">
+                      {u.status === 'pending_review' && <DecisionButtons askNote approveLabel="Publish" onApprove={developmentUpdateDecisionAction.bind(null, u.id, true)} onReject={developmentUpdateDecisionAction.bind(null, u.id, false)} />}
+                      {u.status === 'published' && (
+                        <ActionButton size="sm" variant="ghost" confirm="Take this update down?" action={removeDevelopmentUpdateAction.bind(null, u.id)}>
+                          Remove
+                        </ActionButton>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <UpdateForm developmentId={d.id} action={adminPostDevelopmentUpdateAction} note="Updates posted here are published straight away." />
           </Panel>
           <Panel title="Details">
             <DevelopmentForm

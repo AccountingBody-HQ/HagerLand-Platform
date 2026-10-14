@@ -2,13 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Building2, ClipboardList, FolderKanban, Bell, Handshake, Heart, House, Inbox, LayoutDashboard, Settings, Store, Wrench, type LucideIcon } from 'lucide-react'
+import { Briefcase, Building2, ClipboardList, FileUser, FolderKanban, Bell, Handshake, Heart, House, Inbox, LayoutDashboard, Send, Settings, Store, Wrench, type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/cn'
 
 export interface AccountNavItem {
   href: string
   label: string
-  icon: 'overview' | 'listings' | 'developments' | 'company' | 'portfolio' | 'enquiries' | 'quotes' | 'settings' | 'products' | 'requests' | 'leads' | 'saved' | 'alerts'
+  icon: 'overview' | 'listings' | 'developments' | 'company' | 'portfolio' | 'enquiries' | 'quotes' | 'settings' | 'products' | 'requests' | 'leads' | 'saved' | 'alerts' | 'jobs' | 'applications' | 'candidate'
   badge?: number
 }
 
@@ -26,6 +26,9 @@ const ICONS: Record<AccountNavItem['icon'], LucideIcon> = {
   leads: Handshake,
   saved: Heart,
   alerts: Bell,
+  jobs: Briefcase,
+  applications: Send,
+  candidate: FileUser,
 }
 
 function isActive(pathname: string, href: string): boolean {

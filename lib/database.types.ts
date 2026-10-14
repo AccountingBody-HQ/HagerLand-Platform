@@ -101,6 +101,69 @@ export type Database = {
         }
         Relationships: []
       }
+      candidate_profiles: {
+        Row: {
+          availability: string
+          country_code: string
+          created_at: string
+          cv_path: string | null
+          experience: string | null
+          experience_years: number | null
+          full_name: string
+          headline: string | null
+          location_id: string | null
+          placement_wanted: boolean
+          qualifications: string | null
+          skills: string[]
+          updated_at: string
+          user_id: string
+          visibility: string
+        }
+        ComputedFields: never
+        Insert: {
+          availability?: string
+          country_code?: string
+          created_at?: string
+          cv_path?: string | null
+          experience?: string | null
+          experience_years?: number | null
+          full_name: string
+          headline?: string | null
+          location_id?: string | null
+          placement_wanted?: boolean
+          qualifications?: string | null
+          skills?: string[]
+          updated_at?: string
+          user_id: string
+          visibility?: string
+        }
+        Update: {
+          availability?: string
+          country_code?: string
+          created_at?: string
+          cv_path?: string | null
+          experience?: string | null
+          experience_years?: number | null
+          full_name?: string
+          headline?: string | null
+          location_id?: string | null
+          placement_wanted?: boolean
+          qualifications?: string | null
+          skills?: string[]
+          updated_at?: string
+          user_id?: string
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'candidate_profiles_location_id_fkey'
+            columns: ['location_id']
+            isOneToOne: false
+            referencedRelation: 'locations'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       claims: {
         Row: {
           admin_notes: string | null
@@ -282,6 +345,64 @@ export type Database = {
             columns: ['org_id']
             isOneToOne: false
             referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      development_updates: {
+        Row: {
+          body: string
+          created_at: string
+          created_by: string | null
+          development_id: string
+          happened_on: string
+          id: string
+          photo_paths: string[]
+          rejection_reason: string | null
+          status: Database['public']['Enums']['listing_status']
+          title: string
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          body: string
+          created_at?: string
+          created_by?: string | null
+          development_id: string
+          happened_on: string
+          id?: string
+          photo_paths?: string[]
+          rejection_reason?: string | null
+          status?: Database['public']['Enums']['listing_status']
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          development_id?: string
+          happened_on?: string
+          id?: string
+          photo_paths?: string[]
+          rejection_reason?: string | null
+          status?: Database['public']['Enums']['listing_status']
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'development_updates_development_id_fkey'
+            columns: ['development_id']
+            isOneToOne: false
+            referencedRelation: 'developments'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'development_updates_development_id_fkey'
+            columns: ['development_id']
+            isOneToOne: false
+            referencedRelation: 'developments_public'
             referencedColumns: ['id']
           },
         ]
@@ -701,6 +822,183 @@ export type Database = {
             isOneToOne: false
             referencedRelation: 'verticals_public'
             referencedColumns: ['key']
+          },
+        ]
+      }
+      job_applications: {
+        Row: {
+          applicant_user_id: string
+          cover_note: string | null
+          created_at: string
+          cv_path: string | null
+          cv_purged_at: string | null
+          email: string
+          employer_notes: string | null
+          id: string
+          job_id: string
+          name: string
+          phone: string | null
+          reference: string
+          status: string
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          applicant_user_id: string
+          cover_note?: string | null
+          created_at?: string
+          cv_path?: string | null
+          cv_purged_at?: string | null
+          email: string
+          employer_notes?: string | null
+          id?: string
+          job_id: string
+          name: string
+          phone?: string | null
+          reference?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          applicant_user_id?: string
+          cover_note?: string | null
+          created_at?: string
+          cv_path?: string | null
+          cv_purged_at?: string | null
+          email?: string
+          employer_notes?: string | null
+          id?: string
+          job_id?: string
+          name?: string
+          phone?: string | null
+          reference?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'job_applications_job_id_fkey'
+            columns: ['job_id']
+            isOneToOne: false
+            referencedRelation: 'jobs'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'job_applications_job_id_fkey'
+            columns: ['job_id']
+            isOneToOne: false
+            referencedRelation: 'jobs_public'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      jobs: {
+        Row: {
+          applications_count: number
+          category: string
+          closing_date: string | null
+          country_code: string
+          created_at: string
+          created_by: string | null
+          currency: string
+          description: string
+          employer_org_id: string
+          employment_type: string
+          expires_at: string | null
+          id: string
+          location_id: string | null
+          published_at: string | null
+          rejection_reason: string | null
+          requirements: string | null
+          salary_max_minor: number | null
+          salary_min_minor: number | null
+          salary_period: string | null
+          search_tsv: unknown
+          short_id: string
+          slug: string
+          status: Database['public']['Enums']['listing_status']
+          title: string
+          updated_at: string
+          views_count: number
+        }
+        ComputedFields: never
+        Insert: {
+          applications_count?: number
+          category: string
+          closing_date?: string | null
+          country_code?: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          description: string
+          employer_org_id: string
+          employment_type: string
+          expires_at?: string | null
+          id?: string
+          location_id?: string | null
+          published_at?: string | null
+          rejection_reason?: string | null
+          requirements?: string | null
+          salary_max_minor?: number | null
+          salary_min_minor?: number | null
+          salary_period?: string | null
+          search_tsv?: never
+          short_id?: string
+          slug: string
+          status?: Database['public']['Enums']['listing_status']
+          title: string
+          updated_at?: string
+          views_count?: number
+        }
+        Update: {
+          applications_count?: number
+          category?: string
+          closing_date?: string | null
+          country_code?: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          description?: string
+          employer_org_id?: string
+          employment_type?: string
+          expires_at?: string | null
+          id?: string
+          location_id?: string | null
+          published_at?: string | null
+          rejection_reason?: string | null
+          requirements?: string | null
+          salary_max_minor?: number | null
+          salary_min_minor?: number | null
+          salary_period?: string | null
+          search_tsv?: never
+          short_id?: string
+          slug?: string
+          status?: Database['public']['Enums']['listing_status']
+          title?: string
+          updated_at?: string
+          views_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'jobs_employer_org_id_fkey'
+            columns: ['employer_org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'jobs_employer_org_id_fkey'
+            columns: ['employer_org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'jobs_location_id_fkey'
+            columns: ['location_id']
+            isOneToOne: false
+            referencedRelation: 'locations'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -2986,6 +3284,52 @@ export type Database = {
       }
     }
     Views: {
+      candidates_for_employers: {
+        Row: {
+          availability: string | null
+          candidate_id: string | null
+          country_code: string | null
+          experience: string | null
+          experience_years: number | null
+          first_name: string | null
+          headline: string | null
+          location_display: string | null
+          placement_wanted: boolean | null
+          qualifications: string | null
+          skills: string[] | null
+          updated_at: string | null
+        }
+        ComputedFields: never
+        Relationships: []
+      }
+      development_updates_public: {
+        Row: {
+          body: string | null
+          development_id: string | null
+          happened_on: string | null
+          id: string | null
+          photo_paths: string[] | null
+          title: string | null
+          updated_at: string | null
+        }
+        ComputedFields: never
+        Relationships: [
+          {
+            foreignKeyName: 'development_updates_development_id_fkey'
+            columns: ['development_id']
+            isOneToOne: false
+            referencedRelation: 'developments'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'development_updates_development_id_fkey'
+            columns: ['development_id']
+            isOneToOne: false
+            referencedRelation: 'developments_public'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       developments_public: {
         Row: {
           address_line: string | null
@@ -3072,6 +3416,59 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      jobs_public: {
+        Row: {
+          category: string | null
+          closing_date: string | null
+          country_code: string | null
+          currency: string | null
+          description: string | null
+          employer_logo_path: string | null
+          employer_name: string | null
+          employer_org_id: string | null
+          employer_slug: string | null
+          employer_verification: Database['public']['Enums']['verification_level'] | null
+          employment_type: string | null
+          expires_at: string | null
+          id: string | null
+          location_display: string | null
+          location_id: string | null
+          published_at: string | null
+          requirements: string | null
+          salary_max_minor: number | null
+          salary_min_minor: number | null
+          salary_period: string | null
+          search_tsv: unknown
+          short_id: string | null
+          slug: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        ComputedFields: never
+        Relationships: [
+          {
+            foreignKeyName: 'jobs_employer_org_id_fkey'
+            columns: ['employer_org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'jobs_employer_org_id_fkey'
+            columns: ['employer_org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'jobs_location_id_fkey'
+            columns: ['location_id']
+            isOneToOne: false
+            referencedRelation: 'locations'
+            referencedColumns: ['id']
+          },
+        ]
       }
       media_public: {
         Row: {

@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { CalendarClock, Check, Download, Layers } from 'lucide-react'
 import type { PublicDevelopment } from '@/lib/data/developments'
-import { parseUnitTypes } from '@/lib/data/developments'
+import { getDevelopmentUpdates, parseUnitTypes } from '@/lib/data/developments'
 import { getEntityMedia, searchProperties } from '@/lib/data/properties'
 import { searchDevelopments } from '@/lib/data/developments'
 import { COMPLETION_LABEL, DEVELOPMENT_KIND_LABEL } from '@/lib/development-labels'
@@ -19,6 +19,7 @@ import { ContactPanel } from '@/components/enquiry/ContactPanel'
 import { ExpandableText } from '@/components/ui/ExpandableText'
 import { Badge } from '@/components/ui/Badge'
 import { DevelopmentCard } from './DevelopmentCard'
+import { ProgressTimeline } from './ProgressTimeline'
 import { VerificationBadge } from '@/components/company/VerificationBadge'
 import { getOrganisationBySlug } from '@/lib/data/organisations'
 import { getBusinessDetails } from '@/lib/data/business'
@@ -29,10 +30,11 @@ import { FinanceAsk } from '@/components/verticals/FinanceAsk'
 /** Shared body for third-party developments and HagerLand's own projects (premium variant). */
 export async function DevelopmentDetail({ d, premium }: { d: PublicDevelopment; premium?: boolean }) {
   const id = d.id as string
-  const [media, units, others] = await Promise.all([
+  const [media, units, others, updates] = await Promise.all([
     getEntityMedia('development', id),
     searchProperties({ developmentId: id, pageSize: 12 }),
     d.developer_org_id ? searchDevelopments({ developerOrgId: d.developer_org_id, excludeId: id, pageSize: 3 }) : Promise.resolve({ total: 0, items: [] }),
+    getDevelopmentUpdates(id),
   ])
   const images = media.filter((m) => m.kind === 'image').map((m, i) => ({ path: m.storage_path ?? '', alt: m.alt ?? `${d.name}: photo ${i + 1}`, width: m.width, height: m.height }))
   const plans = media.filter((m) => m.kind === 'floorplan').map((m, i) => ({ path: m.storage_path ?? '', alt: m.alt ?? `${d.name}: plan ${i + 1}`, width: m.width, height: m.height }))
@@ -137,6 +139,8 @@ export async function DevelopmentDetail({ d, premium }: { d: PublicDevelopment; 
               <ExpandableText text={d.description} />
             </section>
           )}
+
+          <ProgressTimeline updates={updates} name={d.name ?? ''} />
 
           {d.amenities && d.amenities.length > 0 && (
             <section aria-labelledby="amen-heading">

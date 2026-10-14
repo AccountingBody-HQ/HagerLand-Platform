@@ -9,7 +9,7 @@ import { countMedia, deletePublicFiles, mediaLimit, processIncomingDocument, pro
 import { fail, ok, type ActionResult } from '@/lib/action-result'
 import { revalidateEntity } from '@/lib/revalidate'
 import { log } from '@/lib/log'
-import { PRIVATE_AREAS, type MediaEntity } from '@/lib/media'
+import { CV_TYPES, PRIVATE_AREAS, type MediaEntity } from '@/lib/media'
 
 const entitySchema = z.enum(['property', 'development', 'organisation', 'portfolio', 'product'])
 
@@ -114,6 +114,7 @@ export async function processPrivateUploadAction(input: { incoming_path: string;
   const d = parsed.data
   const scope: UploadScope = { purpose: 'private', area: d.area, id: d.id }
   if (!(await canUpload(scope))) return fail('You cannot upload files here.')
+  if (d.area === 'cv' && !CV_TYPES.includes(d.content_type)) return fail('Upload your CV as a PDF or Word (.docx) file.')
   if (!d.incoming_path.startsWith(`incoming/${scopePrefix(scope)}/`)) return fail('Invalid upload.')
   try {
     const path = await processIncomingDocument(d.incoming_path, d.content_type, scopePrefix(scope))
@@ -181,4 +182,22 @@ export async function updateAltAction(mediaId: string, alt: string): Promise<Act
   if (!row) return fail('Not found.')
   await getAdminSupabase().from('media').update({ alt: alt.trim().slice(0, 200) || null }).eq('id', row.id)
   return ok(undefined)
+}
+
+/** Photos for a development progress update: stored as public images, shown once the update is approved (spec 25.2j). */
+export async function processUpdatePhotoAction(input: { incoming_path: string; development_id: string }): Promise<ActionResult<{ path: string }>> {
+  const parsed = z.object({ incoming_path: z.string().max(300), development_id: z.uuid() }).safeParse(input)
+  if (!parsed.success) return fail('Invalid upload.')
+  const d = parsed.data
+  const scope: UploadScope = { purpose: 'media', entityType: 'development', entityId: d.development_id }
+  if (!(await canUpload(scope))) return fail('You cannot upload files here.')
+  if (!d.incoming_path.startsWith(`incoming/${scopePrefix(scope)}/`)) return fail('Invalid upload.')
+  try {
+    const image = await processIncomingImage(d.incoming_path, 'development', d.development_id)
+    return ok({ path: image.storage_path })
+  } catch (err) {
+    if (err instanceof UploadError) return fail(err.message)
+    log.error('media', 'update photo processing failed', err)
+    return fail('We could not process that image. Try a different photo (JPEG or PNG).')
+  }
 }

@@ -26,6 +26,9 @@ export async function canUpload(scope: UploadScope): Promise<boolean> {
     }
     case 'claim':
       return Boolean(await getUser())
+    case 'cv':
+      // CVs live in the signed-in user's own folder.
+      return (await getUser())?.id === scope.id
     case 'verification':
       return (await getMemberships()).some((m) => m.org.id === scope.id && (m.role === 'owner' || m.role === 'admin'))
     case 'brochure':

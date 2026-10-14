@@ -2,7 +2,7 @@ import { requireAdminPage } from '@/lib/admin/guard'
 import { getLocations } from '@/lib/data/reference'
 import { saveManagedPropertyAction } from '@/app/roodber8/actions/property-care'
 import { AdminHeader, Panel } from '@/components/admin/AdminUi'
-import { ActionForm } from '@/components/admin/ActionForm'
+import { ActionForm } from '@/components/forms/ActionForm'
 import { ManagedPropertyFields } from '@/components/admin/ManagedPropertyFields'
 
 export const metadata = { title: 'Add a managed property' }

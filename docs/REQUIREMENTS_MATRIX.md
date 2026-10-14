@@ -99,7 +99,7 @@ Summary (updated at the end of every work package): see the last section.
 | R-08 | /property/[slug] detail, slug ends in short id | 4.3 | Done | app/(site)/property/[slug] | unit:slug.test.ts › builds listing slugs ending in the short id; e2e:a11y.spec.ts (detail page) |
 | R-09 | /developments | 4.3 | Done | app/(site)/developments | e2e:smoke.spec.ts › loads /developments |
 | R-10 | /developments/[slug] | 4.3 | Done | app/(site)/developments/[slug] | e2e:responsive.spec.ts (development page) |
-| R-11 | /our-developments (now coming soon, 24.10) | 4.3 / 24.10 | Not done | app/(site)/our-developments | see S24-90 |
+| R-11 | /our-developments (now coming soon, 24.10) | 4.3 / 24.10 | Done | app/(site)/our-developments | e2e:jobs.spec.ts › Our Developments: coming soon makes no claims… |
 | R-12 | /our-developments/[slug] premium project page | 4.3 | Not done | app/(site)/our-developments/[slug] | needs a test with a seeded HagerLand development |
 | R-13 | /supplies hub | 4.3 | Done | app/(site)/supplies/page.tsx | e2e:smoke.spec.ts › loads /supplies |
 | R-14 | /supplies/[category] | 4.3 | Done | app/(site)/supplies/[category] | e2e:smoke.spec.ts › loads /supplies/building-materials |
@@ -338,7 +338,7 @@ Summary (updated at the end of every work package): see the last section.
 | S9-02 | Development detail (all listed sections, off-plan safety note) | 9.2 | Done | components/development/DevelopmentDetail.tsx | e2e:responsive.spec.ts; e2e:a11y.spec.ts |
 | S9-03 | /our-developments hub (superseded by 24.10 coming-soon page while the vertical is coming_soon; full hub when live) | 9.3 / 24.10 | Not done | app/(site)/our-developments | E8 |
 | S9-04 | No fake renders or invented projects | 9.3 | Done | — | verify: page shows only published HagerLand developments |
-| S9-05 | Project detail premium template with progress timeline and dated updates (25.2j) | 9.3 / 25.2j | Not done | app/(site)/our-developments/[slug] | E8 |
+| S9-05 | Project detail premium template with progress timeline and dated updates (25.2j) | 9.3 / 25.2j | Done | components/development/ProgressTimeline.tsx, DevelopmentDetail | e2e:jobs.spec.ts › a developer posts a progress update with photos… |
 
 ## Section 10 — Construction supplies
 
@@ -388,7 +388,7 @@ Summary (updated at the end of every work package): see the last section.
 | S13-04 | Relevance weights; small verified boost; never boost is_hagerland | 13 | Done | 0005 | verify: S1-02 |
 | S13-05 | Locations combobox searches name, Amharic name and path | 13 | Done | 0005 search_locations | e2e:flows/owner-listing.spec.ts |
 | S13-06 | Searches tracked without the query text; zero-result queries aggregated | 13 | Done | lib/data/search.ts, record_search_miss | verify: admin reports lists search misses |
-| S13-07 | Search covers the new verticals (services, jobs when live, international organisations) | 24.2 | Not done | — | E1/E3/E8 |
+| S13-07 | Search covers the new verticals (services, jobs when live, international organisations) | 24.2 | Done | lib/data/search.ts | services and international organisations (E3/E2 e2e); jobs when live: e2e:jobs.spec.ts › switched live… (site search shows Jobs) |
 
 ## Section 14 — Homepage
 
@@ -593,7 +593,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | S24-31 | Country root locations for 12 diaspora markets | 24.4 | Done | 0013 | sql: 0013 check (12 countries) |
 | S24-32 | Key cities under each country | 24.4 | Done | 0013 | sql: 0013 check (22 cities); e2e:international.spec.ts › location search… (London, United Kingdom) |
 | S24-33 | Admin can add countries and cities | 24.4 | Done | app/roodber8/locations, actions/taxonomy.ts addCountryAction | e2e:international.spec.ts › admin adds a country and a city under it |
-| S24-34 | organisations, service_requests, jobs, interest_registrations carry country_code and currency | 24.4 | Not done | 0011 (interest_registrations), 0013 (organisations) | organisations and interest registrations done (e2e:verticals › register interest…, e2e:international.spec.ts › a business abroad…); service_requests (E3) and jobs (E8) pending |
+| S24-34 | organisations, service_requests, jobs, interest_registrations carry country_code and currency | 24.4 | Done | 0011, 0013, 0014, 0019 | organisations and interest (e2e:international.spec.ts), service_requests (E3 e2e:flows/service-requests guest-link test: GB/GBP), jobs (0019 trigger; e2e:jobs.spec.ts checks currency ETB) |
 | S24-35 | Currency list ETB, GBP, USD, EUR, CAD, AED, SEK, NOK, SAR, ILS, ZAR, KES | 24.4 | Done | lib/countries.ts, check constraints in 0011/0013 | unit:currency.test.ts › countries |
 | S24-36 | Money displayed in the record's currency | 24.4 | Not done | lib/format.ts formatMoney | unit:currency.test.ts › money in a record’s currency; used for service-request quotes in E3 |
 | S24-37 | Property listings stay Ethiopia-only | 24.4 | Done | 0013 require_ethiopian_location trigger, lib/data/reference.ts isEthiopianLocation, /api/locations default scope ET | rls:A listing cannot be moved outside Ethiopia; e2e:international.spec.ts › property pages stay Ethiopia-only; › location search is Ethiopia-only… |
@@ -614,7 +614,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | S24-4C | Provider dashboard: offered requests, accept/decline, submit quote | 24.5 | Done | app/(account)/account/requests | e2e:flows/service-requests.spec.ts › a guest requests… (accept, quote); › when every provider declines… |
 | S24-4D | Customer sees quotes in account | 24.5 | Done | app/(account)/account/service-requests | verify: same RequestView as the guest page; RLS rls:Requester reads their own request / sees the quote once it is sent |
 | S24-4E | Guest sees quotes by secure emailed link | 24.5 | Done | app/(site)/requests/[token] | e2e:flows/service-requests.spec.ts › a guest requests… (quote seen and chosen through the emailed link); › guest links expire… |
-| S24-4F | Engine used for contractors, repairs (emergency), valuations, finance, insurance, diaspora, staffing | 24.5 | Not done | — | contractors, repairs, valuations, finance, insurance and diaspora done; staffing (E8) pending |
+| S24-4F | Engine used for contractors, repairs (emergency), valuations, finance, insurance, diaspora, staffing | 24.5 | Done | 0014–0019 | staffing: e2e:jobs.spec.ts › staffing requirements go through the request engine… |
 | S24-4G | Materials quote_requests unchanged | 24.5 | Not done | — | verify: e2e supplies flow still green at E3 |
 | S24-50 | Diaspora landing with two directions | 24.6 | Done | app/(site)/diaspora/page.tsx | e2e:diaspora.spec.ts › the diaspora page offers both directions… |
 | S24-51 | Diaspora → Ethiopia items link to verticals or the engine | 24.6 | Done | app/(site)/diaspora/page.tsx HOME_NEEDS | e2e:diaspora.spec.ts › the diaspora page offers both directions and links into the live services |
@@ -641,18 +641,18 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | S24-74 | No rates, quotes, advice or eligibility statements | 24.8 | Done | copy review | e2e:finance-insurance.spec.ts › …make no offers (no %, rates or eligibility text, coming soon and live) |
 | S24-75 | When live, requests go through the engine to partner organisations | 24.8 | Done | 0018, PartnerVerticalPage | e2e:finance-insurance.spec.ts › switched live, finance requests go through the engine to a lender… |
 | S24-76 | New organisation kinds lender, insurer, broker | 24.8 | Done | 0012, admin organisation kinds | e2e:finance-insurance.spec.ts › admin can add a lender, insurer or broker… |
-| S24-80 | jobs table (employer org, title, category, type, location/country, salary + currency optional, description, requirements, closing date, moderated status, expiry) | 24.9 | Not done | migration | E8 |
-| S24-81 | Employer dashboard: post and manage jobs | 24.9 | Not done | — | E8 |
-| S24-82 | Employer views applications | 24.9 | Not done | — | E8 |
-| S24-83 | Public job board with filters | 24.9 | Not done | — | E8 |
-| S24-84 | Apply with CV (PDF/DOCX only, size limit, private-docs) and cover note | 24.9 | Not done | — | E8 |
-| S24-85 | Candidate profile, opt-in, private by default | 24.9 | Not done | — | E8 |
-| S24-86 | "Submit a staffing requirement" (service request type) | 24.9 | Not done | — | E8 |
-| S24-87 | Admin job moderation and applications overview | 24.9 | Not done | — | E8 |
-| S24-88 | CVs never public; candidates control visibility; retention in privacy policy | 24.9 | Not done | — | E8 + rls test |
-| S24-89 | While coming soon: landing + employer and candidate interest forms | 24.9 | Not done | — | E8 |
-| S24-90 | Our Developments coming-soon page (intent, supply-and-build advantage, register interest, no claims of activity) | 24.10 | Not done | app/(site)/our-developments | E8 |
-| S24-91 | Templates and data model intact; projects appear when published and the vertical is live | 24.10 | Not done | — | E8 test |
+| S24-80 | jobs table (employer org, title, category, type, location/country, salary + currency optional, description, requirements, closing date, moderated status, expiry) | 24.9 | Done | supabase/migrations/0019_jobs.sql | rls_test.sql jobs checks (96/96); e2e:jobs.spec.ts |
+| S24-81 | Employer dashboard: post and manage jobs | 24.9 | Done | app/(account)/account/jobs | e2e:jobs.spec.ts › switched live: an employer posts a job… |
+| S24-82 | Employer views applications | 24.9 | Done | app/(account)/account/jobs/[id] | e2e:jobs.spec.ts › switched live: an employer posts a job… (employer reads, downloads CV, shortlists) |
+| S24-83 | Public job board with filters | 24.9 | Done | app/(site)/jobs | e2e:jobs.spec.ts › switched live: an employer posts a job… (keyword, location, category filters) |
+| S24-84 | Apply with CV (PDF/DOCX only, size limit, private-docs) and cover note | 24.9 | Done | components/jobs/ApplyForm.tsx, lib/media (cv area), app/(account)/account/cv | e2e:jobs.spec.ts › switched live: an employer posts a job… (non-PDF/DOCX refused; private signed link) |
+| S24-85 | Candidate profile, opt-in, private by default | 24.9 | Done | app/(account)/account/candidate | e2e:jobs.spec.ts › switched live: an employer posts a job…; rls_test.sql (private by default) |
+| S24-86 | "Submit a staffing requirement" (service request type) | 24.9 | Done | 0019 (recruitment/staffing) | e2e:jobs.spec.ts › staffing requirements… |
+| S24-87 | Admin job moderation and applications overview | 24.9 | Done | app/roodber8/jobs, review?tab=jobs | e2e:jobs.spec.ts › switched live: an employer posts a job… (approved by HagerLand; overview page) |
+| S24-88 | CVs never public; candidates control visibility; retention in privacy policy | 24.9 | Done | rls_test.sql, privacy page, lib/cron/daily.ts | rls_test.sql (anonymous/stranger denied; employers never see CVs); e2e:jobs.spec.ts › switched live: an employer posts a job… (stranger gets 404); privacy "How long we keep it" |
+| S24-89 | While coming soon: landing + employer and candidate interest forms | 24.9 | Done | components/verticals/ComingSoonPage | e2e:jobs.spec.ts › while coming soon, jobs shows the landing… |
+| S24-90 | Our Developments coming-soon page (intent, supply-and-build advantage, register interest, no claims of activity) | 24.10 | Done | lib/content/verticals.ts | e2e:jobs.spec.ts › Our Developments: coming soon makes no claims… |
+| S24-91 | Templates and data model intact; projects appear when published and the vertical is live | 24.10 | Done | app/(site)/our-developments | e2e:jobs.spec.ts › Our Developments … live, projects grouped by stage |
 | S24-A1 | Homepage, about, how-it-works, list-with-us, help, footer and metadata updated | 24.11 | Not done | — | E9 |
 | S24-A2 | Terms and privacy updated (service requests, matching, commissions, CVs, international users, partner referrals, no regulated advice) | 24.11 | Not done | lib/content/legal.ts | E9 |
 | S24-A3 | Regulatory checks flagged in LAUNCH_REPORT.md | 24.11 | Not done | docs/LAUNCH_REPORT.md | E9 |
@@ -663,7 +663,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | S24-B5 | Admin: provider quotes | 24.12 | Done | app/roodber8/service-requests/[id] (quotes per match) | e2e:flows/service-requests.spec.ts › a guest requests… |
 | S24-B6 | Admin: commissions and lead-fee ledger with simple reports | 24.12 | Done | app/roodber8/deals, lib/admin/aggregate.ts monthlyReport | unit:aggregate.test.ts › monthly revenue and lead report; e2e:flows/service-requests.spec.ts (deal created on choice); e2e:admin/admin.spec.ts (Deals screen) |
 | S24-B7 | Admin: Property Care pipeline and managed-property records | 24.12 | Done | app/roodber8/property-care, app/roodber8/managed-properties | e2e:diaspora.spec.ts › an owner abroad requests… |
-| S24-B8 | Admin: jobs and applications moderation | 24.12 | Not done | — | E8 |
+| S24-B8 | Admin: jobs and applications moderation | 24.12 | Done | app/roodber8/jobs | e2e:jobs.spec.ts › switched live: an employer posts a job… |
 | S24-B9 | Admin: question-schema editor per service category | 24.12 | Done | app/roodber8/request-questions | e2e:flows/service-requests.spec.ts › a guest requests… |
 | S24-BA | Admin: countries and international locations in the locations editor | 24.12 | Done | app/roodber8/locations | e2e:international.spec.ts › admin adds a country and a city under it; e2e:admin/admin.spec.ts › add and rename a category, add a location |
 | S24-BB | Every new admin action audit-logged | 24.12 | Not done | — | each package + E9 test |
@@ -851,43 +851,43 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | V9-40 | Property Care: Representation of the owner | Vision §9 | Done | lib/property-care.ts CARE_SERVICES, property-care page | e2e:diaspora.spec.ts › an owner abroad requests… (services shown and chosen) |
 | V9-41 | Property Care: Managed sale on request | Vision §9 | Done | lib/property-care.ts CARE_SERVICES, property-care page | e2e:diaspora.spec.ts › an owner abroad requests… (services shown and chosen) |
 | V9-42 | Property Care: Removes dependence on friends and relatives (promise) | Vision §9 | Done | lib/property-care.ts CARE_SERVICES, property-care page | e2e:diaspora.spec.ts › an owner abroad requests… (services shown and chosen) |
-| V10-01 | Job category: Construction jobs | Vision §10 | Not done | job categories | E8 |
-| V10-02 | Job category: Engineering jobs | Vision §10 | Not done | job categories | E8 |
-| V10-03 | Job category: Architecture jobs | Vision §10 | Not done | job categories | E8 |
-| V10-04 | Job category: Skilled trades | Vision §10 | Not done | job categories | E8 |
-| V10-05 | Job category: Project-management positions | Vision §10 | Not done | job categories | E8 |
-| V10-06 | Job category: Property jobs | Vision §10 | Not done | job categories | E8 |
-| V10-07 | Job category: Estate-agency jobs | Vision §10 | Not done | job categories | E8 |
-| V10-08 | Job category: Sales positions | Vision §10 | Not done | job categories | E8 |
-| V10-09 | Job category: Site management | Vision §10 | Not done | job categories | E8 |
-| V10-10 | Job category: Quantity surveying | Vision §10 | Not done | job categories | E8 |
-| V10-11 | Job category: Procurement | Vision §10 | Not done | job categories | E8 |
-| V10-12 | Job category: Administration | Vision §10 | Not done | job categories | E8 |
-| V10-13 | Job category: Finance | Vision §10 | Not done | job categories | E8 |
-| V10-14 | Job category: Graduate opportunities | Vision §10 | Not done | job categories | E8 |
-| V10-15 | Job category: Temporary labour | Vision §10 | Not done | job categories | E8 |
-| V10-16 | Job category: Permanent recruitment | Vision §10 | Not done | job categories | E8 |
-| V10-17 | Job category: Executive recruitment | Vision §10 | Not done | job categories | E8 |
-| V10-18 | Job category: International placements | Vision §10 | Not done | job categories | E8 |
-| V10-19 | Employers advertise vacancies | Vision §10 | Not done | jobs vertical | E8 |
-| V10-20 | Employers search candidates (opted-in only) | Vision §10 | Not done | jobs vertical | E8 |
-| V10-21 | Employers request recruitment assistance | Vision §10 | Not done | jobs vertical | E8 |
-| V10-22 | Employers submit staffing requirements | Vision §10 | Not done | jobs vertical | E8 |
-| V10-23 | Candidates create profiles | Vision §10 | Not done | jobs vertical | E8 |
-| V10-24 | Candidates upload CVs | Vision §10 | Not done | jobs vertical | E8 |
-| V10-25 | Candidates list qualifications | Vision §10 | Not done | jobs vertical | E8 |
-| V10-26 | Candidates list experience | Vision §10 | Not done | jobs vertical | E8 |
-| V10-27 | Candidates search vacancies | Vision §10 | Not done | jobs vertical | E8 |
-| V10-28 | Candidates apply for jobs | Vision §10 | Not done | jobs vertical | E8 |
-| V10-29 | Candidates register for placement | Vision §10 | Not done | jobs vertical | E8 |
-| V10-30 | Revenue fields: job ads, recruitment fees, placement commissions | Vision §10 | Not done | jobs vertical | E8 |
-| V11-01 | Our Developments shows Coming Soon; no impression developments exist | Vision §11 | Not done | our-developments | E8 |
-| V11-02 | Supporting message: intends to develop selected residential and potentially commercial projects | Vision §11 | Not done | our-developments | E8 |
-| V11-03 | When live: current, coming-soon and completed developments | Vision §11 | Not done | our-developments | E8 |
-| V11-04 | When live: available units, floor plans, prices | Vision §11 | Not done | our-developments | E8 |
-| V11-05 | When live: construction progress and development updates | Vision §11 | Not done | our-developments | E8 |
-| V11-06 | When live: register interest and viewing requests | Vision §11 | Not done | our-developments | E8 |
-| V11-07 | Supply-chain advantage explained | Vision §11 | Not done | our-developments | E8 |
+| V10-01 | Job category: Construction jobs | Vision §10 | Done | lib/content/verticals.ts JOB_CATEGORIES | unit:jobs.test.ts › offers every job category |
+| V10-02 | Job category: Engineering jobs | Vision §10 | Done | lib/content/verticals.ts JOB_CATEGORIES | unit:jobs.test.ts › offers every job category |
+| V10-03 | Job category: Architecture jobs | Vision §10 | Done | lib/content/verticals.ts JOB_CATEGORIES | unit:jobs.test.ts › offers every job category |
+| V10-04 | Job category: Skilled trades | Vision §10 | Done | lib/content/verticals.ts JOB_CATEGORIES | unit:jobs.test.ts › offers every job category |
+| V10-05 | Job category: Project-management positions | Vision §10 | Done | lib/content/verticals.ts JOB_CATEGORIES | unit:jobs.test.ts › offers every job category |
+| V10-06 | Job category: Property jobs | Vision §10 | Done | lib/content/verticals.ts JOB_CATEGORIES | unit:jobs.test.ts › offers every job category |
+| V10-07 | Job category: Estate-agency jobs | Vision §10 | Done | lib/content/verticals.ts JOB_CATEGORIES | unit:jobs.test.ts › offers every job category |
+| V10-08 | Job category: Sales positions | Vision §10 | Done | lib/content/verticals.ts JOB_CATEGORIES | unit:jobs.test.ts › offers every job category |
+| V10-09 | Job category: Site management | Vision §10 | Done | lib/content/verticals.ts JOB_CATEGORIES | unit:jobs.test.ts › offers every job category |
+| V10-10 | Job category: Quantity surveying | Vision §10 | Done | lib/content/verticals.ts JOB_CATEGORIES | unit:jobs.test.ts › offers every job category |
+| V10-11 | Job category: Procurement | Vision §10 | Done | lib/content/verticals.ts JOB_CATEGORIES | unit:jobs.test.ts › offers every job category |
+| V10-12 | Job category: Administration | Vision §10 | Done | lib/content/verticals.ts JOB_CATEGORIES | unit:jobs.test.ts › offers every job category |
+| V10-13 | Job category: Finance | Vision §10 | Done | lib/content/verticals.ts JOB_CATEGORIES | unit:jobs.test.ts › offers every job category |
+| V10-14 | Job category: Graduate opportunities | Vision §10 | Done | lib/content/verticals.ts JOB_CATEGORIES | unit:jobs.test.ts › offers every job category |
+| V10-15 | Job category: Temporary labour | Vision §10 | Done | lib/content/verticals.ts JOB_CATEGORIES | unit:jobs.test.ts › offers every job category |
+| V10-16 | Job category: Permanent recruitment | Vision §10 | Done | lib/content/verticals.ts JOB_CATEGORIES | unit:jobs.test.ts › offers every job category |
+| V10-17 | Job category: Executive recruitment | Vision §10 | Done | lib/content/verticals.ts JOB_CATEGORIES | unit:jobs.test.ts › offers every job category |
+| V10-18 | Job category: International placements | Vision §10 | Done | lib/content/verticals.ts JOB_CATEGORIES | unit:jobs.test.ts › offers every job category |
+| V10-19 | Employers advertise vacancies | Vision §10 | Done | jobs vertical | e2e:jobs.spec.ts › switched live: an employer posts a job… |
+| V10-20 | Employers search candidates (opted-in only) | Vision §10 | Done | app/(account)/account/jobs/candidates | e2e:jobs.spec.ts › switched live: an employer posts a job… (opted-in candidate found, no contact details) |
+| V10-21 | Employers request recruitment assistance | Vision §10 | Done | 0019 staffing | e2e:jobs.spec.ts › staffing requirements… |
+| V10-22 | Employers submit staffing requirements | Vision §10 | Done | 0019 staffing | e2e:jobs.spec.ts › staffing requirements… |
+| V10-23 | Candidates create profiles | Vision §10 | Done | app/(account)/account/candidate | e2e:jobs.spec.ts › switched live: an employer posts a job… |
+| V10-24 | Candidates upload CVs | Vision §10 | Done | cv upload | e2e:jobs.spec.ts › switched live: an employer posts a job… |
+| V10-25 | Candidates list qualifications | Vision §10 | Done | candidate_profiles.qualifications | unit:jobs.test.ts; e2e:jobs.spec.ts › switched live: an employer posts a job… |
+| V10-26 | Candidates list experience | Vision §10 | Done | candidate_profiles.experience | unit:jobs.test.ts; e2e:jobs.spec.ts › switched live: an employer posts a job… |
+| V10-27 | Candidates search vacancies | Vision §10 | Done | app/(site)/jobs | e2e:jobs.spec.ts › switched live: an employer posts a job… |
+| V10-28 | Candidates apply for jobs | Vision §10 | Done | applyForJobAction | e2e:jobs.spec.ts › switched live: an employer posts a job… |
+| V10-29 | Candidates register for placement | Vision §10 | Done | candidate_profiles.placement_wanted | unit:jobs.test.ts (placement flag); CandidateForm |
+| V10-30 | Revenue fields: job ads, recruitment fees, placement commissions | Vision §10 | Done | deals ledger (E3) for recruitment fees and placement commissions; paid job ads deferred with payments (25.3) | LAUNCH_REPORT E8 decision; e2e:service-requests deals tests (E3) |
+| V11-01 | Our Developments shows Coming Soon; no impression developments exist | Vision §11 | Done | our-developments coming soon | e2e:jobs.spec.ts › Our Developments… |
+| V11-02 | Supporting message: intends to develop selected residential and potentially commercial projects | Vision §11 | Done | lib/content/verticals.ts | e2e:jobs.spec.ts › Our Developments… |
+| V11-03 | When live: current, coming-soon and completed developments | Vision §11 | Done | app/(site)/our-developments | e2e:jobs.spec.ts › Our Developments … grouped by stage |
+| V11-04 | When live: available units, floor plans, prices | Vision §11 | Done | DevelopmentDetail (units, plans, prices) | e2e:jobs.spec.ts › Our Developments … live (unit types and prices on the project page) |
+| V11-05 | When live: construction progress and development updates | Vision §11 | Done | ProgressTimeline | e2e:jobs.spec.ts › a developer posts a progress update… |
+| V11-06 | When live: register interest and viewing requests | Vision §11 | Done | RegisterInterest on /our-developments/[slug] | e2e:jobs.spec.ts › Our Developments … live (register interest or book a visit); e2e:flows/supplies-and-contact.spec.ts › register interest in HagerLand Developments |
+| V11-07 | Supply-chain advantage explained | Vision §11 | Done | our-developments | e2e:jobs.spec.ts › Our Developments (HagerLand Supply message) |
 | V12-01 | Verticals cross-link as one ecosystem (land → finance → architect → engineer → contractor → materials → insurance → maintenance → sell/rent → recruit) | Vision: model/positioning/launch | Not done | — | E1/E9 |
 | V12-02 | Positioning: not only a supplier, agent or directory | Vision: model/positioning/launch | Not done | — | E1/E9 |
 | V12-03 | Ten-vertical top-level structure | Vision: model/positioning/launch | Done | lib/verticals.ts | e2e:verticals.spec.ts › homepage shows… ten ecosystem tiles |
@@ -930,15 +930,15 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | X-252-19 | Team members: invite by email, roles, remove | 25.2i | Not done | — | H3 |
 | X-252-20 | Ownership transfer with last-owner protection | 25.2i | Not done | — | H3 |
 | X-252-21 | Agent/company branches | 25.2i | Not done | — | H3 |
-| X-252-22 | Development progress updates (dated posts with photos) | 25.2j | Not done | — | E8 |
+| X-252-22 | Development progress updates (dated posts with photos) | 25.2j | Done | 0019 development_updates, UpdateForm, ProgressTimeline | e2e:jobs.spec.ts › a developer posts a progress update with photos… |
 | X-252-23 | Deals/commission tracking linked to enquiries and service requests | 25.2k | Done | 0014 deals, chooseQuoteAction, app/roodber8/deals | e2e:flows/service-requests.spec.ts › a guest requests… (deal won with value); admin deals form |
 | X-252-24 | Monthly revenue and lead reports with CSV | 25.2k | Done | app/roodber8/deals, export report-revenue | unit:aggregate.test.ts › monthly revenue and lead report; e2e:admin/admin.spec.ts (Deals screen) |
 | X-252-25 | Path-based property-type SEO pages respecting min-results noindex | 25.2l | Done | lib/property-type-paths.ts, lib/property-pages.ts, sitemap typePathCounts | unit:e6-helpers.test.ts › property type paths; unit:sitemap.test.ts › property-type pages; e2e:property-extras.spec.ts › property-type pages, canonicals… |
 | X-252-26 | i18n architecture for UI text | 25.2m | Not done | — | H4 |
 | X-252-27 | /am locale with hreflang and Ethiopic font | 25.2m | Not done | — | H4 |
 | X-252-28 | Machine-assisted Amharic marked needs native review; locale off by default behind admin switch | 25.2m | Not done | — | H4 |
-| X-252-29 | /api/health public ok/version only | 25.2n | Not done | — | H5 |
-| X-252-30 | /api/health/full with CRON_SECRET bearer: env presence, DB, Resend domain, buckets, migrations — booleans only | 25.2n | Not done | — | H5 |
+| X-252-29 | /api/health public ok/version only | 25.2n | Done | app/api/health/route.ts | e2e:health.spec.ts › the public health check says only ok and version |
+| X-252-30 | /api/health/full with CRON_SECRET bearer: env presence, DB, Resend domain, buckets, migrations — booleans only | 25.2n | Done | app/api/health/full/route.ts, lib/health.ts | e2e:health.spec.ts › the full health check needs the cron secret and reports booleans only; unit:health.test.ts (expected migrations = files) |
 | X-253-01 | Online payments/checkout (Chapa, Telebirr, cards): integration point + admin 'not configured' | 25.3 | Deferred-by-rule | lib/integrations/* | listed in LAUNCH_REPORT Phase 3 |
 | X-253-02 | SMS/phone OTP login: integration point | 25.3 | Deferred-by-rule | lib/integrations/* | listed in LAUNCH_REPORT Phase 3 |
 | X-253-03 | WhatsApp Business API notifications: integration point | 25.3 | Deferred-by-rule | lib/integrations/* | listed in LAUNCH_REPORT Phase 3 |
@@ -1018,7 +1018,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | X-SEC-10 | Client-bundle secret scan | 25.4 | Not done | — | H6/E9 |
 | X-SEC-11 | npm audit: no high/critical unaddressed | 25.4 | Not done | — | H6/E9 |
 | X-PRIV-01 | Retention purge: verification docs | 25.4 | Not done | — | H6/E9 |
-| X-PRIV-02 | Retention purge: CVs | 25.4 | Not done | — | H6/E9 |
+| X-PRIV-02 | Retention purge: CVs | 25.4 | Done | lib/cron/daily.ts purgeApplicationCvs | e2e:jobs.spec.ts › …the daily job closes old jobs and deletes old CVs |
 | X-PRIV-03 | Retention purge: contact reveals | 25.4 | Not done | — | H6/E9 |
 | X-PRIV-04 | Retention purge: rate limits | 25.4 | Not done | — | H6/E9 |
 | X-PRIV-05 | Retention purge: stale interest registrations | 25.4 | Not done | — | H6/E9 |
@@ -1047,7 +1047,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | X-OPS-04 | Cron: email retries | 25.4 | Not done | — | H6/E9 |
 | X-OPS-05 | Cron: retention purges | 25.4 | Not done | — | H6/E9 |
 | X-OPS-06 | Cron: featured sync | 25.4 | Not done | — | H6/E9 |
-| X-OPS-07 | Admin digest includes interest registrations, service requests, Property Care leads, applications, partner applications | 25.4 | Not done | lib/cron/daily.ts | interest, partner, service requests and Property Care leads in digest; job applications pending (E8) |
+| X-OPS-07 | Admin digest includes interest registrations, service requests, Property Care leads, applications, partner applications | 25.4 | Done | lib/cron/daily.ts | interest, partner, service requests, Property Care (E1–E5); job applications, jobs and progress updates pending review (E8) |
 | X-LEG-01 | Every old URL redirects per Section 20 | 25.4 | Not done | — | H6/E9 |
 | X-LEG-02 | Old API endpoints return 410 | 25.4 | Not done | — | H6/E9 |
 | X-LEG-03 | Legacy lockdown migration and reverse script ready | 25.4 | Not done | — | H6/E9 |

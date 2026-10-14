@@ -3,7 +3,7 @@ import type { AccountNavItem } from '@/components/account/AccountNav'
 import type { Membership } from '@/lib/auth'
 
 /** Account menu items, adapted to what the user's organisation does (spec 7.3). */
-export function accountNavItems(active: Membership | null, newEnquiries: number, newMatches = 0): AccountNavItem[] {
+export function accountNavItems(active: Membership | null, newEnquiries: number, newMatches = 0, jobsLive = false): AccountNavItem[] {
   const kind = active?.org.kind
   const items: AccountNavItem[] = [{ href: '/account', label: 'Overview', icon: 'overview' }]
   if (!kind || ['agency', 'developer', 'hagerland'].includes(kind)) items.push({ href: '/account/listings', label: 'Listings', icon: 'listings' })
@@ -13,7 +13,10 @@ export function accountNavItems(active: Membership | null, newEnquiries: number,
   items.push({ href: '/account/enquiries', label: 'Enquiries', icon: 'enquiries', badge: newEnquiries || undefined })
   // Requests HagerLand matched to the business (spec 24.5).
   if (active) items.push({ href: '/account/requests', label: 'Customer requests', icon: 'leads', badge: newMatches || undefined })
+  // Jobs & Recruitment (spec 24.9), only while the vertical is live.
+  if (jobsLive && active) items.push({ href: '/account/jobs', label: 'Jobs', icon: 'jobs' })
   items.push({ href: '/account/service-requests', label: 'My service requests', icon: 'requests' })
+  if (jobsLive) items.push({ href: '/account/applications', label: 'My job applications', icon: 'applications' }, { href: '/account/candidate', label: 'Candidate profile', icon: 'candidate' })
   items.push({ href: '/account/quotes', label: 'Quotes', icon: 'quotes' })
   items.push({ href: '/account/saved', label: 'Saved', icon: 'saved' })
   items.push({ href: '/account/alerts', label: 'Search alerts', icon: 'alerts' })

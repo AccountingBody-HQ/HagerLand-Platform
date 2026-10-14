@@ -5,7 +5,7 @@ import { countMedia, createIncomingUpload, isAllowedUpload, mediaLimit } from '@
 import { rateLimit } from '@/lib/rate-limit'
 import { getClientIp, hashIp } from '@/lib/security'
 import { log } from '@/lib/log'
-import { PRIVATE_AREAS } from '@/lib/media'
+import { CV_TYPES, PRIVATE_AREAS } from '@/lib/media'
 
 const bodySchema = z.discriminatedUnion('purpose', [
   z.object({
@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
   const scope: UploadScope = b.purpose === 'media' ? { purpose: 'media', entityType: b.entity_type, entityId: b.entity_id } : { purpose: 'private', area: b.area, id: b.id }
   if (!(await canUpload(scope))) return NextResponse.json({ error: 'You cannot upload files here.' }, { status: 403 })
 
+  if (b.purpose === 'private' && b.area === 'cv' && !CV_TYPES.includes(b.content_type)) return NextResponse.json({ error: 'Upload your CV as a PDF or Word (.docx) file.' }, { status: 400 })
   const problem = isAllowedUpload(b.purpose === 'media' ? b.kind : 'private', b.content_type, b.size)
   if (problem) return NextResponse.json({ error: problem }, { status: 400 })
 

@@ -6,7 +6,7 @@ import { z } from 'zod'
 import type { Database } from '@/lib/database.types'
 import { getServerSupabase } from '@/lib/supabase/server'
 import { getActiveMembership, requireUser } from '@/lib/auth'
-import { developmentSchema, type DevelopmentInput } from '@/lib/validation/development'
+import { developmentSchema, developmentUpdateSchema, type DevelopmentInput } from '@/lib/validation/development'
 import { fail, invalid, ok, type ActionResult } from '@/lib/action-result'
 import { shortId, slugify } from '@/lib/slug'
 import { revalidateEntity } from '@/lib/revalidate'
@@ -88,4 +88,19 @@ export async function submitDevelopmentAction(id: string): Promise<ActionResult>
   revalidateEntity('development', id)
   revalidatePath(`/account/developments/${id}`)
   return ok(undefined, 'Submitted for review.')
+}
+
+/** A developer posts a construction-progress update; HagerLand reviews it before it appears (spec 25.2j). */
+export async function postDevelopmentUpdateAction(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
+  await requireUser('/account/developments')
+  const parsed = developmentUpdateSchema.safeParse(Object.fromEntries(formData))
+  if (!parsed.success) return invalid(parsed.error)
+  const d = parsed.data
+  const { error } = await getServerSupabase().from('development_updates').insert({ development_id: d.development_id, title: d.title, body: d.body, happened_on: d.happened_on, photo_paths: d.photo_paths, status: 'pending_review' })
+  if (error) {
+    log.error('development', 'update post failed', error)
+    return fail('We could not post the update. Please try again.')
+  }
+  revalidatePath(`/account/developments/${d.development_id}`)
+  return ok(undefined, 'Thanks. Your update will appear on the development page once HagerLand has reviewed it.')
 }

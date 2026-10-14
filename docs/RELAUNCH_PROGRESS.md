@@ -45,12 +45,12 @@ Authorised by AB on 13 Oct 2026 (brief: `docs/BRIEF_PHASE_1_5_AND_GO_LIVE.md`), 
 | E5 | Diaspora services and HagerLand Property Care | done | 2026-10-14 | see git log | Migration 0016. RLS 67/67 local. 214 e2e passed |
 | E6 | Estate agency services, save, compare, valuation, finance ask (+ 25.2a saved items/searches/alerts, 25.2b map, 25.2l path SEO pages) | done | 2026-10-14 | see git log | Migration 0017. RLS 74/74 local. 234+ e2e passed (re-runs of fixed tests green). Leaflet 1.9.4 added |
 | E7 | Finance and insurance (coming soon, partner forms; live pages on the request engine) | done | 2026-10-14 | see git log | Migration 0018. RLS 74/74 local. 242 e2e + 149 unit passed (one test-data fix re-run green) |
-| E8 | Jobs & recruitment (full, flagged coming soon) and Our Developments coming soon (+ 25.2j progress updates) | todo | | | |
+| E8 | Jobs & Recruitment (built, coming soon) + Our Developments coming soon + 25.2j development progress updates | done | 2026-10-14 | see git log | Migration 0019. RLS 96/96 local. Jobs spec 7 passed + full regression; site search covers jobs when live; privacy policy CV retention added |
 | H1 | Supplies marketplace: supplier self-serve products, Special Buys, trade accounts (25.2c, d, e) | todo | | | |
 | H2 | Guides hub and build-cost estimator (25.2g, h) | todo | | | |
 | H3 | Organisation team members and branches (25.2i) | todo | | | |
 | H4 | Amharic i18n architecture, /am locale behind an admin switch (25.2m) | todo | | | |
-| H5 | Health endpoints (25.2n) | todo | | | |
+| H5 | Health endpoints (25.2n) | done | 2026-10-14 | see git log | `/api/health`, `/api/health/full` (CRON_SECRET; booleans only). e2e health spec + unit test passed |
 | H6 | Edge cases and cross-cutting hardening (25.4) | todo | | | |
 | E9 | Content, legal, admin additions, SEO, full QA pass | todo | | | |
 | E10 | Next.js 15 upgrade (or clean revert with reasons), npm audit | todo | | | |

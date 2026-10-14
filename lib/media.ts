@@ -4,8 +4,9 @@ export type MediaEntity = 'property' | 'development' | 'organisation' | 'portfol
 export type MediaKind = 'image' | 'floorplan' | 'document' | 'logo' | 'cover'
 
 /** Private upload areas: verification and claim evidence, materials lists, admin quotes, brochures,
- * service-request attachments ("request"), provider quote documents ("match") and Property Care inspection photos ("inspection", admin only). */
-export const PRIVATE_AREAS = ['verification', 'claim', 'materials', 'quote', 'brochure', 'request', 'match', 'inspection'] as const
+ * service-request attachments ("request"), provider quote documents ("match"), Property Care inspection photos ("inspection", admin only)
+ * and job seekers' CVs ("cv", in the user's own folder). */
+export const PRIVATE_AREAS = ['verification', 'claim', 'materials', 'quote', 'brochure', 'request', 'match', 'inspection', 'cv'] as const
 export type PrivateArea = (typeof PRIVATE_AREAS)[number]
 
 export const PUBLIC_BUCKET = 'public-media'
@@ -22,6 +23,8 @@ export const DOC_TYPES = [
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'application/msword',
 ]
+/** CVs: PDF or Word (.docx) only (spec 24.9). */
+export const CV_TYPES = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
 export const MAX_IMAGE_BYTES = 12 * 1024 * 1024
 export const MAX_DOC_BYTES = 15 * 1024 * 1024
 

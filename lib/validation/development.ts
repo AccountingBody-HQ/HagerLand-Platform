@@ -43,3 +43,15 @@ export const developmentSchema = z.object({
 })
 
 export type DevelopmentInput = z.infer<typeof developmentSchema>
+
+/** A construction-progress post on a development (spec 25.2j). Photos are paths returned by the upload step. */
+export const developmentUpdateSchema = z
+  .object({
+    development_id: z.uuid(),
+    title: textSchema(160, { min: 3, label: 'Title' }),
+    body: textSchema(4000, { min: 10, label: 'What happened' }),
+    happened_on: z.iso.date({ error: 'Enter the date' }),
+    photo_paths: z.preprocess((v) => (typeof v === 'string' && v ? v.split('\n').filter(Boolean) : []), z.array(z.string().max(300)).max(12, 'Up to 12 photos')),
+  })
+  .refine((d) => d.photo_paths.every((p) => p.startsWith(`development/${d.development_id}/`) && p.endsWith('.webp') && !p.includes('..')), { message: 'Please upload the photos again.', path: ['photo_paths'] })
+  .refine((d) => new Date(d.happened_on) <= new Date(Date.now() + 86_400_000), { message: 'The date cannot be in the future', path: ['happened_on'] })

@@ -272,6 +272,76 @@ exception when insufficient_privilege then
   return true;
 end $$;
 
+-- ---------- Jobs, applications, candidates, development updates (0019) ----------
+reset role;
+-- The employer organisation (owned by user 1) is approved and live for these checks.
+update public.organisations set status = 'published' where id = '00000000-0000-4000-8000-0000000000b1';
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000001", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', false);
+insert into public.jobs (id, slug, employer_org_id, title, category, employment_type, location_id, description, status)
+select '00000000-0000-4000-8000-0000000000d1', 'rls-test-job', '00000000-0000-4000-8000-0000000000b1', 'RLS TEST site engineer', 'engineering', 'full_time',
+  (select id from public.locations where path = 'addis-ababa/bole'), 'A test job description that is long enough to pass.', 'pending_review';
+select pg_temp.record_check('Employer member can post a job for review', exists (select 1 from public.jobs where id = '00000000-0000-4000-8000-0000000000d1'));
+do $$ begin
+  update public.jobs set status = 'published' where id = '00000000-0000-4000-8000-0000000000d1';
+  perform pg_temp.record_check('Employer cannot publish their own job', false);
+exception when insufficient_privilege then
+  perform pg_temp.record_check('Employer cannot publish their own job', true);
+end $$;
+reset role;
+update public.jobs set status = 'published' where id = '00000000-0000-4000-8000-0000000000d1';
+select pg_temp.record_check('Approving a job sets its expiry', (select expires_at > now() + interval '59 days' from public.jobs where id = '00000000-0000-4000-8000-0000000000d1'));
+insert into public.job_applications (id, job_id, applicant_user_id, name, email, cv_path)
+values ('00000000-0000-4000-8000-0000000000d2', '00000000-0000-4000-8000-0000000000d1', '00000000-0000-4000-8000-000000000002', 'Other Test', 'rls-other@test.hagerland.invalid', 'docs/cv/00000000-0000-4000-8000-000000000002/test.pdf');
+set role authenticated;
+select pg_temp.record_check('Employer reads applications to their job', exists (select 1 from public.job_applications where id = '00000000-0000-4000-8000-0000000000d2'));
+update public.job_applications set status = 'shortlisted' where id = '00000000-0000-4000-8000-0000000000d2';
+select pg_temp.record_check('Employer can shortlist an application', (select status from public.job_applications where id = '00000000-0000-4000-8000-0000000000d2') = 'shortlisted');
+do $$ begin
+  update public.job_applications set cv_path = 'docs/cv/x.pdf' where id = '00000000-0000-4000-8000-0000000000d2';
+  perform pg_temp.record_check('Employer cannot change the applicant''s CV', false);
+exception when insufficient_privilege then
+  perform pg_temp.record_check('Employer cannot change the applicant''s CV', true);
+end $$;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000002", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000002', false);
+select pg_temp.record_check('Applicant reads their own application', exists (select 1 from public.job_applications where id = '00000000-0000-4000-8000-0000000000d2'));
+do $$ begin
+  insert into public.job_applications (job_id, applicant_user_id, name, email) values ('00000000-0000-4000-8000-0000000000d1', '00000000-0000-4000-8000-000000000002', 'Again', 'a@test.invalid');
+  perform pg_temp.record_check('Applications are only created by the server', false);
+exception when insufficient_privilege then
+  perform pg_temp.record_check('Applications are only created by the server', true);
+end $$;
+with changed as (update public.jobs set title = 'RLS TEST hijacked' where id = '00000000-0000-4000-8000-0000000000d1' returning 1)
+select pg_temp.record_check('Non-member cannot edit the job', (select count(*) from changed) = 0);
+insert into public.candidate_profiles (user_id, full_name, skills, cv_path) values ('00000000-0000-4000-8000-000000000002', 'Other Test', '{AutoCAD}', 'docs/cv/00000000-0000-4000-8000-000000000002/test.pdf');
+select pg_temp.record_check('Candidate profile is private by default', (select visibility from public.candidate_profiles where user_id = '00000000-0000-4000-8000-000000000002') = 'private');
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000001", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', false);
+select pg_temp.record_check('Employer cannot read candidate profiles directly', not exists (select 1 from public.candidate_profiles));
+select pg_temp.record_check('Private candidates are not shown to employers', not exists (select 1 from public.candidates_for_employers));
+reset role;
+update public.candidate_profiles set visibility = 'employers' where user_id = '00000000-0000-4000-8000-000000000002';
+set role authenticated;
+select pg_temp.record_check('Opted-in candidates are shown to employers', exists (select 1 from public.candidates_for_employers where candidate_id = '00000000-0000-4000-8000-000000000002'));
+do $$ begin
+  perform cv_path from public.candidates_for_employers limit 1;
+  perform pg_temp.record_check('Employers never see candidate CVs', false);
+exception when undefined_column then
+  perform pg_temp.record_check('Employers never see candidate CVs', true);
+end $$;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000002", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000002', false);
+select pg_temp.record_check('Users who are not employers see no candidates', not exists (select 1 from public.candidates_for_employers));
+reset role;
+set role anon;
+select pg_temp.record_check('Anonymous sees the approved job in the public view', exists (select 1 from public.jobs_public where id = '00000000-0000-4000-8000-0000000000d1'));
+select pg_temp.record_check('Anonymous cannot read ' || name, pg_temp.read_denied(name)) from unnest(array['jobs', 'job_applications', 'candidate_profiles', 'candidates_for_employers', 'development_updates']) as t(name);
+reset role;
+update public.jobs set status = 'paused' where id = '00000000-0000-4000-8000-0000000000d1';
+set role anon;
+select pg_temp.record_check('Paused jobs leave the public view', not exists (select 1 from public.jobs_public where id = '00000000-0000-4000-8000-0000000000d1'));
+reset role;
+delete from public.candidate_profiles where user_id = '00000000-0000-4000-8000-000000000002';
+delete from public.jobs where id = '00000000-0000-4000-8000-0000000000d1';
+
 -- Tables only the server (service role) may touch: anonymous and signed-in users are refused.
 select set_config('hl.private_tables', 'schema_migrations,verticals,interest_registrations,partner_applications,exchange_rates,deals,property_care_requests,managed_properties,property_inspections,rent_statements,maintenance_log', false);
 

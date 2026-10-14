@@ -1,7 +1,7 @@
 import 'server-only'
 import { revalidatePath, revalidateTag } from 'next/cache'
 
-export type EntityKind = 'property' | 'development' | 'organisation' | 'product' | 'portfolio'
+export type EntityKind = 'property' | 'development' | 'organisation' | 'product' | 'portfolio' | 'job'
 
 /** Cache tag for one record, e.g. tag('property', id). */
 export function tag(kind: EntityKind, id: string): string {

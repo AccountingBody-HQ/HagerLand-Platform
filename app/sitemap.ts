@@ -6,6 +6,7 @@ import { countByAncestors, indexablePaths, SITEMAP_IDS, typePathCounts, type Sit
 import { log } from '@/lib/log'
 import { listTag } from '@/lib/revalidate'
 import { getVerticals } from '@/lib/data/verticals'
+import { jobSitemapEntries } from '@/lib/data/jobs'
 import { verticalForPath, verticalHref, type VerticalKey } from '@/lib/verticals'
 
 export const revalidate = 3600
@@ -33,6 +34,7 @@ const SITEMAP_VERTICAL: Partial<Record<SitemapId, VerticalKey>> = {
   products: 'building-supplies',
   categories: 'building-supplies',
   professionals: 'professionals',
+  jobs: 'jobs',
 }
 
 async function build(id: SitemapId): Promise<MetadataRoute.Sitemap> {
@@ -107,6 +109,8 @@ async function build(id: SitemapId): Promise<MetadataRoute.Sitemap> {
       }
       return out
     }
+    case 'jobs':
+      return (await jobSitemapEntries()).map((j) => entry(`/jobs/${j.slug}`, j.updated_at))
     case 'categories': {
       const [{ data }, tree] = await Promise.all([db.from('products_public').select('category_id, category_parent_id').limit(LIMIT), getProductCategories()])
       const used = new Set((data ?? []).flatMap((r) => [r.category_id, r.category_parent_id]).filter(Boolean))
