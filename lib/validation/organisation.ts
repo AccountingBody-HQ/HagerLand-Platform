@@ -39,6 +39,7 @@ export const organisationSchema = z.object({
   team_size: z.preprocess((v) => (v === '' ? undefined : v), z.enum(['1', '2-5', '6-20', '21-50', '51-200', '200+']).optional()),
   licence_category: optionalText(80, 'Licence category'),
   licence_grade: optionalText(20, 'Licence grade'),
+  qualifications: optionalText(2000, 'Qualifications'),
   confirm_new: z.preprocess((v) => v === '1', z.boolean()),
   existing_id: optionalUuid,
 })

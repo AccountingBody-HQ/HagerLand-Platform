@@ -41,6 +41,7 @@ function orgColumns(d: OrganisationInput) {
     team_size: d.team_size ?? null,
     licence_category: d.licence_category ?? null,
     licence_grade: d.licence_grade ?? null,
+    qualifications: d.qualifications ?? null,
   }
 }
 

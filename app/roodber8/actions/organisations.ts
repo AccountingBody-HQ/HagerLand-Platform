@@ -46,6 +46,7 @@ export async function saveAdminOrgAction(_prev: OrgFormState | null, formData: F
     team_size: d.team_size ?? null,
     licence_category: d.licence_category ?? null,
     licence_grade: d.licence_grade ?? null,
+    qualifications: d.qualifications ?? null,
   }
   if (!d.existing_id) {
     const { data, error } = await db

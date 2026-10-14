@@ -172,6 +172,12 @@ export default async function CompanyPage({ params }: { params: { slug: string }
                   </ul>
                 </div>
               )}
+              {o.qualifications && (
+                <div>
+                  <h3 className="mb-2 text-small font-semibold">Qualifications and memberships</h3>
+                  <p className="whitespace-pre-line text-ink">{o.qualifications}</p>
+                </div>
+              )}
               {(o.licence_category || o.licence_grade) && (
                 <dl className="grid gap-4 rounded-lg border border-border p-4 sm:grid-cols-2">
                   {o.licence_category && (

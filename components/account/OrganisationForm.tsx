@@ -40,6 +40,7 @@ export interface OrgFormDefaults {
   team_size?: string | null
   licence_category?: string | null
   licence_grade?: string | null
+  qualifications?: string | null
 }
 
 export function OrganisationForm({
@@ -246,6 +247,9 @@ export function OrganisationForm({
               </Field>
             </>
           )}
+          <Field label="Qualifications and memberships" htmlFor="org-qual" optional className="sm:col-span-2" hint="Degrees, professional registrations and memberships, e.g. “BSc Civil Engineering, Addis Ababa University; registered with the Ethiopian Engineers Association”." error={errors.qualifications}>
+            <Textarea id="org-qual" name="qualifications" rows={3} maxLength={2000} defaultValue={defaults.qualifications ?? ''} />
+          </Field>
         </div>
       </fieldset>
 

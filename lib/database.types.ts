@@ -779,6 +779,153 @@ export type Database = {
           },
         ]
       }
+      maintenance_log: {
+        Row: {
+          cost_minor: number | null
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          logged_on: string
+          managed_property_id: string
+          service_request_id: string | null
+          status: string
+          title: string
+        }
+        ComputedFields: never
+        Insert: {
+          cost_minor?: number | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          logged_on: string
+          managed_property_id: string
+          service_request_id?: string | null
+          status?: string
+          title: string
+        }
+        Update: {
+          cost_minor?: number | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          logged_on?: string
+          managed_property_id?: string
+          service_request_id?: string | null
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'maintenance_log_managed_property_id_fkey'
+            columns: ['managed_property_id']
+            isOneToOne: false
+            referencedRelation: 'managed_properties'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'maintenance_log_service_request_id_fkey'
+            columns: ['service_request_id']
+            isOneToOne: false
+            referencedRelation: 'service_requests'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'maintenance_log_service_request_id_fkey'
+            columns: ['service_request_id']
+            isOneToOne: false
+            referencedRelation: 'service_requests_for_provider'
+            referencedColumns: ['request_id']
+          },
+        ]
+      }
+      managed_properties: {
+        Row: {
+          address_line: string | null
+          care_request_id: string | null
+          created_at: string
+          currency: string
+          id: string
+          location_id: string | null
+          monthly_fee_minor: number | null
+          notes: string | null
+          owner_country_code: string | null
+          owner_email: string | null
+          owner_name: string
+          owner_phone: string | null
+          owner_user_id: string | null
+          property_type: string | null
+          reference: string
+          services: string[]
+          start_date: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          address_line?: string | null
+          care_request_id?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          location_id?: string | null
+          monthly_fee_minor?: number | null
+          notes?: string | null
+          owner_country_code?: string | null
+          owner_email?: string | null
+          owner_name: string
+          owner_phone?: string | null
+          owner_user_id?: string | null
+          property_type?: string | null
+          reference?: string
+          services?: string[]
+          start_date?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          address_line?: string | null
+          care_request_id?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          location_id?: string | null
+          monthly_fee_minor?: number | null
+          notes?: string | null
+          owner_country_code?: string | null
+          owner_email?: string | null
+          owner_name?: string
+          owner_phone?: string | null
+          owner_user_id?: string | null
+          property_type?: string | null
+          reference?: string
+          services?: string[]
+          start_date?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'managed_properties_care_request_id_fkey'
+            columns: ['care_request_id']
+            isOneToOne: false
+            referencedRelation: 'property_care_requests'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'managed_properties_location_id_fkey'
+            columns: ['location_id']
+            isOneToOne: false
+            referencedRelation: 'locations'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       media: {
         Row: {
           alt: string | null
@@ -995,6 +1142,7 @@ export type Database = {
           phone: string | null
           plan: string
           published_at: string | null
+          qualifications: string | null
           rejection_reason: string | null
           search_tsv: unknown
           serves_diaspora: boolean
@@ -1047,6 +1195,7 @@ export type Database = {
           phone?: string | null
           plan?: string
           published_at?: string | null
+          qualifications?: string | null
           rejection_reason?: string | null
           search_tsv?: never
           serves_diaspora?: boolean
@@ -1098,6 +1247,7 @@ export type Database = {
           phone?: string | null
           plan?: string
           published_at?: string | null
+          qualifications?: string | null
           rejection_reason?: string | null
           search_tsv?: never
           serves_diaspora?: boolean
@@ -1839,6 +1989,144 @@ export type Database = {
           },
         ]
       }
+      property_care_requests: {
+        Row: {
+          admin_notes: string | null
+          city: string | null
+          consent_at: string | null
+          contact_time: string | null
+          country_code: string
+          created_at: string
+          email: string
+          id: string
+          ip_hash: string | null
+          marketing_consent: boolean
+          message: string | null
+          name: string
+          occupancy: string
+          phone: string
+          preferred_contact: string | null
+          property_location_id: string | null
+          property_location_text: string | null
+          property_type: string
+          reference: string
+          services: string[]
+          source_url: string | null
+          status: string
+          time_zone: string | null
+          updated_at: string
+          user_id: string | null
+          utm: Json | null
+        }
+        ComputedFields: never
+        Insert: {
+          admin_notes?: string | null
+          city?: string | null
+          consent_at?: string | null
+          contact_time?: string | null
+          country_code: string
+          created_at?: string
+          email: string
+          id?: string
+          ip_hash?: string | null
+          marketing_consent?: boolean
+          message?: string | null
+          name: string
+          occupancy: string
+          phone: string
+          preferred_contact?: string | null
+          property_location_id?: string | null
+          property_location_text?: string | null
+          property_type: string
+          reference?: string
+          services?: string[]
+          source_url?: string | null
+          status?: string
+          time_zone?: string | null
+          updated_at?: string
+          user_id?: string | null
+          utm?: Json | null
+        }
+        Update: {
+          admin_notes?: string | null
+          city?: string | null
+          consent_at?: string | null
+          contact_time?: string | null
+          country_code?: string
+          created_at?: string
+          email?: string
+          id?: string
+          ip_hash?: string | null
+          marketing_consent?: boolean
+          message?: string | null
+          name?: string
+          occupancy?: string
+          phone?: string
+          preferred_contact?: string | null
+          property_location_id?: string | null
+          property_location_text?: string | null
+          property_type?: string
+          reference?: string
+          services?: string[]
+          source_url?: string | null
+          status?: string
+          time_zone?: string | null
+          updated_at?: string
+          user_id?: string | null
+          utm?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'property_care_requests_property_location_id_fkey'
+            columns: ['property_location_id']
+            isOneToOne: false
+            referencedRelation: 'locations'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      property_inspections: {
+        Row: {
+          condition: string
+          created_at: string
+          id: string
+          inspected_on: string
+          inspector: string | null
+          managed_property_id: string
+          notes: string | null
+          photo_paths: string[]
+        }
+        ComputedFields: never
+        Insert: {
+          condition: string
+          created_at?: string
+          id?: string
+          inspected_on: string
+          inspector?: string | null
+          managed_property_id: string
+          notes?: string | null
+          photo_paths?: string[]
+        }
+        Update: {
+          condition?: string
+          created_at?: string
+          id?: string
+          inspected_on?: string
+          inspector?: string | null
+          managed_property_id?: string
+          notes?: string | null
+          photo_paths?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'property_inspections_managed_property_id_fkey'
+            columns: ['managed_property_id']
+            isOneToOne: false
+            referencedRelation: 'managed_properties'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       quote_request_items: {
         Row: {
           created_at: string
@@ -2022,6 +2310,57 @@ export type Database = {
           year?: number
         }
         Relationships: []
+      }
+      rent_statements: {
+        Row: {
+          created_at: string
+          currency: string
+          expenses_minor: number
+          fees_minor: number
+          id: string
+          managed_property_id: string
+          notes: string | null
+          period_end: string
+          period_start: string
+          rent_due_minor: number
+          rent_received_minor: number
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          currency?: string
+          expenses_minor?: number
+          fees_minor?: number
+          id?: string
+          managed_property_id: string
+          notes?: string | null
+          period_end: string
+          period_start: string
+          rent_due_minor?: number
+          rent_received_minor?: number
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          expenses_minor?: number
+          fees_minor?: number
+          id?: string
+          managed_property_id?: string
+          notes?: string | null
+          period_end?: string
+          period_start?: string
+          rent_due_minor?: number
+          rent_received_minor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'rent_statements_managed_property_id_fkey'
+            columns: ['managed_property_id']
+            isOneToOne: false
+            referencedRelation: 'managed_properties'
+            referencedColumns: ['id']
+          },
+        ]
       }
       reports: {
         Row: {
@@ -2802,6 +3141,7 @@ export type Database = {
           name: string | null
           opening_hours: Json | null
           published_at: string | null
+          qualifications: string | null
           search_tsv: unknown
           serves_diaspora: boolean | null
           short_id: string | null

@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "bash scripts/with-test-env.sh playwright test",
-    "test:e2e:build": "bash scripts/with-test-env.sh next build",
+    "test:e2e:build": "rm -rf .next-test && bash scripts/with-test-env.sh next build",
     "stack": "bash supabase/local-stack/setup.sh"
   },
   "dependencies": {

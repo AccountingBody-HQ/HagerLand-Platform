@@ -169,6 +169,24 @@ select (select count(*) from information_schema.tables where table_schema = 'pub
 ```
 **You should see:** `3 | 0 | 1`
 
+## 0015_repairs_contractors.sql (Phase 1.5, E4)
+**What it does:** adds the "Repairs & maintenance" services (plumbing and electrical repairs, roofing,
+locksmiths, drainage, inspections, preventative maintenance, emergency repairs and more), extra contractor
+types (house builders, electrical and plumbing contractors, interior fit-out, groundworks) and extra
+professional types (electrical and mechanical engineers, planning consultants, construction managers,
+property consultants, accountants, insurance professionals, environmental consultants). Each repair service
+comes with a few questions customers answer when they ask for quotes; you can change them in admin →
+Request questions. It also adds a "Qualifications" box to business profiles.
+
+**Check:**
+```sql
+select (select count(*) from service_categories where vertical_key = 'repairs-maintenance' and parent_id is not null) as repair_services,
+       (select count(*) from service_categories where slug in ('house-builders', 'electrical-contractors', 'plumbing-contractors', 'interior-contractors', 'groundworks')) as new_contractor_types,
+       (select count(*) from service_categories where question_schema <> '[]'::jsonb) as services_with_questions,
+       (select count(*) from information_schema.columns where table_name = 'organisations' and column_name = 'qualifications') as qualifications_column;
+```
+**You should see:** `17 | 5 | 19 | 1`
+
 ---
 
 ## Security test (run after all migrations)
