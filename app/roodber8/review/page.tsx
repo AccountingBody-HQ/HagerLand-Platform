@@ -24,6 +24,7 @@ const TABS = [
   ['developments', 'Developments'],
   ['organisations', 'Organisations'],
   ['portfolio', 'Portfolio'],
+  ['products', 'Products'],
   ['media', 'Photos'],
   ['changes', 'Pending changes'],
   ['claims', 'Claims'],
@@ -62,7 +63,7 @@ export default async function ReviewPage({ searchParams }: { searchParams: { tab
   const tab: Tab = (TABS.find(([k]) => k === searchParams.tab)?.[0] ?? 'properties') as Tab
   const counts = await queueCounts()
   const db = getAdminSupabase()
-  const countFor: Record<Tab, number> = { properties: counts.properties, developments: counts.developments, organisations: counts.organisations, portfolio: counts.portfolio, media: counts.media, changes: counts.changes, claims: counts.claims, verification: counts.verification, reports: counts.reports, jobs: counts.jobs, updates: counts.updates }
+  const countFor: Record<Tab, number> = { properties: counts.properties, developments: counts.developments, organisations: counts.organisations, portfolio: counts.portfolio, products: counts.products, media: counts.media, changes: counts.changes, claims: counts.claims, verification: counts.verification, reports: counts.reports, jobs: counts.jobs, updates: counts.updates }
 
   let body: React.ReactNode = null
 
@@ -214,15 +215,17 @@ export default async function ReviewPage({ searchParams }: { searchParams: { tab
   }
 
   if (tab === 'changes') {
-    const [{ data: props }, { data: devs }, { data: orgs }] = await Promise.all([
+    const [{ data: props }, { data: devs }, { data: orgs }, { data: prods }] = await Promise.all([
       db.from('properties').select('*').not('pending_changes', 'is', null).in('status', ['published', 'paused']).limit(50),
       db.from('developments').select('*').not('pending_changes', 'is', null).in('status', ['published', 'paused']).limit(50),
       db.from('organisations').select('*').not('pending_changes', 'is', null).eq('status', 'published').limit(50),
+      db.from('products').select('*').not('pending_changes', 'is', null).in('status', ['published', 'paused']).limit(50),
     ])
-    const items: { entity: 'property' | 'development' | 'organisation'; row: Record<string, unknown>; name: string; href: string }[] = [
+    const items: { entity: 'property' | 'development' | 'organisation' | 'product'; row: Record<string, unknown>; name: string; href: string }[] = [
       ...(props ?? []).map((r) => ({ entity: 'property' as const, row: r as Record<string, unknown>, name: r.title, href: `/roodber8/properties/${r.id}` })),
       ...(devs ?? []).map((r) => ({ entity: 'development' as const, row: r as Record<string, unknown>, name: r.name, href: `/roodber8/developments/${r.id}` })),
       ...(orgs ?? []).map((r) => ({ entity: 'organisation' as const, row: r as Record<string, unknown>, name: r.name, href: `/roodber8/organisations/${r.id}` })),
+      ...(prods ?? []).map((r) => ({ entity: 'product' as const, row: r as Record<string, unknown>, name: r.name, href: `/roodber8/products/${r.id}` })),
     ]
     body =
       items.length === 0 ? (
@@ -316,6 +319,55 @@ export default async function ReviewPage({ searchParams }: { searchParams: { tab
               </Panel>
             </li>
           ))}
+        </ul>
+      )
+  }
+
+  if (tab === 'products') {
+    const { data } = await db.from('products').select('id, name, summary, description, price_type, price_etb_cents, seller_org_id, category_id').eq('status', 'pending_review').order('updated_at').limit(100)
+    const rows = data ?? []
+    const ids = rows.map((r) => r.id)
+    const [{ data: orgs }, { data: cats }, { data: media }] = await Promise.all([
+      db.from('organisations').select('id, name, verification_level').in('id', rows.map((r) => r.seller_org_id)),
+      db.from('product_categories').select('id, name').in('id', rows.map((r) => r.category_id)),
+      ids.length ? db.from('media').select('entity_id, storage_path').eq('entity_type', 'product').in('entity_id', ids).eq('kind', 'image').order('sort') : Promise.resolve({ data: [] }),
+    ])
+    body =
+      rows.length === 0 ? (
+        <Empty />
+      ) : (
+        <ul className="space-y-3">
+          {rows.map((r) => {
+            const org = (orgs ?? []).find((o) => o.id === r.seller_org_id)
+            const photos = (media ?? []).filter((m) => m.entity_id === r.id)
+            return (
+              <li key={r.id}>
+                <Panel title={r.name} actions={<Link href={`/roodber8/products/${r.id}`} className="text-small font-semibold text-green">Open product</Link>}>
+                  <div className="grid gap-4 md:grid-cols-[160px_1fr]">
+                    <div className="grid grid-cols-3 gap-1 md:grid-cols-2">
+                      {photos.slice(0, 4).map((m) => (
+                        <div key={m.storage_path} className="relative aspect-square overflow-hidden rounded bg-stone-100">
+                          <MediaImage path={m.storage_path} alt="" fill sizes="80px" className="object-cover" />
+                        </div>
+                      ))}
+                      {photos.length === 0 && <p className="text-caption text-error">No photos</p>}
+                    </div>
+                    <div className="min-w-0 space-y-2">
+                      <KeyValue
+                        items={[
+                          ['Supplier', `${org?.name ?? ''}${org ? ` (${org.verification_level})` : ''}`],
+                          ['Category', (cats ?? []).find((c) => c.id === r.category_id)?.name ?? ''],
+                          ['Price', r.price_type === 'on_request' || r.price_etb_cents === null ? 'On request' : `${r.price_type === 'from' ? 'From ' : ''}${formatETB(r.price_etb_cents / 100)}`],
+                        ]}
+                      />
+                      {(r.summary || r.description) && <p className="line-clamp-4 text-small">{r.summary ?? r.description}</p>}
+                      <ModerationControls entity="product" id={r.id} />
+                    </div>
+                  </div>
+                </Panel>
+              </li>
+            )
+          })}
         </ul>
       )
   }

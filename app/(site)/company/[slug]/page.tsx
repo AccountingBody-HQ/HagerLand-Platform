@@ -5,6 +5,8 @@ import { Building2, CalendarDays, MapPin, Users } from 'lucide-react'
 import { getLocationNames, getOrganisationBySlug, getOrganisationProductCategories, getOrganisationServices, getPortfolio } from '@/lib/data/organisations'
 import { searchProperties } from '@/lib/data/properties'
 import { searchDevelopments } from '@/lib/data/developments'
+import { searchProducts } from '@/lib/data/products'
+import { ProductCard } from '@/components/supplies/ProductCard'
 import { getLocationChain, type Location } from '@/lib/data/reference'
 import { buildMetadata, truncateDescription } from '@/lib/seo'
 import { ORG_KIND_LABEL } from '@/lib/org-labels'
@@ -51,7 +53,8 @@ export default async function CompanyPage({ params }: { params: { slug: string }
   const o = await getOrganisationBySlug(params.slug)
   if (!o || !o.id) notFound()
   const isLister = o.kind === 'agency' || o.kind === 'developer' || o.kind === 'hagerland'
-  const [chain, services, productCats, portfolio, areaNames, forSale, toRent, developments] = await Promise.all([
+  const isSeller = o.kind === 'supplier' || o.kind === 'manufacturer'
+  const [chain, services, productCats, portfolio, areaNames, forSale, toRent, developments, products] = await Promise.all([
     o.location_id ? getLocationChain(o.location_id) : Promise.resolve([] as Location[]),
     getOrganisationServices(o.id),
     getOrganisationProductCategories(o.id),
@@ -60,6 +63,7 @@ export default async function CompanyPage({ params }: { params: { slug: string }
     isLister ? searchProperties({ purpose: 'sale', listerOrgId: o.id, pageSize: 6 }) : Promise.resolve({ total: 0, items: [] }),
     isLister ? searchProperties({ purpose: 'rent', listerOrgId: o.id, pageSize: 6 }) : Promise.resolve({ total: 0, items: [] }),
     o.kind === 'developer' || o.kind === 'hagerland' ? searchDevelopments({ developerOrgId: o.id, pageSize: 6 }) : Promise.resolve({ total: 0, items: [] }),
+    isSeller ? searchProducts({ sellerOrgId: o.id, sort: 'newest', pageSize: 48 }) : Promise.resolve({ total: 0, items: [] }),
   ])
   const city = cityOf(chain)
   const region = chain.find((l) => l.level === 'region') ?? null
@@ -68,6 +72,7 @@ export default async function CompanyPage({ params }: { params: { slug: string }
   const hours = (o.opening_hours as Record<string, string> | null) ?? null
   const sections = [
     { id: 'overview', label: 'Overview', show: true },
+    { id: 'products', label: 'Products', show: products.total > 0 },
     { id: 'portfolio', label: 'Portfolio', show: portfolio.length > 0 },
     { id: 'for-sale', label: 'For sale', show: forSale.total > 0 },
     { id: 'to-rent', label: 'To rent', show: toRent.total > 0 },
@@ -215,6 +220,21 @@ export default async function CompanyPage({ params }: { params: { slug: string }
                 </a>
               )}
             </section>
+
+            {products.total > 0 && (
+              <section id="products" aria-labelledby="products-heading" className="scroll-mt-24">
+                <h2 id="products-heading" className="hl-h3 mb-4">
+                  Products ({products.total})
+                </h2>
+                <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {products.items.map((p) => (
+                    <li key={p.id}>
+                      <ProductCard product={p} />
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
 
             {portfolio.length > 0 && (
               <section id="portfolio" aria-labelledby="portfolio-heading" className="scroll-mt-24">

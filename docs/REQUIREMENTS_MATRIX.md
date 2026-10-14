@@ -107,7 +107,7 @@ Summary (updated at the end of every work package): see the last section.
 | R-16 | /supplies/product/[slug] | 4.3 | Done | app/(site)/supplies/product/[slug] | e2e:a11y.spec.ts (product page) |
 | R-17 | /supplies/quote quote list | 4.3 | Done | app/(site)/supplies/quote | e2e:flows/supplies-and-contact.spec.ts › a guest builds a quote list… |
 | R-18 | /supplies/materials-list | 4.3 | Done | app/(site)/supplies/materials-list | e2e:flows/supplies-and-contact.spec.ts › a guest sends a materials list with a file |
-| R-19 | /supplies/special-buys (25.2d) | 4.3 / 25.2d | Not done | — | H1 |
+| R-19 | /supplies/special-buys (25.2d) | 4.3 / 25.2d | Done | app/(site)/supplies/special-buys | e2e:supplies-extras.spec.ts › Special Buys: HagerLand sets the offer… |
 | R-20 | /suppliers directory | 4.3 | Done | app/(site)/suppliers | e2e:smoke.spec.ts › loads /suppliers |
 | R-21 | /professionals hub | 4.3 | Done | app/(site)/professionals | e2e:smoke.spec.ts › loads /professionals |
 | R-22 | /professionals/[service] | 4.3 | Done | app/(site)/professionals/[service] | e2e:smoke.spec.ts › loads /professionals/architects |
@@ -118,11 +118,11 @@ Summary (updated at the end of every work package): see the last section.
 | R-27 | /company/[slug]/claim | 4.3 | Done | app/(site)/company/[slug]/claim | e2e:flows/business.spec.ts › someone claims an imported business… |
 | R-28 | /list-with-us with anchors | 4.3 | Done | app/(site)/list-with-us | e2e:smoke.spec.ts › loads /list-with-us |
 | R-29 | /about, /how-it-works, /contact, /help, /terms, /privacy, /cookies | 4.3 | Done | app/(site)/* | e2e:smoke.spec.ts (each route) |
-| R-30 | /guides and /guides/[slug] (25.2g) | 4.3 / 25.2g | Not done | — | H2 |
+| R-30 | /guides and /guides/[slug] (25.2g) | 4.3 / 25.2g | Done | app/(site)/guides, app/(site)/guides/[slug] | e2e:guides-estimator.spec.ts › HagerLand reviews and publishes a guide… |
 | R-31 | /login, /signup, /auth/callback, /auth/reset-password, /auth/update-password | 4.3 | Done | app/(site)/login, signup, auth; app/auth/callback | e2e:smoke.spec.ts (login, signup, reset-password); e2e:flows/owner-listing.spec.ts (callback via email link) |
 | R-32 | /account dashboard | 4.3 | Done | app/(account)/account/page.tsx | e2e:flows/owner-listing.spec.ts |
 | R-33 | /account/listings, /new, /[id]/edit | 4.3 | Done | app/(account)/account/listings | e2e:flows/owner-listing.spec.ts |
-| R-34 | /account/products, /new, /[id]/edit (25.2c) | 4.3 / 25.2c | Not done | — | H1 |
+| R-34 | /account/products, /new, /[id]/edit (25.2c) | 4.3 / 25.2c | Done | app/(account)/account/products (list, new, [id]/edit) | e2e:supplies-extras.spec.ts › a supplier lists a product, HagerLand approves it… |
 | R-35 | /account/company and /account/company/verification | 4.3 | Done | app/(account)/account/company | e2e:flows/business.spec.ts |
 | R-36 | /account/enquiries and /account/enquiries/[id] | 4.3 | Done | app/(account)/account/enquiries | e2e:flows/owner-listing.spec.ts (owner sees the enquiry) |
 | R-37 | /account/quotes | 4.3 | Not done | app/(account)/account/quotes | add test: signed-in requester sees quote |
@@ -300,7 +300,7 @@ Summary (updated at the end of every work package): see the last section.
 | S7-12 | Personal lister dashboard (listings with status, views, enquiries, expiry, actions) | 7.3 | Done | app/(account)/account/listings | e2e:flows/owner-listing.spec.ts |
 | S7-13 | Developer dashboard (developments, unit listings) | 7.3 | Not done | app/(account)/account/developments | add test: developer creates a development |
 | S7-14 | Professional dashboard (profile, portfolio, verification) | 7.3 | Done | app/(account)/account/company | e2e:flows/business.spec.ts |
-| S7-15 | Supplier dashboard products (25.2c) | 7.3 | Not done | — | H1 |
+| S7-15 | Supplier dashboard products (25.2c) | 7.3 | Done | app/(account)/account/products | e2e:supplies-extras.spec.ts › a supplier lists a product, HagerLand approves it… |
 | S7-16 | Agency team members (25.2i) | 7.3 | Not done | — | H3 |
 | S7-17 | Listing wizard steps 1–6 with autosave, min 3 photos, declarations | 7.4 | Done | components/account/ListingWizard.tsx | e2e:flows/owner-listing.spec.ts |
 | S7-18 | Map pin on the wizard location step (25.2b) | 7.4 / 25.2b | Done | see X-252-05 | see X-252-05 |
@@ -311,7 +311,7 @@ Summary (updated at the end of every work package): see the last section.
 | ID | Requirement | Source | Status | Implementing files | Test / verification |
 |----|-------------|--------|--------|--------------------|---------------------|
 | S8-01 | Hub: compact search, popular locations, latest sale/rent, developments, type links, agent strip, list CTA | 8.1 | Done | app/(site)/property/page.tsx | e2e:smoke.spec.ts › loads /property |
-| S8-02 | Hub guide teasers (25.2g) | 8.1 | Not done | — | H2 |
+| S8-02 | Hub guide teasers (25.2g) | 8.1 | Done | components/guides/GuidesTeaser (property hub) | e2e:guides-estimator.spec.ts › … (Property guides on /property once published) |
 | S8-03 | Results: desktop filters sidebar, mobile bottom sheet, sort, cards | 8.2 | Done | components/property/* | e2e:a11y.spec.ts (results pages, mobile and desktop) |
 | S8-04 | All listed filters | 8.2 | Done | lib/property-search.ts | unit:property-search.test.ts › parses filters… |
 | S8-05 | Sort options | 8.2 | Done | lib/property-search.ts | unit:property-search.test.ts › defaults sort to relevance only when searching text |
@@ -336,7 +336,7 @@ Summary (updated at the end of every work package): see the last section.
 |----|-------------|--------|--------|--------------------|---------------------|
 | S9-01 | /developments grid with filters; "From HagerLand" row labelled, not mixed | 9.1 | Done | app/(site)/developments/page.tsx | e2e:smoke.spec.ts › loads /developments |
 | S9-02 | Development detail (all listed sections, off-plan safety note) | 9.2 | Done | components/development/DevelopmentDetail.tsx | e2e:responsive.spec.ts; e2e:a11y.spec.ts |
-| S9-03 | /our-developments hub (superseded by 24.10 coming-soon page while the vertical is coming_soon; full hub when live) | 9.3 / 24.10 | Not done | app/(site)/our-developments | E8 |
+| S9-03 | /our-developments hub (superseded by 24.10 coming-soon page while the vertical is coming_soon; full hub when live) | 9.3 / 24.10 | Done | app/(site)/our-developments | e2e:jobs.spec.ts › Our Developments: coming soon makes no claims; live, projects grouped by stage |
 | S9-04 | No fake renders or invented projects | 9.3 | Done | — | verify: page shows only published HagerLand developments |
 | S9-05 | Project detail premium template with progress timeline and dated updates (25.2j) | 9.3 / 25.2j | Done | components/development/ProgressTimeline.tsx, DevelopmentDetail | e2e:jobs.spec.ts › a developer posts a progress update with photos… |
 
@@ -354,7 +354,7 @@ Summary (updated at the end of every work package): see the last section.
 | S10-08 | Quote submit → reference HLQ, emails to customer and team | 10.5 | Done | app/actions/quote-actions.ts | e2e:flows/supplies-and-contact.spec.ts |
 | S10-09 | Materials list upload (≤ 5 files, 15 MB) | 10.6 | Done | components/supplies/MaterialsListForm.tsx | e2e:flows/supplies-and-contact.spec.ts › a guest sends a materials list with a file |
 | S10-10 | Suppliers directory with product-category filter | 10.7 | Done | app/(site)/suppliers | e2e:smoke.spec.ts › loads /suppliers |
-| S10-11 | Supplier profile Products tab (25.2c) | 10.7 / 25.2c | Not done | — | H1 |
+| S10-11 | Supplier profile Products tab (25.2c) | 10.7 / 25.2c | Done | app/(site)/company/[slug] Products section | e2e:supplies-extras.spec.ts › a supplier lists a product, HagerLand approves it… (Products (1) on the company page) |
 | S10-12 | Data model ready for third-party products, trade prices, special buys, brands, stock, lead times | 10.8 | Done | 0002 products | verify: columns present |
 
 ## Section 11 — Companies and professional services
@@ -406,7 +406,7 @@ Summary (updated at the end of every work package): see the last section.
 | S14-10 | Popular locations (hidden if < 10 properties) | 14.10 | Done | app/(site)/page.tsx | verify: conditional on totalProperties >= 10 |
 | S14-11 | Trust strip; verified count only when ≥ threshold | 14.11 | Done | app/(site)/page.tsx | verify: conditional on verifiedBusinessCountMin |
 | S14-12 | List with us audience cards with equal-width buttons; "free while we launch" only if confirmed | 14.12 | Done | app/(site)/page.tsx | verify: conditional on freeListingConfirmed |
-| S14-13 | Guides teaser (25.2g, hidden until published guides exist) | 14.13 | Not done | — | H2 |
+| S14-13 | Guides teaser (25.2g, hidden until published guides exist) | 14.13 | Done | GuidesTeaser on homepage, hidden until a guide is published | e2e:guides-estimator.spec.ts › starter guides… (nothing shows) and › … publishes a guide (homepage teaser) |
 | S14-14 | Homepage JSON-LD Organization + WebSite SearchAction | 14 | Done | lib/seo.ts | e2e:seo.spec.ts › structured data… |
 
 ## Section 15 — Content
@@ -545,7 +545,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | S23-02 | "Free while we launch" shown only when confirmed in settings | 23.2 | Done | free_listing_confirmed | verify: S14-12 |
 | S23-03 | Legal entity from settings; hidden when empty | 23.3 | Done | lib/data/business.ts | e2e:admin/admin.spec.ts › settings… |
 | S23-04 | Contact details, delivery area, quote response time from settings; hidden when empty | 23.4 | Done | lib/data/business.ts | e2e:admin/admin.spec.ts › settings… |
-| S23-05 | Works without brand photography; HagerLand Developments in "coming soon" state | 23.5 | Not done | — | E8 |
+| S23-05 | Works without brand photography; HagerLand Developments in "coming soon" state | 23.5 | Done | our-developments coming soon; no brand photography needed (icons, blueprint pattern) | e2e:jobs.spec.ts › Our Developments… (coming soon) |
 | S23-06 | "Why buy" claims only from settings | 23.6 | Done | developments_claims setting | verify: hidden when empty |
 | S23-07 | Neighbourhoods added by AB in admin (no guessed parents) | 23.7 | Done | app/roodber8/locations | e2e:admin/admin.spec.ts › …add a location |
 | S23-08 | Pages honest when empty (launch content not seeded by us) | 23.8 | Done | EmptyState everywhere | e2e:smoke.spec.ts (empty local data) |
@@ -615,7 +615,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | S24-4D | Customer sees quotes in account | 24.5 | Done | app/(account)/account/service-requests | verify: same RequestView as the guest page; RLS rls:Requester reads their own request / sees the quote once it is sent |
 | S24-4E | Guest sees quotes by secure emailed link | 24.5 | Done | app/(site)/requests/[token] | e2e:flows/service-requests.spec.ts › a guest requests… (quote seen and chosen through the emailed link); › guest links expire… |
 | S24-4F | Engine used for contractors, repairs (emergency), valuations, finance, insurance, diaspora, staffing | 24.5 | Done | 0014–0019 | staffing: e2e:jobs.spec.ts › staffing requirements go through the request engine… |
-| S24-4G | Materials quote_requests unchanged | 24.5 | Not done | — | verify: e2e supplies flow still green at E3 |
+| S24-4G | Materials quote_requests unchanged | 24.5 | Done | quote_requests unchanged | e2e:flows/supplies-and-contact.spec.ts green in E8 full regression (249 passed) |
 | S24-50 | Diaspora landing with two directions | 24.6 | Done | app/(site)/diaspora/page.tsx | e2e:diaspora.spec.ts › the diaspora page offers both directions… |
 | S24-51 | Diaspora → Ethiopia items link to verticals or the engine | 24.6 | Done | app/(site)/diaspora/page.tsx HOME_NEEDS | e2e:diaspora.spec.ts › the diaspora page offers both directions and links into the live services |
 | S24-52 | Services abroad: international organisation search with request routing | 24.6 | Done | app/(site)/diaspora/services-abroad | e2e:diaspora.spec.ts › services abroad finds an Ethiopian-run business… |
@@ -676,27 +676,27 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 
 | ID | Requirement | Source | Status | Implementing files | Test / verification |
 |----|-------------|--------|--------|--------------------|---------------------|
-| V1-01 | Building supplies category: Cement | Vision §1 | Not done | product_categories seed | sql: category present and active (H1 check) |
-| V1-02 | Building supplies category: Reinforcement steel | Vision §1 | Not done | product_categories seed | sql: category present and active (H1 check) |
-| V1-03 | Building supplies category: Blocks and bricks | Vision §1 | Not done | product_categories seed | sql: category present and active (H1 check) |
-| V1-04 | Building supplies category: Sand and aggregates | Vision §1 | Not done | product_categories seed | sql: category present and active (H1 check) |
-| V1-05 | Building supplies category: Roofing materials | Vision §1 | Not done | product_categories seed | sql: category present and active (H1 check) |
-| V1-06 | Building supplies category: Electrical materials | Vision §1 | Not done | product_categories seed | sql: category present and active (H1 check) |
-| V1-07 | Building supplies category: Plumbing materials | Vision §1 | Not done | product_categories seed | sql: category present and active (H1 check) |
-| V1-08 | Building supplies category: Tiles and flooring | Vision §1 | Not done | product_categories seed | sql: category present and active (H1 check) |
-| V1-09 | Building supplies category: Paint and decorating materials | Vision §1 | Not done | product_categories seed | sql: category present and active (H1 check) |
-| V1-10 | Building supplies category: Doors and windows | Vision §1 | Not done | product_categories seed | sql: category present and active (H1 check) |
-| V1-11 | Building supplies category: Sanitary ware | Vision §1 | Not done | product_categories seed | sql: category present and active (H1 check) |
-| V1-12 | Building supplies category: Kitchens | Vision §1 | Not done | product_categories seed | sql: category present and active (H1 check) |
-| V1-13 | Building supplies category: Lighting | Vision §1 | Not done | product_categories seed | sql: category present and active (H1 check) |
-| V1-14 | Building supplies category: Hardware and tools | Vision §1 | Not done | product_categories seed | sql: category present and active (H1 check) |
-| V1-15 | Building supplies category: Timber | Vision §1 | Not done | product_categories seed | sql: category present and active (H1 check) |
-| V1-16 | Building supplies category: Construction equipment | Vision §1 | Not done | product_categories seed | sql: category present and active (H1 check) |
-| V1-17 | Building supplies category: Interior finishing materials | Vision §1 | Not done | product_categories seed | sql: category present and active (H1 check) |
-| V1-18 | Building supplies category: Landscaping materials | Vision §1 | Not done | product_categories seed | sql: category present and active (H1 check) |
-| V1-19 | Building supplies category: Safety equipment | Vision §1 | Not done | product_categories seed | sql: category present and active (H1 check) |
-| V1-20 | Building supplies category: Specialist construction products | Vision §1 | Not done | product_categories seed | sql: category present and active (H1 check) |
-| V1-21 | Own products and third-party suppliers' products | Vision §1 | Not done | products.seller_org_id | H1 (25.2c) |
+| V1-01 | Building supplies category: Cement | Vision §1 | Done | product_categories (0007 + 0020) | e2e:supplies-extras.spec.ts › HagerLand Supply lists every building-supplies category |
+| V1-02 | Building supplies category: Reinforcement steel | Vision §1 | Done | product_categories (0007 + 0020) | e2e:supplies-extras.spec.ts › HagerLand Supply lists every building-supplies category |
+| V1-03 | Building supplies category: Blocks and bricks | Vision §1 | Done | product_categories (0007 + 0020) | e2e:supplies-extras.spec.ts › HagerLand Supply lists every building-supplies category |
+| V1-04 | Building supplies category: Sand and aggregates | Vision §1 | Done | product_categories (0007 + 0020) | e2e:supplies-extras.spec.ts › HagerLand Supply lists every building-supplies category |
+| V1-05 | Building supplies category: Roofing materials | Vision §1 | Done | product_categories (0007 + 0020) | e2e:supplies-extras.spec.ts › HagerLand Supply lists every building-supplies category |
+| V1-06 | Building supplies category: Electrical materials | Vision §1 | Done | product_categories (0007 + 0020) | e2e:supplies-extras.spec.ts › HagerLand Supply lists every building-supplies category |
+| V1-07 | Building supplies category: Plumbing materials | Vision §1 | Done | product_categories (0007 + 0020) | e2e:supplies-extras.spec.ts › HagerLand Supply lists every building-supplies category |
+| V1-08 | Building supplies category: Tiles and flooring | Vision §1 | Done | product_categories (0007 + 0020) | e2e:supplies-extras.spec.ts › HagerLand Supply lists every building-supplies category |
+| V1-09 | Building supplies category: Paint and decorating materials | Vision §1 | Done | product_categories (0007 + 0020) | e2e:supplies-extras.spec.ts › HagerLand Supply lists every building-supplies category |
+| V1-10 | Building supplies category: Doors and windows | Vision §1 | Done | product_categories (0007 + 0020) | e2e:supplies-extras.spec.ts › HagerLand Supply lists every building-supplies category |
+| V1-11 | Building supplies category: Sanitary ware | Vision §1 | Done | product_categories (0007 + 0020) | e2e:supplies-extras.spec.ts › HagerLand Supply lists every building-supplies category |
+| V1-12 | Building supplies category: Kitchens | Vision §1 | Done | product_categories (0007 + 0020) | e2e:supplies-extras.spec.ts › HagerLand Supply lists every building-supplies category |
+| V1-13 | Building supplies category: Lighting | Vision §1 | Done | product_categories (0007 + 0020) | e2e:supplies-extras.spec.ts › HagerLand Supply lists every building-supplies category |
+| V1-14 | Building supplies category: Hardware and tools | Vision §1 | Done | product_categories (0007 + 0020) | e2e:supplies-extras.spec.ts › HagerLand Supply lists every building-supplies category |
+| V1-15 | Building supplies category: Timber | Vision §1 | Done | product_categories (0007 + 0020) | e2e:supplies-extras.spec.ts › HagerLand Supply lists every building-supplies category |
+| V1-16 | Building supplies category: Construction equipment | Vision §1 | Done | product_categories (0007 + 0020) | e2e:supplies-extras.spec.ts › HagerLand Supply lists every building-supplies category |
+| V1-17 | Building supplies category: Interior finishing materials | Vision §1 | Done | product_categories (0007 + 0020) | e2e:supplies-extras.spec.ts › HagerLand Supply lists every building-supplies category |
+| V1-18 | Building supplies category: Landscaping materials | Vision §1 | Done | product_categories (0007 + 0020) | e2e:supplies-extras.spec.ts › HagerLand Supply lists every building-supplies category |
+| V1-19 | Building supplies category: Safety equipment | Vision §1 | Done | product_categories (0007 + 0020) | e2e:supplies-extras.spec.ts › HagerLand Supply lists every building-supplies category |
+| V1-20 | Building supplies category: Specialist construction products | Vision §1 | Done | product_categories (0007 + 0020) | e2e:supplies-extras.spec.ts › HagerLand Supply lists every building-supplies category |
+| V1-21 | Own products and third-party suppliers' products | Vision §1 | Done | HagerLand Supply's own products and supplier self-serve products | e2e:supplies-extras.spec.ts › a supplier lists a product, HagerLand approves it…; HagerLand products labelled "Sold by HagerLand Supply" (Phase 1) |
 | V2-01 | Property marketplace: Buy property | Vision §2 | Done | /property/for-sale | e2e:smoke.spec.ts › loads /property/for-sale |
 | V2-02 | Property marketplace: Sell property | Vision §2 | Done | listing wizard, /agency/sell | e2e:flows/owner-listing.spec.ts; e2e:property-extras.spec.ts |
 | V2-03 | Property marketplace: Rent property | Vision §2 | Done | /property/to-rent | e2e:smoke.spec.ts › loads /property/to-rent |
@@ -915,18 +915,18 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | X-252-04 | Map search for properties | 25.2b | Done | app/(site)/property/map, components/map/* | e2e:property-extras.spec.ts › property-type pages, canonicals and the map view |
 | X-252-05 | Location pin picker in the listing wizard | 25.2b | Done | components/map/MapPinField.tsx, wizard location step | verify: location step renders the pin map when tiles are configured; lat/lng saved only when the field is present (validation optional) |
 | X-252-06 | Tile provider from env/site settings; map hidden without a key | 25.2b | Done | lib/map-config.ts, middleware CSP | unit:e6-helpers.test.ts › map configuration (off without a full tile URL) |
-| X-252-07 | Supplier self-serve product listings with moderation | 25.2c | Not done | — | H1 |
-| X-252-08 | Supplier products tab on company profile | 25.2c | Not done | — | H1 |
-| X-252-09 | org_product_categories filters | 25.2c | Not done | — | H1 |
-| X-252-10 | Special Buys: quantities, was-price, end date | 25.2d | Not done | — | H1 |
-| X-252-11 | Special Buys auto-hide when expired or sold out | 25.2d | Not done | — | H1 |
-| X-252-12 | Special Buys admin-managed; /supplies/special-buys | 25.2d | Not done | — | H1 |
-| X-252-13 | Trade application and admin approval | 25.2e | Not done | — | H1 |
-| X-252-14 | Trade price shown only to approved trade accounts, never public | 25.2e | Not done | — | H1 |
+| X-252-07 | Supplier self-serve product listings with moderation | 25.2c | Done | account products + review queue Products tab | e2e:supplies-extras.spec.ts › a supplier lists a product, HagerLand approves it…; rls_test.sql |
+| X-252-08 | Supplier products tab on company profile | 25.2c | Done | company page Products tab | e2e:supplies-extras.spec.ts › a supplier lists a product, HagerLand approves it… |
+| X-252-09 | org_product_categories filters | 25.2c | Done | /suppliers category filter (org_product_categories) | e2e:supplies-extras.spec.ts › a supplier lists a product… (filters by landscaping, excluded under roofing) |
+| X-252-10 | Special Buys: quantities, was-price, end date | 25.2d | Done | 0020, admin Special Buy panel | e2e:supplies-extras.spec.ts › Special Buys: HagerLand sets the offer… |
+| X-252-11 | Special Buys auto-hide when expired or sold out | 25.2d | Done | special_buys_public view | e2e:supplies-extras.spec.ts › Special Buys: HagerLand sets the offer… (sold out hides); rls_test.sql (expired, sold out, live) |
+| X-252-12 | Special Buys admin-managed; /supplies/special-buys | 25.2d | Done | app/roodber8/products/[id] Special Buy panel; /supplies/special-buys | e2e:supplies-extras.spec.ts › Special Buys: HagerLand sets the offer…; rls_test.sql (supplier cannot set Special Buy) |
+| X-252-13 | Trade application and admin approval | 25.2e | Done | /supplies/trade, admin trade accounts | e2e:supplies-extras.spec.ts › trade accounts: a business applies… |
+| X-252-14 | Trade price shown only to approved trade accounts, never public | 25.2e | Done | product_trade_prices(), /api/trade-prices, TradePrice | e2e:supplies-extras.spec.ts › trade accounts: a business applies…; rls_test.sql (anonymous, non-trade and public view refused) |
 | X-252-15 | Approximate prices in the visitor's chosen currency; admin rates with last-updated date; labelled approx.; ETB price of record | 25.2f | Done | 0013 exchange_rates(+ public view), app/roodber8/exchange-rates, components/currency/* | e2e:international.spec.ts › approximate prices appear only after rates are set and the visitor picks a currency |
-| X-252-16 | /guides hub with admin editor (draft/publish, SEO, FAQ schema) | 25.2g | Not done | — | H2 |
-| X-252-17 | Starter guides only as unpublished drafts marked Needs AB review | 25.2g | Not done | — | H2 |
-| X-252-18 | Build-cost estimator from admin rates per m² by finish and location; 'estimate only'; hidden until rates exist | 25.2h | Not done | — | H2 |
+| X-252-16 | /guides hub with admin editor (draft/publish, SEO, FAQ schema) | 25.2g | Done | app/roodber8/guides, components/admin/GuideForm | e2e:guides-estimator.spec.ts › HagerLand reviews and publishes a guide… (FAQPage and Article data); unit:guides-estimator.test.ts |
+| X-252-17 | Starter guides only as unpublished drafts marked Needs AB review | 25.2g | Done | 0021 starter drafts; guides_reviewed_before_publishing constraint | e2e:guides-estimator.spec.ts › starter guides are unpublished drafts marked "Needs AB review"…; unit:guides-estimator.test.ts (publish refused unless checked) |
+| X-252-18 | Build-cost estimator from admin rates per m² by finish and location; 'estimate only'; hidden until rates exist | 25.2h | Done | app/(site)/build-cost-estimator, app/roodber8/build-costs, lib/estimator.ts | e2e:guides-estimator.spec.ts › the build-cost estimator is hidden until HagerLand enters a rate…; unit:guides-estimator.test.ts |
 | X-252-19 | Team members: invite by email, roles, remove | 25.2i | Not done | — | H3 |
 | X-252-20 | Ownership transfer with last-owner protection | 25.2i | Not done | — | H3 |
 | X-252-21 | Agent/company branches | 25.2i | Not done | — | H3 |

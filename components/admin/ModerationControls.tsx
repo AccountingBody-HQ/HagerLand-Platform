@@ -20,7 +20,7 @@ const TEMPLATES = [
 
 type Op = 'approve' | 'reject' | 'changes' | 'remove' | 'approve_changes' | 'reject_changes'
 
-export function ModerationControls({ entity, id, mode = 'review', size = 'sm' }: { entity: 'property' | 'development' | 'organisation' | 'portfolio'; id: string; mode?: 'review' | 'changes' | 'live'; size?: 'sm' | 'md' }) {
+export function ModerationControls({ entity, id, mode = 'review', size = 'sm' }: { entity: 'property' | 'development' | 'organisation' | 'portfolio' | 'product'; id: string; mode?: 'review' | 'changes' | 'live'; size?: 'sm' | 'md' }) {
   const [pending, start] = useTransition()
   const [dialog, setDialog] = useState<Op | null>(null)
   const [reason, setReason] = useState('')

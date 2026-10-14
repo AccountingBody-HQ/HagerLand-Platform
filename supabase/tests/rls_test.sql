@@ -342,6 +342,64 @@ reset role;
 delete from public.candidate_profiles where user_id = '00000000-0000-4000-8000-000000000002';
 delete from public.jobs where id = '00000000-0000-4000-8000-0000000000d1';
 
+-- ---------- Special Buys and trade accounts (0020) ----------
+reset role;
+insert into public.organisations (id, kind, name, slug, status, created_by) values ('00000000-0000-4000-8000-0000000000e1', 'supplier', 'RLS TEST Supplier', 'rls-test-supplier', 'published', null);
+insert into public.organisation_members (org_id, user_id, role) values ('00000000-0000-4000-8000-0000000000e1', '00000000-0000-4000-8000-000000000001', 'owner');
+insert into public.products (id, slug, name, category_id, seller_org_id, price_type, price_etb_cents, trade_price_etb_cents, status)
+select '00000000-0000-4000-8000-0000000000e2', 'rls-test-product', 'RLS TEST cement', id, '00000000-0000-4000-8000-0000000000e1', 'fixed', 100000, 80000, 'published' from public.product_categories where parent_id is null order by sort limit 1;
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000001", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', false);
+do $$ begin
+  update public.products set is_special_buy = true where id = '00000000-0000-4000-8000-0000000000e2';
+  perform pg_temp.record_check('Supplier cannot put their own product on Special Buy', false);
+exception when insufficient_privilege then
+  perform pg_temp.record_check('Supplier cannot put their own product on Special Buy', true);
+end $$;
+select pg_temp.record_check('Users without a trade account get no trade prices', not exists (select 1 from public.product_trade_prices(array['00000000-0000-4000-8000-0000000000e2']::uuid[])));
+do $$ begin
+  insert into public.trade_accounts (user_id, business_name, trade_type, phone, status) values ('00000000-0000-4000-8000-000000000001', 'RLS TEST', 'Contractor', '+251911000000', 'approved');
+  perform pg_temp.record_check('Users cannot approve their own trade account', false);
+exception when insufficient_privilege then
+  perform pg_temp.record_check('Users cannot approve their own trade account', true);
+end $$;
+reset role;
+insert into public.trade_accounts (user_id, business_name, trade_type, phone, status) values ('00000000-0000-4000-8000-000000000001', 'RLS TEST', 'Contractor', '+251911000000', 'approved');
+set role authenticated;
+select pg_temp.record_check('Approved trade accounts see trade prices', (select trade_price_etb_cents from public.product_trade_prices(array['00000000-0000-4000-8000-0000000000e2']::uuid[])) = 80000);
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000002", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000002', false);
+select pg_temp.record_check('Other users cannot read someone else''s trade account', not exists (select 1 from public.trade_accounts));
+reset role;
+set role anon;
+do $$ begin
+  perform * from public.product_trade_prices(array['00000000-0000-4000-8000-0000000000e2']::uuid[]);
+  perform pg_temp.record_check('Anonymous cannot call the trade price function', false);
+exception when insufficient_privilege then
+  perform pg_temp.record_check('Anonymous cannot call the trade price function', true);
+end $$;
+do $$ begin
+  perform trade_price_etb_cents from public.products_public limit 1;
+  perform pg_temp.record_check('Trade prices are not in the public product view', false);
+exception when undefined_column then
+  perform pg_temp.record_check('Trade prices are not in the public product view', true);
+end $$;
+reset role;
+update public.products set is_special_buy = true, special_ends_at = now() - interval '1 day' where id = '00000000-0000-4000-8000-0000000000e2';
+set role anon;
+select pg_temp.record_check('Expired Special Buys are hidden', not exists (select 1 from public.special_buys_public where id = '00000000-0000-4000-8000-0000000000e2'));
+reset role;
+update public.products set special_ends_at = now() + interval '7 days', special_qty_available = 0 where id = '00000000-0000-4000-8000-0000000000e2';
+set role anon;
+select pg_temp.record_check('Sold-out Special Buys are hidden', not exists (select 1 from public.special_buys_public where id = '00000000-0000-4000-8000-0000000000e2'));
+reset role;
+update public.products set special_qty_available = 5 where id = '00000000-0000-4000-8000-0000000000e2';
+set role anon;
+select pg_temp.record_check('Live Special Buys are shown', exists (select 1 from public.special_buys_public where id = '00000000-0000-4000-8000-0000000000e2'));
+reset role;
+delete from public.trade_accounts where business_name = 'RLS TEST';
+delete from public.products where id = '00000000-0000-4000-8000-0000000000e2';
+delete from public.organisations where id = '00000000-0000-4000-8000-0000000000e1';
+
 -- Tables only the server (service role) may touch: anonymous and signed-in users are refused.
 select set_config('hl.private_tables', 'schema_migrations,verticals,interest_registrations,partner_applications,exchange_rates,deals,property_care_requests,managed_properties,property_inspections,rent_statements,maintenance_log', false);
 

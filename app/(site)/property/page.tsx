@@ -8,6 +8,7 @@ import { PropertyCard } from '@/components/property/PropertyCard'
 import { PropertyQuickSearch } from '@/components/property/PropertyQuickSearch'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { DevelopmentsStrip } from '@/components/development/DevelopmentsStrip'
+import { GuidesTeaser } from '@/components/guides/GuidesTeaser'
 
 export const revalidate = 300
 
@@ -131,6 +132,7 @@ export default async function PropertyHub() {
           </div>
         </div>
       </Section>
+      <GuidesTeaser topic="property" title="Property guides" />
     </>
   )
 }

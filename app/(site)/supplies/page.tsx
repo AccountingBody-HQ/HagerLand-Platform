@@ -1,7 +1,9 @@
 import Link from 'next/link'
 import { ArrowRight, ClipboardList, FileText, Truck } from 'lucide-react'
 import { getProductCategories } from '@/lib/data/reference'
-import { searchProducts } from '@/lib/data/products'
+import { getSpecialBuys, searchProducts } from '@/lib/data/products'
+import { SpecialBuyCard } from '@/components/supplies/SpecialBuyCard'
+import { TradeAccountNote } from '@/components/supplies/TradeAccountNote'
 import { buildMetadata } from '@/lib/seo'
 import { brand } from '@/lib/brand'
 import { Container, Section, SectionHeader } from '@/components/ui/Layout'
@@ -21,7 +23,7 @@ export const metadata = buildMetadata({
 })
 
 export default async function SuppliesHub() {
-  const [categories, featured] = await Promise.all([getProductCategories(), searchProducts({ sort: 'popular', pageSize: 8 })])
+  const [categories, featured, specials] = await Promise.all([getProductCategories(), searchProducts({ sort: 'popular', pageSize: 8 }), getSpecialBuys(4)])
   return (
     <>
       <section className="hl-blueprint bg-ink text-white">
@@ -41,8 +43,32 @@ export default async function SuppliesHub() {
         </Container>
       </section>
 
+      {specials.length > 0 && (
+        <Section tone="stone">
+          <SectionHeader
+            title="Special Buys"
+            description="Surplus and clearance stock, for a limited time."
+            action={
+              <Link href="/supplies/special-buys" className="text-small font-semibold text-green hover:underline">
+                See all Special Buys
+              </Link>
+            }
+          />
+          <ul className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+            {specials.map((s) => (
+              <li key={s.id}>
+                <SpecialBuyCard item={s} />
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
+
       <Section id="categories">
         <SectionHeader title="Shop by category" action={<QuoteListLink />} />
+        <div className="-mt-2 mb-5">
+          <TradeAccountNote />
+        </div>
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {categories.map((c) => (
             <li key={c.id} className="rounded-lg border border-border bg-white p-5">

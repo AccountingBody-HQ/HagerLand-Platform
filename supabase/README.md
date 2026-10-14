@@ -253,13 +253,44 @@ select (select count(*) from information_schema.tables where table_schema = 'pub
 
 ---
 
+## 0020_supplies_extras.sql (Phase 1.5, H1)
+**What it does:**
+- **Special Buys:** only you can put a product on Special Buy (with a was-price, quantity and end date). Offers hide themselves when they end or sell out.
+- **Trade accounts:** businesses apply, and you approve them. Approved accounts see trade prices when signed in. Trade prices are never in any public view.
+- **Categories:** adds the building-supplies categories still missing from the vision: Construction equipment, Interior finishing, Landscaping and Specialist products, each with subcategories.
+
+**Check:**
+```sql
+select (select count(*) from product_categories where slug in ('construction-equipment', 'interior-finishing', 'landscaping', 'specialist-products')) as new_categories,
+       (select count(*) from information_schema.tables where table_schema = 'public' and table_name = 'trade_accounts') as trade_table,
+       (select version from schema_migrations where version = '0020') as recorded;
+```
+**You should see:** `4 | 1 | 0020`. The security test now shows 106 `PASS` rows.
+
+---
+
+## 0021_guides_estimator.sql (Phase 1.5, H2)
+**What it does:**
+- **Guides:** adds the guides content hub, managed in admin → Guides. It also adds three starter guides as **unpublished drafts marked "Needs AB review"**: a materials-list guide, questions to ask a contractor, and a viewing checklist. Nothing is public until you check a guide, tick "Content checked" and publish it. The database itself refuses to publish a guide that is still marked for review.
+- **Build-cost rates:** adds the rates behind the build-cost estimator (ETB per m², by finish level, nationwide or for a place). The estimator page stays hidden until you add a rate in admin → Build-cost rates.
+
+**Check:**
+```sql
+select (select count(*) from guides where needs_review and status = 'draft') as draft_guides_for_review,
+       (select count(*) from build_cost_rates) as rates,
+       (select version from schema_migrations where version = '0021') as recorded;
+```
+**You should see:** `3 | 0 | 0021`, until you review guides or add rates.
+
+---
+
 ## Security test (run after all migrations)
 Paste `supabase/tests/rls_test.sql` and run it. Supabase may warn that the query contains `delete`
 statements: that is the test cleaning up after itself; click **Run this query**.
 It temporarily creates two test users and a test listing, tries things that should and should not be
 allowed, then deletes everything it created.
 
-**You should see:** every row starting with `PASS` (38 rows after migration 0011, 42 after 0013, 57 after 0014, 67 after 0016, 74 after 0017, 96 after 0019; each later migration adds its own checks and its section below says the new total).
+**You should see:** every row starting with `PASS` (38 rows after migration 0011, 42 after 0013, 57 after 0014, 67 after 0016, 74 after 0017, 96 after 0019, 106 after 0020; each later migration adds its own checks and its section below says the new total).
 
 ## TypeScript types
 `lib/database.types.ts` was generated from these exact migrations. After all migrations are applied,

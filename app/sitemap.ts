@@ -7,6 +7,8 @@ import { log } from '@/lib/log'
 import { listTag } from '@/lib/revalidate'
 import { getVerticals } from '@/lib/data/verticals'
 import { jobSitemapEntries } from '@/lib/data/jobs'
+import { listGuides } from '@/lib/data/guides'
+import { getBuildRates } from '@/lib/data/reference'
 import { verticalForPath, verticalHref, type VerticalKey } from '@/lib/verticals'
 
 export const revalidate = 3600
@@ -108,6 +110,11 @@ async function build(id: SitemapId): Promise<MetadataRoute.Sitemap> {
         for (const p of indexablePaths(countByAncestors(Array.from(orgIds).map((o) => orgPath.get(o))), min)) out.push(entry(`/professionals/${slug}/${p}`))
       }
       return out
+    }
+    case 'guides': {
+      // Guides and the build-cost estimator appear only once there is something public (spec 25.2g, h).
+      const [guides, rates] = await Promise.all([listGuides(), getBuildRates()])
+      return [...(guides.length ? [entry('/guides'), ...guides.map((g) => entry(`/guides/${g.slug}`, g.updated_at))] : []), ...(rates.length ? [entry('/build-cost-estimator')] : [])]
     }
     case 'jobs':
       return (await jobSitemapEntries()).map((j) => entry(`/jobs/${j.slug}`, j.updated_at))

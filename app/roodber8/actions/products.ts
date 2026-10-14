@@ -1,6 +1,7 @@
 'use server'
 
 import { redirect } from 'next/navigation'
+import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
 import type { Database } from '@/lib/database.types'
 import { getAdminSupabase } from '@/lib/supabase/admin'
@@ -10,6 +11,8 @@ import { fail, invalid, ok, type ActionResult } from '@/lib/action-result'
 import { shortId, slugify } from '@/lib/slug'
 import { revalidateEntity } from '@/lib/revalidate'
 import { parseCsv } from '@/lib/admin/csv'
+import { sendEmail } from '@/lib/email/send'
+import { tradeDecisionEmail } from '@/lib/email/templates'
 
 type ProductUpdate = Database['public']['Tables']['products']['Update']
 
@@ -41,6 +44,7 @@ export async function saveProductAction(_prev: ActionResult<{ id: string }> | nu
     min_order_qty: d.min_order_qty ?? 1,
     price_type: d.price_type,
     price_etb_cents: d.price_type === 'on_request' || d.price_etb === undefined ? null : Math.round(d.price_etb * 100),
+    trade_price_etb_cents: d.trade_price_etb === undefined ? null : Math.round(d.trade_price_etb * 100),
     stock_status: d.stock_status,
     lead_time_days: d.lead_time_days ?? null,
     country_of_origin: d.country_of_origin ?? null,
@@ -100,4 +104,50 @@ export async function applyPriceCsvAction(csv: string): Promise<ActionResult<{ m
   revalidatePath('/roodber8/products')
   revalidatePath('/supplies', 'layout')
   return ok({ message: `Updated ${done} product${done === 1 ? '' : 's'}.` })
+}
+
+const specialSchema = z
+  .object({
+    id: z.uuid(),
+    is_special_buy: z.preprocess((v) => v === 'on' || v === 'true', z.boolean()),
+    was_price_etb: z.preprocess((v) => (v === '' || v === null ? undefined : Number(v)), z.number().min(0).max(1_000_000_000).optional()),
+    qty: z.preprocess((v) => (v === '' || v === null ? undefined : Number(v)), z.number().int().min(0).max(10_000_000).optional()),
+    ends_on: z.preprocess((v) => (v === '' || v === null ? undefined : v), z.iso.date().optional()),
+  })
+  .refine((d) => !d.is_special_buy || d.ends_on !== undefined, { message: 'Set an end date for the offer', path: ['ends_on'] })
+
+/** Special Buys (spec 25.2d): HagerLand sets the was-price, quantity and end date; offers hide themselves when expired or sold out. */
+export async function saveSpecialBuyAction(_prev: { ok: true; data: { message: string } } | { ok: false; error: string } | null, formData: FormData): Promise<{ ok: true; data: { message: string } } | { ok: false; error: string }> {
+  assertAdmin()
+  const parsed = specialSchema.safeParse(Object.fromEntries(formData))
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? 'Please check the offer.' }
+  const d = parsed.data
+  const db = getAdminSupabase()
+  const { data: p } = await db.from('products').select('name, price_type, price_etb_cents').eq('id', d.id).maybeSingle()
+  if (!p) return { ok: false, error: 'Not found.' }
+  if (d.is_special_buy && (p.price_type === 'on_request' || p.price_etb_cents === null)) return { ok: false, error: 'A Special Buy needs a price. Set the product price first.' }
+  if (d.is_special_buy && d.was_price_etb !== undefined && p.price_etb_cents !== null && Math.round(d.was_price_etb * 100) <= p.price_etb_cents) return { ok: false, error: 'The was-price must be higher than the current price.' }
+  const values = d.is_special_buy
+    ? { is_special_buy: true, special_was_price_etb_cents: d.was_price_etb === undefined ? null : Math.round(d.was_price_etb * 100), special_qty_available: d.qty ?? null, special_ends_at: d.ends_on ? new Date(`${d.ends_on}T23:59:59+03:00`).toISOString() : null }
+    : { is_special_buy: false, special_was_price_etb_cents: null, special_qty_available: null, special_ends_at: null }
+  const { error } = await db.from('products').update(values).eq('id', d.id)
+  if (error) return { ok: false, error: 'Could not save the offer.' }
+  await audit(d.is_special_buy ? 'product.special_buy' : 'product.special_buy_end', { type: 'product', id: d.id, label: p.name }, values)
+  revalidateEntity('product', d.id, ['/supplies/special-buys'])
+  return { ok: true, data: { message: d.is_special_buy ? 'Special Buy saved.' : 'Special Buy ended.' } }
+}
+
+/** Approve, reject or revoke a trade account (spec 25.2e). The applicant is emailed. */
+export async function tradeDecisionAction(id: string, decision: 'approved' | 'rejected' | 'revoked', note?: string): Promise<{ ok: true; data: { message: string } } | { ok: false; error: string }> {
+  assertAdmin()
+  if (!z.uuid().safeParse(id).success || !['approved', 'rejected', 'revoked'].includes(decision)) return { ok: false, error: 'Invalid request.' }
+  const db = getAdminSupabase()
+  const { data, error } = await db.from('trade_accounts').update({ status: decision, admin_note: note?.trim().slice(0, 2000) || null, decided_at: new Date().toISOString() }).eq('id', id).select('user_id, business_name').single()
+  if (error || !data) return { ok: false, error: 'Please try again.' }
+  const { data: u } = await db.auth.admin.getUserById(data.user_id)
+  const { data: profile } = await db.from('profiles').select('full_name').eq('id', data.user_id).maybeSingle()
+  if (u.user?.email && decision !== 'revoked') await sendEmail({ to: u.user.email, from: 'supply', ...tradeDecisionEmail({ name: (profile?.full_name ?? '').split(' ')[0] || 'there', approved: decision === 'approved', note }) })
+  await audit(`trade_account.${decision}`, { type: 'trade_account', id, label: data.business_name }, note ? { note } : null)
+  revalidatePath('/roodber8/trade-accounts')
+  return { ok: true, data: { message: decision === 'approved' ? 'Trade account approved.' : decision === 'rejected' ? 'Application rejected.' : 'Trade account closed.' } }
 }

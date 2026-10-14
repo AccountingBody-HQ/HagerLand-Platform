@@ -9,6 +9,8 @@ describe('seeded request questions', () => {
   const lists = readdirSync(dir)
     .filter((f) => f.endsWith('.sql'))
     .flatMap((f) => Array.from(readFileSync(path.join(dir, f), 'utf8').matchAll(/'(\[\{.*?\}\])'/g)).map((m) => ({ file: f, json: m[1].replace(/''/g, "'") })))
+    // Question lists start with an "id"; other JSON lists (such as guide FAQs) are not request questions.
+    .filter((l) => l.json.startsWith('[{"id"'))
   it('finds the seeded lists', () => expect(lists.length).toBeGreaterThanOrEqual(15))
   it.each(lists.map((l, i) => [i, l.file, l.json]))('list %i in %s is valid', (_i, _file, json) => {
     const r = validateQuestionJson(json as string)

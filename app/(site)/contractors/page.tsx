@@ -9,6 +9,9 @@ import { CompanyCard } from '@/components/company/CompanyCard'
 import { HowRequestsWork } from '@/components/service-requests/HowRequestsWork'
 import { ServiceGroups } from '@/components/service-requests/ServiceGroups'
 import { FinanceAsk } from '@/components/verticals/FinanceAsk'
+import Link from 'next/link'
+import { Calculator } from 'lucide-react'
+import { getBuildRates } from '@/lib/data/reference'
 
 export const revalidate = 600
 
@@ -24,7 +27,7 @@ export function generateMetadata() {
 
 /** Construction & Contractors vertical (PLATFORM_VISION §4): browse contractors or request quotes. */
 export default async function ContractorsPage() {
-  const [groups, verified] = await Promise.all([getRequestGroups(['contractors']), searchOrganisations({ verifiedOnly: true, kinds: ['contractor'], pageSize: 4 })])
+  const [groups, verified, rates] = await Promise.all([getRequestGroups(['contractors']), searchOrganisations({ verifiedOnly: true, kinds: ['contractor'], pageSize: 4 }), getBuildRates()])
   const building = groups.flatMap((g) => g.categories).find((c) => c.slug === 'building-contractors' || c.slug === 'general-contractors')
   return (
     <>
@@ -47,6 +50,13 @@ export default async function ContractorsPage() {
       </section>
       <Section>
         <HowRequestsWork />
+        {rates.length > 0 && (
+          <p className="mt-6">
+            <Link href="/build-cost-estimator" className="inline-flex min-h-11 items-center gap-2 font-semibold text-green underline">
+              <Calculator className="size-5" aria-hidden /> How much will it cost to build? Try the build-cost estimator
+            </Link>
+          </p>
+        )}
         <div className="mt-6 max-w-xl">
           <FinanceAsk categorySlug="construction-finance" text="Construction finance for your build, through licensed partners." />
         </div>

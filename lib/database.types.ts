@@ -101,6 +101,45 @@ export type Database = {
         }
         Relationships: []
       }
+      build_cost_rates: {
+        Row: {
+          created_at: string
+          finish: string
+          id: string
+          location_id: string | null
+          notes: string | null
+          rate_etb_per_m2: number
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          finish: string
+          id?: string
+          location_id?: string | null
+          notes?: string | null
+          rate_etb_per_m2: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          finish?: string
+          id?: string
+          location_id?: string | null
+          notes?: string | null
+          rate_etb_per_m2?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'build_cost_rates_location_id_fkey'
+            columns: ['location_id']
+            isOneToOne: false
+            referencedRelation: 'locations'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       candidate_profiles: {
         Row: {
           availability: string
@@ -696,6 +735,58 @@ export type Database = {
         Update: {
           currency?: string
           etb_per_unit?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      guides: {
+        Row: {
+          body: string
+          created_at: string
+          faq: NonNullable<Json>
+          id: string
+          needs_review: boolean
+          published_at: string | null
+          seo_description: string | null
+          seo_title: string | null
+          slug: string
+          status: string
+          summary: string
+          title: string
+          topic: string
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          body?: string
+          created_at?: string
+          faq?: NonNullable<Json>
+          id?: string
+          needs_review?: boolean
+          published_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug: string
+          status?: string
+          summary?: string
+          title: string
+          topic?: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          faq?: NonNullable<Json>
+          id?: string
+          needs_review?: boolean
+          published_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string
+          status?: string
+          summary?: string
+          title?: string
+          topic?: string
           updated_at?: string
         }
         Relationships: []
@@ -2492,6 +2583,13 @@ export type Database = {
             referencedColumns: ['id']
           },
           {
+            foreignKeyName: 'quote_request_items_product_id_fkey'
+            columns: ['product_id']
+            isOneToOne: false
+            referencedRelation: 'special_buys_public'
+            referencedColumns: ['id']
+          },
+          {
             foreignKeyName: 'quote_request_items_quote_request_id_fkey'
             columns: ['quote_request_id']
             isOneToOne: false
@@ -3175,6 +3273,76 @@ export type Database = {
         }
         Relationships: []
       }
+      trade_accounts: {
+        Row: {
+          admin_note: string | null
+          business_name: string
+          created_at: string
+          decided_at: string | null
+          expected_monthly_spend: string | null
+          id: string
+          notes: string | null
+          org_id: string | null
+          phone: string
+          reference: string
+          status: string
+          tin: string | null
+          trade_type: string
+          updated_at: string
+          user_id: string
+        }
+        ComputedFields: never
+        Insert: {
+          admin_note?: string | null
+          business_name: string
+          created_at?: string
+          decided_at?: string | null
+          expected_monthly_spend?: string | null
+          id?: string
+          notes?: string | null
+          org_id?: string | null
+          phone: string
+          reference?: string
+          status?: string
+          tin?: string | null
+          trade_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_note?: string | null
+          business_name?: string
+          created_at?: string
+          decided_at?: string | null
+          expected_monthly_spend?: string | null
+          id?: string
+          notes?: string | null
+          org_id?: string | null
+          phone?: string
+          reference?: string
+          status?: string
+          tin?: string | null
+          trade_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'trade_accounts_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'trade_accounts_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       verification_requests: {
         Row: {
           admin_notes: string | null
@@ -3284,6 +3452,28 @@ export type Database = {
       }
     }
     Views: {
+      build_cost_rates_public: {
+        Row: {
+          finish: string | null
+          id: string | null
+          location_display: string | null
+          location_id: string | null
+          location_name: string | null
+          location_path: string | null
+          rate_etb_per_m2: number | null
+          updated_at: string | null
+        }
+        ComputedFields: never
+        Relationships: [
+          {
+            foreignKeyName: 'build_cost_rates_location_id_fkey'
+            columns: ['location_id']
+            isOneToOne: false
+            referencedRelation: 'locations'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       candidates_for_employers: {
         Row: {
           availability: string | null
@@ -3413,6 +3603,49 @@ export type Database = {
         Update: {
           currency?: string | null
           etb_per_unit?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      guides_public: {
+        Row: {
+          body: string | null
+          faq: Json | null
+          id: string | null
+          published_at: string | null
+          seo_description: string | null
+          seo_title: string | null
+          slug: string | null
+          summary: string | null
+          title: string | null
+          topic: string | null
+          updated_at: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          body?: string | null
+          faq?: Json | null
+          id?: string | null
+          published_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string | null
+          summary?: string | null
+          title?: string | null
+          topic?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          body?: string | null
+          faq?: Json | null
+          id?: string | null
+          published_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string | null
+          summary?: string | null
+          title?: string | null
+          topic?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -3995,6 +4228,30 @@ export type Database = {
         }
         Relationships: []
       }
+      special_buys_public: {
+        Row: {
+          category_name: string | null
+          category_slug: string | null
+          id: string | null
+          image_path: string | null
+          name: string | null
+          pack_size: string | null
+          price_etb_cents: number | null
+          price_type: Database['public']['Enums']['price_type'] | null
+          seller_is_hagerland: boolean | null
+          seller_name: string | null
+          seller_slug: string | null
+          slug: string | null
+          special_ends_at: string | null
+          special_qty_available: number | null
+          special_was_price_etb_cents: number | null
+          stock_status: Database['public']['Enums']['stock_status'] | null
+          unit: string | null
+          updated_at: string | null
+        }
+        ComputedFields: never
+        Relationships: []
+      }
       verticals_public: {
         Row: {
           icon: string | null
@@ -4060,10 +4317,18 @@ export type Database = {
       is_active_user: { Args: Record<PropertyKey, never>; Returns: boolean }
       is_end_user: { Args: Record<PropertyKey, never>; Returns: boolean }
       is_org_member: { Args: { org: string; roles?: Database['public']['Enums']['org_role'][] }; Returns: boolean }
+      is_trade_account: { Args: Record<PropertyKey, never>; Returns: boolean }
       location_summary: { Args: { p_location_id: string; p_purpose: Database['public']['Enums']['listing_purpose'] }; Returns: Json }
       locations_descendants: { Args: { root: string }; Returns: string[] }
       next_reference: { Args: { p_prefix: string }; Returns: string }
       popular_locations: { Args: { p_limit?: number; p_purpose?: Database['public']['Enums']['listing_purpose'] }; Returns: Json }
+      product_trade_prices: {
+        Args: { p_ids: string[] }
+        Returns: {
+          id: string
+          trade_price_etb_cents: number
+        }[]
+      }
       property_type_words: { Args: { t: Database['public']['Enums']['property_type'] }; Returns: string }
       property_unavailable: {
         Args: { p_short_id: string }

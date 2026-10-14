@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { adminSession, adminSwitchVertical, asFreshVisitor, db, trackErrors } from '../helpers'
+import { adminSession, adminSwitchVertical, asFreshVisitor, db, randomPhone, trackErrors } from '../helpers'
 
 test('a guest builds a quote list, requests a quote, and HagerLand issues it', async ({ browser, page }) => {
   test.setTimeout(180_000)
@@ -18,7 +18,7 @@ test('a guest builds a quote list, requests a quote, and HagerLand issues it', a
   await page.goto('/supplies/quote')
   await expect(page.getByText(pname)).toBeVisible()
   await page.fill('#q-name', 'Meron Girma')
-  await page.fill('#q-phone', '0911445566')
+  await page.fill('#q-phone', randomPhone())
   await page.getByRole('button', { name: 'Request my quote' }).click()
   await page.waitForURL(/\/supplies\/quote\/sent\?ref=HLQ-/)
   const ref = new URL(page.url()).searchParams.get('ref')!
@@ -49,7 +49,7 @@ test('a guest sends a materials list with a file', async ({ page }) => {
   await expect(page.getByText('list.pdf')).toBeVisible()
   await expect(page.locator('input[type=hidden][name=files]')).toHaveCount(1, { timeout: 20_000 })
   await page.fill('#q-name', 'Hana Tadesse')
-  await page.fill('#q-phone', '0911778899')
+  await page.fill('#q-phone', randomPhone())
   await page.getByRole('button', { name: 'Request my quote' }).click()
   await page.waitForURL(/\/supplies\/quote\/sent\?ref=HLQ-/)
   const ref = new URL(page.url()).searchParams.get('ref')!
@@ -72,7 +72,7 @@ test('register interest in HagerLand Developments and send a contact message', a
   await page.goto('/our-developments')
   const form = page.locator('form', { has: page.locator('#ri-empty-name') })
   await page.fill('#ri-empty-name', 'Yonas Bekele')
-  await page.fill('#ri-empty-phone', '0911002233')
+  await page.fill('#ri-empty-phone', randomPhone())
   await form.locator('button[type=submit]').click()
   await expect(page.getByText('Thanks, your interest is registered')).toBeVisible()
   const { data: e } = await db().from('enquiries').select('id, target_type, intent').eq('name', 'Yonas Bekele').order('created_at', { ascending: false }).limit(1).single()
@@ -81,7 +81,7 @@ test('register interest in HagerLand Developments and send a contact message', a
 
   await page.goto('/contact')
   await page.fill('#contact-name', 'Selam Abebe')
-  await page.fill('#contact-phone', '0911334455')
+  await page.fill('#contact-phone', randomPhone())
   await page.fill('#contact-message', 'Do you deliver cement to Adama?')
   await page.getByRole('button', { name: 'Send message' }).click()
   await expect(page.getByText('Your enquiry has been sent')).toBeVisible()

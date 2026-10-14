@@ -1,11 +1,11 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { Truck } from 'lucide-react'
-import { getProductBySlug, parseSpecs, searchProducts } from '@/lib/data/products'
+import { getProductBySlug, getSpecialBuyFor, parseSpecs, searchProducts } from '@/lib/data/products'
 import { getEntityMedia } from '@/lib/data/properties'
 import { getProductCategories } from '@/lib/data/reference'
 import { buildMetadata, truncateDescription } from '@/lib/seo'
-import { formatDate } from '@/lib/format'
+import { formatDate, formatETBCents } from '@/lib/format'
 import { STOCK_LABEL, VOLATILE_CATEGORY_SLUGS, unitLabel } from '@/lib/units'
 import { publicMediaUrl } from '@/lib/media'
 import { canonicalUrl } from '@/lib/site'
@@ -24,6 +24,7 @@ import { ProfessionalsModule } from '@/components/company/ProfessionalsModule'
 import { ViewTracker } from '@/components/analytics/ViewTracker'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { ApproxPrice } from '@/components/currency/ApproxPrice'
+import { TradePrice } from '@/components/supplies/TradePrice'
 import { SaveButton } from '@/components/saved/SaveButton'
 
 export const revalidate = 600
@@ -57,7 +58,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 export default async function ProductPage({ params }: { params: { slug: string } }) {
   const p = await getProductBySlug(params.slug)
   if (!p || !p.id) notFound()
-  const tree = await getProductCategories()
+  const [tree, special] = await Promise.all([getProductCategories(), getSpecialBuyFor(p.id)])
   const root = tree.find((c) => c.id === p.category_parent_id) ?? tree.find((c) => c.id === p.category_id) ?? null
   const [media, related] = await Promise.all([getEntityMedia('product', p.id), searchProducts({ categoryId: p.category_id ?? undefined, excludeId: p.id, pageSize: 4 })])
   const images = media.filter((m) => m.kind === 'image').map((m, i) => ({ path: m.storage_path ?? '', alt: m.alt ?? `${p.name}: photo ${i + 1}`, width: m.width, height: m.height }))
@@ -92,7 +93,21 @@ export default async function ProductPage({ params }: { params: { slug: string }
           </div>
           <div className="rounded-lg bg-stone-50 p-4">
             <p className="font-display text-h2 font-bold tabular-nums">{productPrice(p)}</p>
+            {special && (
+              <p className="mt-1 text-small">
+                <span className="font-semibold text-gold">Special Buy</span>
+                {special.special_was_price_etb_cents !== null && (
+                  <>
+                    {' '}
+                    · was <s>{formatETBCents(special.special_was_price_etb_cents)}</s>
+                  </>
+                )}
+                {special.special_qty_available !== null && ` · ${special.special_qty_available} left`}
+                {special.special_ends_at && ` · ends ${formatDate(special.special_ends_at)}`}
+              </p>
+            )}
             {p.price_type !== 'on_request' && p.price_etb_cents !== null && <ApproxPrice etb={p.price_etb_cents / 100} className="block" />}
+            <TradePrice productId={p.id} />
             {p.price_type !== 'on_request' && p.price_updated_at && <p className="mt-1 text-small text-muted">Price updated {formatDate(p.price_updated_at)}</p>}
             {volatile && <p className="mt-1 text-small text-warning">Prices change often — we confirm today&apos;s price on your quote.</p>}
             <ul className="mt-3 space-y-1 text-small text-muted">

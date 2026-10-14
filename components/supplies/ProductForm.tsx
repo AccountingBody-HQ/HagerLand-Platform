@@ -3,12 +3,12 @@
 import { useState } from 'react'
 import { useFormState } from 'react-dom'
 import { Plus, Trash2 } from 'lucide-react'
-import { saveProductAction } from '@/app/roodber8/actions/products'
 import { Field, Input, Select, Textarea } from '@/components/ui/Field'
 import { Button } from '@/components/ui/Button'
 import { FormAlert, SubmitButton } from '@/components/forms/FormParts'
 import { UNITS } from '@/lib/units'
-import { Panel } from './AdminUi'
+import { Panel } from '@/components/admin/AdminUi'
+import type { ActionResult } from '@/lib/action-result'
 
 interface Spec {
   label: string
@@ -32,6 +32,7 @@ export interface ProductDefaults {
   min_order_qty?: number | null
   price_type?: string
   price_etb_cents?: number | null
+  trade_price_etb_cents?: number | null
   stock_status?: string
   lead_time_days?: number | null
   country_of_origin?: string | null
@@ -39,8 +40,14 @@ export interface ProductDefaults {
   delivery_available?: boolean
 }
 
-export function ProductForm({ defaults, categories, brands, sellers }: { defaults: ProductDefaults; categories: { id: string; label: string }[]; brands: { id: string; name: string }[]; sellers: { id: string; label: string }[] }) {
-  const [state, action] = useFormState(saveProductAction, null)
+type Save = (prev: ActionResult<{ id: string }> | null, formData: FormData) => Promise<ActionResult<{ id: string }>>
+
+/**
+ * Product editor for HagerLand (any seller) and for suppliers (their own organisation: no seller choice).
+ * Special Buys are set by HagerLand separately and are not part of this form.
+ */
+export function ProductForm({ action: save, defaults, categories, brands, sellers, submitLabel, allowNewBrand = true }: { action: Save; defaults: ProductDefaults; categories: { id: string; label: string }[]; brands: { id: string; name: string }[]; sellers?: { id: string; label: string }[]; submitLabel?: string; allowNewBrand?: boolean }) {
+  const [state, action] = useFormState(save, null)
   const [specs, setSpecs] = useState<Spec[]>(defaults.specs ?? [])
   const [priceType, setPriceType] = useState(defaults.price_type ?? 'on_request')
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
@@ -66,15 +73,19 @@ export function ProductForm({ defaults, categories, brands, sellers }: { default
               ))}
             </Select>
           </Field>
-          <Field label="Seller" htmlFor="pr-seller" error={errors.seller_org_id} required>
-            <Select id="pr-seller" name="seller_org_id" defaultValue={defaults.seller_org_id ?? sellers[0]?.id ?? ''}>
-              {sellers.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.label}
-                </option>
-              ))}
-            </Select>
-          </Field>
+          {sellers ? (
+            <Field label="Seller" htmlFor="pr-seller" error={errors.seller_org_id} required>
+              <Select id="pr-seller" name="seller_org_id" defaultValue={defaults.seller_org_id ?? sellers[0]?.id ?? ''}>
+                {sellers.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.label}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+          ) : (
+            <input type="hidden" name="seller_org_id" value={defaults.seller_org_id ?? ''} />
+          )}
           <Field label="Brand" htmlFor="pr-brand">
             <Select id="pr-brand" name="brand_id" defaultValue={defaults.brand_id ?? ''}>
               <option value="">No brand / new brand</option>
@@ -85,9 +96,11 @@ export function ProductForm({ defaults, categories, brands, sellers }: { default
               ))}
             </Select>
           </Field>
-          <Field label="New brand name" htmlFor="pr-newbrand" optional hint="Used only if no brand is chosen above.">
-            <Input id="pr-newbrand" name="new_brand" />
-          </Field>
+          {allowNewBrand && (
+            <Field label="New brand name" htmlFor="pr-newbrand" optional hint="Used only if no brand is chosen above.">
+              <Input id="pr-newbrand" name="new_brand" />
+            </Field>
+          )}
           <Field label="SKU" htmlFor="pr-sku" optional error={errors.sku}>
             <Input id="pr-sku" name="sku" defaultValue={defaults.sku ?? ''} />
           </Field>
@@ -148,6 +161,9 @@ export function ProductForm({ defaults, categories, brands, sellers }: { default
               <Input id="pr-price" name="price_etb" inputMode="decimal" defaultValue={defaults.price_etb_cents ? (defaults.price_etb_cents / 100).toFixed(2) : ''} invalid={Boolean(errors.price_etb)} />
             </Field>
           )}
+          <Field label="Trade price (ETB per unit)" htmlFor="pr-trade" optional hint="Shown only to approved trade accounts, never publicly." error={errors.trade_price_etb}>
+            <Input id="pr-trade" name="trade_price_etb" inputMode="decimal" defaultValue={defaults.trade_price_etb_cents ? (defaults.trade_price_etb_cents / 100).toFixed(2) : ''} invalid={Boolean(errors.trade_price_etb)} />
+          </Field>
           <Field label="Stock" htmlFor="pr-stock">
             <Select id="pr-stock" name="stock_status" defaultValue={defaults.stock_status ?? 'available_on_request'}>
               <option value="in_stock">In stock</option>
@@ -172,7 +188,7 @@ export function ProductForm({ defaults, categories, brands, sellers }: { default
         </label>
       </Panel>
       <SubmitButton size="lg" pendingText="Saving…">
-        {defaults.id ? 'Save product' : 'Create product'}
+        {submitLabel ?? (defaults.id ? 'Save product' : 'Create product')}
       </SubmitButton>
     </form>
   )

@@ -67,3 +67,23 @@ export function parseSpecs(v: unknown): Spec[] {
   if (!Array.isArray(v)) return []
   return v.filter((s): s is Spec => Boolean(s) && typeof s === 'object' && typeof (s as Spec).label === 'string' && typeof (s as Spec).value === 'string')
 }
+
+export type SpecialBuy = Database['public']['Views']['special_buys_public']['Row']
+
+/** Live Special Buys (spec 25.2d), soonest ending first. Expired and sold-out offers are excluded by the view. */
+export async function getSpecialBuys(limit = 60): Promise<SpecialBuy[]> {
+  return safeQuery('special buys', [], async () => {
+    const { data, error } = await getPublicSupabase({ tags: [listTag('product')], revalidate: 120 }).from('special_buys_public').select('*').order('special_ends_at', { ascending: true }).limit(limit)
+    if (error) throw error
+    return data ?? []
+  })
+}
+
+/** The live Special Buy offer for one product, if any. */
+export async function getSpecialBuyFor(productId: string): Promise<SpecialBuy | null> {
+  return safeQuery('special buy', null, async () => {
+    const { data, error } = await getPublicSupabase({ tags: [listTag('product')], revalidate: 120 }).from('special_buys_public').select('*').eq('id', productId).maybeSingle()
+    if (error) throw error
+    return data
+  })
+}

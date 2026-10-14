@@ -98,3 +98,12 @@ export async function isEthiopianLocation(id: string | null | undefined): Promis
 }
 
 export const NOT_IN_ETHIOPIA = 'Property listings and developments must be in Ethiopia. Choose a place in Ethiopia.'
+
+/** Indicative build-cost rates per m² (spec 25.2h). The estimator is hidden while this is empty. */
+export async function getBuildRates(): Promise<{ location_id: string | null; location_name: string | null; finish: string; rate_etb_per_m2: number; updated_at: string }[]> {
+  return safeQuery('build rates', [], async () => {
+    const { data, error } = await getPublicSupabase({ tags: ['build-rates'], revalidate: 600 }).from('build_cost_rates_public').select('location_id, location_name, finish, rate_etb_per_m2, updated_at')
+    if (error) throw error
+    return (data ?? []).map((r) => ({ location_id: r.location_id, location_name: r.location_name, finish: r.finish ?? '', rate_etb_per_m2: r.rate_etb_per_m2 ?? 0, updated_at: r.updated_at ?? '' }))
+  })
+}

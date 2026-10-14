@@ -23,6 +23,7 @@ import { isLive, verticalHref, visibleVertical } from '@/lib/verticals'
 import { COMING_SOON } from '@/lib/content/verticals'
 import { SoonBadge } from '@/components/verticals/SoonBadge'
 import { InterestForm } from '@/components/verticals/InterestForm'
+import { GuidesTeaser } from '@/components/guides/GuidesTeaser'
 
 export const revalidate = 300
 
@@ -415,6 +416,7 @@ export default async function HomePage() {
         </ul>
       </Section>
 
+      <GuidesTeaser />
       <JsonLd data={[organizationJsonLd(business.social.map((s) => s.url)), websiteJsonLd()]} />
     </>
   )

@@ -13,16 +13,17 @@ import { canonicalUrl } from '@/lib/site'
 import { log } from '@/lib/log'
 import { sendInstantAlerts } from '@/lib/alerts'
 
-type Entity = 'property' | 'development' | 'organisation' | 'portfolio'
-const TABLE: Record<Entity, 'properties' | 'developments' | 'organisations' | 'portfolio_projects'> = {
+type Entity = 'property' | 'development' | 'organisation' | 'portfolio' | 'product'
+const TABLE: Record<Entity, 'properties' | 'developments' | 'organisations' | 'portfolio_projects' | 'products'> = {
   property: 'properties',
   development: 'developments',
   organisation: 'organisations',
   portfolio: 'portfolio_projects',
+  product: 'products',
 }
 
 const schema = z.object({
-  entity: z.enum(['property', 'development', 'organisation', 'portfolio']),
+  entity: z.enum(['property', 'development', 'organisation', 'portfolio', 'product']),
   id: z.uuid(),
   op: z.enum(['approve', 'reject', 'changes', 'remove', 'approve_changes', 'reject_changes']),
   reason: z.string().trim().max(2000).optional(),
@@ -52,6 +53,10 @@ async function loadOwner(entity: Entity, id: string): Promise<Owner | null> {
   if (entity === 'organisation') {
     const { data } = await db.from('organisations').select('id, created_by, name, slug').eq('id', id).maybeSingle()
     return data ? { orgId: data.id, userId: data.created_by, title: data.name, url: canonicalUrl(`/company/${data.slug}`) } : null
+  }
+  if (entity === 'product') {
+    const { data } = await db.from('products').select('seller_org_id, name, slug').eq('id', id).maybeSingle()
+    return data ? { orgId: data.seller_org_id, userId: null, title: data.name, url: canonicalUrl(`/supplies/product/${data.slug}`) } : null
   }
   const { data } = await db.from('portfolio_projects').select('org_id, title').eq('id', id).maybeSingle()
   return data ? { orgId: data.org_id, userId: null, title: data.title, url: canonicalUrl('/account/company/portfolio') } : null
@@ -92,7 +97,7 @@ export async function moderateAction(input: { entity: string; id: string; op: st
           await sendEmail({ to, ...listingApprovedEmail({ name, title: owner.title, url: owner.url, expiresAt: fresh?.expires_at ?? null }) })
         } else if (to.length && entity === 'organisation') {
           await sendEmail({ to, ...orgDecisionEmail({ name, orgName: owner.title, approved: true, url: owner.url }) })
-        } else if (to.length && entity === 'development') {
+        } else if (to.length && (entity === 'development' || entity === 'product')) {
           await sendEmail({ to, ...listingApprovedEmail({ name, title: owner.title, url: owner.url, expiresAt: null }) })
         }
       }

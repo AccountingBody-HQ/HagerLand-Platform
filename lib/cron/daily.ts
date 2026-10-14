@@ -160,7 +160,7 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
   const db = getAdminSupabase()
   const head = { count: 'exact' as const, head: true }
   const since = iso(now - DAY)
-  const [pProps, pDevs, pOrgs, pPortfolio, claims, verifs, reports, enq, enqUnanswered, quotes, quotesOpen, signups, expiring, errors, interest, partners, srNew, srEmergency, srToMatch, srUnanswered, srAllDeclined, careNew, pJobs, pUpdates, applications] = await Promise.all([
+  const [pProps, pDevs, pOrgs, pPortfolio, claims, verifs, reports, enq, enqUnanswered, quotes, quotesOpen, signups, expiring, errors, interest, partners, srNew, srEmergency, srToMatch, srUnanswered, srAllDeclined, careNew, pJobs, pUpdates, applications, tradePending] = await Promise.all([
     db.from('properties').select('id', head).eq('status', 'pending_review'),
     db.from('developments').select('id', head).eq('status', 'pending_review'),
     db.from('organisations').select('id', head).eq('status', 'pending_review'),
@@ -186,6 +186,7 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
     db.from('jobs').select('id', head).eq('status', 'pending_review'),
     db.from('development_updates').select('id', head).eq('status', 'pending_review'),
     db.from('job_applications').select('id', head).gte('created_at', since),
+    db.from('trade_accounts').select('id', head).eq('status', 'pending'),
   ])
   const n = (r: { count: number | null }) => r.count ?? 0
   const lines: [string, string][] = []
@@ -213,6 +214,7 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
   add('New interest registrations (24 h)', n(interest))
   add('Partner applications to review', n(partners))
   add('New job applications (24 h)', n(applications))
+  add('Trade account applications to decide', n(tradePending))
   add('Listings expiring within 7 days', n(expiring))
   add('Listings expired today', s.expired)
   add('Quotes expired today', s.quotesExpired)

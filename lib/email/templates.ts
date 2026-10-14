@@ -491,3 +491,30 @@ export function applicationReceivedEmail(p: { name: string; title: string; emplo
     reason: CANDIDATE_REASON,
   })
 }
+
+const TRADE_REASON = 'You are receiving this because you applied for a HagerLand Supply trade account.'
+
+export function tradeApplicationEmail(p: { name: string; reference: string }): RenderedEmail {
+  return renderEmail({
+    subject: `Trade account application received (${p.reference})`,
+    preheader: 'We check every trade application, usually within 2 business days.',
+    heading: 'Thanks for applying for a trade account',
+    paragraphs: [`Hello ${p.name},`, 'We have received your application. We check every application and will email you when it has been decided. Once approved, you will see trade prices when you are signed in.'],
+    details: [['Reference', p.reference]],
+    reason: TRADE_REASON,
+  })
+}
+
+export function tradeDecisionEmail(p: { name: string; approved: boolean; note?: string | null }): RenderedEmail {
+  return renderEmail({
+    subject: p.approved ? 'Your trade account is approved' : 'About your trade account application',
+    preheader: p.approved ? 'Sign in to see trade prices on HagerLand Supply.' : 'We could not approve your trade account.',
+    heading: p.approved ? 'Your trade account is approved' : 'We could not approve your application',
+    paragraphs: p.approved
+      ? [`Hello ${p.name},`, 'Your HagerLand Supply trade account is now active. Sign in to see trade prices on products that have them, and send your quote list as usual.']
+      : [`Hello ${p.name},`, 'We are sorry, we could not approve your trade account application this time.'],
+    quote: p.approved ? undefined : p.note ?? undefined,
+    button: { label: p.approved ? 'Browse supplies' : 'Contact us', href: canonicalUrl(p.approved ? '/supplies' : '/contact') },
+    reason: TRADE_REASON,
+  })
+}

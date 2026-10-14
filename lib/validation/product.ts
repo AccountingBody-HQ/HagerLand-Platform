@@ -4,6 +4,9 @@ import { decimalFromForm, intFromForm, optionalText, textSchema } from './common
 
 const blank = (v: unknown) => (v === '' || v === null ? undefined : v)
 
+/** Organisations that sell through HagerLand Supply themselves (spec 25.2c). */
+export const SELLER_KINDS = ['supplier', 'manufacturer'] as const
+
 export const specSchema = z.object({ label: z.string().trim().min(1).max(80), value: z.string().trim().min(1).max(160), unit: z.string().trim().max(20).optional() })
 
 export const productSchema = z
@@ -31,6 +34,7 @@ export const productSchema = z
     min_order_qty: decimalFromForm({ min: 0.01, max: 1_000_000 }),
     price_type: z.enum(['fixed', 'from', 'on_request']),
     price_etb: decimalFromForm({ min: 0, max: 1_000_000_000 }),
+    trade_price_etb: decimalFromForm({ min: 0, max: 1_000_000_000 }),
     stock_status: z.enum(['in_stock', 'low_stock', 'out_of_stock', 'made_to_order', 'available_on_request']),
     lead_time_days: intFromForm({ min: 0, max: 365 }),
     country_of_origin: optionalText(60, 'Country'),
