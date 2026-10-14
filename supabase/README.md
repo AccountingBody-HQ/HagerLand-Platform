@@ -202,6 +202,20 @@ select (select count(*) from information_schema.tables where table_schema = 'pub
 ```
 **You should see:** `5 | 0 | 1`
 
+## 0017_saved_and_alerts.sql (Phase 1.5, E6)
+**What it does:** lets signed-in visitors save properties, products, businesses and developments, save
+property searches with email alerts (instant, daily or weekly, with an unsubscribe link in every email), and
+keep their supplies quote list in their account. Each person can only see and change their own. It also adds
+questions to the "Property valuers" service so "Request a valuation" asks the right things.
+
+**Check:**
+```sql
+select (select count(*) from information_schema.tables where table_schema = 'public' and table_name in ('saved_items', 'saved_searches', 'quote_lists')) as new_tables,
+       (select count(*) from pg_policies where tablename in ('saved_items', 'saved_searches', 'quote_lists')) as policies,
+       (select jsonb_array_length(question_schema) from service_categories where slug = 'property-valuers') as valuation_questions;
+```
+**You should see:** `3 | 10 | 4`
+
 ---
 
 ## Security test (run after all migrations)
@@ -210,7 +224,7 @@ statements: that is the test cleaning up after itself; click **Run this query**.
 It temporarily creates two test users and a test listing, tries things that should and should not be
 allowed, then deletes everything it created.
 
-**You should see:** every row starting with `PASS` (38 rows after migration 0011, 42 after 0013, 57 after 0014, 67 after 0016; each later migration adds its own checks and its section below says the new total).
+**You should see:** every row starting with `PASS` (38 rows after migration 0011, 42 after 0013, 57 after 0014, 67 after 0016, 74 after 0017; each later migration adds its own checks and its section below says the new total).
 
 ## TypeScript types
 `lib/database.types.ts` was generated from these exact migrations. After all migrations are applied,

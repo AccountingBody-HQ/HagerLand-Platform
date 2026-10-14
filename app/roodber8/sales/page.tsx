@@ -11,7 +11,7 @@ export default function SalesPage({ searchParams }: { searchParams: Record<strin
     <div>
       <AdminHeader
         title="HagerLand sales"
-        description="Enquiries and “register interest” requests for HagerLand Developments. Move each lead through new → contacted → qualified → won or lost."
+        description="Estate agency enquiries (selling, letting, buying, sourcing, developer sales) and interest in HagerLand Developments. Move each lead through new → contacted → qualified → won or lost."
         actions={
           <ButtonLink href="/roodber8/export/sales" variant="secondary" size="sm">
             Export CSV

@@ -233,6 +233,31 @@ select pg_temp.record_check('Requester sees the quote once it is sent', exists (
 reset role;
 delete from public.service_requests where id = '00000000-0000-4000-8000-0000000000c1';
 
+-- ---------- Saved items and searches (0017) ----------
+reset role;
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000001", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', false);
+insert into public.saved_items (user_id, entity_type, entity_id) values ('00000000-0000-4000-8000-000000000001', 'property', '00000000-0000-4000-8000-0000000000a1');
+insert into public.saved_searches (user_id, name, params) values ('00000000-0000-4000-8000-000000000001', 'RLS TEST search', '{"purpose":"sale"}');
+select pg_temp.record_check('User saves a property and a search', (select count(*) from public.saved_items) = 1 and (select count(*) from public.saved_searches where name = 'RLS TEST search') = 1);
+do $$ begin
+  perform unsubscribe_token from public.saved_searches limit 1;
+  perform pg_temp.record_check('User cannot read alert unsubscribe tokens', false);
+exception when insufficient_privilege then
+  perform pg_temp.record_check('User cannot read alert unsubscribe tokens', true);
+end $$;
+do $$ begin
+  insert into public.saved_items (user_id, entity_type, entity_id) values ('00000000-0000-4000-8000-000000000002', 'property', '00000000-0000-4000-8000-0000000000a1');
+  perform pg_temp.record_check('User cannot save items for someone else', false);
+exception when insufficient_privilege then
+  perform pg_temp.record_check('User cannot save items for someone else', true);
+end $$;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000002", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000002', false);
+select pg_temp.record_check('Another user sees none of those saved items or searches', (select count(*) from public.saved_items) = 0 and (select count(*) from public.saved_searches) = 0);
+reset role;
+delete from public.saved_searches where name = 'RLS TEST search';
+delete from public.saved_items where user_id = '00000000-0000-4000-8000-000000000001';
+
 -- ---------- Phase 1.5 tables (migrations 0011+) ----------
 reset role;
 select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);
@@ -253,7 +278,7 @@ select set_config('hl.private_tables', 'schema_migrations,verticals,interest_reg
 set role anon;
 select pg_temp.record_check('Anonymous cannot read ' || name, pg_temp.read_denied(name)) from unnest(string_to_array(current_setting('hl.private_tables'), ',')) as t(name);
 -- Signed-in users read these through their own policies; anonymous visitors get nothing.
-select pg_temp.record_check('Anonymous cannot read ' || name, pg_temp.read_denied(name)) from unnest(array['service_requests', 'service_request_matches', 'service_requests_for_provider']) as t(name);
+select pg_temp.record_check('Anonymous cannot read ' || name, pg_temp.read_denied(name)) from unnest(array['service_requests', 'service_request_matches', 'service_requests_for_provider', 'saved_items', 'saved_searches', 'quote_lists']) as t(name);
 select pg_temp.record_check('Anonymous can read exchange rates through the public view only', (select count(*) >= 0 from public.exchange_rates_public));
 select pg_temp.record_check('Anonymous reads live and coming-soon verticals only',
   (select count(*) from public.verticals_public) > 0 and not exists (select 1 from public.verticals_public where status = 'hidden'));

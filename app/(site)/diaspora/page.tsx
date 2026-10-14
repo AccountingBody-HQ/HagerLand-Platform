@@ -26,6 +26,7 @@ export function generateMetadata() {
 /** Diaspora → Ethiopia (spec 24.6a). Each links into a live vertical or the request engine. */
 const HOME_NEEDS = [
   { icon: House, title: 'Buy property in Ethiopia', text: 'Homes, apartments and land, every listing reviewed.', href: '/property/for-sale' },
+  { icon: Search, title: 'Have us find a property for you', text: 'Property sourcing and buyer representation from abroad.', href: '/agency/property-sourcing' },
   { icon: HardHat, title: 'Build a house', text: 'Quotes from house builders for your plot.', href: '/request-service/house-builders' },
   { icon: Hammer, title: 'Renovate family property', text: 'Refurbishment quotes for a home you already own.', href: '/request-service/property-refurbishment' },
   { icon: Wrench, title: 'Find contractors', text: 'Builders, renovators and specialist trades.', href: '/contractors' },
@@ -35,7 +36,7 @@ const HOME_NEEDS = [
   { icon: Search, title: 'Verification and due diligence', text: 'Inspections, and property lawyers to check documents.', href: '/request-service/property-inspections' },
   { icon: Building, title: 'Maintain your property', text: 'Repairs and regular maintenance.', href: '/repairs-maintenance' },
   { icon: KeyRound, title: 'Property management', text: `${brand.divisions.propertyCare}, for owners abroad.`, href: '/diaspora/property-care' },
-  { icon: TrendingUp, title: 'Investment property', text: 'Land, commercial and new-build opportunities.', href: '/property/for-sale?type=commercial' },
+  { icon: TrendingUp, title: 'Investment property', text: 'We source land, commercial and new-build opportunities for you.', href: '/agency/property-sourcing' },
   { icon: Landmark, title: 'Finance', text: 'Mortgages and construction finance through licensed partners.', href: '/finance' },
   { icon: ShieldCheck, title: 'Insurance', text: 'Home, landlord and construction cover through licensed partners.', href: '/insurance' },
   { icon: Calculator, title: 'Accountants and tax advisers', text: 'Professionals who know property in Ethiopia.', href: '/professionals/property-accountants' },

@@ -2127,6 +2127,25 @@ export type Database = {
           },
         ]
       }
+      quote_lists: {
+        Row: {
+          items: NonNullable<Json>
+          updated_at: string
+          user_id: string
+        }
+        ComputedFields: never
+        Insert: {
+          items?: NonNullable<Json>
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          items?: NonNullable<Json>
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       quote_request_items: {
         Row: {
           created_at: string
@@ -2399,6 +2418,68 @@ export type Database = {
           reporter_contact?: string | null
           status?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      saved_items: {
+        Row: {
+          created_at: string
+          entity_id: string
+          entity_type: string
+          user_id: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      saved_searches: {
+        Row: {
+          alert_frequency: string
+          created_at: string
+          id: string
+          last_sent_at: string | null
+          name: string
+          params: NonNullable<Json>
+          unsubscribe_token: string
+          updated_at: string
+          user_id: string
+          vertical: string
+        }
+        ComputedFields: never
+        Insert: {
+          alert_frequency?: string
+          created_at?: string
+          id?: string
+          last_sent_at?: string | null
+          name: string
+          params?: NonNullable<Json>
+          unsubscribe_token?: string
+          updated_at?: string
+          user_id: string
+          vertical?: string
+        }
+        Update: {
+          alert_frequency?: string
+          created_at?: string
+          id?: string
+          last_sent_at?: string | null
+          name?: string
+          params?: NonNullable<Json>
+          unsubscribe_token?: string
+          updated_at?: string
+          user_id?: string
+          vertical?: string
         }
         Relationships: []
       }

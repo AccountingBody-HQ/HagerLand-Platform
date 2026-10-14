@@ -28,36 +28,41 @@ export interface PropertyQuery {
   pageSize?: number
 }
 
-export async function searchProperties(query: PropertyQuery): Promise<SearchResult<PublicProperty>> {
+/** Arguments for the search_properties database function (shared by pages and the alerts job). */
+export function propertySearchArgs(query: PropertyQuery) {
   const f = query.filters ?? {}
+  return {
+    p_q: f.q,
+    p_purpose: query.purpose,
+    p_types: f.types?.length ? f.types : undefined,
+    p_location_id: query.locationId ?? undefined,
+    p_price_min: f.priceMin,
+    p_price_max: f.priceMax,
+    p_beds_min: f.beds,
+    p_baths_min: f.baths,
+    p_area_min: f.areaMin,
+    p_area_max: f.areaMax,
+    p_finishing: f.finishing?.length ? f.finishing : undefined,
+    p_furnishing: f.furnishing?.length ? f.furnishing : undefined,
+    p_features: f.features?.length ? f.features : undefined,
+    p_completion: f.completion?.length ? f.completion : undefined,
+    p_has_title_deed: f.deed,
+    p_lister_type: f.lister,
+    p_added_within_days: f.added,
+    p_include_negotiable: !f.excludeNegotiable,
+    p_development_id: query.developmentId,
+    p_lister_org_id: query.listerOrgId,
+    p_exclude_id: query.excludeId,
+    p_featured_only: query.featuredOnly ?? false,
+    p_sort: f.sort ?? 'newest',
+    p_page: f.page ?? 1,
+    p_page_size: query.pageSize ?? 24,
+  }
+}
+
+export async function searchProperties(query: PropertyQuery): Promise<SearchResult<PublicProperty>> {
   return safeQuery('search_properties', EMPTY, async () => {
-    const { data, error } = await getPublicSupabase({ tags: [listTag('property')], revalidate: 120 }).rpc('search_properties', {
-      p_q: f.q,
-      p_purpose: query.purpose,
-      p_types: f.types?.length ? f.types : undefined,
-      p_location_id: query.locationId ?? undefined,
-      p_price_min: f.priceMin,
-      p_price_max: f.priceMax,
-      p_beds_min: f.beds,
-      p_baths_min: f.baths,
-      p_area_min: f.areaMin,
-      p_area_max: f.areaMax,
-      p_finishing: f.finishing?.length ? f.finishing : undefined,
-      p_furnishing: f.furnishing?.length ? f.furnishing : undefined,
-      p_features: f.features?.length ? f.features : undefined,
-      p_completion: f.completion?.length ? f.completion : undefined,
-      p_has_title_deed: f.deed,
-      p_lister_type: f.lister,
-      p_added_within_days: f.added,
-      p_include_negotiable: !f.excludeNegotiable,
-      p_development_id: query.developmentId,
-      p_lister_org_id: query.listerOrgId,
-      p_exclude_id: query.excludeId,
-      p_featured_only: query.featuredOnly ?? false,
-      p_sort: f.sort ?? 'newest',
-      p_page: f.page ?? 1,
-      p_page_size: query.pageSize ?? 24,
-    })
+    const { data, error } = await getPublicSupabase({ tags: [listTag('property')], revalidate: 120 }).rpc('search_properties', propertySearchArgs(query))
     if (error) throw error
     return (data as unknown as SearchResult<PublicProperty>) ?? EMPTY
   })

@@ -83,6 +83,8 @@ export async function saveListingStepAction(_prev: WizardState, formData: FormDa
         location_id: loc.data.location_id,
         address_line: loc.data.address_line ?? null,
         show_exact_location: loc.data.show_exact_location,
+        lat: loc.data.lat ?? null,
+        lng: loc.data.lng ?? null,
         development_id: await ownDevelopment(loc.data.development_id),
         lister_type: listerType,
         lister_user_id: user.id,
@@ -115,7 +117,7 @@ export async function saveListingStepAction(_prev: WizardState, formData: FormDa
     const r = locationSchema.safeParse(raw)
     if (!r.success) return invalid(r.error)
     if (!(await isEthiopianLocation(r.data.location_id))) return fail(NOT_IN_ETHIOPIA, { location_id: 'Choose a place in Ethiopia' })
-    changes = { location_id: r.data.location_id, address_line: r.data.address_line ?? null, show_exact_location: r.data.show_exact_location, development_id: await ownDevelopment(r.data.development_id) }
+    changes = { location_id: r.data.location_id, address_line: r.data.address_line ?? null, show_exact_location: r.data.show_exact_location, ...(r.data.lat !== undefined ? { lat: r.data.lat, lng: r.data.lng ?? null } : {}), development_id: await ownDevelopment(r.data.development_id) }
     if (r.data.requested_area) await getAdminSupabase().from('admin_notes').insert({ entity_type: 'property', entity_id: id, note: `Lister asked for a new area: "${r.data.requested_area}"` })
   } else if (step === 'details') {
     const r = detailsSchema.safeParse(raw)

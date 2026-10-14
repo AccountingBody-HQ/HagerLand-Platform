@@ -85,6 +85,8 @@ export const FEATURES: { value: string; label: string }[] = [
   { value: 'parking', label: 'Parking' },
   { value: 'furnished_kitchen', label: 'Fitted kitchen' },
   { value: 'storage', label: 'Storage room' },
+  // Investment opportunities (PLATFORM_VISION §2): already let, or sold as an income property.
+  { value: 'investment', label: 'Investment property (income or already let)' },
 ]
 
 export function featureLabel(v: string): string {

@@ -126,8 +126,8 @@ Summary (updated at the end of every work package): see the last section.
 | R-35 | /account/company and /account/company/verification | 4.3 | Done | app/(account)/account/company | e2e:flows/business.spec.ts |
 | R-36 | /account/enquiries and /account/enquiries/[id] | 4.3 | Done | app/(account)/account/enquiries | e2e:flows/owner-listing.spec.ts (owner sees the enquiry) |
 | R-37 | /account/quotes | 4.3 | Not done | app/(account)/account/quotes | add test: signed-in requester sees quote |
-| R-38 | /account/saved (25.2a) | 4.3 / 25.2a | Not done | — | E6 |
-| R-39 | /account/alerts (25.2a) | 4.3 / 25.2a | Not done | — | E6 |
+| R-38 | /account/saved (25.2a) | 4.3 / 25.2a | Done | app/(account)/account/saved | e2e:property-extras.spec.ts › a signed-in user saves a property… |
+| R-39 | /account/alerts (25.2a) | 4.3 / 25.2a | Done | app/(account)/account/alerts | e2e:property-extras.spec.ts › …can unsubscribe (alerts page, delete) |
 | R-40 | /account/settings (name, phone, password, notifications, delete account) | 4.3 | Not done | app/(account)/account/settings | add test (H6 covers deletion and export requests) |
 | R-41 | /onboarding | 4.3 | Done | app/(account)/onboarding | e2e:flows/business.spec.ts |
 | R-42 | /roodber8-login and /roodber8 sub-routes | 4.3 | Done | app/roodber8-login, app/roodber8 | e2e:admin/admin.spec.ts › every admin screen loads without errors |
@@ -223,8 +223,8 @@ Summary (updated at the end of every work package): see the last section.
 | T-20 | claims | 6.3 | Done | 0002 | e2e:flows/business.spec.ts › someone claims… |
 | T-21 | verification_requests | 6.3 | Done | 0002 | e2e:flows/business.spec.ts |
 | T-22 | admin_notes | 6.3 | Done | 0002 | verify: admin entity pages add notes (RecordTools) |
-| T-23 | saved_items (25.2a) | 6.3 | Not done | — | E6 |
-| T-24 | saved_searches (25.2a) | 6.3 | Not done | — | E6 |
+| T-23 | saved_items (25.2a) | 6.3 | Done | 0017 saved_items | rls:User saves a property and a search; rls:Another user sees none… |
+| T-24 | saved_searches (25.2a) | 6.3 | Done | 0017 saved_searches | rls:User cannot read alert unsubscribe tokens |
 | T-25 | promotions (+ featured sync trigger) | 6.3 | Done | 0002 | e2e:cron.spec.ts (featured sync step) |
 | T-26 | site_settings + site_settings_public whitelist | 6.3 | Done | 0002, 0004, 0010 | sql: 0010 check → 14 |
 | T-27 | audit_log | 6.3 | Done | 0002 | e2e:admin/admin.spec.ts |
@@ -243,7 +243,7 @@ Summary (updated at the end of every work package): see the last section.
 | S6-20 | Enquiries: server insert only; recipients update status/notes; sender reads own | 6.5 | Done | 0003 | rls checks (enquiries) |
 | S6-21 | Quote requests: server insert; requester reads own | 6.5 | Done | 0003 | rls checks (quotes) |
 | S6-22 | Claims/verification: insert own, read own | 6.5 | Done | 0003 | rls checks (claims) |
-| S6-23 | saved_items/saved_searches owner-only | 6.5 | Not done | — | E6 + rls test |
+| S6-23 | saved_items/saved_searches owner-only | 6.5 | Done | 0017 policies | rls:User cannot save items for someone else; rls:Another user sees none of those saved items or searches |
 | S6-24 | Service-role-only tables (audit_log, admin_notes, settings write, promotions, import_log, rate_limits, contact_reveals) | 6.5 | Done | 0003 | rls checks |
 | S6-25 | Storage: public-media (server-signed uploads only), private-docs (10-minute signed links, owner/admin only) | 6.5 | Done | 0006, lib/storage.ts | e2e:security.spec.ts › upload signing refuses…; sql: 0006 check |
 | M-01 | lib/env.ts zod-validated env, fail fast | 6.6 | Done | lib/env.ts, instrumentation.ts | unit:env.test.ts |
@@ -303,7 +303,7 @@ Summary (updated at the end of every work package): see the last section.
 | S7-15 | Supplier dashboard products (25.2c) | 7.3 | Not done | — | H1 |
 | S7-16 | Agency team members (25.2i) | 7.3 | Not done | — | H3 |
 | S7-17 | Listing wizard steps 1–6 with autosave, min 3 photos, declarations | 7.4 | Done | components/account/ListingWizard.tsx | e2e:flows/owner-listing.spec.ts |
-| S7-18 | Map pin on the wizard location step (25.2b) | 7.4 / 25.2b | Not done | — | E6 |
+| S7-18 | Map pin on the wizard location step (25.2b) | 7.4 / 25.2b | Done | see X-252-05 | see X-252-05 |
 | S7-19 | Private owners limited to N active listings | 7.4 | Not done | lib/data/owner-listings.ts | H6: test private-owner cap |
 
 ## Section 8 — Property marketplace
@@ -317,7 +317,7 @@ Summary (updated at the end of every work package): see the last section.
 | S8-05 | Sort options | 8.2 | Done | lib/property-search.ts | unit:property-search.test.ts › defaults sort to relevance only when searching text |
 | S8-06 | At most 2 labelled Featured cards on page 1 | 8.2 | Done | components/property/PropertyResults.tsx | verify: code review WP-6 (slice(0, 2), Featured label) |
 | S8-07 | Results header with count, chips, clear all | 8.2 | Done | components/property/PropertyResults.tsx | unit:property-search.test.ts › counts and removes filters |
-| S8-08 | "Save this search" (25.2a) | 8.2 | Not done | — | E6 |
+| S8-08 | "Save this search" (25.2a) | 8.2 | Done | components/saved/SaveSearchButton.tsx | e2e:property-extras.spec.ts › a signed-in user saves… a search |
 | S8-09 | Pagination 24 per page | 8.2 | Done | components/ui/Pagination.tsx | verify: page size 24 in lib/data/properties.ts |
 | S8-10 | Empty state with widen-search and "Tell us what you're looking for" | 8.2 | Done | components/property/PropertyResults.tsx | e2e:smoke.spec.ts › loads /contact?topic=property-request |
 | S8-11 | Detail sections 1–13 (breadcrumbs, gallery, title, contact, facts, description, features, location, development, info, safety, similar, professionals) | 8.3 | Done | app/(site)/property/[slug]/page.tsx | e2e:flows/owner-listing.spec.ts; e2e:a11y.spec.ts |
@@ -350,7 +350,7 @@ Summary (updated at the end of every work package): see the last section.
 | S10-04 | Category pages: intro, chips, filters, sort, grid, custom-item CTA | 10.3 | Done | components/supplies/CategoryPage.tsx | e2e:smoke.spec.ts (category pages) |
 | S10-05 | Product detail (gallery, specs, price block, stock, lead time, min qty, stepper, add to quote, seller badge, JSON-LD) | 10.4 | Done | app/(site)/supplies/product/[slug] | e2e:seo.spec.ts › structured data…; e2e:flows/supplies-and-contact.spec.ts |
 | S10-06 | Quote list in localStorage (hl_quote_v1) | 10.5 | Done | components/supplies/quoteStore.ts | e2e:flows/supplies-and-contact.spec.ts |
-| S10-07 | Quote list synced to account when signed in (25.2a) | 10.5 / 25.2a | Not done | — | E6 |
+| S10-07 | Quote list synced to account when signed in (25.2a) | 10.5 / 25.2a | Done | lib/quote-list.ts, components/supplies/QuoteListSync.tsx, 0017 quote_lists | unit:e6-helpers.test.ts › quote list sync; e2e:property-extras.spec.ts › a signed-in user’s quote list is kept in their account |
 | S10-08 | Quote submit → reference HLQ, emails to customer and team | 10.5 | Done | app/actions/quote-actions.ts | e2e:flows/supplies-and-contact.spec.ts |
 | S10-09 | Materials list upload (≤ 5 files, 15 MB) | 10.6 | Done | components/supplies/MaterialsListForm.tsx | e2e:flows/supplies-and-contact.spec.ts › a guest sends a materials list with a file |
 | S10-10 | Suppliers directory with product-category filter | 10.7 | Done | app/(site)/suppliers | e2e:smoke.spec.ts › loads /suppliers |
@@ -549,7 +549,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | S23-06 | "Why buy" claims only from settings | 23.6 | Done | developments_claims setting | verify: hidden when empty |
 | S23-07 | Neighbourhoods added by AB in admin (no guessed parents) | 23.7 | Done | app/roodber8/locations | e2e:admin/admin.spec.ts › …add a location |
 | S23-08 | Pages honest when empty (launch content not seeded by us) | 23.8 | Done | EmptyState everywhere | e2e:smoke.spec.ts (empty local data) |
-| S23-09 | Map provider via env/settings; map hidden without a key (25.2b) | 23.9 / 25.2b | Not done | — | E6 |
+| S23-09 | Map provider via env/settings; map hidden without a key (25.2b) | 23.9 / 25.2b | Done | see X-252-06 | unit:e6-helpers.test.ts › map configuration |
 | S23-10 | Google OAuth hidden unless enabled | 23.10 | Not done | — | see S7-04 |
 | S23-11 | Error monitoring without Sentry (errors table + digest) | 23.11 | Done | lib/error-store.ts | unit:error-store.test.ts |
 | S23-12 | Social links shown only when real (https) | 23.12 | Done | lib/data/business.ts | unit:settings.test.ts › requires https social links |
@@ -626,14 +626,14 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | S24-57 | Data model: managed_properties, inspections (photos, notes), rent statements, maintenance log | 24.6 | Done | supabase/migrations/0016_property_care.sql | sql: 0016 check → 5 · 0 · 1 (local); rls:Anonymous/Signed-in user cannot read managed_properties etc. |
 | S24-58 | Admin creates managed properties, inspections, statements, maintenance entries | 24.6 | Done | app/roodber8/managed-properties | e2e:diaspora.spec.ts › an owner abroad requests… (inspection with photo, statement, maintenance entry) |
 | S24-59 | Owner portal hidden until enabled | 24.6 | Done | — | verify: no owner-facing routes exist; rls: signed-in users cannot read any Property Care table |
-| S24-60 | Pages: Sell with HagerLand, Let with HagerLand, Buyer representation, Property sourcing for diaspora buyers, Developer sales | 24.7 | Not done | app/(site)/agency/* | E6 |
-| S24-61 | Each agency page has an enquiry form | 24.7 | Not done | — | E6 |
-| S24-62 | "Request a valuation" (service request type) | 24.7 | Not done | — | E6 |
-| S24-63 | lister_type hagerland labelled "Marketed by HagerLand" | 24.7 | Not done | PropertyBadges | E6 |
-| S24-64 | Property page: Save (account required) | 24.7 | Not done | — | E6 |
-| S24-65 | Compare up to 4 properties, side-by-side page; guests via localStorage | 24.7 | Not done | — | E6 |
-| S24-66 | Property page: Request a valuation | 24.7 | Not done | — | E6 |
-| S24-67 | "Ask about financing": finance interest when coming soon, service request when live | 24.7 | Not done | — | E6 |
+| S24-60 | Pages: Sell with HagerLand, Let with HagerLand, Buyer representation, Property sourcing for diaspora buyers, Developer sales | 24.7 | Done | app/(site)/agency, lib/content/agency.ts | e2e:property-extras.spec.ts › agency pages explain each service… |
+| S24-61 | Each agency page has an enquiry form | 24.7 | Done | app/(site)/agency/[service] | e2e:property-extras.spec.ts › agency pages… (enquiry reaches the HagerLand sales view) |
+| S24-62 | "Request a valuation" (service request type) | 24.7 | Done | 0017 valuation questions, /request-service/property-valuers | e2e:property-extras.spec.ts › a property page offers… valuation; sql: 0017 check → 4 questions |
+| S24-63 | lister_type hagerland labelled "Marketed by HagerLand" | 24.7 | Done | components/property/PropertyBadges.tsx | e2e:property-extras.spec.ts › …HagerLand-marketed listings are labelled |
+| S24-64 | Property page: Save (account required) | 24.7 | Done | components/saved/SaveButton.tsx, app/actions/saved-actions.ts | e2e:property-extras.spec.ts › a signed-in user saves a property…; guests sent to sign in |
+| S24-65 | Compare up to 4 properties, side-by-side page; guests via localStorage | 24.7 | Done | lib/compare.ts, components/compare/*, app/(site)/property/compare | unit:e6-helpers.test.ts › compare list; e2e:property-extras.spec.ts › a property page offers… compare |
+| S24-66 | Property page: Request a valuation | 24.7 | Done | PropertyActions | e2e:property-extras.spec.ts › a property page offers… (Request a valuation link) |
+| S24-67 | "Ask about financing": finance interest when coming soon, service request when live | 24.7 | Done | PropertyActions | e2e:property-extras.spec.ts › a property page offers… (financing → Finance interest while coming soon) |
 | S24-70 | Finance landing with all categories, "provided through approved, licensed partners" | 24.8 | Not done | — | E7 |
 | S24-71 | Insurance landing with all categories, same partner statement | 24.8 | Not done | — | E7 |
 | S24-72 | Register interest by category | 24.8 | Not done | — | E7 |
@@ -697,34 +697,34 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | V1-19 | Building supplies category: Safety equipment | Vision §1 | Not done | product_categories seed | sql: category present and active (H1 check) |
 | V1-20 | Building supplies category: Specialist construction products | Vision §1 | Not done | product_categories seed | sql: category present and active (H1 check) |
 | V1-21 | Own products and third-party suppliers' products | Vision §1 | Not done | products.seller_org_id | H1 (25.2c) |
-| V2-01 | Property marketplace: Buy property | Vision §2 | Not done | — | see linked S8/S24 rows; verified in E6 |
-| V2-02 | Property marketplace: Sell property | Vision §2 | Not done | — | see linked S8/S24 rows; verified in E6 |
-| V2-03 | Property marketplace: Rent property | Vision §2 | Not done | — | see linked S8/S24 rows; verified in E6 |
-| V2-04 | Property marketplace: Let property | Vision §2 | Not done | — | see linked S8/S24 rows; verified in E6 |
-| V2-05 | Property marketplace: Search new developments | Vision §2 | Not done | — | see linked S8/S24 rows; verified in E6 |
-| V2-06 | Property marketplace: Search commercial property | Vision §2 | Not done | — | see linked S8/S24 rows; verified in E6 |
-| V2-07 | Property marketplace: Search land | Vision §2 | Not done | — | see linked S8/S24 rows; verified in E6 |
-| V2-08 | Property marketplace: Search investment opportunities | Vision §2 | Not done | — | see linked S8/S24 rows; verified in E6 |
-| V2-09 | Property marketplace: Search by city, sub-city, district and neighbourhood | Vision §2 | Not done | — | see linked S8/S24 rows; verified in E6 |
-| V2-10 | Property marketplace: Contact agents, developers and owners | Vision §2 | Not done | — | see linked S8/S24 rows; verified in E6 |
-| V2-11 | Property marketplace: Save properties | Vision §2 | Not done | — | see linked S8/S24 rows; verified in E6 |
-| V2-12 | Property marketplace: Compare opportunities | Vision §2 | Not done | — | see linked S8/S24 rows; verified in E6 |
-| V2-13 | Property marketplace: Submit property enquiries | Vision §2 | Not done | — | see linked S8/S24 rows; verified in E6 |
-| V2-14 | Property marketplace: Request valuations | Vision §2 | Not done | — | see linked S8/S24 rows; verified in E6 |
-| V2-15 | Property marketplace: Advertise properties | Vision §2 | Not done | — | see linked S8/S24 rows; verified in E6 |
-| V2-16 | Property marketplace: Serves domestic and diaspora buyers | Vision §2 | Not done | — | see linked S8/S24 rows; verified in E6 |
-| V3-01 | Estate agency service: Property sales | Vision §3 | Not done | agency pages + service categories | E6 |
-| V3-02 | Estate agency service: Property letting | Vision §3 | Not done | agency pages + service categories | E6 |
-| V3-03 | Estate agency service: Buyer representation | Vision §3 | Not done | agency pages + service categories | E6 |
-| V3-04 | Estate agency service: Seller representation | Vision §3 | Not done | agency pages + service categories | E6 |
-| V3-05 | Estate agency service: Property sourcing | Vision §3 | Not done | agency pages + service categories | E6 |
-| V3-06 | Estate agency service: Property marketing | Vision §3 | Not done | agency pages + service categories | E6 |
-| V3-07 | Estate agency service: Property valuation coordination | Vision §3 | Not done | agency pages + service categories | E6 |
-| V3-08 | Estate agency service: Viewing coordination | Vision §3 | Not done | agency pages + service categories | E6 |
-| V3-09 | Estate agency service: Negotiation assistance | Vision §3 | Not done | agency pages + service categories | E6 |
-| V3-10 | Estate agency service: Diaspora property acquisition assistance | Vision §3 | Not done | agency pages + service categories | E6 |
-| V3-11 | Estate agency service: Developer sales | Vision §3 | Not done | agency pages + service categories | E6 |
-| V3-12 | Estate agency service: Investment property sourcing | Vision §3 | Not done | agency pages + service categories | E6 |
+| V2-01 | Property marketplace: Buy property | Vision §2 | Done | /property/for-sale | e2e:smoke.spec.ts › loads /property/for-sale |
+| V2-02 | Property marketplace: Sell property | Vision §2 | Done | listing wizard, /agency/sell | e2e:flows/owner-listing.spec.ts; e2e:property-extras.spec.ts |
+| V2-03 | Property marketplace: Rent property | Vision §2 | Done | /property/to-rent | e2e:smoke.spec.ts › loads /property/to-rent |
+| V2-04 | Property marketplace: Let property | Vision §2 | Done | listing wizard (rent), /agency/let | e2e:flows/owner-listing.spec.ts; e2e:smoke.spec.ts |
+| V2-05 | Property marketplace: Search new developments | Vision §2 | Done | /developments | e2e:smoke.spec.ts › loads /developments |
+| V2-06 | Property marketplace: Search commercial property | Vision §2 | Done | ?type=commercial, /property/for-sale/commercial | unit:e6-helpers.test.ts › property type paths |
+| V2-07 | Property marketplace: Search land | Vision §2 | Done | /property/for-sale/land | e2e:smoke.spec.ts › loads /property/for-sale/land |
+| V2-08 | Property marketplace: Search investment opportunities | Vision §2 | Done | feature 'investment', menu link | verify: features=investment filter (lib/labels FEATURES, unit:property-search.test.ts parses features) |
+| V2-09 | Property marketplace: Search by city, sub-city, district and neighbourhood | Vision §2 | Done | location landings | e2e:smoke.spec.ts › loads /property/for-sale/addis-ababa/bole |
+| V2-10 | Property marketplace: Contact agents, developers and owners | Vision §2 | Done | ContactPanel, EnquiryForm | e2e:flows/owner-listing.spec.ts |
+| V2-11 | Property marketplace: Save properties | Vision §2 | Done | saved items | e2e:property-extras.spec.ts |
+| V2-12 | Property marketplace: Compare opportunities | Vision §2 | Done | compare | e2e:property-extras.spec.ts |
+| V2-13 | Property marketplace: Submit property enquiries | Vision §2 | Done | EnquiryForm | e2e:flows/owner-listing.spec.ts |
+| V2-14 | Property marketplace: Request valuations | Vision §2 | Done | valuation requests | e2e:property-extras.spec.ts |
+| V2-15 | Property marketplace: Advertise properties | Vision §2 | Done | listing wizard | e2e:flows/owner-listing.spec.ts |
+| V2-16 | Property marketplace: Serves domestic and diaspora buyers | Vision §2 | Done | diaspora links, approximate prices | e2e:diaspora.spec.ts; e2e:international.spec.ts › approximate prices… |
+| V3-01 | Estate agency service: Property sales | Vision §3 | Done | app/(site)/agency | e2e:property-extras.spec.ts › agency pages explain each service… |
+| V3-02 | Estate agency service: Property letting | Vision §3 | Done | app/(site)/agency | e2e:property-extras.spec.ts › agency pages explain each service… |
+| V3-03 | Estate agency service: Buyer representation | Vision §3 | Done | app/(site)/agency | e2e:property-extras.spec.ts › agency pages explain each service… |
+| V3-04 | Estate agency service: Seller representation | Vision §3 | Done | app/(site)/agency | e2e:property-extras.spec.ts › agency pages explain each service… |
+| V3-05 | Estate agency service: Property sourcing | Vision §3 | Done | app/(site)/agency | e2e:property-extras.spec.ts › agency pages explain each service… |
+| V3-06 | Estate agency service: Property marketing | Vision §3 | Done | app/(site)/agency | e2e:property-extras.spec.ts › agency pages explain each service… |
+| V3-07 | Estate agency service: Property valuation coordination | Vision §3 | Done | app/(site)/agency | e2e:property-extras.spec.ts › agency pages explain each service… |
+| V3-08 | Estate agency service: Viewing coordination | Vision §3 | Done | app/(site)/agency | e2e:property-extras.spec.ts › agency pages explain each service… |
+| V3-09 | Estate agency service: Negotiation assistance | Vision §3 | Done | app/(site)/agency | e2e:property-extras.spec.ts › agency pages explain each service… |
+| V3-10 | Estate agency service: Diaspora property acquisition assistance | Vision §3 | Done | app/(site)/agency | e2e:property-extras.spec.ts › agency pages explain each service… |
+| V3-11 | Estate agency service: Developer sales | Vision §3 | Done | app/(site)/agency | e2e:property-extras.spec.ts › agency pages explain each service… |
+| V3-12 | Estate agency service: Investment property sourcing | Vision §3 | Done | app/(site)/agency | e2e:property-extras.spec.ts › agency pages explain each service… |
 | V4-01 | Contractor category: General contractors | Vision §4 | Done | 0007/0015 service_categories, app/(site)/contractors | e2e:repairs-contractors.spec.ts › the contractors hub offers… (new types); sql: 0015 check; verify: other types exist since 0007 (general, renovation, road & civil, roofers, painters, flooring, carpenters & joiners, tilers, plasterers, welders, aluminium & glass, HVAC, landscaping, excavation, specialised) |
 | V4-02 | Contractor category: House builders | Vision §4 | Done | 0007/0015 service_categories, app/(site)/contractors | e2e:repairs-contractors.spec.ts › the contractors hub offers… (new types); sql: 0015 check; verify: other types exist since 0007 (general, renovation, road & civil, roofers, painters, flooring, carpenters & joiners, tilers, plasterers, welders, aluminium & glass, HVAC, landscaping, excavation, specialised) |
 | V4-03 | Contractor category: Renovation contractors | Vision §4 | Done | 0007/0015 service_categories, app/(site)/contractors | e2e:repairs-contractors.spec.ts › the contractors hub offers… (new types); sql: 0015 check; verify: other types exist since 0007 (general, renovation, road & civil, roofers, painters, flooring, carpenters & joiners, tilers, plasterers, welders, aluminium & glass, HVAC, landscaping, excavation, specialised) |
@@ -909,12 +909,12 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | ID | Requirement | Source | Status | Implementing files | Test / verification |
 |----|-------------|--------|--------|--------------------|---------------------|
 | X-MAT-01 | Requirements matrix covers spec 1–25 and the vision; zero Not done at the end | 25.1 | Not done | docs/REQUIREMENTS_MATRIX.md | scripts/matrix-summary.sh |
-| X-252-01 | Saved properties, products and companies in the account | 25.2a | Not done | — | E6 |
-| X-252-02 | Saved searches with email alerts (instant, daily, weekly), unsubscribe link, cron | 25.2a | Not done | — | E6 |
-| X-252-03 | Quote list synced to the account when signed in | 25.2a | Not done | — | E6 |
-| X-252-04 | Map search for properties | 25.2b | Not done | — | E6 |
-| X-252-05 | Location pin picker in the listing wizard | 25.2b | Not done | — | E6 |
-| X-252-06 | Tile provider from env/site settings; map hidden without a key | 25.2b | Not done | — | E6 |
+| X-252-01 | Saved properties, products and companies in the account | 25.2a | Done | saved items | e2e:property-extras.spec.ts › a signed-in user saves a property… |
+| X-252-02 | Saved searches with email alerts (instant, daily, weekly), unsubscribe link, cron | 25.2a | Done | lib/alerts.ts, cron, unsubscribe page | e2e:property-extras.spec.ts › …instant alert…; › daily alerts are sent by the daily job… |
+| X-252-03 | Quote list synced to the account when signed in | 25.2a | Done | quote list sync | e2e:property-extras.spec.ts › a signed-in user’s quote list is kept in their account |
+| X-252-04 | Map search for properties | 25.2b | Done | app/(site)/property/map, components/map/* | e2e:property-extras.spec.ts › property-type pages, canonicals and the map view |
+| X-252-05 | Location pin picker in the listing wizard | 25.2b | Done | components/map/MapPinField.tsx, wizard location step | verify: location step renders the pin map when tiles are configured; lat/lng saved only when the field is present (validation optional) |
+| X-252-06 | Tile provider from env/site settings; map hidden without a key | 25.2b | Done | lib/map-config.ts, middleware CSP | unit:e6-helpers.test.ts › map configuration (off without a full tile URL) |
 | X-252-07 | Supplier self-serve product listings with moderation | 25.2c | Not done | — | H1 |
 | X-252-08 | Supplier products tab on company profile | 25.2c | Not done | — | H1 |
 | X-252-09 | org_product_categories filters | 25.2c | Not done | — | H1 |
@@ -933,7 +933,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | X-252-22 | Development progress updates (dated posts with photos) | 25.2j | Not done | — | E8 |
 | X-252-23 | Deals/commission tracking linked to enquiries and service requests | 25.2k | Done | 0014 deals, chooseQuoteAction, app/roodber8/deals | e2e:flows/service-requests.spec.ts › a guest requests… (deal won with value); admin deals form |
 | X-252-24 | Monthly revenue and lead reports with CSV | 25.2k | Done | app/roodber8/deals, export report-revenue | unit:aggregate.test.ts › monthly revenue and lead report; e2e:admin/admin.spec.ts (Deals screen) |
-| X-252-25 | Path-based property-type SEO pages respecting min-results noindex | 25.2l | Not done | — | E6 |
+| X-252-25 | Path-based property-type SEO pages respecting min-results noindex | 25.2l | Done | lib/property-type-paths.ts, lib/property-pages.ts, sitemap typePathCounts | unit:e6-helpers.test.ts › property type paths; unit:sitemap.test.ts › property-type pages; e2e:property-extras.spec.ts › property-type pages, canonicals… |
 | X-252-26 | i18n architecture for UI text | 25.2m | Not done | — | H4 |
 | X-252-27 | /am locale with hreflang and Ethiopic font | 25.2m | Not done | — | H4 |
 | X-252-28 | Machine-assisted Amharic marked needs native review; locale off by default behind admin switch | 25.2m | Not done | — | H4 |
@@ -1000,7 +1000,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | X-MAIL-02 | HTML + plain text | 25.4 | Not done | — | H6/E9 |
 | X-MAIL-03 | Correct sender and reply-to | 25.4 | Not done | — | H6/E9 |
 | X-MAIL-04 | User content escaped | 25.4 | Not done | — | H6/E9 |
-| X-MAIL-05 | Marketing only with consent and unsubscribe link | 25.4 | Not done | — | H6/E9 |
+| X-MAIL-05 | Marketing only with consent and unsubscribe link | 25.4 | Not done | saved-search emails: footer unsubscribe + List-Unsubscribe | alerts done (e2e:property-extras.spec.ts); marketing news emails not built (no newsletter sending exists) — recheck in H6 |
 | X-I18N-01 | Currency formatting per currency (ETB no decimals for property) | 25.4 | Done | lib/format.ts formatETB/formatMoney | unit:currency.test.ts › keeps ETB… no decimals; › uses symbols or codes… |
 | X-I18N-02 | Timestamps UTC, shown in user's time zone | 25.4 | Not done | — | H6/E9 |
 | X-I18N-03 | Gregorian dates | 25.4 | Not done | — | H6/E9 |
@@ -1043,7 +1043,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | X-SEO-05 | OG images for all detail page types | 25.4 | Not done | — | H6/E9 |
 | X-OPS-01 | Cron: listing/quote/job expiry | 25.4 | Not done | — | H6/E9 |
 | X-OPS-02 | Cron: service-request reminders (unanswered matches > 48h) | 25.4 | Done | lib/cron/daily.ts remindUnansweredMatches | e2e:flows/service-requests.spec.ts › the daily job reminds providers who have not answered within 48 hours, once |
-| X-OPS-03 | Cron: saved-search alerts | 25.4 | Not done | — | H6/E9 |
+| X-OPS-03 | Cron: saved-search alerts | 25.4 | Done | lib/alerts.ts runScheduledAlerts | e2e:property-extras.spec.ts › daily alerts are sent by the daily job… |
 | X-OPS-04 | Cron: email retries | 25.4 | Not done | — | H6/E9 |
 | X-OPS-05 | Cron: retention purges | 25.4 | Not done | — | H6/E9 |
 | X-OPS-06 | Cron: featured sync | 25.4 | Not done | — | H6/E9 |

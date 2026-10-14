@@ -23,6 +23,8 @@ import { VerificationBadge } from '@/components/company/VerificationBadge'
 import { getOrganisationBySlug } from '@/lib/data/organisations'
 import { getBusinessDetails } from '@/lib/data/business'
 import { ApproxPrice } from '@/components/currency/ApproxPrice'
+import { SaveButton } from '@/components/saved/SaveButton'
+import { FinanceAsk } from '@/components/verticals/FinanceAsk'
 
 /** Shared body for third-party developments and HagerLand's own projects (premium variant). */
 export async function DevelopmentDetail({ d, premium }: { d: PublicDevelopment; premium?: boolean }) {
@@ -59,6 +61,10 @@ export async function DevelopmentDetail({ d, premium }: { d: PublicDevelopment; 
             <h1 className={premium ? 'hl-display mt-3' : 'hl-h1 mt-3'}>{d.name}</h1>
             <p className="mt-2 text-muted">{d.location_display}</p>
             <p className="mt-4 font-display text-h2 font-bold tabular-nums">{priceText}</p>
+            <SaveButton entityType="development" entityId={id} className="mt-3" />
+            <div className="mt-4">
+              <FinanceAsk categorySlug="mortgages" text="Mortgages and payment options through licensed partners." />
+            </div>
             {d.price_from_etb ? <ApproxPrice etb={d.price_from_etb} className="block" /> : null}
             {!d.is_hagerland && d.developer_name && (
               <p className="mt-3 flex flex-wrap items-center gap-2 text-small">

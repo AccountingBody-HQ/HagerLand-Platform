@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { refreshSession } from '@/lib/supabase/middleware'
 import { ADMIN_SESSION_COOKIE, verifyAdminSessionEdge } from '@/lib/admin-session-edge'
 import { verticalForPath } from '@/lib/verticals'
+import { mapTileOrigin } from '@/lib/map-config'
 import { isIndexableVertical, verticalStatusesEdge } from '@/lib/vertical-status-edge'
 
 const isDev = process.env.NODE_ENV !== 'production'
@@ -14,10 +15,12 @@ function origin(url: string | undefined): string {
   }
 }
 const SUPABASE = origin(process.env.NEXT_PUBLIC_SUPABASE_URL)
+// Map tiles (spec 25.2b): allowed only for the configured tile server.
+const MAP_TILES = mapTileOrigin()
 
 const CSP = [
   "default-src 'self'",
-  `img-src 'self' data: blob: https://*.supabase.co ${SUPABASE} https://maps.gstatic.com https://*.googleapis.com https://*.ggpht.com https://i.ytimg.com`,
+  `img-src 'self' data: blob: https://*.supabase.co ${SUPABASE} https://maps.gstatic.com https://*.googleapis.com https://*.ggpht.com https://i.ytimg.com${MAP_TILES ? ` ${MAP_TILES}` : ''}`,
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://challenges.cloudflare.com https://va.vercel-scripts.com`,
   'frame-src https://challenges.cloudflare.com https://www.google.com https://www.youtube-nocookie.com',
   `connect-src 'self' https://*.supabase.co wss://*.supabase.co ${SUPABASE} https://vitals.vercel-insights.com https://challenges.cloudflare.com${isDev ? ' ws:' : ''}`,

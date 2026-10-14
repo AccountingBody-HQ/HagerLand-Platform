@@ -7,6 +7,7 @@ import { parsePropertyParams, hasFilters, type PropertyFilters, type RawParams }
 import { buildMetadata, truncateDescription } from '@/lib/seo'
 import { formatETB } from '@/lib/format'
 import { propertyTypePlural, type ListingPurpose } from '@/lib/labels'
+import { segmentForTypes, splitTypeSegment, typesForSegment } from '@/lib/property-type-paths'
 
 export interface ResultsContext {
   purpose: ListingPurpose
@@ -14,22 +15,46 @@ export interface ResultsContext {
   chain: Location[]
   filters: PropertyFilters
   basePath: string
+  /** Set on property-type pages, e.g. /property/for-sale/addis-ababa/bole/apartments (spec 25.2l). */
+  typeSegment: string | null
+  /** The location page this view belongs to (without the type segment). */
+  locationBase: string
+}
+
+/** Filters as they appear in this page's links: on a type page the type is in the path, not the query. */
+export function linkFilters(ctx: ResultsContext): PropertyFilters {
+  return ctx.typeSegment ? { ...ctx.filters, types: [] } : ctx.filters
 }
 
 export async function resolveResults(purpose: ListingPurpose, segments: string[] | undefined, searchParams: RawParams): Promise<ResultsContext> {
   const root = `/property/${purpose === 'sale' ? 'for-sale' : 'to-rent'}`
   let location: Location | null = null
+  let typeSegment: string | null = null
   if (segments?.length) {
-    location = await getLocationByPath(segments.map((s) => s.toLowerCase()).join('/'))
+    const lower = segments.map((s) => s.toLowerCase())
+    location = await getLocationByPath(lower.join('/'))
+    if (!location) {
+      // Not a place: maybe a property-type page such as …/bole/apartments (spec 25.2l).
+      const split = splitTypeSegment(lower)
+      if (!split.typeSegment) notFound()
+      typeSegment = split.typeSegment
+      if (split.locationSegments.length) location = await getLocationByPath(split.locationSegments.join('/'))
+      if (split.locationSegments.length && !location) notFound()
+    }
     // Property listings are Ethiopia-only (spec 24.4): no landing pages for places abroad.
-    if (!location || location.country_code !== 'ET') notFound()
+    if (location && location.country_code !== 'ET') notFound()
   }
+  const filters = parsePropertyParams(searchParams)
+  if (typeSegment) filters.types = typesForSegment(typeSegment) ?? []
+  const locationBase = location ? `${root}/${location.path}` : root
   return {
     purpose,
     location,
     chain: location ? await getLocationChain(location.id) : [],
-    filters: parsePropertyParams(searchParams),
-    basePath: location ? `${root}/${location.path}` : root,
+    filters,
+    basePath: typeSegment ? `${locationBase}/${typeSegment}` : locationBase,
+    typeSegment,
+    locationBase,
   }
 }
 
@@ -42,7 +67,7 @@ export function placeName(ctx: Pick<ResultsContext, 'location' | 'chain'>): stri
 }
 
 export function resultsHeading(ctx: ResultsContext): string {
-  const typeLabel = ctx.filters.types.length === 1 ? propertyTypePlural(ctx.filters.types[0]) : 'Property'
+  const typeLabel = ctx.typeSegment === 'commercial' ? 'Commercial property' : ctx.filters.types.length === 1 ? propertyTypePlural(ctx.filters.types[0]) : 'Property'
   return `${typeLabel} ${ctx.purpose === 'sale' ? 'for sale' : 'to rent'} in ${placeName(ctx)}`
 }
 
@@ -65,11 +90,14 @@ export function landingIntro(ctx: ResultsContext, summary: LocationSummary): str
 
 export async function resultsMetadata(ctx: ResultsContext): Promise<Metadata> {
   const minResults = await getSettingNumber('min_results_for_index', 3)
-  const result = await searchProperties({ purpose: ctx.purpose, locationId: ctx.location?.id, filters: { page: 1 }, pageSize: 1 })
-  const heading = resultsHeading({ ...ctx, filters: { ...ctx.filters, types: ctx.filters.types.length === 1 ? ctx.filters.types : [] } })
+  const result = await searchProperties({ purpose: ctx.purpose, locationId: ctx.location?.id, filters: { page: 1, types: ctx.typeSegment ? ctx.filters.types : [] }, pageSize: 1 })
+  const heading = resultsHeading({ ...ctx, filters: { ...ctx.filters, types: ctx.filters.types.length === 1 || ctx.typeSegment ? ctx.filters.types : [] } })
   const pageSuffix = ctx.filters.page > 1 ? ` – Page ${ctx.filters.page}` : ''
-  const filtered = hasFilters({ ...ctx.filters, page: 1 })
-  const canonicalPath = filtered ? ctx.basePath : `${ctx.basePath}${ctx.filters.page > 1 ? `?page=${ctx.filters.page}` : ''}`
+  const lf = linkFilters(ctx)
+  const filtered = hasFilters({ ...lf, page: 1 })
+  // A query such as ?type=apartment on a location page points search engines at the matching type page.
+  const onlyType = !ctx.typeSegment && ctx.filters.types.length > 0 && !hasFilters({ ...ctx.filters, types: [], page: 1 }) ? segmentForTypes(ctx.filters.types) : null
+  const canonicalPath = onlyType ? `${ctx.basePath}/${onlyType}` : filtered ? ctx.basePath : `${ctx.basePath}${ctx.filters.page > 1 ? `?page=${ctx.filters.page}` : ''}`
   const description = truncateDescription(
     `Browse ${result.total > 0 ? `${result.total} ` : ''}${ctx.purpose === 'sale' ? 'homes, land and commercial property for sale' : 'homes and commercial property to rent'} in ${placeName(ctx)}. Every listing is reviewed by HagerLand before it goes live.`,
   )
@@ -77,7 +105,7 @@ export async function resultsMetadata(ctx: ResultsContext): Promise<Metadata> {
     title: `${heading}${pageSuffix}`,
     description,
     path: canonicalPath,
-    noindex: Boolean(ctx.location) && result.total < minResults,
+    noindex: Boolean(ctx.location || ctx.typeSegment) && result.total < minResults,
   })
 }
 

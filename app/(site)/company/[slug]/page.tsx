@@ -26,6 +26,7 @@ import { MediaImage } from '@/components/media/MediaImage'
 import { ExpandableText } from '@/components/ui/ExpandableText'
 import { ViewTracker } from '@/components/analytics/ViewTracker'
 import { JsonLd } from '@/components/seo/JsonLd'
+import { SaveButton } from '@/components/saved/SaveButton'
 
 export const revalidate = 600
 
@@ -108,6 +109,7 @@ export default async function CompanyPage({ params }: { params: { slug: string }
                   {o.is_hagerland && <Badge tone="gold">HagerLand</Badge>}
                   {o.serves_diaspora && <Badge tone="info">Serves the Ethiopian community abroad</Badge>}
                 </div>
+                <SaveButton entityType="organisation" entityId={o.id ?? ''} className="mt-3" />
                 <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-small text-muted">
                   {o.location_display && (
                     <li className="inline-flex items-center gap-1.5">

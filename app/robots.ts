@@ -5,7 +5,7 @@ import { SITEMAP_IDS } from '@/lib/sitemap-rules'
 export default function robots(): MetadataRoute.Robots {
   if (!IS_PRODUCTION) return { rules: { userAgent: '*', disallow: '/' } }
   return {
-    rules: { userAgent: '*', allow: '/', disallow: ['/roodber8', '/roodber8-login', '/api/', '/account', '/onboarding', '/auth', '/search', '/supplies/quote', '/dev/', '/requests/', '/request-service/sent'] },
+    rules: { userAgent: '*', allow: '/', disallow: ['/roodber8', '/roodber8-login', '/api/', '/account', '/onboarding', '/auth', '/search', '/supplies/quote', '/dev/', '/requests/', '/request-service/sent', '/alerts/', '/property/compare'] },
     sitemap: SITEMAP_IDS.map((id) => `${CANONICAL_URL}/sitemap/${id}.xml`),
     host: CANONICAL_URL,
   }

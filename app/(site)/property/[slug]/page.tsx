@@ -28,6 +28,9 @@ import { ViewTracker } from '@/components/analytics/ViewTracker'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { ExpandableText } from '@/components/ui/ExpandableText'
 import Link from 'next/link'
+import { PropertyActions } from '@/components/property/PropertyActions'
+import { getRequestableCategory } from '@/lib/data/service-requests'
+import { financeAskHref } from '@/components/verticals/FinanceAsk'
 
 export const revalidate = 600
 
@@ -132,6 +135,7 @@ export default async function PropertyPage({ params }: { params: { slug: string 
     { label: 'Service charge', value: p.service_charge_etb ? `${formatETB(p.service_charge_etb)}/month` : null },
   ]
 
+  const [valuation, finance] = await Promise.all([getRequestableCategory('property-valuers'), financeAskHref(p.purpose === 'rent' ? 'home-improvement-finance' : 'mortgages')])
   return (
     <>
       <Container className="py-6 lg:py-8">
@@ -143,7 +147,7 @@ export default async function PropertyPage({ params }: { params: { slug: string 
         <div className="mt-8 lg:grid lg:grid-cols-[1fr_380px] lg:gap-10">
           <div className="min-w-0 space-y-10">
             <header>
-              <PropertyBadges purpose={p.purpose} publishedAt={p.published_at} isFeatured={p.is_featured} isHagerland={p.is_hagerland} listerVerification={p.lister_verification} />
+              <PropertyBadges purpose={p.purpose} publishedAt={p.published_at} isFeatured={p.is_featured} isHagerland={p.is_hagerland} listerVerification={p.lister_verification} developmentId={p.development_id} />
               <PriceLine className="mt-3" size="lg" price={p.price_etb} period={p.price_period} onRequest={p.price_on_request} negotiable={p.price_negotiable} />
               <h1 className="hl-h2 mt-2 font-bold">{p.title}</h1>
               <p className="mt-1 text-muted">{p.location_display}</p>
@@ -153,6 +157,7 @@ export default async function PropertyPage({ params }: { params: { slug: string 
                 {p.bathrooms ? <li>{p.bathrooms} bathrooms</li> : null}
                 {p.area_m2 ? <li>{formatArea(p.area_m2)}</li> : null}
               </ul>
+              <PropertyActions id={p.id ?? ''} slug={p.slug ?? ''} title={p.title ?? ''} valuationHref={valuation ? `/request-service/${valuation.slug}` : null} financeHref={finance?.href ?? null} financeSoon={Boolean(finance?.soon)} />
             </header>
 
             <section aria-labelledby="facts-heading">

@@ -419,3 +419,23 @@ export function propertyCareReceivedEmail(p: { name: string; reference: string; 
     reason: `You are receiving this because you asked about ${brand.divisions.propertyCare} on HagerLand.`,
   })
 }
+
+export function savedSearchAlertEmail(p: { searchName: string; items: { title: string; price: string; place: string; url: string }[]; resultsUrl: string; manageUrl: string; unsubscribeUrl: string }): RenderedEmail {
+  return { ...savedSearchAlertBody(p), headers: { 'List-Unsubscribe': `<${p.unsubscribeUrl}>` } }
+}
+
+function savedSearchAlertBody(p: { searchName: string; items: { title: string; price: string; place: string; url: string }[]; resultsUrl: string; manageUrl: string; unsubscribeUrl: string }): RenderedEmail {
+  return renderEmail({
+    subject: `${p.items.length} new ${p.items.length === 1 ? 'property' : 'properties'}: ${p.searchName}`,
+    preheader: `New on HagerLand for your search “${p.searchName}”.`,
+    heading: `New for “${p.searchName}”`,
+    paragraphs: [`${p.items.length === 1 ? 'This property was' : 'These properties were'} added to HagerLand since we last emailed you about this search.`],
+    details: p.items.map((i) => [`${i.title} · ${i.place}`, `${i.price} — ${i.url}`] as [string, string]),
+    button: { label: 'See all results', href: p.resultsUrl },
+    reason: 'You are receiving this because you saved this search on HagerLand.',
+    footerLinks: [
+      { label: 'Change how often', href: p.manageUrl },
+      { label: 'Stop these emails', href: p.unsubscribeUrl },
+    ],
+  })
+}

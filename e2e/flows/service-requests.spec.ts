@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { adminSession, asFreshVisitor, createProvider, db, linkMatching, mailWithSubject, signIn, testPhotos, uniqueEmail } from '../helpers'
+import { adminSession, asFreshVisitor, createProvider, db, linkMatching, mailWithSubject, signIn, testPhotos, uniqueEmail, randomPhone } from '../helpers'
 
 /** Service request engine (spec 24.5): customer → HagerLand → provider → quote → choice. */
 
@@ -20,7 +20,7 @@ async function setPlumberQuestions(page: Page, json: string, emergency: boolean)
   await expect(page.getByText(/Saved \d+ question/)).toBeVisible()
 }
 
-async function submitRequest(page: Page, email: string, opts: { emergency?: boolean; withFile?: boolean } = {}): Promise<string> {
+async function submitRequest(page: Page, email: string, opts: { emergency?: boolean; withFile?: boolean; phone?: string } = {}): Promise<string> {
   await page.goto('/request-service')
   await page.getByRole('link', { name: 'Plumbers' }).click()
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Request plumbers')
@@ -37,7 +37,7 @@ async function submitRequest(page: Page, email: string, opts: { emergency?: bool
     await expect(page.getByRole('button', { name: /Remove/ })).toHaveCount(1, { timeout: 20_000 })
   }
   await page.fill('#sr-name', 'Hanna Customer')
-  await page.fill('#sr-phone', '0911223344')
+  await page.fill('#sr-phone', opts.phone ?? randomPhone())
   await page.fill('#sr-email', email)
   await page.getByRole('button', { name: 'Send my request' }).click()
   await page.waitForURL(/\/request-service\/sent\?ref=HLS-/)
@@ -56,7 +56,10 @@ test('a guest requests a plumber, HagerLand matches a provider, the provider quo
   const guest = await browser.newPage()
   await asFreshVisitor(guest)
   const email = uniqueEmail('requester')
-  const ref = await submitRequest(guest, email, { emergency: true, withFile: true })
+  const phone = randomPhone()
+  // Shown to the provider as +251 9X XXX XXXX once they accept.
+  const shown = `+251 ${phone.slice(1, 3)} ${phone.slice(3, 6)} ${phone.slice(6)}`
+  const ref = await submitRequest(guest, email, { emergency: true, withFile: true, phone })
   const { data: req } = await db().from('service_requests').select('id, status, urgency, answers, attachment_paths, country_code, currency').eq('reference', ref).single()
   expect(req).toMatchObject({ status: 'submitted', urgency: 'emergency', answers: { problem: 'Leaking pipe', floors: 2 }, country_code: 'ET', currency: 'ETB' })
   expect(req!.attachment_paths).toHaveLength(1)
@@ -86,9 +89,9 @@ test('a guest requests a plumber, HagerLand matches a provider, the provider quo
   await signIn(pro, provider.user.email, provider.user.password)
   await pro.goto('/account/requests')
   await pro.getByRole('link', { name: /Leaking pipe in the kitchen/ }).click()
-  await expect(pro.getByText('+251 91 122 3344')).toHaveCount(0)
+  await expect(pro.getByText(shown)).toHaveCount(0)
   await pro.getByRole('button', { name: 'Accept and see contact details' }).click()
-  await expect(pro.getByText('+251 91 122 3344')).toBeVisible()
+  await expect(pro.getByText(shown)).toBeVisible()
   await expect(pro.getByRole('link', { name: 'File 1' })).toBeVisible()
   await pro.fill('#mq-amount', '25,000')
   await pro.fill('#mq-message', 'Replace the waste pipe and seal. Parts included.')
@@ -144,7 +147,7 @@ test('when every provider declines, the request goes back to HagerLand and admin
   await guest.fill('#sr-location', 'Bole')
   await guest.getByRole('option', { name: /^Bole/ }).first().click()
   await guest.fill('#sr-name', 'Dawit Customer')
-  await guest.fill('#sr-phone', '0911556600')
+  await guest.fill('#sr-phone', randomPhone())
   await guest.fill('#sr-email', email)
   await guest.getByRole('button', { name: 'Send my request' }).click()
   await guest.waitForURL(/\/request-service\/sent/)

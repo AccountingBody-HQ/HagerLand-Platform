@@ -24,6 +24,7 @@ import { ProfessionalsModule } from '@/components/company/ProfessionalsModule'
 import { ViewTracker } from '@/components/analytics/ViewTracker'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { ApproxPrice } from '@/components/currency/ApproxPrice'
+import { SaveButton } from '@/components/saved/SaveButton'
 
 export const revalidate = 600
 
@@ -113,6 +114,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
           )}
           <div className="grid gap-3 sm:grid-cols-2">
             <AddToQuote withQuantity size="lg" product={{ id: p.id, slug: p.slug ?? '', name: p.name ?? '', unit: p.unit ?? 'piece', imagePath: p.image_path, minOrder: Number(p.min_order_qty ?? 1) }} />
+            <SaveButton entityType="product" entityId={p.id ?? ''} className="w-full justify-center" />
             <AskQuestion productId={p.id} productName={p.name ?? ''} intents={productIntents(p.name ?? 'this product')} />
           </div>
           {p.delivery_available && (

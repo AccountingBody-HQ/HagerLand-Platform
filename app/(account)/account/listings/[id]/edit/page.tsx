@@ -13,6 +13,7 @@ import { FormAlert } from '@/components/forms/FormParts'
 import { FINISHING, LISTING_STATUS_LABELS, labelOf, propertyTypeLabel } from '@/lib/labels'
 import { formatArea } from '@/lib/format'
 import { getLocationById } from '@/lib/data/reference'
+import { getMapConfig } from '@/lib/map-config'
 
 export const metadata = { title: 'Edit listing' }
 
@@ -63,7 +64,7 @@ export default async function EditListingPage({ params, searchParams }: { params
         </FormAlert>
       )}
       {row.pending_changes && isLive && <FormAlert tone="info" className="mb-6">You have changes waiting for review.</FormAlert>}
-      <ListingWizard developments={await getOwnDevelopments()} id={row.id} step={step} values={values} media={media} isLive={isLive} reviewSlot={review} />
+      <ListingWizard map={getMapConfig()} developments={await getOwnDevelopments()} id={row.id} step={step} values={values} media={media} isLive={isLive} reviewSlot={review} />
     </div>
   )
 }

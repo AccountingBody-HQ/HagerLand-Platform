@@ -5,6 +5,7 @@ import { sendEmail } from '@/lib/email/send'
 import { adminDigestEmail, listingExpiredEmail, listingExpiringEmail, providerReminderEmail } from '@/lib/email/templates'
 import { orgManagerEmails } from '@/lib/enquiries'
 import { MATCH_REMINDER_HOURS } from '@/lib/service-requests/labels'
+import { runScheduledAlerts } from '@/lib/alerts'
 import { firstName, ownerEmails } from '@/lib/admin/notify'
 import { purgeExpiredRateLimits } from '@/lib/rate-limit'
 import { revalidateEntity } from '@/lib/revalidate'
@@ -25,6 +26,7 @@ export interface DailySummary {
   revealsPurged: number
   rateLimitsPurged: boolean
   matchReminders: number
+  searchAlerts: number
   digestSent: boolean
 }
 
@@ -192,12 +194,13 @@ export async function runDaily(now = Date.now()): Promise<DailySummary> {
   const reminded = await step('reminders', () => remindExpiring(now), 0)
   const quotesExpired = await step('expire quotes', () => expireQuotes(now), 0)
   const matchReminders = await step('match reminders', () => remindUnansweredMatches(now), 0)
+  const searchAlerts = await step('search alerts', () => runScheduledAlerts(now), 0)
   await step('featured', async () => void (await getAdminSupabase().rpc('refresh_all_featured')), undefined)
   const verificationDocsPurged = await step('verification purge', () => purgeVerificationDocs(now), 0)
   const revealsPurged = await step('reveals purge', () => purgeReveals(now), 0)
   // rate_limits is a pre-existing (legacy) table: expired counters are only deleted when AB switches this on.
   const rateLimitsPurged = process.env.CRON_PURGE_RATE_LIMITS === 'true' ? await step('rate limit purge', async () => (await purgeExpiredRateLimits(7), true), false) : false
-  const summary = { expired, expiredEmailed: emailed, reminded, quotesExpired, verificationDocsPurged, revealsPurged, rateLimitsPurged, matchReminders }
+  const summary = { expired, expiredEmailed: emailed, reminded, quotesExpired, verificationDocsPurged, revealsPurged, rateLimitsPurged, matchReminders, searchAlerts }
   let digestSent = false
   const to = process.env.ADMIN_DIGEST_EMAIL
   if (to) {

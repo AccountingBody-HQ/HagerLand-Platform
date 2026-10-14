@@ -271,3 +271,8 @@ export function linkMatching(html: string, pattern: RegExp): string {
   if (!found) throw new Error(`No link matching ${pattern}`)
   return found
 }
+
+/** A different Ethiopian mobile number each time, so per-phone limits never block the suite. */
+export function randomPhone(): string {
+  return `09${String(Math.floor(Math.random() * 1e8)).padStart(8, '0')}`
+}

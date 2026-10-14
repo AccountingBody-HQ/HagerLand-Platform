@@ -11,6 +11,7 @@ import { sendEmail } from '@/lib/email/send'
 import { claimDecisionEmail, listingApprovedEmail, listingRejectedEmail, orgDecisionEmail, verificationDecisionEmail } from '@/lib/email/templates'
 import { canonicalUrl } from '@/lib/site'
 import { log } from '@/lib/log'
+import { sendInstantAlerts } from '@/lib/alerts'
 
 type Entity = 'property' | 'development' | 'organisation' | 'portfolio'
 const TABLE: Record<Entity, 'properties' | 'developments' | 'organisations' | 'portfolio_projects'> = {
@@ -82,6 +83,7 @@ export async function moderateAction(input: { entity: string; id: string; op: st
       if (error) throw error
       await approveMediaOf(entity, id)
       message = op === 'approve' ? 'Approved and published.' : 'Changes approved and applied.'
+      if (entity === 'property' && op === 'approve') await sendInstantAlerts(id)
       if (owner) {
         const to = await ownerEmails(owner.orgId, owner.userId)
         const name = await firstName(owner.userId)

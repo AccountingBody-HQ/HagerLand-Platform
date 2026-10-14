@@ -41,7 +41,7 @@ export async function GET(request: NextRequest, { params }: { params: { kind: st
     case 'enquiries':
     case 'sales': {
       let q = db.from('enquiries').select('reference, created_at, status, target_type, intent, name, phone, email, preferred_contact, message, details, source_url, utm, first_viewed_at').order('created_at', { ascending: false }).limit(20000)
-      if (params.kind === 'sales') q = q.or('target_type.eq.hagerland_development,intent.eq.register_interest')
+      if (params.kind === 'sales') q = q.or('target_type.eq.hagerland_development,intent.eq.register_interest,details->>topic.like.Agency:*')
       if (sp.get('status')) q = q.eq('status', sp.get('status') as 'new')
       const { data } = await q
       rows = data ?? []

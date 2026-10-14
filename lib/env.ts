@@ -30,6 +30,8 @@ const serverSchema = z.object({
   NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY: optional,
   NEXT_PUBLIC_TURNSTILE_SITE_KEY: optional,
   NEXT_PUBLIC_SITE_URL: opt(z.url()),
+  NEXT_PUBLIC_MAP_TILE_URL: optional,
+  NEXT_PUBLIC_MAP_ATTRIBUTION: optional,
   EMAIL_TEST_MAILPIT_URL: opt(z.string().regex(/^http:\/\/(localhost|127\.0\.0\.1):\d+$/, 'must be a localhost URL')),
 })
 

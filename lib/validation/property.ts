@@ -19,6 +19,10 @@ export const locationSchema = z.object({
   show_exact_location: checkbox,
   requested_area: optionalText(80, 'Area name'),
   development_id: z.preprocess((v) => (v === '' ? undefined : v), z.uuid().optional()),
+  // Optional map pin (spec 25.2b), limited to Ethiopia.
+  // Absent (no map on the page) leaves the pin unchanged; empty removes it.
+  lat: z.preprocess((v) => (v === undefined ? undefined : v === '' ? null : Number(v)), z.number().min(3).max(15).nullable().optional()),
+  lng: z.preprocess((v) => (v === undefined ? undefined : v === '' ? null : Number(v)), z.number().min(33).max(48).nullable().optional()),
 })
 
 export const detailsSchema = z

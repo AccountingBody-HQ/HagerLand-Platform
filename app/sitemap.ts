@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next'
 import { getPublicSupabase } from '@/lib/supabase/public'
 import { getProductCategories, getServiceCategories, getSettingNumber } from '@/lib/data/reference'
 import { canonicalUrl } from '@/lib/site'
-import { countByAncestors, indexablePaths, SITEMAP_IDS, type SitemapId } from '@/lib/sitemap-rules'
+import { countByAncestors, indexablePaths, SITEMAP_IDS, typePathCounts, type SitemapId } from '@/lib/sitemap-rules'
 import { log } from '@/lib/log'
 import { listTag } from '@/lib/revalidate'
 import { getVerticals } from '@/lib/data/verticals'
@@ -15,7 +15,7 @@ export async function generateSitemaps() {
   return SITEMAP_IDS.map((id) => ({ id }))
 }
 
-const STATIC_PATHS = ['/', '/property', '/property/for-sale', '/property/to-rent', '/supplies', '/supplies/materials-list', '/professionals', '/agents', '/developers', '/suppliers', '/developments', '/our-developments', '/about', '/how-it-works', '/list-with-us', '/advertise', '/request-service', '/diaspora/property-care', '/diaspora/services-abroad', '/contact', '/help', '/terms', '/privacy', '/cookies']
+const STATIC_PATHS = ['/', '/property', '/property/for-sale', '/property/to-rent', '/supplies', '/supplies/materials-list', '/professionals', '/agents', '/developers', '/suppliers', '/developments', '/our-developments', '/about', '/how-it-works', '/list-with-us', '/advertise', '/request-service', '/agency', '/agency/sell', '/agency/let', '/agency/buyer-representation', '/agency/property-sourcing', '/agency/developer-sales', '/diaspora/property-care', '/diaspora/services-abroad', '/contact', '/help', '/terms', '/privacy', '/cookies']
 const LIMIT = 50_000
 
 type Entry = MetadataRoute.Sitemap[number]
@@ -75,9 +75,12 @@ async function build(id: SitemapId): Promise<MetadataRoute.Sitemap> {
     case 'locations-sale':
     case 'locations-rent': {
       const purpose = id === 'locations-sale' ? 'sale' : 'rent'
-      const { data } = await db.from('properties_public').select('location_path').eq('purpose', purpose).limit(LIMIT)
+      const { data } = await db.from('properties_public').select('location_path, property_type').eq('purpose', purpose).limit(LIMIT)
       const base = purpose === 'sale' ? '/property/for-sale' : '/property/to-rent'
-      return indexablePaths(countByAncestors((data ?? []).map((r) => r.location_path)), min).map((p) => entry(`${base}/${p}`))
+      const locationPages = indexablePaths(countByAncestors((data ?? []).map((r) => r.location_path)), min).map((p) => entry(`${base}/${p}`))
+      // Property-type pages (spec 25.2l), nationwide and per place, when they meet the same threshold.
+      const typePages = indexablePaths(typePathCounts((data ?? []).map((r) => ({ path: r.location_path, type: r.property_type }))), min).map((p) => entry(`${base}/${p}`))
+      return [...locationPages, ...typePages]
     }
     case 'professionals': {
       const [{ data: links }, { data: orgs }, services] = await Promise.all([

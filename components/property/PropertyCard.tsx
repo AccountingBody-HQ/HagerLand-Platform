@@ -10,7 +10,7 @@ import { cn } from '@/lib/cn'
 
 type CardProperty = Pick<
   PublicProperty,
-  'slug' | 'title' | 'purpose' | 'property_type' | 'price_etb' | 'price_period' | 'price_on_request' | 'price_negotiable' | 'bedrooms' | 'bathrooms' | 'area_m2' | 'plot_area_m2' | 'location_display' | 'cover_path' | 'photo_count' | 'published_at' | 'is_featured' | 'is_hagerland' | 'lister_verification'
+  'slug' | 'title' | 'purpose' | 'property_type' | 'price_etb' | 'price_period' | 'price_on_request' | 'price_negotiable' | 'bedrooms' | 'bathrooms' | 'area_m2' | 'plot_area_m2' | 'location_display' | 'cover_path' | 'photo_count' | 'published_at' | 'is_featured' | 'is_hagerland' | 'lister_verification' | 'development_id'
 >
 
 function Facts({ p }: { p: CardProperty }) {
@@ -46,7 +46,7 @@ function CardImage({ p, sizes, className }: { p: CardProperty; sizes: string; cl
           <Building2 className="size-10" aria-hidden />
         </div>
       )}
-      <PropertyBadges className="absolute left-3 top-3" onImage purpose={p.purpose} publishedAt={p.published_at} isFeatured={p.is_featured} isHagerland={p.is_hagerland} listerVerification={p.lister_verification} />
+      <PropertyBadges className="absolute left-3 top-3" onImage purpose={p.purpose} publishedAt={p.published_at} isFeatured={p.is_featured} isHagerland={p.is_hagerland} listerVerification={p.lister_verification} developmentId={p.development_id} />
       {(p.photo_count ?? 0) > 1 && (
         <span className="absolute bottom-3 right-3 inline-flex items-center gap-1 rounded-full bg-ink/75 px-2 py-0.5 text-caption font-semibold text-white">
           <Camera className="size-3.5" aria-hidden /> {p.photo_count}

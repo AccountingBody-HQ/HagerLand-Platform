@@ -1,6 +1,8 @@
 import { SiteHeader } from '@/components/layout/SiteHeader'
 import { SiteFooter } from '@/components/layout/SiteFooter'
 import { CurrencyProvider } from '@/components/currency/CurrencyProvider'
+import { CompareBar } from '@/components/compare/CompareBar'
+import { QuoteListSync } from '@/components/supplies/QuoteListSync'
 import { getVerticals } from '@/lib/data/verticals'
 import { getExchangeRates } from '@/lib/data/rates'
 
@@ -14,6 +16,8 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
           {children}
         </main>
         <SiteFooter />
+        <CompareBar />
+        <QuoteListSync />
       </div>
     </CurrencyProvider>
   )

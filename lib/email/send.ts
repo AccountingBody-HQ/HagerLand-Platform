@@ -9,6 +9,7 @@ export interface EmailMessage {
   text: string
   replyTo?: string
   from?: 'default' | 'supply'
+  headers?: Record<string, string>
 }
 
 let resend: Resend | null = null
@@ -31,7 +32,7 @@ async function sendToTestMailbox(base: string, msg: EmailMessage, recipients: st
   const res = await fetch(`${base}/api/v1/send`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ From: parseFrom(from), To: recipients.map((Email) => ({ Email })), Subject: msg.subject, HTML: msg.html, Text: msg.text, ...(replyTo ? { ReplyTo: [{ Email: replyTo }] } : {}) }),
+    body: JSON.stringify({ From: parseFrom(from), To: recipients.map((Email) => ({ Email })), Subject: msg.subject, HTML: msg.html, Text: msg.text, ...(replyTo ? { ReplyTo: [{ Email: replyTo }] } : {}), ...(msg.headers ? { Headers: msg.headers } : {}) }),
   })
   return res.ok
 }
@@ -67,6 +68,7 @@ export async function sendEmail(msg: EmailMessage): Promise<boolean> {
       html: msg.html,
       text: msg.text,
       replyTo: msg.replyTo ?? process.env.EMAIL_REPLY_TO ?? undefined,
+      ...(msg.headers ? { headers: msg.headers } : {}),
     })
     if (error) {
       log.error('email', 'send failed', error, { subject: msg.subject, to: recipients.map(maskEmail) })

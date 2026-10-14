@@ -15,6 +15,8 @@ export function accountNavItems(active: Membership | null, newEnquiries: number,
   if (active) items.push({ href: '/account/requests', label: 'Customer requests', icon: 'leads', badge: newMatches || undefined })
   items.push({ href: '/account/service-requests', label: 'My service requests', icon: 'requests' })
   items.push({ href: '/account/quotes', label: 'Quotes', icon: 'quotes' })
+  items.push({ href: '/account/saved', label: 'Saved', icon: 'saved' })
+  items.push({ href: '/account/alerts', label: 'Search alerts', icon: 'alerts' })
   items.push({ href: '/account/settings', label: 'Settings', icon: 'settings' })
   return items
 }

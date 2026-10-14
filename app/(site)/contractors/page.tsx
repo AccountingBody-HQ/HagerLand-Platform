@@ -8,6 +8,7 @@ import { ButtonLink } from '@/components/ui/Button'
 import { CompanyCard } from '@/components/company/CompanyCard'
 import { HowRequestsWork } from '@/components/service-requests/HowRequestsWork'
 import { ServiceGroups } from '@/components/service-requests/ServiceGroups'
+import { FinanceAsk } from '@/components/verticals/FinanceAsk'
 
 export const revalidate = 600
 
@@ -46,6 +47,9 @@ export default async function ContractorsPage() {
       </section>
       <Section>
         <HowRequestsWork />
+        <div className="mt-6 max-w-xl">
+          <FinanceAsk categorySlug="construction-finance" text="Construction finance for your build, through licensed partners." />
+        </div>
         <p className="mt-6 max-w-3xl text-small text-muted">Ethiopian contractors are licensed by category and grade. Businesses marked Verified have had their trade licence checked by HagerLand; always see the licence and agree the work in a written contract before paying.</p>
       </Section>
       <Section tone="stone">

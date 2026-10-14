@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { MapPin, SearchX } from 'lucide-react'
 import type { ResultsContext } from '@/lib/property-pages'
-import { getSummary, landingIntro, placeName, resultsHeading } from '@/lib/property-pages'
+import { getSummary, landingIntro, placeName, resultsHeading, linkFilters } from '@/lib/property-pages'
 import { searchProperties } from '@/lib/data/properties'
 import { activeChips, countActiveFilters, PROPERTY_PAGE_SIZE, toQuery } from '@/lib/property-search'
 import { formatNumber } from '@/lib/format'
@@ -13,6 +13,9 @@ import { ButtonLink } from '@/components/ui/Button'
 import { PropertyCard, PropertyCardHorizontal } from './PropertyCard'
 import { FiltersPanel } from './FiltersPanel'
 import { SortSelect } from './SortSelect'
+import { SaveSearchButton } from '@/components/saved/SaveSearchButton'
+import { getUser } from '@/lib/auth'
+import { getMapConfig } from '@/lib/map-config'
 
 export async function PropertyResults({ ctx }: { ctx: ResultsContext }) {
   const root = `/property/${ctx.purpose === 'sale' ? 'for-sale' : 'to-rent'}`
@@ -21,8 +24,11 @@ export async function PropertyResults({ ctx }: { ctx: ResultsContext }) {
     ctx.filters.page === 1 ? searchProperties({ purpose: ctx.purpose, locationId: ctx.location?.id, filters: { ...ctx.filters, page: 1 }, featuredOnly: true, pageSize: 2 }) : Promise.resolve({ total: 0, items: [] }),
     getSummary(ctx),
   ])
+  const user = await getUser()
   const totalPages = Math.ceil(result.total / PROPERTY_PAGE_SIZE)
-  const chips = activeChips(ctx.filters, ctx.basePath)
+  // On a type page the type lives in the path: removing its chip goes back to the location page.
+  const chips = activeChips(ctx.filters, ctx.locationBase)
+  const lf = linkFilters(ctx)
   const purposeLabel = ctx.purpose === 'sale' ? 'For sale' : 'To rent'
   const crumbs: Crumb[] = [
     { label: 'Property', href: '/property' },
@@ -68,14 +74,29 @@ export async function PropertyResults({ ctx }: { ctx: ResultsContext }) {
             <p className="font-semibold text-ink" aria-live="polite">
               {countLine}
             </p>
-            <SortSelect basePath={ctx.basePath} filters={ctx.filters} />
+            <SortSelect basePath={ctx.basePath} filters={lf} />
+          </div>
+          <div className="mb-4 flex flex-wrap items-start gap-2">
+            {getMapConfig() && (
+              <Link href={`/property/map?purpose=${ctx.purpose}${ctx.location ? `&loc=${ctx.location.path}` : ''}${toQuery(ctx.filters).replace(/^\?/, '&')}`} className="inline-flex min-h-11 items-center gap-2 rounded-md border border-border-strong bg-white px-4 text-small font-semibold text-ink hover:bg-stone-100">
+                Map view
+              </Link>
+            )}
+            <SaveSearchButton
+              signedIn={Boolean(user)}
+              purpose={ctx.purpose}
+              location={ctx.location?.path ?? null}
+              query={toQuery({ ...ctx.filters, page: 1 }).replace(/^\?/, '')}
+              defaultName={heading}
+              returnTo={`${ctx.basePath}${toQuery(lf)}`}
+            />
           </div>
           {chips.length > 0 && (
             <div className="mb-5 flex flex-wrap items-center gap-2">
               {chips.map((c) => (
                 <FilterChip key={c.label} label={c.label} removeHref={c.href} />
               ))}
-              <Link href={ctx.basePath} className="ml-1 text-small font-semibold text-green hover:underline">
+              <Link href={ctx.locationBase} className="ml-1 text-small font-semibold text-green hover:underline">
                 Clear all
               </Link>
             </div>
@@ -133,7 +154,7 @@ export async function PropertyResults({ ctx }: { ctx: ResultsContext }) {
             </>
           )}
 
-          <Pagination className="mt-10" page={ctx.filters.page} totalPages={totalPages} hrefFor={(page) => `${ctx.basePath}${toQuery(ctx.filters, { page })}`} />
+          <Pagination className="mt-10" page={ctx.filters.page} totalPages={totalPages} hrefFor={(page) => `${ctx.basePath}${toQuery(lf, { page })}`} />
         </div>
       </div>
     </Container>

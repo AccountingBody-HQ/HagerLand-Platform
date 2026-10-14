@@ -67,5 +67,7 @@ HAGERLAND_INBOX_EMAIL=inbox@test.hagerland.invalid
 CRON_SECRET=$(node -e "console.log(require('crypto').randomBytes(24).toString('hex'))")
 IP_HASH_SALT=$(node -e "console.log(require('crypto').randomBytes(24).toString('hex'))")
 EMAIL_TEST_MAILPIT_URL=http://localhost:8025
+NEXT_PUBLIC_MAP_TILE_URL=http://localhost:3100/test-map-tiles/{z}/{x}/{y}.png
+NEXT_PUBLIC_MAP_ATTRIBUTION="Test tiles"
 ENV
 echo "Local stack ready: API http://localhost:54321, mail http://localhost:8025, DB localhost:54322"

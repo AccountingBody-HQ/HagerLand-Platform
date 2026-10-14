@@ -43,7 +43,10 @@ const VERTICAL_LINKS: Record<VerticalKey, NavLink[]> = {
     { label: 'New developments', href: '/developments', description: 'Off-plan and new-build projects' },
     { label: 'Land & plots', href: '/property/for-sale?type=land', description: 'Plots ready to build on' },
     { label: 'Commercial', href: '/property/for-sale?type=commercial', description: 'Offices, shops and warehouses' },
+    { label: 'Investment property', href: '/property/for-sale?features=investment', description: 'Income and already-let property' },
     { label: 'Find an agent', href: '/agents', description: 'Estate agents and brokers' },
+    { label: 'HagerLand estate agency', href: '/agency', description: 'Sell, let, buy or source property with us' },
+    { label: 'Request a valuation', href: '/request-service/property-valuers', description: 'Quotes from property valuers' },
   ],
   'building-supplies': [
     { label: 'Shop all categories', href: '/supplies' },
@@ -167,6 +170,7 @@ export function buildFooterColumns(verticals: Vertical[]): { title: string; link
             { label: 'Land', href: '/property/for-sale?type=land' },
             { label: 'Commercial', href: '/property/for-sale?type=commercial' },
             { label: 'Find an agent', href: '/agents' },
+            { label: 'Sell with HagerLand', href: '/agency/sell' },
             ...vLink('our-developments'),
           ]
         : vLink('our-developments'),

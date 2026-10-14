@@ -14,6 +14,7 @@ export function PropertyBadges({
   isFeatured,
   isHagerland,
   listerVerification,
+  developmentId,
   className,
   onImage,
 }: {
@@ -22,12 +23,14 @@ export function PropertyBadges({
   isFeatured: boolean | null
   isHagerland: boolean | null
   listerVerification: string | null
+  /** HagerLand listings in a HagerLand development are its own homes; others are marketed by HagerLand as agent (spec 24.7). */
+  developmentId?: string | null
   className?: string
   onImage?: boolean
 }) {
   return (
     <div className={`flex flex-wrap gap-1.5 ${className ?? ''}`}>
-      {isHagerland && <Badge tone="gold">{brand.divisions.developments.replace('Developments', 'Development')}</Badge>}
+      {isHagerland && <Badge tone="gold">{developmentId ? brand.divisions.developments.replace('Developments', 'Development') : `Marketed by ${brand.name}`}</Badge>}
       {isFeatured && <Badge tone="ink">Featured</Badge>}
       <Badge tone={onImage ? 'white' : 'neutral'}>{purpose === 'rent' ? 'To rent' : 'For sale'}</Badge>
       {isNew(publishedAt) && <Badge tone="green">New</Badge>}

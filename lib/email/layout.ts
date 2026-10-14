@@ -7,6 +7,8 @@ export interface RenderedEmail {
   subject: string
   html: string
   text: string
+  /** Extra headers, e.g. List-Unsubscribe for alert emails. */
+  headers?: Record<string, string>
 }
 
 interface LayoutInput {
@@ -21,6 +23,8 @@ interface LayoutInput {
   quote?: string
   button?: { label: string; href: string }
   reason: string
+  /** Links shown under the reason, e.g. "Unsubscribe" (escaped here). */
+  footerLinks?: { label: string; href: string }[]
 }
 
 const green = '#1C7C4C'
@@ -29,7 +33,7 @@ const muted = '#5B6472'
 
 /** Table-based, mobile-safe HagerLand email with a matching plain-text version. */
 export function renderEmail(input: LayoutInput): RenderedEmail {
-  const { subject, preheader, heading, paragraphs, details, quote, button, reason } = input
+  const { subject, preheader, heading, paragraphs, details, quote, button, reason, footerLinks = [] } = input
   const p = paragraphs
     .map((t) => `<p style="margin:0 0 16px;font-size:16px;line-height:24px;color:${ink}">${escapeHtml(t)}</p>`)
     .join('')
@@ -59,7 +63,7 @@ export function renderEmail(input: LayoutInput): RenderedEmail {
 ${p}${rows}${q}${btn}
 </td></tr>
 <tr><td style="padding:20px 28px;background:#FAF9F7;font-size:12px;line-height:18px;color:${muted}">
-${escapeHtml(reason)}<br>Questions? <a href="${canonicalUrl('/contact')}" style="color:${green}">Contact HagerLand</a>
+${escapeHtml(reason)}<br>${footerLinks.map((l) => `<a href="${escapeHtml(l.href)}" style="color:${green}">${escapeHtml(l.label)}</a> · `).join('')}Questions? <a href="${canonicalUrl('/contact')}" style="color:${green}">Contact HagerLand</a>
 </td></tr></table></td></tr></table></body></html>`
 
   const textParts = [
@@ -73,6 +77,7 @@ ${escapeHtml(reason)}<br>Questions? <a href="${canonicalUrl('/contact')}" style=
     ...(button ? [`${button.label}: ${button.href}`, ''] : []),
     '--',
     reason,
+    ...footerLinks.map((l) => `${l.label}: ${l.href}`),
     `Contact HagerLand: ${canonicalUrl('/contact')}`,
   ]
   return { subject, html, text: textParts.join('\n') }

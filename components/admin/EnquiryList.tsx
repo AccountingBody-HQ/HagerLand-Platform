@@ -19,7 +19,7 @@ const TARGETS: Record<string, string> = {
 export async function EnquiryList({ basePath, searchParams, salesOnly = false }: { basePath: string; searchParams: Record<string, string | undefined>; salesOnly?: boolean }) {
   const page = Math.max(1, Number(searchParams.page) || 1)
   let q = getAdminSupabase().from('enquiries').select('id, reference, created_at, status, target_type, intent, name, phone, first_viewed_at, recipient_org_id, recipient_user_id, org:organisations!enquiries_recipient_org_id_fkey(name)', { count: 'exact' })
-  if (salesOnly) q = q.or('target_type.eq.hagerland_development,intent.eq.register_interest')
+  if (salesOnly) q = q.or('target_type.eq.hagerland_development,intent.eq.register_interest,details->>topic.like.Agency:*')
   if (searchParams.q) {
     const term = searchParams.q.trim().slice(0, 80)
     q = /^HLE-/i.test(term) ? q.eq('reference', term.toUpperCase()) : q.ilike('name', `%${escapeLikePattern(term)}%`)

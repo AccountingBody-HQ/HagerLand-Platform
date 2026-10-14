@@ -18,6 +18,8 @@ import { MediaManager } from '@/components/media/MediaManager'
 import type { MediaItem } from '@/lib/media-actions'
 import { track } from '@/lib/analytics'
 import { cn } from '@/lib/cn'
+import { MapPinField } from '@/components/map/MapPinField'
+import type { MapConfig } from '@/lib/map-config'
 
 export interface WizardValues {
   purpose?: string
@@ -27,6 +29,8 @@ export interface WizardValues {
   location?: ComboOption | null
   address_line?: string | null
   show_exact_location?: boolean
+  lat?: number | string | null
+  lng?: number | string | null
   price_on_request?: boolean
   price_etb?: number | null
   price_negotiable?: boolean
@@ -148,7 +152,7 @@ export function BasicsFields({ v, errors }: { v: WizardValues; errors: Record<st
   )
 }
 
-export function LocationFields({ v, errors, developments }: { v: WizardValues; errors: Record<string, string>; developments: { id: string; name: string }[] }) {
+export function LocationFields({ v, errors, developments, map }: { v: WizardValues; errors: Record<string, string>; developments: { id: string; name: string }[]; map?: MapConfig | null }) {
   const [missing, setMissing] = useState(false)
   return (
     <div className="space-y-5">
@@ -182,6 +186,7 @@ export function LocationFields({ v, errors, developments }: { v: WizardValues; e
         <input id="w-exact" name="show_exact_location" type="checkbox" defaultChecked={v.show_exact_location} className="mt-1 size-5 accent-green" />
         <label htmlFor="w-exact">Show the address publicly. Otherwise visitors only see the area.</label>
       </div>
+      {map && <MapPinField config={map} lat={v.lat} lng={v.lng} />}
     </div>
   )
 }
@@ -354,7 +359,7 @@ export function ContactFields({ v, errors }: { v: WizardValues; errors: Record<s
 }
 
 /** Six-step listing wizard (spec 7.4). Each step saves, then moves on. */
-export function ListingWizard({ id, step, values, media, isLive, reviewSlot, developments = [] }: { id: string | null; step: WizardStep; values: WizardValues; media: MediaItem[]; isLive: boolean; reviewSlot?: React.ReactNode; developments?: { id: string; name: string }[] }) {
+export function ListingWizard({ id, step, values, media, isLive, reviewSlot, developments = [], map = null }: { id: string | null; step: WizardStep; values: WizardValues; media: MediaItem[]; isLive: boolean; reviewSlot?: React.ReactNode; developments?: { id: string; name: string }[]; map?: MapConfig | null }) {
   const router = useRouter()
   const [localStep, setLocalStep] = useState<WizardStep>(id ? step : 'basics')
   const [basics, setBasics] = useState<FormData | null>(null)
@@ -423,7 +428,7 @@ export function ListingWizard({ id, step, values, media, isLive, reviewSlot, dev
               </button>
             </FormAlert>
           )}
-          <LocationFields v={values} errors={errors} developments={developments} />
+          <LocationFields v={values} errors={errors} developments={developments} map={map} />
           <div className="flex flex-col-reverse gap-3 border-t border-border pt-6 sm:flex-row sm:justify-between">
             <button type="button" onClick={() => setLocalStep('basics')} className="inline-flex h-11 items-center gap-2 rounded-md px-5 font-semibold hover:bg-stone-100">
               <ArrowLeft className="size-[18px]" /> Back
@@ -440,7 +445,7 @@ export function ListingWizard({ id, step, values, media, isLive, reviewSlot, dev
           <input type="hidden" name="step" value={current} />
           <input type="hidden" name="property_id" value={id} />
           {current === 'basics' && <BasicsFields v={values} errors={errors} />}
-          {current === 'location' && <LocationFields v={values} errors={errors} developments={developments} />}
+          {current === 'location' && <LocationFields v={values} errors={errors} developments={developments} map={map} />}
           {current === 'details' && <DetailsFields v={values} errors={errors} purpose={purpose} />}
           {current === 'photos' && (
             <div className="space-y-8">

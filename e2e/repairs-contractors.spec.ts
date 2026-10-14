@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { asFreshVisitor, db, uniqueEmail } from './helpers'
+import { asFreshVisitor, db, uniqueEmail, randomPhone } from './helpers'
 
 /** Repairs & Maintenance and Contractors on the request engine (spec 24.5, PLATFORM_VISION §4–6). */
 
@@ -22,7 +22,7 @@ test('an emergency plumbing repair asks its own questions, keeps answers on erro
   await page.fill('#sr-location', 'Bole')
   await page.getByRole('option', { name: /^Bole/ }).first().click()
   await page.fill('#sr-name', 'Kidist Emergency')
-  await page.fill('#sr-phone', '0911667788')
+  await page.fill('#sr-phone', randomPhone())
   const email = uniqueEmail('emergency')
   await page.fill('#sr-email', email)
   await page.getByRole('button', { name: 'Send my request' }).click()
