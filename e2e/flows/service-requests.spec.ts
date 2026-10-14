@@ -195,7 +195,7 @@ test('guest links expire, and a new one can be requested without revealing wheth
   await page.locator('#sr-country').selectOption('GB')
   await page.getByLabel('City or area').fill('London')
   await page.fill('#sr-name', 'Meron Abroad')
-  await page.fill('#sr-phone', '+447700900123')
+  await page.fill('#sr-phone', `+4477009${String(Date.now()).slice(-5)}`)
   await page.fill('#sr-email', email)
   await page.getByRole('button', { name: 'Send my request' }).click()
   await page.waitForURL(/\/request-service\/sent/)

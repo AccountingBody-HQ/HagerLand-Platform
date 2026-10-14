@@ -11,7 +11,8 @@ import { shortId, slugify } from '@/lib/slug'
 import { revalidateEntity } from '@/lib/revalidate'
 import type { OrgFormState } from '@/app/(account)/account/company/org-actions'
 
-const adminOrgSchema = organisationSchema.extend({ kind: z.enum([...USER_ORG_KINDS, 'hagerland']) })
+// Admin can also add finance and insurance partners (spec 24.8).
+const adminOrgSchema = organisationSchema.extend({ kind: z.enum([...USER_ORG_KINDS, 'lender', 'insurer', 'broker', 'hagerland']) })
 
 async function syncLinks(orgId: string, serviceIds: string[], categoryIds: string[]) {
   const db = getAdminSupabase()

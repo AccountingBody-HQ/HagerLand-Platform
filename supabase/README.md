@@ -216,6 +216,20 @@ select (select count(*) from information_schema.tables where table_schema = 'pub
 ```
 **You should see:** `3 | 10 | 4`
 
+## 0018_finance_insurance.sql (Phase 1.5, E7)
+**What it does:** adds the finance categories (mortgages, diaspora mortgages, housing, land, construction,
+development, bridging, commercial property and home-improvement finance, supplier credit, equipment finance)
+and insurance categories (home, building, landlord, contents, commercial property, construction, development
+and project, contractor, professional indemnity, public liability), each with a few questions. Nobody can
+request them while Finance and Insurance are "coming soon". When you switch one live (only after the licensing
+checks in the launch report), requests go to the lenders, insurers or brokers you add as partners.
+
+**Check:**
+```sql
+select vertical_key, count(*) from service_categories where vertical_key in ('finance', 'insurance') and parent_id is not null group by 1 order by 1;
+```
+**You should see:** `finance | 11` and `insurance | 10`
+
 ---
 
 ## Security test (run after all migrations)

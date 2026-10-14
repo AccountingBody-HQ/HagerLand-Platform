@@ -44,7 +44,7 @@ Authorised by AB on 13 Oct 2026 (brief: `docs/BRIEF_PHASE_1_5_AND_GO_LIVE.md`), 
 | E4 | Repairs & maintenance and contractors on the engine | done | 2026-10-14 | see git log | Migration 0015. 202 e2e + 120 unit passed |
 | E5 | Diaspora services and HagerLand Property Care | done | 2026-10-14 | see git log | Migration 0016. RLS 67/67 local. 214 e2e passed |
 | E6 | Estate agency services, save, compare, valuation, finance ask (+ 25.2a saved items/searches/alerts, 25.2b map, 25.2l path SEO pages) | done | 2026-10-14 | see git log | Migration 0017. RLS 74/74 local. 234+ e2e passed (re-runs of fixed tests green). Leaflet 1.9.4 added |
-| E7 | Finance and insurance (coming soon, partner forms) | todo | | | |
+| E7 | Finance and insurance (coming soon, partner forms; live pages on the request engine) | done | 2026-10-14 | see git log | Migration 0018. RLS 74/74 local. 242 e2e + 149 unit passed (one test-data fix re-run green) |
 | E8 | Jobs & recruitment (full, flagged coming soon) and Our Developments coming soon (+ 25.2j progress updates) | todo | | | |
 | H1 | Supplies marketplace: supplier self-serve products, Special Buys, trade accounts (25.2c, d, e) | todo | | | |
 | H2 | Guides hub and build-cost estimator (25.2g, h) | todo | | | |

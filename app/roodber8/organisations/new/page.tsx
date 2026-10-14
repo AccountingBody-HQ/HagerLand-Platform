@@ -15,7 +15,7 @@ export default async function NewOrgPage() {
       <Panel>
         <OrganisationForm
           action={saveAdminOrgAction}
-          kinds={['contractor', 'professional_firm', 'sole_trader', 'agency', 'developer', 'supplier', 'manufacturer']}
+          kinds={['contractor', 'professional_firm', 'sole_trader', 'agency', 'developer', 'supplier', 'manufacturer', 'lender', 'insurer', 'broker']}
           services={services.map((g) => ({ id: g.id, name: g.name, children: g.children }))}
           productCategories={products.map((c) => ({ id: c.id, name: c.name, children: [] }))}
           defaults={{ kind: 'contractor' }}

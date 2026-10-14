@@ -614,7 +614,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | S24-4C | Provider dashboard: offered requests, accept/decline, submit quote | 24.5 | Done | app/(account)/account/requests | e2e:flows/service-requests.spec.ts › a guest requests… (accept, quote); › when every provider declines… |
 | S24-4D | Customer sees quotes in account | 24.5 | Done | app/(account)/account/service-requests | verify: same RequestView as the guest page; RLS rls:Requester reads their own request / sees the quote once it is sent |
 | S24-4E | Guest sees quotes by secure emailed link | 24.5 | Done | app/(site)/requests/[token] | e2e:flows/service-requests.spec.ts › a guest requests… (quote seen and chosen through the emailed link); › guest links expire… |
-| S24-4F | Engine used for contractors, repairs (emergency), valuations, finance, insurance, diaspora, staffing | 24.5 | Not done | — | contractors and repairs done (e2e:repairs-contractors.spec.ts); valuations (E6), finance and insurance (E7), diaspora (E5), staffing (E8) pending |
+| S24-4F | Engine used for contractors, repairs (emergency), valuations, finance, insurance, diaspora, staffing | 24.5 | Not done | — | contractors, repairs, valuations, finance, insurance and diaspora done; staffing (E8) pending |
 | S24-4G | Materials quote_requests unchanged | 24.5 | Not done | — | verify: e2e supplies flow still green at E3 |
 | S24-50 | Diaspora landing with two directions | 24.6 | Done | app/(site)/diaspora/page.tsx | e2e:diaspora.spec.ts › the diaspora page offers both directions… |
 | S24-51 | Diaspora → Ethiopia items link to verticals or the engine | 24.6 | Done | app/(site)/diaspora/page.tsx HOME_NEEDS | e2e:diaspora.spec.ts › the diaspora page offers both directions and links into the live services |
@@ -634,13 +634,13 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | S24-65 | Compare up to 4 properties, side-by-side page; guests via localStorage | 24.7 | Done | lib/compare.ts, components/compare/*, app/(site)/property/compare | unit:e6-helpers.test.ts › compare list; e2e:property-extras.spec.ts › a property page offers… compare |
 | S24-66 | Property page: Request a valuation | 24.7 | Done | PropertyActions | e2e:property-extras.spec.ts › a property page offers… (Request a valuation link) |
 | S24-67 | "Ask about financing": finance interest when coming soon, service request when live | 24.7 | Done | PropertyActions | e2e:property-extras.spec.ts › a property page offers… (financing → Finance interest while coming soon) |
-| S24-70 | Finance landing with all categories, "provided through approved, licensed partners" | 24.8 | Not done | — | E7 |
-| S24-71 | Insurance landing with all categories, same partner statement | 24.8 | Not done | — | E7 |
-| S24-72 | Register interest by category | 24.8 | Not done | — | E7 |
-| S24-73 | Become a partner for banks, lenders, insurers, brokers | 24.8 | Not done | — | E7 |
-| S24-74 | No rates, quotes, advice or eligibility statements | 24.8 | Not done | — | E7 review |
-| S24-75 | When live, requests go through the engine to partner organisations | 24.8 | Not done | — | E7 |
-| S24-76 | New organisation kinds lender, insurer, broker | 24.8 | Not done | migration | E3/E7 |
+| S24-70 | Finance landing with all categories, "provided through approved, licensed partners" | 24.8 | Done | lib/content/verticals.ts FINANCE_CATEGORIES, ComingSoonPage | e2e:finance-insurance.spec.ts › while coming soon, finance and insurance list every category… |
+| S24-71 | Insurance landing with all categories, same partner statement | 24.8 | Done | INSURANCE_CATEGORIES | e2e:finance-insurance.spec.ts › while coming soon… |
+| S24-72 | Register interest by category | 24.8 | Done | InterestForm categories | e2e:finance-insurance.spec.ts; e2e:verticals.spec.ts › register interest… (Landlord insurance) |
+| S24-73 | Become a partner for banks, lenders, insurers, brokers | 24.8 | Done | PartnerForm | e2e:finance-insurance.spec.ts (partner types); e2e:verticals.spec.ts › become a partner… |
+| S24-74 | No rates, quotes, advice or eligibility statements | 24.8 | Done | copy review | e2e:finance-insurance.spec.ts › …make no offers (no %, rates or eligibility text, coming soon and live) |
+| S24-75 | When live, requests go through the engine to partner organisations | 24.8 | Done | 0018, PartnerVerticalPage | e2e:finance-insurance.spec.ts › switched live, finance requests go through the engine to a lender… |
+| S24-76 | New organisation kinds lender, insurer, broker | 24.8 | Done | 0012, admin organisation kinds | e2e:finance-insurance.spec.ts › admin can add a lender, insurer or broker… |
 | S24-80 | jobs table (employer org, title, category, type, location/country, salary + currency optional, description, requirements, closing date, moderated status, expiry) | 24.9 | Not done | migration | E8 |
 | S24-81 | Employer dashboard: post and manage jobs | 24.9 | Not done | — | E8 |
 | S24-82 | Employer views applications | 24.9 | Not done | — | E8 |
@@ -783,32 +783,32 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | V6-15 | Repairs & maintenance request type: Emergency repairs | Vision §6 | Done | supabase/migrations/0015_repairs_contractors.sql, app/(site)/repairs-maintenance | e2e:repairs-contractors.spec.ts › the repairs hub lists every repair service…; sql: 0015 check → 17 |
 | V6-16 | Repairs & maintenance request type: Property refurbishment | Vision §6 | Done | supabase/migrations/0015_repairs_contractors.sql, app/(site)/repairs-maintenance | e2e:repairs-contractors.spec.ts › the repairs hub lists every repair service…; sql: 0015 check → 17 |
 | V6-17 | Repairs & maintenance request type: Property management support | Vision §6 | Done | supabase/migrations/0015_repairs_contractors.sql, app/(site)/repairs-maintenance | e2e:repairs-contractors.spec.ts › the repairs hub lists every repair service…; sql: 0015 check → 17 |
-| V7-01 | Insurance category: Home insurance | Vision §7 | Not done | insurance landing + categories | E7 |
-| V7-02 | Insurance category: Building insurance | Vision §7 | Not done | insurance landing + categories | E7 |
-| V7-03 | Insurance category: Landlord insurance | Vision §7 | Not done | insurance landing + categories | E7 |
-| V7-04 | Insurance category: Commercial property insurance | Vision §7 | Not done | insurance landing + categories | E7 |
-| V7-05 | Insurance category: Construction insurance | Vision §7 | Not done | insurance landing + categories | E7 |
-| V7-06 | Insurance category: Contractor insurance | Vision §7 | Not done | insurance landing + categories | E7 |
-| V7-07 | Insurance category: Contents insurance | Vision §7 | Not done | insurance landing + categories | E7 |
-| V7-08 | Insurance category: Professional indemnity insurance | Vision §7 | Not done | insurance landing + categories | E7 |
-| V7-09 | Insurance category: Public liability insurance | Vision §7 | Not done | insurance landing + categories | E7 |
-| V7-10 | Insurance category: Development/project insurance | Vision §7 | Not done | insurance landing + categories | E7 |
-| V7-11 | Users can request insurance quotations matched to providers (when live) | Vision §7 | Not done | engine | E7 |
-| V7-12 | Regulated activity only once licences/partners exist; labelled Coming soon / Register interest / Provided through approved partners | Vision §7 | Not done | registry | E7 |
-| V8-01 | Finance category: Mortgage providers | Vision §8 | Not done | finance landing + categories | E7 |
-| V8-02 | Finance category: Banks | Vision §8 | Not done | finance landing + categories | E7 |
-| V8-03 | Finance category: Housing finance providers | Vision §8 | Not done | finance landing + categories | E7 |
-| V8-04 | Finance category: Construction finance | Vision §8 | Not done | finance landing + categories | E7 |
-| V8-05 | Finance category: Development finance | Vision §8 | Not done | finance landing + categories | E7 |
-| V8-06 | Finance category: Bridging finance | Vision §8 | Not done | finance landing + categories | E7 |
-| V8-07 | Finance category: Commercial property finance | Vision §8 | Not done | finance landing + categories | E7 |
-| V8-08 | Finance category: Diaspora mortgage products | Vision §8 | Not done | finance landing + categories | E7 |
-| V8-09 | Finance category: Land financing | Vision §8 | Not done | finance landing + categories | E7 |
-| V8-10 | Finance category: Home-improvement finance | Vision §8 | Not done | finance landing + categories | E7 |
-| V8-11 | Finance category: Supplier credit | Vision §8 | Not done | finance landing + categories | E7 |
-| V8-12 | Finance category: Equipment finance | Vision §8 | Not done | finance landing + categories | E7 |
-| V8-13 | Finance enquiry from property, construction project and development pages | Vision §8 | Not done | Ask about financing | E6/E7 |
-| V8-14 | Regulated finance only transactional once arrangements exist | Vision §8 | Not done | registry | E7 |
+| V7-01 | Insurance category: Home insurance | Vision §7 | Done | 0018 insurance categories | e2e:finance-insurance.spec.ts › while coming soon… (category listed) |
+| V7-02 | Insurance category: Building insurance | Vision §7 | Done | 0018 insurance categories | e2e:finance-insurance.spec.ts › while coming soon… (category listed) |
+| V7-03 | Insurance category: Landlord insurance | Vision §7 | Done | 0018 insurance categories | e2e:finance-insurance.spec.ts › while coming soon… (category listed) |
+| V7-04 | Insurance category: Commercial property insurance | Vision §7 | Done | 0018 insurance categories | e2e:finance-insurance.spec.ts › while coming soon… (category listed) |
+| V7-05 | Insurance category: Construction insurance | Vision §7 | Done | 0018 insurance categories | e2e:finance-insurance.spec.ts › while coming soon… (category listed) |
+| V7-06 | Insurance category: Contractor insurance | Vision §7 | Done | 0018 insurance categories | e2e:finance-insurance.spec.ts › while coming soon… (category listed) |
+| V7-07 | Insurance category: Contents insurance | Vision §7 | Done | 0018 insurance categories | e2e:finance-insurance.spec.ts › while coming soon… (category listed) |
+| V7-08 | Insurance category: Professional indemnity insurance | Vision §7 | Done | 0018 insurance categories | e2e:finance-insurance.spec.ts › while coming soon… (category listed) |
+| V7-09 | Insurance category: Public liability insurance | Vision §7 | Done | 0018 insurance categories | e2e:finance-insurance.spec.ts › while coming soon… (category listed) |
+| V7-10 | Insurance category: Development/project insurance | Vision §7 | Done | 0018 insurance categories | e2e:finance-insurance.spec.ts › while coming soon… (category listed) |
+| V7-11 | Users can request insurance quotations matched to providers (when live) | Vision §7 | Done | engine + insurance categories | e2e:finance-insurance.spec.ts › switched live, insurance lists its request categories |
+| V7-12 | Regulated activity only once licences/partners exist; labelled Coming soon / Register interest / Provided through approved partners | Vision §7 | Done | registry | e2e:finance-insurance.spec.ts; e2e:verticals.spec.ts › finance is a labelled coming-soon page… |
+| V8-01 | Finance category: Mortgage providers | Vision §8 | Done | 0018 finance categories | e2e:finance-insurance.spec.ts › while coming soon… (category listed); verify: banks and mortgage providers are partner types and categories (Mortgages, Housing finance) |
+| V8-02 | Finance category: Banks | Vision §8 | Done | 0018 finance categories | e2e:finance-insurance.spec.ts › while coming soon… (category listed); verify: banks and mortgage providers are partner types and categories (Mortgages, Housing finance) |
+| V8-03 | Finance category: Housing finance providers | Vision §8 | Done | 0018 finance categories | e2e:finance-insurance.spec.ts › while coming soon… (category listed); verify: banks and mortgage providers are partner types and categories (Mortgages, Housing finance) |
+| V8-04 | Finance category: Construction finance | Vision §8 | Done | 0018 finance categories | e2e:finance-insurance.spec.ts › while coming soon… (category listed); verify: banks and mortgage providers are partner types and categories (Mortgages, Housing finance) |
+| V8-05 | Finance category: Development finance | Vision §8 | Done | 0018 finance categories | e2e:finance-insurance.spec.ts › while coming soon… (category listed); verify: banks and mortgage providers are partner types and categories (Mortgages, Housing finance) |
+| V8-06 | Finance category: Bridging finance | Vision §8 | Done | 0018 finance categories | e2e:finance-insurance.spec.ts › while coming soon… (category listed); verify: banks and mortgage providers are partner types and categories (Mortgages, Housing finance) |
+| V8-07 | Finance category: Commercial property finance | Vision §8 | Done | 0018 finance categories | e2e:finance-insurance.spec.ts › while coming soon… (category listed); verify: banks and mortgage providers are partner types and categories (Mortgages, Housing finance) |
+| V8-08 | Finance category: Diaspora mortgage products | Vision §8 | Done | 0018 finance categories | e2e:finance-insurance.spec.ts › while coming soon… (category listed); verify: banks and mortgage providers are partner types and categories (Mortgages, Housing finance) |
+| V8-09 | Finance category: Land financing | Vision §8 | Done | 0018 finance categories | e2e:finance-insurance.spec.ts › while coming soon… (category listed); verify: banks and mortgage providers are partner types and categories (Mortgages, Housing finance) |
+| V8-10 | Finance category: Home-improvement finance | Vision §8 | Done | 0018 finance categories | e2e:finance-insurance.spec.ts › while coming soon… (category listed); verify: banks and mortgage providers are partner types and categories (Mortgages, Housing finance) |
+| V8-11 | Finance category: Supplier credit | Vision §8 | Done | 0018 finance categories | e2e:finance-insurance.spec.ts › while coming soon… (category listed); verify: banks and mortgage providers are partner types and categories (Mortgages, Housing finance) |
+| V8-12 | Finance category: Equipment finance | Vision §8 | Done | 0018 finance categories | e2e:finance-insurance.spec.ts › while coming soon… (category listed); verify: banks and mortgage providers are partner types and categories (Mortgages, Housing finance) |
+| V8-13 | Finance enquiry from property, construction project and development pages | Vision §8 | Done | PropertyActions, FinanceAsk on developments and contractors | e2e:finance-insurance.spec.ts › …property pages ask about financing; e2e:property-extras.spec.ts (coming-soon link) |
+| V8-14 | Regulated finance only transactional once arrangements exist | Vision §8 | Done | registry | e2e:finance-insurance.spec.ts |
 | V9-01 | Diaspora → Ethiopia: Buying property in Ethiopia | Vision §9 | Done | app/(site)/diaspora/page.tsx | e2e:diaspora.spec.ts › the diaspora page offers both directions… |
 | V9-02 | Diaspora → Ethiopia: Building a house in Ethiopia | Vision §9 | Done | app/(site)/diaspora/page.tsx | e2e:diaspora.spec.ts › the diaspora page offers both directions… |
 | V9-03 | Diaspora → Ethiopia: Renovating family property | Vision §9 | Done | app/(site)/diaspora/page.tsx | e2e:diaspora.spec.ts › the diaspora page offers both directions… |
