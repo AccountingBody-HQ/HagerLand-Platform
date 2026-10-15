@@ -35,3 +35,33 @@ export function organisationJsonLd(o: PublicOrganisation, city: string | null, r
     ...(rating && rating.count >= 3 ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: rating.average, reviewCount: rating.count, bestRating: 5, worstRating: 1 } } : {}),
   }
 }
+
+/**
+ * HagerLand's own estate agency as a RealEstateAgent (spec 26.16), with its licence as a credential once AB has
+ * entered the licence number in admin → Settings.
+ */
+export function agencyJsonLd(opts: { name: string; legalName: string; telephone: string; email: string; licence: { number: string; authority: string; holder: string; date: string } | undefined }): Record<string, unknown> {
+  const l = opts.licence
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'RealEstateAgent',
+    name: `${opts.name} estate agency`,
+    url: canonicalUrl('/agency'),
+    areaServed: { '@type': 'Country', name: 'Ethiopia' },
+    ...(opts.legalName ? { legalName: opts.legalName } : {}),
+    ...(opts.telephone ? { telephone: opts.telephone } : {}),
+    ...(opts.email ? { email: opts.email } : {}),
+    ...(l?.number
+      ? {
+          hasCredential: {
+            '@type': 'EducationalOccupationalCredential',
+            credentialCategory: 'license',
+            name: 'Estate agency licence',
+            identifier: l.number,
+            ...(l.authority ? { recognizedBy: { '@type': 'Organization', name: l.authority } } : {}),
+            ...(l.date ? { dateCreated: l.date } : {}),
+          },
+        }
+      : {}),
+  }
+}

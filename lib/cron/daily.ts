@@ -170,6 +170,18 @@ async function purgeReveals(now: number): Promise<number> {
   return data?.length ?? 0
 }
 
+/** Closed viewings, offers and applications are deleted after 24 months (privacy policy, spec 26.16). */
+async function purgeAgencyRecords(now: number): Promise<number> {
+  const db = getAdminSupabase()
+  const cutoff = iso(now - 730 * DAY)
+  const [v, o, a] = await Promise.all([
+    db.from('agency_viewings').delete().in('status', ['completed', 'cancelled', 'no_show']).lt('updated_at', cutoff).select('id'),
+    db.from('agency_offers').delete().in('status', ['rejected', 'withdrawn']).lt('updated_at', cutoff).select('id'),
+    db.from('rental_applications').delete().in('status', ['rejected', 'withdrawn']).lt('updated_at', cutoff).select('id'),
+  ])
+  return (v.data?.length ?? 0) + (o.data?.length ?? 0) + (a.data?.length ?? 0)
+}
+
 /** Confirmed viewings in the next 36 hours get one reminder email (spec 26.5). */
 async function remindViewings(now: number): Promise<number> {
   const db = getAdminSupabase()
@@ -325,6 +337,7 @@ export async function runDaily(now = Date.now()): Promise<DailySummary> {
   const interestPurged = await step('interest purge', () => purgeInterest(now), 0)
   // Market insight (spec 26.10): asking-price figures rebuilt from live listings once a day.
   await step('market insight', async () => void (await getAdminSupabase().rpc('refresh_market_insight')), undefined)
+  await step('agency purge', () => purgeAgencyRecords(now), 0)
   const viewingReminders = await step('viewing reminders', () => remindViewings(now), 0)
   const tenancyReminders = await step('tenancy reminders', () => remindTenancies(now), 0)
   const emailsRetried = await step('email retries', async () => (await retryOutbox(now)).sent, 0)

@@ -1,5 +1,6 @@
 'use client'
 
+import { TimeZoneFields } from '@/components/forms/TimeZoneFields'
 import Link from 'next/link'
 import { useActionState, useEffect, useRef, useState } from 'react'
 import { CircleCheck } from 'lucide-react'
@@ -33,6 +34,7 @@ export function EnquiryForm({
   submitLabel = 'Send enquiry',
   topic,
   topicOptions,
+  askCallTimes,
   idPrefix = 'enq',
 }: {
   target: EnquiryTarget
@@ -43,6 +45,8 @@ export function EnquiryForm({
   topic?: string
   /** Shows a "What is it about?" dropdown instead of a fixed topic. */
   topicOptions?: { value: string; label: string }[]
+  /** Shows the visitor's time zone and asks for good times to call (spec 26.11), for HagerLand's own forms. */
+  askCallTimes?: boolean
   idPrefix?: string
 }) {
   const [state, action] = useActionState(submitEnquiryAction, null)
@@ -175,6 +179,7 @@ export function EnquiryForm({
           <option value="email">Email</option>
         </Select>
       </Field>
+      {askCallTimes && <TimeZoneFields idPrefix={idPrefix} />}
       <Turnstile action="enquiry" />
       <SubmitButton fullWidth size="lg" pendingText="Sending…">
         {submitLabel}

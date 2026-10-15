@@ -31,6 +31,12 @@ export default async function PrivacyPage() {
             <li><strong>Trade accounts:</strong> your business name, type, phone and tax number if you give it.</li>
             <li><strong>Verification documents:</strong> trade licences, TIN certificates and similar documents you upload to get Verified or to claim a business.</li>
             <li><strong>Jobs:</strong> when you apply for a job, your name, contact details, cover note and CV. If you create a candidate profile, your skills, qualifications, experience, availability and CV.</li>
+            <li><strong>Estate agency:</strong> when you ask us to value, sell or let a property, book a viewing, make an offer or apply to rent, your contact details, the property, your preferred times and time zone, your offer or application (work, income note, move-in date, number of people) and any documents you add. We keep a contact record for each person we deal with, including whether and when you agreed to receive property emails.</li>
+            <li><strong>Buying and renting requirements:</strong> if you ask us to look for property for you, what you are looking for (budget, areas, type, bedrooms), so we can send you matching listings with your agreement.</li>
+            <li><strong>Tenancies and managed properties:</strong> tenancy details (parties, dates, rent, deposit) and, for properties we manage, inspection reports and photos, statements, the maintenance log, documents and messages in the owner portal.</li>
+            <li><strong>Building projects:</strong> your plot, plans, budget and the services you need.</li>
+            <li><strong>Reviews:</strong> the rating and words you write about a provider you chose; your first name is shown with it.</li>
+            <li><strong>Newsletter:</strong> your email, name if given, and when and how you agreed to receive it.</li>
             <li><strong>Contact reveals:</strong> when you reveal a phone number or other contact detail, we record which listing and a one-way coded version of your internet address, to prevent bulk copying.</li>
             <li><strong>Usage analytics:</strong> anonymous, cookieless statistics about which pages are visited and how fast they load. These do not identify you.</li>
           </ul>
@@ -52,6 +58,8 @@ export default async function PrivacyPage() {
             <li><strong>Employers you apply to:</strong> the employer receives your application and CV. CVs are never public. Your candidate profile is private unless you choose to make it visible to approved employers, and even then they see neither your contact details nor your CV.</li>
             <li><strong>Providers matched to your request:</strong> up to three providers receive your request and contact details so they can quote. We tell you who they are on your request page.</li>
             <li><strong>Finance and insurance partners:</strong> where these services are available and you ask for them, we pass your request to an approved, licensed partner. They handle your information under their own privacy policy.</li>
+            <li><strong>Owners and landlords we act for:</strong> when you book a viewing, make an offer or apply to rent a property we market, we share your details, offer or application with the owner so they can decide. We do not share documents you upload beyond what is needed to consider the application.</li>
+            <li><strong>Providers you review:</strong> your first name, rating and review are published on their profile after we check them.</li>
             <li><strong>Visitors to your listing:</strong> the contact details you choose to show are revealed to visitors who ask for them.</li>
             <li><strong>Service providers who run the site for us:</strong> Supabase (database, file storage and sign-in), Vercel (hosting), Resend (email), Cloudflare (bot protection) and Google (maps on listing pages). They process data only on our instructions.</li>
             <li><strong>Authorities:</strong> where the law requires it.</li>
@@ -69,6 +77,9 @@ export default async function PrivacyPage() {
             <li>Contact reveal records: 12 months.</li>
             <li>Registrations of interest in services that are coming soon: 24 months.</li>
             <li>CVs sent with job applications: deleted 12 months after the application. Your candidate profile and its CV: until you delete them.</li>
+            <li>Viewings, offers and applications to rent: 24 months after the last activity, unless they lead to a sale or tenancy, which we keep for as long as the law requires for our records.</li>
+            <li>Agency contact records and requirements: while we act for you or you want matching listings, and removed on request.</li>
+            <li>Newsletter: until you unsubscribe (one click in every email).</li>
           </ul>
         </TextSection>
         <TextSection title="Your rights">
@@ -76,7 +87,8 @@ export default async function PrivacyPage() {
           <p className="mt-3">You can see and update your details in your account, download a copy of your data (My account → Settings → Download my data), ask us to correct or delete it, and object to marketing. To delete your account, go to My account → Settings. For anything else, <Link href="/contact">contact us</Link>.</p>
         </TextSection>
         <TextSection title="Security">
-          <p>Access to personal information is restricted, verification documents are stored privately, and contact details are only released one at a time on request.</p>
+          <p>Access to personal information is restricted, verification documents, applications and inspection photos are stored privately and opened through links that expire after 10 minutes, and contact details are only released one at a time on request.</p>
+          <p className="mt-3">Our staff use individual accounts with two-factor sign-in, see only the areas their role needs, and every action they take is recorded in an audit log.</p>
         </TextSection>
         <TextSection title="Changes">
           <p>We will update this policy when our practices change. The date at the top shows the latest version.</p>

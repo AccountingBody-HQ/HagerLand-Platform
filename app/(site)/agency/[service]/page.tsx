@@ -98,7 +98,7 @@ export default async function AgencyServicePage(props: { params: Promise<{ servi
           </div>
           <div className="rounded-xl border border-border bg-white p-5 shadow-sm sm:p-6">
             <h2 className="hl-h3 mb-4">Talk to us</h2>
-            <EnquiryForm target={{ type: 'general', recipientLabel: 'HagerLand' }} intents={[{ value: 'more_info', label: s.title, message: s.message }]} topic={s.topic} idPrefix={`ag-${s.slug}`} submitLabel="Send" />
+            <EnquiryForm askCallTimes target={{ type: 'general', recipientLabel: 'HagerLand' }} intents={[{ value: 'more_info', label: s.title, message: s.message }]} topic={s.topic} idPrefix={`ag-${s.slug}`} submitLabel="Send" />
           </div>
         </div>
       </Section>

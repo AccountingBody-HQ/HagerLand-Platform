@@ -1,8 +1,10 @@
+import Link from 'next/link'
 import { BadgeCheck, Circle, CircleCheck } from 'lucide-react'
 import { brand } from '@/lib/brand'
 import { buildMetadata } from '@/lib/seo'
 import { Section, SectionHeader } from '@/components/ui/Layout'
 import { Tabs } from '@/components/ui/Tabs'
+import { MODE_LABELS } from '@/lib/pillars'
 import { ButtonLink } from '@/components/ui/Button'
 import { PageHero } from '@/components/content/PageHero'
 
@@ -102,6 +104,26 @@ export default function HowItWorksPage() {
           ]}
         />
       </Section>
+      <Section labelledBy="modes">
+        <SectionHeader id="modes" title="How each service is provided" description={`Every part of ${brand.name} shows which of these applies today.`} />
+        <ul className="grid gap-4 md:grid-cols-3">
+          {[
+            { label: MODE_LABELS.direct, text: `${brand.name} does the work itself, for example our estate agency, Property Care, HagerLand Supply and recruitment.` },
+            { label: MODE_LABELS.aggregate, text: 'Vetted providers, partners and listings, matched by us or found through search. They agree terms with you directly.' },
+            { label: MODE_LABELS.interest, text: 'A service we are preparing. Register your interest and we tell you when it opens; your registration helps us decide what to open next.' },
+          ].map((m) => (
+            <li key={m.label} className="rounded-lg border border-border bg-white p-5">
+              <h3 className="font-semibold">{m.label}</h3>
+              <p className="mt-1 text-small text-muted">{m.text}</p>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-6 text-small">
+          <Link href="/#ecosystem-title" className="font-semibold text-green underline">
+            See all ten services around the property lifecycle
+          </Link>
+        </p>
+      </Section>
       <Section tone="stone">
         <SectionHeader title="Verification levels explained" />
         <ul className="grid gap-4 md:grid-cols-3">
@@ -125,6 +147,7 @@ export default function HowItWorksPage() {
             <li><strong>Everything is reviewed.</strong> Listings and profiles go live only after our team checks them.</li>
             <li><strong>Listings stay current.</strong> Property listings expire after 60 days unless the owner renews them.</li>
             <li><strong>We are a participant too, and we say so.</strong> {brand.name} also sells materials through {brand.divisions.supply} and builds homes through {brand.divisions.developments}. Our own items are always labelled, and they are never pushed above other listings in search. Any promoted placement is clearly marked.</li>
+            <li><strong>Reviews are from real jobs.</strong> Only customers who chose a provider through {brand.name} can review them, we check each review before it appears, and we never invent or import reviews.</li>
             <li><strong>Report problems.</strong> Every listing and profile has a “Report” link. We act on reports quickly.</li>
           </ul>
         </div>

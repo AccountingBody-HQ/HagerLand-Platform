@@ -10,6 +10,8 @@ import { notFound } from 'next/navigation'
 import { LicenceNote } from '@/components/content/LicenceNote'
 import { getAgencyAvailability } from '@/lib/data/pillars'
 import { getBusinessDetails } from '@/lib/data/business'
+import { agencyJsonLd } from '@/lib/jsonld-org'
+import { JsonLd } from '@/components/seo/JsonLd'
 
 export const revalidate = 300
 
@@ -65,6 +67,7 @@ export default async function AgencyPage() {
         </ul>
         <p className="mt-8 text-muted">{business.agencyFeeSchedule ? business.agencyFeeSchedule : 'Our fees and what we will do are agreed with you in writing before we start.'}</p>
         <LicenceNote kind="estate_agency" licence={business.licences.estate_agency} className="mt-2" />
+        <JsonLd data={agencyJsonLd({ name: brand.name, legalName: business.legal.name, telephone: business.contact.phone, email: business.contact.email, licence: business.licences.estate_agency })} />
         <ButtonLink href="/contact?topic=agency" variant="secondary" className="mt-6">
           Talk to us
         </ButtonLink>

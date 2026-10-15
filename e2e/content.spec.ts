@@ -8,9 +8,10 @@ test('About, How it works, List with us and Help describe the whole ecosystem wi
   const status = Object.fromEntries((verticals ?? []).map((v) => [v.key, v.status]))
   await page.goto('/about')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Building the land.')
-  for (const t of ['Property marketplace', 'HagerLand Supply', 'Contractors and trades', 'Repairs and maintenance']) await expect(page.getByText(t, { exact: true }).first()).toBeVisible()
-  if (status['our-developments'] === 'coming_soon') await expect(page.getByText('HagerLand intends to develop carefully selected projects. We are not building or selling any yet.')).toBeVisible()
-  if (status.jobs === 'coming_soon') await expect(page.getByText(/job board and recruitment help .* are coming soon/)).toBeVisible()
+  // What we do follows the pillar registry and says how each is provided (spec 26.16).
+  for (const t of ['Buy & Sell Property', 'Building & Construction Supplies', 'Build & Develop Property', 'Repair & Maintain Property']) await expect(page.locator('main dl').getByRole('link', { name: t, exact: true })).toBeVisible()
+  if (status.finance === 'coming_soon') await expect(page.locator('dl').getByText('Coming soon').first()).toBeVisible()
+  await expect(page.locator('dl').getByText('Provided by HagerLand').first()).toBeVisible()
 
   await page.goto('/how-it-works')
   await page.getByRole('tab', { name: 'Getting quotes' }).click()

@@ -30,6 +30,25 @@ export const HELP_FAQ: FaqGroup[] = [
     ],
   },
   {
+    id: 'agency',
+    title: 'Viewings, offers and renting through HagerLand',
+    liveVertical: 'property',
+    items: [
+      { question: 'How do I book a viewing?', answer: 'On a listing marked “Marketed by HagerLand”, choose “Book a viewing”, say whether you want to view in person or by video call and when suits you. We confirm a time by email and remind you before the viewing. For other listings, contact the lister through the listing.' },
+      { question: 'Is my offer binding?', answer: 'No. An offer made through HagerLand is an expression of interest. Nothing is agreed until a written sale agreement is signed by both sides.' },
+      { question: 'How do I apply to rent?', answer: 'On a let marked “Marketed by HagerLand”, choose “Apply to rent”. We check your application with the landlord and tell you the decision. Never pay rent or a deposit before you sign a written tenancy agreement.' },
+      { question: 'Where can I follow my viewings and offers?', answer: 'Sign in with the same email you used and open My account → Viewings, offers and tenancies.' },
+    ],
+  },
+  {
+    id: 'reviews',
+    title: 'Reviews',
+    items: [
+      { question: 'Who can write a review?', answer: 'Only a customer who chose a provider for a job through HagerLand. The review box appears on your request page once you have chosen the provider. One review per job.' },
+      { question: 'Why is my review not showing yet?', answer: 'We check every review before it appears. We publish reviews about the job and do not change what you wrote.' },
+    ],
+  },
+  {
     id: 'listing',
     title: 'Listing a property',
     items: [

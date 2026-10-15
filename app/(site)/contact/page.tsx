@@ -102,7 +102,7 @@ export default async function ContactPage(props: { searchParams: Promise<{ topic
           <h2 id="form-h" className="hl-h3 mb-4">
             Send us a message
           </h2>
-          <EnquiryForm
+          <EnquiryForm askCallTimes
             target={{ type: 'general', recipientLabel: `the ${brand.name} team` }}
             intents={[{ value: 'other', label: 'Message', message: '' }]}
             topic={searchParams.topic}

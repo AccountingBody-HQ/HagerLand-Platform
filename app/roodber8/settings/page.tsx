@@ -4,6 +4,7 @@ import { SOCIAL_KEYS } from '@/lib/brand'
 import { LEGAL_WRITTEN } from '@/lib/content/legal'
 import { formatDate } from '@/lib/format'
 import { LICENCE_KINDS, LICENCE_LABELS } from '@/lib/validation/settings'
+import { integrationStatuses } from '@/lib/integrations'
 import { AdminHeader, Panel } from '@/components/admin/AdminUi'
 import { ClaimsEditor, SettingsForm } from './SettingsForm'
 
@@ -134,6 +135,20 @@ export default async function SettingsPage() {
             { name: 'market_insight_min_sample', label: 'Minimum listings before a market-insight figure is shown', type: 'number', value: v(s.market_insight_min_sample ?? 5) },
           ]}
         />
+      </Panel>
+      <Panel title="Integrations">
+        <p className="mb-3 text-small text-muted">Services that need a contract with an outside provider. They are prepared in the code and switched off until you choose a provider.</p>
+        <ul className="divide-y divide-border text-small">
+          {integrationStatuses().map((i) => (
+            <li key={i.key} className="flex flex-col gap-1 py-2 sm:flex-row sm:items-center sm:justify-between">
+              <span>
+                <span className="font-semibold text-ink">{i.name}</span>
+                <span className="block text-muted">{i.note}</span>
+              </span>
+              <span className="text-caption font-semibold text-muted">{i.configured ? 'Connected' : 'Not configured'}</span>
+            </li>
+          ))}
+        </ul>
       </Panel>
       <Panel title="Amharic (አማርኛ)">
         <p className="mb-3 text-small text-muted">

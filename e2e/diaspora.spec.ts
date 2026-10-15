@@ -6,7 +6,7 @@ import { adminSession, asFreshVisitor, db, mailWithSubject, testPhotos, uniqueEm
 test('the diaspora page offers both directions and links into the live services', async ({ page }) => {
   await page.goto('/diaspora')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Your trusted bridge to property in Ethiopia.')
-  await expect(page.getByRole('link', { name: /Build a house/ })).toHaveAttribute('href', '/request-service/house-builders')
+  await expect(page.getByRole('link', { name: /Build a house/ })).toHaveAttribute('href', '/build/project')
   await expect(page.getByRole('link', { name: /Verification and due diligence/ })).toHaveAttribute('href', '/request-service/property-inspections')
   await expect(page.getByRole('link', { name: /Property management/ }).first()).toHaveAttribute('href', '/diaspora/property-care')
   await expect(page.locator('main').getByRole('link', { name: /^Finance.*Soon/ })).toBeVisible()
@@ -79,7 +79,7 @@ test('an owner abroad requests a Property Care consultation; HagerLand moves it 
   await page.locator('input[type=file]').first().setInputFiles(photo)
   await expect(page.getByText('photo-0.jpg')).toBeVisible({ timeout: 20_000 })
   // The photo's field is added once its upload has finished (sending earlier is refused with a message).
-  await expect(page.getByText('Done').first()).toBeVisible({ timeout: 20_000 })
+  await expect(page.locator('[data-uploading="true"]')).toHaveCount(0, { timeout: 20_000 })
   await page.locator('#in-cond').selectOption('needs_attention')
   await page.locator('#in-notes').fill('Damp patch in the bathroom ceiling.')
   await page.getByRole('button', { name: 'Add inspection', exact: true }).click()

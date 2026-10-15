@@ -6,35 +6,39 @@ import { legalUpdated } from '@/lib/content/legal'
 import { Container } from '@/components/ui/Layout'
 import { PageHero, TextSection } from '@/components/content/PageHero'
 import { LegalEntity } from '@/components/content/LegalEntity'
+import { licenceText } from '@/components/content/LicenceNote'
 
 export const revalidate = 3600
-export const metadata = buildMetadata({ title: 'Terms of use', description: 'The terms for using HagerLand: listings, enquiries, quotes, verification, our role as a marketplace and a participant, and your responsibilities.', path: '/terms' })
+export const metadata = buildMetadata({ title: 'Terms of use', description: 'The terms for using HagerLand: listings, enquiries, quotes, estate agency, service requests, reviews, our role as a marketplace and a participant.', path: '/terms' })
 
 export default async function TermsPage() {
   const [business, updated] = await Promise.all([getBusinessDetails(), legalUpdated('terms')])
   const { legal } = business
+  // Sections are numbered in order of appearance, so optional sections never leave a gap.
+  let section = 0
+  const n = (title: string) => `${++section}. ${title}`
   return (
     <>
       <PageHero crumb="Terms" title="Terms of use" intro={`Last updated ${updated}`} />
       <Container className="max-w-3xl space-y-10 py-12 sm:py-16">
-        <TextSection title="1. About these terms">
+        <TextSection title={n('About these terms')}>
           <p>These terms apply when you use {brand.name}, including browsing, creating an account, listing a property or business, sending an enquiry or requesting a quote. By using {brand.name} you agree to them. If you do not agree, please do not use the site.</p>
           <LegalEntity legal={legal} />
         </TextSection>
-        <TextSection title={`2. What ${brand.name} is`}>
+        <TextSection title={n(`What ${brand.name} is`)}>
           <p>{brand.name} is an online platform where people list and find property, construction materials, professionals and services in Ethiopia, and request quotes for work, including people who live abroad. Unless a listing is labelled as {brand.divisions.supply} or {brand.divisions.developments}, we are not a party to any agreement between you and another user, and we do not own, sell or let the properties listed by others.</p>
         </TextSection>
-        <TextSection title="3. Our dual role">
+        <TextSection title={n('Our dual role')}>
           <p>{brand.name} also sells construction materials through {brand.divisions.supply}, offers estate agency services, and intends to develop homes through {brand.divisions.developments}. Our own products, services and projects are always clearly labelled. They are not ranked above other listings in organic search results, and any promoted placement is marked as such.</p>
         </TextSection>
-        <TextSection title="4. Accounts">
+        <TextSection title={n('Accounts')}>
           <ul>
             <li>You must give accurate details and keep your password secure. You are responsible for activity on your account.</li>
             <li>You must confirm your email address before you can list or publish anything.</li>
             <li>One person may belong to several business profiles. Only people authorised by a business may manage its profile.</li>
           </ul>
         </TextSection>
-        <TextSection title="5. Listing rules">
+        <TextSection title={n('Listing rules')}>
           <ul>
             <li>You may only list a property you own or are authorised to list, and only a business you own or represent.</li>
             <li>Listings must be accurate, current and honest, including price, location, size and documents status. Photos must be of the actual property or product.</li>
@@ -42,19 +46,19 @@ export default async function TermsPage() {
             <li>Private owners may have a limited number of active listings at a time, shown when you list.</li>
           </ul>
         </TextSection>
-        <TextSection title="6. Prohibited content">
+        <TextSection title={n('Prohibited content')}>
           <p>You must not post anything that is false or misleading, fraudulent, offensive, discriminatory, illegal, infringes someone else’s rights, includes another person’s personal data without permission, or tries to take payment outside a genuine transaction. You must not scrape the site, collect other users’ contact details in bulk, or interfere with its security.</p>
         </TextSection>
-        <TextSection title="7. Our moderation rights">
+        <TextSection title={n('Our moderation rights')}>
           <p>We review listings and profiles before they are published and may edit formatting, ask for changes, refuse, pause or remove any content, and suspend or close accounts that break these terms. We may keep records of removed content where the law requires or to prevent abuse.</p>
         </TextSection>
-        <TextSection title="8. Third-party listings">
+        <TextSection title={n('Third-party listings')}>
           <p>Listings by other users are their responsibility. We do not guarantee that any listing is accurate, available or lawful, or that any user will complete a transaction. Always view a property and check the title deed (carta) and lease documents before paying anything. Our <Link href="/help#safety">safety advice</Link> explains what to check.</p>
         </TextSection>
-        <TextSection title="9. Verification badges">
+        <TextSection title={n('Verification badges')}>
           <p>“Listed”, “Claimed” and “Verified” describe the checks we have made, explained on our <Link href="/how-it-works">How it works</Link> page. A Verified badge means we checked documents on the date shown. It is not a guarantee of the quality of a business’s work.</p>
         </TextSection>
-        <TextSection title={`10. Quotes from ${brand.divisions.supply}`}>
+        <TextSection title={n(`Quotes from ${brand.divisions.supply}`)}>
           <ul>
             <li>Prices on quotes are in Ethiopian Birr (ETB).</li>
             <li>Quotes are valid for 14 days unless the quote states otherwise. Prices of volatile materials such as steel and cement are confirmed on each quote.</li>
@@ -62,43 +66,72 @@ export default async function TermsPage() {
             <li>Prices and availability shown on product pages are a guide and may change before your quote is issued.</li>
           </ul>
         </TextSection>
-        <TextSection title="11. Enquiries and contact details">
+        <TextSection title={n('Enquiries and contact details')}>
           <p>When you send an enquiry, we share your name, contact details and message with the recipient so they can reply. Contact details shown on listings may only be used to discuss that listing. Do not use them for marketing.</p>
         </TextSection>
-        <TextSection title="12. Service requests and matching">
+        <TextSection title={n('Service requests and matching')}>
           <ul>
             <li>When you request a service, we send your request to up to three providers we believe can help, and they may contact you and send quotes. You choose whether to accept a quote.</li>
             <li>Any agreement for the work is between you and the provider. We are not a party to it, and we do not guarantee the work, price or timing. Agree everything in writing before you pay.</li>
             <li>Providers who receive requests must reply honestly, quote only for work they can do and keep customers’ details private. {brand.name} may receive a fee or commission from a provider for work that comes through the platform. This never changes the price we show you or the order of search results.</li>
           </ul>
         </TextSection>
-        <TextSection title="13. Finance and insurance partners">
-          <p>Where finance or insurance services are available, requests are passed to approved, licensed partners, who decide on eligibility, prices and terms and give you their own documents. {brand.name} does not give financial or insurance advice and is not a lender, insurer or broker.</p>
+        <TextSection title={n('Finance and insurance partners')}>
+          <p>Where finance or insurance services are available, requests are passed to approved, licensed partners, who decide on eligibility, prices and terms and give you their own documents. {brand.name} introduces you to partners; it does not give financial or insurance advice and is not a lender or insurer.</p>
+          {business.licences.finance && <p>{licenceText('finance', business.licences.finance)}.</p>}
+          {business.licences.insurance && <p>{licenceText('insurance', business.licences.insurance)}.</p>}
         </TextSection>
-        <TextSection title="14. Jobs">
-          <p>Where the jobs service is available, employers are responsible for their job adverts and for treating applicants fairly and lawfully. Employers must never ask candidates for money. Applicants’ details and CVs may only be used to recruit for the job applied for.</p>
+        <TextSection title={n('Jobs')}>
+          <p>Employers are responsible for their job adverts and for treating applicants fairly and lawfully. Employers must never ask candidates for money. Applicants’ details and CVs may only be used to recruit for the job applied for. When {brand.name} recruits for an employer (a staffing requirement), the service and its fees are agreed with the employer in writing; candidates are never charged.</p>
+          {business.licences.recruitment && <p>{licenceText('recruitment', business.licences.recruitment)}.</p>}
         </TextSection>
-        <TextSection title="15. People outside Ethiopia">
+        <TextSection title={n('People outside Ethiopia')}>
           <p>You may use {brand.name} from anywhere. Prices shown in other currencies are approximate and for guidance only; the price in Ethiopian Birr is the one that counts. Laws on owning, buying or renting property in Ethiopia, and on transferring money, may apply to you; check them with a qualified adviser before you commit.</p>
         </TextSection>
-        <TextSection title="16. Trade accounts and Special Buys">
+        <TextSection title={n('Trade accounts and Special Buys')}>
           <p>Trade accounts are for businesses we approve and may be closed if the account is misused. Trade prices are confidential to the account holder. Special Buys are available while the stated quantity lasts and until the end date shown.</p>
         </TextSection>
-        <TextSection title="17. Intellectual property">
+        <TextSection title={n(`${brand.name} estate agency: terms of business`)}>
+          <p>When {brand.name} acts as your estate agent (selling, letting, buyer representation or sourcing), these points apply in addition to the written agreement we sign with you.</p>
+          <ul>
+            <li>Instructions: we act for you only once you have signed a written agreement. It sets out the services, whether the agency is sole or multi-agency, how long it lasts and how either side can end it.</li>
+            <li>Fees: our fees are agreed with you in writing before we start{business.agencyFeeSchedule ? ', and our published fee schedule is shown on our agency pages' : ''}. We do not charge a fee that is not in your agreement.</li>
+            <li>Viewings: we arrange viewings in person or by video call. Please tell us in good time if you cannot attend.</li>
+            <li>Offers: an offer made through {brand.name} is an expression of interest only. It does not bind the buyer or the owner. A sale is agreed only when a written sale agreement is signed.</li>
+            <li>Tenant applications: applicants give us their details and, if they choose, documents, so that we and the landlord can consider the application. A tenancy starts only when a written tenancy agreement is signed. Never pay rent or a deposit before that.</li>
+            <li>Listings we market are labelled “Marketed by {brand.name}” and are never given hidden priority in search results.</li>
+          </ul>
+          {business.licences.estate_agency && <p>{licenceText('estate_agency', business.licences.estate_agency)}.</p>}
+        </TextSection>
+        <TextSection title={n(`${brand.divisions.propertyCare} and the owner portal`)}>
+          <p>Property management is provided under a written agreement with each owner, which sets out the services, fees and how rent is collected and paid to the owner. Owners whose property we manage can see inspections, statements, documents and messages in the owner portal once we link it to their account. Keep your sign-in details private.</p>
+          {business.licences.property_management && <p>{licenceText('property_management', business.licences.property_management)}.</p>}
+        </TextSection>
+        <TextSection title={n('Building projects')}>
+          <p>When you start a building project, we create the service requests and materials quote you ask for and match them to providers as described above. Any agreement for design, building or materials is between you and the provider (or {brand.divisions.supply} for materials).</p>
+        </TextSection>
+        <TextSection title={n('Reviews')}>
+          <ul>
+            <li>Only a customer who chose a provider for a job through {brand.name} can review that provider, once per job. We never invent, buy or copy reviews from elsewhere.</li>
+            <li>We check every review before it is published and may refuse reviews that are abusive, off-topic, include personal details or are not about the job. We do not change what reviewers write.</li>
+            <li>The provider may publish one reply to each review.</li>
+          </ul>
+        </TextSection>
+        <TextSection title={n('Intellectual property')}>
           <p>The {brand.name} name, logo and site design belong to us. You keep ownership of the content you upload, and you give us a licence to host, display, adapt (for example resize photos) and share it on {brand.name} and in our marketing of your listing, for as long as it is on the site and for a reasonable time after.</p>
         </TextSection>
-        <TextSection title="18. Liability">
+        <TextSection title={n('Liability')}>
           <p>We provide the site with reasonable care, but we do not promise that it will always be available or error-free. To the extent the law allows, we are not liable for losses arising from dealings between users, from content posted by others, or for indirect losses. Nothing in these terms limits liability that cannot be limited by law.</p>
         </TextSection>
-        <TextSection title="19. Changes">
+        <TextSection title={n('Changes')}>
           <p>We may update these terms. The date at the top shows the latest version. If a change is significant we will tell registered users by email.</p>
         </TextSection>
         {legal.governingLaw && (
-          <TextSection title="20. Governing law">
+          <TextSection title={n('Governing law')}>
             <p>These terms are governed by {legal.governingLaw}.</p>
           </TextSection>
         )}
-        <TextSection title={legal.governingLaw ? '21. Contact' : '20. Contact'}>
+        <TextSection title={n('Contact')}>
           <p>
             Questions about these terms? <Link href="/contact">Contact us</Link>.
           </p>

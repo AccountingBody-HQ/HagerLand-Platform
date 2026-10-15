@@ -30,6 +30,8 @@ const schema = z
     preferred_area: optionalText(120),
     timeframe: optionalText(60),
     topic: optionalText(80),
+    time_zone: optionalText(60),
+    preferred_times: optionalText(300, 'Best times to call'),
     source_url: optionalText(500),
     utm: z.string().max(600).optional(),
   })
@@ -55,7 +57,7 @@ export async function submitEnquiryAction(_prev: EnquiryState, formData: FormDat
   if (!target) return fail('This listing is no longer available.')
 
   const user = await getUser()
-  const details = Object.fromEntries(Object.entries({ budget_band: d.budget_band, preferred_area: d.preferred_area, timeframe: d.timeframe, topic: d.topic }).filter(([, v]) => v))
+  const details = Object.fromEntries(Object.entries({ budget_band: d.budget_band, preferred_area: d.preferred_area, timeframe: d.timeframe, topic: d.topic, time_zone: d.time_zone, preferred_times: d.preferred_times }).filter(([, v]) => v))
   const db = getAdminSupabase()
   const { data: row, error } = await db
     .from('enquiries')

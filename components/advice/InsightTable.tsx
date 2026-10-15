@@ -13,7 +13,7 @@ export function InsightTable({ rows, caption, showPlace = true }: { rows: Insigh
   if (rows.length === 0) return null
   const suffix = (r: InsightRow) => (r.purpose === 'rent' ? ' /month' : '')
   return (
-    <div className="overflow-x-auto rounded-lg border border-border bg-white">
+    <div className="overflow-x-auto rounded-lg border border-border bg-white" role="region" aria-label={caption} tabIndex={0}>
       <table className="w-full min-w-[560px] text-small">
         <caption className="px-4 pt-3 text-left text-caption text-muted">
           {caption}. {INSIGHT_LABEL}. Updated {formatDate(rows[0].refreshed_at)}.
