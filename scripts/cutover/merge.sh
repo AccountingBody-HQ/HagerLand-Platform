@@ -25,7 +25,8 @@ echo "Merged and pushed: $sha"
 echo "$sha" > "$ROOT/backups/cutover-merge-sha.txt"
 echo "Waiting for www.hagerland.com to serve ${sha:0:7} (up to 20 minutes)..."
 for _ in $(seq 1 120); do
-  v="$(curl -fsS https://www.hagerland.com/api/health 2>/dev/null | sed -n 's/.*"version":"\([0-9a-f]*\)".*/\1/p')"
+  # The old site answers 404 here; "|| true" keeps waiting instead of stopping the script (set -e, pipefail).
+  v="$(curl -fsS https://www.hagerland.com/api/health 2>/dev/null | sed -n 's/.*"version":"\([0-9a-f]*\)".*/\1/p' || true)"
   if [ "$v" = "${sha:0:7}" ]; then echo "Production deployment is live: $v"; exit 0; fi
   sleep 10
 done
