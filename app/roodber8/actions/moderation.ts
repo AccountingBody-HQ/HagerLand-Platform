@@ -1,5 +1,8 @@
 'use server'
 
+/** Admin area these actions belong to (staff roles are checked against it, spec 26.15). */
+const AREA = '/roodber8/review'
+
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { getAdminSupabase, getAdminSupabaseDynamic } from '@/lib/supabase/admin'
@@ -64,7 +67,7 @@ async function loadOwner(entity: Entity, id: string): Promise<Owner | null> {
 
 /** Approve, reject, request changes, remove, or decide on pending changes (spec 6.8, 18.2 #2). */
 export async function moderateAction(input: { entity: string; id: string; op: string; reason?: string }): Promise<ActionResult<{ message: string }>> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   const parsed = schema.safeParse(input)
   if (!parsed.success) return fail('Invalid request.')
   const { entity, id, op, reason } = parsed.data
@@ -136,7 +139,7 @@ export async function moderateAction(input: { entity: string; id: string; op: st
 }
 
 export async function bulkApproveAction(entity: string, ids: string[]): Promise<ActionResult<{ message: string }>> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   let done = 0
   for (const id of ids.slice(0, 100)) {
     const r = await moderateAction({ entity, id, op: 'approve' })
@@ -146,7 +149,7 @@ export async function bulkApproveAction(entity: string, ids: string[]): Promise<
 }
 
 export async function mediaDecisionAction(mediaId: string, approve: boolean): Promise<ActionResult<{ message: string }>> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!z.uuid().safeParse(mediaId).success) return fail('Invalid.')
   const db = getAdminSupabase()
   const { data } = await db.from('media').update({ status: approve ? 'approved' : 'rejected' }).eq('id', mediaId).select('entity_type, entity_id').maybeSingle()
@@ -158,7 +161,7 @@ export async function mediaDecisionAction(mediaId: string, approve: boolean): Pr
 }
 
 export async function claimDecisionAction(claimId: string, approve: boolean, note?: string): Promise<ActionResult<{ message: string }>> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!z.uuid().safeParse(claimId).success) return fail('Invalid.')
   const db = getAdminSupabase()
   const { data: claim } = await db.from('claims').select('*').eq('id', claimId).maybeSingle()
@@ -180,7 +183,7 @@ export async function claimDecisionAction(claimId: string, approve: boolean, not
 }
 
 export async function verificationDecisionAction(requestId: string, approve: boolean, note?: string): Promise<ActionResult<{ message: string }>> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!z.uuid().safeParse(requestId).success) return fail('Invalid.')
   const db = getAdminSupabase()
   const { data: req } = await db.from('verification_requests').select('*').eq('id', requestId).maybeSingle()
@@ -198,7 +201,7 @@ export async function verificationDecisionAction(requestId: string, approve: boo
 }
 
 export async function reportDecisionAction(reportId: string, status: 'actioned' | 'dismissed'): Promise<ActionResult<{ message: string }>> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!z.uuid().safeParse(reportId).success) return fail('Invalid.')
   const { error } = await getAdminSupabase().from('reports').update({ status }).eq('id', reportId)
   if (error) return fail('Please try again.')

@@ -1,7 +1,8 @@
 import 'server-only'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { isAdminRequest } from '@/lib/admin-auth'
+import { getAdminSession, isAdminRequest } from '@/lib/admin-auth'
+import { roleCanAccess } from '@/lib/admin/roles'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { getClientIp, hashIp } from '@/lib/security'
 import { log } from '@/lib/log'
@@ -12,14 +13,23 @@ export async function requireAdminPage(): Promise<void> {
   if (!(await isAdminRequest())) redirect('/roodber8-login')
 }
 
-/** For admin server actions and route handlers: throws unless the admin session is valid. */
-export async function assertAdmin(): Promise<void> {
+/**
+ * For admin server actions and route handlers: throws unless the admin session is valid and may use `area` (the admin
+ * path the action belongs to). A server action can be called from any page, so each action file names its own area
+ * and staff roles are checked against it as well as against the page (spec 26.15).
+ */
+export async function assertAdmin(area?: string): Promise<void> {
   if (!(await isAdminRequest())) throw new Error('Unauthorized')
+  if (area) {
+    const s = await getAdminSession()
+    if (!s || (s.kind === 'staff' && !roleCanAccess(s.role, area))) throw new Error('Unauthorized')
+  }
 }
 
-/** Who is acting in admin, for audit entries: 'admin' (the master login). */
+/** Who is acting in admin, for audit entries (spec 26.15): 'admin' for the master login, else the staff member. */
 export async function adminActor(): Promise<string> {
-  return 'admin'
+  const s = await getAdminSession()
+  return s?.kind === 'staff' ? `staff:${s.email}`.slice(0, 80) : 'admin'
 }
 
 /** Records an admin action in audit_log (spec 18.2 #17). Never throws. */

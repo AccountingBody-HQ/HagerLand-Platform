@@ -56,7 +56,12 @@ export async function signInAction(_prev: ActionResult | null, formData: FormDat
   const parsed = loginSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   if (await limited('login', 10, 900)) return fail('Too many sign-in attempts. Please wait 15 minutes and try again.')
-  const { error } = await getServerSupabase().auth.signInWithPassword(parsed.data)
+  const { data, error } = await getServerSupabase().auth.signInWithPassword(parsed.data)
+  // Staff accounts are separate from customer accounts (spec 26.15): they sign in to admin only.
+  if (data.user?.app_metadata?.staff === true) {
+    await getServerSupabase().auth.signOut()
+    return fail('This is a HagerLand staff account. Staff sign in at the admin sign-in page.')
+  }
   if (error) {
     if (error.code === 'email_not_confirmed') return fail('Please confirm your email first. Check your inbox for the link we sent.')
     return fail('That email and password do not match. Try again or use an email link.')

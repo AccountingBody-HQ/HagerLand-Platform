@@ -1,5 +1,8 @@
 'use server'
 
+/** Admin area these actions belong to (staff roles are checked against it, spec 26.15). */
+const AREA = '/roodber8/service-requests'
+
 import { VERTICAL_PILLAR } from '@/lib/pillars'
 import type { VerticalKey } from '@/lib/verticals'
 import { getPillar } from '@/lib/data/pillars'
@@ -31,7 +34,7 @@ function refresh(id?: string) {
 }
 
 export async function setRequestStatusAction(id: string, status: string, reason?: string): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   const parsed = z.object({ id: z.uuid(), status: z.enum(STATUSES), reason: z.enum(REASONS).optional() }).safeParse({ id, status, reason: reason || undefined })
   if (!parsed.success) return fail('Invalid status.')
   const closing = ['won', 'lost', 'cancelled'].includes(parsed.data.status)
@@ -55,7 +58,7 @@ export async function setRequestStatusAction(id: string, status: string, reason?
 }
 
 export async function saveRequestNotesAction(id: string, notes: string): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   const parsed = z.object({ id: z.uuid(), notes: z.string().trim().max(4000) }).safeParse({ id, notes })
   if (!parsed.success) return fail('Notes are too long.')
   const { error } = await getAdminSupabase().from('service_requests').update({ admin_notes: parsed.data.notes || null }).eq('id', id)
@@ -70,7 +73,7 @@ export async function saveRequestNotesAction(id: string, notes: string): Promise
  * with a link to the request in their account. Results report every provider, including failures.
  */
 export async function matchProvidersAction(id: string, orgIds: string[]): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   const parsed = z.object({ id: z.uuid(), orgIds: z.array(z.uuid()).min(1, 'Choose at least one provider.').max(MAX_MATCHES) }).safeParse({ id, orgIds })
   if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? 'Choose providers.')
   const db = getAdminSupabase()
@@ -109,7 +112,7 @@ export async function matchProvidersAction(id: string, orgIds: string[]): Promis
 }
 
 export async function withdrawMatchAction(matchId: string): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!z.uuid().safeParse(matchId).success) return fail('Invalid.')
   const db = getAdminSupabase()
   const { data: m } = await db.from('service_request_matches').update({ status: 'withdrawn' }).eq('id', matchId).in('status', ['offered', 'accepted', 'quoted']).select('request_id').maybeSingle()
@@ -123,7 +126,7 @@ const money = z.preprocess((v) => (v === '' || v === null || v === undefined ? n
 
 /** Lead fee, commission and invoicing for one match: HagerLand-only figures (spec 24.5, 25.2k). */
 export async function saveMatchCommercialAction(matchId: string, input: { lead_fee: string; commission_rate: string; commission: string; invoiced: boolean }): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   const parsed = z
     .object({ id: z.uuid(), lead_fee: money, commission_rate: money.refine((v) => v === null || v <= 100, 'Commission rate is a percentage up to 100.'), commission: money, invoiced: z.boolean() })
     .safeParse({ id: matchId, ...input })
@@ -149,7 +152,7 @@ export async function saveMatchCommercialAction(matchId: string, input: { lead_f
 
 /** No suitable provider: the customer is told politely and the request is closed (spec 25.4). */
 export async function noProviderAction(id: string): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!z.uuid().safeParse(id).success) return fail('Invalid.')
   const db = getAdminSupabase()
   const { data: r } = await db.from('service_requests').update({ status: 'cancelled', closed_reason: 'no_provider', closed_at: new Date().toISOString() }).eq('id', id).in('status', ['submitted', 'triaged', 'matched']).select('reference, title, name, email').maybeSingle()
@@ -163,7 +166,7 @@ export async function noProviderAction(id: string): Promise<Msg> {
 
 /** Question schema, emergency option and vertical for one service category (spec 24.5, 24.12). */
 export async function saveRequestSettingsAction(categoryId: string, input: { questions: string; allows_emergency: boolean; vertical_key: string }): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   const parsed = z.object({ id: z.uuid(), allows_emergency: z.boolean(), vertical_key: z.enum(VERTICAL_KEYS) }).safeParse({ id: categoryId, ...input })
   if (!parsed.success) return fail('Check the fields.')
   const q = validateQuestionJson(input.questions.trim() || '[]')
@@ -185,7 +188,7 @@ export async function saveRequestSettingsAction(categoryId: string, input: { que
  * as, or instead of, third-party providers. HagerLand accepts it straight away; the customer sees the same flow.
  */
 export async function assignHagerlandTeamAction(id: string): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!z.uuid().safeParse(id).success) return fail('Not found.')
   const db = getAdminSupabase()
   const { data: r } = await db.from('service_requests').select('id, reference, status, vertical_key').eq('id', id).maybeSingle()
@@ -215,7 +218,7 @@ const hagerlandQuoteSchema = z.object({
 
 /** HagerLand's own quote on a request assigned to its team (spec 26.8). The customer is emailed like any quote. */
 export async function hagerlandQuoteAction(matchId: string, _prev: Msg | null, formData: FormData): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!z.uuid().safeParse(matchId).success) return fail('Not found.')
   const p = hagerlandQuoteSchema.safeParse(Object.fromEntries(formData))
   if (!p.success) return invalid(p.error)

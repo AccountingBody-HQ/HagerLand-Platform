@@ -1,5 +1,8 @@
 'use server'
 
+/** Admin area these actions belong to (staff roles are checked against it, spec 26.15). */
+const AREA = '/roodber8/managed-properties'
+
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { getAdminSupabase } from '@/lib/supabase/admin'
@@ -25,7 +28,7 @@ async function userIdByEmail(email: string): Promise<string | null> {
 
 /** Links (or unlinks, with an empty email) the owner's account to a managed property, opening the owner portal to them. */
 export async function linkOwnerAccountAction(id: string, _prev: Msg | null, formData: FormData): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!z.uuid().safeParse(id).success) return fail('Not found.')
   const raw = String(formData.get('email') ?? '').trim().toLowerCase()
   if (raw && !z.email().safeParse(raw).success) return fail('Enter a valid email.', { email: 'Enter a valid email' })
@@ -42,7 +45,7 @@ export async function linkOwnerAccountAction(id: string, _prev: Msg | null, form
 
 /** Shares an uploaded private document (agency area) with the owner, or keeps it staff-only. */
 export async function addManagedDocumentAction(id: string, path: string, label: string, visible: boolean): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   const p = z.object({ id: z.uuid(), path: z.string().regex(/^docs\/agency\/[0-9a-f-]{36}\/[\w.-]+$/), label: z.string().trim().min(2).max(160) }).safeParse({ id, path, label })
   if (!p.success) return fail('Name the document and upload it again.')
   const { error } = await getAdminSupabase().from('managed_property_documents').insert({ managed_property_id: id, label: p.data.label, storage_path: p.data.path, visible_to_owner: visible, uploaded_by: await adminActor() })
@@ -54,7 +57,7 @@ export async function addManagedDocumentAction(id: string, path: string, label: 
 
 /** HagerLand's reply in the owner's message thread; the owner is emailed a notice (no message text in email). */
 export async function replyToOwnerAction(id: string, _prev: Msg | null, formData: FormData): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!z.uuid().safeParse(id).success) return fail('Not found.')
   const p = z.object({ body: textSchema(4000, { min: 2, label: 'Reply' }), sender_name: textSchema(120, { min: 1, label: 'Your name' }) }).safeParse(Object.fromEntries(formData))
   if (!p.success) return invalid(p.error)

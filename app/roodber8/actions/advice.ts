@@ -1,5 +1,8 @@
 'use server'
 
+/** Admin area these actions belong to (staff roles are checked against it, spec 26.15). */
+const AREA = '/roodber8/area-guides'
+
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { z } from 'zod'
 import { getAdminSupabase } from '@/lib/supabase/admin'
@@ -14,7 +17,7 @@ type Msg = ActionResult<{ message: string }>
 
 /** Area guide notes and FAQs for a place (spec 26.10). Shown on its property pages with the live market figures. */
 export async function saveAreaGuideAction(_prev: Msg | null, formData: FormData): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   const p = z.object({ location_id: z.uuid({ error: 'Choose a place' }), notes: z.string().trim().max(4000), faqs: z.string().max(14000).default(''), is_published: checkbox }).safeParse(Object.fromEntries(formData))
   if (!p.success) return invalid(p.error)
   const d = p.data

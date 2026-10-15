@@ -1,5 +1,8 @@
 'use server'
 
+/** Admin area these actions belong to (staff roles are checked against it, spec 26.15). */
+const AREA = '/roodber8/build-costs'
+
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { z } from 'zod'
 import { getAdminSupabase } from '@/lib/supabase/admin'
@@ -17,7 +20,7 @@ const schema = z.object({
 
 /** Add or replace the rate for a place (or nationwide) and finish level (spec 25.2h). */
 export async function saveBuildRateAction(_prev: Done | null, formData: FormData): Promise<Done> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   const parsed = schema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? 'Please check the rate.' }
   const d = parsed.data
@@ -35,7 +38,7 @@ export async function saveBuildRateAction(_prev: Done | null, formData: FormData
 }
 
 export async function deleteBuildRateAction(id: string): Promise<Done> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!z.uuid().safeParse(id).success) return { ok: false, error: 'Invalid rate.' }
   const { error } = await getAdminSupabase().from('build_cost_rates').delete().eq('id', id)
   if (error) return { ok: false, error: 'Could not delete the rate.' }

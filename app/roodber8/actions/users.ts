@@ -1,5 +1,8 @@
 'use server'
 
+/** Admin area these actions belong to (staff roles are checked against it, spec 26.15). */
+const AREA = '/roodber8/users'
+
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { getAdminSupabase } from '@/lib/supabase/admin'
@@ -15,7 +18,7 @@ const idSchema = z.uuid()
 
 /** Suspended users can still sign in and read, but every write is refused by the database (is_active_user()). */
 export async function setSuspendedAction(userId: string, suspended: boolean): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!idSchema.safeParse(userId).success) return fail('Invalid user.')
   const { error } = await getAdminSupabase().from('profiles').update({ is_suspended: suspended }).eq('id', userId)
   if (error) return fail('Could not update the user.')
@@ -27,7 +30,7 @@ export async function setSuspendedAction(userId: string, suspended: boolean): Pr
 
 /** Sends Supabase's standard password reset email to the user's own address. */
 export async function sendPasswordResetAction(userId: string): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!idSchema.safeParse(userId).success) return fail('Invalid user.')
   const db = getAdminSupabase()
   const { data } = await db.auth.admin.getUserById(userId)
@@ -48,7 +51,7 @@ export async function sendPasswordResetAction(userId: string): Promise<Msg> {
  * Records they sent or received elsewhere keep their contents but lose the link to the account.
  */
 export async function deleteUserAction(userId: string, confirmEmail: string): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!idSchema.safeParse(userId).success) return fail('Invalid user.')
   const db = getAdminSupabase()
   const [{ data: auth }, { data: profile }, { data: owned }] = await Promise.all([

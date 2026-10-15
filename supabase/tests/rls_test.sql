@@ -612,6 +612,23 @@ select pg_temp.record_check('Signed-in user cannot read or write reviews directl
   and pg_temp.write_denied($q$insert into public.reviews (org_id, request_id, match_id, author_name, rating, body) select m.org_id, m.request_id, m.id, 'RLS', 5, 'A review written straight into the table.' from public.service_request_matches m limit 1$q$));
 reset role;
 
+-- ---------- Section 26: staff accounts (0033) ----------
+reset role;
+set role anon;
+select pg_temp.record_check('Anonymous cannot read staff_users', pg_temp.read_denied('staff_users'));
+reset role;
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000002", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000002', false);
+select pg_temp.record_check('Signed-in user cannot read or create staff accounts', pg_temp.read_denied('staff_users')
+  and pg_temp.write_denied($q$insert into public.staff_users (email, name, role) values ('rls@test.hagerland.invalid', 'RLS', 'owner')$q$));
+reset role;
+do $$ begin
+  insert into public.staff_users (email, name, role, status) values ('rls-staff@test.hagerland.invalid', 'RLS staff', 'agent', 'active');
+  perform pg_temp.record_check('An active staff account must have two-factor enrolled', false);
+exception when check_violation then
+  perform pg_temp.record_check('An active staff account must have two-factor enrolled', true);
+end $$;
+
 -- ---------- Clean up ----------
 reset role;
 select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);

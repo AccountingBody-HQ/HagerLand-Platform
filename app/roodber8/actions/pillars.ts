@@ -1,5 +1,8 @@
 'use server'
 
+/** Admin area these actions belong to (staff roles are checked against it, spec 26.15). */
+const AREA = '/roodber8/pillars'
+
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { z } from 'zod'
 import { getAdminSupabase } from '@/lib/supabase/admin'
@@ -49,7 +52,7 @@ async function minProviders(): Promise<number> {
  * checklist (recorded in pillar_gate_checks and the audit log); switching any mode off needs no gate.
  */
 export async function setPillarModeAction(input: { pillar: string; service: string | null; mode: string; on: boolean }, gate: GateInput | null): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   const parsed = modeSchema.safeParse(input)
   if (!parsed.success) return fail('Invalid change.')
   const { pillar, service, mode, on } = parsed.data
@@ -99,7 +102,7 @@ const textSchema = z.object({
 
 /** Editable pillar text (hub intro, menu label, search fields). */
 export async function savePillarAction(input: z.input<typeof textSchema>): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   const parsed = textSchema.safeParse(input)
   if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? 'Check the fields.')
   const { key, ...d } = parsed.data

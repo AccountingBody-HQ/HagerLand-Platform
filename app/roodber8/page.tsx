@@ -4,6 +4,10 @@ import { queueCounts } from '@/lib/admin/counts'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { formatNumber, relativeTime } from '@/lib/format'
 import { AdminHeader, Panel } from '@/components/admin/AdminUi'
+import { getAdminSession } from '@/lib/admin-auth'
+import { ROLE_LABEL, roleCanAccess } from '@/lib/admin/roles'
+import { ADMIN_NAV } from '@/components/admin/admin-nav-items'
+import { FormAlert } from '@/components/forms/FormParts'
 
 export const metadata = { title: 'Dashboard' }
 
@@ -23,8 +27,29 @@ function Kpi({ label, value, href, tone }: { label: string; value: number; href?
   )
 }
 
-export default async function AdminDashboard() {
+export default async function AdminDashboard(props: { searchParams: Promise<{ denied?: string }> }) {
   await requireAdminPage()
+  const sp = await props.searchParams
+  const session = await getAdminSession()
+  // Staff (other than owners) see a short start page with their own areas only (spec 26.15).
+  if (session?.kind === 'staff' && session.role !== 'owner') {
+    const areas = ADMIN_NAV.filter((i) => i.href !== '/roodber8' && roleCanAccess(session.role, i.href))
+    return (
+      <div className="space-y-5">
+        <AdminHeader title={`Hello, ${session.name.split(' ')[0]}`} description={ROLE_LABEL[session.role]} />
+        {sp.denied && <FormAlert>That area is not part of your role. Ask the owner if you need it.</FormAlert>}
+        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {areas.map((a) => (
+            <li key={a.href}>
+              <Link href={a.href} prefetch={false} className="block rounded-lg border border-border bg-white p-4 font-semibold text-ink hover:border-green">
+                {a.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
   const db = getAdminSupabase()
   const now = Date.now()
   const iso = (ms: number) => new Date(ms).toISOString()

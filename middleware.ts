@@ -1,6 +1,10 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { refreshSession } from '@/lib/supabase/middleware'
 import { ADMIN_SESSION_COOKIE, verifyAdminSessionEdge } from '@/lib/admin-session-edge'
+import { roleCanAccess } from '@/lib/admin/roles'
+
+// Same value as ADMIN_PATH_HEADER in lib/admin-auth.ts (server-only, so not imported here).
+const ADMIN_PATH_HEADER = 'x-hl-admin-path'
 import { verticalForPath } from '@/lib/verticals'
 import { mapTileOrigin } from '@/lib/map-config'
 import { isIndexableVertical, pillarStatusesEdge, verticalStatusesEdge } from '@/lib/vertical-status-edge'
@@ -54,15 +58,25 @@ export async function middleware(request: NextRequest) {
   const isAdminPage = pathname === '/roodber8' || pathname.startsWith('/roodber8/')
   const isAdminApi = pathname.startsWith('/api/admin/')
   if (isAdminPage || isAdminApi) {
-    const ok = await verifyAdminSessionEdge(request.cookies.get(ADMIN_SESSION_COOKIE)?.value)
-    if (!ok) {
+    const session = await verifyAdminSessionEdge(request.cookies.get(ADMIN_SESSION_COOKIE)?.value)
+    if (!session) {
       if (isAdminApi) return withSecurityHeaders(NextResponse.json({ error: 'Unauthorized' }, { status: 401 }))
       const url = request.nextUrl.clone()
       url.pathname = '/roodber8-login'
       url.search = ''
       return withSecurityHeaders(NextResponse.redirect(url))
     }
-    const res = NextResponse.next()
+    // Staff roles reach only their own areas (spec 26.15); the server checks again on every page and action.
+    if (session.role && !roleCanAccess(session.role, isAdminApi ? '/api/admin' : pathname)) {
+      if (isAdminApi) return withSecurityHeaders(NextResponse.json({ error: 'Forbidden' }, { status: 403 }))
+      const url = request.nextUrl.clone()
+      url.pathname = '/roodber8'
+      url.search = '?denied=1'
+      return withSecurityHeaders(NextResponse.redirect(url))
+    }
+    const adminHeaders = new Headers(request.headers)
+    adminHeaders.set(ADMIN_PATH_HEADER, isAdminApi ? '/api/admin' : pathname)
+    const res = NextResponse.next({ request: { headers: adminHeaders } })
     res.headers.set('X-Robots-Tag', 'noindex, nofollow')
     res.headers.set('Cache-Control', 'no-store')
     return withSecurityHeaders(res)
@@ -78,6 +92,7 @@ export async function middleware(request: NextRequest) {
   }
   const requestHeaders = new Headers(request.headers)
   requestHeaders.delete(LOCALE_HEADER)
+  requestHeaders.delete(ADMIN_PATH_HEADER)
   if (amharic) requestHeaders.set(LOCALE_HEADER, 'am')
   const make = () => {
     if (!amharic) return NextResponse.next({ request: { headers: requestHeaders } })

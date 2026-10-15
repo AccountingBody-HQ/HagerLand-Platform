@@ -1,7 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { cookies } from 'next/headers'
 import { z } from 'zod'
-import { SESSION_COOKIE, verifySessionToken } from '@/lib/admin-auth'
+import { isAdminRequest } from '@/lib/admin-auth'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { PlacesError, searchPlaces } from '@/lib/admin/places'
 import { importSection } from '@/lib/admin/place-mapping'
@@ -13,7 +12,7 @@ const ORG_KINDS = ['agency', 'developer', 'supplier', 'manufacturer', 'contracto
 
 /** Admin: search Google Places and flag places already imported (by import log or an existing organisation). */
 export async function GET(request: NextRequest) {
-  if (!verifySessionToken((await cookies()).get(SESSION_COOKIE)?.value)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!(await isAdminRequest())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const sp = new URL(request.url).searchParams
   const parsed = z.object({ query: z.string().trim().min(2).max(200), kind: z.enum(ORG_KINDS) }).safeParse({ query: sp.get('query'), kind: sp.get('kind') })
   if (!parsed.success) return NextResponse.json({ error: 'Enter a search and choose a business type.' }, { status: 400 })

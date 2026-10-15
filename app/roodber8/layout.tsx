@@ -1,3 +1,4 @@
+import { getAdminSession } from '@/lib/admin-auth'
 import Link from 'next/link'
 import { Search } from 'lucide-react'
 import { requireAdminPage } from '@/lib/admin/guard'
@@ -25,13 +26,17 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     db.from('reviews').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
   ])
   const badges = { review: totalQueue(queue), quotes: quotes.count ?? 0, interest: interest.count ?? 0, requests: requests.count ?? 0, care: care.count ?? 0, trade: trade.count ?? 0, email: email.count ?? 0, agency: agency.count ?? 0, reviews: reviews.count ?? 0 }
+  const session = await getAdminSession()
+  const role = session?.kind === 'staff' ? session.role : null
   return (
     <div className="flex min-h-dvh flex-col bg-stone-100">
       <header className="sticky top-0 z-40 flex h-14 items-center gap-3 border-b border-white/10 bg-ink px-3 text-white">
-        <AdminMobileMenu badges={badges} />
+        <AdminMobileMenu badges={badges} role={role} />
         <Link href="/roodber8" className="flex items-center gap-2 font-display font-extrabold">
           <LogoMark className="size-7" /> <span className="hidden sm:inline">HagerLand admin</span>
         </Link>
+        {session?.kind === 'staff' && <span className="ml-auto hidden text-small text-white/70 md:inline">{session.name} · {session.role}</span>}
+        {(!role || role === 'owner') && (
         <form action="/roodber8/search" method="get" role="search" className="ml-auto flex max-w-md flex-1 items-center gap-2 rounded-md bg-white/10 px-3">
           <Search className="size-4 text-white/60" aria-hidden />
           <label htmlFor="admin-q" className="sr-only">
@@ -39,6 +44,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </label>
           <input id="admin-q" name="q" placeholder="Search name, reference, phone, email…" className="h-9 w-full bg-transparent text-small text-white placeholder:text-white/50 focus:outline-none" />
         </form>
+        )}
         <Link href="/" className="hidden text-small text-white/70 hover:text-white sm:inline">
           View site
         </Link>
@@ -49,7 +55,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </form>
       </header>
       <div className="flex flex-1">
-        <AdminSidebar badges={badges} />
+        <AdminSidebar badges={badges} role={role} />
         <main id="main" className="min-w-0 flex-1 p-4 sm:p-6">
           {children}
         </main>

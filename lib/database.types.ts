@@ -4930,6 +4930,61 @@ export type Database = {
         }
         Relationships: []
       }
+      staff_users: {
+        Row: {
+          created_at: string
+          disabled_at: string | null
+          email: string
+          id: string
+          invite_expires_at: string | null
+          invite_token_hash: string | null
+          invited_by: string | null
+          last_login_at: string | null
+          name: string
+          role: string
+          status: string
+          totp_enrolled_at: string | null
+          totp_secret_enc: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          disabled_at?: string | null
+          email: string
+          id?: string
+          invite_expires_at?: string | null
+          invite_token_hash?: string | null
+          invited_by?: string | null
+          last_login_at?: string | null
+          name: string
+          role: string
+          status?: string
+          totp_enrolled_at?: string | null
+          totp_secret_enc?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          disabled_at?: string | null
+          email?: string
+          id?: string
+          invite_expires_at?: string | null
+          invite_token_hash?: string | null
+          invited_by?: string | null
+          last_login_at?: string | null
+          name?: string
+          role?: string
+          status?: string
+          totp_enrolled_at?: string | null
+          totp_secret_enc?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       tenancies: {
         Row: {
           advance_months: number | null

@@ -29,6 +29,8 @@ export const ACTIVE_ORG_COOKIE = 'hl_org'
 export const getUser = cache(async (): Promise<User | null> => {
   if (!isSupabaseConfigured()) return null
   const { data } = await getServerSupabase().auth.getUser()
+  // A staff sign-in is never a customer session (spec 26.15: staff accounts are separate).
+  if (data.user?.app_metadata?.staff === true) return null
   return data.user ?? null
 })
 

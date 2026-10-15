@@ -1,5 +1,8 @@
 'use server'
 
+/** Admin area these actions belong to (staff roles are checked against it, spec 26.15). */
+const AREA = '/roodber8/agency'
+
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { getAdminSupabase } from '@/lib/supabase/admin'
@@ -37,7 +40,7 @@ function refresh(path: string) {
 // ---------------------------------------------------------------------------
 
 export async function addAgencyNoteAction(entity: string, id: string, _prev: Msg | null, formData: FormData): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   const p = z.object({ entity: z.enum(ENTITIES), id: z.uuid(), text: z.string().trim().min(1, 'Write a note').max(2000) }).safeParse({ entity, id, text: formData.get('text') })
   if (!p.success) return invalid(p.error)
   await logActivity(p.data.entity, p.data.id, 'note', p.data.text, await adminActor())
@@ -47,7 +50,7 @@ export async function addAgencyNoteAction(entity: string, id: string, _prev: Msg
 }
 
 export async function addAgencyTaskAction(entity: string, id: string, _prev: Msg | null, formData: FormData): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   const p = z
     .object({ entity: z.enum(ENTITIES), id: z.uuid(), title: z.string().trim().min(2, 'Describe the task').max(200), due_on: dateField, assigned_to: optionalText(120, 'Assigned to') })
     .safeParse({ entity, id, ...Object.fromEntries(formData) })
@@ -62,7 +65,7 @@ export async function addAgencyTaskAction(entity: string, id: string, _prev: Msg
 }
 
 export async function completeAgencyTaskAction(taskId: string): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!z.uuid().safeParse(taskId).success) return fail('Not found.')
   const db = getAdminSupabase()
   const { data: t } = await db.from('agency_tasks').select('entity_type, entity_id, title, done').eq('id', taskId).maybeSingle()
@@ -77,7 +80,7 @@ export async function completeAgencyTaskAction(taskId: string): Promise<Msg> {
 
 /** Links an uploaded private document (agency area) to a record. */
 export async function attachAgencyDocumentAction(entity: string, id: string, path: string, label: string): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   const p = z.object({ entity: z.enum(ENTITIES), id: z.uuid(), path: z.string().regex(/^docs\/agency\/[0-9a-f-]{36}\/[\w.-]+$/), label: z.string().trim().min(2).max(160) }).safeParse({ entity, id, path, label })
   if (!p.success) return fail('Upload the file again.')
   const actor = await adminActor()
@@ -109,7 +112,7 @@ const contactSchema = z
 
 /** Creates (no id) or updates a contact. Consent is recorded with its time and source (spec 26.5). */
 export async function saveAgencyContactAction(id: string | null, _prev: Msg | null, formData: FormData): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   const p = contactSchema.safeParse({ ...Object.fromEntries(formData), roles: formData.getAll('roles') })
   if (!p.success) return invalid(p.error)
   const d = p.data
@@ -154,7 +157,7 @@ const requirementSchema = z
   .refine((d) => d.budget_min_etb === undefined || d.budget_max_etb === undefined || d.budget_max_etb >= d.budget_min_etb, { message: 'The maximum must be at least the minimum', path: ['budget_max_etb'] })
 
 export async function addRequirementAction(_prev: Msg | null, formData: FormData): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   const p = requirementSchema.safeParse({ ...Object.fromEntries(formData), location_ids: formData.getAll('location_ids').filter(Boolean), property_types: formData.getAll('property_types') })
   if (!p.success) return invalid(p.error)
   const d = p.data
@@ -169,7 +172,7 @@ export async function addRequirementAction(_prev: Msg | null, formData: FormData
 }
 
 export async function setRequirementActiveAction(id: string, active: boolean): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!z.uuid().safeParse(id).success) return fail('Not found.')
   const db = getAdminSupabase()
   const { data: r } = await db.from('applicant_requirements').select('contact_id').eq('id', id).maybeSingle()
@@ -182,7 +185,7 @@ export async function setRequirementActiveAction(id: string, active: boolean): P
 
 /** Agent-triggered match email (spec 26.5): only to contacts who agreed to hear about matching properties. */
 export async function emailMatchesAction(requirementId: string): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!z.uuid().safeParse(requirementId).success) return fail('Not found.')
   const db = getAdminSupabase()
   const { data: r } = await db.from('applicant_requirements').select('id, contact_id, contact:agency_contacts(name, email, marketing_consent)').eq('id', requirementId).maybeSingle()
@@ -215,7 +218,7 @@ const instructionSchema = z.object({
 })
 
 export async function createInstructionAction(_prev: Msg | null, formData: FormData): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   const p = instructionSchema.safeParse(Object.fromEntries(formData))
   if (!p.success) return invalid(p.error)
   const d = p.data
@@ -249,7 +252,7 @@ const termsSchema = z
 
 /** Instruction terms (spec 26.5): fee type and amount, sole or multi agency, term dates, asking price. */
 export async function saveInstructionTermsAction(id: string, _prev: Msg | null, formData: FormData): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!z.uuid().safeParse(id).success) return fail('Not found.')
   const p = termsSchema.safeParse(Object.fromEntries(formData))
   if (!p.success) return invalid(p.error)
@@ -279,7 +282,7 @@ export async function saveInstructionTermsAction(id: string, _prev: Msg | null, 
 
 /** Moves an instruction through the pipeline. "Completed" records the final price and creates a deal (spec 26.5). */
 export async function setInstructionStageAction(id: string, _prev: Msg | null, formData: FormData): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   const p = z.object({ id: z.uuid(), stage: z.enum(INSTRUCTION_STAGES), final_price_etb: intFromForm({ min: 0, max: 1_000_000_000_000 }) }).safeParse({ id, ...Object.fromEntries(formData) })
   if (!p.success) return invalid(p.error)
   const { stage } = p.data
@@ -320,7 +323,7 @@ export async function setInstructionStageAction(id: string, _prev: Msg | null, f
 
 /** Links a listing (by its 8-character reference) to an instruction. Live instructions mark it "Marketed by HagerLand". */
 export async function linkInstructionListingAction(id: string, _prev: Msg | null, formData: FormData): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   const ref = String(formData.get('listing') ?? '').trim().match(/([0-9a-z]{8})$/i)?.[1]?.toLowerCase()
   if (!z.uuid().safeParse(id).success) return fail('Not found.')
   if (!ref) return fail('Enter the listing’s 8-character reference or its link.', { listing: 'Enter a reference' })
@@ -339,7 +342,7 @@ export async function linkInstructionListingAction(id: string, _prev: Msg | null
 }
 
 export async function toggleProgressItemAction(itemId: string, done: boolean): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!z.uuid().safeParse(itemId).success) return fail('Not found.')
   const db = getAdminSupabase()
   const { data: item } = await db.from('sale_progress_items').select('instruction_id, label').eq('id', itemId).maybeSingle()
@@ -370,7 +373,7 @@ const valuationSchema = z
 
 /** Books, records and closes a valuation; keeps its instruction's stage in step (spec 26.5). */
 export async function saveValuationAction(id: string, _prev: Msg | null, formData: FormData): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!z.uuid().safeParse(id).success) return fail('Not found.')
   const p = valuationSchema.safeParse(Object.fromEntries(formData))
   if (!p.success) return invalid(p.error)
@@ -401,7 +404,7 @@ export async function saveValuationAction(id: string, _prev: Msg | null, formDat
 
 /** Attaches the valuation report (a private PDF uploaded to the agency area). */
 export async function setValuationReportAction(id: string, path: string): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   const p = z.object({ id: z.uuid(), path: z.string().regex(/^docs\/agency\/[0-9a-f-]{36}\/[\w.-]+$/) }).safeParse({ id, path })
   if (!p.success) return fail('Upload the report again.')
   const db = getAdminSupabase()
@@ -431,7 +434,7 @@ const viewingSchema = z
 
 /** Schedules a viewing (with a confirmation email), records feedback and the outcome (spec 26.5). */
 export async function saveViewingAction(id: string, _prev: Msg | null, formData: FormData): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!z.uuid().safeParse(id).success) return fail('Not found.')
   const p = viewingSchema.safeParse(Object.fromEntries(formData))
   if (!p.success) return invalid(p.error)
@@ -473,7 +476,7 @@ const offerSchema = z
  * sale progression checklist from the defaults in Settings.
  */
 export async function decideOfferAction(id: string, _prev: Msg | null, formData: FormData): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!z.uuid().safeParse(id).success) return fail('Not found.')
   const p = offerSchema.safeParse(Object.fromEntries(formData))
   if (!p.success) return invalid(p.error)
@@ -512,7 +515,7 @@ export async function decideOfferAction(id: string, _prev: Msg | null, formData:
 
 /** Default sale-progression items and the rent-ready checklist (admin → Agency → Settings). One item per line. */
 export async function saveAgencyListsAction(_prev: Msg | null, formData: FormData): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   const lines = (k: string) =>
     String(formData.get(k) ?? '')
       .split('\n')

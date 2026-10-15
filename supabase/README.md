@@ -400,6 +400,15 @@ select (select count(*) from pg_tables where schemaname = 'public' and tablename
 ```
 **You should see:** `1 | 2 | 0032`. The security test shows 187 `PASS` rows.
 
+## 0033_staff.sql (Section 26, S10)
+**What it does:** adds staff accounts. Each staff member has their own email, password and authenticator (two-factor is required before an account works) and a role: owner, agent, operations or content. It starts empty: only you have access, and your existing admin sign-in stays as your break-glass access. Authenticator secrets are stored encrypted.
+
+**Check:**
+```sql
+select (select count(*) from pg_tables where schemaname = 'public' and tablename = 'staff_users'), (select count(*) from staff_users), (select version from schema_migrations where version = '0033');
+```
+**You should see:** `1 | 0 | 0033` (no staff until you invite someone). The security test shows 190 `PASS` rows.
+
 ---
 
 ## Security test (run after all migrations)
@@ -408,7 +417,7 @@ statements: that is the test cleaning up after itself; click **Run this query**.
 It temporarily creates two test users and a test listing, tries things that should and should not be
 allowed, then deletes everything it created.
 
-**You should see:** every row starting with `PASS` (38 rows after migration 0011, 42 after 0013, 57 after 0014, 67 after 0016, 74 after 0017, 96 after 0019, 106 after 0020, 125 after 0022, 133 after 0024, 143 after 0027, 169 after 0028, 175 after 0029, 178 after 0030, 184 after 0031, 187 after 0032; each later migration adds its own checks and its section below says the new total).
+**You should see:** every row starting with `PASS` (38 rows after migration 0011, 42 after 0013, 57 after 0014, 67 after 0016, 74 after 0017, 96 after 0019, 106 after 0020, 125 after 0022, 133 after 0024, 143 after 0027, 169 after 0028, 175 after 0029, 178 after 0030, 184 after 0031, 187 after 0032, 190 after 0033; each later migration adds its own checks and its section below says the new total).
 
 ## TypeScript types
 `lib/database.types.ts` was generated from these exact migrations. After all migrations are applied,

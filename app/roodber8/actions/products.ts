@@ -1,5 +1,8 @@
 'use server'
 
+/** Admin area these actions belong to (staff roles are checked against it, spec 26.15). */
+const AREA = '/roodber8/products'
+
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
@@ -19,7 +22,7 @@ type ProductUpdate = Database['public']['Tables']['products']['Update']
 
 /** Create or edit a catalogue product. price_updated_at is set automatically when the price changes. */
 export async function saveProductAction(_prev: ActionResult<{ id: string }> | null, formData: FormData): Promise<ActionResult<{ id: string }>> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   const parsed = productSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   const d = parsed.data
@@ -79,7 +82,7 @@ async function priceContext() {
 }
 
 export async function previewPriceCsvAction(csv: string): Promise<ActionResult<{ rows: PriceRow[] }>> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   const rows = parseCsv(csv)
   if (rows.length === 0) return fail('No rows found. The header must include sku and price and/or stock_status.')
   if (rows.length > 5000) return fail('Update up to 5,000 rows at a time.')
@@ -87,7 +90,7 @@ export async function previewPriceCsvAction(csv: string): Promise<ActionResult<{
 }
 
 export async function applyPriceCsvAction(csv: string): Promise<ActionResult<{ message: string }>> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   const ready = preparePriceRows(parseCsv(csv), await priceContext()).filter((r) => r.errors.length === 0 && r.productId)
   if (ready.length === 0) return fail('No valid rows to apply.')
   const db = getAdminSupabase()
@@ -120,7 +123,7 @@ const specialSchema = z
 
 /** Special Buys (spec 25.2d): HagerLand sets the was-price, quantity and end date; offers hide themselves when expired or sold out. */
 export async function saveSpecialBuyAction(_prev: { ok: true; data: { message: string } } | { ok: false; error: string } | null, formData: FormData): Promise<{ ok: true; data: { message: string } } | { ok: false; error: string }> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   const parsed = specialSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? 'Please check the offer.' }
   const d = parsed.data
@@ -141,7 +144,7 @@ export async function saveSpecialBuyAction(_prev: { ok: true; data: { message: s
 
 /** Approve, reject or revoke a trade account (spec 25.2e). The applicant is emailed. */
 export async function tradeDecisionAction(id: string, decision: 'approved' | 'rejected' | 'revoked', note?: string): Promise<{ ok: true; data: { message: string } } | { ok: false; error: string }> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!z.uuid().safeParse(id).success || !['approved', 'rejected', 'revoked'].includes(decision)) return { ok: false, error: 'Invalid request.' }
   const db = getAdminSupabase()
   const { data, error } = await db.from('trade_accounts').update({ status: decision, admin_note: note?.trim().slice(0, 2000) || null, decided_at: new Date().toISOString() }).eq('id', id).select('user_id, business_name').single()

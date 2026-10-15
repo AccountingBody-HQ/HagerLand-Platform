@@ -1,5 +1,8 @@
 'use server'
 
+/** Admin area these actions belong to (staff roles are checked against it, spec 26.15). */
+const AREA = '/roodber8/email-problems'
+
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { getAdminSupabase } from '@/lib/supabase/admin'
@@ -10,7 +13,7 @@ type Done = { ok: true; data: { message: string } } | { ok: false; error: string
 
 /** Try one undelivered email again now. */
 export async function retryEmailAction(id: string): Promise<Done> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!z.uuid().safeParse(id).success) return { ok: false, error: 'Invalid.' }
   const db = getAdminSupabase()
   const { data: m } = await db.from('email_outbox').select('*').eq('id', id).maybeSingle()
@@ -24,7 +27,7 @@ export async function retryEmailAction(id: string): Promise<Done> {
 
 /** Stop retrying an email (for example a wrong address). */
 export async function discardEmailAction(id: string): Promise<Done> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!z.uuid().safeParse(id).success) return { ok: false, error: 'Invalid.' }
   const { error } = await getAdminSupabase().from('email_outbox').update({ status: 'gave_up' }).eq('id', id)
   if (error) return { ok: false, error: 'Please try again.' }

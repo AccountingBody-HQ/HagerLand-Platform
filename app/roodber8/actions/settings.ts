@@ -1,5 +1,8 @@
 'use server'
 
+/** Admin area these actions belong to (staff roles are checked against it, spec 26.15). */
+const AREA = '/roodber8/settings'
+
 import { revalidatePath } from 'next/cache'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { assertAdmin, audit, changedFields } from '@/lib/admin/guard'
@@ -39,7 +42,7 @@ function claimsFrom(formData: FormData): { title: string; text: string }[] {
 
 /** Saves one section of admin → Settings into site_settings. Empty values hide the matching element on the site. */
 export async function saveSettingsAction(section: SettingsSection, _prev: Msg | null, formData: FormData): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!SETTINGS_SECTIONS.includes(section)) return fail('Unknown settings section.')
   const input = Object.fromEntries(formData)
   const rows: { key: string; value: NonNullable<Json> }[] = []

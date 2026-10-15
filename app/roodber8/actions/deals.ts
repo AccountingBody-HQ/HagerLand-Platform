@@ -1,5 +1,8 @@
 'use server'
 
+/** Admin area these actions belong to (staff roles are checked against it, spec 26.15). */
+const AREA = '/roodber8/deals'
+
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { getAdminSupabase } from '@/lib/supabase/admin'
@@ -28,7 +31,7 @@ const PREFIX: Record<string, { table: 'enquiries' | 'service_requests' | 'quote_
 
 /** Adds or edits a deal in the commission ledger (spec 25.2k). A reference (HLE-, HLS-, HLQ-) links it to its lead. */
 export async function saveDealAction(input: Record<string, string>): Promise<ActionResult<{ message: string }>> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   const parsed = schema.safeParse(input)
   if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? 'Check the fields.')
   const d = parsed.data

@@ -1,5 +1,8 @@
 'use server'
 
+/** Admin area these actions belong to (staff roles are checked against it, spec 26.15). */
+const AREA = '/roodber8/reviews'
+
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { z } from 'zod'
 import { getAdminSupabase } from '@/lib/supabase/admin'
@@ -15,7 +18,7 @@ type Msg = ActionResult<{ message: string }>
 
 /** Publishes or rejects a review (spec 26.12). Publishing tells the business, who may reply once. */
 export async function moderateReviewAction(id: string, decision: 'publish' | 'reject', reason?: string): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   const p = z.object({ id: z.uuid(), decision: z.enum(['publish', 'reject']), reason: z.string().trim().max(300).optional() }).safeParse({ id, decision, reason })
   if (!p.success) return fail('Invalid.')
   if (p.data.decision === 'reject' && !p.data.reason) return fail('Give a reason for rejecting (kept private).')

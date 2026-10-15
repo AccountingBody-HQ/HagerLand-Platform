@@ -1,5 +1,8 @@
 'use server'
 
+/** Admin area these actions belong to (staff roles are checked against it, spec 26.15). */
+const AREA = '/roodber8/agency'
+
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { getAdminSupabase } from '@/lib/supabase/admin'
@@ -18,7 +21,7 @@ const dateField = z.preprocess(blank, z.iso.date('Use a date').optional())
 
 /** Referencing notes and the decision on an application to rent (spec 26.5). */
 export async function saveApplicationAction(id: string, _prev: Msg | null, formData: FormData): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!z.uuid().safeParse(id).success) return fail('Not found.')
   const p = z.object({ status: z.enum(APPLICATION_STATUSES), referencing_notes: optionalText(4000, 'Referencing notes'), notify: checkbox }).safeParse(Object.fromEntries(formData))
   if (!p.success) return invalid(p.error)
@@ -68,7 +71,7 @@ async function managedPropertyId(ref: string | undefined): Promise<string | null
 
 /** Creates a tenancy from an approved application (spec 26.5 "approve → create tenancy"). */
 export async function createTenancyFromApplicationAction(applicationId: string, _prev: Msg | null, formData: FormData): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!z.uuid().safeParse(applicationId).success) return fail('Not found.')
   const p = tenancySchema.safeParse(Object.fromEntries(formData))
   if (!p.success) return invalid(p.error)
@@ -127,7 +130,7 @@ export async function createTenancyFromApplicationAction(applicationId: string, 
 
 /** Edits a tenancy (dates, rent, renewal and notice dates, managed-property link, status). */
 export async function saveTenancyAction(id: string, _prev: Msg | null, formData: FormData): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!z.uuid().safeParse(id).success) return fail('Not found.')
   const p = tenancySchema.safeParse(Object.fromEntries(formData))
   if (!p.success) return invalid(p.error)
@@ -167,7 +170,7 @@ export async function saveTenancyAction(id: string, _prev: Msg | null, formData:
 
 /** A tenancy entered directly (for example an existing tenancy HagerLand starts to manage). */
 export async function createTenancyAction(_prev: Msg | null, formData: FormData): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   const p = tenancySchema.safeParse(Object.fromEntries(formData))
   if (!p.success) return invalid(p.error)
   const d = p.data

@@ -72,7 +72,7 @@ Authorised by AB on 15 Oct 2026 (brief: `docs/BRIEF_SECTION_26.md`, appended to 
 | S7 | Knowledge & advice hub, area guides, market insight | done | 2026-10-15 | see git log | Migration 0031. RLS 184/184 local. advice spec + unit tests passed. Six starter drafts (tenant guide, 4 checklists, glossary) wait for AB's review; their pages are honest and noindex until published |
 | S8 | Provider multi-pillar onboarding + verified reviews | done | 2026-10-15 | see git log | Migration 0032. RLS 187/187 local. reviews spec passed. Pillars chosen in onboarding and the company editor; leads labelled and filterable by pillar. Reviews: guests review through their request link, account holders from their request page |
 | S9 | Demand intelligence + pillar KPIs | done | 2026-10-15 | see git log | No migration (reads existing tables). demand spec passed. Search misses have no per-day history, so the period filter uses their last-seen date; revenue counts ETB deals only (other currencies are listed in Deals) |
-| S10 | Staff accounts and roles | todo | | | |
+| S10 | Staff accounts and roles | done | 2026-10-15 | see git log | Migration 0033. RLS 190/190 local. staff spec + unit tests passed. Staff sign in on the admin sign-in page (own email, password, authenticator); roles checked by the middleware, every page and every action (each action file names its area). Staff secrets encrypted with a key derived from ADMIN_TOTP_SECRET, so no new setting. Found and fixed: the admin sign-in page looped for a disabled staff session |
 | S11 | Content, legal and SEO updates + 26.18 | todo | | | |
 | S12 | Full regression, matrix, LAUNCH_REPORT, re-run 25.5 | todo | | | |
 

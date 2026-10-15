@@ -1,5 +1,10 @@
 'use server'
 
+/** The admin area that manages each kind of record (staff roles are checked against it, spec 26.15). */
+function entityArea(entity: string): string {
+  return entity === 'property' ? '/roodber8/properties' : entity === 'development' ? '/roodber8/developments' : entity === 'product' ? '/roodber8/products' : '/roodber8/organisations'
+}
+
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { getAdminSupabase, getAdminSupabaseDynamic } from '@/lib/supabase/admin'
@@ -13,7 +18,7 @@ const TABLE: Record<Entity, string> = { property: 'properties', development: 'de
 
 /** Feature until a date (creates a promotion; the database keeps is_featured in step), or stop featuring. */
 export async function setFeaturedAction(entity: string, id: string, until: string | null): Promise<ActionResult<{ message: string }>> {
-  await assertAdmin()
+  await assertAdmin(entityArea(entity))
   const parsed = z.object({ entity: entitySchema, id: z.uuid(), until: z.iso.date().nullable() }).safeParse({ entity, id, until })
   if (!parsed.success) return fail('Choose an end date.')
   const db = getAdminSupabase()
@@ -35,7 +40,7 @@ export async function setFeaturedAction(entity: string, id: string, until: strin
 
 /** Admin-only internal note on any record. */
 export async function addNoteAction(entity: string, id: string, note: string): Promise<ActionResult<{ message: string }>> {
-  await assertAdmin()
+  await assertAdmin(entityArea(entity))
   const parsed = z.object({ entity: z.string().max(40), id: z.uuid(), note: z.string().trim().min(1).max(4000) }).safeParse({ entity, id, note })
   if (!parsed.success) return fail('Write a note first.')
   const { error } = await getAdminSupabase().from('admin_notes').insert({ entity_type: parsed.data.entity, entity_id: id, note: parsed.data.note })
@@ -49,7 +54,7 @@ const STATUSES = ['draft', 'pending_review', 'published', 'paused', 'expired', '
 
 /** Direct status change by HagerLand (removal with a reason goes through moderation). */
 export async function setStatusAction(entity: string, id: string, status: string): Promise<ActionResult<{ message: string }>> {
-  await assertAdmin()
+  await assertAdmin(entityArea(entity))
   const parsed = z.object({ entity: entitySchema, id: z.uuid(), status: z.enum(STATUSES) }).safeParse({ entity, id, status })
   if (!parsed.success) return fail('Invalid status.')
   const dyn = getAdminSupabaseDynamic()

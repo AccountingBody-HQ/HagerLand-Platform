@@ -1165,14 +1165,14 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | X-2613-04 | Demand summary in the daily digest | 26.13 | Done | lib/cron/daily.ts (demandDigestLine) | e2e:demand.spec.ts › demand dashboard: … digest line |
 | X-2614-01 | Admin "Performance" dashboard per pillar: leads, median first-response time, conversion to won, revenue (deals), active listings, providers and partners | 26.14 | Done | lib/admin/performance.ts, app/roodber8/performance/page.tsx | e2e:demand.spec.ts › performance dashboard: per-pillar leads, response, conversion, revenue, listings and providers, with CSV |
 | X-2614-02 | Agency KPIs on the Performance dashboard; CSV export | 26.14 | Done | app/roodber8/performance/page.tsx (agency KPIs), export performance | e2e:demand.spec.ts › performance dashboard … |
-| X-2615-01 | Staff users (Supabase Auth, separate from customer accounts) with roles owner, agent, operations, content | 26.15 | Not done |  |  |
-| X-2615-02 | Each staff member must enrol TOTP before access | 26.15 | Not done |  |  |
-| X-2615-03 | Role-based admin access per area (agent / operations / content / owner) | 26.15 | Not done |  |  |
-| X-2615-04 | Per-user audit log entries | 26.15 | Not done |  |  |
-| X-2615-05 | Staff management screen for the owner: invite, change role, disable | 26.15 | Not done |  |  |
-| X-2615-06 | /roodber8 master login remains as the owner's break-glass access | 26.15 | Not done |  |  |
-| X-2615-07 | Server-side role checks on every admin action and page; tests prove each role reaches only its areas | 26.15 | Not done |  |  |
-| X-2615-08 | Default: no staff besides AB | 26.15 | Not done |  |  |
+| X-2615-01 | Staff users (Supabase Auth, separate from customer accounts) with roles owner, agent, operations, content | 26.15 | Done | supabase/migrations/0033_staff.sql, app/roodber8-login/staff-actions.ts (auth user with app_metadata.staff), lib/auth.ts (staff never a customer session) | e2e:staff.spec.ts › owner invites an agent … (customer login refused) |
+| X-2615-02 | Each staff member must enrol TOTP before access | 26.15 | Done | app/roodber8-login/staff/**, staff_active_has_2fa check, lib/admin/staff-crypto.ts | e2e:staff.spec.ts › owner invites an agent; the agent sets a password and enrols two-factor …; rls:An active staff account must have two-factor enrolled; unit:staff.test.ts › authenticator secret encryption |
+| X-2615-03 | Role-based admin access per area (agent / operations / content / owner) | 26.15 | Done | lib/admin/roles.ts, middleware.ts, lib/admin-auth.ts (isAdminRequest), components/admin/AdminNav.tsx | e2e:staff.spec.ts › operations and content roles reach only their areas …; unit:staff.test.ts › owners reach everything … |
+| X-2615-04 | Per-user audit log entries | 26.15 | Done | lib/admin/guard.ts (adminActor staff:<email>), staff login/enrol audit | e2e:staff.spec.ts › owner invites an agent … (audit actor staff:email) |
+| X-2615-05 | Staff management screen for the owner: invite, change role, disable | 26.15 | Done | app/roodber8/staff, app/roodber8/actions/staff.ts | e2e:staff.spec.ts › owner invites an agent …; disabling a staff member ends their access at once |
+| X-2615-06 | /roodber8 master login remains as the owner's break-glass access | 26.15 | Done | app/roodber8-login/page.tsx (master form kept), app/roodber8/login-actions.ts | e2e:admin/admin.spec.ts › admin signs in with username, password and one-time code; e2e:staff.spec.ts › disabling … the master login still works |
+| X-2615-07 | Server-side role checks on every admin action and page; tests prove each role reaches only its areas | 26.15 | Done | lib/admin/guard.ts (assertAdmin(area) in every admin action file), middleware.ts, requireAdminPage | e2e:staff.spec.ts (pages, exports, admin API 403); unit:staff.test.ts; verify: every app/roodber8/actions/*.ts calls assertAdmin(AREA) (grep shows no bare assertAdmin()) |
+| X-2615-08 | Default: no staff besides AB | 26.15 | Done | supabase/migrations/0033_staff.sql (no seed rows) | sql:0033 check (0 staff) |
 | X-2616-01 | Homepage, hubs, about, how-it-works, list-with-us, help and footer updated for the pillar model | 26.16 | Not done |  |  |
 | X-2616-02 | Terms: estate agency terms of business (instructions, fees in writing, viewings, offers non-binding, tenant applications) as drafts for AB's lawyer | 26.16 | Not done |  |  |
 | X-2616-03 | Privacy: tenant applications, applicant registers, viewings, reviews, staff access | 26.16 | Not done |  |  |

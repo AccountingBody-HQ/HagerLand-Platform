@@ -20,7 +20,7 @@ function done(path: string, message: string): Msg {
 
 /** Adds or edits a product or service category. The slug is fixed at creation so public URLs never change. */
 export async function saveCategoryAction(kind: string, _prev: Msg | null, formData: FormData): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin('/roodber8/categories')
   const k = categoryKind.safeParse(kind)
   if (!k.success) return fail('Unknown category type.')
   const parsed = categorySchema.safeParse(Object.fromEntries(formData))
@@ -51,7 +51,7 @@ export async function saveCategoryAction(kind: string, _prev: Msg | null, formDa
 }
 
 export async function moveCategoryAction(kind: string, id: string, dir: 'up' | 'down'): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin('/roodber8/categories')
   const k = categoryKind.safeParse(kind)
   if (!k.success || !z.uuid().safeParse(id).success) return fail('Invalid request.')
   const db = getAdminSupabase()
@@ -68,7 +68,7 @@ export async function moveCategoryAction(kind: string, id: string, dir: 'up' | '
 
 /** Adds or edits a location. New locations get their level from the parent. */
 export async function saveLocationAction(_prev: Msg | null, formData: FormData): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin('/roodber8/locations')
   const parsed = locationSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   const { id, name, name_am, parent_id, seo_intro_sale, seo_intro_rent, seo_intro_professionals, sort, is_active } = parsed.data
@@ -103,7 +103,7 @@ export async function saveLocationAction(_prev: Msg | null, formData: FormData):
 }
 
 export async function moveLocationAction(id: string, dir: 'up' | 'down'): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin('/roodber8/locations')
   if (!z.uuid().safeParse(id).success) return fail('Invalid request.')
   const db = getAdminSupabase()
   const { data: row } = await db.from('locations').select('parent_id').eq('id', id).maybeSingle()
@@ -128,7 +128,7 @@ const LOCATION_REFS = [
  * pointing at it moves to the target, and the duplicate is switched off (never deleted, so old links keep resolving).
  */
 export async function mergeLocationAction(fromId: string, intoId: string): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin('/roodber8/locations')
   const ids = z.object({ from: z.uuid(), into: z.uuid() }).safeParse({ from: fromId, into: intoId })
   if (!ids.success || fromId === intoId) return fail('Choose two different locations.')
   const db = getAdminSupabase()
@@ -168,7 +168,7 @@ const countrySchema = z.object({
 
 /** Adds a country for diaspora services (spec 24.4). Cities are then added under it. */
 export async function addCountryAction(_prev: Msg | null, formData: FormData): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin('/roodber8/locations')
   const parsed = countrySchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   const { name, code } = parsed.data

@@ -1,5 +1,8 @@
 'use server'
 
+/** Admin area these actions belong to (staff roles are checked against it, spec 26.15). */
+const AREA = '/roodber8/jobs'
+
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { getAdminSupabase } from '@/lib/supabase/admin'
@@ -16,7 +19,7 @@ type Done = ActionResult<{ message: string }>
 
 /** Approve a job (it goes live and expiry is set) or send it back with a reason (spec 24.9, 24.12). */
 export async function jobDecisionAction(id: string, approve: boolean, note?: string): Promise<Done> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!z.uuid().safeParse(id).success) return fail('Invalid job.')
   if (!approve && !note?.trim()) return fail('Write the reason, so the employer knows what to change.')
   const db = getAdminSupabase()
@@ -40,7 +43,7 @@ export async function jobDecisionAction(id: string, approve: boolean, note?: str
 
 /** Pause, close or remove any job. */
 export async function adminJobStatusAction(id: string, status: 'paused' | 'archived' | 'removed'): Promise<Done> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   const parsed = z.object({ id: z.uuid(), status: z.enum(['paused', 'archived', 'removed']) }).safeParse({ id, status })
   if (!parsed.success) return fail('Invalid request.')
   const { data, error } = await getAdminSupabase().from('job_posts').update({ status: parsed.data.status }).eq('id', parsed.data.id).select('title').single()
@@ -53,7 +56,7 @@ export async function adminJobStatusAction(id: string, status: 'paused' | 'archi
 
 /** Publish or send back a developer's construction-progress update (spec 25.2j). */
 export async function developmentUpdateDecisionAction(id: string, approve: boolean, note?: string): Promise<Done> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!z.uuid().safeParse(id).success) return fail('Invalid update.')
   const db = getAdminSupabase()
   const { data, error } = await db
@@ -71,7 +74,7 @@ export async function developmentUpdateDecisionAction(id: string, approve: boole
 
 /** Take a published progress update down. */
 export async function removeDevelopmentUpdateAction(id: string): Promise<Done> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!z.uuid().safeParse(id).success) return fail('Invalid update.')
   const { data, error } = await getAdminSupabase().from('development_updates').update({ status: 'removed' }).eq('id', id).select('development_id, title').single()
   if (error || !data) return fail('Please try again.')
@@ -82,7 +85,7 @@ export async function removeDevelopmentUpdateAction(id: string): Promise<Done> {
 
 /** HagerLand posts a progress update itself (published straight away). */
 export async function adminPostDevelopmentUpdateAction(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   const parsed = developmentUpdateSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   const d = parsed.data

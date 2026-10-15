@@ -1,5 +1,8 @@
 'use server'
 
+/** Admin area these actions belong to (staff roles are checked against it, spec 26.15). */
+const AREA = '/roodber8/projects'
+
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { getAdminSupabase } from '@/lib/supabase/admin'
@@ -11,7 +14,7 @@ type Msg = ActionResult<{ message: string }>
 
 /** Project status and private notes (spec 26.9). */
 export async function saveProjectAction(id: string, _prev: Msg | null, formData: FormData): Promise<Msg> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   if (!z.uuid().safeParse(id).success) return fail('Not found.')
   const p = z.object({ status: z.enum(['submitted', 'in_progress', 'on_hold', 'closed']), admin_notes: optionalText(4000, 'Notes') }).safeParse(Object.fromEntries(formData))
   if (!p.success) return invalid(p.error)

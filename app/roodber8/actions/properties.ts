@@ -1,5 +1,8 @@
 'use server'
 
+/** Admin area these actions belong to (staff roles are checked against it, spec 26.15). */
+const AREA = '/roodber8/properties'
+
 
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
@@ -31,7 +34,7 @@ export type AdminPropertyState = ActionResult<{ id: string }> | null
 
 /** Create or edit any property as HagerLand. Changes apply immediately (no owner review). */
 export async function saveAdminPropertyAction(_prev: AdminPropertyState, formData: FormData): Promise<AdminPropertyState> {
-  await assertAdmin()
+  await assertAdmin(AREA)
   const raw = formToObject(formData, ['features'])
   const l = listerSchema.safeParse(raw)
   const b = basicsSchema.safeParse(raw)
