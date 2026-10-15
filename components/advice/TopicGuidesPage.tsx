@@ -19,7 +19,18 @@ export async function TopicGuidesPage({ topic, title, intro, empty }: { topic: s
       <Breadcrumbs items={[{ label: 'Knowledge & Advice', href: '/advice' }, { label: title }]} />
       <h1 className="hl-h1 mt-6">{title}</h1>
       <p className="mt-3 max-w-3xl text-muted">{intro}</p>
-      <div className="mt-8">{guides.length ? <GuideList guides={guides} /> : <EmptyState title="Coming shortly" description={empty} actions={<ButtonLink href="/guides">Read the guides</ButtonLink>} />}</div>
+      <div className="mt-8">{guides.length ? <GuideList guides={guides} /> : <EmptyState
+            title="On its way"
+            description={empty}
+            actions={
+              <>
+                <ButtonLink href="/help">Help & FAQs</ButtonLink>
+                <ButtonLink href="/contact" variant="secondary">
+                  Ask our team
+                </ButtonLink>
+              </>
+            }
+          />}</div>
       <p className="mt-8 text-small text-muted">General information, not legal or financial advice. Rules can change: check with a lawyer or the relevant office before you act.</p>
     </Container>
   )

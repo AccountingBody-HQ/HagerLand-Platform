@@ -13,7 +13,8 @@ test('starter guides are unpublished drafts marked "Needs AB review", and nothin
   test.skip(live.length > 0, 'a guide was published by an earlier run')
   expect((await page.goto('/guides/questions-to-ask-a-contractor'))?.status()).toBe(404)
   await page.goto('/guides')
-  await expect(page.getByRole('heading', { name: 'Our first guides are being written' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Our first guides are on their way' })).toBeVisible()
+  await expect(page.locator('main').getByRole('link', { name: 'Ask our team' })).toHaveAttribute('href', '/contact')
   await expect(page.locator('meta[name=robots]')).toHaveAttribute('content', /noindex/)
 })
 

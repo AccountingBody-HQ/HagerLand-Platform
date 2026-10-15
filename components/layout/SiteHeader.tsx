@@ -15,7 +15,7 @@ import { MobileDrawer } from './MobileDrawer'
 import { LanguageSwitch } from './LanguageSwitch'
 import { SearchOverlay } from '@/components/search/SearchOverlay'
 import { useI18n } from '@/lib/i18n/client'
-import { localizeGroups, localizeLink, localizeTile } from '@/lib/i18n/nav'
+import { localizeAllServices, localizeGroups, localizeLink } from '@/lib/i18n/nav'
 
 function MenuLink({ link, onNavigate, highlight }: { link: NavLink; onNavigate: () => void; highlight?: boolean }) {
   return (
@@ -30,74 +30,63 @@ function MenuLink({ link, onNavigate, highlight }: { link: NavLink; onNavigate: 
   )
 }
 
-function ModeChips({ modes, inverse }: { modes: string[]; inverse?: boolean }) {
-  const { t } = useI18n()
-  if (!modes.length) return null
-  return (
-    <span className="flex flex-wrap gap-1">
-      {modes.map((m) => (
-        <span key={m} className={cn('rounded-full px-2 py-0.5 text-caption font-semibold', inverse ? 'bg-white/10 text-white' : m === 'Provided by HagerLand' ? 'bg-green-tint text-green-darker' : m === 'Trusted partners' ? 'bg-gold-soft text-gold-dark' : 'bg-stone-100 text-ink')}>
-          {t(m)}
-        </span>
-      ))}
-    </span>
-  )
-}
-
 function TileLink({ tile, onNavigate }: { tile: ServiceTile; onNavigate: () => void }) {
   return (
     <Link href={tile.href} onClick={onNavigate} className="flex h-full gap-3 rounded-md p-3 hover:bg-stone-100">
       <DynamicIcon name={tile.icon} className="mt-0.5 size-5 shrink-0 text-green" />
       <span className="min-w-0 space-y-1">
         <span className="flex flex-wrap items-center gap-2 font-semibold text-ink">
-          {tile.number && <span className="text-caption text-muted">{tile.number}</span>}
           {tile.name}
           {tile.soon && <SoonBadge />}
         </span>
         <span className="block text-small text-muted">{tile.tagline}</span>
-        <ModeChips modes={tile.modes} />
       </span>
     </Link>
   )
 }
 
-/** "All services": the 10 pillars and the 2 layers, grouped like the ecosystem diagram (spec 26.4). */
+/** "All services": the ten services in four customer groups, then Living abroad and Find a professional (spec 26.4). */
 function AllServicesPanel({ all, onNavigate }: { all: AllServices; onNavigate: () => void }) {
   const { t } = useI18n()
+  const audiences = [all.diaspora, all.professionals].filter((x): x is ServiceTile => Boolean(x))
   return (
     <div className="mx-auto max-w-content space-y-6 px-8 py-8">
-      <div>
-        <p className="hl-eyebrow mb-2 text-muted">{t('Around the property lifecycle')}</p>
-        <ul className="grid gap-1 lg:grid-cols-4">
-          {all.pillars.map((tile) => (
-            <li key={tile.key}>
-              <TileLink tile={tile} onNavigate={onNavigate} />
+      <div className="grid gap-6 lg:grid-cols-4">
+        {all.groups.map((g) => (
+          <div key={g.id}>
+            <p className="hl-eyebrow mb-2 px-3 text-muted">{g.title}</p>
+            <ul className="grid gap-1">
+              {g.tiles.map((tile) => (
+                <li key={tile.key}>
+                  <TileLink tile={tile} onNavigate={onNavigate} />
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+      {audiences.length > 0 && (
+        <ul className="grid gap-3 border-t border-border pt-6 sm:grid-cols-2">
+          {audiences.map((a) => (
+            <li key={a.key}>
+              <Link href={a.href} onClick={onNavigate} className="group flex h-full items-center gap-4 rounded-lg bg-stone-50 p-4 ring-1 ring-border hover:ring-green">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-white text-green ring-1 ring-border">
+                  <DynamicIcon name={a.icon} className="size-5" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="flex flex-wrap items-center gap-2 font-semibold text-ink">
+                    {a.name}
+                    {a.soon && <SoonBadge />}
+                  </span>
+                  <span className="block text-small text-muted">{a.tagline}</span>
+                </span>
+                <ArrowRight className="size-4 shrink-0 text-green transition-transform group-hover:translate-x-0.5" aria-hidden />
+                <span className="sr-only">{t(a.action)}</span>
+              </Link>
             </li>
           ))}
         </ul>
-      </div>
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div>
-          <p className="hl-eyebrow mb-2 text-muted">{t('Ecosystem enablers')}</p>
-          <ul className="grid gap-1 sm:grid-cols-2">
-            {all.enablers.map((tile) => (
-              <li key={tile.key}>
-                <TileLink tile={tile} onNavigate={onNavigate} />
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div>
-          <p className="hl-eyebrow mb-2 text-muted">{t('Across every service')}</p>
-          <ul className="grid gap-1 sm:grid-cols-2">
-            {all.layers.map((tile) => (
-              <li key={tile.key}>
-                <TileLink tile={tile} onNavigate={onNavigate} />
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
+      )}
     </div>
   )
 }
@@ -130,16 +119,14 @@ function MegaPanel({ group, onNavigate }: { group: NavGroup; onNavigate: () => v
           ))}
         </ul>
       </div>
-      {(group.cta || (group.modes && group.modes.length > 0)) && (
+      {group.cta && (
         <div className="flex flex-col items-start gap-4">
           {group.id !== 'more' && (
             <Link href={group.href} onClick={onNavigate} className="inline-flex min-h-11 items-center gap-2 font-semibold text-green hover:underline">
-              {t('Overview')}: {group.label}
+              {t('Explore')} {group.title}
               <ArrowRight className="size-4" aria-hidden />
             </Link>
           )}
-          {group.modes && <ModeChips modes={group.modes} />}
-          {group.cta && (
           <Link
             href={group.cta.href}
             onClick={onNavigate}
@@ -148,7 +135,6 @@ function MegaPanel({ group, onNavigate }: { group: NavGroup; onNavigate: () => v
             {group.cta.label}
             <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
           </Link>
-          )}
         </div>
       )}
     </div>
@@ -172,7 +158,7 @@ export function SiteHeader({ nav: siteNav, amharicOn = false }: { nav: SiteNav; 
   const headerRef = useRef<HTMLElement>(null)
   const nav = localizeGroups(siteNav.main, t, locale)
   const listWithUs = siteNav.listWithUs.map((l) => localizeLink(l, t, locale))
-  const all: AllServices = { pillars: siteNav.all.pillars.map((x) => localizeTile(x, t, locale)), enablers: siteNav.all.enablers.map((x) => localizeTile(x, t, locale)), layers: siteNav.all.layers.map((x) => localizeTile(x, t, locale)) }
+  const all: AllServices = localizeAllServices(siteNav.all, t, locale)
   const abroad = siteNav.abroad ? localizeLink(siteNav.abroad, t, locale) : null
 
   useEffect(() => {

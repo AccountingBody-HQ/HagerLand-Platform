@@ -11,7 +11,7 @@ export type PillarKey = (typeof PILLAR_KEYS)[number]
 
 export type PillarMode = 'direct' | 'aggregate' | 'interest'
 
-/** Customer-facing labels: never the letters D/A/I (spec 26.3). */
+/** Mode labels for the admin pillar map (never the letters D/A/I, spec 26.3). Visitors see only "Coming soon" (polish round 1). */
 export const MODE_LABELS: Record<PillarMode, string> = {
   direct: 'Provided by HagerLand',
   aggregate: 'Trusted partners',

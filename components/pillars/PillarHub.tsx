@@ -5,7 +5,10 @@ import { PILLAR_CONTENT, type HubLink } from '@/lib/content/pillars'
 import { getAgencyAvailability, getPillars } from '@/lib/data/pillars'
 import { getVerticals } from '@/lib/data/verticals'
 import { getBusinessDetails } from '@/lib/data/business'
-import { MODE_LABELS, PILLAR_INTEREST_VERTICAL, activeModes, pillarHref, type Pillar, type PillarKey } from '@/lib/pillars'
+import { listGuides } from '@/lib/data/guides'
+import { PILLAR_INTEREST_VERTICAL, type Pillar, type PillarKey } from '@/lib/pillars'
+import { serviceTile } from '@/lib/navigation'
+import { brand } from '@/lib/brand'
 import type { LicenceKind } from '@/lib/validation/settings'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { Container, Section } from '@/components/ui/Layout'
@@ -24,25 +27,22 @@ export const PILLAR_LICENCE: Partial<Record<PillarKey, LicenceKind>> = {
   insurance: 'insurance',
 }
 
-/** Customer-facing mode labels for a pillar (spec 26.3): never D/A/I. */
-export function ModeBadges({ pillar, inverse, className }: { pillar: Pick<Pillar, 'direct' | 'aggregate' | 'interest'>; inverse?: boolean; className?: string }) {
-  const modes = activeModes(pillar)
-  if (modes.length === 1 && modes[0] === 'interest') return <SoonBadge long className={className} />
-  return (
-    <ul className={cn('flex flex-wrap gap-2', className)} aria-label="How this is provided">
-      {modes.map((m) => (
-        <li key={m} className={cn('rounded-full px-3 py-1 text-small font-semibold', inverse ? (m === 'direct' ? 'bg-green text-white' : m === 'aggregate' ? 'bg-gold text-ink' : 'bg-white/15 text-white') : m === 'direct' ? 'bg-green-tint text-green-darker' : m === 'aggregate' ? 'bg-gold-soft text-gold-dark' : 'bg-stone-100 text-ink')}>
-          {MODE_LABELS[m]}
-        </li>
-      ))}
-    </ul>
-  )
+/**
+ * Availability for visitors: only "Coming soon" is shown, while a service takes registrations of interest only.
+ * How a live service is delivered (HagerLand itself or partners) is explained in the page text, not with labels.
+ */
+export function AvailabilityBadge({ pillar, className }: { pillar: Pick<Pillar, 'status'>; className?: string }) {
+  return pillar.status === 'coming_soon' ? <SoonBadge long className={className} /> : null
 }
 
-/** Keeps a hub link only while the area it leads to is visible and, for agency links, while the agency is on. */
+/**
+ * Keeps a hub link only while the area it leads to is visible, for agency links while the agency is on, and for guide
+ * links once something of that kind is published (an empty "coming shortly" page is never a destination).
+ */
 async function linkFilter(): Promise<(l: HubLink) => boolean> {
-  const [verticals, agency] = await Promise.all([getVerticals(), getAgencyAvailability()])
-  return (l) => (!l.needs || verticals.some((v) => v.key === l.needs && v.status === 'live')) && (!l.agency || (l.agency === 'sales' ? agency.sales : agency.lettings))
+  const [verticals, agency, anyGuide, checklists, glossary] = await Promise.all([getVerticals(), getAgencyAvailability(), listGuides({ limit: 1 }), listGuides({ topic: 'checklists', limit: 1 }), listGuides({ topic: 'glossary', limit: 1 })])
+  const published = { any: anyGuide.length > 0, checklists: checklists.length > 0, glossary: glossary.length > 0 }
+  return (l) => (!l.needs || verticals.some((v) => v.key === l.needs && v.status === 'live')) && (!l.agency || (l.agency === 'sales' ? agency.sales : agency.lettings)) && (!l.content || published[l.content])
 }
 
 function LinkCards({ links }: { links: HubLink[] }) {
@@ -85,7 +85,7 @@ export async function PillarExtras({ pillarKey }: { pillarKey: PillarKey }) {
           </span>
           <div>
             <h2 id={`abroad-${pillarKey}`} className="hl-h3">
-              From abroad? {c.abroad.title}
+              {c.abroad.title}
             </h2>
             <p className="mt-2 max-w-3xl text-muted">{c.abroad.text}</p>
           </div>
@@ -109,15 +109,19 @@ export async function PillarExtras({ pillarKey }: { pillarKey: PillarKey }) {
             Your next steps
           </h2>
           <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {next.map((p) => (
-              <li key={p.key}>
-                <Link href={pillarHref(p)} className="flex h-full flex-col gap-2 rounded-lg border border-border bg-white p-4 hover:border-green">
+            {next.map(serviceTile).map((tile) => (
+              <li key={tile.key}>
+                <Link href={tile.href} className="group flex h-full flex-col gap-2 rounded-lg border border-border bg-white p-4 hover:border-green">
                   <span className="flex items-center gap-2 font-semibold text-ink">
-                    <DynamicIcon name={p.icon} className="size-5 text-green" />
-                    {p.name}
+                    <DynamicIcon name={tile.icon} className="size-5 text-green" />
+                    {tile.name}
                   </span>
-                  <span className="text-small text-muted">{p.tagline}</span>
-                  <ModeBadges pillar={p} className="mt-auto" />
+                  <span className="text-small text-muted">{tile.tagline}</span>
+                  <span className="mt-auto flex flex-wrap items-center gap-2 pt-1 text-small font-semibold text-green">
+                    {tile.soon && <SoonBadge />}
+                    {tile.action}
+                    <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
+                  </span>
                 </Link>
               </li>
             ))}
@@ -143,12 +147,12 @@ export async function PillarHub({ pillar, children }: { pillar: Pillar; children
       <section className="hl-blueprint bg-ink text-white">
         <Container className="py-10 sm:py-14">
           <Breadcrumbs inverse items={[{ label: pillar.name }]} />
-          <p className="hl-eyebrow mt-8 text-gold">
-            Pillar {pillar.number} · {pillar.name}
+          <p className="hl-eyebrow mt-8 flex flex-wrap items-center gap-3 text-gold">
+            {pillar.name}
+            <AvailabilityBadge pillar={pillar} />
           </p>
           <h1 className="hl-h1 mt-2 max-w-3xl text-white">{comingSoon ? c.soon.headline : c.headline}</h1>
           {pillar.description && <p className="mt-4 max-w-2xl text-[1.0625rem] text-white/80">{pillar.description}</p>}
-          <ModeBadges pillar={pillar} inverse className="mt-6" />
           {!comingSoon && actions.length > 0 && (
             <ul className="mt-8 flex flex-col gap-3 sm:flex-row">
               {actions.map((a, i) => (
@@ -166,9 +170,9 @@ export async function PillarHub({ pillar, children }: { pillar: Pillar; children
 
       {direct.length > 0 && (
         <Section labelledBy={`direct-${pillar.key}`}>
-          <p className="hl-eyebrow text-green">{MODE_LABELS.direct}</p>
+          <p className="hl-eyebrow text-green">By {brand.name}</p>
           <h2 id={`direct-${pillar.key}`} className="hl-h2 mt-1">
-            What HagerLand does for you
+            What we do for you
           </h2>
           <div className="mt-6">
             <LinkCards links={direct} />
@@ -177,9 +181,8 @@ export async function PillarHub({ pillar, children }: { pillar: Pillar; children
       )}
       {aggregate.length > 0 && (
         <Section tone={direct.length > 0 ? 'stone' : 'white'} labelledBy={`aggregate-${pillar.key}`}>
-          <p className="hl-eyebrow text-gold-dark">{MODE_LABELS.aggregate}</p>
-          <h2 id={`aggregate-${pillar.key}`} className="hl-h2 mt-1">
-            Search and compare
+          <h2 id={`aggregate-${pillar.key}`} className="hl-h2">
+            {c.aggregateTitle ?? 'Search and compare'}
           </h2>
           <div className="mt-6">
             <LinkCards links={aggregate} />
@@ -191,9 +194,9 @@ export async function PillarHub({ pillar, children }: { pillar: Pillar; children
         <Section tone="stone" id="register" labelledBy={`interest-${pillar.key}`}>
           <div className="grid gap-10 lg:grid-cols-[1fr_440px]">
             <div>
-              <p className="hl-eyebrow text-green">{MODE_LABELS.interest}</p>
+              <p className="hl-eyebrow text-green">{comingSoon ? 'Coming soon' : 'Hear first'}</p>
               <h2 id={`interest-${pillar.key}`} className="hl-h2 mt-1">
-                {comingSoon ? `${pillar.name} is coming soon` : 'Tell us what you need next'}
+                {comingSoon ? `${pillar.name} is coming soon` : c.interestTitle ?? 'Tell us what you would like next'}
               </h2>
               {(comingSoon ? c.soon.points : []).length > 0 && (
                 <ul className="mt-4 space-y-2 text-muted">
@@ -202,7 +205,7 @@ export async function PillarHub({ pillar, children }: { pillar: Pillar; children
                   ))}
                 </ul>
               )}
-              <p className="mt-4 text-muted">Register your interest and we will email you when there is news. No obligation.</p>
+              <p className="mt-4 text-muted">{!comingSoon && c.interestText ? c.interestText : 'Register your interest and we will email you when there is news. No obligation.'}</p>
             </div>
             <div className="rounded-xl border border-border bg-white p-5 sm:p-6">
               <InterestForm verticalKey={interestVertical} pillarKey={pillar.key} verticalName={pillar.name} idPrefix={`pint-${pillar.key}`} />

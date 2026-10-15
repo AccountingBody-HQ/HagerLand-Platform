@@ -7,6 +7,7 @@ import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { ToastProvider } from '@/components/ui/Toast'
 import { UtmCapture } from '@/components/enquiry/UtmCapture'
+import { InputModality } from '@/components/layout/InputModality'
 import { getLocale } from '@/lib/i18n/server'
 import { LocaleProvider } from '@/lib/i18n/client'
 
@@ -42,6 +43,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <ToastProvider>{children}</ToastProvider>
         </LocaleProvider>
         <UtmCapture />
+        <InputModality />
         {onVercel && <Analytics />}
         {onVercel && <SpeedInsights />}
       </body>

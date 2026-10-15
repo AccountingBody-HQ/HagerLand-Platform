@@ -47,6 +47,10 @@
   :focus-visible {
     @apply outline-none ring-2 ring-green ring-offset-2;
   }
+  /* After a mouse or touch click, controls keep no ring (components/layout/InputModality.tsx). Form fields keep their own focus style. */
+  html[data-input='pointer'] :is(a, button, summary, [role='tab'], [role='switch'], [tabindex]):focus-visible {
+    @apply ring-0 ring-offset-0;
+  }
   ::selection {
     @apply bg-green-soft text-ink;
   }

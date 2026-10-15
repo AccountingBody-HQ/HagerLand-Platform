@@ -10,7 +10,7 @@ describe('pillar modes (spec 26.3)', () => {
     expect(modeStatus({ direct: false, aggregate: false, interest: false })).toBe('hidden')
   })
 
-  it('customer labels never use the letters D, A or I', () => {
+  it('mode labels (admin pillar map) never use the letters D, A or I', () => {
     expect(Object.values(MODE_LABELS)).toEqual(['Provided by HagerLand', 'Trusted partners', 'Register your interest'])
     expect(activeModes({ direct: true, aggregate: false, interest: true })).toEqual(['direct', 'interest'])
   })

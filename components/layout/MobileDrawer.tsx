@@ -66,10 +66,9 @@ export function MobileDrawer({ open, onClose, nav, amharicOn = false }: { open: 
                     <ul className="pb-3">
                       <li>
                         <Link href={tile.href} onClick={onClose} className="flex min-h-11 items-center rounded-md px-4 font-semibold text-green">
-                          {locale === 'am' ? tile.name : `Overview: ${tile.name}`}
+                          {t('Explore')} {tile.name}
                         </Link>
                       </li>
-                      {tile.modes.length > 0 && <li className="px-4 pb-2 text-caption text-muted">{tile.modes.join(' · ')}</li>}
                       {links.map((l) => (
                         <li key={`${tile.key}-${l.href}`}>
                           <Link href={l.href} onClick={onClose} className="flex min-h-11 items-center justify-between gap-2 rounded-md px-4 text-ink hover:bg-stone-100">

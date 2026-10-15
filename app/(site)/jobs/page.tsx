@@ -16,7 +16,7 @@ import { Pagination } from '@/components/ui/Pagination'
 import { JobCard } from '@/components/jobs/JobCard'
 import { getPillar } from '@/lib/data/pillars'
 import { COMING_SOON } from '@/lib/content/verticals'
-import { ModeBadges, PillarExtras } from '@/components/pillars/PillarHub'
+import { PillarExtras } from '@/components/pillars/PillarHub'
 import { InterestForm } from '@/components/verticals/InterestForm'
 
 export const revalidate = 300
@@ -68,7 +68,6 @@ export default async function JobsPage(props: { searchParams: Promise<Params> })
           <Breadcrumbs inverse items={[{ label: v.name }]} />
           <h1 className="hl-h1 mt-8 max-w-3xl text-white">Jobs in construction, engineering and property</h1>
           <p className="mt-4 max-w-2xl text-[1.0625rem] text-white/80">Vacancies from employers in Ethiopia and abroad. Apply with your CV, or create a profile and choose whether employers can find you.</p>
-          {pillar && <ModeBadges pillar={pillar} inverse className="mt-6" />}
           <div className="mt-8 grid gap-3 sm:max-w-xl sm:grid-cols-2">
             <ButtonLink href="/account/jobs/new" variant="gold" size="lg" className="w-full">
               Post a job
@@ -164,7 +163,7 @@ export default async function JobsPage(props: { searchParams: Promise<Params> })
         <Section tone="tint" labelledBy="recruitment">
           <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
             <div>
-              <p className="hl-eyebrow text-green">Provided by HagerLand</p>
+              <p className="hl-eyebrow text-green">By HagerLand</p>
               <h2 id="recruitment" className="hl-h2 mt-1">
                 Recruitment and placement by HagerLand
               </h2>
@@ -180,7 +179,7 @@ export default async function JobsPage(props: { searchParams: Promise<Params> })
         <Section tone="stone" id="register" labelledBy="jobs-registers">
           <div className="grid gap-10 lg:grid-cols-[1fr_440px]">
             <div>
-              <p className="hl-eyebrow text-green">Register your interest</p>
+              <p className="hl-eyebrow text-green">Hear first</p>
               <h2 id="jobs-registers" className="hl-h2 mt-1">
                 Candidate and employer registers
               </h2>

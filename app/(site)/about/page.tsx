@@ -5,32 +5,31 @@ import { buildMetadata } from '@/lib/seo'
 import { Section, SectionHeader } from '@/components/ui/Layout'
 import { ButtonLink } from '@/components/ui/Button'
 import { PageHero } from '@/components/content/PageHero'
-import { getPillars } from '@/lib/data/pillars'
-import { pillarHref } from '@/lib/pillars'
-import { ModeBadges } from '@/components/pillars/PillarHub'
+import { getSiteNav } from '@/lib/data/site-nav'
+import { SoonBadge } from '@/components/verticals/SoonBadge'
 
 export const metadata = buildMetadata({
   title: 'About HagerLand',
-  description: "HagerLand is Ethiopia's construction and property platform: property, materials, professionals, contractors and repairs, for Ethiopians at home and abroad.",
+  description: 'HagerLand helps people buy, rent, build and manage property in Ethiopia, with our own team and verified professionals, for Ethiopians at home and abroad.',
   path: '/about',
 })
 
 const STANDARDS = [
-  { icon: ClipboardCheck, title: 'Every listing reviewed', text: 'Our team checks every listing and profile before it is published.' },
-  { icon: BadgeCheck, title: 'Verified means checked', text: 'The Verified badge appears only after we have checked a business’s documents.' },
-  { icon: Clock, title: 'Stale listings removed', text: 'Property listings expire unless they are renewed, so what you see is current.' },
+  { icon: ClipboardCheck, title: 'Every listing checked', text: 'Our team reviews every listing and profile before it is published.' },
+  { icon: BadgeCheck, title: 'Verified means verified', text: 'The Verified badge appears only after we have checked a business’s documents.' },
+  { icon: Clock, title: 'Always up to date', text: 'Property listings expire unless they are renewed, so what you see is available.' },
   { icon: Scale, title: 'Our own projects, clearly labelled', text: 'HagerLand’s own developments and supplies are always labelled and never given hidden priority in search.' },
 ]
 
 export default async function AboutPage() {
-  // What we do: the ten pillars around the property lifecycle, each with how it is provided today (spec 26.16).
-  const pillars = await getPillars()
+  // What we do: the services in the same customer groups as the homepage and the "All services" menu (spec 26.16).
+  const { all } = await getSiteNav()
   return (
     <>
       <PageHero
         crumb="About"
         title="Building the land."
-        intro={`${brand.masterLine} ${brand.audienceLine} Find land or a home, plan and finance it, source the materials, hire the people to build and maintain it, and sell or rent it later, with listings that are reviewed, current and honest.`}
+        intro={`${brand.masterLine} ${brand.audienceLine} Find land or a home, plan and build it, source the materials, look after it, and sell or rent it later, with people and listings you can trust.`}
       />
       <Section>
         <div className="grid gap-10 lg:grid-cols-[1fr_1.4fr]">
@@ -43,22 +42,25 @@ export default async function AboutPage() {
           </div>
           <div>
             <h2 className="hl-h2">What we do</h2>
-            <p className="mt-4 text-muted">Ten services around the property lifecycle, with help for Ethiopians abroad and a network of trusted professionals running through all of them. Each one says how it is provided: by {brand.name} itself, by trusted partners we check, or, while we prepare it, by registering your interest.</p>
-            <dl className="mt-6 grid gap-6 sm:grid-cols-2">
-              {pillars.map((p) => (
-                <div key={p.key}>
-                  <dt className="font-display text-h3 font-bold">
-                    <Link href={pillarHref(p)} className="hover:underline">
-                      {p.name}
-                    </Link>
-                  </dt>
-                  <dd className="mt-2 text-muted">{p.description}</dd>
-                  <dd className="mt-2">
-                    <ModeBadges pillar={p} />
-                  </dd>
+            <p className="mt-4 text-muted">Ten services that work together, so a plot of land can become a finished, well-kept home. Some we provide ourselves, such as our estate agency, {brand.divisions.propertyCare} and {brand.divisions.supply}; for the rest we work with professionals and partners we check.</p>
+            <div className="mt-8 space-y-8">
+              {all.groups.map((g) => (
+                <div key={g.id}>
+                  <h3 className="hl-eyebrow text-green">{g.title}</h3>
+                  <ul className="mt-3 grid gap-4 sm:grid-cols-2">
+                    {g.tiles.map((tile) => (
+                      <li key={tile.key}>
+                        <Link href={tile.href} className="font-display text-body font-bold text-ink hover:underline">
+                          {tile.name}
+                        </Link>
+                        {tile.soon && <SoonBadge className="ml-2 align-middle" />}
+                        <p className="mt-1 text-muted">{tile.tagline}</p>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               ))}
-            </dl>
+            </div>
           </div>
         </div>
       </Section>
@@ -66,7 +68,7 @@ export default async function AboutPage() {
         <div className="max-w-3xl">
           <h2 className="hl-h2">Why it works together</h2>
           <p className="mt-4 text-[1.0625rem]">
-            Because we supply construction materials ourselves, we understand building from the inside: prices, quality, timelines and the problems people face. That knowledge shapes every part of the platform, and each service leads to the next, from a plot of land to a finished, insured and well-kept home.
+            Because we supply construction materials ourselves, we understand building from the inside: prices, quality, timelines and the problems people face. That knowledge shapes everything we do, and each service leads naturally to the next, from a plot of land to a finished, insured and well-kept home.
           </p>
         </div>
       </Section>

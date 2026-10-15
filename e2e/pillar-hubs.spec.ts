@@ -14,26 +14,39 @@ const HUBS: [string, string][] = [
   ['/advice', 'Knowledge & Advice'],
 ]
 
-test('each new hub shows what it does, its modes, a From abroad panel and next steps', async ({ page }) => {
+test('each service page shows what it does, an abroad panel and next steps, in customer language', async ({ page }) => {
   for (const [path, name] of HUBS) {
     const res = await page.goto(path)
     expect(res?.status(), path).toBe(200)
-    await expect(page.getByText(new RegExp(`Pillar \\d+ · ${name.replace(/&/g, '&')}`, 'i'))).toBeVisible()
-    await expect(page.getByRole('list', { name: 'How this is provided' }).first()).toBeVisible()
-    await expect(page.getByRole('heading', { name: /^From abroad\?/ })).toBeVisible()
+    await expect(page.locator('section.hl-blueprint .hl-eyebrow').first()).toHaveText(name)
+    await expect(page.locator('h2[id^="abroad-"]')).toHaveText(/\?$/)
+    await expect(page.locator('h2[id^="abroad-"]')).not.toContainText('From abroad?')
     await expect(page.getByRole('heading', { name: 'Your next steps' })).toBeVisible()
+    await expect(page.locator('main')).not.toContainText(/Pillar \d|Provided by HagerLand|Trusted partners/)
     await expect(page.locator('link[rel=canonical]')).toHaveAttribute('href', new RegExp(`${path}$`))
   }
   await page.goto('/buy')
-  await expect(page.getByRole('list', { name: 'How this is provided' }).first()).toHaveText(/Provided by HagerLand\s*Trusted partners/)
-  await expect(page.getByRole('heading', { name: 'What HagerLand does for you' })).toBeVisible()
+  await expect(page.getByText('By HagerLand', { exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'What we do for you' })).toBeVisible()
   await expect(page.getByRole('link', { name: /Sell with HagerLand/ }).first()).toBeVisible()
+  await expect(page.getByRole('link', { name: /Property Finance.*Register interest/ })).toHaveAttribute('href', '/finance#register')
+})
+
+test('Knowledge & Advice links only to pages that have content; empty guide pages point to help and the team', async ({ page }) => {
+  const { count } = await db().from('guides').select('id', { count: 'exact', head: true }).eq('status', 'published')
+  test.skip((count ?? 0) > 0, 'a guide was published by an earlier run')
+  await page.goto('/advice')
+  await expect(page.locator('main').getByRole('link', { name: /Read the guides|^Guides|Process checklists|Glossary/ })).toHaveCount(0)
+  await expect(page.locator('main').getByRole('link', { name: /Help & FAQs/ }).first()).toBeVisible()
+  await page.goto('/advice/checklists')
+  await expect(page.locator('main').getByRole('link', { name: 'Help & FAQs' })).toHaveAttribute('href', '/help')
+  await expect(page.locator('main').getByRole('link', { name: 'Ask our team' })).toHaveAttribute('href', '/contact')
 })
 
 test('existing pages that act as hubs gain the abroad panel and next steps', async ({ page }) => {
   for (const path of ['/supplies', '/finance', '/insurance', '/jobs']) {
     await page.goto(path)
-    await expect(page.getByRole('heading', { name: /^From abroad\?/ }), path).toBeVisible()
+    await expect(page.locator('h2[id^="abroad-"]'), path).toBeVisible()
   }
   await page.goto('/jobs')
   await expect(page.getByRole('heading', { name: 'Recruitment and placement by HagerLand' })).toBeVisible()
@@ -70,7 +83,7 @@ test('visibility: interest only is coming soon and noindex; all modes off is hid
     expect(sitemap).not.toContain('/advice<')
     expect(sitemap).toContain('/buy<')
     await page.goto('/')
-    await expect(page.locator('section[aria-labelledby="ecosystem-title"]').getByText('Knowledge & Advice')).toHaveCount(0)
+    await expect(page.locator('section[aria-labelledby="services-title"]').getByText('Knowledge & Advice')).toHaveCount(0)
   } finally {
     await setPillarModes('advice', { direct: true, interest: false })
     await page.goto('/roodber8/pillars')

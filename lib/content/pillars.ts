@@ -2,10 +2,10 @@ import type { PillarKey } from '@/lib/pillars'
 import type { VerticalKey } from '@/lib/verticals'
 
 /**
- * Copy for each pillar hub (spec 26.4, 26.11): what it does, primary actions, deeper pages, a "From abroad?" panel and
- * cross-pillar next steps. Plain statements only: no prices, counts or claims that are not true today.
+ * Copy for each service page (spec 26.4, 26.11): what it does, primary actions, deeper pages, an "abroad" panel and
+ * next steps. Plain statements only: no prices, counts or claims that are not true today.
  * `needs` hides a link while the area it leads to is hidden; `agency` links show only while HagerLand's estate agency
- * is on for that side (sales or lettings).
+ * is on for that side (sales or lettings); `content` links show only once that kind of guide has been published.
  */
 export interface HubLink {
   label: string
@@ -14,14 +14,21 @@ export interface HubLink {
   icon?: string
   needs?: VerticalKey
   agency?: 'sales' | 'lettings'
+  /** Published guides of this kind must exist ('any' = any published guide). */
+  content?: 'any' | 'checklists' | 'glossary'
 }
 
 export interface PillarContent {
   headline: string
   actions: HubLink[]
-  /** Deeper pages, grouped by the mode that delivers them. */
+  /** Deeper pages: what HagerLand does itself, then what visitors search and compare. */
   direct: HubLink[]
   aggregate: HubLink[]
+  /** Heading for the second group when "Search and compare" does not fit. */
+  aggregateTitle?: string
+  /** Heading and text of the register-interest section while the service itself is open. */
+  interestTitle?: string
+  interestText?: string
   abroad: { title: string; text: string; links: HubLink[] }
   next: PillarKey[]
   /** Coming-soon copy, used while only Interest capture is on. */
@@ -112,6 +119,9 @@ export const PILLAR_CONTENT: Record<PillarKey, PillarContent> = {
       ],
     },
     next: ['finance', 'supplies', 'insurance', 'maintain'],
+    aggregateTitle: 'Find the right people',
+    interestTitle: 'Hear first about HagerLand’s own developments',
+    interestText: 'We intend to build carefully chosen homes ourselves. Register your interest to hear first about locations, plans and prices. No obligation.',
     soon: { headline: 'Build & Develop opens soon.', points: ['Contractors, architects and engineers with quotes on request.', 'One brief for your whole building project.'] },
   },
   maintain: {
@@ -121,6 +131,7 @@ export const PILLAR_CONTENT: Record<PillarKey, PillarContent> = {
       { label: 'Emergency repairs', href: '/repairs-maintenance#emergency', icon: 'siren', needs: 'repairs-maintenance' },
     ],
     direct: [{ label: 'Coordinated by HagerLand', href: '/repairs-maintenance', text: 'We check every request and can send our own team as well as, or instead of, a trusted tradesperson.', icon: 'shield-check', needs: 'repairs-maintenance' }],
+    aggregateTitle: 'Find a tradesperson',
     aggregate: [
       { label: 'Repairs & maintenance', href: '/repairs-maintenance', text: 'Plumbing, electrical, roofing, cleaning and more.', icon: 'wrench', needs: 'repairs-maintenance' },
       { label: 'Tradespeople', href: '/professionals/trades', text: 'Electricians, plumbers, tilers and other trades.', icon: 'hammer', needs: 'professionals' },
@@ -146,7 +157,8 @@ export const PILLAR_CONTENT: Record<PillarKey, PillarContent> = {
       { label: 'HagerLand Property Care', href: '/diaspora/property-care', text: 'Inspections with photo reports, tenants, rent collection and maintenance.', icon: 'key-round', needs: 'diaspora' },
       { label: 'Owner portal', href: '/owner', text: 'Owners of properties we manage see inspections, statements and documents.', icon: 'layout-dashboard' },
     ],
-    aggregate: [{ label: 'Property managers', href: '/professionals/property-management', text: 'Third-party property managers.', icon: 'users', needs: 'professionals' }],
+    aggregateTitle: 'Other property managers',
+    aggregate: [{ label: 'Property managers', href: '/professionals/property-management', text: 'Independent property managers across Ethiopia.', icon: 'users', needs: 'professionals' }],
     abroad: {
       title: 'Own property in Ethiopia and live abroad?',
       text: 'HagerLand Property Care was made for you: regular inspections with photos, tenant finding, rent statements and repairs, without relying on friends and relatives.',
@@ -174,20 +186,22 @@ export const PILLAR_CONTENT: Record<PillarKey, PillarContent> = {
     soon: { headline: 'Property insurance is coming soon.', points: [] },
   },
   advice: {
-    headline: 'Clear, practical knowledge for every step of the property journey.',
+    headline: 'Clear, practical advice before you buy, build or rent.',
     actions: [
-      { label: 'Read the guides', href: '/guides', icon: 'book-open' },
+      { label: 'Read the guides', href: '/guides', icon: 'book-open', content: 'any' },
+      { label: 'Help & FAQs', href: '/help', icon: 'circle-help' },
       { label: 'Market insight', href: '/advice/market-insight', icon: 'chart-column' },
     ],
     direct: [
-      { label: 'Guides', href: '/guides', text: 'Buying, renting, building and selling, step by step.', icon: 'book-open' },
-      { label: 'Market insight', href: '/advice/market-insight', text: 'Asking prices on HagerLand by area and type.', icon: 'chart-column' },
-      { label: 'Process checklists', href: '/advice/checklists', text: 'What to do, and in what order.', icon: 'list-checks' },
-      { label: 'Glossary', href: '/advice/glossary', text: 'Carta, lease, G+X, condominium and more.', icon: 'book-a' },
-      { label: 'Help & FAQs', href: '/help', text: 'Safety advice and answers to common questions.', icon: 'circle-help' },
+      { label: 'Guides', href: '/guides', text: 'Buying, renting, building and selling, step by step.', icon: 'book-open', content: 'any' },
+      { label: 'Process checklists', href: '/advice/checklists', text: 'What to do, and in what order.', icon: 'list-checks', content: 'checklists' },
+      { label: 'Glossary', href: '/advice/glossary', text: 'Carta, lease, G+X, condominium and more.', icon: 'book-a', content: 'glossary' },
+      { label: 'Help & FAQs', href: '/help', text: 'Staying safe, checking documents and answers to common questions.', icon: 'circle-help' },
+      { label: 'Market insight', href: '/advice/market-insight', text: 'What sellers and landlords are asking, by area and type.', icon: 'chart-column' },
+      { label: 'Ask our team', href: '/contact', text: 'A question about buying, building or renting? Ask us.', icon: 'message-circle' },
     ],
     aggregate: [],
-    abroad: { title: 'Learning from abroad?', text: 'Our guides explain each step in plain English, including what you can do remotely and what needs a visit or a representative.', links: [{ label: 'Diaspora services', href: '/diaspora', needs: 'diaspora' }] },
+    abroad: { title: 'Planning from abroad?', text: 'We explain each step in plain English, including what you can do remotely and what needs a visit or a representative.', links: [{ label: 'Diaspora services', href: '/diaspora', needs: 'diaspora' }] },
     next: ['buy', 'rent', 'build', 'finance'],
     soon: { headline: 'Knowledge & Advice opens soon.', points: ['Guides, checklists and market insight.'] },
   },

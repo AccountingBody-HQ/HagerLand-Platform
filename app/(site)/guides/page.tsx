@@ -2,6 +2,7 @@ import { BookOpen } from 'lucide-react'
 import { listGuides } from '@/lib/data/guides'
 import { GUIDE_TOPICS } from '@/lib/guides'
 import { buildMetadata } from '@/lib/seo'
+import { ButtonLink } from '@/components/ui/Button'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { Container, Section, SectionHeader } from '@/components/ui/Layout'
 import { GuideList } from '@/components/guides/GuideList'
@@ -33,8 +34,14 @@ export default async function GuidesPage() {
         <Container className="py-10">
           <div className="rounded-lg border border-dashed border-border-strong bg-white p-8 text-center">
             <BookOpen className="mx-auto size-8 text-green" aria-hidden />
-            <h2 className="hl-h3 mt-3">Our first guides are being written</h2>
-            <p className="mx-auto mt-2 max-w-md text-muted">Check back soon.</p>
+            <h2 className="hl-h3 mt-3">Our first guides are on their way</h2>
+            <p className="mx-auto mt-2 max-w-md text-muted">We are finishing step-by-step guides to buying, renting and building in Ethiopia. In the meantime, our help pages cover staying safe and checking documents, and our team is happy to answer your questions.</p>
+            <div className="mx-auto mt-6 flex max-w-md flex-col gap-3 sm:flex-row [&>*]:sm:flex-1">
+              <ButtonLink href="/help">Help & FAQs</ButtonLink>
+              <ButtonLink href="/contact" variant="secondary">
+                Ask our team
+              </ButtonLink>
+            </div>
           </div>
         </Container>
       ) : (

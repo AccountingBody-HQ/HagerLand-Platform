@@ -21,12 +21,15 @@ export default async function CompanyEditorPage() {
   const loaded = await loadActiveOrg()
   if (!loaded) {
     return (
-      <EmptyState
-        icon={<Store />}
-        title="You don't have a business profile yet"
-        description="Create one to appear in the directory, show your work and receive enquiries."
-        actions={<ButtonLink href="/onboarding?business=1">Create a business profile</ButtonLink>}
-      />
+      <div className="space-y-6">
+        <AccountPageHeader title="Business profile" />
+        <EmptyState
+          icon={<Store />}
+          title="You don't have a business profile yet"
+          description="Create one to appear in the directory, show your work and receive enquiries."
+          actions={<ButtonLink href="/onboarding?business=1">Create a business profile</ButtonLink>}
+        />
+      </div>
     )
   }
   const { membership, org, defaults } = loaded

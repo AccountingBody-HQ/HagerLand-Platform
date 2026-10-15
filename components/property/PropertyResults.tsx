@@ -78,9 +78,9 @@ export async function PropertyResults({ ctx }: { ctx: ResultsContext }) {
 
         <div className="min-w-0">
           <div className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between lg:pt-0">
-            <p className="font-semibold text-ink" aria-live="polite">
+            <h2 className="font-sans text-body font-semibold text-ink" aria-live="polite">
               {countLine}
-            </p>
+            </h2>
             <SortSelect basePath={ctx.basePath} filters={lf} />
           </div>
           <div className="mb-4 flex flex-wrap items-start gap-2">
