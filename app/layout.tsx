@@ -1,71 +1,49 @@
-import type { Metadata } from 'next'
-import { Inter, IBM_Plex_Mono, Manrope } from 'next/font/google'
+import type { Metadata, Viewport } from 'next'
+import { Inter, Manrope, Noto_Sans_Ethiopic } from 'next/font/google'
 import './globals.css'
-import { HLLanguageProvider } from '@/components/HLLanguageContext'
+import { brand } from '@/lib/brand'
+import { SITE_URL } from '@/lib/site'
+import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
+import { ToastProvider } from '@/components/ui/Toast'
+import { UtmCapture } from '@/components/enquiry/UtmCapture'
+import { getLocale } from '@/lib/i18n/server'
+import { LocaleProvider } from '@/lib/i18n/client'
 
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-})
+const inter = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'optional' })
+const manrope = Manrope({ subsets: ['latin'], weight: ['600', '700', '800'], variable: '--font-display', display: 'optional' })
+const ethiopic = Noto_Sans_Ethiopic({ subsets: ['ethiopic'], weight: ['400', '600'], variable: '--font-ethiopic', display: 'swap', preload: false })
 
-const plexMono = IBM_Plex_Mono({
-  subsets: ['latin'],
-  weight: ['400', '500'],
-  variable: '--font-plex-mono',
-})
-
-const manrope = Manrope({
-  subsets: ['latin'],
-  weight: ['700', '800'],
-  variable: '--font-manrope',
-})
 export const metadata: Metadata = {
-  title: {
-    default: 'HagerLand — Where Ethiopia Does Business',
-    template: '%s | HagerLand',
-  },
-  description:
-    "Financial markets, verified businesses, products made in Ethiopia, and opportunities across the diaspora. Ethiopia's business and financial platform — built for Ethiopia, open to the world.",
-  metadataBase: new URL('https://www.hagerland.com'),
-  openGraph: {
-    siteName: 'HagerLand',
-    type: 'website',
-    locale: 'en_GB',
-  },
+  metadataBase: new URL(SITE_URL),
+  title: { default: `${brand.name} — ${brand.titleLine}`, template: `%s | ${brand.name}` },
+  description: `${brand.masterLine} ${brand.audienceLine}`,
+  applicationName: brand.name,
+  openGraph: { siteName: brand.name, type: 'website', locale: 'en_US', images: [{ url: '/og/default', width: 1200, height: 630 }] },
+  twitter: { card: 'summary_large_image', images: ['/og/default'] },
+  formatDetection: { telephone: false },
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+/** Vercel serves the analytics scripts; elsewhere (local builds, tests) they would 404. */
+const onVercel = Boolean(process.env.VERCEL)
+
+export const viewport: Viewport = {
+  themeColor: '#152238',
+  width: 'device-width',
+  initialScale: 1,
+}
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale()
   return (
-    <html lang="en">
-      <head>
-        <script
-          src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
-          async
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              function googleTranslateElementInit() {
-                new google.translate.TranslateElement(
-                  { pageLanguage: 'en', includedLanguages: 'am,om,en', autoDisplay: false, layout: google.translate.TranslateElement.InlineLayout.SIMPLE },
-                  'google_translate_element'
-                );
-              }
-            `,
-          }}
-        />
-      </head>
-      <body
-        className={`${inter.variable} ${plexMono.variable} ${manrope.variable} font-sans bg-bg text-ink`}
-      >
-        <div id="google_translate_element" style={{ display: 'none' }} />
-        <HLLanguageProvider>
-          {children}
-        </HLLanguageProvider>
+    <html lang={locale} className={`${inter.variable} ${manrope.variable} ${ethiopic.variable}`}>
+      <body className="min-h-dvh font-sans antialiased">
+        <LocaleProvider locale={locale}>
+          <ToastProvider>{children}</ToastProvider>
+        </LocaleProvider>
+        <UtmCapture />
+        {onVercel && <Analytics />}
+        {onVercel && <SpeedInsights />}
       </body>
     </html>
   )

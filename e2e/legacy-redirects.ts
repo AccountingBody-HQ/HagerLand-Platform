@@ -1,0 +1,20 @@
+/** Old-site addresses and where they now redirect permanently (Section 20). Shared with the production smoke tests. */
+export const LEGACY_REDIRECTS: [string, string][] = [
+  ['/housing', '/property'],
+  ['/housing/abc', '/property'],
+  ['/business', '/professionals'],
+  ['/business/123', '/professionals'],
+  ['/delivery', '/professionals'],
+  ['/made-in-ethiopia', '/supplies'],
+  ['/money', '/'],
+  ['/birrbank/rates', '/'],
+  ['/jobs/2b4c1d2e-1111-2222-3333-444455556666', '/jobs'],
+  ['/jobs/post', '/jobs'],
+  ['/cars/1', '/'],
+  ['/tutors', '/'],
+  ['/community', '/'],
+  ['/events', '/'],
+  ['/edit-link', '/login'],
+  ['/property/post', '/list-with-us'],
+  ['/property/2b4c1d2e-1111-2222-3333-444455556666', '/property/for-sale'],
+]

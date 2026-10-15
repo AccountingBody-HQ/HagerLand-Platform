@@ -1,0 +1,2 @@
+-- expect: 12|22|t|3|0
+select (select count(*) from public.locations where level = 'country'), (select count(*) from public.locations where country_code <> 'ET' and level = 'city'), (select count(*) from public.locations where country_code = 'ET') >= 39, (select count(*) from information_schema.columns where table_schema = 'public' and table_name = 'organisations' and column_name in ('country_code', 'currency', 'serves_diaspora')), (select count(*) from public.exchange_rates);

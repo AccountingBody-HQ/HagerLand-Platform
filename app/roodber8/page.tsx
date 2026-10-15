@@ -1,212 +1,119 @@
-export const dynamic = 'force-dynamic'
-
-import { cookies } from 'next/headers'
-import { verifySessionToken, SESSION_COOKIE } from '@/lib/admin-auth'
-import { supabaseAdmin } from '@/lib/supabase-admin'
-import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { requireAdminPage } from '@/lib/admin/guard'
+import { queueCounts } from '@/lib/admin/counts'
+import { getAdminSupabase } from '@/lib/supabase/admin'
+import { formatNumber, relativeTime } from '@/lib/format'
+import { AdminHeader, Panel } from '@/components/admin/AdminUi'
+import { getAdminSession } from '@/lib/admin-auth'
+import { ROLE_LABEL, roleCanAccess } from '@/lib/admin/roles'
+import { ADMIN_NAV } from '@/components/admin/admin-nav-items'
+import { FormAlert } from '@/components/forms/FormParts'
 
-const C = {
-  bg: '#080d1a', panel: '#0d1424', border: '#1a2238',
-  text: '#ffffff', muted: '#94a3b8', faint: '#475569',
-  green: '#1C7C4C', greenSoft: 'rgba(28,124,76,0.12)',
-  gold: '#B8862E', goldSoft: 'rgba(184,138,46,0.12)',
-  danger: '#ef4444',
+export const metadata = { title: 'Dashboard' }
+
+function Kpi({ label, value, href, tone }: { label: string; value: number; href?: string; tone?: 'alert' }) {
+  const body = (
+    <>
+      <p className="text-small text-muted">{label}</p>
+      <p className={`mt-1 font-display text-h2 font-bold tabular-nums ${tone === 'alert' && value > 0 ? 'text-warning-dark' : 'text-ink'}`}>{formatNumber(value)}</p>
+    </>
+  )
+  return href ? (
+    <Link href={href} className="block rounded-lg border border-border bg-white p-4 hover:border-green">
+      {body}
+    </Link>
+  ) : (
+    <div className="rounded-lg border border-border bg-white p-4">{body}</div>
+  )
 }
 
-const SECTIONS = [
-  { table: 'companies', label: 'Businesses', color: '#1C7C4C', href: '/roodber8/businesses' },
-  { table: 'jobs',      label: 'Jobs',       color: '#3b82f6', href: '/roodber8/jobs' },
-  { table: 'housing',   label: 'Housing',    color: '#8b5cf6', href: '/roodber8/housing' },
-  { table: 'money',     label: 'Money',      color: '#f59e0b', href: '/roodber8/money' },
-  { table: 'cars',      label: 'Cars',       color: '#ec4899', href: '/roodber8/cars' },
-  { table: 'tutors',    label: 'Tutors',     color: '#14b8a6', href: '/roodber8/tutors' },
-  { table: 'community', label: 'Diaspora Network', color: '#f97316', href: '/roodber8/community' },
-  { table: 'events',    label: 'Events',     color: '#a855f7', href: '/roodber8/events' },
-  { table: 'delivery',  label: 'Delivery',   color: '#0ea5e9', href: '/roodber8/delivery' },
-  { table: 'made_in_ethiopia', label: 'Made in Ethiopia', color: '#B8862E', href: '/roodber8/made-in-ethiopia' },
-] as const
-
-export default async function AdminPage() {
-  const token = cookies().get(SESSION_COOKIE)?.value
-  const isAuth = verifySessionToken(token)
-
-  if (!isAuth) redirect('/roodber8-login')
-
-  // Fetch all stats in parallel
-  const [pendingResults, activeResults] = await Promise.all([
-    Promise.all(SECTIONS.map(s => supabaseAdmin.from(s.table).select('id', { count: 'exact', head: true }).eq('status', 'pending'))),
-    Promise.all(SECTIONS.map(s => supabaseAdmin.from(s.table).select('id', { count: 'exact', head: true }).eq('status', 'active'))),
+export default async function AdminDashboard(props: { searchParams: Promise<{ denied?: string }> }) {
+  await requireAdminPage()
+  const sp = await props.searchParams
+  const session = await getAdminSession()
+  // Staff (other than owners) see a short start page with their own areas only (spec 26.15).
+  if (session?.kind === 'staff' && session.role !== 'owner') {
+    const areas = ADMIN_NAV.filter((i) => i.href !== '/roodber8' && roleCanAccess(session.role, i.href))
+    return (
+      <div className="space-y-5">
+        <AdminHeader title={`Hello, ${session.name.split(' ')[0]}`} description={ROLE_LABEL[session.role]} />
+        {sp.denied && <FormAlert>That area is not part of your role. Ask the owner if you need it.</FormAlert>}
+        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {areas.map((a) => (
+            <li key={a.href}>
+              <Link href={a.href} prefetch={false} className="block rounded-lg border border-border bg-white p-4 font-semibold text-ink hover:border-green">
+                {a.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+  const db = getAdminSupabase()
+  const now = Date.now()
+  const iso = (ms: number) => new Date(ms).toISOString()
+  const startOfDay = new Date()
+  startOfDay.setUTCHours(0, 0, 0, 0)
+  const head = { count: 'exact' as const, head: true }
+  const [q, enqToday, enq7, enqUnanswered, quotesOpen, signups7, expiring, live, audit] = await Promise.all([
+    queueCounts(),
+    db.from('enquiries').select('id', head).gte('created_at', startOfDay.toISOString()),
+    db.from('enquiries').select('id', head).gte('created_at', iso(now - 7 * 86_400_000)),
+    db.from('enquiries').select('id', head).is('first_viewed_at', null).lt('created_at', iso(now - 48 * 3_600_000)).not('target_type', 'in', '("general","hagerland_development")'),
+    db.from('quote_requests').select('id', head).in('status', ['submitted', 'in_review']),
+    db.from('profiles').select('id', head).gte('created_at', iso(now - 7 * 86_400_000)),
+    db.from('properties').select('id', head).eq('status', 'published').lt('expires_at', iso(now + 7 * 86_400_000)),
+    db.from('properties').select('id', head).eq('status', 'published'),
+    db.from('audit_log').select('id, action, entity_type, entity_label, created_at').order('created_at', { ascending: false }).limit(12),
   ])
-
-  const sectionStats = SECTIONS.map((s, i) => ({
-    ...s,
-    pending: pendingResults[i].count ?? 0,
-    active: activeResults[i].count ?? 0,
-  }))
-
-  const totalPending = sectionStats.reduce((sum, s) => sum + s.pending, 0)
-  const totalActive  = sectionStats.reduce((sum, s) => sum + s.active, 0)
-  const totalAll     = totalPending + totalActive
-
-  // Recent submissions across all sections
-  const { data: recentBusinesses } = await supabaseAdmin
-    .from('companies').select('id, company_name, trading_address_city, status, first_seen_at')
-    .order('first_seen_at', { ascending: false }).limit(4)
-
-  const { data: recentJobs } = await supabaseAdmin
-    .from('jobs').select('id, title, city, status, created_at')
-    .order('created_at', { ascending: false }).limit(3)
-
-  const { data: pendingClaims } = await supabaseAdmin
-    .from('business_claims')
-    .select('id, claimant_name, claimant_email, created_at, companies(company_name)')
-    .eq('status', 'verified')
-    .order('created_at', { ascending: false }).limit(5)
+  const n = (r: { count: number | null }) => r.count ?? 0
 
   return (
-    <div style={{ padding: 32, maxWidth: 1100, margin: '0 auto' }}>
-
-      {/* Header */}
-      <div style={{ marginBottom: 28 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 800, color: C.text, margin: '0 0 4px' }}>Command Centre</h1>
-        <p style={{ fontSize: 13, color: C.faint, margin: 0 }}>
-          {totalActive} active listings · {totalPending} pending review · {totalAll} total
-        </p>
-      </div>
-
-      {/* Top stat cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16, marginBottom: 28 }}>
-        {[
-          { label: 'Active Listings',   value: totalActive,  color: '#1C7C4C', bg: 'rgba(28,124,76,0.08)',   border: 'rgba(28,124,76,0.25)',   href: '/roodber8/review' },
-          { label: 'Pending Review',    value: totalPending, color: '#B8862E', bg: 'rgba(184,138,46,0.08)', border: 'rgba(184,138,46,0.3)',  href: '/roodber8/review' },
-          { label: 'Total Submissions', value: totalAll,     color: '#3b82f6', bg: 'rgba(59,130,246,0.08)', border: 'rgba(59,130,246,0.2)',  href: '/roodber8/review' },
-        ].map(card => (
-          <Link key={card.label} href={card.href} style={{ textDecoration: 'none', borderRadius: 16, padding: '20px 24px', border: `1px solid ${card.border}`, background: card.bg, display: 'block' }}>
-            <p style={{ fontSize: 36, fontWeight: 900, color: card.color, margin: '0 0 4px' }}>{card.value}</p>
-            <p style={{ fontSize: 12, fontWeight: 700, color: card.color, textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>{card.label}</p>
-          </Link>
-        ))}
-      </div>
-
-      {/* Section breakdown cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 28 }}>
-        {sectionStats.map(s => (
-          <Link key={s.table} href={s.href} style={{ textDecoration: 'none', borderRadius: 14, padding: '16px 18px', border: '1px solid #1a2238', background: '#0d1424', display: 'block' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-              <p style={{ fontSize: 13, fontWeight: 700, color: C.text, margin: 0 }}>{s.label}</p>
-              {s.pending > 0 && (
-                <span style={{ fontSize: 10, fontWeight: 700, color: C.gold, background: C.goldSoft, padding: '2px 7px', borderRadius: 20 }}>{s.pending} pending</span>
-              )}
-            </div>
-            <div style={{ display: 'flex', gap: 16 }}>
-              <div>
-                <p style={{ fontSize: 22, fontWeight: 800, color: s.color, margin: 0 }}>{s.active}</p>
-                <p style={{ fontSize: 11, color: C.faint, margin: 0 }}>active</p>
-              </div>
-              <div>
-                <p style={{ fontSize: 22, fontWeight: 800, color: s.pending > 0 ? C.gold : C.faint, margin: 0 }}>{s.pending}</p>
-                <p style={{ fontSize: 11, color: C.faint, margin: 0 }}>pending</p>
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
-
-      {/* Bottom grid: recent submissions + claims */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-
-        {/* Recent business submissions */}
-        <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 16, overflow: 'hidden' }}>
-          <div style={{ padding: '16px 20px', borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h2 style={{ fontSize: 13, fontWeight: 700, color: C.text, margin: 0 }}>Recent Business Submissions</h2>
-            <Link href='/roodber8/review' style={{ fontSize: 11, color: C.faint, textDecoration: 'none', fontWeight: 600 }}>View all →</Link>
-          </div>
-          {(recentBusinesses ?? []).length === 0 ? (
-            <div style={{ padding: 32, textAlign: 'center', color: C.faint, fontSize: 13 }}>No submissions yet.</div>
-          ) : (recentBusinesses ?? []).map((b, i, arr) => (
-            <div key={b.id} style={{ padding: '13px 20px', borderBottom: i < arr.length - 1 ? `1px solid ${C.border}` : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <p style={{ fontSize: 13, fontWeight: 600, color: C.text, margin: 0 }}>{b.company_name}</p>
-                <p style={{ fontSize: 11, color: C.faint, margin: '2px 0 0' }}>{b.trading_address_city ?? '—'}</p>
-              </div>
-              <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: b.status === 'active' ? '#1C7C4C' : C.gold, background: b.status === 'active' ? 'rgba(28,124,76,0.12)' : C.goldSoft, padding: '3px 8px', borderRadius: 20 }}>{b.status}</span>
-            </div>
-          ))}
+    <div className="space-y-6">
+      <AdminHeader title="Dashboard" description="What needs attention today." />
+      <section aria-label="Review queues">
+        <h2 className="mb-3 text-small font-semibold uppercase tracking-wide text-muted">Waiting for review</h2>
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
+          <Kpi label="Properties" value={q.properties} href="/roodber8/review?tab=properties" tone="alert" />
+          <Kpi label="Organisations" value={q.organisations} href="/roodber8/review?tab=organisations" tone="alert" />
+          <Kpi label="Developments" value={q.developments} href="/roodber8/review?tab=developments" tone="alert" />
+          <Kpi label="Pending changes" value={q.changes} href="/roodber8/review?tab=changes" tone="alert" />
+          <Kpi label="Photos" value={q.media} href="/roodber8/review?tab=media" tone="alert" />
+          <Kpi label="Portfolio" value={q.portfolio} href="/roodber8/review?tab=portfolio" tone="alert" />
+          <Kpi label="Claims" value={q.claims} href="/roodber8/review?tab=claims" tone="alert" />
+          <Kpi label="Verification" value={q.verification} href="/roodber8/review?tab=verification" tone="alert" />
+          <Kpi label="Reports" value={q.reports} href="/roodber8/review?tab=reports" tone="alert" />
         </div>
-
-        {/* Pending claims */}
-        <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 16, overflow: 'hidden' }}>
-          <div style={{ padding: '16px 20px', borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h2 style={{ fontSize: 13, fontWeight: 700, color: C.text, margin: 0 }}>
-              Business Claims {pendingClaims && pendingClaims.length > 0 && <span style={{ color: C.gold }}>({pendingClaims.length})</span>}
-            </h2>
-            <Link href='/roodber8/review' style={{ fontSize: 11, color: C.faint, textDecoration: 'none', fontWeight: 600 }}>View all →</Link>
-          </div>
-          {(pendingClaims ?? []).length === 0 ? (
-            <div style={{ padding: 32, textAlign: 'center', color: C.faint, fontSize: 13 }}>No pending claims.</div>
-          ) : (pendingClaims ?? []).map((c, i, arr) => (
-            <div key={c.id} style={{ padding: '13px 20px', borderBottom: i < arr.length - 1 ? `1px solid ${C.border}` : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <p style={{ fontSize: 13, fontWeight: 600, color: C.text, margin: 0 }}>
-                  {(Array.isArray(c.companies) ? c.companies[0]?.company_name : (c.companies as { company_name: string } | null)?.company_name) ?? 'Unknown'}
-                </p>
-                <p style={{ fontSize: 11, color: C.faint, margin: '2px 0 0' }}>{c.claimant_name} · {c.claimant_email}</p>
-              </div>
-              <span style={{ fontSize: 10, fontWeight: 700, color: C.gold, background: C.goldSoft, padding: '3px 8px', borderRadius: 20, textTransform: 'uppercase' }}>awaiting</span>
-            </div>
-          ))}
+      </section>
+      <section aria-label="Activity">
+        <h2 className="mb-3 text-small font-semibold uppercase tracking-wide text-muted">Activity</h2>
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+          <Kpi label="Enquiries today" value={n(enqToday)} href="/roodber8/enquiries" />
+          <Kpi label="Enquiries, 7 days" value={n(enq7)} href="/roodber8/enquiries" />
+          <Kpi label="Unanswered over 48 h" value={n(enqUnanswered)} href="/roodber8/enquiries?unanswered=1" tone="alert" />
+          <Kpi label="Open quotes" value={n(quotesOpen)} href="/roodber8/quotes" tone="alert" />
+          <Kpi label="New sign-ups, 7 days" value={n(signups7)} href="/roodber8/users" />
+          <Kpi label="Listings expiring in 7 days" value={n(expiring)} href="/roodber8/properties?expiring=1" />
         </div>
-
-        {/* Recent jobs */}
-        <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 16, overflow: 'hidden' }}>
-          <div style={{ padding: '16px 20px', borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h2 style={{ fontSize: 13, fontWeight: 700, color: C.text, margin: 0 }}>Recent Job Submissions</h2>
-            <Link href='/roodber8/review' style={{ fontSize: 11, color: C.faint, textDecoration: 'none', fontWeight: 600 }}>View all →</Link>
-          </div>
-          {(recentJobs ?? []).length === 0 ? (
-            <div style={{ padding: 32, textAlign: 'center', color: C.faint, fontSize: 13 }}>No job submissions yet.</div>
-          ) : (recentJobs ?? []).map((j, i, arr) => (
-            <div key={j.id} style={{ padding: '13px 20px', borderBottom: i < arr.length - 1 ? `1px solid ${C.border}` : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <p style={{ fontSize: 13, fontWeight: 600, color: C.text, margin: 0 }}>{j.title}</p>
-                <p style={{ fontSize: 11, color: C.faint, margin: '2px 0 0' }}>{j.city ?? '—'}</p>
-              </div>
-              <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: j.status === 'active' ? '#1C7C4C' : C.gold, background: j.status === 'active' ? 'rgba(28,124,76,0.12)' : C.goldSoft, padding: '3px 8px', borderRadius: 20 }}>{j.status}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Quick actions */}
-        <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 16, overflow: 'hidden' }}>
-          <div style={{ padding: '16px 20px', borderBottom: `1px solid ${C.border}` }}>
-            <h2 style={{ fontSize: 13, fontWeight: 700, color: C.text, margin: 0 }}>Quick Actions</h2>
-          </div>
-          <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {[
-              { label: 'Review all pending listings', sub: `${totalPending} awaiting approval`, href: '/roodber8/review', color: C.gold },
-              { label: 'Businesses', sub: `${sectionStats[0].active} active · ${sectionStats[0].pending} pending`, href: '/roodber8/businesses', color: '#1C7C4C' },
-              { label: 'Jobs', sub: `${sectionStats[1].active} active · ${sectionStats[1].pending} pending`, href: '/roodber8/jobs', color: '#3b82f6' },
-              { label: 'Housing', sub: `${sectionStats[2].active} active · ${sectionStats[2].pending} pending`, href: '/roodber8/housing', color: '#8b5cf6' },
-              { label: 'Money', sub: `${sectionStats[3].active} active · ${sectionStats[3].pending} pending`, href: '/roodber8/money', color: '#f59e0b' },
-              { label: 'Cars', sub: `${sectionStats[4].active} active · ${sectionStats[4].pending} pending`, href: '/roodber8/cars', color: '#ec4899' },
-              { label: 'Tutors', sub: `${sectionStats[5].active} active · ${sectionStats[5].pending} pending`, href: '/roodber8/tutors', color: '#14b8a6' },
-              { label: 'Diaspora Network', sub: `${sectionStats[6].active} active · ${sectionStats[6].pending} pending`, href: '/roodber8/community', color: '#f97316' },
-              { label: 'Events', sub: `${sectionStats[7].active} active · ${sectionStats[7].pending} pending`, href: '/roodber8/events', color: '#a855f7' },
-              { label: 'Delivery', sub: `${sectionStats[8].active} active · ${sectionStats[8].pending} pending`, href: '/roodber8/delivery', color: '#0ea5e9' },
-            ].map(action => (
-              <Link key={action.label} href={action.href}
-                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', borderRadius: 10, background: 'rgba(255,255,255,0.02)', border: '1px solid #1a2238', textDecoration: 'none' }}>
-                <div>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: C.text, margin: 0 }}>{action.label}</p>
-                  <p style={{ fontSize: 11, color: C.faint, margin: '2px 0 0' }}>{action.sub}</p>
-                </div>
-                <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke={action.color} strokeWidth='2'><path d='M9 18l6-6-6-6'/></svg>
-              </Link>
+        <p className="mt-2 text-small text-muted">{formatNumber(n(live))} live property listings.</p>
+      </section>
+      <Panel title="Recent admin activity" actions={<Link href="/roodber8/audit" className="text-small font-semibold text-green">Full audit log</Link>}>
+        {(audit.data ?? []).length === 0 ? (
+          <p className="text-small text-muted">No activity yet.</p>
+        ) : (
+          <ul className="divide-y divide-border text-small">
+            {(audit.data ?? []).map((a) => (
+              <li key={a.id} className="flex flex-wrap justify-between gap-2 py-2">
+                <span>
+                  <span className="font-semibold">{a.action}</span> {a.entity_label && <span className="text-muted">· {a.entity_label}</span>}
+                </span>
+                <span className="text-muted">{relativeTime(a.created_at)}</span>
+              </li>
             ))}
-          </div>
-        </div>
-      </div>
+          </ul>
+        )}
+      </Panel>
     </div>
   )
 }

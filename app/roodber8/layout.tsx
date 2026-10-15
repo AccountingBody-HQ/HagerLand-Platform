@@ -1,21 +1,62 @@
-import { headers } from 'next/headers'
-import { AdminSidebar } from '@/components/AdminSidebar'
+import { getAdminSession } from '@/lib/admin-auth'
+import Link from 'next/link'
+import { Search } from 'lucide-react'
+import { requireAdminPage } from '@/lib/admin/guard'
+import { queueCounts, totalQueue } from '@/lib/admin/counts'
+import { getAdminSupabase } from '@/lib/supabase/admin'
+import { AdminMobileMenu, AdminSidebar } from '@/components/admin/AdminNav'
+import { LogoMark } from '@/components/brand/Logo'
+import { adminLogoutAction } from './session-actions'
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const headersList = headers()
-  const pathname = headersList.get('x-invoke-path') ?? '/roodber8'
+export const dynamic = 'force-dynamic'
+export const metadata = { title: { default: 'Admin', template: '%s · HagerLand admin' }, robots: { index: false, follow: false } }
 
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  await requireAdminPage()
+  const db = getAdminSupabase()
+  const [queue, quotes, interest, requests, care, trade, email, agency, reviews] = await Promise.all([
+    queueCounts(),
+    db.from('quote_requests').select('id', { count: 'exact', head: true }).eq('status', 'submitted'),
+    db.from('interest_registrations').select('id', { count: 'exact', head: true }).eq('status', 'new'),
+    db.from('service_requests').select('id', { count: 'exact', head: true }).in('status', ['submitted', 'triaged']),
+    db.from('property_care_requests').select('id', { count: 'exact', head: true }).eq('status', 'new'),
+    db.from('trade_accounts').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+    db.from('email_outbox').select('id', { count: 'exact', head: true }).eq('status', 'failed'),
+    db.from('agency_viewings').select('id', { count: 'exact', head: true }).eq('status', 'requested'),
+    db.from('reviews').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+  ])
+  const badges = { review: totalQueue(queue), quotes: quotes.count ?? 0, interest: interest.count ?? 0, requests: requests.count ?? 0, care: care.count ?? 0, trade: trade.count ?? 0, email: email.count ?? 0, agency: agency.count ?? 0, reviews: reviews.count ?? 0 }
+  const session = await getAdminSession()
+  const role = session?.kind === 'staff' ? session.role : null
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', background: '#080d1a', fontFamily: 'system-ui,sans-serif' }}>
-      <AdminSidebar pathname={pathname} />
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-        <header style={{ height: 48, flexShrink: 0, display: 'flex', alignItems: 'center', padding: '0 24px', background: '#0d1424', borderBottom: '1px solid #1a2238', justifyContent: 'flex-end' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 20, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)' }}>
-            <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#34d399' }} />
-            <span style={{ color: '#34d399', fontSize: 11, fontWeight: 700 }}>Live</span>
-          </div>
-        </header>
-        <main style={{ flex: 1, overflowY: 'auto' }}>
+    <div className="flex min-h-dvh flex-col bg-stone-100">
+      <header className="sticky top-0 z-40 flex h-14 items-center gap-3 border-b border-white/10 bg-ink px-3 text-white">
+        <AdminMobileMenu badges={badges} role={role} />
+        <Link href="/roodber8" className="flex items-center gap-2 font-display font-extrabold">
+          <LogoMark className="size-7" /> <span className="hidden sm:inline">HagerLand admin</span>
+        </Link>
+        {session?.kind === 'staff' && <span className="ml-auto hidden text-small text-white/70 md:inline">{session.name} · {session.role}</span>}
+        {(!role || role === 'owner') && (
+        <form action="/roodber8/search" method="get" role="search" className="ml-auto flex max-w-md flex-1 items-center gap-2 rounded-md bg-white/10 px-3">
+          <Search className="size-4 text-white/60" aria-hidden />
+          <label htmlFor="admin-q" className="sr-only">
+            Search everything
+          </label>
+          <input id="admin-q" name="q" placeholder="Search name, reference, phone, email…" className="h-9 w-full bg-transparent text-small text-white placeholder:text-white/50 focus:outline-none" />
+        </form>
+        )}
+        <Link href="/" className="hidden text-small text-white/70 hover:text-white sm:inline">
+          View site
+        </Link>
+        <form action={adminLogoutAction}>
+          <button type="submit" className="h-9 rounded-md px-3 text-small font-semibold text-white/80 hover:bg-white/10 hover:text-white">
+            Sign out
+          </button>
+        </form>
+      </header>
+      <div className="flex flex-1">
+        <AdminSidebar badges={badges} role={role} />
+        <main id="main" className="min-w-0 flex-1 p-4 sm:p-6">
           {children}
         </main>
       </div>

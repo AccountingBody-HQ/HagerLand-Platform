@@ -1,0 +1,2 @@
+-- expect: 17|5|19|1
+select (select count(*) from public.service_categories where vertical_key = 'repairs-maintenance' and parent_id is not null), (select count(*) from public.service_categories where slug in ('house-builders', 'electrical-contractors', 'plumbing-contractors', 'interior-contractors', 'groundworks')), (select count(*) from public.service_categories where question_schema <> '[]'::jsonb), (select count(*) from information_schema.columns where table_schema = 'public' and table_name = 'organisations' and column_name = 'qualifications');

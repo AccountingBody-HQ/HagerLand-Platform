@@ -1,0 +1,293 @@
+import { brand } from '@/lib/brand'
+import { MODE_LABELS, activeModes, pillarHref, type Pillar, type PillarKey, type PillarMode } from '@/lib/pillars'
+import { verticalHref, type Vertical, type VerticalKey } from '@/lib/verticals'
+
+export interface NavLink {
+  label: string
+  href: string
+  description?: string
+  icon?: string
+  /** Set when the link leads to a coming-soon pillar or vertical. */
+  soon?: boolean
+}
+
+export interface NavGroup {
+  id: string
+  label: string
+  href: string
+  links: NavLink[]
+  featured?: NavLink[]
+  cta?: NavLink
+  /** Customer-facing mode labels of the pillar(s) behind this menu. */
+  modes?: string[]
+  soon?: boolean
+}
+
+/** One tile of the "All services" panel and the homepage ecosystem (spec 26.4). */
+export interface ServiceTile {
+  key: string
+  number?: number
+  name: string
+  tagline: string
+  href: string
+  icon: string
+  modes: string[]
+  soon: boolean
+}
+
+export interface AllServices {
+  pillars: ServiceTile[]
+  enablers: ServiceTile[]
+  layers: ServiceTile[]
+}
+
+/** What the header, drawer and footer need, built on the server from the registries. */
+export interface SiteNav {
+  main: NavGroup[]
+  /** Mobile drawer: every pillar and both layers with their links (spec 26.4: "the mobile drawer shows everything"). */
+  drawer: { tile: ServiceTile; links: NavLink[] }[]
+  all: AllServices
+  listWithUs: NavLink[]
+  extras: NavLink[]
+  abroad: NavLink | null
+}
+
+export const SUPPLY_TOP_CATEGORIES: NavLink[] = [
+  { label: 'Building materials', href: '/supplies/building-materials', icon: 'brick-wall' },
+  { label: 'Roofing', href: '/supplies/roofing', icon: 'house' },
+  { label: 'Plumbing', href: '/supplies/plumbing', icon: 'droplets' },
+  { label: 'Electrical', href: '/supplies/electrical', icon: 'zap' },
+  { label: 'Tiles & flooring', href: '/supplies/tiles-flooring', icon: 'layout-grid' },
+  { label: 'Bathroom & sanitaryware', href: '/supplies/bathroom', icon: 'bath' },
+  { label: 'Paint & decorating', href: '/supplies/paint-decorating', icon: 'paint-roller' },
+  { label: 'Solar & power', href: '/supplies/solar-power', icon: 'sun' },
+]
+
+/** Context the menus need beyond the registries. */
+export interface NavContext {
+  agencySales: boolean
+  agencyLettings: boolean
+  ownerPortal: boolean
+}
+
+/** Links inside each pillar's menu, in order. A link appears only when what it leads to is switched on. */
+export function pillarLinks(key: PillarKey, verticals: Vertical[], ctx: NavContext): NavLink[] {
+  const has = (k: VerticalKey) => verticals.some((v) => v.key === k)
+  const soon = (k: VerticalKey) => verticals.find((v) => v.key === k)?.status === 'coming_soon' || undefined
+  switch (key) {
+    case 'buy':
+      return [
+        { label: 'Property for sale', href: '/property/for-sale', description: 'Homes, apartments and villas to buy' },
+        { label: 'New developments', href: '/developments', description: 'Off-plan and new-build projects' },
+        { label: 'Land & plots', href: '/property/for-sale?type=land', description: 'Plots ready to build on' },
+        { label: 'Commercial', href: '/property/for-sale?type=commercial', description: 'Offices, shops and warehouses' },
+        { label: 'Investment property', href: '/property/for-sale?features=investment', description: 'Income and already-let property' },
+        ...(ctx.agencySales
+          ? [
+              { label: 'Sell with HagerLand', href: '/agency/sell', description: 'Our estate agency sells for you' },
+              { label: 'Buyer representation', href: '/agency/buyer-representation', description: 'We search and negotiate for you' },
+              { label: 'Book a valuation', href: '/agency/valuation', description: 'A HagerLand agent values your property' },
+            ]
+          : [{ label: 'Request a valuation', href: '/request-service/property-valuers', description: 'Quotes from property valuers' }]),
+        { label: 'Compare properties', href: '/property/compare', description: 'Up to four side by side' },
+        { label: 'Find an agent', href: '/agents', description: 'Estate agents and brokers' },
+      ]
+    case 'rent':
+      return [
+        { label: 'Property to rent', href: '/property/to-rent', description: 'Places to rent across Ethiopia' },
+        ...(ctx.agencyLettings
+          ? [
+              { label: 'Let with HagerLand', href: '/agency/let', description: 'We find and check tenants for you' },
+              { label: 'Landlord services', href: '/agency/landlords', description: 'Let only, let and manage, or management only' },
+            ]
+          : []),
+        { label: 'Renting: a guide for tenants', href: '/agency/tenants', description: 'Viewings, applications and tenancies' },
+        { label: 'Find an agent', href: '/agents', description: 'Letting agents and brokers' },
+      ]
+    case 'build':
+      return [
+        { label: 'Start a building project', href: '/build/project', description: 'One brief for design, building and materials' },
+        { label: 'Contractors & builders', href: '/contractors', description: 'Describe your project and get quotes' },
+        { label: 'Architects', href: '/professionals/architects', description: 'Design your home or project' },
+        { label: 'Engineers', href: '/professionals/design-consultancy', description: 'Structural, civil and MEP engineers' },
+        { label: 'Find a professional', href: '/professionals', description: 'Every professional service' },
+        { label: 'New developments', href: '/developments', description: 'Projects by developers' },
+        ...(has('our-developments') ? [{ label: 'Our Developments', href: '/our-developments', description: 'Homes HagerLand intends to develop', soon: soon('our-developments') }] : []),
+      ]
+    case 'maintain':
+      return [
+        { label: 'Repairs & maintenance', href: '/repairs-maintenance', description: 'Fixes, servicing and upkeep' },
+        { label: 'Emergency repairs', href: '/repairs-maintenance#emergency', description: 'Burst pipes, power faults, roof leaks' },
+        { label: 'Tradespeople', href: '/professionals/trades', description: 'Electricians, plumbers, tilers and more' },
+        { label: 'Request a service', href: '/request-service', description: 'Tell us what needs doing' },
+      ]
+    case 'manage':
+      return [
+        { label: 'HagerLand Property Care', href: '/diaspora/property-care', description: 'We look after your property' },
+        ...(ctx.ownerPortal ? [{ label: 'Owner portal', href: '/owner', description: 'For owners of properties we manage' }] : []),
+        { label: 'Property managers', href: '/professionals/property-management', description: 'Third-party managers' },
+      ]
+    case 'supplies':
+      return [
+        { label: 'Shop all categories', href: '/supplies' },
+        { label: 'Request a quote', href: '/supplies/quote' },
+        { label: 'Send your materials list', href: '/supplies/materials-list' },
+        { label: 'Special Buys', href: '/supplies/special-buys' },
+        { label: 'Trade accounts', href: '/supplies/trade' },
+        { label: 'Find suppliers', href: '/suppliers' },
+      ]
+    case 'advice':
+      return [
+        { label: 'Advice & guides', href: '/advice', description: 'Guides, checklists and market insight' },
+        { label: 'Guides', href: '/guides' },
+        { label: 'Help & FAQs', href: '/help' },
+      ]
+    default:
+      return []
+  }
+}
+
+const PILLAR_CTA: Partial<Record<PillarKey, NavLink>> = {
+  buy: { label: 'Sell or let your property', href: '/list-with-us#owners' },
+  rent: { label: 'List a property to rent', href: '/list-with-us#owners' },
+  build: { label: 'Join as a professional', href: '/list-with-us#professionals' },
+  maintain: { label: 'Join as a tradesperson', href: '/list-with-us#professionals' },
+  manage: { label: 'Request a Property Care consultation', href: '/diaspora/property-care#consultation' },
+  supplies: { label: 'Become a supplier', href: '/list-with-us#suppliers' },
+}
+
+function modeLabels(p: { direct: boolean; aggregate: boolean; interest: boolean }): string[] {
+  const modes = activeModes(p)
+  // Interest alone is shown as "Coming soon" by the Soon badge, so only list it next to a live mode.
+  const shown: PillarMode[] = modes.length === 1 && modes[0] === 'interest' ? [] : modes
+  return shown.map((m) => MODE_LABELS[m])
+}
+
+/** Header menus in lifecycle order (spec 26.4): Buy · Rent · Build · Maintain · Manage · Supplies · More. */
+export function buildMainNav(pillars: Pillar[], verticals: Vertical[], ctx: NavContext): NavGroup[] {
+  const groups: NavGroup[] = []
+  for (const key of ['buy', 'rent', 'build', 'maintain', 'manage', 'supplies'] as const) {
+    const p = pillars.find((x) => x.key === key)
+    if (!p) continue
+    groups.push({
+      id: key,
+      label: p.navLabel,
+      href: pillarHref(p),
+      links: p.status === 'live' ? pillarLinks(key, verticals, ctx) : [],
+      featured: key === 'supplies' && p.status === 'live' ? SUPPLY_TOP_CATEGORIES : undefined,
+      cta: p.status === 'live' ? PILLAR_CTA[key] : undefined,
+      modes: modeLabels(p),
+      soon: p.status === 'coming_soon',
+    })
+  }
+  const more = (['finance', 'insurance', 'advice', 'jobs'] as const).map((k) => pillars.find((x) => x.key === k)).filter((p): p is Pillar => Boolean(p))
+  if (more.length)
+    groups.push({
+      id: 'more',
+      label: 'More',
+      href: pillarHref(more[0]),
+      links: more.map((p) => ({ label: p.key === 'advice' ? 'Advice & guides' : p.name, href: pillarHref(p), description: p.tagline, icon: p.icon, soon: p.status === 'coming_soon' || undefined })),
+    })
+  return groups
+}
+
+/** The "All services" panel and homepage ecosystem: 8 lifecycle pillars, 2 enablers, 2 layers (diagram grouping). */
+export function buildAllServices(pillars: Pillar[], verticals: Vertical[]): AllServices {
+  const tile = (p: Pillar): ServiceTile => ({ key: p.key, number: p.number, name: p.name, tagline: p.tagline, href: pillarHref(p), icon: p.icon, modes: modeLabels(p), soon: p.status === 'coming_soon' })
+  const layer = (key: VerticalKey, name: string, tagline: string, icon: string): ServiceTile[] => {
+    const v = verticals.find((x) => x.key === key)
+    return v ? [{ key, name, tagline, href: verticalHref(v), icon, modes: [], soon: v.status === 'coming_soon' }] : []
+  }
+  return {
+    pillars: pillars.filter((p) => p.number <= 8).map(tile),
+    enablers: pillars.filter((p) => p.number > 8).map(tile),
+    layers: [
+      ...layer('diaspora', 'Diaspora Services', 'Buying, renting, building and managing from abroad', 'globe'),
+      ...layer('professionals', 'Professionals & Service Providers', 'Architects, engineers, contractors, agents, advisers, trades', 'users'),
+    ],
+  }
+}
+
+/** "List with us" menu. "Post a job" follows the Jobs pillar. */
+export function buildListWithUs(pillars: Pillar[]): NavLink[] {
+  const jobs = pillars.find((p) => p.key === 'jobs')
+  return [
+    { label: 'Sell or let a property', href: '/list-with-us#owners' },
+    { label: 'List your business', href: '/list-with-us#businesses' },
+    { label: 'Become a supplier', href: '/list-with-us#suppliers' },
+    { label: 'Join as a professional', href: '/list-with-us#professionals' },
+    ...(jobs ? [{ label: 'Post a job', href: jobs.status === 'live' ? '/account/jobs/new' : '/jobs#register', soon: jobs.status === 'coming_soon' || undefined }] : []),
+  ]
+}
+
+/** Extra links at the end of the mobile drawer. */
+export const DRAWER_EXTRAS: NavLink[] = [
+  { label: 'Request a service', href: '/request-service' },
+  { label: 'Request a quote', href: '/supplies/quote' },
+  { label: 'Find a professional', href: '/professionals' },
+  { label: 'Help & advice', href: '/help' },
+  { label: 'My account', href: '/account' },
+]
+
+export function buildSiteNav(pillars: Pillar[], verticals: Vertical[], ctx: NavContext): SiteNav {
+  const diaspora = verticals.find((v) => v.key === 'diaspora')
+  const all = buildAllServices(pillars, verticals)
+  const layerLinks: Record<string, NavLink[]> = {
+    diaspora: [
+      { label: 'Diaspora services', href: '/diaspora' },
+      { label: 'HagerLand Property Care', href: '/diaspora/property-care' },
+      { label: 'Services where you live', href: '/diaspora/services-abroad' },
+    ],
+    professionals: [
+      { label: 'All professionals', href: '/professionals' },
+      { label: 'Architects', href: '/professionals/architects' },
+      { label: 'Tradespeople', href: '/professionals/trades' },
+      { label: 'Estate agents', href: '/agents' },
+      { label: 'Developers', href: '/developers' },
+      { label: 'Suppliers', href: '/suppliers' },
+    ],
+  }
+  const drawer = [
+    ...[...all.pillars, ...all.enablers].map((tile) => {
+      const p = pillars.find((x) => x.key === tile.key)
+      return { tile, links: p && p.status === 'live' ? pillarLinks(p.key, verticals, ctx) : [] }
+    }),
+    ...all.layers.map((tile) => ({ tile, links: tile.soon ? [] : layerLinks[tile.key] ?? [] })),
+  ]
+  return {
+    main: buildMainNav(pillars, verticals, ctx),
+    drawer,
+    all,
+    listWithUs: buildListWithUs(pillars),
+    extras: DRAWER_EXTRAS,
+    abroad: diaspora ? { label: 'Living abroad?', href: verticalHref(diaspora), soon: diaspora.status === 'coming_soon' || undefined } : null,
+  }
+}
+
+/** Footer link columns, grouped by the property lifecycle. */
+export function buildFooterColumns(pillars: Pillar[], verticals: Vertical[]): { title: string; links: NavLink[] }[] {
+  const p = (k: PillarKey): NavLink[] => {
+    const x = pillars.find((y) => y.key === k)
+    return x ? [{ label: x.name, href: pillarHref(x), soon: x.status === 'coming_soon' || undefined }] : []
+  }
+  const v = (k: VerticalKey, label?: string): NavLink[] => {
+    const x = verticals.find((y) => y.key === k)
+    return x ? [{ label: label ?? x.name, href: verticalHref(x), soon: x.status === 'coming_soon' || undefined }] : []
+  }
+  return [
+    { title: 'Property', links: [...p('buy'), ...p('rent'), ...p('manage'), ...v('our-developments'), ...(pillars.some((x) => x.key === 'buy') ? [{ label: 'Find an agent', href: '/agents' }] : [])] },
+    { title: 'Build & maintain', links: [...p('build'), ...p('maintain'), ...p('supplies'), ...v('professionals', 'Professionals'), { label: 'Request a service', href: '/request-service' }] },
+    { title: 'Services', links: [...p('finance'), ...p('insurance'), ...p('jobs'), ...p('advice'), ...v('diaspora')] },
+    {
+      title: brand.name,
+      links: [
+        { label: 'About', href: '/about' },
+        { label: 'How it works', href: '/how-it-works' },
+        { label: 'List with us', href: '/list-with-us' },
+        { label: 'Advertise', href: '/advertise' },
+        { label: 'Contact', href: '/contact' },
+        { label: 'Help & FAQs', href: '/help' },
+      ],
+    },
+  ].filter((c) => c.links.length > 0)
+}

@@ -1,0 +1,2 @@
+-- expect: 3|10|4
+select (select count(*) from information_schema.tables where table_schema = 'public' and table_name in ('saved_items', 'saved_searches', 'quote_lists')), (select count(*) from pg_policies where schemaname = 'public' and tablename in ('saved_items', 'saved_searches', 'quote_lists')), (select jsonb_array_length(question_schema) from public.service_categories where slug = 'property-valuers');

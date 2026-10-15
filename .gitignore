@@ -11,6 +11,7 @@
 
 # next.js
 /.next/
+/.next-test/
 /out/
 
 # production
@@ -36,3 +37,14 @@ yarn-error.log*
 next-env.d.ts
 *.save
 .env*
+
+# database backups (contain personal data, never commit)
+/backups/
+*.dump
+
+# test output
+/e2e/.results/
+/smoke-prod/.results/
+/playwright-report/
+/test-results/
+/lighthouse/

@@ -1,0 +1,2 @@
+-- expect: 12|t|0028
+select (select count(*) from pg_tables where schemaname = 'public' and tablename in ('agency_contacts', 'applicant_requirements', 'agency_instructions', 'agency_valuations', 'agency_viewings', 'agency_offers', 'sale_progress_items', 'rental_applications', 'tenancies', 'agency_tasks', 'agency_activity', 'agency_documents')), (select count(*) = 1 from information_schema.columns where table_schema = 'public' and table_name = 'deals' and column_name = 'pillar_key'), (select version from public.schema_migrations where version = '0028');
