@@ -12,12 +12,14 @@ import { readUtm } from '@/components/enquiry/UtmCapture'
 import { COUNTRIES, OTHER_COUNTRY } from '@/lib/countries'
 import type { Option } from '@/lib/content/verticals'
 import type { VerticalKey } from '@/lib/verticals'
+import type { PillarKey } from '@/lib/pillars'
 import { track } from '@/lib/analytics'
 import { NoResetForm } from '@/components/forms/NoResetForm'
 
 /** "Register your interest" for a vertical (spec 24.2). */
 export function InterestForm({
   verticalKey,
+  pillarKey,
   verticalName,
   categories,
   categoryLabel = 'What are you interested in?',
@@ -28,6 +30,8 @@ export function InterestForm({
   submitLabel = 'Register my interest',
 }: {
   verticalKey: VerticalKey
+  /** Set on pillar hubs: the registration is filed under the pillar too (spec 26.3, 26.13). */
+  pillarKey?: PillarKey
   verticalName: string
   categories?: Option[]
   categoryLabel?: string
@@ -66,6 +70,7 @@ export function InterestForm({
   return (
     <NoResetForm action={action} className="space-y-4" noValidate>
       <input type="hidden" name="vertical_key" value={verticalKey} />
+      {pillarKey && <input type="hidden" name="pillar_key" value={pillarKey} />}
       <input type="hidden" name="utm" value={utm} />
       <input type="hidden" name="source_url" value={sourceUrl} />
       <Honeypot />

@@ -1,3 +1,4 @@
+import { PillarExtras } from '@/components/pillars/PillarHub'
 import Link from 'next/link'
 import { ArrowRight, ClipboardList, FileText, Truck } from 'lucide-react'
 import { getProductCategories } from '@/lib/data/reference'
@@ -167,6 +168,7 @@ export default async function SuppliesHub() {
           </Link>
         </div>
       </Section>
+      <PillarExtras pillarKey="supplies" />
     </>
   )
 }

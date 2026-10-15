@@ -11,6 +11,10 @@ import { DynamicIcon } from '@/components/ui/DynamicIcon'
 import { SoonBadge } from './SoonBadge'
 import { InterestForm } from './InterestForm'
 import { PartnerForm } from './PartnerForm'
+import { PillarExtras } from '@/components/pillars/PillarHub'
+import type { PillarKey } from '@/lib/pillars'
+
+const HUB_PILLAR: Partial<Record<Vertical['key'], PillarKey>> = { finance: 'finance', insurance: 'insurance', jobs: 'jobs', 'building-supplies': 'supplies' }
 
 /** Coming-soon pages are never indexed while the vertical is not live (spec 24.2). */
 export function comingSoonMetadata(v: Vertical): Metadata {
@@ -25,6 +29,8 @@ export function comingSoonMetadata(v: Vertical): Metadata {
 /** Designed "Coming soon" landing for a vertical: what, who for, how, register interest, become a partner. */
 export async function ComingSoonPage({ vertical }: { vertical: Vertical }) {
   const c = COMING_SOON[vertical.key]
+  // Finance, Insurance, Jobs and Supplies are also pillar hubs (spec 26.2): add the abroad panel and next steps.
+  const hubPillar = HUB_PILLAR[vertical.key]
   const all = await getVerticals()
   const related = c.related.filter((r) => {
     const key = verticalForPath(r.value)
@@ -129,6 +135,7 @@ export async function ComingSoonPage({ vertical }: { vertical: Vertical }) {
           </div>
         </Section>
       )}
+      {hubPillar && <PillarExtras pillarKey={hubPillar} />}
     </>
   )
 }

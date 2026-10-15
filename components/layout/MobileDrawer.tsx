@@ -1,9 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { ChevronDown } from 'lucide-react'
-import { buildListWithUs, DRAWER_EXTRAS, verticalLinks } from '@/lib/navigation'
-import { verticalHref, type Vertical } from '@/lib/verticals'
+import { ChevronDown, Globe } from 'lucide-react'
+import type { SiteNav } from '@/lib/navigation'
 import { Dialog } from '@/components/ui/Dialog'
 import { ButtonLink } from '@/components/ui/Button'
 import { DynamicIcon } from '@/components/ui/DynamicIcon'
@@ -11,13 +10,14 @@ import { SoonBadge } from '@/components/verticals/SoonBadge'
 import { AccountLink } from './AccountLink'
 import { LanguageSwitch } from './LanguageSwitch'
 import { useI18n } from '@/lib/i18n/client'
-import { localizeLink } from '@/lib/i18n/nav'
+import { localizeLink, localizeTile } from '@/lib/i18n/nav'
 
-/** Mobile menu: every visible vertical, then service shortcuts and "List with us" (spec 24.3). */
-export function MobileDrawer({ open, onClose, verticals, amharicOn = false }: { open: boolean; onClose: () => void; verticals: Vertical[]; amharicOn?: boolean }) {
+/** Mobile menu: every visible pillar and both layers with their links, then shortcuts and "List with us" (spec 26.4). */
+export function MobileDrawer({ open, onClose, nav, amharicOn = false }: { open: boolean; onClose: () => void; nav: SiteNav; amharicOn?: boolean }) {
   const { t, locale, href } = useI18n()
-  const listWithUs = buildListWithUs(verticals).map((l) => localizeLink(l, t, locale))
-  const extras = DRAWER_EXTRAS.map((l) => localizeLink(l, t, locale))
+  const listWithUs = nav.listWithUs.map((l) => localizeLink(l, t, locale))
+  const extras = nav.extras.map((l) => localizeLink(l, t, locale))
+  const abroad = nav.abroad ? localizeLink(nav.abroad, t, locale) : null
   return (
     <Dialog
       open={open}
@@ -34,23 +34,27 @@ export function MobileDrawer({ open, onClose, verticals, amharicOn = false }: { 
       }
     >
       <nav aria-label="Mobile">
+        {abroad && (
+          <Link href={abroad.href} onClick={onClose} className="mb-3 flex min-h-12 items-center gap-3 rounded-lg bg-green-tint px-4 font-semibold text-green-darker">
+            <Globe className="size-5" aria-hidden />
+            {abroad.label}
+          </Link>
+        )}
         <ul className="-mx-2 divide-y divide-border">
-          {verticals.map((v) => {
-            const links = verticalLinks(verticals, v.key)
-              .filter((l) => l.href !== verticalHref(v))
-              .map((l) => localizeLink(l, t, locale))
-            const vHref = href(verticalHref(v))
+          {nav.drawer.map(({ tile: raw, links: rawLinks }) => {
+            const tile = localizeTile(raw, t, locale)
+            const links = rawLinks.filter((l) => l.href !== raw.href).map((l) => localizeLink(l, t, locale))
             const label = (
               <span className="flex items-center gap-3">
-                <DynamicIcon name={v.icon} className="size-5 text-green" />
-                {t(v.name)}
-                {v.status === 'coming_soon' && <SoonBadge />}
+                <DynamicIcon name={tile.icon} className="size-5 text-green" />
+                {tile.name}
+                {tile.soon && <SoonBadge />}
               </span>
             )
             return (
-              <li key={v.key}>
+              <li key={tile.key}>
                 {links.length === 0 ? (
-                  <Link href={vHref} onClick={onClose} className="flex min-h-14 items-center px-2 text-body font-semibold">
+                  <Link href={tile.href} onClick={onClose} className="flex min-h-14 items-center px-2 text-body font-semibold">
                     {label}
                   </Link>
                 ) : (
@@ -61,14 +65,16 @@ export function MobileDrawer({ open, onClose, verticals, amharicOn = false }: { 
                     </summary>
                     <ul className="pb-3">
                       <li>
-                        <Link href={vHref} onClick={onClose} className="flex min-h-11 items-center rounded-md px-4 font-semibold text-green">
-                          {locale === 'am' ? t(v.name) : `All of ${v.name}`}
+                        <Link href={tile.href} onClick={onClose} className="flex min-h-11 items-center rounded-md px-4 font-semibold text-green">
+                          {locale === 'am' ? tile.name : `Overview: ${tile.name}`}
                         </Link>
                       </li>
+                      {tile.modes.length > 0 && <li className="px-4 pb-2 text-caption text-muted">{tile.modes.join(' · ')}</li>}
                       {links.map((l) => (
-                        <li key={`${v.key}-${l.href}`}>
-                          <Link href={l.href} onClick={onClose} className="flex min-h-11 items-center rounded-md px-4 text-ink hover:bg-stone-100">
+                        <li key={`${tile.key}-${l.href}`}>
+                          <Link href={l.href} onClick={onClose} className="flex min-h-11 items-center justify-between gap-2 rounded-md px-4 text-ink hover:bg-stone-100">
                             {l.label}
+                            {l.soon && <SoonBadge />}
                           </Link>
                         </li>
                       ))}

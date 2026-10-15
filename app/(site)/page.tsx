@@ -24,6 +24,9 @@ import { COMING_SOON } from '@/lib/content/verticals'
 import { SoonBadge } from '@/components/verticals/SoonBadge'
 import { InterestForm } from '@/components/verticals/InterestForm'
 import { GuidesTeaser } from '@/components/guides/GuidesTeaser'
+import { EcosystemDiagram } from '@/components/home/EcosystemDiagram'
+import { getSiteNav } from '@/lib/data/site-nav'
+import { getPillars } from '@/lib/data/pillars'
 import { getLocale } from '@/lib/i18n/server'
 import { translator } from '@/lib/i18n/translate'
 import { localizeHref } from '@/lib/i18n/config'
@@ -55,7 +58,7 @@ function featuredThenNewest(featured: PublicProperty[], newest: PublicProperty[]
 }
 
 export default async function HomePage() {
-  const [bole, services, settings, verticals] = await Promise.all([getLocationByPath('addis-ababa/bole'), getServiceCategories(), getSiteSettings(), getVerticals()])
+  const [bole, services, settings, verticals, siteNav, pillars] = await Promise.all([getLocationByPath('addis-ababa/bole'), getServiceCategories(), getSiteSettings(), getVerticals(), getSiteNav(), getPillars()])
   const live = {
     property: isLive(verticals, 'property'),
     supplies: isLive(verticals, 'building-supplies'),
@@ -91,18 +94,6 @@ export default async function HomePage() {
     live.supplies && { label: 'Request a materials quote', href: '/supplies/materials-list' },
     live.professionals && architects.total > 0 && { label: 'Find an architect', href: '/professionals/architects' },
   ].filter((x): x is { label: string; href: string } => Boolean(x))
-
-  // "Find land → finance → design → build → supply → insure → maintain → sell or rent" (spec 24.3).
-  const journey = [
-    { label: 'Find land', href: '/property/for-sale?type=land', vertical: 'property' as const },
-    { label: 'Finance', href: '/finance', vertical: 'finance' as const },
-    { label: 'Design', href: '/professionals/architects', vertical: 'professionals' as const },
-    { label: 'Build', href: '/contractors', vertical: 'contractors' as const },
-    { label: 'Supply', href: '/supplies', vertical: 'building-supplies' as const },
-    { label: 'Insure', href: '/insurance', vertical: 'insurance' as const },
-    { label: 'Maintain', href: '/repairs-maintenance', vertical: 'repairs-maintenance' as const },
-    { label: 'Sell or rent', href: '/list-with-us#owners', vertical: 'property' as const },
-  ].map((j) => ({ ...j, v: visibleVertical(verticals, j.vertical) }))
 
   const proofPoints = [
     { icon: ClipboardList, title: 'Every listing reviewed', text: 'Our team checks every listing before it goes live.' },
@@ -157,47 +148,8 @@ export default async function HomePage() {
       </section>
 
       <Section labelledBy="ecosystem-title">
-        <SectionHeader id="ecosystem-title" title={t('Everything around your property')} description={t('Services that work together, from finding land to selling or renting what you built.')} />
-        <ul className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
-          {verticals.map((v) => {
-            const gold = v.key === 'our-developments'
-            return (
-              <li key={v.key}>
-                <Link href={lh(verticalHref(v))} className={`group flex h-full flex-col rounded-xl border p-4 transition-shadow hover:shadow-md sm:p-5 ${gold ? 'border-gold/40 bg-gold-soft/50' : 'border-border bg-white'}`}>
-                  <span className="flex items-start justify-between gap-2">
-                    <span className={`flex size-11 items-center justify-center rounded-lg ${gold ? 'bg-gold text-white' : 'bg-green-soft text-green'}`}>
-                      <DynamicIcon name={v.icon} className="size-6" />
-                    </span>
-                    {v.status === 'coming_soon' && <SoonBadge />}
-                  </span>
-                  <span className="mt-4 font-display text-body font-bold text-ink sm:text-h3">{t(v.name)}</span>
-                  <span className="mt-1 text-small text-muted">{v.shortDescription ? t(v.shortDescription) : null}</span>
-                  <span className={`mt-auto inline-flex items-center gap-1 pt-4 text-small font-semibold ${gold ? 'text-gold-dark' : 'text-green'}`}>
-                    {v.status === 'live' ? t('Explore') : t('Register interest')} <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
-                  </span>
-                </Link>
-              </li>
-            )
-          })}
-        </ul>
-        <div className="mt-10 rounded-xl border border-border bg-stone-50 p-4 sm:p-6">
-          <h3 className="hl-eyebrow text-muted">{t('One journey')}</h3>
-          <ol className="mt-3 flex flex-wrap items-center gap-x-1 gap-y-2">
-            {journey.map((j, i) => (
-              <li key={j.label} className="flex items-center gap-1">
-                {j.v ? (
-                  <Link href={lh(j.href)} className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-white px-3.5 text-small font-semibold text-ink ring-1 ring-border hover:ring-green">
-                    {t(j.label)}
-                    {j.v.status === 'coming_soon' && <SoonBadge />}
-                  </Link>
-                ) : (
-                  <span className="inline-flex min-h-11 items-center rounded-full px-3.5 text-small font-semibold text-muted">{t(j.label)}</span>
-                )}
-                {i < journey.length - 1 && <ArrowRight className="size-4 text-subtle" aria-hidden />}
-              </li>
-            ))}
-          </ol>
-        </div>
+        <SectionHeader id="ecosystem-title" title={t('Property ecosystem')} description={t('Ten services around the property lifecycle, with HagerLand at the centre. Each one shows how it is provided today.')} />
+        <EcosystemDiagram all={siteNav.all} pillars={pillars} t={t} lh={lh} />
       </Section>
 
       {live.property && (

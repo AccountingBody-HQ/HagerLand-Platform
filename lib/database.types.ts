@@ -894,6 +894,7 @@ export type Database = {
           message: string | null
           name: string
           phone: string | null
+          pillar_key: string | null
           reference: string
           source_url: string | null
           status: string
@@ -919,6 +920,7 @@ export type Database = {
           message?: string | null
           name: string
           phone?: string | null
+          pillar_key?: string | null
           reference?: string
           source_url?: string | null
           status?: string
@@ -943,6 +945,7 @@ export type Database = {
           message?: string | null
           name?: string
           phone?: string | null
+          pillar_key?: string | null
           reference?: string
           source_url?: string | null
           status?: string
@@ -952,6 +955,20 @@ export type Database = {
           vertical_key?: string
         }
         Relationships: [
+          {
+            foreignKeyName: 'interest_registrations_pillar_key_fkey'
+            columns: ['pillar_key']
+            isOneToOne: false
+            referencedRelation: 'pillars'
+            referencedColumns: ['key']
+          },
+          {
+            foreignKeyName: 'interest_registrations_pillar_key_fkey'
+            columns: ['pillar_key']
+            isOneToOne: false
+            referencedRelation: 'pillars_public'
+            referencedColumns: ['key']
+          },
           {
             foreignKeyName: 'interest_registrations_vertical_key_fkey'
             columns: ['vertical_key']
@@ -4966,6 +4983,7 @@ export type Database = {
       setting_int: { Args: { fallback: number; setting_key: string }; Returns: number }
       sync_verticals_from_pillars: { Args: Record<PropertyKey, never>; Returns: undefined }
       tsquery_or_null: { Args: { q: string }; Returns: unknown }
+      vertical_pillar: { Args: { p_vertical: string }; Returns: string }
     }
     Enums: {
       account_type: 'personal' | 'business'

@@ -2,6 +2,12 @@
 export const PUBLIC_ROUTES = [
   '/',
   '/property',
+  '/buy',
+  '/rent',
+  '/build',
+  '/maintain',
+  '/manage',
+  '/advice',
   '/property/for-sale',
   '/property/to-rent',
   '/property/for-sale/addis-ababa/bole',

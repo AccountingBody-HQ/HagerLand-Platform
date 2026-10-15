@@ -6,6 +6,8 @@ import { countByAncestors, indexablePaths, SITEMAP_IDS, typePathCounts, type Sit
 import { log } from '@/lib/log'
 import { listTag } from '@/lib/revalidate'
 import { getVerticals } from '@/lib/data/verticals'
+import { getAgencyAvailability, getPillars } from '@/lib/data/pillars'
+import { pillarHref } from '@/lib/pillars'
 import { jobSitemapEntries } from '@/lib/data/jobs'
 import { listGuides } from '@/lib/data/guides'
 import { getBuildRates, getSiteSettings } from '@/lib/data/reference'
@@ -20,6 +22,8 @@ export async function generateSitemaps() {
 }
 
 const STATIC_PATHS = ['/', '/property', '/property/for-sale', '/property/to-rent', '/supplies', '/supplies/materials-list', '/professionals', '/agents', '/developers', '/suppliers', '/developments', '/our-developments', '/about', '/how-it-works', '/list-with-us', '/advertise', '/request-service', '/agency', '/agency/sell', '/agency/let', '/agency/buyer-representation', '/agency/property-sourcing', '/agency/developer-sales', '/diaspora/property-care', '/diaspora/services-abroad', '/contact', '/help', '/terms', '/privacy', '/cookies']
+const AGENCY_SALES_PATHS = ['/agency/sell', '/agency/buyer-representation', '/agency/property-sourcing', '/agency/developer-sales']
+const AGENCY_LETTINGS_PATHS = ['/agency/let']
 const LIMIT = 50_000
 
 type Entry = MetadataRoute.Sitemap[number]
@@ -54,7 +58,13 @@ async function build(id: SitemapId): Promise<MetadataRoute.Sitemap> {
   const min = await getSettingNumber('min_results_for_index', 3)
   switch (id) {
     case 'static': {
-      const paths = Array.from(new Set([...STATIC_PATHS, ...verticals.filter((v) => v.status === 'live').map(verticalHref)])).filter(isListed)
+      // Pillar hubs follow pillar visibility: only live pillars are listed; coming-soon hubs are noindex (spec 26.16).
+      const [pillars, agency] = await Promise.all([getPillars(), getAgencyAvailability()])
+      const livePillars = pillars.filter((p) => p.status === 'live').map(pillarHref)
+      const hiddenAgency = new Set([...(agency.sales ? [] : AGENCY_SALES_PATHS), ...(agency.lettings ? [] : AGENCY_LETTINGS_PATHS), ...(agency.any ? [] : ['/agency'])])
+      const paths = Array.from(new Set([...STATIC_PATHS, ...livePillars, ...verticals.filter((v) => v.status === 'live').map(verticalHref)]))
+        .filter(isListed)
+        .filter((p) => !hiddenAgency.has(p))
       // Amharic versions of the main pages, only while the Amharic locale is switched on (spec 25.2m).
       const amharic = (await getSiteSettings()).amharic_enabled === true ? paths.map((p) => localizeHref(p, 'am')) : []
       return [...paths.map((p) => entry(p, null, p === '/' ? 1 : 0.7)), ...amharic.map((p) => entry(p, null, 0.5))]

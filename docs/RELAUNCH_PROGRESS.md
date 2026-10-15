@@ -64,7 +64,7 @@ Authorised by AB on 15 Oct 2026 (brief: `docs/BRIEF_SECTION_26.md`, appended to 
 | WP | Title | Status | Date | Commit | Notes / deviations |
 |----|-------|--------|------|--------|--------------------|
 | S1 | Pillar registry, modes, stage gates, migration from verticals | done | 2026-10-15 | see git log | Migration 0027. RLS 143/143 local. pillars spec + unit tests passed. Pillar-controlled verticals follow the modes (Jobs now live) |
-| S2 | Navigation, pillar hubs, homepage ecosystem visual | todo | | | |
+| S2 | Navigation, pillar hubs, homepage ecosystem visual | done | 2026-10-15 | see git log | No migration. Header: 7 pillar menus + All services + Living abroad?; hubs /buy /rent /build /maintain /manage /advice; existing /supplies /finance /insurance /jobs gain the hub panels; homepage ecosystem diagram; "Part of …" link on deep pages. Nav links to pages built in S3–S7 (agency valuation/landlords/tenants, /build/project, /owner, /advice/*) go live with those packages; the link crawl is run in S12 |
 | S3 | Estate agency operations (admin CRM + public valuation/viewing/offer/apply + licence display) | todo | | | |
 | S4 | Rent & let lifecycle + tenancies | todo | | | |
 | S5 | Manage pillar + owner portal | todo | | | |

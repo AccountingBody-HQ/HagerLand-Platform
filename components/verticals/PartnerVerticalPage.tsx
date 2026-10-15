@@ -1,3 +1,4 @@
+import { PillarExtras } from '@/components/pillars/PillarHub'
 import { ShieldCheck } from 'lucide-react'
 import { getRequestGroups } from '@/lib/data/service-requests'
 import { COMING_SOON } from '@/lib/content/verticals'
@@ -51,6 +52,7 @@ export async function PartnerVerticalPage({ vertical }: { vertical: Vertical }) 
           </div>
         </Section>
       )}
+      <PillarExtras pillarKey={vertical.key === 'finance' ? 'finance' : 'insurance'} />
     </>
   )
 }

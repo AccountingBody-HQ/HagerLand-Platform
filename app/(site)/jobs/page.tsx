@@ -14,6 +14,10 @@ import { Combobox } from '@/components/ui/Combobox'
 import { Input, Select } from '@/components/ui/Field'
 import { Pagination } from '@/components/ui/Pagination'
 import { JobCard } from '@/components/jobs/JobCard'
+import { getPillar } from '@/lib/data/pillars'
+import { COMING_SOON } from '@/lib/content/verticals'
+import { ModeBadges, PillarExtras } from '@/components/pillars/PillarHub'
+import { InterestForm } from '@/components/verticals/InterestForm'
 
 export const revalidate = 300
 
@@ -49,7 +53,7 @@ export default async function JobsPage(props: { searchParams: Promise<Params> })
   const v = await getVertical('jobs')
   if (!v || v.status !== 'live') notFound()
   const f = clean(searchParams)
-  const [{ items, total }, loc] = await Promise.all([searchJobs({ q: f.q, category: f.category, type: f.type, location: f.loc, page: f.page }), f.loc ? getLocationByPath(f.loc) : Promise.resolve(null)])
+  const [{ items, total }, loc, pillar] = await Promise.all([searchJobs({ q: f.q, category: f.category, type: f.type, location: f.loc, page: f.page }), f.loc ? getLocationByPath(f.loc) : Promise.resolve(null), getPillar('jobs')])
   const totalPages = Math.ceil(total / 20)
   const hrefFor = (page: number) => {
     const qs = new URLSearchParams(Object.entries({ q: f.q, category: f.category, type: f.type, loc: f.loc, page: page > 1 ? String(page) : undefined }).filter((e): e is [string, string] => Boolean(e[1])))
@@ -64,6 +68,7 @@ export default async function JobsPage(props: { searchParams: Promise<Params> })
           <Breadcrumbs inverse items={[{ label: v.name }]} />
           <h1 className="hl-h1 mt-8 max-w-3xl text-white">Jobs in construction, engineering and property</h1>
           <p className="mt-4 max-w-2xl text-[1.0625rem] text-white/80">Vacancies from employers in Ethiopia and abroad. Apply with your CV, or create a profile and choose whether employers can find you.</p>
+          {pillar && <ModeBadges pillar={pillar} inverse className="mt-6" />}
           <div className="mt-8 grid gap-3 sm:max-w-xl sm:grid-cols-2">
             <ButtonLink href="/account/jobs/new" variant="gold" size="lg" className="w-full">
               Post a job
@@ -155,6 +160,39 @@ export default async function JobsPage(props: { searchParams: Promise<Params> })
           </div>
         </div>
       </Section>
+      {pillar?.direct && (
+        <Section tone="tint" labelledBy="recruitment">
+          <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
+            <div>
+              <p className="hl-eyebrow text-green">Provided by HagerLand</p>
+              <h2 id="recruitment" className="hl-h2 mt-1">
+                Recruitment and placement by HagerLand
+              </h2>
+              <p className="mt-3 max-w-3xl text-muted">Tell us the roles you need to fill. HagerLand finds, checks and introduces suitable candidates, in Ethiopia or abroad. Fees are agreed with you in writing before we start.</p>
+            </div>
+            <ButtonLink href="/request-service/staffing" size="lg">
+              Submit a staffing requirement
+            </ButtonLink>
+          </div>
+        </Section>
+      )}
+      {pillar?.interest && (
+        <Section tone="stone" id="register" labelledBy="jobs-registers">
+          <div className="grid gap-10 lg:grid-cols-[1fr_440px]">
+            <div>
+              <p className="hl-eyebrow text-green">Register your interest</p>
+              <h2 id="jobs-registers" className="hl-h2 mt-1">
+                Candidate and employer registers
+              </h2>
+              <p className="mt-3 text-muted">Not ready to apply or post a job? Join a register and we will contact you about suitable roles or candidates.</p>
+            </div>
+            <div className="rounded-xl border border-border bg-white p-5 sm:p-6">
+              <InterestForm verticalKey="jobs" pillarKey="jobs" verticalName={v.name} audiences={COMING_SOON.jobs.audiences} categories={COMING_SOON.jobs.categories} categoryLabel={COMING_SOON.jobs.categoryLabel} idPrefix="jobs-reg" submitLabel="Join the register" />
+            </div>
+          </div>
+        </Section>
+      )}
+      <PillarExtras pillarKey="jobs" />
     </>
   )
 }

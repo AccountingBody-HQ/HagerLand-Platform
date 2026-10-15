@@ -3,6 +3,7 @@ import { brand } from '@/lib/brand'
 import { getBusinessDetails } from '@/lib/data/business'
 import { buildFooterColumns } from '@/lib/navigation'
 import { getVerticals } from '@/lib/data/verticals'
+import { getPillars } from '@/lib/data/pillars'
 import { SoonBadge } from '@/components/verticals/SoonBadge'
 import { CurrencySwitcher } from '@/components/currency/CurrencySwitcher'
 import { Wordmark } from '@/components/brand/Logo'
@@ -16,10 +17,10 @@ import { LanguageSwitch } from './LanguageSwitch'
 import { licenceText } from '@/components/content/LicenceNote'
 
 export async function SiteFooter({ amharicOn = false }: { amharicOn?: boolean }) {
-  const [business, verticals] = await Promise.all([getBusinessDetails(), getVerticals()])
+  const [business, verticals, pillars] = await Promise.all([getBusinessDetails(), getVerticals(), getPillars()])
   const locale = await getLocale()
   const t = translator(locale)
-  const columns = buildFooterColumns(verticals).map((c) => ({ title: t(c.title), links: c.links.map((l) => localizeLink(l, t, locale)) }))
+  const columns = buildFooterColumns(pillars, verticals).map((c) => ({ title: t(c.title), links: c.links.map((l) => localizeLink(l, t, locale)) }))
   const socials = business.social
   const year = new Date().getFullYear()
   return (

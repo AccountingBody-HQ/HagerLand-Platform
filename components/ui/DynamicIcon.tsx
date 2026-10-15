@@ -3,7 +3,7 @@ import {
   ClipboardList, Construction, CookingPot, Cylinder, DoorOpen, DraftingCompass, Drill, Droplets, Fan, FireExtinguisher, Flame,
   Flower2, Forklift, Grid2x2, Grid3x3, HardHat, Hammer, House, KeyRound, Landmark, Layers, LayoutGrid, Map, Nut, Package,
   PaintBucket, Paintbrush, PaintRoller, PencilRuler, Pickaxe, Pipette, PlugZap, Ruler, Scale, Shield, Shovel, Sofa, Sparkles,
-  SquareStack, Sun, Trash2, Trees, Truck, Umbrella, Wrench, Zap, type LucideIcon,
+  SquareStack, Sun, Trash2, Trees, Truck, Umbrella, Wrench, Zap, BookOpen, Users, Search, ClipboardCheck, Handshake, UserCheck, SearchCheck, Columns3, Bell, ChartColumn, ListChecks, BookA, CircleHelp, LayoutDashboard, type LucideIcon,
 } from 'lucide-react'
 
 const icons: Record<string, LucideIcon> = {
@@ -16,6 +16,8 @@ const icons: Record<string, LucideIcon> = {
   paintbrush: Paintbrush, 'paint-roller': PaintRoller, 'pencil-ruler': PencilRuler, pickaxe: Pickaxe, pipette: Pipette, 'plug-zap': PlugZap,
   ruler: Ruler, scale: Scale, shield: Shield, shovel: Shovel, sofa: Sofa, sparkles: Sparkles, 'square-stack': SquareStack, sun: Sun,
   'trash-2': Trash2, trees: Trees, truck: Truck, umbrella: Umbrella, wrench: Wrench, zap: Zap,
+  'book-open': BookOpen, users: Users, search: Search, 'clipboard-check': ClipboardCheck, handshake: Handshake, 'user-check': UserCheck, 'search-check': SearchCheck,
+  'columns-3': Columns3, bell: Bell, 'chart-column': ChartColumn, 'list-checks': ListChecks, 'book-a': BookA, 'circle-help': CircleHelp, 'layout-dashboard': LayoutDashboard,
 }
 
 /** Renders a lucide icon by its kebab-case name (as stored on categories), with a neutral fallback. */

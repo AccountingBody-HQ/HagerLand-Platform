@@ -1,5 +1,5 @@
 import { SiteHeader } from '@/components/layout/SiteHeader'
-import { getVerticals } from '@/lib/data/verticals'
+import { getSiteNav } from '@/lib/data/site-nav'
 import { SiteFooter } from '@/components/layout/SiteFooter'
 import { ErrorPanel } from '@/components/layout/ErrorPanel'
 import { ButtonLink } from '@/components/ui/Button'
@@ -7,10 +7,10 @@ import { ButtonLink } from '@/components/ui/Button'
 export const metadata = { title: 'Page not found', robots: { index: false } }
 
 export default async function NotFound() {
-  const verticals = await getVerticals()
+  const nav = await getSiteNav()
   return (
     <div className="flex min-h-dvh flex-col">
-      <SiteHeader verticals={verticals} />
+      <SiteHeader nav={nav} />
       <main id="main" className="flex-1">
         <ErrorPanel
           code="404"

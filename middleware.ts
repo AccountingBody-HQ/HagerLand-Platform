@@ -3,7 +3,8 @@ import { refreshSession } from '@/lib/supabase/middleware'
 import { ADMIN_SESSION_COOKIE, verifyAdminSessionEdge } from '@/lib/admin-session-edge'
 import { verticalForPath } from '@/lib/verticals'
 import { mapTileOrigin } from '@/lib/map-config'
-import { isIndexableVertical, verticalStatusesEdge } from '@/lib/vertical-status-edge'
+import { isIndexableVertical, pillarStatusesEdge, verticalStatusesEdge } from '@/lib/vertical-status-edge'
+import { isPillarKey } from '@/lib/pillars'
 import { AM_PREFIX, LOCALE_HEADER, isAmharicPath, isPrefixable, stripLocale } from '@/lib/i18n/config'
 import { amharicEnabledEdge } from '@/lib/i18n/edge'
 import { canonicalUrl } from '@/lib/site'
@@ -98,6 +99,12 @@ export async function middleware(request: NextRequest) {
   if (vertical) {
     const statuses = await verticalStatusesEdge()
     if (statuses && !isIndexableVertical(statuses, vertical)) response.headers.set('X-Robots-Tag', 'noindex, follow')
+  }
+  // Pillar hubs (and pages under them) of a pillar that is not live are never indexed (spec 26.16).
+  const hub = page.split('/')[1] ?? ''
+  if (isPillarKey(hub)) {
+    const statuses = await pillarStatusesEdge()
+    if (statuses && statuses.get(hub) !== 'live') response.headers.set('X-Robots-Tag', 'noindex, follow')
   }
   return withSecurityHeaders(response)
 }

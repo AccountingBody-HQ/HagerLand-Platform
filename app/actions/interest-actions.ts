@@ -12,6 +12,8 @@ import { checkbox, emailSchema, nameSchema, optionalPhoneSchema, optionalText, o
 import { COUNTRY_CODES, countryByCode } from '@/lib/countries'
 import { VERTICAL_KEYS, verticalHref } from '@/lib/verticals'
 import { getVertical } from '@/lib/data/verticals'
+import { getPillar } from '@/lib/data/pillars'
+import { PILLAR_INTEREST_VERTICAL, PILLAR_KEYS, pillarHref } from '@/lib/pillars'
 import { COMING_SOON, type PartnerType } from '@/lib/content/verticals'
 import { sendEmail } from '@/lib/email/send'
 import { interestConfirmationEmail, partnerApplicationEmail } from '@/lib/email/templates'
@@ -23,6 +25,7 @@ export type InterestState = ActionResult<{ reference: string }> | null
 
 const interestSchema = z.object({
   vertical_key: z.enum(VERTICAL_KEYS),
+  pillar_key: z.enum(PILLAR_KEYS).optional(),
   category: optionalText(80),
   audience: optionalText(40),
   name: nameSchema,
@@ -44,7 +47,10 @@ export async function submitInterestAction(_prev: InterestState, formData: FormD
   const d = parsed.data
 
   const vertical = await getVertical(d.vertical_key)
-  if (!vertical || !vertical.interestEnabled) return fail('Registering interest is not open for this service.')
+  // On a pillar hub, the pillar's Interest switch decides (spec 26.3); elsewhere the vertical's form switch does.
+  const pillar = d.pillar_key ? await getPillar(d.pillar_key) : null
+  if (d.pillar_key && (!pillar || !pillar.interest || PILLAR_INTEREST_VERTICAL[d.pillar_key] !== d.vertical_key)) return fail('Registering interest is not open for this service.')
+  if (!vertical || (!pillar && !vertical.interestEnabled)) return fail('Registering interest is not open for this service.')
   const content = COMING_SOON[d.vertical_key]
   if (d.category && content.categories && !content.categories.some((c) => c.value === d.category)) return fail('Choose one of the listed options.', { category: 'Choose one of the listed options' })
   if (d.audience && content.audiences && !content.audiences.some((a) => a.value === d.audience)) return fail('Choose one of the listed options.', { audience: 'Choose one of the listed options' })
@@ -60,6 +66,7 @@ export async function submitInterestAction(_prev: InterestState, formData: FormD
     .from('interest_registrations')
     .insert({
       vertical_key: d.vertical_key,
+      pillar_key: d.pillar_key ?? null,
       category: d.category ? (content.categories?.find((c) => c.value === d.category)?.label ?? d.category) : null,
       audience: d.audience ?? null,
       name: d.name,
@@ -84,7 +91,7 @@ export async function submitInterestAction(_prev: InterestState, formData: FormD
   }
   await sendEmail({
     to: d.email,
-    ...interestConfirmationEmail({ name: d.name.split(' ')[0] || d.name, reference: row.reference, verticalName: vertical.name, href: canonicalUrl(verticalHref(vertical)), live: vertical.status === 'live' }),
+    ...interestConfirmationEmail({ name: d.name.split(' ')[0] || d.name, reference: row.reference, verticalName: pillar?.name ?? vertical.name, href: canonicalUrl(pillar ? pillarHref(pillar) : verticalHref(vertical)), live: (pillar?.status ?? vertical.status) === 'live' }),
   })
   return ok({ reference: row.reference })
 }
