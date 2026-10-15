@@ -73,6 +73,13 @@ This report is in four parts:
 
 ---
 
+## Releases
+
+| Date (UTC) | Release | Merge commit on `main` | Checks after release |
+|---|---|---|---|
+| 15 Oct 2026, 16:05 | Go-live (WP-20) | `8752162` | See "Go-live record" above |
+| 15 Oct 2026, 20:02 | **Polish round 1** (AB typed "RELEASE POLISH 1"): plain customer language on every public page; the homepage "Everything your property needs" section replaces the ecosystem diagram (now on admin → Pillars and modes); AB's support line and hero eyebrow; Knowledge & Advice without dead ends; focus rings for keyboard only; 28 of 31 audit issues fixed. Details: `docs/POLISH_AUDIT.md`; AB's live checklist: `docs/LIVE_JOURNEY_TEST.md`. No database change. | `16c3ce8` (parents `8752162` and `9ac9431`) | Before merging: unit 230/230; full browser run 480 passed, 2 failed because the Codespace disk filled up, and both passed when rerun (9 of 9, then 4 of 4 repeats); clean build, lint and typecheck pass. After: production served `16c3ce8` 100 seconds after the push; `/api/health` ok; read-only production smoke tests 178 passed, 0 failed (2 need `CRON_SECRET`, empty in the Codespace); all 72 public pages at 390 px and 1440 px load with no console errors from our code, no sideways scroll and none of the banned internal words (`/property/map` is off by design, no map provider); the homepage shows the new eyebrow, support line and services section |
+
 ## 1. What is finished
 
 ### The website

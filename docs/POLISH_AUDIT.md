@@ -1,6 +1,6 @@
 # Polish round 1: audit, front-end rewrite and fixes
 
-**Branch:** `polish/round-1` (from `main` at `8752162`) · **Date:** 15 October 2026 · **Status:** ready for AB's review on the preview. Nothing has been released to the live site.
+**Branch:** `polish/round-1` (from `main` at `8752162`) · **Date:** 15 October 2026 · **Status:** released to the live site on 15 Oct 2026 at 20:02 UTC (merge commit `16c3ce8`, see LAUNCH_REPORT "Releases").
 
 ## Summary for AB
 
