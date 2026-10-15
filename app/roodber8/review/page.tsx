@@ -58,8 +58,9 @@ function DocList({ docs }: { docs: { label: string; url: string | null }[] }) {
   )
 }
 
-export default async function ReviewPage({ searchParams }: { searchParams: { tab?: string } }) {
-  requireAdminPage()
+export default async function ReviewPage(route: { searchParams: Promise<{ tab?: string }> }) {
+  const searchParams = await route.searchParams
+  await requireAdminPage()
   const tab: Tab = (TABS.find(([k]) => k === searchParams.tab)?.[0] ?? 'properties') as Tab
   const counts = await queueCounts()
   const db = getAdminSupabase()

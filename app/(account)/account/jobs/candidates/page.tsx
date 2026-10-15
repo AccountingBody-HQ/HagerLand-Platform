@@ -23,7 +23,8 @@ function candidateRef(id: string): string {
  * Employers search candidates who chose to be visible (spec 24.9, Vision §10). No contact details or CVs
  * are shown: HagerLand makes introductions through a staffing request.
  */
-export default async function CandidatesPage({ searchParams }: { searchParams: { q?: string } }) {
+export default async function CandidatesPage(props: { searchParams: Promise<{ q?: string }> }) {
+  const searchParams = await props.searchParams
   await requireUser('/account/jobs/candidates')
   if ((await getVertical('jobs'))?.status !== 'live') return <JobsNotLive />
   const active = await getActiveMembership()

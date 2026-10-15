@@ -13,14 +13,16 @@ export function generateStaticParams() {
   return AGENCY_SERVICES.map((s) => ({ service: s.slug }))
 }
 
-export function generateMetadata({ params }: { params: { service: string } }) {
+export async function generateMetadata(props: { params: Promise<{ service: string }> }) {
+  const params = await props.params
   const s = AGENCY_SERVICES.find((x) => x.slug === params.service)
   if (!s) return {}
   return buildMetadata({ title: s.title, description: `${s.intro}`.slice(0, 158), path: `/agency/${s.slug}` })
 }
 
 /** One estate agency service with its enquiry form (spec 24.7). Enquiries go to the HagerLand sales inbox. */
-export default function AgencyServicePage({ params }: { params: { service: string } }) {
+export default async function AgencyServicePage(props: { params: Promise<{ service: string }> }) {
+  const params = await props.params
   const s = AGENCY_SERVICES.find((x) => x.slug === params.service)
   if (!s) notFound()
   return (

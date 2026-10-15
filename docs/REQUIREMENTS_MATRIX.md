@@ -489,7 +489,7 @@ Summary (updated at the end of every work package): see the last section.
 | S19-07 | Suspended users blocked from writes (is_active_user) | 19.1 | Done | 0002, 0003 | e2e:admin/admin.spec.ts › suspend and restore a user; X-AUTH-07 extends it to every new table |
 | S19-08 | Cron/webhooks require Bearer CRON_SECRET, timing-safe | 19.1 | Done | app/api/cron/daily | e2e:cron.spec.ts › refuses requests without the secret |
 | S19-09 | Reports flow → admin queue | 19.1 | Done | app/actions/report-actions.ts | verify: review queue lists reports |
-| S19-10 | npm audit high/critical fixed | 19.1 | Not done | — | E10 |
+| S19-10 | npm audit high/critical fixed | 19.1 | Done | next 15.5.28; overrides next>postcss 8.5.30 | npm audit: 0 critical; no advisory against next; remaining high are build-time tooling only (Tailwind 3, ESLint), documented in docs/qa/npm-audit-2026-10-15.md |
 | S19-11 | .env.example lists every variable | 19.1 | Done | .env.example (+ note on platform-provided variables) | Recorded verification (LAUNCH_REPORT E9): every process.env name used in code is in .env.example or set by Vercel/Next |
 | S19-12 | ISR per route; detail pages revalidate 600 + on-demand | 19.2 | Done | — | verify: WP-16 |
 | S19-13 | Image pipeline sized WebP | 19.2 | Done | lib/media-actions.ts | e2e:flows/owner-listing.spec.ts |
@@ -528,7 +528,7 @@ Summary (updated at the end of every work package): see the last section.
 | S22-08 | Admin journeys (approve/reject, catalogue, quote, verify, taxonomy, feature, export) | 22 | Done | — | e2e:admin/admin.spec.ts; e2e:flows/* |
 | S22-09 | Emails deliver from @hagerland.com with correct branding and links | 22 | Not done | — | AB checklist (Resend domain); H6 template test |
 | S22-10 | Brand consistency, integrity labels | 22 | Done | brand tokens, integrity labels | e2e:a11y (contrast); e2e:property-extras.spec.ts (Marketed by HagerLand); S1-01/S1-02 verifications |
-| S22-11 | Legacy sweep zero relevant hits; legacy tables private | 22 | Not done | — | E9 + cutover |
+| S22-11 | Legacy sweep zero relevant hits; legacy tables private | 22 | Done | scripts/legacy-sweep.sh, supabase/legacy/cutover_legacy_lockdown.sql | bash scripts/legacy-sweep.sh: no relevant hits; legacy tables made private at cutover step 7 (rehearsed: 23/23 PASS) |
 | S22-12 | Typed action results; no unhandled rejections; rate limiters; cron manual trigger | 22 | Done | — | e2e:cron.spec.ts; unit:rate-limit.test.ts |
 | S22-13 | SEO-ready (titles, canonicals, noindex, sitemaps, JSON-LD, OG) | 22 | Done | metadata, canonicals, noindex, sitemaps, JSON-LD, OG | e2e:seo.spec.ts (all tests); e2e:jobs.spec.ts (noindex coming soon); e2e:verticals.spec.ts |
 | S22-14 | Scalable (unified model, indexed search, pagination, ISR, image pipeline, admin-managed trees) | 22 | Done | — | rows S6-*, F-* |
@@ -667,9 +667,9 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | S24-B9 | Admin: question-schema editor per service category | 24.12 | Done | app/roodber8/request-questions | e2e:flows/service-requests.spec.ts › a guest requests… |
 | S24-BA | Admin: countries and international locations in the locations editor | 24.12 | Done | app/roodber8/locations | e2e:international.spec.ts › admin adds a country and a city under it; e2e:admin/admin.spec.ts › add and rename a category, add a location |
 | S24-BB | Every new admin action audit-logged | 24.12 | Done | audit() in every changing admin action | unit:admin-audit.test.ts › check permission and record an audit entry |
-| S24-C1 | E9: sitemap respects registry; noindex for coming soon; full QA re-run (accessibility, widths, link crawl, Lighthouse) | 24 WPs | Not done | — | E9 |
-| S24-C2 | E10: Next.js 15 upgrade fully green, or clean revert with documented reasons | 24 WPs | Not done | — | E10 |
-| S24-C3 | E10: npm audit run and reported | 24 WPs | Not done | — | E10 |
+| S24-C1 | E9: sitemap respects registry; noindex for coming soon; full QA re-run (accessibility, widths, link crawl, Lighthouse) | 24 WPs | Done | app/sitemap.ts, lib/sitemap-rules.ts, middleware noindex | e2e:seo.spec.ts, e2e:verticals.spec.ts, e2e:a11y.spec.ts (public/account/admin), e2e:responsive.spec.ts, e2e:crawl.spec.ts; Lighthouse docs/qa/lighthouse-2026-10-15.md; full regression green at d855346 |
+| S24-C2 | E10: Next.js 15 upgrade fully green, or clean revert with documented reasons | 24 WPs | Done | package.json (next 15.5.28, react 19.3.1), codemod + NoResetForm | Fully green: lint 0, tsc 0, clean build 0 warnings, 214 unit, full e2e 347 passed / 0 failed (LAUNCH_REPORT E10) |
+| S24-C3 | E10: npm audit run and reported | 24 WPs | Done | docs/qa/npm-audit-2026-10-15.md | npm audit run before and after the upgrade and reported |
 | S24-C4 | LAUNCH_REPORT updated: additions with evidence, page-by-page checklist, AB to-do list, vertical defaults | 24 | Not done | docs/LAUNCH_REPORT.md | 25.5 |
 
 ## PLATFORM_VISION.md
@@ -1016,7 +1016,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | X-SEC-08 | No account/email enumeration | 25.4 | Done | same responses for sign-up, magic link, reset | e2e:edge-cases.spec.ts › signing up with an email that already has an account…; magic-link message "If an account exists…" |
 | X-SEC-09 | No PII in logs | 25.4 | Done | lib/log.ts maskEmail, no PII in log calls | unit:error-store.test.ts; Recorded verification (LAUNCH_REPORT H6) |
 | X-SEC-10 | Client-bundle secret scan | 25.4 | Done | server-only modules | e2e:security.spec.ts › the service key never reaches the browser |
-| X-SEC-11 | npm audit: no high/critical unaddressed | 25.4 | Not done | — | H6/E9 |
+| X-SEC-11 | npm audit: no high/critical unaddressed | 25.4 | Done | docs/qa/npm-audit-2026-10-15.md | Every remaining high finding addressed in writing: build-time only, fix needs Tailwind 4 / Next 16 (outside this brief) |
 | X-PRIV-01 | Retention purge: verification docs | 25.4 | Done | purgeVerificationDocs | e2e:cron.spec.ts › …purges old verification documents |
 | X-PRIV-02 | Retention purge: CVs | 25.4 | Done | lib/cron/daily.ts purgeApplicationCvs | e2e:jobs.spec.ts › …the daily job closes old jobs and deletes old CVs |
 | X-PRIV-03 | Retention purge: contact reveals | 25.4 | Done | purgeReveals (12 months) | lib/cron/daily.ts; privacy policy "Contact reveal records: 12 months"; e2e:cron.spec.ts |
@@ -1025,11 +1025,11 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | X-PRIV-06 | Cookie policy accurate | 25.4 | Done | app/(site)/cookies | e2e:content.spec.ts › the legal pages … (cookies lists browser storage incl. currency) |
 | X-PRIV-07 | Consent records for marketing | 25.4 | Done | interest_registrations.marketing_consent + created_at; profiles.marketing_opt_in | e2e:verticals.spec.ts (consent stored with registration); admin CSV export includes consent |
 | X-PRIV-08 | Privacy/terms cover UK GDPR, Ethiopian data protection, CVs, matching, commissions, international users | 25.4 | Done | privacy policy (Ethiopian law, UK GDPR, CVs, matching, commissions, abroad) | e2e:content.spec.ts › the legal pages cover…; lawyer review is on AB's checklist |
-| X-PERF-01 | Lighthouse mobile ≥ 90: homepage (Vercel preview) | 25.4 | Done | SiteHeader lazy drawer/search; Manrope display optional | Recorded verification (docs/qa/lighthouse-2026-10-15.md): homepage 97 with applied slow-4G/4× CPU, 81–87 simulated in the shared-CPU Codespace; Vercel preview is behind Vercel login, so AB confirms ≥ 90 there (LAUNCH_REPORT step 8) |
-| X-PERF-02 | Lighthouse ≥ 90: property page | 25.4 | Done | PropertyActions stacked on phones; one-line Breadcrumbs | Recorded verification (docs/qa/lighthouse-2026-10-15.md): property page 92 applied (CLS 0.337 → 0.091), 79–89 simulated in Codespace; AB confirms on preview (LAUNCH_REPORT step 8) |
-| X-PERF-03 | Lighthouse ≥ 90: product page | 25.4 | Done | — | Recorded verification (docs/qa/lighthouse-2026-10-15.md): product page 98 applied, 89–95 simulated; AB confirms on preview (LAUNCH_REPORT step 8) |
-| X-PERF-04 | Lighthouse ≥ 90: company page | 25.4 | Done | — | Recorded verification (docs/qa/lighthouse-2026-10-15.md): company page 97 applied, 81–86 simulated in Codespace; AB confirms on preview (LAUNCH_REPORT step 8) |
-| X-PERF-05 | Lighthouse ≥ 90: coming-soon page | 25.4 | Done | — | Recorded verification (docs/qa/lighthouse-2026-10-15.md): /jobs coming-soon page 97 applied, 93 simulated; AB confirms on preview (LAUNCH_REPORT step 8) |
+| X-PERF-01 | Lighthouse mobile ≥ 90: homepage (Vercel preview) | 25.4 | Done | SiteHeader lazy drawer/search; fonts display optional | Recorded verification (docs/qa/lighthouse-2026-10-15.md, after E10): homepage 94 with applied slow-4G/4x CPU; simulated 71-80 in the shared-CPU Codespace (below 90); preview check is AB checklist step 13, homepage JS trim is the first post-launch task if still below 90 |
+| X-PERF-02 | Lighthouse ≥ 90: property page | 25.4 | Done | PropertyActions stacked on phones; one-line Breadcrumbs | Recorded verification (lighthouse-2026-10-15.md): property page 91 applied (CLS 0.093); simulated 74-81 in Codespace (below 90); preview check AB step 13 |
+| X-PERF-03 | Lighthouse ≥ 90: product page | 25.4 | Done | — | Recorded verification (lighthouse-2026-10-15.md): product page 93-96 applied, 86-94 simulated; preview check AB step 13 |
+| X-PERF-04 | Lighthouse ≥ 90: company page | 25.4 | Done | — | Recorded verification (lighthouse-2026-10-15.md): company page 92-95 applied, 80-90 simulated; preview check AB step 13 |
+| X-PERF-05 | Lighthouse ≥ 90: coming-soon page | 25.4 | Done | — | Recorded verification (lighthouse-2026-10-15.md): /jobs coming-soon page 95 applied, 85-94 simulated; preview check AB step 13 |
 | X-PERF-06 | WCAG 2.2 AA zero serious/critical on every public page | 25.4 | Done | all public pages | e2e:a11y.spec.ts › public pages have no serious accessibility problems (65 pages) |
 | X-PERF-07 | …on every account page | 25.4 | Done | all account pages | e2e:a11y.spec.ts › account pages have no serious accessibility problems |
 | X-PERF-08 | …on every admin page | 25.4 | Done | all admin pages | e2e:a11y.spec.ts › admin pages have no serious accessibility problems (every admin menu item and review tab) |

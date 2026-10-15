@@ -23,8 +23,9 @@ interface Row {
   confirmed: boolean
 }
 
-export default async function AdminUsersPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
-  requireAdminPage()
+export default async function AdminUsersPage(props: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const searchParams = await props.searchParams
+  await requireAdminPage()
   const page = Math.max(1, Number(searchParams.page) || 1)
   const db = getAdminSupabase()
   const term = (searchParams.q ?? '').trim().slice(0, 120)

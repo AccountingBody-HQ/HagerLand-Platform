@@ -4,8 +4,8 @@ import { GuideForm } from '@/components/admin/GuideForm'
 
 export const metadata = { title: 'New guide' }
 
-export default function NewGuidePage() {
-  requireAdminPage()
+export default async function NewGuidePage() {
+  await requireAdminPage()
   return (
     <div className="space-y-5">
       <AdminHeader title="New guide" />

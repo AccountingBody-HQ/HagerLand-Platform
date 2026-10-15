@@ -10,8 +10,9 @@ import { CareRequestTool } from '@/components/admin/CareTools'
 
 export const metadata = { title: 'Property Care request' }
 
-export default async function CareRequestPage({ params }: { params: { id: string } }) {
-  requireAdminPage()
+export default async function CareRequestPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params
+  await requireAdminPage()
   if (!/^[0-9a-f-]{36}$/.test(params.id)) notFound()
   const db = getAdminSupabase()
   const { data: r } = await db.from('property_care_requests').select('*').eq('id', params.id).maybeSingle()

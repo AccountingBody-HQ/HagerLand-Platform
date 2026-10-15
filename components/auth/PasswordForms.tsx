@@ -1,13 +1,14 @@
 'use client'
 
-import { useFormState } from 'react-dom'
+import { useActionState } from 'react'
 import { resetPasswordAction, updatePasswordAction } from '@/app/(account)/auth-actions'
 import { Field, Input, describedBy } from '@/components/ui/Field'
 import { ButtonLink } from '@/components/ui/Button'
 import { FormAlert, SubmitButton } from '@/components/forms/FormParts'
+import { NoResetForm } from '@/components/forms/NoResetForm'
 
 export function ResetPasswordForm() {
-  const [state, action] = useFormState(resetPasswordAction, null)
+  const [state, action] = useActionState(resetPasswordAction, null)
   if (state?.ok) {
     return (
       <FormAlert tone="success">
@@ -17,7 +18,7 @@ export function ResetPasswordForm() {
   }
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <NoResetForm action={action} className="space-y-4" noValidate>
       {state && !state.ok && <FormAlert>{state.error}</FormAlert>}
       <Field label="Email" htmlFor="rp-email" error={errors.email}>
         <Input id="rp-email" name="email" type="email" autoComplete="email" invalid={Boolean(errors.email)} aria-describedby={describedBy('rp-email', errors.email)} />
@@ -25,12 +26,12 @@ export function ResetPasswordForm() {
       <SubmitButton fullWidth pendingText="Sending…">
         Send reset link
       </SubmitButton>
-    </form>
+    </NoResetForm>
   )
 }
 
 export function UpdatePasswordForm() {
-  const [state, action] = useFormState(updatePasswordAction, null)
+  const [state, action] = useActionState(updatePasswordAction, null)
   if (state?.ok) {
     return (
       <div className="space-y-4">
@@ -43,7 +44,7 @@ export function UpdatePasswordForm() {
   }
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <NoResetForm action={action} className="space-y-4" noValidate>
       {state && !state.ok && <FormAlert>{state.error}</FormAlert>}
       <Field label="New password" htmlFor="up-password" error={errors.password} hint="At least 10 characters.">
         <Input id="up-password" name="password" type="password" autoComplete="new-password" invalid={Boolean(errors.password)} aria-describedby={describedBy('up-password', errors.password, 'hint')} />
@@ -54,6 +55,6 @@ export function UpdatePasswordForm() {
       <SubmitButton fullWidth pendingText="Saving…">
         Save new password
       </SubmitButton>
-    </form>
+    </NoResetForm>
   )
 }

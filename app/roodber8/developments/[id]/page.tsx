@@ -24,8 +24,12 @@ import { adminPostDevelopmentUpdateAction, developmentUpdateDecisionAction, remo
 
 export const metadata = { title: 'Development' }
 
-export default async function AdminDevelopmentPage({ params, searchParams }: { params: { id: string }; searchParams: { created?: string } }) {
-  requireAdminPage()
+export default async function AdminDevelopmentPage(
+  props: { params: Promise<{ id: string }>; searchParams: Promise<{ created?: string }> }
+) {
+  const searchParams = await props.searchParams
+  const params = await props.params
+  await requireAdminPage()
   const db = getAdminSupabase()
   const { data: d } = await db.from('developments').select('*').eq('id', params.id).maybeSingle()
   if (!d) notFound()

@@ -2,8 +2,7 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { useFormState } from 'react-dom'
+import { useActionState, useEffect, useState } from 'react'
 import { ArrowLeft, CircleCheck } from 'lucide-react'
 import { saveListingStepAction, type WizardState } from '@/app/(account)/account/listings/actions'
 import { WIZARD_STEPS, MIN_PHOTOS, type WizardStep } from '@/lib/validation/property'
@@ -20,6 +19,7 @@ import { track } from '@/lib/analytics'
 import { cn } from '@/lib/cn'
 import { MapPinField } from '@/components/map/MapPinField'
 import type { MapConfig } from '@/lib/map-config'
+import { NoResetForm } from '@/components/forms/NoResetForm'
 
 export interface WizardValues {
   purpose?: string
@@ -89,7 +89,7 @@ function Progress({ step, id }: { step: WizardStep; id: string | null }) {
 }
 
 function useStep(onDone: (s: Extract<WizardState, { ok: true }>) => void) {
-  const [state, action] = useFormState(saveListingStepAction, null)
+  const [state, action] = useActionState(saveListingStepAction, null)
   useEffect(() => {
     if (state?.ok) onDone(state)
   }, [state, onDone])
@@ -417,7 +417,7 @@ export function ListingWizard({ id, step, values, media, isLive, reviewSlot, dev
         </form>
       )}
       {current === 'location' && !id && (
-        <form action={action} className="space-y-8" noValidate>
+        <NoResetForm action={action} className="space-y-8" noValidate>
           <input type="hidden" name="step" value="location" />
           {basics && Array.from(basics.entries()).map(([k, val]) => <input key={k} type="hidden" name={k} value={String(val)} />)}
           {(errors.title || errors.description || errors.property_type || errors.purpose) && (
@@ -437,11 +437,11 @@ export function ListingWizard({ id, step, values, media, isLive, reviewSlot, dev
               Save and continue
             </SubmitButton>
           </div>
-        </form>
+        </NoResetForm>
       )}
 
       {id && (
-        <form action={action} className="space-y-8" noValidate key={current}>
+        <NoResetForm action={action} className="space-y-8" noValidate key={current}>
           <input type="hidden" name="step" value={current} />
           <input type="hidden" name="property_id" value={id} />
           {current === 'basics' && <BasicsFields v={values} errors={errors} />}
@@ -480,7 +480,7 @@ export function ListingWizard({ id, step, values, media, isLive, reviewSlot, dev
             </div>
           )}
           <NavRow back={back} submitLabel={current === 'review' ? (isLive ? 'Submit changes' : 'Submit for review') : 'Save and continue'} />
-        </form>
+        </NoResetForm>
       )}
     </div>
   )

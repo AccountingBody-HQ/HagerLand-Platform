@@ -22,7 +22,10 @@ export const metadata = buildMetadata({
 const ABROAD = COUNTRIES.filter((c) => c.code !== 'ET')
 
 /** Services abroad (spec 24.6b): businesses in the visitor's country and city, with request-a-service routing. */
-export default async function ServicesAbroadPage({ searchParams }: { searchParams: { country?: string; city?: string; service?: string } }) {
+export default async function ServicesAbroadPage(
+  props: { searchParams: Promise<{ country?: string; city?: string; service?: string }> }
+) {
+  const searchParams = await props.searchParams
   const country = ABROAD.find((c) => c.code === searchParams.country) ?? null
   const [locations, tree] = await Promise.all([getLocations(), getServiceCategories()])
   const cities = country ? locations.filter((l) => l.country_code === country.code && l.level === 'city').sort((a, b) => a.name.localeCompare(b.name)) : []

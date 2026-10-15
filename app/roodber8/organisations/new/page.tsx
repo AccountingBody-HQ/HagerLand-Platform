@@ -7,7 +7,7 @@ import { OrganisationForm } from '@/components/account/OrganisationForm'
 export const metadata = { title: 'New organisation' }
 
 export default async function NewOrgPage() {
-  requireAdminPage()
+  await requireAdminPage()
   const [services, products] = await Promise.all([getServiceCategories(), getProductCategories()])
   return (
     <div className="max-w-4xl">

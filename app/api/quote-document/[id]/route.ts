@@ -7,7 +7,8 @@ import { signedDocumentUrl } from '@/lib/storage'
 export const dynamic = 'force-dynamic'
 
 /** Lets a signed-in customer download the quote PDF for their own quote request (row security checks ownership). */
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params
   if (!z.uuid().safeParse(params.id).success) return new NextResponse('Not found', { status: 404 })
   const user = await getUser()
   if (!user) return NextResponse.redirect(new URL(`/login?next=${encodeURIComponent('/account/quotes')}`, request.url))

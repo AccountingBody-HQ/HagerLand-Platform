@@ -9,7 +9,7 @@ export const metadata = { title: 'Email problems' }
 
 /** Emails that could not be delivered (spec 25.4). The daily job retries them up to five times. */
 export default async function EmailProblemsPage() {
-  requireAdminPage()
+  await requireAdminPage()
   const { data } = await getAdminSupabase().from('email_outbox').select('id, to_addresses, subject, status, attempts, last_error, next_attempt_at, created_at').in('status', ['failed', 'gave_up']).order('created_at', { ascending: false }).limit(200)
   return (
     <div>

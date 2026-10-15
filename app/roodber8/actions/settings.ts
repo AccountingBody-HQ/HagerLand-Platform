@@ -35,7 +35,7 @@ function claimsFrom(formData: FormData): { title: string; text: string }[] {
 
 /** Saves one section of admin → Settings into site_settings. Empty values hide the matching element on the site. */
 export async function saveSettingsAction(section: SettingsSection, _prev: Msg | null, formData: FormData): Promise<Msg> {
-  assertAdmin()
+  await assertAdmin()
   if (!SETTINGS_SECTIONS.includes(section)) return fail('Unknown settings section.')
   const input = Object.fromEntries(formData)
   const rows: { key: string; value: NonNullable<Json> }[] = []

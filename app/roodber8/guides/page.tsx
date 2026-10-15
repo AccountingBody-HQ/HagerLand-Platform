@@ -9,7 +9,7 @@ import { ButtonLink } from '@/components/ui/Button'
 export const metadata = { title: 'Guides' }
 
 export default async function AdminGuidesPage() {
-  requireAdminPage()
+  await requireAdminPage()
   const { data } = await getAdminSupabase().from('guides').select('id, title, slug, topic, status, needs_review, updated_at').order('updated_at', { ascending: false })
   return (
     <div>

@@ -13,7 +13,7 @@ type Entity = z.infer<typeof entitySchema>
 
 /** Up to 10 records of a type matching a name, short reference or id, for the promotion picker. */
 export async function findPromotableAction(type: string, term: string): Promise<ActionResult<{ options: { id: string; label: string }[] }>> {
-  assertAdmin()
+  await assertAdmin()
   const t = entitySchema.safeParse(type)
   const q = term.trim().slice(0, 80)
   if (!t.success || q.length < 2) return ok({ options: [] })
@@ -46,7 +46,7 @@ const createSchema = z.object({
 })
 
 export async function createPromotionAction(input: Record<string, unknown>): Promise<ActionResult<{ message: string }>> {
-  assertAdmin()
+  await assertAdmin()
   const parsed = createSchema.safeParse(input)
   if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? 'Check the fields.')
   const d = parsed.data
@@ -68,7 +68,7 @@ export async function createPromotionAction(input: Record<string, unknown>): Pro
 
 /** Ends a promotion now, or moves its end date. Featured flags follow automatically (database trigger). */
 export async function updatePromotionEndAction(id: string, ends: string | null): Promise<ActionResult<{ message: string }>> {
-  assertAdmin()
+  await assertAdmin()
   const parsed = z.object({ id: z.uuid(), ends: z.iso.date().nullable() }).safeParse({ id, ends })
   if (!parsed.success) return fail('Choose a valid date.')
   const db = getAdminSupabase()

@@ -11,7 +11,8 @@ import { FormAlert } from '@/components/forms/FormParts'
 export const dynamic = 'force-dynamic'
 export const metadata = buildMetadata({ title: 'Sign in', description: 'Sign in to manage your listings, enquiries and quotes on HagerLand.', path: '/login', noindex: true })
 
-export default async function LoginPage({ searchParams }: { searchParams: { next?: string; error?: string } }) {
+export default async function LoginPage(props: { searchParams: Promise<{ next?: string; error?: string }> }) {
+  const searchParams = await props.searchParams
   const next = safeNextPath(searchParams.next)
   if (await getUser()) redirect(next)
   return (

@@ -19,7 +19,7 @@ function refreshPublicSite() {
 
 /** One-click status switch for a vertical (spec 24.2), audit-logged. */
 export async function setVerticalStatusAction(key: string, status: string): Promise<Msg> {
-  assertAdmin()
+  await assertAdmin()
   const parsed = z.object({ key: z.enum(VERTICAL_KEYS), status: z.enum(['live', 'coming_soon', 'hidden']) }).safeParse({ key, status })
   if (!parsed.success) return fail('Invalid status.')
   const db = getAdminSupabase()
@@ -47,7 +47,7 @@ const textSchema = z.object({
 })
 
 export async function saveVerticalAction(input: Omit<z.input<typeof textSchema>, 'key'> & { key: string }): Promise<Msg> {
-  assertAdmin()
+  await assertAdmin()
   const parsed = textSchema.safeParse(input)
   if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? 'Check the fields.')
   const { key, ...d } = parsed.data
@@ -67,7 +67,7 @@ const LEAD_STATUSES = { interest: ['new', 'contacted', 'closed'], partner: ['new
 
 /** Status and private notes for interest registrations and partner applications. */
 export async function updateLeadAction(kind: 'interest' | 'partner', id: string, input: { status: string; admin_notes: string }): Promise<Msg> {
-  assertAdmin()
+  await assertAdmin()
   const parsed = z
     .object({ id: z.uuid(), status: z.enum(LEAD_STATUSES[kind] as unknown as [string, ...string[]]), admin_notes: z.string().trim().max(4000) })
     .safeParse({ id, ...input })

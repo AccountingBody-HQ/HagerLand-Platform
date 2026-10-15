@@ -12,7 +12,8 @@ import { relativeTime } from '@/lib/format'
 
 export const metadata = { title: 'Enquiries' }
 
-export default async function EnquiriesPage({ searchParams }: { searchParams: { status?: string; box?: string } }) {
+export default async function EnquiriesPage(props: { searchParams: Promise<{ status?: string; box?: string }> }) {
+  const searchParams = await props.searchParams
   const user = await requireUser('/account/enquiries')
   const box = searchParams.box === 'sent' ? 'sent' : 'received'
   const status = searchParams.status && ENQUIRY_STATUS[searchParams.status] ? searchParams.status : null

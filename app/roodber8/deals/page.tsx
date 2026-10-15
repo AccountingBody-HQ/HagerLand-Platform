@@ -13,7 +13,7 @@ const minor = (n: number | null, c: string) => (n === null ? '—' : formatMoney
 
 /** Deals and commission ledger with monthly revenue and lead reports (spec 25.2k). */
 export default async function DealsPage() {
-  requireAdminPage()
+  await requireAdminPage()
   const db = getAdminSupabase()
   const months = lastMonths(12)
   const since = `${months[0]}-01T00:00:00Z`

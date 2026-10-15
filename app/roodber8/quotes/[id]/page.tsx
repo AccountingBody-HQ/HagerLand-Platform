@@ -14,8 +14,9 @@ import { AuditTrail } from '@/components/admin/AuditTrail'
 
 export const metadata = { title: 'Quote' }
 
-export default async function AdminQuotePage({ params }: { params: { id: string } }) {
-  requireAdminPage()
+export default async function AdminQuotePage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params
+  await requireAdminPage()
   const db = getAdminSupabase()
   const { data: q } = await db.from('quote_requests').select('*, location:locations(display_name)').eq('id', params.id).maybeSingle()
   if (!q) notFound()

@@ -10,8 +10,9 @@ import { ImportReview } from './ImportReview'
 export const metadata = { title: 'Imports' }
 const PAGE = 50
 
-export default async function ImportPage({ searchParams }: { searchParams: { tab?: string; page?: string } }) {
-  requireAdminPage()
+export default async function ImportPage(props: { searchParams: Promise<{ tab?: string; page?: string }> }) {
+  const searchParams = await props.searchParams
+  await requireAdminPage()
   const tab = searchParams.tab === 'review' || searchParams.tab === 'history' ? searchParams.tab : 'search'
   const db = getAdminSupabase()
   const { count: reviewCount } = await db.from('organisations').select('id', { count: 'exact', head: true }).eq('source', 'import').eq('status', 'pending_review')

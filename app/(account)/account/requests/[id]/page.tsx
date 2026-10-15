@@ -12,7 +12,8 @@ import { MatchQuoteForm, MatchResponse } from '@/components/service-requests/Pro
 
 export const metadata = { title: 'Customer request' }
 
-export default async function ProviderRequestPage({ params }: { params: { id: string } }) {
+export default async function ProviderRequestPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params
   await requireUser(`/account/requests/${params.id}`)
   if (!/^[0-9a-f-]{36}$/.test(params.id)) notFound()
   // The view returns only matches for the signed-in user's organisations, with contact details after acceptance.

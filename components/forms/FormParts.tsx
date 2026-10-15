@@ -1,14 +1,14 @@
 'use client'
 
 import type { ReactNode } from 'react'
-import { useFormStatus } from 'react-dom'
+import { useFormPending } from '@/components/forms/NoResetForm'
 import { CircleAlert, CircleCheck, Info } from 'lucide-react'
 import { Button, type ButtonProps } from '@/components/ui/Button'
 import { cn } from '@/lib/cn'
 
 /** Submit button that shows a spinner and blocks double-submits while the action runs. */
 export function SubmitButton({ children, pendingText, ...rest }: ButtonProps & { pendingText?: string }) {
-  const { pending } = useFormStatus()
+  const pending = useFormPending()
   return (
     <Button type="submit" loading={pending} {...rest}>
       {pending && pendingText ? pendingText : children}

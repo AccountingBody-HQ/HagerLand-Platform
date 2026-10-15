@@ -10,12 +10,14 @@ import { ApplyForm } from '@/components/jobs/ApplyForm'
 
 export const dynamic = 'force-dynamic'
 
-export function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params
   return buildMetadata({ title: 'Apply for a job', description: 'Apply for a job on HagerLand.', path: `/jobs/${params.slug}/apply`, noindex: true })
 }
 
 /** Applying needs an account, so candidates can follow and withdraw their applications (spec 24.9). */
-export default async function ApplyPage({ params }: { params: { slug: string } }) {
+export default async function ApplyPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params
   const v = await getVertical('jobs')
   if (!v || v.status !== 'live') notFound()
   const job = await getJobBySlug(params.slug)

@@ -13,7 +13,7 @@ const ORG_KINDS = ['agency', 'developer', 'supplier', 'manufacturer', 'contracto
 
 /** Admin: search Google Places and flag places already imported (by import log or an existing organisation). */
 export async function GET(request: NextRequest) {
-  if (!verifySessionToken(cookies().get(SESSION_COOKIE)?.value)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!verifySessionToken((await cookies()).get(SESSION_COOKIE)?.value)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const sp = new URL(request.url).searchParams
   const parsed = z.object({ query: z.string().trim().min(2).max(200), kind: z.enum(ORG_KINDS) }).safeParse({ query: sp.get('query'), kind: sp.get('kind') })
   if (!parsed.success) return NextResponse.json({ error: 'Enter a search and choose a business type.' }, { status: 400 })

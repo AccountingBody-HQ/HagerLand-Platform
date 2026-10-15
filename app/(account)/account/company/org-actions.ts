@@ -89,7 +89,8 @@ export async function createOrganisationAction(_prev: OrgFormState | null, formD
   await syncLinks(orgId, d)
   await getAdminSupabase().from('profiles').update({ account_type: 'business' }).eq('id', user.id)
   await trackServer('org_created', { kind: d.kind })
-  cookies().set(ACTIVE_ORG_COOKIE, orgId, { httpOnly: true, sameSite: 'lax', secure: true, path: '/', maxAge: 60 * 60 * 24 * 365 })
+  const cookieStore = await cookies()
+  cookieStore.set(ACTIVE_ORG_COOKIE, orgId, { httpOnly: true, sameSite: 'lax', secure: true, path: '/', maxAge: 60 * 60 * 24 * 365 })
   redirect('/account?welcome=business')
 }
 
@@ -129,7 +130,8 @@ export async function setActiveOrgAction(formData: FormData): Promise<void> {
   const orgId = String(formData.get('org_id') ?? '')
   const memberships = await getMemberships()
   if (memberships.some((m) => m.org.id === orgId)) {
-    cookies().set(ACTIVE_ORG_COOKIE, orgId, { httpOnly: true, sameSite: 'lax', secure: true, path: '/', maxAge: 60 * 60 * 24 * 365 })
+    const cookieStore = await cookies()
+    cookieStore.set(ACTIVE_ORG_COOKIE, orgId, { httpOnly: true, sameSite: 'lax', secure: true, path: '/', maxAge: 60 * 60 * 24 * 365 })
   }
   redirect(String(formData.get('return_to') ?? '/account').startsWith('/account') ? String(formData.get('return_to')) : '/account')
 }

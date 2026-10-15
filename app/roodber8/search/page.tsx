@@ -16,8 +16,9 @@ interface Hit {
 }
 
 /** Admin global search: names, references (HLE-/HLQ-), short ids, phone numbers and emails across every record type. */
-export default async function AdminSearchPage({ searchParams }: { searchParams: { q?: string } }) {
-  requireAdminPage()
+export default async function AdminSearchPage(route: { searchParams: Promise<{ q?: string }> }) {
+  const searchParams = await route.searchParams
+  await requireAdminPage()
   const term = (searchParams.q ?? '').trim().slice(0, 100)
   const groups: { title: string; hits: Hit[] }[] = []
   if (term.length >= 2) {

@@ -21,8 +21,9 @@ const ADMIN_PATH: Record<string, string> = {
   product: '/roodber8/products',
 }
 
-export default async function AdminEnquiryPage({ params }: { params: { id: string } }) {
-  requireAdminPage()
+export default async function AdminEnquiryPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params
+  await requireAdminPage()
   const db = getAdminSupabase()
   const { data: e } = await db.from('enquiries').select('*, org:organisations!enquiries_recipient_org_id_fkey(id, name)').eq('id', params.id).maybeSingle()
   if (!e) notFound()

@@ -1,18 +1,19 @@
 'use client'
 
-import { useFormState } from 'react-dom'
+import { useActionState } from 'react'
 import { applyTradeAction } from '@/app/actions/trade-actions'
 import { Field, Input, Textarea } from '@/components/ui/Field'
 import { FormAlert, SubmitButton } from '@/components/forms/FormParts'
 import type { ActionResult } from '@/lib/action-result'
+import { NoResetForm } from '@/components/forms/NoResetForm'
 
 /** Trade account application (spec 25.2e). */
 export function TradeForm({ defaults }: { defaults: { business_name: string; phone: string } }) {
-  const [state, action] = useFormState<ActionResult<{ reference: string }> | null, FormData>(applyTradeAction, null)
+  const [state, action] = useActionState<ActionResult<{ reference: string }> | null, FormData>(applyTradeAction, null)
   if (state?.ok) return <FormAlert tone="success">{`${state.message ?? 'Thanks.'} Reference ${state.data.reference}.`}</FormAlert>
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
   return (
-    <form action={action} className="space-y-5" noValidate>
+    <NoResetForm action={action} className="space-y-5" noValidate>
       {state && !state.ok && <FormAlert>{state.error}</FormAlert>}
       <Field label="Business name" htmlFor="tr-name" required error={errors.business_name}>
         <Input id="tr-name" name="business_name" defaultValue={defaults.business_name} maxLength={160} required invalid={Boolean(errors.business_name)} />
@@ -35,6 +36,6 @@ export function TradeForm({ defaults }: { defaults: { business_name: string; pho
         <Textarea id="tr-notes" name="notes" rows={3} maxLength={2000} invalid={Boolean(errors.notes)} />
       </Field>
       <SubmitButton pendingText="Sending…">Apply for a trade account</SubmitButton>
-    </form>
+    </NoResetForm>
   )
 }

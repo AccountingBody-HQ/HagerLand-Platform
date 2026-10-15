@@ -16,7 +16,7 @@ import { LanguageSwitch } from './LanguageSwitch'
 
 export async function SiteFooter({ amharicOn = false }: { amharicOn?: boolean }) {
   const [business, verticals] = await Promise.all([getBusinessDetails(), getVerticals()])
-  const locale = getLocale()
+  const locale = await getLocale()
   const t = translator(locale)
   const columns = buildFooterColumns(verticals).map((c) => ({ title: t(c.title), links: c.links.map((l) => localizeLink(l, t, locale)) }))
   const socials = business.social

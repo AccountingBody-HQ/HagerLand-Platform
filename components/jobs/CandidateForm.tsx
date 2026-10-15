@@ -1,7 +1,6 @@
 'use client'
 
-import { useState } from 'react'
-import { useFormState } from 'react-dom'
+import { useActionState, useState } from 'react'
 import { FileText } from 'lucide-react'
 import { saveCandidateProfileAction } from '@/app/actions/job-actions'
 import { Checkbox, Field, Input, Radio, Select, Textarea, describedBy } from '@/components/ui/Field'
@@ -10,6 +9,7 @@ import { FormAlert, SubmitButton } from '@/components/forms/FormParts'
 import { FileDrop } from '@/components/media/FileDrop'
 import { AVAILABILITY } from '@/lib/jobs'
 import type { ActionResult } from '@/lib/action-result'
+import { NoResetForm } from '@/components/forms/NoResetForm'
 
 export interface CandidateDefaults {
   full_name: string
@@ -27,11 +27,11 @@ export interface CandidateDefaults {
 
 /** Candidate profile (spec 24.9): private by default; the candidate chooses whether employers can find it. */
 export function CandidateForm({ userId, defaults }: { userId: string; defaults: CandidateDefaults }) {
-  const [state, action] = useFormState<ActionResult<{ message: string }> | null, FormData>(saveCandidateProfileAction, null)
+  const [state, action] = useActionState<ActionResult<{ message: string }> | null, FormData>(saveCandidateProfileAction, null)
   const [cv, setCv] = useState<{ path: string; name: string } | null>(defaults.cv_path ? { path: defaults.cv_path, name: 'Your saved CV' } : null)
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
   return (
-    <form action={action} className="space-y-5" noValidate>
+    <NoResetForm action={action} className="space-y-5" noValidate>
       {state && !state.ok && <FormAlert>{state.error}</FormAlert>}
       {state?.ok && <FormAlert tone="success">{state.data.message}</FormAlert>}
       <input type="hidden" name="cv_path" value={cv?.path ?? ''} />
@@ -77,9 +77,12 @@ export function CandidateForm({ userId, defaults }: { userId: string; defaults: 
           <p className="flex flex-wrap items-center gap-2 rounded-md border border-border bg-stone-50 px-3 py-2 text-small">
             <FileText className="size-4 text-green" aria-hidden /> <span className="flex-1 truncate">{cv.name}</span>
             {cv.path === defaults.cv_path && (
-              <a href="/account/cv/profile" className="inline-flex min-h-11 items-center px-2 font-semibold text-green">
-                Open
-              </a>
+              <>
+                {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- opens a file from a route handler, not a page */}
+                <a href="/account/cv/profile" className="inline-flex min-h-11 items-center px-2 font-semibold text-green">
+                  Open
+                </a>
+              </>
             )}
             <button type="button" className="min-h-11 px-2 font-semibold text-error" onClick={() => setCv(null)}>
               Remove
@@ -111,6 +114,6 @@ export function CandidateForm({ userId, defaults }: { userId: string; defaults: 
       </fieldset>
       <Checkbox id="cp-placement" name="placement_wanted" label="Register me for placement help" description="HagerLand may contact you about suitable roles from our recruitment requests." defaultChecked={defaults.placement_wanted} />
       <SubmitButton pendingText="Saving…">Save profile</SubmitButton>
-    </form>
+    </NoResetForm>
   )
 }

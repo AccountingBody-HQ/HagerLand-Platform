@@ -1,7 +1,6 @@
 'use client'
 
-import { useState } from 'react'
-import { useFormState } from 'react-dom'
+import { useActionState, useState } from 'react'
 import { Plus, Trash2 } from 'lucide-react'
 import { Field, Input, Select, Textarea } from '@/components/ui/Field'
 import { Button } from '@/components/ui/Button'
@@ -9,6 +8,7 @@ import { FormAlert, SubmitButton } from '@/components/forms/FormParts'
 import { UNITS } from '@/lib/units'
 import { Panel } from '@/components/admin/AdminUi'
 import type { ActionResult } from '@/lib/action-result'
+import { NoResetForm } from '@/components/forms/NoResetForm'
 
 interface Spec {
   label: string
@@ -49,13 +49,13 @@ type Save = (prev: ActionResult<{ id: string }> | null, formData: FormData) => P
  * Special Buys are set by HagerLand separately and are not part of this form.
  */
 export function ProductForm({ action: save, defaults, categories, brands, sellers, submitLabel, allowNewBrand = true }: { action: Save; defaults: ProductDefaults; categories: { id: string; label: string }[]; brands: { id: string; name: string }[]; sellers?: { id: string; label: string }[]; submitLabel?: string; allowNewBrand?: boolean }) {
-  const [state, action] = useFormState(save, null)
+  const [state, action] = useActionState(save, null)
   const [specs, setSpecs] = useState<Spec[]>(defaults.specs ?? [])
   const [priceType, setPriceType] = useState(defaults.price_type ?? 'on_request')
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
   const v = (x: string | number | null | undefined) => (x === null || x === undefined ? '' : String(x))
   return (
-    <form action={action} className="space-y-5" noValidate>
+    <NoResetForm action={action} className="space-y-5" noValidate>
       {defaults.id && <input type="hidden" name="id" value={defaults.id} />}
       {defaults.id && defaults.updated_at && <input type="hidden" name="expected_updated_at" value={defaults.updated_at} />}
       <input type="hidden" name="specs" value={JSON.stringify(specs.filter((s) => s.label.trim() && s.value.trim()))} />
@@ -193,6 +193,6 @@ export function ProductForm({ action: save, defaults, categories, brands, seller
       <SubmitButton size="lg" pendingText="Saving…">
         {submitLabel ?? (defaults.id ? 'Save product' : 'Create product')}
       </SubmitButton>
-    </form>
+    </NoResetForm>
   )
 }

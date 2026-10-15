@@ -117,7 +117,8 @@ export function FileDrop({
   }
 
   return (
-    <div>
+    // Forms refuse to send while an upload in them is unfinished (NoResetForm), so no file is silently left out.
+    <div data-uploading={items.some((i) => i.state === 'uploading' || i.state === 'processing') ? 'true' : undefined}>
       <button
         type="button"
         disabled={disabled}

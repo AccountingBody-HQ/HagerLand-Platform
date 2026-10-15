@@ -4,7 +4,8 @@ import { UnsubscribeForm } from '@/components/saved/UnsubscribeForm'
 export const metadata = { title: 'Stop alert emails', robots: { index: false, follow: false } }
 
 /** One-click unsubscribe from a search alert. A button (not the link itself) confirms, so link scanners cannot unsubscribe people. */
-export default function UnsubscribePage({ searchParams }: { searchParams: { token?: string } }) {
+export default async function UnsubscribePage(props: { searchParams: Promise<{ token?: string }> }) {
+  const searchParams = await props.searchParams
   return (
     <Container className="max-w-xl py-12 lg:py-20">
       <h1 className="hl-h1">Stop alert emails</h1>

@@ -6,7 +6,8 @@ import { ButtonLink } from '@/components/ui/Button'
 
 export const metadata = buildMetadata({ title: 'Quote request sent', description: 'Your quote request has been sent to HagerLand Supply.', path: '/supplies/quote/sent', noindex: true })
 
-export default function QuoteSentPage({ searchParams }: { searchParams: { ref?: string } }) {
+export default async function QuoteSentPage(props: { searchParams: Promise<{ ref?: string }> }) {
+  const searchParams = await props.searchParams
   const ref = /^HLQ-\d{4}-\d{6}$/.test(searchParams.ref ?? '') ? searchParams.ref : null
   return (
     <Container className="py-16">

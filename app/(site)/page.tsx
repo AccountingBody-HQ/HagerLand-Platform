@@ -81,7 +81,7 @@ export default async function HomePage() {
     getPopularLocations(null, 8),
   ])
   const totalProperties = saleNewest.total + rentNewest.total
-  const locale = getLocale()
+  const locale = await getLocale()
   const t = translator(locale)
   const lh = (h: string) => localizeHref(h, locale)
 

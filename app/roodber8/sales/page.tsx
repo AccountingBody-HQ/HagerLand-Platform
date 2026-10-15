@@ -5,8 +5,9 @@ import { ButtonLink } from '@/components/ui/Button'
 
 export const metadata = { title: 'HagerLand sales' }
 
-export default function SalesPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
-  requireAdminPage()
+export default async function SalesPage(props: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const searchParams = await props.searchParams
+  await requireAdminPage()
   return (
     <div>
       <AdminHeader

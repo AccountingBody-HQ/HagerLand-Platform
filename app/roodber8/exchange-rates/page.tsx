@@ -13,7 +13,7 @@ const NAMES: Record<string, string> = {
 
 /** Rates for approximate prices shown to visitors abroad (spec 25.2f). ETB stays the price of record. */
 export default async function RatesPage() {
-  requireAdminPage()
+  await requireAdminPage()
   const { data } = await getAdminSupabase().from('exchange_rates').select('currency, etb_per_unit, updated_at')
   const byCode = new Map((data ?? []).map((r) => [r.currency, r]))
   const rows = Object.entries(NAMES).map(([currency, name]) => {

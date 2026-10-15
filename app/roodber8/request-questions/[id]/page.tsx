@@ -7,8 +7,9 @@ import { ButtonLink } from '@/components/ui/Button'
 
 export const metadata = { title: 'Edit request questions' }
 
-export default async function EditQuestionsPage({ params }: { params: { id: string } }) {
-  requireAdminPage()
+export default async function EditQuestionsPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params
+  await requireAdminPage()
   if (!/^[0-9a-f-]{36}$/.test(params.id)) notFound()
   const db = getAdminSupabase()
   const [{ data: c }, { data: verticals }] = await Promise.all([

@@ -1,7 +1,6 @@
 'use client'
 
-import { useFormState } from 'react-dom'
-import { useTransition } from 'react'
+import { useActionState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { savePortfolioAction, submitPortfolioAction } from '@/app/(account)/account/company/portfolio/actions'
 import { Field, Input, Select, Textarea } from '@/components/ui/Field'
@@ -9,15 +8,16 @@ import { Combobox, type ComboOption } from '@/components/ui/Combobox'
 import { Button } from '@/components/ui/Button'
 import { FormAlert, SubmitButton } from '@/components/forms/FormParts'
 import { useToast } from '@/components/ui/Toast'
+import { NoResetForm } from '@/components/forms/NoResetForm'
 
 export function PortfolioForm({ defaults, status }: { defaults: { id?: string; title?: string; description?: string | null; location?: ComboOption | null; year?: number | null; project_value_band?: string | null }; status?: string }) {
-  const [state, action] = useFormState(savePortfolioAction, null)
+  const [state, action] = useActionState(savePortfolioAction, null)
   const [pending, start] = useTransition()
   const toast = useToast()
   const router = useRouter()
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
   return (
-    <form action={action} className="space-y-5" noValidate>
+    <NoResetForm action={action} className="space-y-5" noValidate>
       {defaults.id && <input type="hidden" name="id" value={defaults.id} />}
       {state && !state.ok && <FormAlert>{state.error}</FormAlert>}
       {state?.ok && state.message && <FormAlert tone="success">{state.message}</FormAlert>}
@@ -61,6 +61,6 @@ export function PortfolioForm({ defaults, status }: { defaults: { id?: string; t
           </Button>
         )}
       </div>
-    </form>
+    </NoResetForm>
   )
 }

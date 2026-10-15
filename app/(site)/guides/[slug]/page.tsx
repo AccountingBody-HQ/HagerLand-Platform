@@ -13,13 +13,15 @@ import { JsonLd } from '@/components/seo/JsonLd'
 
 export const revalidate = 600
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const params = await props.params
   const g = await getGuide(params.slug)
   if (!g) return { title: 'Guide not found' }
   return buildMetadata({ title: g.seo_title || g.title || '', description: truncateDescription(g.seo_description || g.summary || ''), path: `/guides/${g.slug}`, type: 'article' })
 }
 
-export default async function GuidePage({ params }: { params: { slug: string } }) {
+export default async function GuidePage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params
   const g = await getGuide(params.slug)
   if (!g || !g.slug) notFound()
   const blocks = parseGuideBody(g.body ?? '')

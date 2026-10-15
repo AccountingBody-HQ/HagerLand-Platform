@@ -11,8 +11,9 @@ import { ButtonLink } from '@/components/ui/Button'
 export const metadata = { title: 'Developments' }
 const PAGE = 50
 
-export default async function AdminDevelopmentsPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
-  requireAdminPage()
+export default async function AdminDevelopmentsPage(props: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const searchParams = await props.searchParams
+  await requireAdminPage()
   const page = Math.max(1, Number(searchParams.page) || 1)
   let q = getAdminSupabase().from('developments').select('id, name, kind, status, is_hagerland, completion_status, total_units, price_from_etb, updated_at, developer:organisations(name), location:locations(display_name)', { count: 'exact' })
   if (searchParams.q) q = q.ilike('name', `%${escapeLikePattern(searchParams.q.slice(0, 80))}%`)

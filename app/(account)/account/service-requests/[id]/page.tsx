@@ -6,7 +6,8 @@ import { RequestView } from '@/components/service-requests/RequestView'
 
 export const metadata = { title: 'Service request' }
 
-export default async function MyServiceRequestPage({ params }: { params: { id: string } }) {
+export default async function MyServiceRequestPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params
   const user = await requireUser(`/account/service-requests/${params.id}`)
   if (!/^[0-9a-f-]{36}$/.test(params.id)) notFound()
   // RLS: only the requester can read their own request.

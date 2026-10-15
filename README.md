@@ -30,7 +30,7 @@ Production: https://www.hagerland.com · Admin: `/roodber8`
 
 ## Stack
 
-Next.js 14.2 (App Router, TypeScript strict) · Tailwind CSS · Supabase (Postgres, Auth, Storage) · Resend (email) · Cloudflare Turnstile · Vercel (hosting, cron, analytics).
+Next.js 15.5 (App Router, React 19, TypeScript strict) · Tailwind CSS · Supabase (Postgres, Auth, Storage) · Resend (email) · Cloudflare Turnstile · Vercel (hosting, cron, analytics).
 
 ## Getting started
 

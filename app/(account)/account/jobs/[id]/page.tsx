@@ -21,7 +21,11 @@ import { JobsNotLive } from '@/components/jobs/JobsNotLive'
 
 export const metadata = { title: 'Job' }
 
-export default async function EmployerJobPage({ params, searchParams }: { params: { id: string }; searchParams: { saved?: string; submitted?: string } }) {
+export default async function EmployerJobPage(
+  props: { params: Promise<{ id: string }>; searchParams: Promise<{ saved?: string; submitted?: string }> }
+) {
+  const searchParams = await props.searchParams
+  const params = await props.params
   await requireUser(`/account/jobs/${params.id}`)
   if ((await getVertical('jobs'))?.status !== 'live') return <JobsNotLive />
   if (!/^[0-9a-f-]{36}$/.test(params.id)) notFound()

@@ -25,7 +25,7 @@ async function syncLinks(orgId: string, serviceIds: string[], categoryIds: strin
 
 /** Create or edit any organisation as HagerLand (applies immediately). */
 export async function saveAdminOrgAction(_prev: OrgFormState | null, formData: FormData): Promise<OrgFormState> {
-  assertAdmin()
+  await assertAdmin()
   const parsed = adminOrgSchema.safeParse(organisationFormValues(formData))
   if (!parsed.success) return invalid(parsed.error)
   const d = parsed.data
@@ -82,7 +82,7 @@ const adminFieldsSchema = z.object({
 
 /** Fields only HagerLand sets: verification level, licence and TIN numbers, plan. */
 export async function saveOrgAdminFieldsAction(orgId: string, input: z.infer<typeof adminFieldsSchema>): Promise<ActionResult<{ message: string }>> {
-  assertAdmin()
+  await assertAdmin()
   const parsed = adminFieldsSchema.safeParse(input)
   if (!parsed.success || !z.uuid().safeParse(orgId).success) return fail('Check the fields.')
   const db = getAdminSupabase()
@@ -106,7 +106,7 @@ export async function saveOrgAdminFieldsAction(orgId: string, input: z.infer<typ
 
 /** Adds an existing account as a member (owner/admin/member) by email. */
 export async function addMemberAction(orgId: string, email: string, role: string): Promise<ActionResult<{ message: string }>> {
-  assertAdmin()
+  await assertAdmin()
   const parsed = z.object({ orgId: z.uuid(), email: z.email(), role: z.enum(['owner', 'admin', 'member']) }).safeParse({ orgId, email: email.trim().toLowerCase(), role })
   if (!parsed.success) return fail('Enter a valid email and role.')
   const db = getAdminSupabase()
@@ -125,7 +125,7 @@ export async function addMemberAction(orgId: string, email: string, role: string
 }
 
 export async function removeMemberAction(orgId: string, userId: string): Promise<ActionResult<{ message: string }>> {
-  assertAdmin()
+  await assertAdmin()
   if (!z.uuid().safeParse(orgId).success || !z.uuid().safeParse(userId).success) return fail('Invalid.')
   const { error } = await getAdminSupabase().from('organisation_members').delete().eq('org_id', orgId).eq('user_id', userId)
   if (error) return fail(error.message.includes('at least one owner') ? 'This is the only owner. Make someone else an owner first.' : 'Could not remove the member.')
@@ -139,7 +139,7 @@ export async function removeMemberAction(orgId: string, userId: string): Promise
  * portfolio, products, services, supply categories and leads, then archives the duplicate (spec 18.2 #5).
  */
 export async function mergeOrganisationsAction(sourceId: string, targetId: string): Promise<ActionResult<{ message: string }>> {
-  assertAdmin()
+  await assertAdmin()
   if (!z.uuid().safeParse(sourceId).success || !z.uuid().safeParse(targetId).success || sourceId === targetId) return fail('Choose a different organisation to merge into.')
   const db = getAdminSupabase()
   const [{ data: source }, { data: target }] = await Promise.all([

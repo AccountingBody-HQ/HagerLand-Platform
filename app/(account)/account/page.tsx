@@ -17,7 +17,8 @@ interface Task {
   icon: React.ReactNode
 }
 
-export default async function AccountOverview({ searchParams }: { searchParams: { welcome?: string; error?: string } }) {
+export default async function AccountOverview(props: { searchParams: Promise<{ welcome?: string; error?: string }> }) {
+  const searchParams = await props.searchParams
   const user = await requireUser('/account')
   const [profile, active] = await Promise.all([getProfile(), getActiveMembership()])
   const supabase = getServerSupabase()

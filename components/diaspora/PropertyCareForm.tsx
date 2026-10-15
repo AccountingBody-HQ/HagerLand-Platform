@@ -1,8 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
-import { useFormState } from 'react-dom'
+import { useActionState, useEffect, useState } from 'react'
 import { CircleCheck } from 'lucide-react'
 import { requestPropertyCareAction } from '@/app/actions/property-care-actions'
 import { Checkbox, Field, Input, Select, Textarea, describedBy } from '@/components/ui/Field'
@@ -14,10 +13,11 @@ import { readUtm } from '@/components/enquiry/UtmCapture'
 import { COUNTRIES, OTHER_COUNTRY, countryByCode } from '@/lib/countries'
 import { CARE_OCCUPANCY, CARE_PROPERTY_TYPES, CARE_SERVICES } from '@/lib/property-care'
 import { track } from '@/lib/analytics'
+import { NoResetForm } from '@/components/forms/NoResetForm'
 
 /** "Request a consultation" for HagerLand Property Care (spec 24.6). */
 export function PropertyCareForm() {
-  const [state, action] = useFormState(requestPropertyCareAction, null)
+  const [state, action] = useActionState(requestPropertyCareAction, null)
   const [country, setCountry] = useState('GB')
   const [tz, setTz] = useState('')
   const [utm, setUtm] = useState('')
@@ -49,7 +49,7 @@ export function PropertyCareForm() {
     )
 
   return (
-    <form action={action} className="space-y-6" noValidate>
+    <NoResetForm action={action} className="space-y-6" noValidate>
       <input type="hidden" name="utm" value={utm} />
       <input type="hidden" name="source_url" value={sourceUrl} />
       <Honeypot />
@@ -162,6 +162,6 @@ export function PropertyCareForm() {
         </Link>
         .
       </p>
-    </form>
+    </NoResetForm>
   )
 }

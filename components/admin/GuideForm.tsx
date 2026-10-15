@@ -1,11 +1,12 @@
 'use client'
 
-import { useFormState } from 'react-dom'
+import { useActionState } from 'react'
 import { saveGuideAction } from '@/app/roodber8/actions/guides'
 import { Field, Input, Select, Textarea } from '@/components/ui/Field'
 import { FormAlert, SubmitButton } from '@/components/forms/FormParts'
 import { GUIDE_TOPICS } from '@/lib/guides'
 import { Panel } from './AdminUi'
+import { NoResetForm } from '@/components/forms/NoResetForm'
 
 export interface GuideDefaults {
   id?: string
@@ -23,10 +24,10 @@ export interface GuideDefaults {
 
 /** Guide editor (spec 25.2g). */
 export function GuideForm({ defaults }: { defaults: GuideDefaults }) {
-  const [state, action] = useFormState(saveGuideAction, null)
+  const [state, action] = useActionState(saveGuideAction, null)
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
   return (
-    <form action={action} className="space-y-5" noValidate>
+    <NoResetForm action={action} className="space-y-5" noValidate>
       {defaults.id && <input type="hidden" name="id" value={defaults.id} />}
       {state && !state.ok && <FormAlert>{[state.error, ...Object.values(state.fieldErrors ?? {})].join(' ')}</FormAlert>}
       {state?.ok && <FormAlert tone="success">{state.message}</FormAlert>}
@@ -87,6 +88,6 @@ export function GuideForm({ defaults }: { defaults: GuideDefaults }) {
       <SubmitButton size="lg" pendingText="Saving…">
         {defaults.id ? 'Save guide' : 'Create guide'}
       </SubmitButton>
-    </form>
+    </NoResetForm>
   )
 }

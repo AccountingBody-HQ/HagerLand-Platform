@@ -1,7 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
-import { useFormState } from 'react-dom'
+import { useActionState, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { FileCheck2, Plus, Trash2 } from 'lucide-react'
 import { saveDevelopmentAction, submitDevelopmentAction } from '@/app/(account)/account/developments/actions'
@@ -13,6 +12,7 @@ import { FileDrop } from '@/components/media/FileDrop'
 import { useToast } from '@/components/ui/Toast'
 import { COMPLETION, FINISHING, TENURE } from '@/lib/labels'
 import type { UnitType } from '@/lib/data/developments'
+import { NoResetForm } from '@/components/forms/NoResetForm'
 
 export interface DevelopmentDefaults {
   id?: string
@@ -55,7 +55,7 @@ export function DevelopmentForm({
   developerOptions?: { id: string; label: string }[]
   currentDeveloper?: string | null
 }) {
-  const [state, formAction] = useFormState(action, null)
+  const [state, formAction] = useActionState(action, null)
   const [units, setUnits] = useState<UnitType[]>(defaults.unit_types ?? [])
   const [brochure, setBrochure] = useState<string | null>(defaults.brochure_path ?? null)
   const [pending, start] = useTransition()
@@ -65,7 +65,7 @@ export function DevelopmentForm({
   const v = (x: number | null | undefined) => (x === null || x === undefined ? '' : String(x))
 
   return (
-    <form action={formAction} className="space-y-8" noValidate>
+    <NoResetForm action={formAction} className="space-y-8" noValidate>
       {defaults.id && <input type="hidden" name="id" value={defaults.id} />}
       {defaults.id && defaults.updated_at && <input type="hidden" name="expected_updated_at" value={defaults.updated_at} />}
       <input type="hidden" name="unit_types" value={JSON.stringify(units.filter((u) => u.type.trim()))} />
@@ -246,6 +246,6 @@ export function DevelopmentForm({
           </Button>
         )}
       </div>
-    </form>
+    </NoResetForm>
   )
 }

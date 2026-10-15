@@ -17,7 +17,8 @@ const yesNo = (v: boolean | null) => (v === null ? '—' : v ? 'Yes' : 'No')
 const label = (v: string | null) => (v ? v.replace(/_/g, ' ') : '—')
 
 /** Side-by-side comparison of up to four live listings (spec 24.7). */
-export default async function ComparePage({ searchParams }: { searchParams: { ids?: string } }) {
+export default async function ComparePage(props: { searchParams: Promise<{ ids?: string }> }) {
+  const searchParams = await props.searchParams
   const ids = Array.from(new Set((searchParams.ids ?? '').split(',').filter((x) => /^[0-9a-f-]{36}$/.test(x)))).slice(0, 4)
   // Public view only: compares live listings and never exposes private fields.
   const { data } = ids.length ? await getAdminSupabase().from('properties_public').select('*').in('id', ids) : { data: [] }

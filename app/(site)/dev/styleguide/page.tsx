@@ -53,8 +53,8 @@ function Block({ title, children }: { title: string; children: React.ReactNode }
   )
 }
 
-export default function StyleguidePage() {
-  const isAdmin = verifySessionToken(cookies().get(SESSION_COOKIE)?.value)
+export default async function StyleguidePage() {
+  const isAdmin = verifySessionToken((await cookies()).get(SESSION_COOKIE)?.value)
   if (IS_PRODUCTION && !isAdmin) notFound()
 
   return (

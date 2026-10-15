@@ -22,8 +22,12 @@ test('services abroad finds an Ethiopian-run business by country, city and servi
   const { data: org } = await d.from('organisations').insert({ kind: 'sole_trader', name: `E2E London Electrics ${stamp}`, slug: `e2e-london-electrics-${stamp}`, location_id: city!.id, serves_diaspora: true, source: 'admin', status: 'published' }).select('id').single()
   await d.from('organisation_services').insert({ org_id: org!.id, service_id: svc!.id })
   try {
-    await page.goto(`/diaspora/services-abroad?country=GB&city=${city!.path}&service=electricians`)
-    await expect(page.getByRole('link', { name: `E2E London Electrics ${stamp}` })).toBeVisible()
+    // Directory results are cached for up to 5 minutes: a run repeated within that time waits for fresh results.
+    test.setTimeout(420_000)
+    await expect(async () => {
+      await page.goto(`/diaspora/services-abroad?country=GB&city=${city!.path}&service=electricians`)
+      await expect(page.getByRole('link', { name: `E2E London Electrics ${stamp}` })).toBeVisible({ timeout: 3_000 })
+    }).toPass({ timeout: 330_000, intervals: [10_000] })
     await expect(page.getByRole('link', { name: /Get quotes/ })).toHaveAttribute('href', '/request-service/electricians?abroad=1')
     await page.goto('/diaspora/services-abroad?country=KE&service=electricians')
     await expect(page.getByText(/No businesses listed in Kenya yet/)).toBeVisible()
@@ -74,6 +78,8 @@ test('an owner abroad requests a Property Care consultation; HagerLand moves it 
   const [photo] = await testPhotos(1)
   await page.locator('input[type=file]').first().setInputFiles(photo)
   await expect(page.getByText('photo-0.jpg')).toBeVisible({ timeout: 20_000 })
+  // The photo's field is added once its upload has finished (sending earlier is refused with a message).
+  await expect(page.getByText('Done').first()).toBeVisible({ timeout: 20_000 })
   await page.locator('#in-cond').selectOption('needs_attention')
   await page.locator('#in-notes').fill('Damp patch in the bathroom ceiling.')
   await page.getByRole('button', { name: 'Add inspection', exact: true }).click()

@@ -63,7 +63,7 @@ export async function submitServiceRequestAction(_prev: RequestState, formData: 
   if (d.urgency === 'emergency' && !category.allowsEmergency) return fail('Emergency requests are not available for this service.', { urgency: 'Choose another option' })
   if (d.files.some((f) => !d.upload_id || !f.startsWith(`docs/request/${d.upload_id}/`))) return fail('Please upload your files again.')
 
-  const ip = getClientIp(headers())
+  const ip = getClientIp(await headers())
   const ipHash = hashIp(ip)
   const [byIp, byPhone] = await Promise.all([rateLimit(`srequest:ip:${ipHash}`, 6, 3600), rateLimit(`srequest:phone:${d.phone}`, 10, 86_400)])
   if (!byIp.allowed || !byPhone.allowed) return fail('You have sent several requests recently. Please wait a while and try again, or contact us.')
@@ -199,7 +199,7 @@ export async function resendRequestLinkAction(_prev: ActionResult<{ message: str
   if (isHoneypotFilled(formData)) return ok({ message: 'If the details match a request, we have emailed a new link.' })
   const parsed = resendSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
-  const ip = getClientIp(headers())
+  const ip = getClientIp(await headers())
   if (!(await rateLimit(`srlink:${hashIp(ip)}`, 5, 3600)).allowed) return fail('Too many attempts. Please wait an hour and try again.')
   if (!(await verifyTurnstileToken(formData.get('cf-turnstile-response') as string | null, ip))) return fail('Please complete the security check and try again.')
   const db = getAdminSupabase()

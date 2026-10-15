@@ -1,8 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
-import { useFormState } from 'react-dom'
+import { useActionState, useEffect, useState } from 'react'
 import { CircleCheck } from 'lucide-react'
 import { submitInterestAction } from '@/app/actions/interest-actions'
 import { Checkbox, Field, Input, Select, Textarea, describedBy } from '@/components/ui/Field'
@@ -14,6 +13,7 @@ import { COUNTRIES, OTHER_COUNTRY } from '@/lib/countries'
 import type { Option } from '@/lib/content/verticals'
 import type { VerticalKey } from '@/lib/verticals'
 import { track } from '@/lib/analytics'
+import { NoResetForm } from '@/components/forms/NoResetForm'
 
 /** "Register your interest" for a vertical (spec 24.2). */
 export function InterestForm({
@@ -37,7 +37,7 @@ export function InterestForm({
   idPrefix?: string
   submitLabel?: string
 }) {
-  const [state, action] = useFormState(submitInterestAction, null)
+  const [state, action] = useActionState(submitInterestAction, null)
   const [utm, setUtm] = useState('')
   const [sourceUrl, setSourceUrl] = useState('')
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
@@ -64,7 +64,7 @@ export function InterestForm({
   }
 
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <NoResetForm action={action} className="space-y-4" noValidate>
       <input type="hidden" name="vertical_key" value={verticalKey} />
       <input type="hidden" name="utm" value={utm} />
       <input type="hidden" name="source_url" value={sourceUrl} />
@@ -136,6 +136,6 @@ export function InterestForm({
         </Link>
         .
       </p>
-    </form>
+    </NoResetForm>
   )
 }

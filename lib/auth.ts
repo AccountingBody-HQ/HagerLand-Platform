@@ -60,7 +60,7 @@ export const getMemberships = cache(async (): Promise<Membership[]> => {
 export const getActiveMembership = cache(async (): Promise<Membership | null> => {
   const memberships = await getMemberships()
   if (memberships.length === 0) return null
-  const chosen = cookies().get(ACTIVE_ORG_COOKIE)?.value
+  const chosen = (await cookies()).get(ACTIVE_ORG_COOKIE)?.value
   return memberships.find((m) => m.org.id === chosen) ?? memberships[0]
 })
 

@@ -9,7 +9,7 @@ export const metadata = { title: 'Request questions' }
 
 /** Services customers can request, and the questions each one asks (spec 24.12). */
 export default async function RequestQuestionsPage() {
-  requireAdminPage()
+  await requireAdminPage()
   const db = getAdminSupabase()
   const [{ data: cats }, { data: verticals }] = await Promise.all([
     db.from('service_categories').select('id, parent_id, name, slug, is_active, vertical_key, question_schema, allows_emergency, sort').order('sort'),

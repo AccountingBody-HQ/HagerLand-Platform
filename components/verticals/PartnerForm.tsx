@@ -1,8 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
-import { useFormState } from 'react-dom'
+import { useActionState, useEffect, useState } from 'react'
 import { CircleCheck } from 'lucide-react'
 import { submitPartnerAction } from '@/app/actions/interest-actions'
 import { Field, Input, Select, Textarea, describedBy } from '@/components/ui/Field'
@@ -13,10 +12,11 @@ import { COUNTRIES, OTHER_COUNTRY } from '@/lib/countries'
 import { PARTNER_TYPE_LABELS, type PartnerType } from '@/lib/content/verticals'
 import type { VerticalKey } from '@/lib/verticals'
 import { track } from '@/lib/analytics'
+import { NoResetForm } from '@/components/forms/NoResetForm'
 
 /** "Become a partner" for banks, lenders, insurers and brokers (spec 24.2, 24.8). */
 export function PartnerForm({ verticalKey, types, idPrefix = 'par' }: { verticalKey: VerticalKey; types: PartnerType[]; idPrefix?: string }) {
-  const [state, action] = useFormState(submitPartnerAction, null)
+  const [state, action] = useActionState(submitPartnerAction, null)
   const [sourceUrl, setSourceUrl] = useState('')
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
   const id = (n: string) => `${idPrefix}-${n}`
@@ -38,7 +38,7 @@ export function PartnerForm({ verticalKey, types, idPrefix = 'par' }: { vertical
   }
 
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <NoResetForm action={action} className="space-y-4" noValidate>
       <input type="hidden" name="vertical_key" value={verticalKey} />
       <input type="hidden" name="source_url" value={sourceUrl} />
       <Honeypot />
@@ -95,6 +95,6 @@ export function PartnerForm({ verticalKey, types, idPrefix = 'par' }: { vertical
         </Link>
         .
       </p>
-    </form>
+    </NoResetForm>
   )
 }

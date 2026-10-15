@@ -9,8 +9,9 @@ import { lastMonths, monthlyReport } from '@/lib/admin/aggregate'
 export const dynamic = 'force-dynamic'
 
 /** CSV exports for admin lists (spec 18.2: enquiries, quotes, sales leads, catalogue, reports). */
-export async function GET(request: NextRequest, { params }: { params: { kind: string } }) {
-  if (!isAdminRequest()) return new NextResponse('Unauthorized', { status: 401 })
+export async function GET(request: NextRequest, props: { params: Promise<{ kind: string }> }) {
+  const params = await props.params
+  if (!(await isAdminRequest())) return new NextResponse('Unauthorized', { status: 401 })
   const db = getAdminSupabase()
   const sp = request.nextUrl.searchParams
   let rows: Record<string, unknown>[] = []

@@ -13,7 +13,8 @@ import { formatDate, formatPhone, whatsappLink } from '@/lib/format'
 
 export const metadata = { title: 'Enquiry' }
 
-export default async function EnquiryDetailPage({ params }: { params: { id: string } }) {
+export default async function EnquiryDetailPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params
   const user = await requireUser(`/account/enquiries/${params.id}`)
   const supabase = getServerSupabase()
   const { data: e } = await supabase.from('enquiries').select('id, reference, target_type, target_id, sender_user_id, name, phone, email, message, preferred_contact, intent, details, status, recipient_notes, first_viewed_at, source_url, created_at').eq('id', params.id).maybeSingle()

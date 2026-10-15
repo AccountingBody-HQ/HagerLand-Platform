@@ -64,14 +64,8 @@ export function verifySessionToken(token: string | undefined): boolean {
 
 export const SESSION_COOKIE = SESSION_COOKIE_NAME
 
-export function requireAdminSession(): void {
-  const token = cookies().get(SESSION_COOKIE)?.value
-  if (!verifySessionToken(token)) {
-    throw new Error('Unauthorized')
-  }
-}
 
 /** True when the current request carries a valid admin session (no throw). */
-export function isAdminRequest(): boolean {
-  return verifySessionToken(cookies().get(SESSION_COOKIE)?.value)
+export async function isAdminRequest(): Promise<boolean> {
+  return verifySessionToken((await cookies()).get(SESSION_COOKIE)?.value)
 }

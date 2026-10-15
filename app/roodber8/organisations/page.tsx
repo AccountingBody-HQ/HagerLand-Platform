@@ -11,8 +11,9 @@ import { ButtonLink } from '@/components/ui/Button'
 export const metadata = { title: 'Organisations' }
 const PAGE = 50
 
-export default async function AdminOrgsPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
-  requireAdminPage()
+export default async function AdminOrgsPage(props: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const searchParams = await props.searchParams
+  await requireAdminPage()
   const page = Math.max(1, Number(searchParams.page) || 1)
   let q = getAdminSupabase().from('organisations').select('id, name, kind, status, verification_level, source, claimed_at, is_featured, phone, updated_at, location:locations(display_name), members:organisation_members(count)', { count: 'exact' })
   if (searchParams.q) {

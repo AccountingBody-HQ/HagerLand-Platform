@@ -7,7 +7,7 @@ import { AddCountryForm } from '@/components/admin/AddCountryForm'
 export const metadata = { title: 'Locations' }
 
 export default async function LocationsPage() {
-  requireAdminPage()
+  await requireAdminPage()
   const db = getAdminSupabase()
   const [{ data: locs }, { data: props }] = await Promise.all([
     db.from('locations').select('id, parent_id, name, name_am, slug, sort, is_active, level, display_name, country_code, seo_intro_sale, seo_intro_rent, seo_intro_professionals'),

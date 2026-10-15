@@ -16,7 +16,8 @@ import { JobsNotLive } from '@/components/jobs/JobsNotLive'
 
 export const metadata = { title: 'My job applications' }
 
-export default async function MyApplicationsPage({ searchParams }: { searchParams: { applied?: string } }) {
+export default async function MyApplicationsPage(props: { searchParams: Promise<{ applied?: string }> }) {
+  const searchParams = await props.searchParams
   const user = await requireUser('/account/applications')
   if ((await getVertical('jobs'))?.status !== 'live') return <JobsNotLive />
   const supabase = getServerSupabase()

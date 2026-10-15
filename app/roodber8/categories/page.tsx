@@ -16,8 +16,9 @@ function countBy<T>(rows: T[] | null, key: (r: T) => string | null): Map<string,
   return m
 }
 
-export default async function CategoriesPage({ searchParams }: { searchParams: { type?: string } }) {
-  requireAdminPage()
+export default async function CategoriesPage(props: { searchParams: Promise<{ type?: string }> }) {
+  const searchParams = await props.searchParams
+  await requireAdminPage()
   const type = searchParams.type === 'service' ? 'service' : 'product'
   const db = getAdminSupabase()
   let nodes: TreeNode[]

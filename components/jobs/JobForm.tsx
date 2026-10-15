@@ -1,7 +1,7 @@
 'use client'
 
-import { useRef } from 'react'
-import { useFormState, useFormStatus } from 'react-dom'
+import { useActionState, useRef } from 'react'
+import { NoResetForm, useFormPending } from '@/components/forms/NoResetForm'
 import { saveJobAction, type JobState } from '@/app/actions/job-actions'
 import { Field, Input, Select, Textarea, describedBy } from '@/components/ui/Field'
 import { Combobox, type ComboOption } from '@/components/ui/Combobox'
@@ -25,7 +25,7 @@ export interface JobDefaults {
 }
 
 function Buttons({ setIntent }: { setIntent: (v: 'draft' | 'submit') => void }) {
-  const { pending } = useFormStatus()
+  const pending = useFormPending()
   return (
     <div className="flex flex-col gap-3 sm:flex-row">
       <Button type="submit" variant="secondary" className="flex-1" disabled={pending} onClick={() => setIntent('draft')}>
@@ -40,11 +40,11 @@ function Buttons({ setIntent }: { setIntent: (v: 'draft' | 'submit') => void }) 
 
 /** Post or edit a vacancy (spec 24.9). Salary is optional and shown in the currency of the job's country. */
 export function JobForm({ defaults }: { defaults: JobDefaults }) {
-  const [state, action] = useFormState<JobState, FormData>(saveJobAction, null)
+  const [state, action] = useActionState<JobState, FormData>(saveJobAction, null)
   const intentRef = useRef<HTMLInputElement>(null)
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
   return (
-    <form action={action} className="space-y-5" noValidate>
+    <NoResetForm action={action} className="space-y-5" noValidate>
       {state && !state.ok && <FormAlert>{state.error}</FormAlert>}
       {defaults.id && <input type="hidden" name="id" value={defaults.id} />}
       <input ref={intentRef} type="hidden" name="intent" defaultValue="draft" />
@@ -114,6 +114,6 @@ export function JobForm({ defaults }: { defaults: JobDefaults }) {
           if (intentRef.current) intentRef.current.value = v
         }}
       />
-    </form>
+    </NoResetForm>
   )
 }

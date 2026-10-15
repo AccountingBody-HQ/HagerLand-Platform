@@ -24,7 +24,7 @@ function Kpi({ label, value, href, tone }: { label: string; value: number; href?
 }
 
 export default async function AdminDashboard() {
-  requireAdminPage()
+  await requireAdminPage()
   const db = getAdminSupabase()
   const now = Date.now()
   const iso = (ms: number) => new Date(ms).toISOString()

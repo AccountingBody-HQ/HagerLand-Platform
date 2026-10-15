@@ -29,7 +29,8 @@ function clean(sp: Params) {
   }
 }
 
-export function generateMetadata({ searchParams }: { searchParams: Params }) {
+export async function generateMetadata(props: { searchParams: Promise<Params> }) {
+  const searchParams = await props.searchParams
   const f = clean(searchParams)
   const filtered = Boolean(f.q || f.category || f.type || f.loc || f.page > 1)
   return verticalLandingMetadata('jobs', () =>
@@ -43,7 +44,8 @@ export function generateMetadata({ searchParams }: { searchParams: Params }) {
 }
 
 /** Live job board (spec 24.9). While the vertical is coming soon, the layout shows the coming-soon landing instead. */
-export default async function JobsPage({ searchParams }: { searchParams: Params }) {
+export default async function JobsPage(props: { searchParams: Promise<Params> }) {
+  const searchParams = await props.searchParams
   const v = await getVertical('jobs')
   if (!v || v.status !== 'live') notFound()
   const f = clean(searchParams)

@@ -10,7 +10,7 @@ type Done = { ok: true; data: { message: string } } | { ok: false; error: string
 
 /** Try one undelivered email again now. */
 export async function retryEmailAction(id: string): Promise<Done> {
-  assertAdmin()
+  await assertAdmin()
   if (!z.uuid().safeParse(id).success) return { ok: false, error: 'Invalid.' }
   const db = getAdminSupabase()
   const { data: m } = await db.from('email_outbox').select('*').eq('id', id).maybeSingle()
@@ -24,7 +24,7 @@ export async function retryEmailAction(id: string): Promise<Done> {
 
 /** Stop retrying an email (for example a wrong address). */
 export async function discardEmailAction(id: string): Promise<Done> {
-  assertAdmin()
+  await assertAdmin()
   if (!z.uuid().safeParse(id).success) return { ok: false, error: 'Invalid.' }
   const { error } = await getAdminSupabase().from('email_outbox').update({ status: 'gave_up' }).eq('id', id)
   if (error) return { ok: false, error: 'Please try again.' }

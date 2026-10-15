@@ -8,7 +8,7 @@ import { getClientIp } from '@/lib/security'
 import { audit } from '@/lib/admin/guard'
 
 export async function login(formData: FormData) {
-  const ip = getClientIp(headers())
+  const ip = getClientIp(await headers())
 
   if (await isAdminLoginRateLimited(ip)) {
     redirect('/roodber8-login?error=rate_limited')
@@ -27,7 +27,8 @@ export async function login(formData: FormData) {
   await clearAdminLoginRateLimit(ip)
 
   const session = createSessionToken()
-  cookies().set(SESSION_COOKIE, session.value, {
+  const cookieStore = await cookies()
+  cookieStore.set(SESSION_COOKIE, session.value, {
     httpOnly: true,
     secure: true,
     sameSite: 'lax',

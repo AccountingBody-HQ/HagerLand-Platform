@@ -1,8 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
-import { useFormState } from 'react-dom'
+import { useActionState, useEffect, useState } from 'react'
 import { ArrowLeft, Briefcase, Building2, HardHat, House, KeyRound, MailCheck, Search } from 'lucide-react'
 import { signUpAction } from '@/app/(account)/auth-actions'
 import { SIGNUP_INTENTS, type SignupIntent } from '@/lib/validation/auth'
@@ -12,6 +11,7 @@ import { FormAlert, Honeypot, SubmitButton } from '@/components/forms/FormParts'
 import { Turnstile } from '@/components/forms/Turnstile'
 import { cn } from '@/lib/cn'
 import { track } from '@/lib/analytics'
+import { NoResetForm } from '@/components/forms/NoResetForm'
 
 const CARDS: Record<SignupIntent, { title: string; description: string; icon: React.ReactNode }> = {
   looking: { title: 'Looking for property or materials', description: 'Save time, enquire and request quotes', icon: <Search /> },
@@ -24,7 +24,7 @@ const CARDS: Record<SignupIntent, { title: string; description: string; icon: Re
 
 export function SignupFlow({ initialIntent, next }: { initialIntent: SignupIntent | null; next?: string }) {
   const [intent, setIntent] = useState<SignupIntent | null>(initialIntent)
-  const [state, action] = useFormState(signUpAction, null)
+  const [state, action] = useActionState(signUpAction, null)
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
   const ok = Boolean(state?.ok)
   useEffect(() => {
@@ -76,7 +76,7 @@ export function SignupFlow({ initialIntent, next }: { initialIntent: SignupInten
   }
 
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <NoResetForm action={action} className="space-y-4" noValidate>
       <button type="button" onClick={() => setIntent(null)} className="inline-flex min-h-11 items-center gap-2 text-small font-semibold text-green">
         <ArrowLeft className="size-4" aria-hidden /> {CARDS[intent].title}
       </button>
@@ -114,6 +114,6 @@ export function SignupFlow({ initialIntent, next }: { initialIntent: SignupInten
       <SubmitButton fullWidth pendingText="Creating your account…">
         Create account
       </SubmitButton>
-    </form>
+    </NoResetForm>
   )
 }

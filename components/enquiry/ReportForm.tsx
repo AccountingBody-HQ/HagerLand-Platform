@@ -1,10 +1,11 @@
 'use client'
 
-import { useFormState } from 'react-dom'
+import { useActionState } from 'react'
 import { submitReportAction } from '@/app/actions/report-actions'
 import { Field, Input, Textarea } from '@/components/ui/Field'
 import { FormAlert, Honeypot, SubmitButton } from '@/components/forms/FormParts'
 import { Turnstile } from '@/components/forms/Turnstile'
+import { NoResetForm } from '@/components/forms/NoResetForm'
 
 const REASONS = [
   { value: 'fraud', label: 'Looks like a scam or fraud' },
@@ -16,11 +17,11 @@ const REASONS = [
 ]
 
 export function ReportForm({ target }: { target: { type: 'property' | 'organisation' | 'development' | 'product'; id: string } }) {
-  const [state, action] = useFormState(submitReportAction, null)
+  const [state, action] = useActionState(submitReportAction, null)
   if (state?.ok) return <FormAlert tone="success">{state.message ?? 'Thank you. Our team will look into it.'}</FormAlert>
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <NoResetForm action={action} className="space-y-4" noValidate>
       <input type="hidden" name="entity_type" value={target.type} />
       <input type="hidden" name="entity_id" value={target.id} />
       <Honeypot />
@@ -47,6 +48,6 @@ export function ReportForm({ target }: { target: { type: 'property' | 'organisat
       <SubmitButton fullWidth pendingText="Sending…">
         Send report
       </SubmitButton>
-    </form>
+    </NoResetForm>
   )
 }

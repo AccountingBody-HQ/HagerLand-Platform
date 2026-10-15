@@ -11,7 +11,7 @@ export type UploadScope =
 
 /** Who may upload where. Admins may upload anywhere; guests only to their own materials-list folder. */
 export async function canUpload(scope: UploadScope): Promise<boolean> {
-  if (isAdminRequest()) return true
+  if ((await isAdminRequest())) return true
   if (scope.purpose === 'media') return (await getUser()) ? userCanEditEntity(scope.entityType, scope.entityId) : false
   switch (scope.area) {
     case 'materials':

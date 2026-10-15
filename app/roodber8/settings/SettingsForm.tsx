@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, type ReactNode } from 'react'
-import { useFormState } from 'react-dom'
+import { useActionState, useState, type ReactNode } from 'react'
 import { Plus, Trash2 } from 'lucide-react'
 import { saveSettingsAction } from '../actions/settings'
 import type { SettingsSection } from '@/lib/validation/settings'
 import { Field, Input, Textarea } from '@/components/ui/Field'
 import { Button } from '@/components/ui/Button'
 import { FormAlert, SubmitButton } from '@/components/forms/FormParts'
+import { NoResetForm } from '@/components/forms/NoResetForm'
 
 export interface FieldSpec {
   name: string
@@ -20,10 +20,10 @@ export interface FieldSpec {
 
 /** One settings section: a list of fields saved together. */
 export function SettingsForm({ section, fields, children, submitLabel = 'Save' }: { section: SettingsSection; fields: FieldSpec[]; children?: ReactNode; submitLabel?: string }) {
-  const [state, action] = useFormState(saveSettingsAction.bind(null, section), null)
+  const [state, action] = useActionState(saveSettingsAction.bind(null, section), null)
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <NoResetForm action={action} className="space-y-4" noValidate>
       {state && !state.ok && <FormAlert>{state.error}</FormAlert>}
       {state?.ok && <FormAlert tone="success">{state.data.message}</FormAlert>}
       <div className="grid gap-4 sm:grid-cols-2">
@@ -54,7 +54,7 @@ export function SettingsForm({ section, fields, children, submitLabel = 'Save' }
       <SubmitButton size="sm" pendingText="Saving…">
         {submitLabel}
       </SubmitButton>
-    </form>
+    </NoResetForm>
   )
 }
 

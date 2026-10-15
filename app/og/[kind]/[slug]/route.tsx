@@ -17,7 +17,8 @@ export const revalidate = 3600
 const photo = (path: string | null | undefined) => (path ? publicMediaUrl(thumbPath(path)) : null)
 
 /** Share images for detail pages: /og/property|development|company|product/<slug>. Only published records. */
-export async function GET(_req: Request, { params }: { params: { kind: string; slug: string } }) {
+export async function GET(_req: Request, props: { params: Promise<{ kind: string; slug: string }> }) {
+  const params = await props.params
   switch (params.kind) {
     case 'property': {
       const sid = shortIdFromSlug(params.slug)

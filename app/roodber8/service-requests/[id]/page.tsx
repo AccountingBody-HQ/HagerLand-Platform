@@ -25,8 +25,12 @@ interface OrgHit {
   serves_diaspora: boolean
 }
 
-export default async function ServiceRequestDetail({ params, searchParams }: { params: { id: string }; searchParams: { find?: string } }) {
-  requireAdminPage()
+export default async function ServiceRequestDetail(
+  props: { params: Promise<{ id: string }>; searchParams: Promise<{ find?: string }> }
+) {
+  const searchParams = await props.searchParams
+  const params = await props.params
+  await requireAdminPage()
   if (!/^[0-9a-f-]{36}$/.test(params.id)) notFound()
   const db = getAdminSupabase()
   const { data: r } = await db.from('service_requests').select('*').eq('id', params.id).maybeSingle()

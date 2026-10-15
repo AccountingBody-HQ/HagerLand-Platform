@@ -1,8 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
-import { useFormState } from 'react-dom'
+import { useActionState, useState } from 'react'
 import type { ComboOption } from '@/components/ui/Combobox'
 import { Combobox } from '@/components/ui/Combobox'
 import { Checkbox, Field, Input, Select, Textarea, describedBy } from '@/components/ui/Field'
@@ -12,6 +11,7 @@ import { FormAlert, SubmitButton } from '@/components/forms/FormParts'
 import { LocationMultiPicker } from '@/components/forms/LocationMultiPicker'
 import { ORG_KIND_LABELS } from '@/lib/validation/organisation'
 import type { OrgFormState } from '@/app/(account)/account/company/org-actions'
+import { NoResetForm } from '@/components/forms/NoResetForm'
 
 export interface OrgFormCategory {
   id: string
@@ -62,7 +62,7 @@ export function OrganisationForm({
   submitLabel: string
   pendingNote?: string
 }) {
-  const [state, formAction] = useFormState(action, null)
+  const [state, formAction] = useActionState(action, null)
   const [kind, setKind] = useState(defaults.kind ?? kinds[0])
   const [confirmNew, setConfirmNew] = useState(false)
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
@@ -72,7 +72,7 @@ export function OrganisationForm({
   const showLicence = ['contractor', 'professional_firm', 'sole_trader', 'agency'].includes(kind)
 
   return (
-    <form action={formAction} className="space-y-8" noValidate>
+    <NoResetForm action={formAction} className="space-y-8" noValidate>
       {defaults.id && <input type="hidden" name="existing_id" value={defaults.id} />}
       {defaults.id && defaults.version && <input type="hidden" name="expected_updated_at" value={defaults.version} />}
       <input type="hidden" name="confirm_new" value={confirmNew ? '1' : '0'} />
@@ -260,6 +260,6 @@ export function OrganisationForm({
       <SubmitButton size="lg" className="w-full sm:w-auto" pendingText="Saving…">
         {submitLabel}
       </SubmitButton>
-    </form>
+    </NoResetForm>
   )
 }

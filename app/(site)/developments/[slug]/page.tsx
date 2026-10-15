@@ -12,7 +12,8 @@ import { JsonLd } from '@/components/seo/JsonLd'
 
 export const revalidate = 600
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const params = await props.params
   const d = await getDevelopmentBySlug(params.slug)
   if (!d) return { title: 'Development not found' }
   return buildMetadata({
@@ -23,7 +24,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   })
 }
 
-export default async function DevelopmentPage({ params }: { params: { slug: string } }) {
+export default async function DevelopmentPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params
   const d = await getDevelopmentBySlug(params.slug)
   if (!d || !d.id) notFound()
   if (d.is_hagerland) permanentRedirect(`/our-developments/${d.slug}`)

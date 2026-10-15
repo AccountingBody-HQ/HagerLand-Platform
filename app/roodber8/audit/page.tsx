@@ -31,8 +31,9 @@ function diffSummary(diff: unknown): string {
     .slice(0, 300)
 }
 
-export default async function AuditPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
-  requireAdminPage()
+export default async function AuditPage(props: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const searchParams = await props.searchParams
+  await requireAdminPage()
   const page = Math.max(1, Number(searchParams.page) || 1)
   let q = getAdminSupabase().from('audit_log').select('id, created_at, actor, action, entity_type, entity_id, entity_label, diff', { count: 'exact' })
   if (searchParams.q) q = q.ilike('entity_label', `%${escapeLikePattern(searchParams.q.trim().slice(0, 80))}%`)

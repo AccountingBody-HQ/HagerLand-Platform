@@ -12,8 +12,9 @@ export const metadata = { title: 'Properties' }
 const PAGE = 50
 type Raw = Record<string, string | undefined>
 
-export default async function AdminPropertiesPage({ searchParams }: { searchParams: Raw }) {
-  requireAdminPage()
+export default async function AdminPropertiesPage(props: { searchParams: Promise<Raw> }) {
+  const searchParams = await props.searchParams
+  await requireAdminPage()
   const page = Math.max(1, Number(searchParams.page) || 1)
   const db = getAdminSupabase()
   let q = db.from('properties').select('id, short_id, title, status, purpose, property_type, price_etb, price_on_request, lister_type, is_featured, is_hagerland, views_count, enquiries_count, expires_at, updated_at, location:locations(display_name)', { count: 'exact' })

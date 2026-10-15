@@ -1,16 +1,17 @@
 'use client'
 
-import { useFormState } from 'react-dom'
+import { useActionState } from 'react'
 import { changeEmailAction, requestDeletionAction, updateProfileAction } from '@/app/(account)/account/settings/actions'
 import { Field, Input, Select, describedBy } from '@/components/ui/Field'
 import { PhoneInput } from '@/components/ui/PhoneInput'
 import { FormAlert, SubmitButton } from '@/components/forms/FormParts'
+import { NoResetForm } from '@/components/forms/NoResetForm'
 
 export function ProfileForm({ defaults }: { defaults: { full_name: string; phone: string | null; preferred_contact: string | null; marketing_opt_in: boolean } }) {
-  const [state, action] = useFormState(updateProfileAction, null)
+  const [state, action] = useActionState(updateProfileAction, null)
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <NoResetForm action={action} className="space-y-4" noValidate>
       {state && !state.ok && <FormAlert>{state.error}</FormAlert>}
       {state?.ok && <FormAlert tone="success">{state.message}</FormAlert>}
       <Field label="Full name" htmlFor="pf-name" error={errors.full_name} required>
@@ -33,15 +34,15 @@ export function ProfileForm({ defaults }: { defaults: { full_name: string; phone
         <label htmlFor="pf-marketing">Send me occasional news about new developments, supplies offers and tips. You can unsubscribe at any time.</label>
       </div>
       <SubmitButton pendingText="Saving…">Save details</SubmitButton>
-    </form>
+    </NoResetForm>
   )
 }
 
 export function EmailForm({ current }: { current: string }) {
-  const [state, action] = useFormState(changeEmailAction, null)
+  const [state, action] = useActionState(changeEmailAction, null)
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <NoResetForm action={action} className="space-y-4" noValidate>
       {state && !state.ok && <FormAlert>{state.error}</FormAlert>}
       {state?.ok && <FormAlert tone="success">{state.message}</FormAlert>}
       <p className="text-small text-muted">Current email: <strong className="break-all text-ink">{current}</strong></p>
@@ -51,16 +52,16 @@ export function EmailForm({ current }: { current: string }) {
       <SubmitButton variant="secondary" pendingText="Sending…">
         Change email
       </SubmitButton>
-    </form>
+    </NoResetForm>
   )
 }
 
 export function DeleteAccountForm() {
-  const [state, action] = useFormState(requestDeletionAction, null)
+  const [state, action] = useActionState(requestDeletionAction, null)
   if (state?.ok) return <FormAlert tone="success">{state.message}</FormAlert>
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <NoResetForm action={action} className="space-y-4" noValidate>
       {state && !state.ok && !errors.confirm && <FormAlert>{state.error}</FormAlert>}
       <p className="text-small text-muted">
         We will remove your account, listings and personal details. Enquiries you sent stay with the businesses you contacted. This cannot be undone.
@@ -71,6 +72,6 @@ export function DeleteAccountForm() {
       <SubmitButton variant="danger" pendingText="Sending…">
         Request account deletion
       </SubmitButton>
-    </form>
+    </NoResetForm>
   )
 }

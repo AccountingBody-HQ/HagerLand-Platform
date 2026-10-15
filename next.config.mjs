@@ -39,16 +39,14 @@ const nextConfig = {
   distDir: process.env.NEXT_DIST_DIR || '.next',
   poweredByHeader: false,
   images: {
-    // WebP only: AVIF conversion is the subject of a Next.js 14 advisory (see docs/LAUNCH_REPORT.md).
+    // WebP only: AVIF conversion has been the subject of Next.js security advisories (see docs/LAUNCH_REPORT.md).
     formats: ['image/webp'],
     // Only HagerLand's own public photo bucket can be resized (not any Supabase project).
     remotePatterns: [{ protocol: supabaseHost.protocol, hostname: supabaseHost.hostname, port: supabaseHost.port, pathname: '/storage/v1/object/public/public-media/**' }],
   },
+  // Share-image routes read the bundled Manrope font files at runtime.
+  outputFileTracingIncludes: { '/og/**': ['./lib/fonts/**'] },
   experimental: {
-    // instrumentation.ts checks the environment once at server start.
-    instrumentationHook: true,
-    // Share-image routes read the bundled Manrope font files at runtime.
-    outputFileTracingIncludes: { '/og/**': ['./lib/fonts/**'] },
     serverActions: {
       bodySizeLimit: '4mb',
       allowedOrigins: [

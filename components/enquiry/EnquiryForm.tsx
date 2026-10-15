@@ -1,8 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useRef, useState } from 'react'
-import { useFormState } from 'react-dom'
+import { useActionState, useEffect, useRef, useState } from 'react'
 import { CircleCheck } from 'lucide-react'
 import { submitEnquiryAction } from '@/app/actions/enquiry-actions'
 import { Field, Input, Select, Textarea, describedBy } from '@/components/ui/Field'
@@ -11,6 +10,7 @@ import { FormAlert, Honeypot, SubmitButton } from '@/components/forms/FormParts'
 import { Turnstile } from '@/components/forms/Turnstile'
 import { readUtm } from './UtmCapture'
 import { track } from '@/lib/analytics'
+import { NoResetForm } from '@/components/forms/NoResetForm'
 
 export interface EnquiryTarget {
   type: 'property' | 'development' | 'organisation' | 'product' | 'hagerland_development' | 'general'
@@ -45,7 +45,7 @@ export function EnquiryForm({
   topicOptions?: { value: string; label: string }[]
   idPrefix?: string
 }) {
-  const [state, action] = useFormState(submitEnquiryAction, null)
+  const [state, action] = useActionState(submitEnquiryAction, null)
   const initial = intents.find((i) => i.value === defaultIntent) ?? intents[0]
   const [intent, setIntent] = useState(initial)
   const [message, setMessage] = useState(initial?.message ?? '')
@@ -81,7 +81,7 @@ export function EnquiryForm({
   }
 
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <NoResetForm action={action} className="space-y-4" noValidate>
       <input type="hidden" name="target_type" value={target.type} />
       <input type="hidden" name="target_id" value={target.id ?? ''} />
       <input type="hidden" name="utm" value={utm} />
@@ -190,6 +190,6 @@ export function EnquiryForm({
         </Link>
         .
       </p>
-    </form>
+    </NoResetForm>
   )
 }

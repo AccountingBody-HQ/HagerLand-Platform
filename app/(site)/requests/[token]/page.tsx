@@ -10,7 +10,8 @@ export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Your service request', robots: { index: false, follow: false }, referrer: 'no-referrer' as const }
 
 /** A guest's private page for their request, opened from the emailed link (spec 24.5). */
-export default async function GuestRequestPage({ params }: { params: { token: string } }) {
+export default async function GuestRequestPage(props: { params: Promise<{ token: string }> }) {
+  const params = await props.params
   const found = await requestIdForToken(params.token)
   if (!found) notFound()
   if (found.expired)

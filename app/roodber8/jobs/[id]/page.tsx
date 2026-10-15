@@ -15,8 +15,9 @@ import { ActionButton } from '@/components/forms/ActionButton'
 
 export const metadata = { title: 'Job' }
 
-export default async function AdminJobPage({ params }: { params: { id: string } }) {
-  requireAdminPage()
+export default async function AdminJobPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params
+  await requireAdminPage()
   if (!/^[0-9a-f-]{36}$/.test(params.id)) notFound()
   const db = getAdminSupabase()
   const { data: job } = await db.from('job_posts').select('*').eq('id', params.id).maybeSingle()

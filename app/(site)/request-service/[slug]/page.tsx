@@ -9,7 +9,8 @@ import { HowRequestsWork } from '@/components/service-requests/HowRequestsWork'
 
 export const dynamic = 'force-dynamic'
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params
   const c = await getRequestableCategory(params.slug)
   if (!c) return {}
   return buildMetadata({
@@ -19,7 +20,11 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   })
 }
 
-export default async function RequestCategoryPage({ params, searchParams }: { params: { slug: string }; searchParams: { abroad?: string } }) {
+export default async function RequestCategoryPage(
+  props: { params: Promise<{ slug: string }>; searchParams: Promise<{ abroad?: string }> }
+) {
+  const searchParams = await props.searchParams
+  const params = await props.params
   const category = await getRequestableCategory(params.slug)
   if (!category) notFound()
   const [user, profile] = await Promise.all([getUser(), getProfile()])

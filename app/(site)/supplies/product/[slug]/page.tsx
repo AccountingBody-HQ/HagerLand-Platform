@@ -43,7 +43,8 @@ const INSTALLERS: Record<string, string[]> = {
   'building-materials': ['masons', 'general-contractors'],
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const params = await props.params
   const p = await getProductBySlug(params.slug)
   if (!p) return { title: 'Product not found' }
   return buildMetadata({
@@ -55,7 +56,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   })
 }
 
-export default async function ProductPage({ params }: { params: { slug: string } }) {
+export default async function ProductPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params
   const p = await getProductBySlug(params.slug)
   if (!p || !p.id) notFound()
   const [tree, special] = await Promise.all([getProductCategories(), getSpecialBuyFor(p.id)])

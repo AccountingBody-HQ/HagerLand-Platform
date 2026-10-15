@@ -1,12 +1,12 @@
 'use client'
 
-import { useState } from 'react'
-import { useFormState } from 'react-dom'
+import { useActionState, useState } from 'react'
 import { FileCheck2 } from 'lucide-react'
 import { submitVerificationAction } from '@/app/(account)/account/company/verification/actions'
 import { FileDrop } from '@/components/media/FileDrop'
 import { FormAlert, SubmitButton } from '@/components/forms/FormParts'
 import { track } from '@/lib/analytics'
+import { NoResetForm } from '@/components/forms/NoResetForm'
 
 interface DocSlot {
   key: 'trade_licence' | 'tin_certificate' | 'contractor_licence' | 'agent_licence'
@@ -15,7 +15,7 @@ interface DocSlot {
 }
 
 export function VerificationForm({ orgId, kind }: { orgId: string; kind: string }) {
-  const [state, action] = useFormState(async (prev: Awaited<ReturnType<typeof submitVerificationAction>> | null, fd: FormData) => {
+  const [state, action] = useActionState(async (prev: Awaited<ReturnType<typeof submitVerificationAction>> | null, fd: FormData) => {
     const res = await submitVerificationAction(prev, fd)
     if (res.ok) track('verification_submitted', { kind })
     return res
@@ -30,7 +30,7 @@ export function VerificationForm({ orgId, kind }: { orgId: string; kind: string 
   if (state?.ok) return <FormAlert tone="success">{state.message}</FormAlert>
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
   return (
-    <form action={action} className="space-y-6">
+    <NoResetForm action={action} className="space-y-6">
       {state && !state.ok && <FormAlert>{state.error}</FormAlert>}
       {slots.map((s) => (
         <div key={s.key}>
@@ -62,6 +62,6 @@ export function VerificationForm({ orgId, kind }: { orgId: string; kind: string 
       <SubmitButton size="lg" pendingText="Submitting…">
         Submit for verification
       </SubmitButton>
-    </form>
+    </NoResetForm>
   )
 }

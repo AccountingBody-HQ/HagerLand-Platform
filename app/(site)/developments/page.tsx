@@ -24,7 +24,8 @@ export const metadata = buildMetadata({
 type Raw = Record<string, string | string[] | undefined>
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) || undefined
 
-export default async function DevelopmentsPage({ searchParams }: { searchParams: Raw }) {
+export default async function DevelopmentsPage(props: { searchParams: Promise<Raw> }) {
+  const searchParams = await props.searchParams
   const loc = one(searchParams.loc)
   const completion = one(searchParams.completion)
   const kind = one(searchParams.kind)

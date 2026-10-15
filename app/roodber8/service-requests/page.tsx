@@ -15,8 +15,9 @@ const PAGE = 50
 const STATUSES = ['submitted', 'triaged', 'matched', 'quoted', 'won', 'lost', 'cancelled']
 
 /** Triage queue (spec 24.5, 24.12): emergencies first, then the newest. */
-export default async function ServiceRequestsPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
-  requireAdminPage()
+export default async function ServiceRequestsPage(props: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const searchParams = await props.searchParams
+  await requireAdminPage()
   const db = getAdminSupabase()
   const status = searchParams.status === 'open' || !searchParams.status ? 'open' : STATUSES.includes(searchParams.status) ? searchParams.status : 'open'
   const vertical = isVerticalKey(searchParams.vertical) ? searchParams.vertical : undefined

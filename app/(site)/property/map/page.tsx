@@ -16,7 +16,8 @@ export const metadata = buildMetadata({ title: 'Property map', description: 'See
 const MAX_PAGES = 5
 
 /** Map search (spec 25.2b): the same filters as the results pages, shown as pins. Only when tiles are configured. */
-export default async function PropertyMapPage({ searchParams }: { searchParams: RawParams }) {
+export default async function PropertyMapPage(props: { searchParams: Promise<RawParams> }) {
+  const searchParams = await props.searchParams
   const config = getMapConfig()
   if (!config) notFound()
   const purpose = searchParams.purpose === 'rent' ? 'rent' : 'sale'

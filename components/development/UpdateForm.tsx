@@ -1,7 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import { useFormState } from 'react-dom'
+import { useActionState, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { X } from 'lucide-react'
 import { Field, Input, Textarea } from '@/components/ui/Field'
@@ -14,7 +13,7 @@ type State = ActionResult | null
 
 /** Post a dated construction-progress update with up to 12 photos (spec 25.2j). */
 export function UpdateForm({ developmentId, action, note }: { developmentId: string; action: (prev: State, formData: FormData) => Promise<State>; note: string }) {
-  const [state, formAction] = useFormState(action, null)
+  const [state, formAction] = useActionState(action, null)
   const [photos, setPhotos] = useState<string[]>([])
   const router = useRouter()
   const ref = useRef<HTMLFormElement>(null)

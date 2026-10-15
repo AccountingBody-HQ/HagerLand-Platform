@@ -31,8 +31,9 @@ function CountTable({ rows, label, empty }: { rows: { key: string; count: number
   )
 }
 
-export default async function ReportsPage({ searchParams }: { searchParams: { period?: string } }) {
-  requireAdminPage()
+export default async function ReportsPage(props: { searchParams: Promise<{ period?: string }> }) {
+  const searchParams = await props.searchParams
+  await requireAdminPage()
   const period = periodFrom(searchParams.period)
   const [listings, perOrg, quotes, growth, misses] = await Promise.all([listingReport(), enquiriesPerOrg(period.since), quoteReport(period.since), signupSeries(12), searchMisses()])
   const short = (w: string) => formatDate(w).replace(/ \d{4}$/, '')

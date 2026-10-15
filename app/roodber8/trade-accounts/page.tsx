@@ -11,8 +11,9 @@ export const metadata = { title: 'Trade accounts' }
 const STATUSES = ['pending', 'approved', 'rejected', 'revoked'] as const
 
 /** Trade account applications and decisions (spec 25.2e). Approved accounts see trade prices; nobody else does. */
-export default async function TradeAccountsPage({ searchParams }: { searchParams: { status?: string } }) {
-  requireAdminPage()
+export default async function TradeAccountsPage(props: { searchParams: Promise<{ status?: string }> }) {
+  const searchParams = await props.searchParams
+  await requireAdminPage()
   const status = STATUSES.find((s) => s === searchParams.status) ?? 'pending'
   const { data } = await getAdminSupabase().from('trade_accounts').select('*').eq('status', status).order('created_at', { ascending: status === 'pending' }).limit(200)
   return (

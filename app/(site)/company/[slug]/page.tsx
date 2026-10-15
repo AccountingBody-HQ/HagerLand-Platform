@@ -36,7 +36,8 @@ function cityOf(chain: Location[]): Location | null {
   return [...chain].reverse().find((l) => l.level === 'city') ?? chain[0] ?? null
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const params = await props.params
   const o = await getOrganisationBySlug(params.slug)
   if (!o) return { title: 'Business not found' }
   const chain = o.location_id ? await getLocationChain(o.location_id) : []
@@ -49,7 +50,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   })
 }
 
-export default async function CompanyPage({ params }: { params: { slug: string } }) {
+export default async function CompanyPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params
   const o = await getOrganisationBySlug(params.slug)
   if (!o || !o.id) notFound()
   const isLister = o.kind === 'agency' || o.kind === 'developer' || o.kind === 'hagerland'

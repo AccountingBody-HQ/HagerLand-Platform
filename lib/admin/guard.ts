@@ -8,13 +8,13 @@ import { log } from '@/lib/log'
 import type { Json } from '@/lib/database.types'
 
 /** For admin pages: redirects to the login screen unless the admin session is valid. */
-export function requireAdminPage(): void {
-  if (!isAdminRequest()) redirect('/roodber8-login')
+export async function requireAdminPage(): Promise<void> {
+  if (!(await isAdminRequest())) redirect('/roodber8-login')
 }
 
 /** For admin server actions and route handlers: throws unless the admin session is valid. */
-export function assertAdmin(): void {
-  if (!isAdminRequest()) throw new Error('Unauthorized')
+export async function assertAdmin(): Promise<void> {
+  if (!(await isAdminRequest())) throw new Error('Unauthorized')
 }
 
 /** Records an admin action in audit_log (spec 18.2 #17). Never throws. */
@@ -22,7 +22,7 @@ export async function audit(action: string, entity: { type?: string; id?: string
   try {
     await getAdminSupabase()
       .from('audit_log')
-      .insert({ actor: 'admin', action, entity_type: entity.type ?? null, entity_id: entity.id ?? null, entity_label: entity.label?.slice(0, 200) ?? null, diff: (diff ?? null) as Json, ip_hash: hashIp(getClientIp(headers())) })
+      .insert({ actor: 'admin', action, entity_type: entity.type ?? null, entity_id: entity.id ?? null, entity_label: entity.label?.slice(0, 200) ?? null, diff: (diff ?? null) as Json, ip_hash: hashIp(getClientIp(await headers())) })
   } catch (err) {
     log.error('audit', 'audit write failed', err, { action })
   }

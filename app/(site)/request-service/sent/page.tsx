@@ -7,7 +7,8 @@ import { ButtonLink } from '@/components/ui/Button'
 export const dynamic = 'force-dynamic'
 export const metadata = buildMetadata({ title: 'Request sent', description: 'Your service request has been sent to HagerLand.', path: '/request-service/sent', noindex: true })
 
-export default async function RequestSentPage({ searchParams }: { searchParams: { ref?: string } }) {
+export default async function RequestSentPage(props: { searchParams: Promise<{ ref?: string }> }) {
+  const searchParams = await props.searchParams
   const ref = /^HLS-\d{4}-\d{6}$/.test(searchParams.ref ?? '') ? searchParams.ref : null
   const user = await getUser()
   return (

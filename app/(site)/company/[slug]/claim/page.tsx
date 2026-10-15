@@ -9,7 +9,8 @@ import { ButtonLink } from '@/components/ui/Button'
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Claim this business', robots: { index: false } }
 
-export default async function ClaimPage({ params }: { params: { slug: string } }) {
+export default async function ClaimPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params
   const user = await requireUser(`/company/${params.slug}/claim`)
   const org = await getOrganisationBySlug(params.slug)
   if (!org || !org.id || org.is_hagerland) notFound()

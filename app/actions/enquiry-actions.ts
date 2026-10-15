@@ -43,7 +43,7 @@ export async function submitEnquiryAction(_prev: EnquiryState, formData: FormDat
   const parsed = schema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   const d = parsed.data
-  const hdrs = headers()
+  const hdrs = await headers()
   const ip = getClientIp(hdrs)
   const ipHash = hashIp(ip)
 

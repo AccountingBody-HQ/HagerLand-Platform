@@ -13,7 +13,7 @@ export const metadata = { title: 'Build-cost rates' }
 
 /** Rates per m² behind the public build-cost estimator (spec 25.2h). The estimator is hidden until a rate exists. */
 export default async function BuildCostsPage() {
-  requireAdminPage()
+  await requireAdminPage()
   const { data } = await getAdminSupabase().from('build_cost_rates_public').select('*').order('location_display', { nullsFirst: true }).order('finish')
   const rows = data ?? []
   return (

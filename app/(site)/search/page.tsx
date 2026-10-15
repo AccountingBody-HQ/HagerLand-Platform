@@ -32,7 +32,8 @@ const VERTICALS = [
 type Vertical = (typeof VERTICALS)[number]['id']
 const PAGE_SIZE = 24
 
-export default async function SearchPage({ searchParams }: { searchParams: { q?: string; vertical?: string; page?: string } }) {
+export default async function SearchPage(route: { searchParams: Promise<{ q?: string; vertical?: string; page?: string }> }) {
+  const searchParams = await route.searchParams
   const q = (searchParams.q ?? '').trim().slice(0, 100)
   const registry = await getVerticals()
   const tabs = VERTICALS.filter((v) => (v.id === 'property' || v.id === 'developments' ? isLive(registry, 'property') : v.id === 'supplies' ? isLive(registry, 'building-supplies') : true))

@@ -30,7 +30,7 @@ export type ImportOutcome = 'imported' | 'duplicate' | 'closed' | 'failed'
  * Stores only discovery data (name, address, phone, website, location), never reviews, ratings or photos.
  */
 export async function importPlaceAction(input: z.input<typeof importSchema>): Promise<ActionResult<{ outcome: ImportOutcome; name: string; orgId?: string }>> {
-  assertAdmin()
+  await assertAdmin()
   const parsed = importSchema.safeParse(input)
   if (!parsed.success) return fail('Invalid import request.')
   const d = parsed.data
@@ -107,7 +107,7 @@ export async function importPlaceAction(input: z.input<typeof importSchema>): Pr
 
 /** Publishes reviewed imports (status published, verification stays 'listed' until claimed/verified). */
 export async function publishImportsAction(ids: string[]): Promise<ActionResult<{ message: string }>> {
-  assertAdmin()
+  await assertAdmin()
   const parsed = z.array(z.uuid()).min(1).max(200).safeParse(ids)
   if (!parsed.success) return fail('Select at least one business.')
   const db = getAdminSupabase()
@@ -126,7 +126,7 @@ export async function publishImportsAction(ids: string[]): Promise<ActionResult<
 }
 
 export async function discardImportsAction(ids: string[]): Promise<ActionResult<{ message: string }>> {
-  assertAdmin()
+  await assertAdmin()
   const parsed = z.array(z.uuid()).min(1).max(200).safeParse(ids)
   if (!parsed.success) return fail('Select at least one business.')
   const db = getAdminSupabase()
@@ -138,7 +138,7 @@ export async function discardImportsAction(ids: string[]): Promise<ActionResult<
 }
 
 export async function saveImportDescriptionAction(id: string, description: string): Promise<ActionResult<{ message: string }>> {
-  assertAdmin()
+  await assertAdmin()
   const parsed = z.object({ id: z.uuid(), description: z.string().trim().min(20, 'Write at least 20 characters.').max(5000) }).safeParse({ id, description })
   if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? 'Invalid description.')
   const { error } = await getAdminSupabase().from('organisations').update({ description: parsed.data.description }).eq('id', id).eq('source', 'import')

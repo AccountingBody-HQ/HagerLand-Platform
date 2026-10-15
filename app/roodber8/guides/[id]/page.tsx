@@ -12,8 +12,12 @@ import { FormAlert } from '@/components/forms/FormParts'
 
 export const metadata = { title: 'Guide' }
 
-export default async function AdminGuidePage({ params, searchParams }: { params: { id: string }; searchParams: { created?: string } }) {
-  requireAdminPage()
+export default async function AdminGuidePage(
+  props: { params: Promise<{ id: string }>; searchParams: Promise<{ created?: string }> }
+) {
+  const searchParams = await props.searchParams
+  const params = await props.params
+  await requireAdminPage()
   if (!/^[0-9a-f-]{36}$/.test(params.id)) notFound()
   const { data: g } = await getAdminSupabase().from('guides').select('*').eq('id', params.id).maybeSingle()
   if (!g) notFound()

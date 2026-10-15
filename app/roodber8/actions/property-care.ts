@@ -13,7 +13,7 @@ import { optionalText, optionalUuid } from '@/lib/validation/common'
 type Msg = ActionResult<{ message: string }>
 
 export async function updateCareRequestAction(id: string, input: { status: string; admin_notes: string }): Promise<Msg> {
-  assertAdmin()
+  await assertAdmin()
   const parsed = z.object({ id: z.uuid(), status: z.enum(CARE_STATUSES), admin_notes: z.string().trim().max(4000) }).safeParse({ id, ...input })
   if (!parsed.success) return fail('Check the fields.')
   const db = getAdminSupabase()
@@ -29,7 +29,7 @@ export async function updateCareRequestAction(id: string, input: { status: strin
 
 /** Turns a won consultation into a managed-property record, copying the owner's details. */
 export async function createManagedFromRequestAction(requestId: string): Promise<Msg> {
-  assertAdmin()
+  await assertAdmin()
   if (!z.uuid().safeParse(requestId).success) return fail('Invalid.')
   const db = getAdminSupabase()
   const { data: r } = await db.from('property_care_requests').select('*').eq('id', requestId).maybeSingle()
@@ -68,7 +68,7 @@ const managedSchema = z.object({
 })
 
 export async function saveManagedPropertyAction(_prev: Msg | null, formData: FormData): Promise<Msg> {
-  assertAdmin()
+  await assertAdmin()
   const parsed = managedSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   const { id, monthly_fee, ...d } = parsed.data
@@ -90,7 +90,7 @@ export async function saveManagedPropertyAction(_prev: Msg | null, formData: For
 }
 
 export async function addInspectionAction(_prev: Msg | null, formData: FormData): Promise<Msg> {
-  assertAdmin()
+  await assertAdmin()
   const parsed = z
     .object({
       managed_property_id: z.uuid(),
@@ -112,7 +112,7 @@ export async function addInspectionAction(_prev: Msg | null, formData: FormData)
 }
 
 export async function addStatementAction(_prev: Msg | null, formData: FormData): Promise<Msg> {
-  assertAdmin()
+  await assertAdmin()
   const parsed = z
     .object({
       managed_property_id: z.uuid(),
@@ -137,7 +137,7 @@ export async function addStatementAction(_prev: Msg | null, formData: FormData):
 }
 
 export async function addMaintenanceAction(_prev: Msg | null, formData: FormData): Promise<Msg> {
-  assertAdmin()
+  await assertAdmin()
   const parsed = z
     .object({
       managed_property_id: z.uuid(),

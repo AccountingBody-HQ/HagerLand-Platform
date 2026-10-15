@@ -18,8 +18,12 @@ import type { MediaItem } from '@/lib/media-actions'
 
 export const metadata = { title: 'Listing' }
 
-export default async function AdminPropertyPage({ params, searchParams }: { params: { id: string }; searchParams: { created?: string } }) {
-  requireAdminPage()
+export default async function AdminPropertyPage(
+  props: { params: Promise<{ id: string }>; searchParams: Promise<{ created?: string }> }
+) {
+  const searchParams = await props.searchParams
+  const params = await props.params
+  await requireAdminPage()
   const db = getAdminSupabase()
   const { data: p } = await db.from('properties').select('*').eq('id', params.id).maybeSingle()
   if (!p) notFound()

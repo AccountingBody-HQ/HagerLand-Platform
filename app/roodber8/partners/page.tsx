@@ -11,8 +11,9 @@ export const metadata = { title: 'Partner applications' }
 
 const STATUSES = ['new', 'reviewing', 'approved', 'declined']
 
-export default async function PartnersPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
-  requireAdminPage()
+export default async function PartnersPage(props: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const searchParams = await props.searchParams
+  await requireAdminPage()
   const db = getAdminSupabase()
   const status = STATUSES.includes(searchParams.status ?? '') ? searchParams.status : undefined
   let q = db.from('partner_applications').select('*').order('created_at', { ascending: false }).limit(500)

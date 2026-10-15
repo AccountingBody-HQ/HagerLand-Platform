@@ -21,7 +21,7 @@ export async function submitReportAction(_prev: ActionResult | null, formData: F
   if (isHoneypotFilled(formData)) return ok(undefined)
   const parsed = schema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
-  const ip = getClientIp(headers())
+  const ip = getClientIp(await headers())
   const ipHash = hashIp(ip)
   if (!(await rateLimit(`report:${ipHash}`, 10, 3600)).allowed) return fail('Too many reports. Please try again later.')
   if (!(await verifyTurnstileToken(formData.get('cf-turnstile-response') as string | null, ip))) return fail('Please complete the security check and try again.')

@@ -17,7 +17,7 @@ const schema = z.object({
 
 /** Add or replace the rate for a place (or nationwide) and finish level (spec 25.2h). */
 export async function saveBuildRateAction(_prev: Done | null, formData: FormData): Promise<Done> {
-  assertAdmin()
+  await assertAdmin()
   const parsed = schema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? 'Please check the rate.' }
   const d = parsed.data
@@ -35,7 +35,7 @@ export async function saveBuildRateAction(_prev: Done | null, formData: FormData
 }
 
 export async function deleteBuildRateAction(id: string): Promise<Done> {
-  assertAdmin()
+  await assertAdmin()
   if (!z.uuid().safeParse(id).success) return { ok: false, error: 'Invalid rate.' }
   const { error } = await getAdminSupabase().from('build_cost_rates').delete().eq('id', id)
   if (error) return { ok: false, error: 'Could not delete the rate.' }

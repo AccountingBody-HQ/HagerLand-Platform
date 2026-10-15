@@ -7,7 +7,7 @@ import { saveProductAction } from '../../actions/products'
 export const metadata = { title: 'New product' }
 
 export default async function NewProductPage() {
-  requireAdminPage()
+  await requireAdminPage()
   const o = await productFormOptions()
   return (
     <div className="max-w-4xl">

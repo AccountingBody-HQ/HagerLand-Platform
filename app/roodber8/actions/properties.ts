@@ -31,7 +31,7 @@ export type AdminPropertyState = ActionResult<{ id: string }> | null
 
 /** Create or edit any property as HagerLand. Changes apply immediately (no owner review). */
 export async function saveAdminPropertyAction(_prev: AdminPropertyState, formData: FormData): Promise<AdminPropertyState> {
-  assertAdmin()
+  await assertAdmin()
   const raw = formToObject(formData, ['features'])
   const l = listerSchema.safeParse(raw)
   const b = basicsSchema.safeParse(raw)

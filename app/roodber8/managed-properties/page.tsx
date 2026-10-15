@@ -10,7 +10,7 @@ export const metadata = { title: 'Managed properties' }
 
 /** Property Care clients' properties (spec 24.6). The owner portal is Phase 2; these records are staff-only. */
 export default async function ManagedPropertiesPage() {
-  requireAdminPage()
+  await requireAdminPage()
   const { data } = await getAdminSupabase().from('managed_properties').select('id, reference, title, owner_name, owner_country_code, status, start_date, created_at').order('created_at', { ascending: false }).limit(500)
   return (
     <div>

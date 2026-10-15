@@ -1,7 +1,6 @@
 'use client'
 
-import { useState } from 'react'
-import { useFormState } from 'react-dom'
+import { useActionState, useState } from 'react'
 import { FileCheck2 } from 'lucide-react'
 import { submitClaimAction } from '@/app/actions/claim-actions'
 import { Field, Input, Select, Textarea } from '@/components/ui/Field'
@@ -10,9 +9,10 @@ import { FormAlert, Honeypot, SubmitButton } from '@/components/forms/FormParts'
 import { Turnstile } from '@/components/forms/Turnstile'
 import { FileDrop, type UploadedDoc } from '@/components/media/FileDrop'
 import { track } from '@/lib/analytics'
+import { NoResetForm } from '@/components/forms/NoResetForm'
 
 export function ClaimForm({ orgId, defaults }: { orgId: string; defaults: { phone: string | null; email: string } }) {
-  const [state, action] = useFormState(async (prev: Awaited<ReturnType<typeof submitClaimAction>> | null, fd: FormData) => {
+  const [state, action] = useActionState(async (prev: Awaited<ReturnType<typeof submitClaimAction>> | null, fd: FormData) => {
     const res = await submitClaimAction(prev, fd)
     if (res.ok) track('claim_submitted', {})
     return res
@@ -21,7 +21,7 @@ export function ClaimForm({ orgId, defaults }: { orgId: string; defaults: { phon
   if (state?.ok) return <FormAlert tone="success">{state.message}</FormAlert>
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
   return (
-    <form action={action} className="space-y-5" noValidate>
+    <NoResetForm action={action} className="space-y-5" noValidate>
       <input type="hidden" name="org_id" value={orgId} />
       {docs.map((d) => (
         <input key={d.path} type="hidden" name="evidence_paths" value={d.path} />
@@ -72,6 +72,6 @@ export function ClaimForm({ orgId, defaults }: { orgId: string; defaults: { phon
       <SubmitButton size="lg" pendingText="Sending…">
         Submit claim
       </SubmitButton>
-    </form>
+    </NoResetForm>
   )
 }

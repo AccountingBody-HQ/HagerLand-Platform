@@ -29,7 +29,7 @@ export async function submitClaimAction(_prev: ActionResult | null, formData: Fo
   const parsed = schema.safeParse({ ...Object.fromEntries(formData), evidence_paths: formData.getAll('evidence_paths') })
   if (!parsed.success) return invalid(parsed.error)
   const d = parsed.data
-  if (!(await verifyTurnstileToken(formData.get('cf-turnstile-response') as string | null, getClientIp(headers())))) return fail('Please complete the security check and try again.')
+  if (!(await verifyTurnstileToken(formData.get('cf-turnstile-response') as string | null, getClientIp(await headers())))) return fail('Please complete the security check and try again.')
   if (d.evidence_paths.some((p) => !p.startsWith(`docs/claim/${d.org_id}/`))) return fail('Please upload your documents again.')
 
   const admin = getAdminSupabase()

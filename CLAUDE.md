@@ -13,7 +13,7 @@ HagerLand is being relaunched as **Ethiopia's construction and property platform
 - All relaunch work on branch `relaunch/construction`. `main` (live site) is untouched until WP-20. Rollback point: tag `pre-construction-relaunch`.
 - **Never run SQL against the database.** Write numbered migrations in `supabase/migrations/` (e.g. `0001_core_schema.sql`); hand each to AB with a plain explanation and a verification query; wait for confirmation before writing code that depends on it.
 - Database is in production use. New schema is additive. Never DROP or TRUNCATE legacy tables (companies, jobs, housing, money, cars, tutors, community, events, delivery, made_in_ethiopia, business_claims, listing_enquiries, import_log, admin_audit, rate_limits, countries, ...).
-- Stay on Next.js 14.2.x / React 18. No major upgrades.
+- Stay on Next.js 15.5.x / React 19 (upgraded in E10, authorised by the Phase 1.5 brief). No other major upgrades without AB.
 - Never change without AB's explicit agreement: the name "HagerLand", green #1C7C4C, gold #B8862E, the three-node logo, admin path `/roodber8` and its username + password + TOTP login, canonical host `www.hagerland.com`.
 - Never back up the database into git: backups go to `backups/` (git-ignored) via `scripts/backup-supabase.sh`.
 
@@ -30,7 +30,7 @@ rm -rf .next && npm run build    # clean production build
 Every work package must pass, in this order: lint, typecheck, clean build, with zero errors and no new warnings.
 
 ## Stack
-Next.js 14.2 App Router · TypeScript strict · Tailwind · Supabase (Postgres, Auth, Storage) · Resend · Cloudflare Turnstile · Vercel (Pro). Import alias `@/*` = repo root.
+Next.js 15.5 App Router · React 19 · TypeScript strict · Tailwind · Supabase (Postgres, Auth, Storage) · Resend · Cloudflare Turnstile · Vercel (Pro). Import alias `@/*` = repo root.
 
 ## Code conventions (spec 0.6)
 - No `any` unless unavoidable and commented. `Array.from(new Set())`, not spread on Sets. No variables named `_` or `_score`.
@@ -72,6 +72,8 @@ Next.js 14.2 App Router · TypeScript strict · Tailwind · Supabase (Postgres, 
 - Emails go through `lib/email/send.ts`: a failed send is queued in `email_outbox`, never thrown at the visitor.
 - User-facing text in shared chrome goes through `t()` / `getT()` (`lib/i18n`) so Amharic can fall back cleanly.
 - Do not run `npx prettier --write` (no prettier config; it reformats the codebase).
+- Next 15: `cookies()`, `headers()`, `params` and `searchParams` are async (await them). `requireAdminPage()`, `assertAdmin()`, `isAdminRequest()` and `getLocale()` are async too.
+- React 19 resets a form after its action runs. Forms that show validation errors use `NoResetForm` (`components/forms/NoResetForm.tsx`) so typed values stay; submit buttons read its pending state via `useFormPending()`.
 
 ## Status
-Phase 1 (WP-0 to WP-19) and Phase 1.5 (E1–E9, H1–H6, `docs/BRIEF_PHASE_1_5_AND_GO_LIVE.md`) are built; see `docs/LAUNCH_REPORT.md`, `docs/RELAUNCH_PROGRESS.md` and `docs/REQUIREMENTS_MATRIX.md`. Cutover (25.6) runs only after AB types exactly "GO LIVE".
+Phase 1 (WP-0 to WP-19) and Phase 1.5 (E1–E10, H1–H6, `docs/BRIEF_PHASE_1_5_AND_GO_LIVE.md`) are built; see `docs/LAUNCH_REPORT.md`, `docs/RELAUNCH_PROGRESS.md` and `docs/REQUIREMENTS_MATRIX.md`. Cutover (25.6) runs only after AB types exactly "GO LIVE".

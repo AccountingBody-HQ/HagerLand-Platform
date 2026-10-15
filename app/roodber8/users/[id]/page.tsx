@@ -13,8 +13,9 @@ import { FormAlert } from '@/components/forms/FormParts'
 
 export const metadata = { title: 'User' }
 
-export default async function AdminUserPage({ params }: { params: { id: string } }) {
-  requireAdminPage()
+export default async function AdminUserPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params
+  await requireAdminPage()
   if (!z.uuid().safeParse(params.id).success) notFound()
   const db = getAdminSupabase()
   const { data: auth } = await db.auth.admin.getUserById(params.id)

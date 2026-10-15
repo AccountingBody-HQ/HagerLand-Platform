@@ -46,7 +46,11 @@ function place(ctx: Ctx): string {
   return city && city.name !== ctx.location.name ? `${ctx.location.name}, ${city.name}` : ctx.location.name
 }
 
-export async function generateMetadata({ params, searchParams }: { params: { service: string; location?: string[] }; searchParams: RawParams }): Promise<Metadata> {
+export async function generateMetadata(
+  props: { params: Promise<{ service: string; location?: string[] }>; searchParams: Promise<RawParams> }
+): Promise<Metadata> {
+  const searchParams = await props.searchParams
+  const params = await props.params
   const ctx = await resolve(params)
   const f = parseDirectoryParams(searchParams)
   const base = `/professionals/${ctx.service.slug}${ctx.location ? `/${ctx.location.path}` : ''}`
@@ -60,7 +64,11 @@ export async function generateMetadata({ params, searchParams }: { params: { ser
   })
 }
 
-export default async function ServicePage({ params, searchParams }: { params: { service: string; location?: string[] }; searchParams: RawParams }) {
+export default async function ServicePage(
+  props: { params: Promise<{ service: string; location?: string[] }>; searchParams: Promise<RawParams> }
+) {
+  const searchParams = await props.searchParams
+  const params = await props.params
   const ctx = await resolve(params)
   const f = parseDirectoryParams(searchParams)
   const base = `/professionals/${ctx.service.slug}${ctx.location ? `/${ctx.location.path}` : ''}`

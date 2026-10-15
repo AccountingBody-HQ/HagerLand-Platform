@@ -1,22 +1,22 @@
 'use client'
 
-import { useState } from 'react'
-import { useFormState } from 'react-dom'
+import { useActionState, useState } from 'react'
 import { FileText } from 'lucide-react'
 import { applyForJobAction, type ApplyState } from '@/app/actions/job-actions'
 import { Checkbox, Field, Input, Textarea } from '@/components/ui/Field'
 import { FormAlert, SubmitButton } from '@/components/forms/FormParts'
 import { FileDrop } from '@/components/media/FileDrop'
+import { NoResetForm } from '@/components/forms/NoResetForm'
 
 /** Apply with a CV (PDF or Word, private) and a cover note (spec 24.9). */
 export function ApplyForm({ jobId, userId, defaults }: { jobId: string; userId: string; defaults: { name: string; email: string; phone: string; profileCv: string | null } }) {
-  const [state, action] = useFormState<ApplyState, FormData>(applyForJobAction, null)
+  const [state, action] = useActionState<ApplyState, FormData>(applyForJobAction, null)
   const [useProfileCv, setUseProfileCv] = useState(Boolean(defaults.profileCv))
   const [uploaded, setUploaded] = useState<{ path: string; name: string } | null>(null)
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
   const cvPath = useProfileCv && defaults.profileCv ? defaults.profileCv : uploaded?.path ?? ''
   return (
-    <form action={action} className="space-y-5" noValidate>
+    <NoResetForm action={action} className="space-y-5" noValidate>
       {state && !state.ok && <FormAlert>{state.error}</FormAlert>}
       <input type="hidden" name="job_id" value={jobId} />
       <input type="hidden" name="cv_path" value={cvPath} />
@@ -61,6 +61,6 @@ export function ApplyForm({ jobId, userId, defaults }: { jobId: string; userId: 
       <SubmitButton size="lg" className="w-full sm:w-auto" pendingText="Sending…">
         Send application
       </SubmitButton>
-    </form>
+    </NoResetForm>
   )
 }

@@ -12,8 +12,9 @@ import { ButtonLink } from '@/components/ui/Button'
 export const metadata = { title: 'Products' }
 const PAGE = 50
 
-export default async function AdminProductsPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
-  requireAdminPage()
+export default async function AdminProductsPage(props: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const searchParams = await props.searchParams
+  await requireAdminPage()
   const page = Math.max(1, Number(searchParams.page) || 1)
   const db = getAdminSupabase()
   let q = db.from('products').select('id, name, sku, status, unit, price_type, price_etb_cents, price_updated_at, stock_status, category:product_categories(name), seller:organisations(name)', { count: 'exact' })

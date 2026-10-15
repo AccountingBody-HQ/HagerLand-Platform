@@ -12,7 +12,7 @@ import { GUIDES_TAG } from '@/lib/data/guides'
 
 /** Create or edit a guide (spec 25.2g). Publishing needs "Content checked": starter drafts are never published unseen. */
 export async function saveGuideAction(_prev: ActionResult<{ id: string }> | null, formData: FormData): Promise<ActionResult<{ id: string }>> {
-  assertAdmin()
+  await assertAdmin()
   const parsed = guideSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   const d = parsed.data
@@ -41,7 +41,7 @@ export async function saveGuideAction(_prev: ActionResult<{ id: string }> | null
 }
 
 export async function deleteGuideAction(id: string): Promise<{ ok: true; data: { message: string } } | { ok: false; error: string }> {
-  assertAdmin()
+  await assertAdmin()
   if (!z.uuid().safeParse(id).success) return { ok: false, error: 'Invalid guide.' }
   const { data, error } = await getAdminSupabase().from('guides').delete().eq('id', id).select('title').single()
   if (error || !data) return { ok: false, error: 'Could not delete the guide.' }

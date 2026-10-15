@@ -6,7 +6,7 @@ import { AdminPropertyForm } from '@/components/admin/AdminPropertyForm'
 export const metadata = { title: 'New listing' }
 
 export default async function NewAdminPropertyPage() {
-  requireAdminPage()
+  await requireAdminPage()
   const [listers, developments] = await Promise.all([listerOptions(), developmentOptions()])
   return (
     <div className="max-w-4xl">

@@ -11,7 +11,7 @@ const CODES = ['GBP', 'USD', 'EUR', 'CAD', 'AED', 'SEK', 'NOK', 'SAR', 'ILS', 'Z
 
 /** Saves "1 unit = X ETB" for each currency; an empty box removes that currency (spec 25.2f). */
 export async function saveRatesAction(input: Record<string, string>): Promise<ActionResult<{ message: string }>> {
-  assertAdmin()
+  await assertAdmin()
   const rate = z.preprocess((v) => (typeof v === 'string' ? v.replace(/[,\s]/g, '') : v), z.union([z.literal(''), z.coerce.number().positive().max(1_000_000)]))
   const parsed = z.object(Object.fromEntries(CODES.map((c) => [c, rate.optional()]))).safeParse(input)
   if (!parsed.success) return fail('Enter each rate as a positive number of birr, or leave it empty.')

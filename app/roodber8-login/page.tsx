@@ -9,8 +9,9 @@ import { FormAlert, SubmitButton } from '@/components/forms/FormParts'
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Admin sign in', robots: { index: false, follow: false } }
 
-export default function AdminLoginPage({ searchParams }: { searchParams: { error?: string } }) {
-  if (verifySessionToken(cookies().get(SESSION_COOKIE)?.value)) redirect('/roodber8')
+export default async function AdminLoginPage(props: { searchParams: Promise<{ error?: string }> }) {
+  const searchParams = await props.searchParams
+  if (verifySessionToken((await cookies()).get(SESSION_COOKIE)?.value)) redirect('/roodber8')
   const rateLimited = searchParams.error === 'rate_limited'
   return (
     <main className="hl-blueprint flex min-h-dvh items-center justify-center bg-ink px-4">

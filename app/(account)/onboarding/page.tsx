@@ -18,7 +18,8 @@ const KINDS_BY_INTENT: Record<string, string[]> = {
   supplier: ['supplier', 'manufacturer'],
 }
 
-export default async function OnboardingPage({ searchParams }: { searchParams: { business?: string } }) {
+export default async function OnboardingPage(props: { searchParams: Promise<{ business?: string }> }) {
+  const searchParams = await props.searchParams
   const user = await requireUser('/onboarding')
   if ((await getMemberships()).length > 0) redirect('/account')
   const intent = (user.user_metadata?.signup_intent as SignupIntent | undefined) ?? 'looking'

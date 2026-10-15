@@ -11,8 +11,9 @@ export const metadata = { title: 'Promotions' }
 
 const ADMIN_PATH: Record<string, string> = { property: 'properties', development: 'developments', organisation: 'organisations', product: 'products' }
 
-export default async function PromotionsPage({ searchParams }: { searchParams: { show?: string } }) {
-  requireAdminPage()
+export default async function PromotionsPage(route: { searchParams: Promise<{ show?: string }> }) {
+  const searchParams = await route.searchParams
+  await requireAdminPage()
   const show = searchParams.show === 'ended' ? 'ended' : searchParams.show === 'upcoming' ? 'upcoming' : 'active'
   const db = getAdminSupabase()
   const now = new Date().toISOString()

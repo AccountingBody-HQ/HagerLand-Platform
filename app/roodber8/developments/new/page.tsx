@@ -7,7 +7,7 @@ import { DevelopmentForm } from '@/components/account/DevelopmentForm'
 export const metadata = { title: 'New development' }
 
 export default async function NewAdminDevelopmentPage() {
-  requireAdminPage()
+  await requireAdminPage()
   return (
     <div className="max-w-4xl">
       <AdminHeader title="New development or building" description="Saved as a draft. Add photos, then publish with the status control." />

@@ -8,7 +8,7 @@ export const metadata = { title: 'Verticals' }
 
 /** The vertical registry (spec 24.2, 24.12): every switch is audit-logged. */
 export default async function VerticalsPage() {
-  requireAdminPage()
+  await requireAdminPage()
   const db = getAdminSupabase()
   const [{ data }, { data: interest }] = await Promise.all([
     db.from('verticals').select('*').order('sort'),

@@ -17,7 +17,11 @@ import { postDevelopmentUpdateAction } from '../actions'
 
 export const metadata = { title: 'Edit development' }
 
-export default async function EditDevelopmentPage({ params, searchParams }: { params: { id: string }; searchParams: { created?: string } }) {
+export default async function EditDevelopmentPage(
+  props: { params: Promise<{ id: string }>; searchParams: Promise<{ created?: string }> }
+) {
+  const searchParams = await props.searchParams
+  const params = await props.params
   await requireUser(`/account/developments/${params.id}`)
   const loaded = await loadOwnerDevelopment(params.id)
   if (!loaded) notFound()

@@ -15,7 +15,8 @@ export function generateMetadata() {
 }
 
 /** Accept an invitation to an organisation's team (spec 25.2i). */
-export default async function InvitePage({ params }: { params: { token: string } }) {
+export default async function InvitePage(props: { params: Promise<{ token: string }> }) {
+  const params = await props.params
   const valid = isWellFormedToken(params.token)
   const { data: inv } = valid ? await getAdminSupabase().from('org_invitations').select('email, role, expires_at, accepted_at, revoked_at, org_id').eq('token_hash', hashRequestToken(params.token)).maybeSingle() : { data: null }
   const { data: org } = inv ? await getAdminSupabase().from('organisations').select('name').eq('id', inv.org_id).maybeSingle() : { data: null }

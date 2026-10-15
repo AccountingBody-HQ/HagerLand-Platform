@@ -11,8 +11,9 @@ const PAGE = 50
 const STATUSES = ['draft', 'pending_review', 'published', 'paused', 'expired', 'rejected', 'archived', 'removed'] as const
 
 /** Every job with its application count, plus an overview of applications (spec 24.9, 24.12). */
-export default async function AdminJobsPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
-  requireAdminPage()
+export default async function AdminJobsPage(props: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const searchParams = await props.searchParams
+  await requireAdminPage()
   const db = getAdminSupabase()
   const status = STATUSES.find((s) => s === searchParams.status)
   const page = Math.max(1, Number(searchParams.page) || 1)

@@ -11,8 +11,9 @@ export const metadata = { title: 'Interest registrations' }
 
 const PAGE = 50
 
-export default async function InterestPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
-  requireAdminPage()
+export default async function InterestPage(props: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const searchParams = await props.searchParams
+  await requireAdminPage()
   const db = getAdminSupabase()
   const vertical = isVerticalKey(searchParams.vertical) ? searchParams.vertical : undefined
   const status = ['new', 'contacted', 'closed'].includes(searchParams.status ?? '') ? searchParams.status : undefined

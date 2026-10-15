@@ -62,7 +62,7 @@ export async function submitQuoteAction(_prev: QuoteState, formData: FormData): 
   if (d.needed_by && d.needed_by < new Date().toISOString().slice(0, 10)) return fail('The "needed by" date is in the past.', { needed_by: 'Choose a future date' })
   if (d.files.some((f) => !d.upload_id || !f.startsWith(`docs/materials/${d.upload_id}/`))) return fail('Please upload your files again.')
 
-  const ip = getClientIp(headers())
+  const ip = getClientIp(await headers())
   const ipHash = hashIp(ip)
   if (!(await rateLimit(`quote:${ipHash}`, 10, 3600)).allowed) return fail('You have sent several requests recently. Please wait a little or call us.')
   if (!(await verifyTurnstileToken(formData.get('cf-turnstile-response') as string | null, ip))) return fail('Please complete the security check and try again.')

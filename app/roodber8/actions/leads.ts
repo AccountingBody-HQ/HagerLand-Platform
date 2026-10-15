@@ -15,7 +15,7 @@ const ENQUIRY_STATUSES = ['new', 'contacted', 'qualified', 'won', 'lost', 'spam'
 const QUOTE_STATUSES = ['submitted', 'in_review', 'quoted', 'accepted', 'declined', 'expired', 'cancelled'] as const
 
 export async function setEnquiryStatusAction(id: string, status: string): Promise<Msg> {
-  assertAdmin()
+  await assertAdmin()
   const parsed = z.object({ id: z.uuid(), status: z.enum(ENQUIRY_STATUSES) }).safeParse({ id, status })
   if (!parsed.success) return fail('Invalid status.')
   const db = getAdminSupabase()
@@ -29,7 +29,7 @@ export async function setEnquiryStatusAction(id: string, status: string): Promis
 }
 
 export async function setQuoteStatusAction(id: string, status: string): Promise<Msg> {
-  assertAdmin()
+  await assertAdmin()
   const parsed = z.object({ id: z.uuid(), status: z.enum(QUOTE_STATUSES) }).safeParse({ id, status })
   if (!parsed.success) return fail('Invalid status.')
   const db = getAdminSupabase()
@@ -43,7 +43,7 @@ export async function setQuoteStatusAction(id: string, status: string): Promise<
 }
 
 export async function saveQuoteInternalAction(id: string, input: { assigned_to: string; internal_notes: string }): Promise<Msg> {
-  assertAdmin()
+  await assertAdmin()
   const parsed = z
     .object({ id: z.uuid(), assigned_to: z.string().trim().max(80), internal_notes: z.string().trim().max(4000) })
     .safeParse({ id, ...input })
@@ -74,7 +74,7 @@ const issueSchema = z.object({
  * The quote expires after QUOTE_VALID_DAYS (daily job).
  */
 export async function issueQuoteAction(input: { id: string; total_etb: string; document_path: string | null; notify: boolean }): Promise<Msg> {
-  assertAdmin()
+  await assertAdmin()
   const parsed = issueSchema.safeParse(input)
   if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? 'Check the fields.')
   const d = parsed.data

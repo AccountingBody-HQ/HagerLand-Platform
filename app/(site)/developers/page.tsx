@@ -9,7 +9,8 @@ export const metadata = buildMetadata({
   path: '/developers',
 })
 
-export default function DevelopersPage({ searchParams }: { searchParams: RawParams }) {
+export default async function DevelopersPage(props: { searchParams: Promise<RawParams> }) {
+  const searchParams = await props.searchParams
   return (
     <DirectoryPage
       path="/developers"

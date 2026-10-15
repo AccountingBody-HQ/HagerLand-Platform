@@ -17,7 +17,11 @@ import type { MediaItem } from '@/lib/media-actions'
 
 export const metadata = { title: 'Edit product' }
 
-export default async function EditProductPage({ params, searchParams }: { params: { id: string }; searchParams: { created?: string } }) {
+export default async function EditProductPage(
+  props: { params: Promise<{ id: string }>; searchParams: Promise<{ created?: string }> }
+) {
+  const searchParams = await props.searchParams
+  const params = await props.params
   await requireUser(`/account/products/${params.id}/edit`)
   if (!/^[0-9a-f-]{36}$/.test(params.id)) notFound()
   const supabase = getServerSupabase()

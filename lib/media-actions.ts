@@ -30,7 +30,7 @@ const MEDIA_COLUMNS = 'id, kind, storage_path, thumb_path, width, height, alt, s
 
 /** Media of verified organisations and admin uploads go live at once; others wait for review. */
 async function initialStatus(entityType: MediaEntity, entityId: string): Promise<'approved' | 'pending'> {
-  if (isAdminRequest()) return 'approved'
+  if ((await isAdminRequest())) return 'approved'
   const admin = getAdminSupabase()
   let orgId: string | null = null
   if (entityType === 'organisation') orgId = entityId

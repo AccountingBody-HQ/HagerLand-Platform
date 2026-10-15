@@ -26,7 +26,8 @@ const TOPICS = [
   { value: 'partnership', label: 'Partnerships and press' },
 ]
 
-export default async function ContactPage({ searchParams }: { searchParams: { topic?: string } }) {
+export default async function ContactPage(props: { searchParams: Promise<{ topic?: string }> }) {
+  const searchParams = await props.searchParams
   const { contact } = await getBusinessDetails()
   const telegram = contact.telegram ? telegramLink(contact.telegram) : null
   const channels = [

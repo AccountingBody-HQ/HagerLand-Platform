@@ -10,7 +10,8 @@ export const dynamic = 'force-dynamic'
  * "profile" is the signed-in candidate's own CV; otherwise the id is an application, which only the
  * applicant and the employer's members can read (row level security decides).
  */
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params
   const user = await getUser()
   if (!user) return NextResponse.redirect(new URL(`/login?next=${encodeURIComponent(request.nextUrl.pathname)}`, request.url))
   const supabase = getServerSupabase()

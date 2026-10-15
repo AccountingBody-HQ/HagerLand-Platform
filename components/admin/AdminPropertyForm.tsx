@@ -1,17 +1,18 @@
 'use client'
 
-import { useFormState } from 'react-dom'
+import { useActionState } from 'react'
 import { saveAdminPropertyAction } from '@/app/roodber8/actions/properties'
 import { BasicsFields, ContactFields, DetailsFields, LocationFields, type WizardValues } from '@/components/account/ListingWizard'
 import { Field, Select } from '@/components/ui/Field'
 import { FormAlert, SubmitButton } from '@/components/forms/FormParts'
 import { Panel } from './AdminUi'
+import { NoResetForm } from '@/components/forms/NoResetForm'
 
 export function AdminPropertyForm({ id, version, values, listers, developments, currentLister }: { id?: string; version?: string; values: WizardValues; listers: { id: string; label: string }[]; developments: { id: string; name: string }[]; currentLister?: string | null }) {
-  const [state, action] = useFormState(saveAdminPropertyAction, null)
+  const [state, action] = useActionState(saveAdminPropertyAction, null)
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
   return (
-    <form action={action} className="space-y-5" noValidate>
+    <NoResetForm action={action} className="space-y-5" noValidate>
       {id && <input type="hidden" name="id" value={id} />}
       {version && <input type="hidden" name="expected_updated_at" value={version} />}
       {state && !state.ok && <FormAlert>{state.error}</FormAlert>}
@@ -43,6 +44,6 @@ export function AdminPropertyForm({ id, version, values, listers, developments, 
       <SubmitButton size="lg" pendingText="Saving…">
         {id ? 'Save changes' : 'Create listing'}
       </SubmitButton>
-    </form>
+    </NoResetForm>
   )
 }

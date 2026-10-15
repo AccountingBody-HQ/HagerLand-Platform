@@ -15,7 +15,7 @@ import { log, maskEmail } from '@/lib/log'
 const GENERIC_AUTH_ERROR = 'Something went wrong. Please try again in a moment.'
 
 async function limited(action: string, limit: number, windowSeconds: number): Promise<boolean> {
-  const ip = getClientIp(headers())
+  const ip = getClientIp(await headers())
   const result = await rateLimit(`auth-${action}:${hashIp(ip)}`, limit, windowSeconds)
   return !result.allowed
 }
@@ -29,7 +29,7 @@ export async function signUpAction(_prev: ActionResult<{ email: string }> | null
   const parsed = signupSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   if (await limited('signup', 5, 3600)) return fail('Too many sign-up attempts. Please wait an hour and try again.')
-  if (!(await verifyTurnstileToken(formData.get('cf-turnstile-response') as string | null, getClientIp(headers())))) {
+  if (!(await verifyTurnstileToken(formData.get('cf-turnstile-response') as string | null, getClientIp(await headers())))) {
     return fail('Please complete the security check and try again.')
   }
   const { intent, full_name, email, phone, password } = parsed.data

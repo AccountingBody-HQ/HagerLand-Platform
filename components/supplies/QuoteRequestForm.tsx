@@ -1,8 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { useFormState } from 'react-dom'
+import { useActionState, useEffect, useState } from 'react'
 import { FileCheck2, X } from 'lucide-react'
 import { submitQuoteAction } from '@/app/actions/quote-actions'
 import { Field, Input, Textarea, describedBy } from '@/components/ui/Field'
@@ -14,9 +13,10 @@ import { FileDrop, type UploadedDoc } from '@/components/media/FileDrop'
 import { readUtm } from '@/components/enquiry/UtmCapture'
 import { track } from '@/lib/analytics'
 import type { QuoteItem } from './quoteStore'
+import { NoResetForm } from '@/components/forms/NoResetForm'
 
 export function QuoteRequestForm({ source, items, withFiles, onSent }: { source: 'basket' | 'materials_list'; items: QuoteItem[]; withFiles?: boolean; onSent?: () => void }) {
-  const [state, action] = useFormState(submitQuoteAction, null)
+  const [state, action] = useActionState(submitQuoteAction, null)
   const [uploadId] = useState(() => crypto.randomUUID())
   const [files, setFiles] = useState<UploadedDoc[]>([])
   const [utm, setUtm] = useState('')
@@ -33,7 +33,7 @@ export function QuoteRequestForm({ source, items, withFiles, onSent }: { source:
   }, [state, router, source, items.length, onSent])
 
   return (
-    <form action={action} className="space-y-5" noValidate>
+    <NoResetForm action={action} className="space-y-5" noValidate>
       <input type="hidden" name="source" value={source} />
       <input type="hidden" name="items" value={JSON.stringify(items.map((i) => ({ productId: i.productId, name: i.name, quantity: i.quantity, unit: i.unit, notes: i.notes })))} />
       <input type="hidden" name="upload_id" value={uploadId} />
@@ -104,6 +104,6 @@ export function QuoteRequestForm({ source, items, withFiles, onSent }: { source:
         Request my quote
       </SubmitButton>
       <p className="text-caption text-muted">We use your details only to prepare and send your quote. See our Privacy Policy.</p>
-    </form>
+    </NoResetForm>
   )
 }

@@ -1,15 +1,16 @@
 'use client'
 
-import { useFormState } from 'react-dom'
+import { useActionState } from 'react'
 import { updateEnquiryAction } from '@/app/(account)/account/enquiries/actions'
 import { Field, Select, Textarea } from '@/components/ui/Field'
 import { FormAlert, SubmitButton } from '@/components/forms/FormParts'
 import { ENQUIRY_STATUS } from '@/lib/enquiry-labels'
+import { NoResetForm } from '@/components/forms/NoResetForm'
 
 export function EnquiryStatusForm({ id, status, notes }: { id: string; status: string; notes: string | null }) {
-  const [state, action] = useFormState(updateEnquiryAction, null)
+  const [state, action] = useActionState(updateEnquiryAction, null)
   return (
-    <form action={action} className="space-y-4">
+    <NoResetForm action={action} className="space-y-4">
       <input type="hidden" name="id" value={id} />
       {state && !state.ok && <FormAlert>{state.error}</FormAlert>}
       {state?.ok && <FormAlert tone="success">{state.message}</FormAlert>}
@@ -26,6 +27,6 @@ export function EnquiryStatusForm({ id, status, notes }: { id: string; status: s
         <Textarea id="enq-notes" name="recipient_notes" defaultValue={notes ?? ''} rows={4} maxLength={4000} />
       </Field>
       <SubmitButton pendingText="Saving…">Save</SubmitButton>
-    </form>
+    </NoResetForm>
   )
 }

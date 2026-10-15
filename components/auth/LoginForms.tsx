@@ -1,17 +1,18 @@
 'use client'
 
+import { useActionState } from 'react'
 import Link from 'next/link'
-import { useFormState } from 'react-dom'
 import { magicLinkAction, signInAction } from '@/app/(account)/auth-actions'
 import { Field, Input, describedBy } from '@/components/ui/Field'
 import { Tabs } from '@/components/ui/Tabs'
 import { FormAlert, SubmitButton } from '@/components/forms/FormParts'
+import { NoResetForm } from '@/components/forms/NoResetForm'
 
 function PasswordForm({ next }: { next: string }) {
-  const [state, action] = useFormState(signInAction, null)
+  const [state, action] = useActionState(signInAction, null)
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <NoResetForm action={action} className="space-y-4" noValidate>
       <input type="hidden" name="next" value={next} />
       {state && !state.ok && <FormAlert>{state.error}</FormAlert>}
       <Field label="Email" htmlFor="login-email" error={errors.email}>
@@ -28,12 +29,12 @@ function PasswordForm({ next }: { next: string }) {
       <SubmitButton fullWidth pendingText="Signing in…">
         Sign in
       </SubmitButton>
-    </form>
+    </NoResetForm>
   )
 }
 
 function MagicLinkForm({ next }: { next: string }) {
-  const [state, action] = useFormState(magicLinkAction, null)
+  const [state, action] = useActionState(magicLinkAction, null)
   if (state?.ok) {
     return (
       <FormAlert tone="success">
@@ -43,7 +44,7 @@ function MagicLinkForm({ next }: { next: string }) {
   }
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <NoResetForm action={action} className="space-y-4" noValidate>
       <input type="hidden" name="next" value={next} />
       {state && !state.ok && <FormAlert>{state.error}</FormAlert>}
       <Field label="Email" htmlFor="magic-email" error={errors.email} hint="We'll email you a link that signs you in. No password needed.">
@@ -52,7 +53,7 @@ function MagicLinkForm({ next }: { next: string }) {
       <SubmitButton fullWidth pendingText="Sending…">
         Email me a sign-in link
       </SubmitButton>
-    </form>
+    </NoResetForm>
   )
 }
 

@@ -17,7 +17,11 @@ import { getMapConfig } from '@/lib/map-config'
 
 export const metadata = { title: 'Edit listing' }
 
-export default async function EditListingPage({ params, searchParams }: { params: { id: string }; searchParams: { step?: string } }) {
+export default async function EditListingPage(
+  props: { params: Promise<{ id: string }>; searchParams: Promise<{ step?: string }> }
+) {
+  const searchParams = await props.searchParams
+  const params = await props.params
   await requireUser(`/account/listings/${params.id}/edit`)
   const listing = await loadOwnerListing(params.id)
   if (!listing) notFound()

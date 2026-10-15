@@ -28,7 +28,7 @@ const PREFIX: Record<string, { table: 'enquiries' | 'service_requests' | 'quote_
 
 /** Adds or edits a deal in the commission ledger (spec 25.2k). A reference (HLE-, HLS-, HLQ-) links it to its lead. */
 export async function saveDealAction(input: Record<string, string>): Promise<ActionResult<{ message: string }>> {
-  assertAdmin()
+  await assertAdmin()
   const parsed = schema.safeParse(input)
   if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? 'Check the fields.')
   const d = parsed.data

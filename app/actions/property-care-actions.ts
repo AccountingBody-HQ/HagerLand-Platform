@@ -51,7 +51,7 @@ export async function requestPropertyCareAction(_prev: CareState, formData: Form
   if (!parsed.success) return invalid(parsed.error)
   const d = parsed.data
   if (d.property_location_id && !(await isEthiopianLocation(d.property_location_id))) return fail('Property Care covers property in Ethiopia.', { property_location_id: 'Choose a place in Ethiopia' })
-  const ip = getClientIp(headers())
+  const ip = getClientIp(await headers())
   const ipHash = hashIp(ip)
   if (!(await rateLimit(`care:${ipHash}`, 5, 3600)).allowed) return fail('You have sent several requests recently. Please wait a while and try again.')
   if (!(await verifyTurnstileToken(formData.get('cf-turnstile-response') as string | null, ip))) return fail('Please complete the security check and try again.')

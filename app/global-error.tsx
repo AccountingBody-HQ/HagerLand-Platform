@@ -14,6 +14,7 @@ export default function GlobalError({ reset }: { error: Error & { digest?: strin
             <button type="button" onClick={reset} className="h-11 rounded-md bg-green px-5 font-semibold text-white">
               Try again
             </button>
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- a full reload is wanted after the whole app failed */}
             <a href="/" className="inline-flex h-11 items-center justify-center rounded-md border border-ink px-5 font-semibold">
               Go to the homepage
             </a>

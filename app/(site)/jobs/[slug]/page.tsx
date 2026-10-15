@@ -19,7 +19,8 @@ import { JsonLd } from '@/components/seo/JsonLd'
 
 export const revalidate = 300
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const params = await props.params
   const job = await getJobBySlug(params.slug)
   return verticalLandingMetadata('jobs', () =>
     job
@@ -34,7 +35,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
 const UNIT: Record<string, string> = { hour: 'HOUR', day: 'DAY', month: 'MONTH', year: 'YEAR' }
 
-export default async function JobPage({ params }: { params: { slug: string } }) {
+export default async function JobPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params
   const v = await getVertical('jobs')
   if (!v || v.status !== 'live') notFound()
   const job = await getJobBySlug(params.slug)

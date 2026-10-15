@@ -5,8 +5,8 @@ import { DevelopmentImport } from './DevelopmentImport'
 
 export const metadata = { title: 'Import developments' }
 
-export default function ImportDevelopmentsPage() {
-  requireAdminPage()
+export default async function ImportDevelopmentsPage() {
+  await requireAdminPage()
   return (
     <div className="max-w-5xl">
       <AdminHeader title="Import developments and buildings" description="Create many development and building pages at once. Rows are checked first; duplicates (same name and location) are skipped." />

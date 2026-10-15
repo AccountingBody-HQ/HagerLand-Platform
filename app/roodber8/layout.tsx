@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic'
 export const metadata = { title: { default: 'Admin', template: '%s · HagerLand admin' }, robots: { index: false, follow: false } }
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  requireAdminPage()
+  await requireAdminPage()
   const db = getAdminSupabase()
   const [queue, quotes, interest, requests, care, trade, email] = await Promise.all([
     queueCounts(),

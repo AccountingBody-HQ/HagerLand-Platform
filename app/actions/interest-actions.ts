@@ -49,7 +49,7 @@ export async function submitInterestAction(_prev: InterestState, formData: FormD
   if (d.category && content.categories && !content.categories.some((c) => c.value === d.category)) return fail('Choose one of the listed options.', { category: 'Choose one of the listed options' })
   if (d.audience && content.audiences && !content.audiences.some((a) => a.value === d.audience)) return fail('Choose one of the listed options.', { audience: 'Choose one of the listed options' })
 
-  const ip = getClientIp(headers())
+  const ip = getClientIp(await headers())
   const ipHash = hashIp(ip)
   if (!(await rateLimit(`interest:${ipHash}`, 10, 3600)).allowed) return fail('You have sent several registrations recently. Please wait a while and try again.')
   if (!(await verifyTurnstileToken(formData.get('cf-turnstile-response') as string | null, ip))) return fail('Please complete the security check and try again.')
@@ -114,7 +114,7 @@ export async function submitPartnerAction(_prev: InterestState, formData: FormDa
   const allowed: PartnerType[] = COMING_SOON[d.vertical_key].partner?.types ?? []
   if (!vertical || !vertical.partnerSignupEnabled || !allowed.includes(d.partner_type)) return fail('Partner applications are not open for this service.')
 
-  const ip = getClientIp(headers())
+  const ip = getClientIp(await headers())
   const ipHash = hashIp(ip)
   if (!(await rateLimit(`partner:${ipHash}`, 5, 3600)).allowed) return fail('You have sent several applications recently. Please wait a while and try again.')
   if (!(await verifyTurnstileToken(formData.get('cf-turnstile-response') as string | null, ip))) return fail('Please complete the security check and try again.')

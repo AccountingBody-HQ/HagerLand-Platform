@@ -13,7 +13,8 @@ export const metadata = buildMetadata({
   path: '/suppliers',
 })
 
-export default async function SuppliersPage({ searchParams }: { searchParams: RawParams }) {
+export default async function SuppliersPage(props: { searchParams: Promise<RawParams> }) {
+  const searchParams = await props.searchParams
   const categories = await getProductCategories()
   const flat = categories.map((c) => ({ slug: c.slug, name: c.name, id: c.id }))
   return (

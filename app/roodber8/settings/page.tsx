@@ -11,7 +11,7 @@ export const metadata = { title: 'Settings' }
 const SOCIAL_LABEL: Record<string, string> = { facebook: 'Facebook', instagram: 'Instagram', linkedin: 'LinkedIn', tiktok: 'TikTok', youtube: 'YouTube', x: 'X (Twitter)', telegram: 'Telegram channel' }
 
 export default async function SettingsPage() {
-  requireAdminPage()
+  await requireAdminPage()
   const db = getAdminSupabase()
   const { data } = await db.from('site_settings').select('key, value')
   const s = Object.fromEntries((data ?? []).map((r) => [r.key, r.value])) as Record<string, unknown>

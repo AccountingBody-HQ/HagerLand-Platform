@@ -1,8 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useEffect, useState, useTransition } from 'react'
-import { useFormState } from 'react-dom'
+import { useActionState, useEffect, useState, useTransition } from 'react'
 import { FileCheck2 } from 'lucide-react'
 import { respondToMatchAction, submitMatchQuoteAction } from '@/app/(account)/account/requests/actions'
 import { Button } from '@/components/ui/Button'
@@ -12,6 +11,7 @@ import { FormAlert, SubmitButton } from '@/components/forms/FormParts'
 import { useToast } from '@/components/ui/Toast'
 import { CURRENCIES } from '@/lib/countries'
 import { track } from '@/lib/analytics'
+import { NoResetForm } from '@/components/forms/NoResetForm'
 
 /** Accept or decline a matched request (spec 24.5). */
 export function MatchResponse({ matchId }: { matchId: string }) {
@@ -56,7 +56,7 @@ export function MatchResponse({ matchId }: { matchId: string }) {
 
 /** The provider's quote for a request they accepted. */
 export function MatchQuoteForm({ matchId, defaults }: { matchId: string; defaults: { amount: string; currency: string; message: string; validUntil: string; hasDocument: boolean } }) {
-  const [state, action] = useFormState(submitMatchQuoteAction, null)
+  const [state, action] = useActionState(submitMatchQuoteAction, null)
   const [doc, setDoc] = useState<UploadedDoc | null>(null)
   const router = useRouter()
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
@@ -67,7 +67,7 @@ export function MatchQuoteForm({ matchId, defaults }: { matchId: string; default
     }
   }, [state, router])
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <NoResetForm action={action} className="space-y-4" noValidate>
       <input type="hidden" name="match_id" value={matchId} />
       {doc && <input type="hidden" name="document_path" value={doc.path} />}
       {state && !state.ok && <FormAlert>{state.error}</FormAlert>}
@@ -103,6 +103,6 @@ export function MatchQuoteForm({ matchId, defaults }: { matchId: string; default
       <SubmitButton fullWidth pendingText="Sending…">
         Send quote
       </SubmitButton>
-    </form>
+    </NoResetForm>
   )
 }

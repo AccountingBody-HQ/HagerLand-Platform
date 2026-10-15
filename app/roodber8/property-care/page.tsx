@@ -11,8 +11,9 @@ import { ButtonLink } from '@/components/ui/Button'
 export const metadata = { title: 'Property Care pipeline' }
 
 /** HagerLand Property Care consultation pipeline (spec 24.6, 24.12). */
-export default async function CarePipelinePage({ searchParams }: { searchParams: { status?: string } }) {
-  requireAdminPage()
+export default async function CarePipelinePage(props: { searchParams: Promise<{ status?: string }> }) {
+  const searchParams = await props.searchParams
+  await requireAdminPage()
   const status = (CARE_STATUSES as readonly string[]).includes(searchParams.status ?? '') ? searchParams.status : undefined
   const db = getAdminSupabase()
   let q = db.from('property_care_requests').select('id, reference, created_at, name, country_code, city, property_type, services, status').order('created_at', { ascending: false }).limit(500)

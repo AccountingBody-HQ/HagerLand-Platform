@@ -18,8 +18,9 @@ export const metadata = { title: 'Managed property' }
 
 const m = (n: number | null, c: string) => (n === null ? '—' : formatMoney(n / 100, c))
 
-export default async function ManagedPropertyPage({ params }: { params: { id: string } }) {
-  requireAdminPage()
+export default async function ManagedPropertyPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params
+  await requireAdminPage()
   if (!/^[0-9a-f-]{36}$/.test(params.id)) notFound()
   const db = getAdminSupabase()
   const { data: p } = await db.from('managed_properties').select('*').eq('id', params.id).maybeSingle()

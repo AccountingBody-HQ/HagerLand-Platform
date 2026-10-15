@@ -13,7 +13,11 @@ import type { MediaItem } from '@/lib/media-actions'
 
 export const metadata = { title: 'Edit project' }
 
-export default async function PortfolioEditPage({ params, searchParams }: { params: { id: string }; searchParams: { created?: string } }) {
+export default async function PortfolioEditPage(
+  props: { params: Promise<{ id: string }>; searchParams: Promise<{ created?: string }> }
+) {
+  const searchParams = await props.searchParams
+  const params = await props.params
   await requireUser(`/account/company/portfolio/${params.id}`)
   const active = await getActiveMembership()
   const supabase = getServerSupabase()

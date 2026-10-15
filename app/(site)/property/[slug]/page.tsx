@@ -50,7 +50,8 @@ async function load(slug: string) {
   return { sid, property }
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const params = await props.params
   const { sid, property: p } = await load(params.slug)
   if (!p) {
     const gone = await getUnavailableProperty(sid)
@@ -63,7 +64,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   return buildMetadata({ title, description: truncateDescription(p.description || p.title || ''), path: `/property/${p.slug}`, image: `/og/property/${p.slug}` })
 }
 
-export default async function PropertyPage({ params }: { params: { slug: string } }) {
+export default async function PropertyPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params
   const { sid, property: p } = await load(params.slug)
 
   if (!p) {

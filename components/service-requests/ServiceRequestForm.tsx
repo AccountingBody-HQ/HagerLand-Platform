@@ -2,8 +2,7 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { useFormState } from 'react-dom'
+import { useActionState, useEffect, useState } from 'react'
 import { FileCheck2, X } from 'lucide-react'
 import { submitServiceRequestAction } from '@/app/actions/service-request-actions'
 import { Field, Input, Select, Textarea, describedBy } from '@/components/ui/Field'
@@ -17,6 +16,7 @@ import { COUNTRIES, OTHER_COUNTRY } from '@/lib/countries'
 import { BUDGET_BANDS, BUDGET_BANDS_ABROAD, URGENCY } from '@/lib/service-requests/labels'
 import type { Question } from '@/lib/service-requests/questions'
 import { track } from '@/lib/analytics'
+import { NoResetForm } from '@/components/forms/NoResetForm'
 
 function QuestionField({ q, error }: { q: Question; error?: string }) {
   const id = `sr-q-${q.id}`
@@ -95,7 +95,7 @@ export function ServiceRequestForm({
   /** Start with "another country" selected (diaspora services abroad). */
   abroad?: boolean
 }) {
-  const [state, action] = useFormState(submitServiceRequestAction, null)
+  const [state, action] = useActionState(submitServiceRequestAction, null)
   const router = useRouter()
   const [uploadId] = useState(() => crypto.randomUUID())
   const [files, setFiles] = useState<UploadedDoc[]>([])
@@ -118,7 +118,7 @@ export function ServiceRequestForm({
   }, [state, router, categorySlug])
 
   return (
-    <form action={action} className="space-y-8" noValidate>
+    <NoResetForm action={action} className="space-y-8" noValidate>
       <input type="hidden" name="category_slug" value={categorySlug} />
       <input type="hidden" name="upload_id" value={uploadId} />
       <input type="hidden" name="utm" value={utm} />
@@ -259,6 +259,6 @@ export function ServiceRequestForm({
         </Link>
         .
       </p>
-    </form>
+    </NoResetForm>
   )
 }

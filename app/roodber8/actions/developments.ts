@@ -19,7 +19,7 @@ type DevUpdate = Database['public']['Tables']['developments']['Update']
 
 /** Create or edit any development as HagerLand (changes apply immediately). */
 export async function saveAdminDevelopmentAction(_prev: ActionResult<{ id: string }> | null, formData: FormData): Promise<ActionResult<{ id: string }>> {
-  assertAdmin()
+  await assertAdmin()
   const parsed = developmentSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   if (!(await isEthiopianLocation(parsed.data.location_id))) return fail(NOT_IN_ETHIOPIA, { location_id: 'Choose a place in Ethiopia' })
@@ -88,7 +88,7 @@ async function importContext() {
 }
 
 export async function previewDevelopmentsCsvAction(csv: string): Promise<ActionResult<{ rows: ImportRow[] }>> {
-  assertAdmin()
+  await assertAdmin()
   if (csv.length > 2_000_000) return fail('That file is too large. Split it into smaller files.')
   const rows = parseCsv(csv)
   if (rows.length === 0) return fail('No rows found. Check the file has a header row.')
@@ -98,7 +98,7 @@ export async function previewDevelopmentsCsvAction(csv: string): Promise<ActionR
 }
 
 export async function importDevelopmentsCsvAction(csv: string, publish: boolean): Promise<ActionResult<{ message: string }>> {
-  assertAdmin()
+  await assertAdmin()
   const rows = parseCsv(csv)
   if (rows.length === 0 || rows.length > 1000) return fail('Check the file and try again.')
   const ctx = await importContext()

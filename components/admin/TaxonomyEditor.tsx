@@ -1,7 +1,6 @@
 'use client'
 
-import { useEffect, useId, useState, useTransition } from 'react'
-import { useFormState } from 'react-dom'
+import { useActionState, useEffect, useId, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowDown, ArrowUp, ChevronRight, Pencil } from 'lucide-react'
 import { mergeLocationAction, moveCategoryAction, moveLocationAction, saveCategoryAction, saveLocationAction } from '@/app/roodber8/actions/taxonomy'
@@ -12,6 +11,7 @@ import { FormAlert, SubmitButton } from '@/components/forms/FormParts'
 import { useToast } from '@/components/ui/Toast'
 import { Badge } from '@/components/ui/Badge'
 import { cn } from '@/lib/cn'
+import { NoResetForm } from '@/components/forms/NoResetForm'
 
 export interface TreeNode {
   id: string
@@ -51,7 +51,7 @@ const LOCATION_FIELDS: FieldDef[] = [
 
 function useSave(mode: Mode) {
   const bound = mode.kind === 'category' ? saveCategoryAction.bind(null, mode.category) : saveLocationAction
-  return useFormState<Msg | null, FormData>(bound, null)
+  return useActionState<Msg | null, FormData>(bound, null)
 }
 
 function NodeForm({ mode, node, parents, onDone, allowRoot = true }: { mode: Mode; node?: TreeNode; parents: { id: string; label: string }[]; onDone?: () => void; allowRoot?: boolean }) {
@@ -67,7 +67,7 @@ function NodeForm({ mode, node, parents, onDone, allowRoot = true }: { mode: Mod
     }
   }, [state, router, onDone])
   return (
-    <form action={action} className="grid gap-3 sm:grid-cols-2" noValidate>
+    <NoResetForm action={action} className="grid gap-3 sm:grid-cols-2" noValidate>
       {node && <input type="hidden" name="id" value={node.id} />}
       {state && !state.ok && <FormAlert className="sm:col-span-2">{state.error}</FormAlert>}
       {state?.ok && !node && <FormAlert tone="success" className="sm:col-span-2">{state.message}</FormAlert>}
@@ -121,7 +121,7 @@ function NodeForm({ mode, node, parents, onDone, allowRoot = true }: { mode: Mod
           </Button>
         )}
       </div>
-    </form>
+    </NoResetForm>
   )
 }
 

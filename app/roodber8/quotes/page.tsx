@@ -10,8 +10,9 @@ export const metadata = { title: 'Quotes' }
 const PAGE = 50
 const STAGES = ['submitted', 'in_review', 'quoted', 'accepted', 'declined', 'expired', 'cancelled'] as const
 
-export default async function AdminQuotesPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
-  requireAdminPage()
+export default async function AdminQuotesPage(props: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const searchParams = await props.searchParams
+  await requireAdminPage()
   const page = Math.max(1, Number(searchParams.page) || 1)
   const db = getAdminSupabase()
   let q = db.from('quote_requests').select('id, reference, created_at, status, source, name, phone, company_name, needed_by, quoted_total_etb_cents, assigned_to, items:quote_request_items(count)', { count: 'exact' })

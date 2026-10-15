@@ -13,7 +13,8 @@ export const metadata = buildMetadata({ title: 'Create an account', description:
 
 const TYPE_ALIASES: Record<string, SignupIntent> = { owner: 'owner', agent: 'agent', agents: 'agent', developer: 'developer', developers: 'developer', professional: 'professional', professionals: 'professional', supplier: 'supplier', suppliers: 'supplier', looking: 'looking' }
 
-export default async function SignupPage({ searchParams }: { searchParams: { type?: string; next?: string } }) {
+export default async function SignupPage(props: { searchParams: Promise<{ type?: string; next?: string }> }) {
+  const searchParams = await props.searchParams
   const next = searchParams.next ? safeNextPath(searchParams.next) : undefined
   if (await getUser()) redirect(next ?? '/account')
   const initial = searchParams.type ? TYPE_ALIASES[searchParams.type] ?? null : null
