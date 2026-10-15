@@ -32,7 +32,7 @@ export function HomeSearch({ services }: { services: { name: string; children: {
             type="button"
             aria-selected={tab === t.id}
             onClick={() => setTab(t.id)}
-            className={cn('min-h-11 whitespace-nowrap rounded-md px-4 font-semibold transition-colors', tab === t.id ? 'bg-ink text-white' : 'text-muted hover:bg-stone-100 hover:text-ink')}
+            className={cn('min-h-11 whitespace-nowrap rounded-md px-2 font-semibold transition-colors sm:px-4', tab === t.id ? 'bg-forest text-white' : 'text-muted hover:bg-mist hover:text-ink')}
           >
             {t.label}
           </button>

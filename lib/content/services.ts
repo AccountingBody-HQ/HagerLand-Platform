@@ -25,3 +25,15 @@ export const SERVICE_GROUPS: { id: string; title: string; text: string; keys: Pi
   { id: 'own', title: 'Own and manage', text: 'Look after what you own, protect it and decide with confidence.', keys: ['manage', 'insurance', 'advice'] },
   { id: 'supply', title: 'Supplies and jobs', text: 'Materials for every build, and the people to do the work.', keys: ['supplies', 'jobs'] },
 ]
+
+/**
+ * Homepage (design round 2): three primary services get a feature section with a drawing; the other five sit in a
+ * calm index. Group titles and texts reuse the customer groups above, except Property Care, which stands alone.
+ */
+export const HOME_FEATURES: { id: 'buy-rent' | 'build' | 'care'; title: string; text: string; keys: PillarKey[] }[] = [
+  { id: 'buy-rent', title: 'Buy, sell and rent', text: 'Find your next home or investment, or let our agents sell and let yours.', keys: ['buy', 'rent'] },
+  { id: 'build', title: 'Build and improve', text: 'From the first drawing to repairs years later.', keys: ['build', 'maintain'] },
+  { id: 'care', title: 'Property Care', text: 'Inspections with photo reports, tenants, rent collection and repairs, handled by one accountable team, whether you live in Addis Ababa or abroad.', keys: ['manage'] },
+]
+
+export const HOME_INDEX: { title: string; keys: PillarKey[] } = { title: 'Also from HagerLand', keys: ['supplies', 'jobs', 'advice', 'finance', 'insurance'] }

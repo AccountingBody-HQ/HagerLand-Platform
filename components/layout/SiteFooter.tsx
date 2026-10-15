@@ -4,11 +4,11 @@ import { getBusinessDetails } from '@/lib/data/business'
 import { buildFooterColumns } from '@/lib/navigation'
 import { getVerticals } from '@/lib/data/verticals'
 import { getPillars } from '@/lib/data/pillars'
-import { SoonBadge } from '@/components/verticals/SoonBadge'
 import { CurrencySwitcher } from '@/components/currency/CurrencySwitcher'
 import { Wordmark } from '@/components/brand/Logo'
 import { SocialIcon, socialLabel } from '@/components/brand/SocialIcon'
 import { Container } from '@/components/ui/Layout'
+import { TibebBand } from '@/components/visuals/Drawings'
 import { getLocale } from '@/lib/i18n/server'
 import { translator } from '@/lib/i18n/translate'
 import { localizeHref } from '@/lib/i18n/config'
@@ -24,12 +24,13 @@ export async function SiteFooter({ amharicOn = false }: { amharicOn?: boolean })
   const socials = business.social
   const year = new Date().getFullYear()
   return (
-    <footer className="bg-ink text-white">
-      <Container className="py-14">
+    <footer className="bg-forest text-white">
+      <TibebBand id="footer" />
+      <Container className="py-16 sm:py-20">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1fr]">
           <div>
             <Wordmark inverse />
-            <p className="mt-4 max-w-xs font-display font-bold text-white">{t(brand.masterLine)}</p>
+            <p className="mt-6 max-w-xs font-serif text-[1.375rem] leading-snug text-white">{t(brand.masterLine)}</p>
             <p className="mt-3 max-w-xs text-small leading-relaxed text-white/75">{t(brand.supportLine)}</p>
             <CurrencySwitcher className="mt-6" />
             {amharicOn && <LanguageSwitch inverse className="mt-4" />}
@@ -53,13 +54,13 @@ export async function SiteFooter({ amharicOn = false }: { amharicOn?: boolean })
           </div>
           {columns.map((col) => (
             <nav key={col.title} aria-label={col.title}>
-              <h2 className="font-display text-body font-bold text-white">{col.title}</h2>
+              <h2 className="font-serif text-[1.1875rem] font-normal text-gold-pale">{col.title}</h2>
               <ul className="mt-3">
                 {col.links.map((l) => (
                   <li key={l.href}>
                     <Link href={l.href} className="inline-block py-[11px] leading-snug text-white/75 hover:text-white">
                       {l.label}
-                      {l.soon && <SoonBadge className="ml-2 align-[0.1em]" />}
+                      {l.soon && <span className="ml-2 text-small text-gold-pale">· {t('Soon')}</span>}
                     </Link>
                   </li>
                 ))}

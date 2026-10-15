@@ -54,7 +54,7 @@ function AllServicesPanel({ all, onNavigate }: { all: AllServices; onNavigate: (
       <div className="grid gap-6 lg:grid-cols-4">
         {all.groups.map((g) => (
           <div key={g.id}>
-            <p className="hl-eyebrow mb-2 px-3 text-muted">{g.title}</p>
+            <p className="mb-2 px-3 font-serif text-[1.1875rem] text-ink">{g.title}</p>
             <ul className="grid gap-1">
               {g.tiles.map((tile) => (
                 <li key={tile.key}>
@@ -98,7 +98,7 @@ function MegaPanel({ group, onNavigate }: { group: NavGroup; onNavigate: () => v
       <div className={cn('grid gap-8', group.featured ? 'lg:grid-cols-[2fr_1fr]' : '')}>
         {group.featured && (
           <div>
-            <p className="hl-eyebrow mb-3 text-muted">{t('Shop by category')}</p>
+            <p className="mb-3 font-serif text-[1.1875rem] text-ink">{t('Shop by category')}</p>
             <ul className="grid grid-cols-2 gap-1">
               {group.featured.map((l) => (
                 <li key={l.href}>
@@ -271,7 +271,7 @@ export function SiteHeader({ nav: siteNav, amharicOn = false }: { nav: SiteNav; 
           {nav.map((g) => (
             <li key={g.id} onMouseEnter={() => (g.links.length === 0 ? setOpenId(null) : hoverOpen(g.id))}>
               {g.links.length === 0 ? (
-                <Link href={g.href} className={cn('inline-flex h-11 items-center gap-1.5 whitespace-nowrap rounded-md px-2.5 text-small font-semibold hover:bg-stone-100 xl:px-3 xl:text-[0.9375rem]', isActive(g) ? 'text-ink' : 'text-ink/80')}>
+                <Link href={g.href} className={cn('relative inline-flex h-11 items-center gap-1.5 whitespace-nowrap rounded-md px-2.5 text-small font-medium hover:bg-mist xl:px-3 xl:text-[0.9375rem]', isActive(g) ? 'text-ink after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:bg-gold' : 'text-ink/80')}>
                   {g.label}
                   {g.soon && <SoonBadge />}
                 </Link>
@@ -281,7 +281,7 @@ export function SiteHeader({ nav: siteNav, amharicOn = false }: { nav: SiteNav; 
                   aria-expanded={openId === g.id}
                   aria-controls="mega-panel"
                   onClick={() => toggle(g.id)}
-                  className={cn('inline-flex h-11 items-center gap-1 whitespace-nowrap rounded-md px-2.5 text-small font-semibold transition-colors hover:bg-stone-100 xl:px-3 xl:text-[0.9375rem]', isActive(g) || openId === g.id ? 'text-ink' : 'text-ink/80')}
+                  className={cn('relative inline-flex h-11 items-center gap-1 whitespace-nowrap rounded-md px-2.5 text-small font-medium transition-colors hover:bg-mist xl:px-3 xl:text-[0.9375rem]', isActive(g) || openId === g.id ? 'text-ink' : 'text-ink/80', isActive(g) && 'after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:bg-gold')}
                 >
                   {g.label}
                   {g.soon && <SoonBadge />}

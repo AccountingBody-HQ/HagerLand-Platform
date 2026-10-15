@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter, Manrope, Noto_Sans_Ethiopic } from 'next/font/google'
+import { Inter, Manrope, Newsreader, Noto_Sans_Ethiopic } from 'next/font/google'
 import './globals.css'
 import { brand } from '@/lib/brand'
 import { SITE_URL } from '@/lib/site'
@@ -13,6 +13,8 @@ import { LocaleProvider } from '@/lib/i18n/client'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'optional' })
 const manrope = Manrope({ subsets: ['latin'], weight: ['600', '700', '800'], variable: '--font-display', display: 'optional' })
+// Round 2: serif voice for headings (self-hosted, no layout shift: the fallback stays if the font is late).
+const newsreader = Newsreader({ subsets: ['latin'], weight: ['400', '500'], style: ['normal'], variable: '--font-serif', display: 'optional' })
 const ethiopic = Noto_Sans_Ethiopic({ subsets: ['ethiopic'], weight: ['400', '600'], variable: '--font-ethiopic', display: 'swap', preload: false })
 
 export const metadata: Metadata = {
@@ -29,7 +31,7 @@ export const metadata: Metadata = {
 const onVercel = Boolean(process.env.VERCEL)
 
 export const viewport: Viewport = {
-  themeColor: '#152238',
+  themeColor: '#0D3A24',
   width: 'device-width',
   initialScale: 1,
 }
@@ -37,7 +39,7 @@ export const viewport: Viewport = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale()
   return (
-    <html lang={locale} className={`${inter.variable} ${manrope.variable} ${ethiopic.variable}`}>
+    <html lang={locale} className={`${inter.variable} ${manrope.variable} ${newsreader.variable} ${ethiopic.variable}`}>
       <body className="min-h-dvh font-sans antialiased">
         <LocaleProvider locale={locale}>
           <ToastProvider>{children}</ToastProvider>

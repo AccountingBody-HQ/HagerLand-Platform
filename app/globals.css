@@ -12,15 +12,20 @@
   --hl-gold: 184 134 46;
   --hl-gold-dark: 128 92 28;
   --hl-gold-soft: 251 241 222;
-  --hl-ink: 21 34 56;
-  --hl-ink-2: 36 50 74;
+  /* Round 2: near-neutral dark for text (navy retired), forest as the brand surface, mist as the alternate band. */
+  --hl-ink: 22 32 27;
+  --hl-ink-2: 40 52 46;
+  --hl-forest: 13 58 36;
+  --hl-forest-2: 22 74 51;
+  --hl-mist: 242 246 244;
+  --hl-gold-pale: 227 199 143;
   --hl-stone-50: 250 249 247;
   --hl-stone-100: 244 242 238;
   --hl-stone-200: 232 229 223;
   --hl-stone-300: 214 210 202;
   --hl-stone-500: 138 133 124;
-  --hl-muted: 91 100 114;
-  --hl-subtle: 138 147 163;
+  --hl-muted: 90 101 95;
+  --hl-subtle: 133 143 137;
   --hl-border: 228 230 227;
   --hl-border-strong: 203 208 204;
   --hl-success: 28 124 76;
@@ -46,6 +51,17 @@
   }
   :focus-visible {
     @apply outline-none ring-2 ring-green ring-offset-2;
+  }
+  /* Round 2: the hero drawing draws itself once (elements with pathLength="1"); with reduced motion it simply appears. */
+  @keyframes hl-draw { to { stroke-dashoffset: 0; } }
+  .hl-draw [pathLength] {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: hl-draw 2.2s cubic-bezier(0.45, 0, 0.2, 1) forwards;
+    animation-delay: calc(0.2s + var(--d, 0s));
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hl-draw [pathLength] { animation: none; stroke-dashoffset: 0; }
   }
   /* After a mouse or touch click, controls keep no ring (components/layout/InputModality.tsx). Form fields keep their own focus style. */
   html[data-input='pointer'] :is(a, button, summary, [role='tab'], [role='switch'], [tabindex]):focus-visible {
