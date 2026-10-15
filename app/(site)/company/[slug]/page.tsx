@@ -28,6 +28,9 @@ import { MediaImage } from '@/components/media/MediaImage'
 import { ExpandableText } from '@/components/ui/ExpandableText'
 import { ViewTracker } from '@/components/analytics/ViewTracker'
 import { JsonLd } from '@/components/seo/JsonLd'
+import { getReviews, MIN_REVIEWS_FOR_RATING } from '@/lib/data/reviews'
+import { Star } from 'lucide-react'
+import { formatDate } from '@/lib/format'
 import { SaveButton } from '@/components/saved/SaveButton'
 
 export const revalidate = 600
@@ -56,7 +59,7 @@ export default async function CompanyPage(props: { params: Promise<{ slug: strin
   if (!o || !o.id) notFound()
   const isLister = o.kind === 'agency' || o.kind === 'developer' || o.kind === 'hagerland'
   const isSeller = o.kind === 'supplier' || o.kind === 'manufacturer'
-  const [chain, services, productCats, portfolio, areaNames, forSale, toRent, developments, products, branches] = await Promise.all([
+  const [chain, services, productCats, portfolio, areaNames, forSale, toRent, developments, products, branches, reviews] = await Promise.all([
     o.location_id ? getLocationChain(o.location_id) : Promise.resolve([] as Location[]),
     getOrganisationServices(o.id),
     getOrganisationProductCategories(o.id),
@@ -67,6 +70,7 @@ export default async function CompanyPage(props: { params: Promise<{ slug: strin
     o.kind === 'developer' || o.kind === 'hagerland' ? searchDevelopments({ developerOrgId: o.id, pageSize: 6 }) : Promise.resolve({ total: 0, items: [] }),
     isSeller ? searchProducts({ sellerOrgId: o.id, sort: 'newest', pageSize: 48 }) : Promise.resolve({ total: 0, items: [] }),
     getBranches(o.id),
+    getReviews(o.id),
   ])
   const city = cityOf(chain)
   const region = chain.find((l) => l.level === 'region') ?? null
@@ -80,6 +84,7 @@ export default async function CompanyPage(props: { params: Promise<{ slug: strin
     { id: 'for-sale', label: 'For sale', show: forSale.total > 0 },
     { id: 'to-rent', label: 'To rent', show: toRent.total > 0 },
     { id: 'developments', label: 'Developments', show: developments.total > 0 },
+    { id: 'reviews', label: 'Reviews', show: reviews.items.length > 0 },
     { id: 'branches', label: 'Branches', show: branches.length > 0 },
     { id: 'areas', label: 'Areas served', show: areaNames.length > 0 },
   ].filter((s) => s.show)
@@ -296,6 +301,42 @@ export default async function CompanyPage(props: { params: Promise<{ slug: strin
               </section>
             )}
 
+            {reviews.items.length > 0 && (
+              <section id="reviews" aria-labelledby="reviews-heading" className="scroll-mt-24">
+                <h2 id="reviews-heading" className="hl-h3 mb-1">
+                  Reviews
+                </h2>
+                <p className="mb-4 flex items-center gap-2 text-small text-muted">
+                  <Star className="size-4 fill-gold text-gold" aria-hidden />
+                  <span>
+                    <strong className="text-ink">{reviews.average}</strong> out of 5 from {reviews.items.length} verified {reviews.items.length === 1 ? 'review' : 'reviews'}. Only customers who chose this business through HagerLand can review it.
+                  </span>
+                </p>
+                <ul className="space-y-4">
+                  {reviews.items.map((r) => (
+                    <li key={r.id} className="rounded-lg border border-border p-4">
+                      <p className="flex flex-wrap items-center gap-2 text-small">
+                        <span className="font-semibold text-ink">{r.author_first_name}</span>
+                        <span aria-label={`${r.rating} out of 5`} className="flex">
+                          {[1, 2, 3, 4, 5].map((n) => (
+                            <Star key={n} className={n <= r.rating ? 'size-4 fill-gold text-gold' : 'size-4 text-stone-300'} aria-hidden />
+                          ))}
+                        </span>
+                        <span className="text-muted">{formatDate(r.published_at)}</span>
+                      </p>
+                      <p className="mt-2 whitespace-pre-line">{r.body}</p>
+                      {r.provider_reply && (
+                        <div className="mt-3 border-l-4 border-green bg-green-tint p-3 text-small">
+                          <p className="font-semibold">Reply from {o.name}</p>
+                          <p className="mt-1 whitespace-pre-line">{r.provider_reply}</p>
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
             {branches.length > 0 && (
               <section id="branches" aria-labelledby="branches-heading" className="scroll-mt-24">
                 <h2 id="branches-heading" className="hl-h3 mb-4">
@@ -356,7 +397,7 @@ export default async function CompanyPage(props: { params: Promise<{ slug: strin
         </div>
       </Container>
       <ViewTracker entityType="organisation" id={o.id} label={o.kind ?? 'organisation'} />
-      <JsonLd data={organisationJsonLd(o, city?.name ?? null, region?.name ?? null)} />
+      <JsonLd data={organisationJsonLd(o, city?.name ?? null, region?.name ?? null, reviews.average !== null && reviews.items.length >= MIN_REVIEWS_FOR_RATING ? { average: reviews.average, count: reviews.items.length } : null)} />
     </>
   )
 }

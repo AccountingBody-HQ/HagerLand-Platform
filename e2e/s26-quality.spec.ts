@@ -7,7 +7,7 @@ import { adminSession, createUser, db, seedPublishedProperty, signIn } from './h
  * and desktop widths. Each work package adds its new public, account and admin pages here.
  */
 export const S26_PUBLIC = ['/buy', '/rent', '/build', '/maintain', '/manage', '/advice', '/agency', '/agency/valuation', '/agency/landlords', '/agency/tenants', '/diaspora/property-care', '/build/project', '/advice/market-insight', '/advice/checklists', '/advice/glossary']
-export const S26_ADMIN = ['/roodber8/pillars', '/roodber8/agency', '/roodber8/agency/contacts', '/roodber8/agency/instructions', '/roodber8/agency/valuations', '/roodber8/agency/viewings', '/roodber8/agency/offers', '/roodber8/agency/applications', '/roodber8/agency/tenancies', '/roodber8/agency/settings', '/roodber8/projects', '/roodber8/area-guides', '/roodber8/newsletter']
+export const S26_ADMIN = ['/roodber8/pillars', '/roodber8/agency', '/roodber8/agency/contacts', '/roodber8/agency/instructions', '/roodber8/agency/valuations', '/roodber8/agency/viewings', '/roodber8/agency/offers', '/roodber8/agency/applications', '/roodber8/agency/tenancies', '/roodber8/agency/settings', '/roodber8/projects', '/roodber8/area-guides', '/roodber8/newsletter', '/roodber8/reviews']
 
 async function axeProblems(page: Page, path: string): Promise<string[]> {
   await page.goto(path)
@@ -66,6 +66,7 @@ test('Section 26 listing, account and record pages: accessibility', async ({ pag
   all.push(...(await axeProblems(page, '/owner')))
   all.push(...(await axeProblems(page, '/build/project')))
   all.push(...(await axeProblems(page, '/account/projects')))
+  all.push(...(await axeProblems(page, '/account/reviews')))
   const { data: mp } = await db().from('managed_properties').insert({ owner_name: 'A11y owner', title: 'E2E a11y managed', status: 'active', owner_user_id: user.id }).select('id').single()
   all.push(...(await axeProblems(page, `/owner/${mp!.id}`)))
   await adminSession(page)

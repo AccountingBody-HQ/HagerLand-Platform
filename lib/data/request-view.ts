@@ -34,6 +34,8 @@ export interface RequestView {
   attachmentCount: number
   providersReviewing: number
   quotes: RequestQuote[]
+  /** For a request the customer closed by choosing a provider: who, and their review if one was left (spec 26.12). */
+  chosen: { orgName: string; review: { status: string; rating: number } | null } | null
 }
 
 /**
@@ -87,5 +89,13 @@ export async function loadRequestView(id: string): Promise<RequestView | null> {
     attachmentCount: (r.attachment_paths ?? []).length,
     providersReviewing: (matches ?? []).filter((m) => ['offered', 'accepted'].includes(m.status)).length,
     quotes: quotes.sort((a, b) => a.amountMinor - b.amountMinor),
+    chosen: await chosenProvider(r.status, matches ?? [], orgById),
   }
+}
+
+async function chosenProvider(status: string, matches: { id: string; org_id: string; status: string }[], orgById: Map<string, { name: string }>): Promise<RequestView['chosen']> {
+  const won = status === 'won' ? matches.find((m) => m.status === 'won') : undefined
+  if (!won) return null
+  const { data: review } = await getAdminSupabase().from('reviews').select('status, rating').eq('match_id', won.id).maybeSingle()
+  return { orgName: orgById.get(won.org_id)?.name ?? 'your provider', review: review ?? null }
 }

@@ -215,3 +215,29 @@ export async function resendRequestLinkAction(_prev: ActionResult<{ message: str
   }
   return ok({ message: 'If the details match a request, we have emailed a new link. Check your inbox and spam folder.' })
 }
+
+const reviewSchema = ownerSchema.extend({
+  rating: z.coerce.number().int().min(1, 'Choose a rating from 1 to 5').max(5, 'Choose a rating from 1 to 5'),
+  body: z.string().trim().min(20, 'Write at least 20 characters about the job').max(2000, 'Use 2,000 characters or fewer'),
+})
+
+/**
+ * A verified review (spec 26.12): only the customer of a request that reached "won" can review the provider they
+ * chose, once per job. Reviews wait for HagerLand to moderate them before they are published.
+ */
+export async function submitReviewAction(input: { request_id: string; token?: string; rating: number | string; body: string }): Promise<ActionResult<{ message: string }>> {
+  const parsed = reviewSchema.safeParse(input)
+  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? 'Check your review.')
+  const r = await loadOwned({ requestId: parsed.data.request_id, token: parsed.data.token })
+  if (!r) return fail('This link has expired. Ask for a new one below.')
+  if (r.status !== 'won') return fail('You can review a provider once you have chosen them for the job.')
+  const db = getAdminSupabase()
+  const { data: m } = await db.from('service_request_matches').select('id, org_id').eq('request_id', r.id).eq('status', 'won').maybeSingle()
+  if (!m) return fail('You can review a provider once you have chosen them for the job.')
+  const { data: req } = await db.from('service_requests').select('name, requester_user_id').eq('id', r.id).maybeSingle()
+  const { error } = await db.from('reviews').insert({ org_id: m.org_id, request_id: r.id, match_id: m.id, author_user_id: req?.requester_user_id ?? null, author_name: req?.name ?? 'Customer', rating: parsed.data.rating, body: parsed.data.body })
+  if (error) return fail(error.code === '23505' ? 'You have already reviewed this job.' : 'We could not save your review. Please try again.')
+  const to = Array.from(new Set([await hagerlandInbox('general'), process.env.ADMIN_DIGEST_EMAIL].filter((x): x is string => Boolean(x))))
+  if (to.length) await sendEmail({ to, ...adminNoticeEmail({ subject: `Review to moderate (${r.reference})`, heading: 'A customer reviewed a provider', lines: [['Request', r.reference], ['Rating', `${parsed.data.rating} of 5`]], adminUrl: canonicalUrl('/roodber8/reviews') }) })
+  return ok({ message: 'Thank you. Your review will appear once our team has checked it.' })
+}

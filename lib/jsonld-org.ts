@@ -18,7 +18,7 @@ const TYPE_BY_KIND: Record<string, string> = {
   hagerland: 'HomeAndConstructionBusiness',
 }
 
-export function organisationJsonLd(o: PublicOrganisation, city: string | null, region: string | null): Record<string, unknown> {
+export function organisationJsonLd(o: PublicOrganisation, city: string | null, region: string | null, rating?: { average: number; count: number } | null): Record<string, unknown> {
   const logo = publicMediaUrl(o.logo_path)
   const sameAs = Object.values((o.social as Record<string, string> | null) ?? {}).filter((u) => typeof u === 'string' && u.startsWith('http'))
   return {
@@ -31,5 +31,7 @@ export function organisationJsonLd(o: PublicOrganisation, city: string | null, r
     ...(o.website ? { sameAs: [o.website, ...sameAs] } : sameAs.length ? { sameAs } : {}),
     address: postalAddress(city, region, null, o.country_code && o.country_code !== 'ZZ' ? o.country_code : 'ET'),
     ...(o.year_established ? { foundingDate: String(o.year_established) } : {}),
+    // Only verified, published reviews, and only from three of them (spec 26.12).
+    ...(rating && rating.count >= 3 ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: rating.average, reviewCount: rating.count, bestRating: 5, worstRating: 1 } } : {}),
   }
 }

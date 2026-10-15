@@ -15,11 +15,12 @@ export async function loadActiveOrg(): Promise<{ membership: Membership; org: Or
   const { data: org } = await supabase.from('organisations').select('*').eq('id', membership.org.id).maybeSingle()
   if (!org) return null
   const values = { ...org, ...((org.pending_changes as Partial<OrgRow> | null) ?? {}) } as OrgRow
-  const [{ data: services }, { data: cats }, loc, all] = await Promise.all([
+  const [{ data: services }, { data: cats }, loc, all, { data: pillars }] = await Promise.all([
     supabase.from('organisation_services').select('service_id').eq('org_id', org.id),
     supabase.from('org_product_categories').select('product_category_id').eq('org_id', org.id),
     getLocationById(values.location_id),
     getLocations(),
+    supabase.from('organisation_pillars').select('pillar_key').eq('org_id', org.id),
   ])
   const areas = (values.areas_served ?? []).map((id) => all.find((l) => l.id === id)).filter((l): l is NonNullable<typeof l> => Boolean(l))
   return {
@@ -31,6 +32,7 @@ export async function loadActiveOrg(): Promise<{ membership: Membership; org: Or
       areas: areas.map((l) => ({ value: l.id, label: l.name })),
       service_ids: (services ?? []).map((s) => s.service_id),
       product_category_ids: (cats ?? []).map((c) => c.product_category_id),
+      pillar_keys: (pillars ?? []).map((p) => p.pillar_key),
     },
   }
 }

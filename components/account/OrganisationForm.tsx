@@ -1,5 +1,6 @@
 'use client'
 
+import { PROVIDER_PILLAR_KEYS, PROVIDER_PILLAR_LABEL, defaultPillarsForKind } from '@/lib/provider-pillars'
 import Link from 'next/link'
 import { useActionState, useState } from 'react'
 import type { ComboOption } from '@/components/ui/Combobox'
@@ -31,6 +32,7 @@ export interface OrgFormDefaults {
   areas?: ComboOption[]
   serves_diaspora?: boolean
   service_ids?: string[]
+  pillar_keys?: string[]
   product_category_ids?: string[]
   phone?: string | null
   whatsapp?: string | null
@@ -142,6 +144,21 @@ export function OrganisationForm({
         <Field label="About your business" htmlFor="org-description" optional error={errors.description} hint="What you do, your experience and the kind of projects you take on.">
           <Textarea id="org-description" name="description" defaultValue={defaults.description ?? ''} rows={6} maxLength={5000} />
         </Field>
+      </fieldset>
+
+      <fieldset key={`pillars-${kind}`}>
+        <legend className="hl-h3">Which parts of HagerLand do you serve?</legend>
+        <p className="mt-1 text-small text-muted">Requests and leads from these areas can be sent to you. Choose all that apply.</p>
+        <ul className="mt-4 grid gap-1 sm:grid-cols-2">
+          {PROVIDER_PILLAR_KEYS.map((k) => (
+            <li key={k} className="flex min-h-11 items-center gap-2.5">
+              <input id={`pil-${k}`} type="checkbox" name="pillar_keys" value={k} defaultChecked={(defaults.pillar_keys ?? (defaults.id ? [] : defaultPillarsForKind(kind))).includes(k)} className="size-5 accent-green" />
+              <label htmlFor={`pil-${k}`} className="text-body">
+                {PROVIDER_PILLAR_LABEL[k]}
+              </label>
+            </li>
+          ))}
+        </ul>
       </fieldset>
 
       {showServices && services.length > 0 && (

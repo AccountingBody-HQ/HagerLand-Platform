@@ -53,6 +53,10 @@ async function syncLinks(orgId: string, d: OrganisationInput): Promise<void> {
   if (services.length) await supabase.from('organisation_services').insert(services.map((service_id) => ({ org_id: orgId, service_id })))
   await supabase.from('org_product_categories').delete().eq('org_id', orgId)
   if (categories.length) await supabase.from('org_product_categories').insert(categories.map((product_category_id) => ({ org_id: orgId, product_category_id })))
+  // The pillars the business serves (spec 26.12): leads from these areas can be offered to it.
+  const pillars = Array.from(new Set(d.pillar_keys))
+  await supabase.from('organisation_pillars').delete().eq('org_id', orgId)
+  if (pillars.length) await supabase.from('organisation_pillars').insert(pillars.map((pillar_key) => ({ org_id: orgId, pillar_key })))
 }
 
 export async function createOrganisationAction(_prev: OrgFormState | null, formData: FormData): Promise<OrgFormState> {

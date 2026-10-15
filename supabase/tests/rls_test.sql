@@ -598,6 +598,20 @@ reset role;
 select pg_temp.record_check('Market insight refresh is not callable by visitors',
   not has_function_privilege('anon', 'public.refresh_market_insight()', 'EXECUTE') and not has_function_privilege('authenticated', 'public.refresh_market_insight()', 'EXECUTE'));
 
+-- ---------- Section 26: verified reviews (0032) ----------
+reset role;
+set role anon;
+select pg_temp.record_check('Anonymous cannot read reviews', pg_temp.read_denied('reviews'));
+select set_config('hl.reviews_seen', (select count(*)::text from public.reviews_public), false);
+reset role;
+select pg_temp.record_check('Anonymous reads only published reviews through the view',
+  current_setting('hl.reviews_seen')::int = (select count(*) from public.reviews r join public.organisations o on o.id = r.org_id and o.status = 'published' where r.status = 'published'));
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000002", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000002', false);
+select pg_temp.record_check('Signed-in user cannot read or write reviews directly', pg_temp.read_denied('reviews')
+  and pg_temp.write_denied($q$insert into public.reviews (org_id, request_id, match_id, author_name, rating, body) select m.org_id, m.request_id, m.id, 'RLS', 5, 'A review written straight into the table.' from public.service_request_matches m limit 1$q$));
+reset role;
+
 -- ---------- Clean up ----------
 reset role;
 select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);

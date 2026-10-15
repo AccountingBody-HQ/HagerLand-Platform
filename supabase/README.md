@@ -389,7 +389,16 @@ select (select count(*) from pg_tables where schemaname = 'public' and tablename
 ```sql
 select (select count(*) from pg_tables where schemaname = 'public' and tablename in ('area_guides', 'market_insight', 'newsletter_subscriptions')), (select count(*) from guides where slug in ('renting-a-home-a-guide-for-tenants', 'buying-checklist', 'renting-checklist', 'building-checklist', 'selling-checklist', 'property-glossary') and status = 'draft' and needs_review), (select version from schema_migrations where version = '0031');
 ```
-**You should see:** `3 | 6 | 0031`. The security test shows 185 `PASS` rows.
+**You should see:** `3 | 6 | 0031`. The security test shows 184 `PASS` rows.
+
+## 0032_reviews.sql (Section 26, S8)
+**What it does:** adds verified reviews. The database only accepts a review for a job where the customer chose that business through HagerLand (one review per job), every review waits for your moderation, and a business can reply once and cannot change its reply. Visitors see only published reviews, with the reviewer's first name.
+
+**Check:**
+```sql
+select (select count(*) from pg_tables where schemaname = 'public' and tablename = 'reviews'), (select count(*) from pg_trigger where tgname in ('reviews_check_eligible', 'reviews_reply_once')), (select version from schema_migrations where version = '0032');
+```
+**You should see:** `1 | 2 | 0032`. The security test shows 187 `PASS` rows.
 
 ---
 
@@ -399,7 +408,7 @@ statements: that is the test cleaning up after itself; click **Run this query**.
 It temporarily creates two test users and a test listing, tries things that should and should not be
 allowed, then deletes everything it created.
 
-**You should see:** every row starting with `PASS` (38 rows after migration 0011, 42 after 0013, 57 after 0014, 67 after 0016, 74 after 0017, 96 after 0019, 106 after 0020, 125 after 0022, 133 after 0024, 143 after 0027, 169 after 0028, 175 after 0029, 178 after 0030, 185 after 0031; each later migration adds its own checks and its section below says the new total).
+**You should see:** every row starting with `PASS` (38 rows after migration 0011, 42 after 0013, 57 after 0014, 67 after 0016, 74 after 0017, 96 after 0019, 106 after 0020, 125 after 0022, 133 after 0024, 143 after 0027, 169 after 0028, 175 after 0029, 178 after 0030, 184 after 0031, 187 after 0032; each later migration adds its own checks and its section below says the new total).
 
 ## TypeScript types
 `lib/database.types.ts` was generated from these exact migrations. After all migrations are applied,

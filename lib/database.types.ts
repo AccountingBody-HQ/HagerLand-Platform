@@ -4314,6 +4314,107 @@ export type Database = {
         }
         Relationships: []
       }
+      reviews: {
+        Row: {
+          author_name: string
+          author_user_id: string | null
+          body: string
+          created_at: string
+          id: string
+          match_id: string
+          moderated_at: string | null
+          org_id: string
+          provider_reply: string | null
+          published_at: string | null
+          rating: number
+          rejection_reason: string | null
+          replied_at: string | null
+          request_id: string
+          status: string
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          author_name: string
+          author_user_id?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          match_id: string
+          moderated_at?: string | null
+          org_id: string
+          provider_reply?: string | null
+          published_at?: string | null
+          rating: number
+          rejection_reason?: string | null
+          replied_at?: string | null
+          request_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          author_name?: string
+          author_user_id?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          match_id?: string
+          moderated_at?: string | null
+          org_id?: string
+          provider_reply?: string | null
+          published_at?: string | null
+          rating?: number
+          rejection_reason?: string | null
+          replied_at?: string | null
+          request_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'reviews_match_id_fkey'
+            columns: ['match_id']
+            isOneToOne: true
+            referencedRelation: 'service_request_matches'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'reviews_match_id_fkey'
+            columns: ['match_id']
+            isOneToOne: true
+            referencedRelation: 'service_requests_for_provider'
+            referencedColumns: ['match_id']
+          },
+          {
+            foreignKeyName: 'reviews_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'reviews_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'reviews_request_id_fkey'
+            columns: ['request_id']
+            isOneToOne: false
+            referencedRelation: 'service_requests'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'reviews_request_id_fkey'
+            columns: ['request_id']
+            isOneToOne: false
+            referencedRelation: 'service_requests_for_provider'
+            referencedColumns: ['request_id']
+          },
+        ]
+      }
       sale_progress_items: {
         Row: {
           created_at: string
@@ -5990,6 +6091,35 @@ export type Database = {
             columns: ['location_id']
             isOneToOne: false
             referencedRelation: 'locations'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      reviews_public: {
+        Row: {
+          author_first_name: string | null
+          body: string | null
+          id: string | null
+          org_id: string | null
+          provider_reply: string | null
+          published_at: string | null
+          rating: number | null
+          replied_at: string | null
+        }
+        ComputedFields: never
+        Relationships: [
+          {
+            foreignKeyName: 'reviews_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'reviews_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations_public'
             referencedColumns: ['id']
           },
         ]

@@ -1089,7 +1089,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | X-262-10 | Pillar 9 Supplies content: HagerLand Supply, supplier marketplace, special buys, trade accounts | 26.2 | Not done |  |  |
 | X-262-11 | Pillar 10 Jobs, Recruitment & Staffing hub | 26.2 | Done | app/(site)/jobs/page.tsx | e2e:pillar-hubs.spec.ts › existing pages that act as hubs … (recruitment by HagerLand, candidate and employer registers) |
 | X-262-12 | Diaspora layer present in every pillar; /diaspora hub kept | 26.2 | Done | components/pillars/PillarHub.tsx (PillarExtras), components/home/EcosystemDiagram.tsx, lib/navigation.ts (Living abroad?) | e2e:pillar-hubs.spec.ts › each new hub shows … From abroad panel; e2e:verticals.spec.ts › header shows … Living abroad |
-| X-262-13 | Professionals & providers layer present; /professionals and company profiles kept | 26.2 | Done | lib/navigation.ts (layers), components/home/EcosystemDiagram.tsx | e2e:verticals.spec.ts › header shows … All services (Professionals & Service Providers); mobile drawer lists every pillar and both layers |
+| X-262-13 | Professionals & providers layer present; /professionals and company profiles kept | 26.2 | Done | lib/navigation.ts (layers), components/home/EcosystemDiagram.tsx, provider pillars, reviews | e2e:verticals.spec.ts › header … All services; e2e:reviews.spec.ts |
 | X-262-14 | Existing deeper routes remain, belong to a pillar, link back to their hub, with a documented canonical | 26.2 | Not done |  |  |
 | X-263-01 | Three independent modes per pillar and sub-service (Direct, Aggregate, Interest) | 26.3 | Done | supabase/migrations/0027_pillars.sql | sql:0027 check; e2e:pillars.spec.ts › admin: aggregate needs … |
 | X-263-02 | Visibility: any mode → visible; Interest only → "Coming soon"; all off → hidden (404, nav, sitemap) | 26.3 | Done | lib/pillars.ts (modeStatus), lib/data/pillars.ts, lib/pillar-page.ts, app/sitemap.ts, middleware.ts | e2e:pillar-hubs.spec.ts › visibility: interest only is coming soon and noindex; all modes off is hidden everywhere; unit:pillars.test.ts › visible when any mode is on … |
@@ -1152,13 +1152,13 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | X-2611-01 | Every pillar hub has a "From abroad?" panel tailored to the pillar | 26.11 | Done | components/pillars/PillarHub.tsx (PillarExtras), lib/content/pillars.ts (abroad per pillar) | e2e:pillar-hubs.spec.ts › each new hub shows … From abroad panel; existing pages that act as hubs gain the abroad panel |
 | X-2611-02 | Diaspora hub organised by the three segments + services abroad | 26.11 | Not done |  |  |
 | X-2611-03 | Contact forms show the visitor's time zone and allow preferred call times | 26.11 | Not done |  |  |
-| X-2612-01 | One provider onboarding where providers choose pillars and services they serve | 26.12 | Not done |  |  |
-| X-2612-02 | Provider dashboard shows leads from every pillar | 26.12 | Not done |  |  |
-| X-2612-03 | Verified reviews only from customers whose request reached "won" or whose deal completed; one per job; rating + text | 26.12 | Not done |  |  |
-| X-2612-04 | Reviews moderated before publishing; admin moderation queue | 26.12 | Not done |  |  |
-| X-2612-05 | Provider can reply once | 26.12 | Not done |  |  |
-| X-2612-06 | Reviews shown on company profiles with an average | 26.12 | Not done |  |  |
-| X-2612-07 | AggregateRating structured data only with at least 3 published reviews; never import or fabricate reviews | 26.12 | Not done |  |  |
+| X-2612-01 | One provider onboarding where providers choose pillars and services they serve | 26.12 | Done | components/account/OrganisationForm.tsx, lib/provider-pillars.ts, app/(account)/account/company/org-actions.ts (organisation_pillars) | e2e:reviews.spec.ts › providers choose the pillars they serve … |
+| X-2612-02 | Provider dashboard shows leads from every pillar | 26.12 | Done | app/(account)/account/requests/page.tsx (pillar label and filter) | e2e:reviews.spec.ts › providers choose the pillars they serve; their lead list shows the pillar of each lead |
+| X-2612-03 | Verified reviews only from customers whose request reached "won" or whose deal completed; one per job; rating + text | 26.12 | Done | supabase/migrations/0032_reviews.sql (reviews_check_eligible, unique match_id), submitReviewAction, components/service-requests/ReviewBox.tsx | e2e:reviews.spec.ts › reviews: only for a won job, one per job … |
+| X-2612-04 | Reviews moderated before publishing; admin moderation queue | 26.12 | Done | app/roodber8/reviews, app/roodber8/actions/reviews.ts | e2e:reviews.spec.ts › reviews: … moderated (publish, reject with reason) |
+| X-2612-05 | Provider can reply once | 26.12 | Done | reviews_reply_once trigger, app/(account)/account/reviews | e2e:reviews.spec.ts › reviews: … one reply |
+| X-2612-06 | Reviews shown on company profiles with an average | 26.12 | Done | app/(site)/company/[slug]/page.tsx, lib/data/reviews.ts | e2e:reviews.spec.ts › reviews: … shown with an average |
+| X-2612-07 | AggregateRating structured data only with at least 3 published reviews; never import or fabricate reviews | 26.12 | Done | lib/jsonld-org.ts (aggregateRating from 3), reviews only from won jobs (no import path exists) | e2e:reviews.spec.ts › reviews: … rating data only from three |
 | X-2613-01 | Admin "Demand" dashboard: interest, unmatched/declined requests, zero-result searches, enquiries and leads by pillar, category, location and country, with trends | 26.13 | Not done |  |  |
 | X-2613-02 | Activation recommendations rank pillar × category × location by demand vs active supply, each linking to the stage-gate checklist | 26.13 | Not done |  |  |
 | X-2613-03 | Monthly CSV export of demand | 26.13 | Not done |  |  |

@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import {
-  BadgePercent, BarChart3, MailWarning, BookOpen, Calculator, Briefcase, Building2, LayoutGrid, Handshake, UserPlus, Coins, Wrench, ListChecks, Receipt, KeyRound, ClipboardCheck, ClipboardList, FileClock, FolderTree, Gauge, Import, Inbox, MapPin, Megaphone, Menu, Package, Settings, Store, Users, X, HandCoins, House, Layers, HardHat, Mail,
+  BadgePercent, BarChart3, MailWarning, BookOpen, Calculator, Briefcase, Building2, LayoutGrid, Handshake, UserPlus, Coins, Wrench, ListChecks, Receipt, KeyRound, ClipboardCheck, ClipboardList, FileClock, FolderTree, Gauge, Import, Inbox, MapPin, Megaphone, Menu, Package, Settings, Store, Users, X, HandCoins, House, Layers, HardHat, Mail, Star,
 } from 'lucide-react'
 import { cn } from '@/lib/cn'
 
@@ -25,6 +25,7 @@ export const ADMIN_NAV = [
   { href: '/roodber8/quotes', label: 'Quotes', icon: ClipboardList, badgeKey: 'quotes' },
   { href: '/roodber8/service-requests', label: 'Service requests', icon: Wrench, badgeKey: 'requests' },
   { href: '/roodber8/projects', label: 'Building projects', icon: HardHat },
+  { href: '/roodber8/reviews', label: 'Reviews', icon: Star, badgeKey: 'reviews' },
   { href: '/roodber8/request-questions', label: 'Request questions', icon: ListChecks },
   { href: '/roodber8/deals', label: 'Deals and commissions', icon: Receipt },
   { href: '/roodber8/agency', label: 'Agency', icon: Handshake, badgeKey: 'agency' },

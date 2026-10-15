@@ -6,6 +6,7 @@ import { formatDate, formatMoney } from '@/lib/format'
 import { Badge } from '@/components/ui/Badge'
 import { EmptyState } from '@/components/ui/Layout'
 import { CancelRequestButton, ChooseQuoteButton } from './RequestActions'
+import { ReviewBox } from './ReviewBox'
 
 /** The customer's page for one request: status, what they asked for, and quotes to compare (spec 24.5). */
 export function RequestView({ r, token }: { r: View; token?: string }) {
@@ -24,6 +25,16 @@ export function RequestView({ r, token }: { r: View; token?: string }) {
         </div>
         {r.closedReason && <p className="mt-2 text-small text-muted">{CLOSED_REASON_LABEL[r.closedReason]}</p>}
       </header>
+
+      {r.chosen && (
+        <section aria-labelledby="review-h" className="rounded-lg border border-border bg-white p-5">
+          <h2 id="review-h" className="hl-h3">
+            How did it go with {r.chosen.orgName}?
+          </h2>
+          <p className="mb-4 mt-1 text-small text-muted">Only customers who chose a provider through HagerLand can review them, so every review is from a real job.</p>
+          <ReviewBox requestId={r.id} token={token} orgName={r.chosen.orgName} existing={r.chosen.review} />
+        </section>
+      )}
 
       <section aria-labelledby="quotes-h">
         <h2 id="quotes-h" className="hl-h3">

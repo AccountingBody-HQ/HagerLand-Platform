@@ -20,7 +20,7 @@ export function accountNavItems(active: Membership | null, newEnquiries: number,
   if (kind && ['contractor', 'professional_firm', 'sole_trader', 'developer'].includes(kind)) items.push({ href: '/account/company/portfolio', label: 'Portfolio', icon: 'portfolio' })
   items.push({ href: '/account/enquiries', label: 'Enquiries', icon: 'enquiries', badge: newEnquiries || undefined })
   // Requests HagerLand matched to the business (spec 24.5).
-  if (active) items.push({ href: '/account/requests', label: 'Customer requests', icon: 'leads', badge: newMatches || undefined })
+  if (active) items.push({ href: '/account/requests', label: 'Customer requests', icon: 'leads', badge: newMatches || undefined }, { href: '/account/reviews', label: 'Reviews', icon: 'reviews' })
   // Jobs & Recruitment (spec 24.9), only while the vertical is live.
   if (jobsLive && active) items.push({ href: '/account/jobs', label: 'Jobs', icon: 'jobs' })
   items.push({ href: '/account/service-requests', label: 'My service requests', icon: 'requests' })

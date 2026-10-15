@@ -1,3 +1,4 @@
+import { PROVIDER_PILLAR_KEYS } from '@/lib/provider-pillars'
 import { z } from 'zod'
 import { checkbox, optionalEmailSchema, optionalPhoneSchema, optionalText, optionalUrl, optionalUuid, phoneSchema, telegramSchema, textSchema, intFromForm } from './common'
 
@@ -28,6 +29,7 @@ export const organisationSchema = z.object({
   areas_served: idList,
   serves_diaspora: checkbox,
   service_ids: idList,
+  pillar_keys: z.array(z.enum(PROVIDER_PILLAR_KEYS)).max(PROVIDER_PILLAR_KEYS.length).default([]),
   product_category_ids: idList,
   phone: phoneSchema,
   whatsapp: optionalPhoneSchema,
@@ -49,6 +51,6 @@ export type OrganisationInput = z.infer<typeof organisationSchema>
 /** Reads multi-value fields (checkbox groups) as arrays before validation. */
 export function organisationFormValues(formData: FormData): Record<string, unknown> {
   const values: Record<string, unknown> = Object.fromEntries(formData)
-  for (const key of ['areas_served', 'service_ids', 'product_category_ids']) values[key] = formData.getAll(key)
+  for (const key of ['areas_served', 'service_ids', 'product_category_ids', 'pillar_keys']) values[key] = formData.getAll(key)
   return values
 }

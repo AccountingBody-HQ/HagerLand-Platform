@@ -249,11 +249,12 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
     db.from('trade_accounts').select('id', head).eq('status', 'pending'),
     db.from('email_outbox').select('id', head).in('status', ['failed', 'gave_up']),
   ])
-  const [agValuations, agViewings, agOffers, agApplications] = await Promise.all([
+  const [agValuations, agViewings, agOffers, agApplications, reviewsPending] = await Promise.all([
     db.from('agency_valuations').select('id', head).eq('status', 'requested'),
     db.from('agency_viewings').select('id', head).eq('status', 'requested'),
     db.from('agency_offers').select('id', head).eq('status', 'submitted'),
     db.from('rental_applications').select('id', head).in('status', ['submitted', 'referencing']),
+    db.from('reviews').select('id', head).eq('status', 'pending'),
   ])
   const n = (r: { count: number | null }) => r.count ?? 0
   const lines: [string, string][] = []
@@ -282,6 +283,7 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
   add('Agency: viewings to confirm', n(agViewings))
   add('Agency: offers waiting for the owner', n(agOffers))
   add('Agency: applications to decide', n(agApplications))
+  add('Reviews to moderate', n(reviewsPending))
   add('Viewing reminders sent today', s.viewingReminders)
   add('Tenancy renewal or notice reminders today', s.tenancyReminders)
   add('New interest registrations (24 h)', n(interest))
