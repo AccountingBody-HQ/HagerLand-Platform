@@ -373,6 +373,15 @@ select (select count(*) from pg_tables where schemaname = 'public' and tablename
 ```
 **You should see:** `2 | 1 | 0029`. The security test shows 175 `PASS` rows.
 
+## 0030_build_projects.sql (Section 26, S6)
+**What it does:** adds building projects ("Start a building project"): one project with its own HLP- reference, and a link from service requests and materials quotes back to the project they came from. Staff-only; customers see their own projects through their account.
+
+**Check:**
+```sql
+select (select count(*) from pg_tables where schemaname = 'public' and tablename = 'build_projects'), (select count(*) from information_schema.columns where table_schema = 'public' and column_name = 'project_id' and table_name in ('service_requests', 'quote_requests')), (select version from schema_migrations where version = '0030');
+```
+**You should see:** `1 | 2 | 0030`. The security test shows 178 `PASS` rows.
+
 ---
 
 ## Security test (run after all migrations)
@@ -381,7 +390,7 @@ statements: that is the test cleaning up after itself; click **Run this query**.
 It temporarily creates two test users and a test listing, tries things that should and should not be
 allowed, then deletes everything it created.
 
-**You should see:** every row starting with `PASS` (38 rows after migration 0011, 42 after 0013, 57 after 0014, 67 after 0016, 74 after 0017, 96 after 0019, 106 after 0020, 125 after 0022, 133 after 0024, 143 after 0027, 169 after 0028, 175 after 0029; each later migration adds its own checks and its section below says the new total).
+**You should see:** every row starting with `PASS` (38 rows after migration 0011, 42 after 0013, 57 after 0014, 67 after 0016, 74 after 0017, 96 after 0019, 106 after 0020, 125 after 0022, 133 after 0024, 143 after 0027, 169 after 0028, 175 after 0029, 178 after 0030; each later migration adds its own checks and its section below says the new total).
 
 ## TypeScript types
 `lib/database.types.ts` was generated from these exact migrations. After all migrations are applied,

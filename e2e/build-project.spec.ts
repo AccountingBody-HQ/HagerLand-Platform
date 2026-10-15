@@ -1,0 +1,65 @@
+import { expect, test } from '@playwright/test'
+import { adminSession, createUser, db, mailWithSubject, signIn } from './helpers'
+
+/** Build & Develop: "Start a building project" (spec 26.9). */
+
+test('signed out: the page asks you to sign in first', async ({ page }) => {
+  await page.goto('/build/project')
+  await expect(page.getByRole('heading', { name: 'Sign in to start your project' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Sign in' }).last()).toHaveAttribute('href', '/login?next=/build/project')
+})
+
+test('a four-step brief creates one project reference with linked requests, a materials quote and finance interest', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop', 'one width is enough; the form is checked for widths in s26-quality')
+  test.setTimeout(150_000)
+  const user = await createUser({ name: 'Builder Bekele' })
+  await db().from('profiles').update({ phone: '+251915111222' }).eq('id', user.id)
+  await signIn(page, user.email, user.password)
+  await page.goto('/build/project')
+  await expect(page.getByRole('heading', { name: 'Step 1: Your plot' })).toBeVisible()
+  await page.getByLabel('Name your project').fill('E2E family house in Gerji')
+  await page.getByLabel('Where is the plot?').fill('Bole')
+  await page.getByRole('option', { name: /^Bole/ }).first().click()
+  await page.getByLabel('Plot size (m²)').fill('250')
+  await page.getByRole('button', { name: 'Next' }).click()
+  await page.getByLabel('How many floors above the ground floor?').fill('2')
+  await page.getByLabel('Budget').selectOption('5m_10m')
+  await page.getByLabel('When do you want to start?').selectOption('3_months')
+  await page.getByRole('button', { name: 'Next' }).click()
+  await expect(page.getByRole('heading', { name: 'Step 3: What you need' })).toBeVisible()
+  await page.getByRole('button', { name: 'Next' }).click()
+  await expect(page.getByLabel('Your name')).toHaveValue('Builder Bekele')
+  await page.getByRole('button', { name: 'Start my project' }).click()
+  // Nothing chosen on step 3: the form goes back there.
+  await expect(page.getByText('Choose at least one thing you need help with').first()).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Step 3: What you need' })).toBeVisible()
+  for (const s of ['Design', 'Building contractor', 'Materials', 'Finance']) await page.getByRole('checkbox', { name: new RegExp(`^${s}`) }).check()
+  await page.getByRole('button', { name: 'Next' }).click()
+  await page.getByRole('button', { name: 'Start my project' }).click()
+  await expect(page.getByText(/Your project HLP-\d{4}-\d{6} has started/)).toBeVisible()
+
+  const { data: p } = await db().from('build_projects').select('id, reference, floors, services').eq('user_id', user.id).single()
+  expect(p).toMatchObject({ floors: 2, services: ['design', 'contractor', 'materials', 'finance'] })
+  const { data: reqs } = await db().from('service_requests').select('vertical_key, source, title').eq('project_id', p!.id).order('created_at')
+  expect(reqs?.map((r) => r.vertical_key)).toEqual(['professionals', 'contractors'])
+  expect(reqs?.every((r) => r.source === 'build_project')).toBe(true)
+  const { data: q } = await db().from('quote_requests').select('source, notes').eq('project_id', p!.id).single()
+  expect(q?.source).toBe('materials_list')
+  expect(q?.notes).toContain(p!.reference)
+  const { data: interest } = await db().from('interest_registrations').select('vertical_key, pillar_key, category').eq('user_id', user.id).single()
+  expect(interest).toEqual({ vertical_key: 'finance', pillar_key: 'finance', category: 'Construction finance' })
+  expect((await mailWithSubject(user.email, p!.reference)).text).toContain('Design request')
+
+  await page.getByRole('link', { name: 'Open my project' }).click()
+  await expect(page.getByRole('heading', { name: 'E2E family house in Gerji' })).toBeVisible()
+  await expect(page.getByText('G+2')).toBeVisible()
+  await expect(page.getByRole('link', { name: /^Design: E2E family house/ })).toBeVisible()
+  await expect(page.getByText('Materials quote from HagerLand Supply')).toBeVisible()
+
+  await adminSession(page)
+  await page.goto('/roodber8/projects')
+  await page.getByRole('link', { name: p!.reference }).click()
+  await page.getByLabel('Status').selectOption('in_progress')
+  await page.getByRole('button', { name: 'Save' }).click()
+  await expect(page.getByText('Saved.')).toBeVisible()
+})

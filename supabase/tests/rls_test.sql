@@ -572,6 +572,18 @@ reset role;
 select pg_temp.record_check('HagerLand Services is a labelled HagerLand organisation offering repair services',
   exists (select 1 from public.organisations o where o.slug = 'hagerland-services' and o.is_hagerland and o.status = 'published' and exists (select 1 from public.organisation_services s where s.org_id = o.id)));
 
+-- ---------- Section 26: building projects (0030) ----------
+reset role;
+set role anon;
+select pg_temp.record_check('Anonymous cannot read build_projects', pg_temp.read_denied('build_projects'));
+reset role;
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000002", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000002', false);
+select pg_temp.record_check('Signed-in user cannot read build_projects directly (staff notes stay private)', pg_temp.read_denied('build_projects'));
+select pg_temp.record_check('Signed-in user cannot create a building project directly',
+  pg_temp.write_denied($q$insert into public.build_projects (user_id, title, budget_band, timeline, services, name, phone, email) values ('00000000-0000-4000-8000-000000000002', 'RLS TEST', 'not_sure', 'later', array['design'], 'RLS', '+251911000000', 'rls@test.hagerland.invalid')$q$));
+reset role;
+
 -- ---------- Clean up ----------
 reset role;
 select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);

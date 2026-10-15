@@ -789,6 +789,93 @@ export type Database = {
           },
         ]
       }
+      build_projects: {
+        Row: {
+          admin_notes: string | null
+          budget_band: string
+          country_code: string
+          created_at: string
+          details: string | null
+          email: string
+          floors: number | null
+          id: string
+          ip_hash: string | null
+          location_id: string | null
+          location_text: string | null
+          name: string
+          phone: string
+          plot_size_m2: number | null
+          preferred_times: string | null
+          reference: string
+          services: string[]
+          status: string
+          time_zone: string | null
+          timeline: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        ComputedFields: never
+        Insert: {
+          admin_notes?: string | null
+          budget_band: string
+          country_code?: string
+          created_at?: string
+          details?: string | null
+          email: string
+          floors?: number | null
+          id?: string
+          ip_hash?: string | null
+          location_id?: string | null
+          location_text?: string | null
+          name: string
+          phone: string
+          plot_size_m2?: number | null
+          preferred_times?: string | null
+          reference?: string
+          services: string[]
+          status?: string
+          time_zone?: string | null
+          timeline: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          budget_band?: string
+          country_code?: string
+          created_at?: string
+          details?: string | null
+          email?: string
+          floors?: number | null
+          id?: string
+          ip_hash?: string | null
+          location_id?: string | null
+          location_text?: string | null
+          name?: string
+          phone?: string
+          plot_size_m2?: number | null
+          preferred_times?: string | null
+          reference?: string
+          services?: string[]
+          status?: string
+          time_zone?: string | null
+          timeline?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'build_projects_location_id_fkey'
+            columns: ['location_id']
+            isOneToOne: false
+            referencedRelation: 'locations'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       candidate_profiles: {
         Row: {
           availability: string
@@ -3786,6 +3873,7 @@ export type Database = {
           needed_by: string | null
           notes: string | null
           phone: string
+          project_id: string | null
           quote_document_path: string | null
           quoted_at: string | null
           quoted_total_etb_cents: number | null
@@ -3813,6 +3901,7 @@ export type Database = {
           needed_by?: string | null
           notes?: string | null
           phone: string
+          project_id?: string | null
           quote_document_path?: string | null
           quoted_at?: string | null
           quoted_total_etb_cents?: number | null
@@ -3839,6 +3928,7 @@ export type Database = {
           needed_by?: string | null
           notes?: string | null
           phone?: string
+          project_id?: string | null
           quote_document_path?: string | null
           quoted_at?: string | null
           quoted_total_etb_cents?: number | null
@@ -3855,6 +3945,13 @@ export type Database = {
             columns: ['delivery_location_id']
             isOneToOne: false
             referencedRelation: 'locations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'quote_requests_project_id_fkey'
+            columns: ['project_id']
+            isOneToOne: false
+            referencedRelation: 'build_projects'
             referencedColumns: ['id']
           },
         ]
@@ -4452,6 +4549,7 @@ export type Database = {
           name: string
           phone: string
           preferred_contact: string | null
+          project_id: string | null
           reference: string
           requester_user_id: string | null
           service_category_id: string | null
@@ -4489,6 +4587,7 @@ export type Database = {
           name: string
           phone: string
           preferred_contact?: string | null
+          project_id?: string | null
           reference?: string
           requester_user_id?: string | null
           service_category_id?: string | null
@@ -4525,6 +4624,7 @@ export type Database = {
           name?: string
           phone?: string
           preferred_contact?: string | null
+          project_id?: string | null
           reference?: string
           requester_user_id?: string | null
           service_category_id?: string | null
@@ -4544,6 +4644,13 @@ export type Database = {
             columns: ['location_id']
             isOneToOne: false
             referencedRelation: 'locations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'service_requests_project_id_fkey'
+            columns: ['project_id']
+            isOneToOne: false
+            referencedRelation: 'build_projects'
             referencedColumns: ['id']
           },
           {

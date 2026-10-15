@@ -24,6 +24,7 @@ export function accountNavItems(active: Membership | null, newEnquiries: number,
   // Jobs & Recruitment (spec 24.9), only while the vertical is live.
   if (jobsLive && active) items.push({ href: '/account/jobs', label: 'Jobs', icon: 'jobs' })
   items.push({ href: '/account/service-requests', label: 'My service requests', icon: 'requests' })
+  items.push({ href: '/account/projects', label: 'Building projects', icon: 'projects' })
   // Valuations, viewings, offers, applications and tenancies with HagerLand's estate agency (spec 26.5).
   if (extras.agency) items.push({ href: '/account/agency', label: 'Viewings, offers and tenancies', icon: 'agency' })
   if (extras.owner) items.push({ href: '/owner', label: 'Owner portal', icon: 'owner' })
