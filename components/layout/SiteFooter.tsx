@@ -30,8 +30,7 @@ export async function SiteFooter({ amharicOn = false }: { amharicOn?: boolean })
           <div>
             <Wordmark inverse />
             <p className="mt-4 max-w-xs font-display font-bold text-white">{t(brand.masterLine)}</p>
-            <p className="mt-2 max-w-xs text-small text-white/75">{t(brand.supportLine)}</p>
-            <p className="mt-2 max-w-xs text-small text-gold">{t(brand.audienceLine)}</p>
+            <p className="mt-3 max-w-xs text-small leading-relaxed text-white/75">{t(brand.supportLine)}</p>
             <CurrencySwitcher className="mt-6" />
             {amharicOn && <LanguageSwitch inverse className="mt-4" />}
             {socials.length > 0 && (
@@ -55,12 +54,12 @@ export async function SiteFooter({ amharicOn = false }: { amharicOn?: boolean })
           {columns.map((col) => (
             <nav key={col.title} aria-label={col.title}>
               <h2 className="font-display text-body font-bold text-white">{col.title}</h2>
-              <ul className="mt-4 space-y-1">
+              <ul className="mt-3">
                 {col.links.map((l) => (
                   <li key={l.href}>
-                    <Link href={l.href} className="inline-flex min-h-9 items-center gap-2 text-white/75 hover:text-white">
+                    <Link href={l.href} className="inline-block py-[11px] leading-snug text-white/75 hover:text-white">
                       {l.label}
-                      {l.soon && <SoonBadge />}
+                      {l.soon && <SoonBadge className="ml-2 align-[0.1em]" />}
                     </Link>
                   </li>
                 ))}

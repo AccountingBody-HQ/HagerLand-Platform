@@ -4,7 +4,6 @@ import { brand } from '@/lib/brand'
 import { buildMetadata } from '@/lib/seo'
 import { Section, SectionHeader } from '@/components/ui/Layout'
 import { Tabs } from '@/components/ui/Tabs'
-import { MODE_LABELS } from '@/lib/pillars'
 import { ButtonLink } from '@/components/ui/Button'
 import { PageHero } from '@/components/content/PageHero'
 
@@ -105,12 +104,12 @@ export default function HowItWorksPage() {
         />
       </Section>
       <Section labelledBy="modes">
-        <SectionHeader id="modes" title="How each service is provided" description={`Every part of ${brand.name} shows which of these applies today.`} />
+        <SectionHeader id="modes" title="Who does the work" description="Each service page explains whether our own team handles it, a verified partner does, or it is still on its way." />
         <ul className="grid gap-4 md:grid-cols-3">
           {[
-            { label: MODE_LABELS.direct, text: `${brand.name} does the work itself, for example our estate agency, Property Care, HagerLand Supply and recruitment.` },
-            { label: MODE_LABELS.aggregate, text: 'Vetted providers, partners and listings, matched by us or found through search. They agree terms with you directly.' },
-            { label: MODE_LABELS.interest, text: 'A service we are preparing. Register your interest and we tell you when it opens; your registration helps us decide what to open next.' },
+            { label: `By ${brand.name}`, text: `Our own team does the work, for example our estate agency, ${brand.divisions.propertyCare}, ${brand.divisions.supply} and recruitment. You deal with us from start to finish.` },
+            { label: 'Verified partners', text: 'Professionals, suppliers and listings we check before they appear. We introduce you or you find them through search, and you agree terms with them directly.' },
+            { label: 'Coming soon', text: 'Services we are preparing, such as finance and insurance. Register your interest and we will tell you when they open.' },
           ].map((m) => (
             <li key={m.label} className="rounded-lg border border-border bg-white p-5">
               <h3 className="font-semibold">{m.label}</h3>
@@ -119,8 +118,8 @@ export default function HowItWorksPage() {
           ))}
         </ul>
         <p className="mt-6 text-small">
-          <Link href="/#ecosystem-title" className="font-semibold text-green underline">
-            See all ten services around the property lifecycle
+          <Link href="/#services-title" className="font-semibold text-green underline">
+            See all our services
           </Link>
         </p>
       </Section>

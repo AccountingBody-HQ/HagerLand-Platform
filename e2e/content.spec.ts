@@ -3,15 +3,15 @@ import { createProvider, createUser, db, seedPublishedProperty, signIn } from '.
 
 /** Content, account pages and search for E9 (spec 24.11, 15, 13, 7). */
 
-test('About, How it works, List with us and Help describe the whole ecosystem without pretending', async ({ page }) => {
+test('About, How it works, List with us and Help describe every service without pretending', async ({ page }) => {
   const { data: verticals } = await db().from('verticals').select('key, status')
   const status = Object.fromEntries((verticals ?? []).map((v) => [v.key, v.status]))
   await page.goto('/about')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Building the land.')
-  // What we do follows the pillar registry and says how each is provided (spec 26.16).
-  for (const t of ['Buy & Sell Property', 'Building & Construction Supplies', 'Build & Develop Property', 'Repair & Maintain Property']) await expect(page.locator('main dl').getByRole('link', { name: t, exact: true })).toBeVisible()
-  if (status.finance === 'coming_soon') await expect(page.locator('dl').getByText('Coming soon').first()).toBeVisible()
-  await expect(page.locator('dl').getByText('Provided by HagerLand').first()).toBeVisible()
+  // What we do follows the pillar registry, in the same customer groups as the homepage (spec 26.16, polish round 1).
+  for (const t of ['Buy & Sell Property', 'Building & Construction Supplies', 'Build & Develop Property', 'Repair & Maintain Property']) await expect(page.locator('main').getByRole('link', { name: t, exact: true })).toBeVisible()
+  if (status.finance === 'coming_soon') await expect(page.locator('main').getByText('Soon').first()).toBeVisible()
+  await expect(page.locator('main')).not.toContainText(/Provided by HagerLand|Trusted partners/)
 
   await page.goto('/how-it-works')
   await page.getByRole('tab', { name: 'Getting quotes' }).click()

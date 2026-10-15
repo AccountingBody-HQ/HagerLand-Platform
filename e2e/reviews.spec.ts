@@ -94,7 +94,7 @@ test('reviews: only for a won job, one per job, moderated, one reply; shown with
 
 test('providers choose the pillars they serve; their lead list shows the pillar of each lead', async ({ page }, info) => {
   test.skip(info.project.name !== 'desktop', 'one width is enough')
-  const provider = await createProvider({ name: `E2E Pillar Provider ${Date.now()}`, serviceSlug: 'plumbers', locationPath: 'addis-ababa/bole' })
+  const provider = await createProvider({ name: `E2E Service Area Provider ${Date.now()}`, serviceSlug: 'plumbers', locationPath: 'addis-ababa/bole' })
   await signIn(page, provider.user.email, provider.user.password)
   await page.goto('/account/company')
   await page.getByLabel('Repairs and maintenance').check()

@@ -79,4 +79,4 @@ Next.js 15.5 App Router · React 19 · TypeScript strict · Tailwind · Supabase
 - React 19 resets a form after its action runs. Forms that show validation errors use `NoResetForm` (`components/forms/NoResetForm.tsx`) so typed values stay; submit buttons read its pending state via `useFormPending()`.
 
 ## Status
-Phase 1 (WP-0 to WP-19), Phase 1.5 (E1–E10, H1–H6, `docs/BRIEF_PHASE_1_5_AND_GO_LIVE.md`) and Section 26 (S1–S12, `docs/BRIEF_SECTION_26.md`) are built; see `docs/LAUNCH_REPORT.md`, `docs/RELAUNCH_PROGRESS.md` and `docs/REQUIREMENTS_MATRIX.md`. Cutover (25.6) runs only after AB types exactly "GO LIVE".
+Phase 1 (WP-0 to WP-19), Phase 1.5 (E1–E10, H1–H6, `docs/BRIEF_PHASE_1_5_AND_GO_LIVE.md`) and Section 26 (S1–S12, `docs/BRIEF_SECTION_26.md`) are built; see `docs/LAUNCH_REPORT.md`, `docs/RELAUNCH_PROGRESS.md` and `docs/REQUIREMENTS_MATRIX.md`. The cutover (WP-20) ran on 15 Oct 2026: live on www.hagerland.com since 16:05 UTC (merge commit `8752162` on `main`); record in LAUNCH_REPORT "Go-live record". The 25.6 permissions (live database writes, pushing `main`) ended with the cutover: any further change to `main` or the live database needs AB again.

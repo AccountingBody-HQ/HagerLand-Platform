@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowRight, BadgeCheck, Building2, ClipboardList, Clock, Hammer, KeyRound, ShieldCheck, Store, Truck, HardHat, FileText } from 'lucide-react'
+import { ArrowRight, BadgeCheck, Bell, Building2, ClipboardList, Clock, Hammer, KeyRound, Search, ShieldCheck, Store, Truck, HardHat, FileText } from 'lucide-react'
 import { brand } from '@/lib/brand'
 import { buildMetadata, organizationJsonLd, websiteJsonLd } from '@/lib/seo'
 import { getBusinessDetails } from '@/lib/data/business'
@@ -22,11 +22,9 @@ import { getVerticals } from '@/lib/data/verticals'
 import { isLive, verticalHref, visibleVertical } from '@/lib/verticals'
 import { COMING_SOON } from '@/lib/content/verticals'
 import { SoonBadge } from '@/components/verticals/SoonBadge'
-import { InterestForm } from '@/components/verticals/InterestForm'
 import { GuidesTeaser } from '@/components/guides/GuidesTeaser'
-import { EcosystemDiagram } from '@/components/home/EcosystemDiagram'
+import { ServicesSection } from '@/components/home/ServicesSection'
 import { getSiteNav } from '@/lib/data/site-nav'
-import { getPillars } from '@/lib/data/pillars'
 import { getLocale } from '@/lib/i18n/server'
 import { translator } from '@/lib/i18n/translate'
 import { localizeHref } from '@/lib/i18n/config'
@@ -36,7 +34,7 @@ export const revalidate = 300
 export const metadata = buildMetadata({
   title: `${brand.name} — ${brand.titleLine}`,
   absoluteTitle: true,
-  description: 'Property, building supplies, professionals, contractors, repairs and diaspora services in one place, for Ethiopians in Ethiopia and around the world.',
+  description: 'Buy, rent, build and manage property in Ethiopia with verified partners, wherever you live: homes, building materials, contractors, repairs and property care.',
   path: '/',
 })
 
@@ -58,7 +56,7 @@ function featuredThenNewest(featured: PublicProperty[], newest: PublicProperty[]
 }
 
 export default async function HomePage() {
-  const [bole, services, settings, verticals, siteNav, pillars] = await Promise.all([getLocationByPath('addis-ababa/bole'), getServiceCategories(), getSiteSettings(), getVerticals(), getSiteNav(), getPillars()])
+  const [bole, services, settings, verticals, siteNav] = await Promise.all([getLocationByPath('addis-ababa/bole'), getServiceCategories(), getSiteSettings(), getVerticals(), getSiteNav()])
   const live = {
     property: isLive(verticals, 'property'),
     supplies: isLive(verticals, 'building-supplies'),
@@ -96,10 +94,10 @@ export default async function HomePage() {
   ].filter((x): x is { label: string; href: string } => Boolean(x))
 
   const proofPoints = [
-    { icon: ClipboardList, title: 'Every listing reviewed', text: 'Our team checks every listing before it goes live.' },
-    { icon: BadgeCheck, title: 'Verified businesses', text: 'The Verified badge appears only after we check documents.' },
-    { icon: Clock, title: 'Current, not stale', text: 'Property listings expire unless their owner renews them.' },
-    { icon: Hammer, title: 'We know construction', text: `${brand.divisions.supply} sources building materials, so we understand costs and quality.` },
+    { icon: ClipboardList, title: 'Every listing checked', text: 'Our team reviews every listing and profile before it goes live.' },
+    { icon: BadgeCheck, title: 'Verified means verified', text: 'A business shows the Verified badge only after we have checked its documents.' },
+    { icon: Clock, title: 'Always up to date', text: 'Listings expire unless their owner renews them, so what you see is available.' },
+    { icon: Hammer, title: 'Built by construction people', text: `${brand.divisions.supply} sources building materials, so we know real costs and quality.` },
   ]
 
   const audiences = [
@@ -127,10 +125,10 @@ export default async function HomePage() {
 
       <section className="hl-blueprint bg-ink text-white">
         <Container className="py-12 sm:py-20">
-          <p className="hl-eyebrow text-gold">{t(brand.audienceLine)}</p>
+          <p className="hl-eyebrow text-gold">{t(brand.heroEyebrow)}</p>
           <h1 className="hl-display mt-4 max-w-4xl text-white">{t(brand.masterLine)}</h1>
-          <p className="mt-5 max-w-2xl text-[1.0625rem] font-semibold text-white/85">{t(brand.supportLine)}</p>
-          <div className="mt-8 max-w-4xl">
+          <p className="mt-6 max-w-2xl text-lg font-normal leading-relaxed text-white/80 sm:text-xl">{t(brand.supportLine)}</p>
+          <div className="mt-10 max-w-4xl">
             <HomeSearch services={services.map((g) => ({ name: g.name, children: g.children.map((c) => ({ name: c.name, slug: c.slug })) }))} />
           </div>
           {quickLinks.length > 0 && (
@@ -147,10 +145,7 @@ export default async function HomePage() {
         </Container>
       </section>
 
-      <Section labelledBy="ecosystem-title">
-        <SectionHeader id="ecosystem-title" title={t('Property ecosystem')} description={t('Ten services around the property lifecycle, with HagerLand at the centre. Each one shows how it is provided today.')} />
-        <EcosystemDiagram all={siteNav.all} pillars={pillars} t={t} lh={lh} />
-      </Section>
+      <ServicesSection all={siteNav.all} t={t} lh={lh} freeListing={business.freeListingConfirmed} />
 
       {live.property && (
       <Section tone="stone">
@@ -160,15 +155,40 @@ export default async function HomePage() {
             <LatestProperties sale={featuredThenNewest([...picks.filter((p) => p.purpose === 'sale'), ...saleFeatured.items], saleNewest.items, 8)} rent={featuredThenNewest([...picks.filter((p) => p.purpose === 'rent'), ...rentFeatured.items], rentNewest.items, 8)} />
           </>
         ) : (
-          <div className="flex flex-col items-start justify-between gap-6 rounded-xl border border-border bg-white p-6 sm:flex-row sm:items-center sm:p-10">
-            <div>
-              <h2 className="hl-h2">List your property — be among the first</h2>
-              <p className="mt-2 max-w-xl text-muted">We review every listing and send enquiries straight to you. Homes, plots and commercial space across Ethiopia.</p>
-            </div>
-            <ButtonLink href="/signup?type=owner" size="lg">
-              List your property
-            </ButtonLink>
-          </div>
+          <>
+            <SectionHeader title="Property in Ethiopia" description="Homes, apartments, land and commercial space from owners, agents and developers, every listing checked before it goes live." />
+            <ul className="grid gap-5 lg:grid-cols-2">
+              <li className="flex flex-col rounded-2xl border border-border bg-white p-7 sm:p-9">
+                <span className="flex size-11 items-center justify-center rounded-lg bg-green-tint text-green">
+                  <Search className="size-5" aria-hidden />
+                </span>
+                <h3 className="hl-h3 mt-5">Looking to buy or rent?</h3>
+                <p className="mt-2 flex-1 text-muted">Search what is listed today, or save a search and we will email you as soon as a home that matches goes live.</p>
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row [&>*]:sm:flex-1">
+                  <ButtonLink href="/property/for-sale">Property for sale</ButtonLink>
+                  <ButtonLink href="/property/to-rent" variant="secondary">
+                    Property to rent
+                  </ButtonLink>
+                </div>
+                <Link href="/account/alerts" className="mt-4 inline-flex min-h-11 items-center gap-2 self-start text-small font-semibold text-green hover:underline">
+                  <Bell className="size-4" aria-hidden /> Get alerts for new listings
+                </Link>
+              </li>
+              <li className="flex flex-col rounded-2xl border border-border bg-white p-7 sm:p-9">
+                <span className="flex size-11 items-center justify-center rounded-lg bg-green-tint text-green">
+                  <KeyRound className="size-5" aria-hidden />
+                </span>
+                <h3 className="hl-h3 mt-5">Selling or letting?</h3>
+                <p className="mt-2 flex-1 text-muted">List your property yourself and receive enquiries directly, or let our estate agents value it, market it and handle viewings and offers for you.</p>
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row [&>*]:sm:flex-1">
+                  <ButtonLink href="/signup?type=owner">List your property</ButtonLink>
+                  <ButtonLink href="/agency" variant="secondary">
+                    Use our estate agents
+                  </ButtonLink>
+                </div>
+              </li>
+            </ul>
+          </>
         )}
       </Section>
       )}
@@ -261,25 +281,21 @@ export default async function HomePage() {
       )}
       {ourDevs?.status === 'coming_soon' && (
         <section className="hl-blueprint bg-ink text-white">
-          <Container className="grid gap-10 py-14 sm:py-20 lg:grid-cols-[1fr_440px] lg:items-start">
-            <div>
+          <Container className="flex flex-col gap-8 py-12 sm:py-16 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-2xl">
               <p className="hl-eyebrow flex items-center gap-2 text-gold">
                 {ourDevs.name} <SoonBadge long />
               </p>
-              <h2 className="hl-h2 mt-2 text-white">{COMING_SOON['our-developments'].headline}</h2>
-              {COMING_SOON['our-developments'].what.map((p) => (
-                <p key={p} className="mt-4 max-w-xl text-white/80">
-                  {p}
-                </p>
-              ))}
-              <ButtonLink href={verticalHref(ourDevs)} variant="gold" className="mt-6">
-                About {ourDevs.name} <ArrowRight />
-              </ButtonLink>
+              <h2 className="hl-h2 mt-3 text-white">{COMING_SOON['our-developments'].headline}</h2>
+              <p className="mt-4 text-white/80">{COMING_SOON['our-developments'].what[0]}</p>
             </div>
-            <div className="rounded-xl bg-white p-5 text-ink shadow-lg">
-              <h3 className="hl-h3">Hear first when we announce a project</h3>
-              <p className="mb-4 mt-1 text-small text-muted">Register your interest. No obligation.</p>
-              <InterestForm verticalKey="our-developments" verticalName={ourDevs.name} idPrefix="home-ri" />
+            <div className="flex shrink-0 flex-col gap-3 sm:flex-row lg:flex-col">
+              <ButtonLink href={`${verticalHref(ourDevs)}#register`} variant="gold" size="lg">
+                Hear first about our projects
+              </ButtonLink>
+              <Link href={verticalHref(ourDevs)} className="inline-flex min-h-11 items-center justify-center gap-2 font-semibold text-white/85 hover:text-white">
+                About {ourDevs.name} <ArrowRight className="size-4" aria-hidden />
+              </Link>
             </div>
           </Container>
         </section>
@@ -287,7 +303,7 @@ export default async function HomePage() {
 
       {live.professionals && (
       <Section tone="stone">
-        <SectionHeader title="Hire trusted professionals" action={<ButtonLink href="/professionals" variant="secondary">All services</ButtonLink>} />
+        <SectionHeader title="Hire trusted professionals" description="Tell us what you need and get quotes from up to three professionals, or browse by trade." action={<ButtonLink href="/professionals" variant="secondary">All professionals</ButtonLink>} />
         <ul className="flex flex-wrap gap-2">
           {PRO_CHIPS.map(([label, slug]) => (
             <li key={slug}>
@@ -359,7 +375,7 @@ export default async function HomePage() {
       </Section>
 
       <Section>
-        <SectionHeader title="List with us" description={business.freeListingConfirmed ? 'Listing is free while we launch.' : undefined} />
+        <SectionHeader title="Grow with HagerLand" description={business.freeListingConfirmed ? 'Reach buyers, tenants and clients in Ethiopia and abroad. Listing is free while we launch.' : 'Reach buyers, tenants and clients in Ethiopia and abroad.'} />
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {audiences.map((a) => (
             <li key={a.title} className="flex flex-col rounded-xl border border-border bg-white p-6">

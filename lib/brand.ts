@@ -3,10 +3,12 @@
 
 export const brand = {
   name: 'HagerLand',
-  /** Positioning (spec 24.1). Replaces the earlier tagline and hero lines (spec 3.3). */
+  /** Positioning (spec 24.1). The support line is AB's choice of 2026-10 (polish round 1). */
   masterLine: 'One platform for property, construction and everything around it.',
-  supportLine: 'Find it. Buy it. Finance it. Build it. Supply it. Insure it. Maintain it. Sell it. Rent it.',
+  supportLine: 'Buy, rent, build and manage property in Ethiopia, with verified partners, wherever you live.',
   audienceLine: 'For Ethiopians in Ethiopia and around the world.',
+  /** Homepage hero eyebrow (AB, polish round 1, R-3). The audience line stays on About and Diaspora. */
+  heroEyebrow: "Ethiopia's property and construction platform",
   /** Short form of the master line for page titles (≤ 60 characters with the name). */
   titleLine: 'Property, construction and everything around it',
   descriptor: "Ethiopia's construction and property platform",

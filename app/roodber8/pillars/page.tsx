@@ -5,6 +5,9 @@ import { formatDate } from '@/lib/format'
 import { modeStatus, type PillarMode } from '@/lib/pillars'
 import { AdminHeader, DataTable, Panel, StatusBadge } from '@/components/admin/AdminUi'
 import { ModeSwitch, PillarEditor } from '@/components/admin/PillarTools'
+import { PillarMap } from '@/components/admin/PillarMap'
+import { getPillars } from '@/lib/data/pillars'
+import { getVerticals } from '@/lib/data/verticals'
 
 export const metadata = { title: 'Pillars and modes' }
 
@@ -14,11 +17,13 @@ const MODES: PillarMode[] = ['direct', 'aggregate', 'interest']
 export default async function PillarsPage() {
   await requireAdminPage()
   const db = getAdminSupabase()
-  const [{ data: pillars }, { data: services }, { data: checks }, { data: settings }] = await Promise.all([
+  const [{ data: pillars }, { data: services }, { data: checks }, { data: settings }, visiblePillars, verticals] = await Promise.all([
     db.from('pillars').select('*').order('number'),
     db.from('pillar_services').select('*').order('sort'),
     db.from('pillar_gate_checks').select('id, pillar_key, service_key, mode, owner_name, providers_active, providers_required, regulatory_note, regulatory_date, terms_pricing_set, actor, created_at').order('created_at', { ascending: false }).limit(20),
     db.from('site_settings').select('key, value').in('key', ['stage_gate_min_providers', 'regulatory_clearance_note']),
+    getPillars(),
+    getVerticals(),
   ])
   const setting = (k: string) => settings?.find((s) => s.key === k)?.value
   const required = Number(setting('stage_gate_min_providers') ?? 3)
@@ -31,7 +36,7 @@ export default async function PillarsPage() {
         title="Pillars and modes"
         description={
           <>
-            Each pillar has three modes. <strong>Direct</strong>: HagerLand delivers it (“Provided by HagerLand”). <strong>Aggregate</strong>: vetted providers or partners (“Trusted partners”). <strong>Interest capture</strong>: a register-your-interest form. A pillar shows when any mode is on; with only Interest on it is “Coming soon”; with all off it is hidden. Switching Direct or Aggregate on needs a short checklist; switching off does not. Aggregate needs at least {required} verified providers (change this in{' '}
+            Each pillar has three modes. <strong>Direct</strong>: HagerLand delivers it. <strong>Aggregate</strong>: vetted providers or partners. <strong>Interest capture</strong>: a register-your-interest form. A pillar shows when any mode is on; with only Interest on, visitors see “Coming soon”; with all off it is hidden. Visitors never see the mode names: each service page explains in plain words who does the work. Switching Direct or Aggregate on needs a short checklist; switching off does not. Aggregate needs at least {required} verified providers (change this in{' '}
             <Link href="/roodber8/settings#gates" className="font-semibold text-green hover:underline">
               Settings
             </Link>
@@ -39,6 +44,15 @@ export default async function PillarsPage() {
           </>
         }
       />
+      <Panel title="Map of the pillars">
+        <details>
+          <summary className="cursor-pointer text-small font-semibold text-ink">Show the pillars as on the ecosystem diagram, with the modes visitors can reach</summary>
+          <p className="mt-2 text-small text-muted">For the team only. Visitors see the same services in plain customer language, grouped as Buy, sell and rent · Build and improve · Own and manage · Supplies and jobs, with “Coming soon” where only interest capture is on.</p>
+          <div className="mt-4">
+            <PillarMap pillars={visiblePillars} verticals={verticals} />
+          </div>
+        </details>
+      </Panel>
       <ul className="space-y-4">
         {(pillars ?? []).map((p) => {
           const own = (services ?? []).filter((s) => s.pillar_key === p.key)

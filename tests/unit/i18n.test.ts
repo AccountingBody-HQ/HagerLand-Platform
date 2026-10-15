@@ -35,6 +35,6 @@ describe('i18n (spec 25.2m)', () => {
       expect(am.trim(), en).not.toBe('')
       if (en !== 'English') expect(/[ሀ-፿]/.test(am), en).toBe(true)
     }
-    for (const line of [brand.masterLine, brand.supportLine, brand.audienceLine]) expect(AM_MESSAGES[line]).toBeTruthy()
+    for (const line of [brand.masterLine, brand.supportLine, brand.audienceLine, brand.heroEyebrow]) expect(AM_MESSAGES[line]).toBeTruthy()
   })
 })

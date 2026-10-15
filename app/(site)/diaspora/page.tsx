@@ -113,7 +113,7 @@ export default async function DiasporaPage() {
       </Section>
 
       <Section id="home">
-        <SectionHeader eyebrow="Diaspora → Ethiopia" title="Property in Ethiopia, from wherever you are" />
+        <SectionHeader eyebrow="Property at home" title="Property in Ethiopia, from wherever you are" />
         <div className="space-y-10">
           {segments.map((g) => (
             <div key={g.id} id={g.id} className="scroll-mt-24">

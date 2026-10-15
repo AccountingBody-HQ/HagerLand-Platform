@@ -1,5 +1,6 @@
 import { brand } from '@/lib/brand'
-import { MODE_LABELS, activeModes, pillarHref, type Pillar, type PillarKey, type PillarMode } from '@/lib/pillars'
+import { pillarHref, type Pillar, type PillarKey } from '@/lib/pillars'
+import { SERVICE_COPY, SERVICE_GROUPS } from '@/lib/content/services'
 import { verticalHref, type Vertical, type VerticalKey } from '@/lib/verticals'
 
 export interface NavLink {
@@ -14,37 +15,46 @@ export interface NavLink {
 export interface NavGroup {
   id: string
   label: string
+  /** The full service name, for "Explore …" in its menu. */
+  title: string
   href: string
   links: NavLink[]
   featured?: NavLink[]
   cta?: NavLink
-  /** Customer-facing mode labels of the pillar(s) behind this menu. */
-  modes?: string[]
   soon?: boolean
 }
 
-/** One tile of the "All services" panel and the homepage ecosystem (spec 26.4). */
+/** One service in the "All services" panel, the mobile menu and the homepage services section. */
 export interface ServiceTile {
   key: string
-  number?: number
   name: string
+  /** One short benefit line in customer language. */
   tagline: string
   href: string
   icon: string
-  modes: string[]
+  /** The card's call to action ("Get a quote", "Register interest"). */
+  action: string
   soon: boolean
 }
 
+export interface ServiceGroup {
+  id: string
+  title: string
+  text: string
+  tiles: ServiceTile[]
+}
+
+/** The ten services in four customer groups, plus the two audiences that run through all of them. */
 export interface AllServices {
-  pillars: ServiceTile[]
-  enablers: ServiceTile[]
-  layers: ServiceTile[]
+  groups: ServiceGroup[]
+  diaspora: ServiceTile | null
+  professionals: ServiceTile | null
 }
 
 /** What the header, drawer and footer need, built on the server from the registries. */
 export interface SiteNav {
   main: NavGroup[]
-  /** Mobile drawer: every pillar and both layers with their links (spec 26.4: "the mobile drawer shows everything"). */
+  /** Mobile drawer: every service and both audiences with their links (spec 26.4: "the mobile drawer shows everything"). */
   drawer: { tile: ServiceTile; links: NavLink[] }[]
   all: AllServices
   listWithUs: NavLink[]
@@ -156,13 +166,6 @@ const PILLAR_CTA: Partial<Record<PillarKey, NavLink>> = {
   supplies: { label: 'Become a supplier', href: '/list-with-us#suppliers' },
 }
 
-function modeLabels(p: { direct: boolean; aggregate: boolean; interest: boolean }): string[] {
-  const modes = activeModes(p)
-  // Interest alone is shown as "Coming soon" by the Soon badge, so only list it next to a live mode.
-  const shown: PillarMode[] = modes.length === 1 && modes[0] === 'interest' ? [] : modes
-  return shown.map((m) => MODE_LABELS[m])
-}
-
 /** Header menus in lifecycle order (spec 26.4): Buy · Rent · Build · Maintain · Manage · Supplies · More. */
 export function buildMainNav(pillars: Pillar[], verticals: Vertical[], ctx: NavContext): NavGroup[] {
   const groups: NavGroup[] = []
@@ -172,11 +175,11 @@ export function buildMainNav(pillars: Pillar[], verticals: Vertical[], ctx: NavC
     groups.push({
       id: key,
       label: p.navLabel,
+      title: p.name,
       href: pillarHref(p),
       links: p.status === 'live' ? pillarLinks(key, verticals, ctx) : [],
       featured: key === 'supplies' && p.status === 'live' ? SUPPLY_TOP_CATEGORIES : undefined,
       cta: p.status === 'live' ? PILLAR_CTA[key] : undefined,
-      modes: modeLabels(p),
       soon: p.status === 'coming_soon',
     })
   }
@@ -185,26 +188,30 @@ export function buildMainNav(pillars: Pillar[], verticals: Vertical[], ctx: NavC
     groups.push({
       id: 'more',
       label: 'More',
+      title: 'More services',
       href: pillarHref(more[0]),
-      links: more.map((p) => ({ label: p.key === 'advice' ? 'Advice & guides' : p.name, href: pillarHref(p), description: p.tagline, icon: p.icon, soon: p.status === 'coming_soon' || undefined })),
+      links: more.map((p) => ({ label: p.key === 'advice' ? 'Advice & guides' : p.name, href: pillarHref(p), description: SERVICE_COPY[p.key].benefit, icon: p.icon, soon: p.status === 'coming_soon' || undefined })),
     })
   return groups
 }
 
-/** The "All services" panel and homepage ecosystem: 8 lifecycle pillars, 2 enablers, 2 layers (diagram grouping). */
+/** One service as a card or menu entry, in customer language. Coming-soon services lead to their register form. */
+export function serviceTile(p: Pillar): ServiceTile {
+  const soon = p.status === 'coming_soon'
+  const copy = SERVICE_COPY[p.key]
+  return { key: p.key, name: p.name, tagline: copy.benefit, href: soon ? `${pillarHref(p)}#register` : pillarHref(p), icon: p.icon, action: soon ? copy.soonAction : copy.action, soon }
+}
+
+/** "All services": the visible services in four customer groups, plus Living abroad and Professionals. */
 export function buildAllServices(pillars: Pillar[], verticals: Vertical[]): AllServices {
-  const tile = (p: Pillar): ServiceTile => ({ key: p.key, number: p.number, name: p.name, tagline: p.tagline, href: pillarHref(p), icon: p.icon, modes: modeLabels(p), soon: p.status === 'coming_soon' })
-  const layer = (key: VerticalKey, name: string, tagline: string, icon: string): ServiceTile[] => {
+  const audience = (key: VerticalKey, name: string, tagline: string, icon: string, action: string): ServiceTile | null => {
     const v = verticals.find((x) => x.key === key)
-    return v ? [{ key, name, tagline, href: verticalHref(v), icon, modes: [], soon: v.status === 'coming_soon' }] : []
+    return v ? { key, name, tagline, href: verticalHref(v), icon, action, soon: v.status === 'coming_soon' } : null
   }
   return {
-    pillars: pillars.filter((p) => p.number <= 8).map(tile),
-    enablers: pillars.filter((p) => p.number > 8).map(tile),
-    layers: [
-      ...layer('diaspora', 'Diaspora Services', 'Buying, renting, building and managing from abroad', 'globe'),
-      ...layer('professionals', 'Professionals & Service Providers', 'Architects, engineers, contractors, agents, advisers, trades', 'users'),
-    ],
+    groups: SERVICE_GROUPS.map((g) => ({ id: g.id, title: g.title, text: g.text, tiles: g.keys.map((k) => pillars.find((p) => p.key === k)).filter((p): p is Pillar => Boolean(p)).map(serviceTile) })).filter((g) => g.tiles.length > 0),
+    diaspora: audience('diaspora', 'Living abroad', 'Buy, build and look after property in Ethiopia from wherever you live.', 'globe', 'Services for Ethiopians abroad'),
+    professionals: audience('professionals', 'Find a professional', 'Architects, engineers, contractors, agents and trades.', 'users', 'Browse professionals'),
   }
 }
 
@@ -234,7 +241,7 @@ export function buildSiteNav(pillars: Pillar[], verticals: Vertical[], ctx: NavC
   const all = buildAllServices(pillars, verticals)
   const layerLinks: Record<string, NavLink[]> = {
     diaspora: [
-      { label: 'Diaspora services', href: '/diaspora' },
+      { label: 'Services for Ethiopians abroad', href: '/diaspora' },
       { label: 'HagerLand Property Care', href: '/diaspora/property-care' },
       { label: 'Services where you live', href: '/diaspora/services-abroad' },
     ],
@@ -248,11 +255,11 @@ export function buildSiteNav(pillars: Pillar[], verticals: Vertical[], ctx: NavC
     ],
   }
   const drawer = [
-    ...[...all.pillars, ...all.enablers].map((tile) => {
+    ...all.groups.flatMap((g) => g.tiles).map((tile) => {
       const p = pillars.find((x) => x.key === tile.key)
       return { tile, links: p && p.status === 'live' ? pillarLinks(p.key, verticals, ctx) : [] }
     }),
-    ...all.layers.map((tile) => ({ tile, links: tile.soon ? [] : layerLinks[tile.key] ?? [] })),
+    ...[all.diaspora, all.professionals].filter((x): x is ServiceTile => Boolean(x)).map((tile) => ({ tile, links: tile.soon ? [] : layerLinks[tile.key] ?? [] })),
   ]
   return {
     main: buildMainNav(pillars, verticals, ctx),
@@ -264,7 +271,7 @@ export function buildSiteNav(pillars: Pillar[], verticals: Vertical[], ctx: NavC
   }
 }
 
-/** Footer link columns, grouped by the property lifecycle. */
+/** Footer link columns, grouped the way customers look for them. */
 export function buildFooterColumns(pillars: Pillar[], verticals: Vertical[]): { title: string; links: NavLink[] }[] {
   const p = (k: PillarKey): NavLink[] => {
     const x = pillars.find((y) => y.key === k)
