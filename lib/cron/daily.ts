@@ -15,6 +15,7 @@ import { canonicalUrl } from '@/lib/site'
 import { log } from '@/lib/log'
 import { tenancyReminderEmail, viewingConfirmedEmail } from '@/lib/email/agency'
 import { hagerlandInbox } from '@/lib/enquiries'
+import { demandDigestLine } from '@/lib/admin/demand'
 import { formatDate } from '@/lib/format'
 
 const DAY = 86_400_000
@@ -295,6 +296,8 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
   add('Listings expired today', s.expired)
   add('Quotes expired today', s.quotesExpired)
   add('Jobs closed today', s.jobsExpired)
+  const demand = await demandDigestLine(now)
+  if (demand) lines.push(demand)
   for (const e of errors.data ?? []) lines.push([`Error ×${e.count}`, `${e.route}: ${e.message}`.slice(0, 160)])
   return lines
 }

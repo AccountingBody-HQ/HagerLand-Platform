@@ -71,7 +71,7 @@ Authorised by AB on 15 Oct 2026 (brief: `docs/BRIEF_SECTION_26.md`, appended to 
 | S6 | Build & develop project flow | done | 2026-10-15 | see git log | Migration 0030. RLS 178/178 local. build-project spec passed. Starting a project needs an account (it runs for months and is followed in one place); finance becomes interest while Finance is coming soon |
 | S7 | Knowledge & advice hub, area guides, market insight | done | 2026-10-15 | see git log | Migration 0031. RLS 184/184 local. advice spec + unit tests passed. Six starter drafts (tenant guide, 4 checklists, glossary) wait for AB's review; their pages are honest and noindex until published |
 | S8 | Provider multi-pillar onboarding + verified reviews | done | 2026-10-15 | see git log | Migration 0032. RLS 187/187 local. reviews spec passed. Pillars chosen in onboarding and the company editor; leads labelled and filterable by pillar. Reviews: guests review through their request link, account holders from their request page |
-| S9 | Demand intelligence + pillar KPIs | todo | | | |
+| S9 | Demand intelligence + pillar KPIs | done | 2026-10-15 | see git log | No migration (reads existing tables). demand spec passed. Search misses have no per-day history, so the period filter uses their last-seen date; revenue counts ETB deals only (other currencies are listed in Deals) |
 | S10 | Staff accounts and roles | todo | | | |
 | S11 | Content, legal and SEO updates + 26.18 | todo | | | |
 | S12 | Full regression, matrix, LAUNCH_REPORT, re-run 25.5 | todo | | | |

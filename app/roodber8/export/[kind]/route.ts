@@ -6,6 +6,8 @@ import { toCsv } from '@/lib/admin/csv'
 import { enquiriesPerOrg, listingReport, periodFrom, quoteReport, signupSeries } from '@/lib/admin/reports'
 import { lastMonths, monthlyReport } from '@/lib/admin/aggregate'
 import { agencyKpis } from '@/lib/admin/agency-reports'
+import { demandReport, SOURCE_LABEL } from '@/lib/admin/demand'
+import { pillarKpis } from '@/lib/admin/performance'
 
 export const dynamic = 'force-dynamic'
 
@@ -139,6 +141,21 @@ export async function GET(request: NextRequest, props: { params: Promise<{ kind:
     case 'report-signups': {
       const r = await signupSeries(52)
       rows = r.signups.map((s, i) => ({ week_starting: s.week, signups: s.count, enquiries: r.enquiries[i]?.count ?? 0 }))
+      break
+    }
+    case 'demand': {
+      // One calendar month (spec 26.13 monthly export), every demand signal with its pillar, category, place and country.
+      const month = /^\d{4}-\d{2}$/.test(sp.get('month') ?? '') ? (sp.get('month') as string) : new Date().toISOString().slice(0, 7)
+      const start = new Date(`${month}-01T00:00:00Z`)
+      const end = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 1))
+      const r = await demandReport(start, end)
+      rows = r.signals.map((x) => ({ date: x.at.slice(0, 10), source: SOURCE_LABEL[x.source], pillar: x.pillar ?? '', category: x.category, place: x.place, country: x.country, count: x.weight }))
+      columns = ['date', 'source', 'pillar', 'category', 'place', 'country', 'count']
+      break
+    }
+    case 'performance': {
+      const days = Math.min(3650, Math.max(1, Number(sp.get('days') ?? 90) || 90))
+      rows = (await pillarKpis(new Date(Date.now() - days * 86_400_000))).map((k) => ({ pillar: k.pillar, leads: k.leads, median_first_response_hours: k.medianFirstResponseHours ?? '', won: k.won, conversion_percent: k.conversion ?? '', revenue_etb: k.revenueEtb, live_listings: k.activeListings ?? '', live_providers: k.providers }))
       break
     }
     case 'newsletter': {

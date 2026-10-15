@@ -44,7 +44,7 @@ export default async function PillarsPage() {
           const own = (services ?? []).filter((s) => s.pillar_key === p.key)
           const status = modeStatus({ direct: p.direct_enabled, aggregate: p.aggregate_enabled, interest: p.interest_enabled })
           return (
-            <li key={p.key}>
+            <li key={p.key} id={`pillar-${p.key}`} className="scroll-mt-20">
               <Panel title={`${p.number}. ${p.name}`} actions={<StatusBadge status={status} />}>
                 <p className="mb-3 text-small text-muted">
                   Hub: <Link href={`/${p.slug}`} className="font-semibold text-green hover:underline">/{p.slug}</Link> · Verified providers or partners: {active.get(p.key) ?? 0}

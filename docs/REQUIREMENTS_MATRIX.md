@@ -1159,12 +1159,12 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | X-2612-05 | Provider can reply once | 26.12 | Done | reviews_reply_once trigger, app/(account)/account/reviews | e2e:reviews.spec.ts › reviews: … one reply |
 | X-2612-06 | Reviews shown on company profiles with an average | 26.12 | Done | app/(site)/company/[slug]/page.tsx, lib/data/reviews.ts | e2e:reviews.spec.ts › reviews: … shown with an average |
 | X-2612-07 | AggregateRating structured data only with at least 3 published reviews; never import or fabricate reviews | 26.12 | Done | lib/jsonld-org.ts (aggregateRating from 3), reviews only from won jobs (no import path exists) | e2e:reviews.spec.ts › reviews: … rating data only from three |
-| X-2613-01 | Admin "Demand" dashboard: interest, unmatched/declined requests, zero-result searches, enquiries and leads by pillar, category, location and country, with trends | 26.13 | Not done |  |  |
-| X-2613-02 | Activation recommendations rank pillar × category × location by demand vs active supply, each linking to the stage-gate checklist | 26.13 | Not done |  |  |
-| X-2613-03 | Monthly CSV export of demand | 26.13 | Not done |  |  |
-| X-2613-04 | Demand summary in the daily digest | 26.13 | Not done |  |  |
-| X-2614-01 | Admin "Performance" dashboard per pillar: leads, median first-response time, conversion to won, revenue (deals), active listings, providers and partners | 26.14 | Not done |  |  |
-| X-2614-02 | Agency KPIs on the Performance dashboard; CSV export | 26.14 | Not done |  |  |
+| X-2613-01 | Admin "Demand" dashboard: interest, unmatched/declined requests, zero-result searches, enquiries and leads by pillar, category, location and country, with trends | 26.13 | Done | lib/admin/demand.ts, app/roodber8/demand/page.tsx | e2e:demand.spec.ts › demand dashboard: signals by pillar … |
+| X-2613-02 | Activation recommendations rank pillar × category × location by demand vs active supply, each linking to the stage-gate checklist | 26.13 | Done | lib/admin/demand.ts (recommendations), app/roodber8/pillars/page.tsx (anchors) | e2e:demand.spec.ts › demand dashboard: … activation recommendations linked to the stage gate |
+| X-2613-03 | Monthly CSV export of demand | 26.13 | Done | app/roodber8/export/[kind]/route.ts (demand?month=) | e2e:demand.spec.ts › demand dashboard: … monthly CSV |
+| X-2613-04 | Demand summary in the daily digest | 26.13 | Done | lib/cron/daily.ts (demandDigestLine) | e2e:demand.spec.ts › demand dashboard: … digest line |
+| X-2614-01 | Admin "Performance" dashboard per pillar: leads, median first-response time, conversion to won, revenue (deals), active listings, providers and partners | 26.14 | Done | lib/admin/performance.ts, app/roodber8/performance/page.tsx | e2e:demand.spec.ts › performance dashboard: per-pillar leads, response, conversion, revenue, listings and providers, with CSV |
+| X-2614-02 | Agency KPIs on the Performance dashboard; CSV export | 26.14 | Done | app/roodber8/performance/page.tsx (agency KPIs), export performance | e2e:demand.spec.ts › performance dashboard … |
 | X-2615-01 | Staff users (Supabase Auth, separate from customer accounts) with roles owner, agent, operations, content | 26.15 | Not done |  |  |
 | X-2615-02 | Each staff member must enrol TOTP before access | 26.15 | Not done |  |  |
 | X-2615-03 | Role-based admin access per area (agent / operations / content / owner) | 26.15 | Not done |  |  |
