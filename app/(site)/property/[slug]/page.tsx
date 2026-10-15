@@ -23,6 +23,9 @@ import { MapBlock } from '@/components/property/MapBlock'
 import { SafetyTips } from '@/components/property/SafetyTips'
 import { PropertyCard } from '@/components/property/PropertyCard'
 import { ContactPanel } from '@/components/enquiry/ContactPanel'
+import { AgencyListingPanel } from '@/components/agency/AgencyListingPanel'
+import { getAgencyAvailability } from '@/lib/data/pillars'
+import { getBusinessDetails } from '@/lib/data/business'
 import { ProfessionalsModule } from '@/components/company/ProfessionalsModule'
 import { ViewTracker } from '@/components/analytics/ViewTracker'
 import { JsonLd } from '@/components/seo/JsonLd'
@@ -94,11 +97,15 @@ export default async function PropertyPage(props: { params: Promise<{ slug: stri
 
   if (p.slug && params.slug !== p.slug) permanentRedirect(`/property/${p.slug}`)
 
-  const [chain, media, similar] = await Promise.all([
+  const [chain, media, similar, agencyOn, business] = await Promise.all([
     p.location_id ? getLocationChain(p.location_id) : Promise.resolve([] as Location[]),
     p.id ? getEntityMedia('property', p.id) : Promise.resolve([]),
     searchProperties({ purpose: p.purpose ?? undefined, locationId: p.location_id, filters: { types: p.property_type ? [p.property_type] : [] }, excludeId: p.id ?? undefined, pageSize: 8 }),
+    getAgencyAvailability(),
+    getBusinessDetails(),
   ])
+  // Book a viewing / make an offer / apply to rent: only on listings HagerLand markets, while the agency is on (26.5).
+  const agencyListing = p.lister_type === 'hagerland' && !p.is_hagerland && (p.purpose === 'sale' ? agencyOn.sales : agencyOn.lettings)
   const place = placeLabel(p, chain)
   const headline = propertyHeadline(p.property_type ?? '', p.bedrooms)
   const root = `/property/${purposeSegment(p.purpose ?? 'sale')}`
@@ -235,6 +242,7 @@ export default async function PropertyPage(props: { params: Promise<{ slug: stri
 
           <div className="mt-10 lg:mt-0">
             <div className="lg:sticky lg:top-24">
+              {agencyListing && p.slug && <AgencyListingPanel slug={p.slug} purpose={p.purpose === 'rent' ? 'rent' : 'sale'} licence={business.licences.estate_agency} />}
               <ContactPanel
                 revealTarget={p.id ? { type: 'property', id: p.id } : null}
                 enquiryTarget={{ type: 'property', id: p.id ?? undefined, recipientLabel: lister.name }}

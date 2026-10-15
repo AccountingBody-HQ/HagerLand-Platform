@@ -1,13 +1,13 @@
 import { expect, test, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
-import { adminSession } from './helpers'
+import { adminSession, createUser, db, seedPublishedProperty, signIn } from './helpers'
 
 /**
  * Section 26 pages: zero serious or critical axe problems (WCAG 2.2 AA) and no sideways scrolling at phone, tablet
  * and desktop widths. Each work package adds its new public, account and admin pages here.
  */
-export const S26_PUBLIC = ['/buy', '/rent', '/build', '/maintain', '/manage', '/advice']
-export const S26_ADMIN = ['/roodber8/pillars']
+export const S26_PUBLIC = ['/buy', '/rent', '/build', '/maintain', '/manage', '/advice', '/agency', '/agency/valuation', '/agency/landlords', '/agency/tenants']
+export const S26_ADMIN = ['/roodber8/pillars', '/roodber8/agency', '/roodber8/agency/contacts', '/roodber8/agency/instructions', '/roodber8/agency/valuations', '/roodber8/agency/viewings', '/roodber8/agency/offers', '/roodber8/agency/applications', '/roodber8/agency/tenancies', '/roodber8/agency/settings']
 
 async function axeProblems(page: Page, path: string): Promise<string[]> {
   await page.goto(path)
@@ -47,4 +47,21 @@ test('Section 26 public pages: no sideways scrolling from 360 to 1440 px', async
     await page.close()
   }
   expect(problems).toEqual([])
+})
+
+test('Section 26 listing, account and record pages: accessibility', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop', 'one width is enough for record pages; widths are checked above')
+  test.setTimeout(300_000)
+  const sale = await seedPublishedProperty({ title: `E2E a11y sale ${Date.now()}` })
+  const rent = await seedPublishedProperty({ purpose: 'rent', title: `E2E a11y rent ${Date.now()}`, price: 25_000 })
+  const { data: ins } = await db().from('agency_instructions').insert({ purpose: 'sale', title: 'E2E a11y instruction', stage: 'live', fee_type: 'fixed', fee_amount_etb: 50_000, agency_type: 'multi', term_start: '2026-10-01', property_id: sale.id }).select('id').single()
+  const { data: c } = await db().from('agency_contacts').insert({ name: 'E2E a11y contact', email: 'a11y@test.hagerland.invalid', roles: ['buyer'] }).select('id').single()
+  const user = await createUser()
+  const all: string[] = []
+  for (const p of [`/property/${sale.slug}`, `/property/${sale.slug}/viewing`, `/property/${sale.slug}/offer`, `/property/${rent.slug}/apply`]) all.push(...(await axeProblems(page, p)))
+  await adminSession(page)
+  for (const p of [`/roodber8/agency/instructions/${ins!.id}`, `/roodber8/agency/contacts/${c!.id}`]) all.push(...(await axeProblems(page, p)))
+  await signIn(page, user.email, user.password)
+  all.push(...(await axeProblems(page, '/account/agency')))
+  expect(all).toEqual([])
 })

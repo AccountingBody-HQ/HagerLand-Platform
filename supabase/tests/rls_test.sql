@@ -545,6 +545,21 @@ exception when insufficient_privilege then
   perform pg_temp.record_check('Aggregate cannot be switched on without a completed stage gate', true);
 end $$;
 
+-- ---------- Section 26: estate agency and lettings (0028) ----------
+reset role;
+select set_config('hl.agency_tables', 'agency_contacts,applicant_requirements,agency_instructions,agency_valuations,agency_viewings,agency_offers,sale_progress_items,rental_applications,tenancies,agency_tasks,agency_activity,agency_documents', false);
+set role anon;
+select pg_temp.record_check('Anonymous cannot read ' || name, pg_temp.read_denied(name)) from unnest(string_to_array(current_setting('hl.agency_tables'), ',')) as t(name);
+reset role;
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000002", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000002', false);
+select pg_temp.record_check('Signed-in user cannot read ' || name, pg_temp.read_denied(name)) from unnest(string_to_array(current_setting('hl.agency_tables'), ',')) as t(name);
+select pg_temp.record_check('Signed-in user cannot create an offer directly',
+  pg_temp.write_denied($q$insert into public.agency_offers (property_id, name, phone, amount_etb) select id, 'RLS TEST', '+251911000000', 1 from public.properties limit 1$q$));
+reset role;
+select pg_temp.record_check('Agency matching is not callable by visitors',
+  not has_function_privilege('anon', 'public.agency_requirement_matches(uuid, integer)', 'EXECUTE') and not has_function_privilege('authenticated', 'public.agency_requirement_matches(uuid, integer)', 'EXECUTE'));
+
 -- ---------- Clean up ----------
 reset role;
 select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);

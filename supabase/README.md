@@ -355,6 +355,15 @@ select (select count(*) from pillars), (select count(*) from pillar_services), (
 ```
 **You should see:** `10 | 3 | live | coming_soon | 0027`. The security test shows 143 `PASS` rows.
 
+## 0028_agency.sql (Section 26, S3 and S4)
+**What it does:** adds HagerLand's own estate agency records: a contacts register (vendors, landlords, buyers, tenants, with the date and source of any marketing consent), buying and renting requirements with automatic matching to live listings, the instructions pipeline (lead → valuation → instructed → live → under offer or let agreed → completed), valuations, viewings, offers, sale progression checklists, applications to rent, tenancies (with renewal and notice dates), and tasks, a timeline and private documents for every record. All of it is staff-only. The deals ledger accepts two new kinds of deal (agency completions and letting fees) and records which pillar each deal belongs to. Two editable checklists are added to settings (sale steps, rent-ready list); no legal statements.
+
+**Check:**
+```sql
+select (select count(*) from pg_tables where schemaname = 'public' and tablename in ('agency_contacts', 'applicant_requirements', 'agency_instructions', 'agency_valuations', 'agency_viewings', 'agency_offers', 'sale_progress_items', 'rental_applications', 'tenancies', 'agency_tasks', 'agency_activity', 'agency_documents')), (select count(*) = 1 from information_schema.columns where table_schema = 'public' and table_name = 'deals' and column_name = 'pillar_key'), (select version from schema_migrations where version = '0028');
+```
+**You should see:** `12 | t | 0028`. The security test shows 169 `PASS` rows.
+
 ---
 
 ## Security test (run after all migrations)
@@ -363,7 +372,7 @@ statements: that is the test cleaning up after itself; click **Run this query**.
 It temporarily creates two test users and a test listing, tries things that should and should not be
 allowed, then deletes everything it created.
 
-**You should see:** every row starting with `PASS` (38 rows after migration 0011, 42 after 0013, 57 after 0014, 67 after 0016, 74 after 0017, 96 after 0019, 106 after 0020, 125 after 0022, 133 after 0024, 143 after 0027; each later migration adds its own checks and its section below says the new total).
+**You should see:** every row starting with `PASS` (38 rows after migration 0011, 42 after 0013, 57 after 0014, 67 after 0016, 74 after 0017, 96 after 0019, 106 after 0020, 125 after 0022, 133 after 0024, 143 after 0027, 169 after 0028; each later migration adds its own checks and its section below says the new total).
 
 ## TypeScript types
 `lib/database.types.ts` was generated from these exact migrations. After all migrations are applied,

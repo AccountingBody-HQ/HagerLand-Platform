@@ -5,6 +5,7 @@ import { getAdminSupabase } from '@/lib/supabase/admin'
 import { toCsv } from '@/lib/admin/csv'
 import { enquiriesPerOrg, listingReport, periodFrom, quoteReport, signupSeries } from '@/lib/admin/reports'
 import { lastMonths, monthlyReport } from '@/lib/admin/aggregate'
+import { agencyKpis } from '@/lib/admin/agency-reports'
 
 export const dynamic = 'force-dynamic'
 
@@ -138,6 +139,30 @@ export async function GET(request: NextRequest, props: { params: Promise<{ kind:
     case 'report-signups': {
       const r = await signupSeries(52)
       rows = r.signups.map((s, i) => ({ week_starting: s.week, signups: s.count, enquiries: r.enquiries[i]?.count ?? 0 }))
+      break
+    }
+    case 'agency-instructions': {
+      const { data } = await db.from('agency_instructions').select('reference, created_at, stage, purpose, title, address_line, fee_type, fee_percent, fee_amount_etb, agency_type, term_start, term_end, asking_price_etb, final_price_etb, assigned_agent, source, live_at, completed_at').order('created_at', { ascending: false }).limit(20000)
+      rows = data ?? []
+      break
+    }
+    case 'agency-report': {
+      const days = Math.min(3650, Math.max(1, Number(sp.get('days') ?? 90) || 90))
+      const k = await agencyKpis(new Date(Date.now() - days * 86_400_000))
+      rows = [
+        { measure: 'Open instructions', value: k.openInstructions },
+        ...Object.entries(k.byStage).map(([stage, n]) => ({ measure: `Open instructions: ${stage}`, value: n })),
+        { measure: `Valuations requested (last ${days} days)`, value: k.valuations },
+        { measure: 'Valuations booked or done', value: k.valuationsBooked },
+        { measure: 'Viewings requested', value: k.viewings },
+        { measure: 'Offers received', value: k.offers },
+        { measure: 'Offers accepted', value: k.offersAccepted },
+        { measure: 'Applications to rent', value: k.applications },
+        { measure: 'Completions', value: k.completions },
+        { measure: 'Average days on market', value: k.avgDaysOnMarket ?? '' },
+        { measure: 'Fee income (ETB)', value: k.feeIncomeEtb },
+        { measure: 'Active tenancies', value: k.tenanciesActive },
+      ]
       break
     }
     default:

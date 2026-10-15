@@ -65,8 +65,8 @@ Authorised by AB on 15 Oct 2026 (brief: `docs/BRIEF_SECTION_26.md`, appended to 
 |----|-------|--------|------|--------|--------------------|
 | S1 | Pillar registry, modes, stage gates, migration from verticals | done | 2026-10-15 | see git log | Migration 0027. RLS 143/143 local. pillars spec + unit tests passed. Pillar-controlled verticals follow the modes (Jobs now live) |
 | S2 | Navigation, pillar hubs, homepage ecosystem visual | done | 2026-10-15 | see git log | No migration. Header: 7 pillar menus + All services + Living abroad?; hubs /buy /rent /build /maintain /manage /advice; existing /supplies /finance /insurance /jobs gain the hub panels; homepage ecosystem diagram; "Part of …" link on deep pages. Nav links to pages built in S3–S7 (agency valuation/landlords/tenants, /build/project, /owner, /advice/*) go live with those packages; the link crawl is run in S12 |
-| S3 | Estate agency operations (admin CRM + public valuation/viewing/offer/apply + licence display) | todo | | | |
-| S4 | Rent & let lifecycle + tenancies | todo | | | |
+| S3 | Estate agency operations (admin CRM + public valuation/viewing/offer/apply + licence display) | done | 2026-10-15 | see git log | Migration 0028 (shared with S4). RLS 169/169 local. agency spec (7 journeys) + s26-quality passed. Contacts now match by email (phone only without email): found by the tests |
+| S4 | Rent & let lifecycle + tenancies | done | 2026-10-15 | see git log | Built together with S3 (one migration, one commit). Landlord services and tenants pages; tenancies with renewal/notice reminders in the daily job; repairs from managed tenancies go to Repair & Maintain. The general tenant guide is a draft for AB (S7) |
 | S5 | Manage pillar + owner portal | todo | | | |
 | S6 | Build & develop project flow | todo | | | |
 | S7 | Knowledge & advice hub, area guides, market insight | todo | | | |

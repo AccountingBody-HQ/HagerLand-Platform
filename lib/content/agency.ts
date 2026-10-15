@@ -12,6 +12,8 @@ export interface AgencyService {
   topic: string
   message: string
   forWho: string
+  /** Which side of the agency offers it: sales follow Buy & Sell Direct, lettings follow Rent & Let Direct. */
+  side: 'sales' | 'lettings'
 }
 
 export const AGENCY_SERVICES: AgencyService[] = [
@@ -30,6 +32,7 @@ export const AGENCY_SERVICES: AgencyService[] = [
     topic: 'Agency: selling',
     message: "I'd like HagerLand to help me sell a property.",
     forWho: 'Owners in Ethiopia and owners abroad',
+    side: 'sales',
   },
   {
     slug: 'let',
@@ -46,6 +49,7 @@ export const AGENCY_SERVICES: AgencyService[] = [
     topic: 'Agency: letting',
     message: "I'd like HagerLand to help me let a property.",
     forWho: 'Landlords in Ethiopia and abroad',
+    side: 'lettings',
   },
   {
     slug: 'buyer-representation',
@@ -62,6 +66,7 @@ export const AGENCY_SERVICES: AgencyService[] = [
     topic: 'Agency: buyer representation',
     message: "I'd like HagerLand to help me find and buy a property.",
     forWho: 'Buyers in Ethiopia and abroad',
+    side: 'sales',
   },
   {
     slug: 'property-sourcing',
@@ -78,6 +83,7 @@ export const AGENCY_SERVICES: AgencyService[] = [
     topic: 'Agency: diaspora property sourcing',
     message: "I live abroad and would like HagerLand to find a property for me in Ethiopia.",
     forWho: 'Ethiopians abroad and investors',
+    side: 'sales',
   },
   {
     slug: 'developer-sales',
@@ -94,6 +100,30 @@ export const AGENCY_SERVICES: AgencyService[] = [
     topic: 'Agency: developer sales',
     message: "I'm a developer and would like to discuss sales and marketing for a project.",
     forWho: 'Real-estate developers',
+    side: 'sales',
+  },
+  {
+    slug: 'landlords',
+    title: 'Landlord services',
+    short: 'Let only, let and manage, or management only.',
+    intro: 'Choose how much you want HagerLand to do. We can find you a tenant, find a tenant and look after the tenancy, or look after a property you have already let.',
+    includes: [
+      'Let only: rent advice, marketing, viewings, tenant checks and a written tenancy agreement',
+      'Let and manage: everything in let only, then rent collection, repairs and regular inspections through HagerLand Property Care',
+      'Management only: HagerLand Property Care for a property that already has a tenant',
+      'A rent-ready checklist so the property is ready before marketing starts',
+      'Renewal and notice dates tracked and reminded',
+    ],
+    steps: [
+      { title: 'Choose a service', text: 'Let only, let and manage, or management only.' },
+      { title: 'Agree terms', text: 'Our service and fee confirmed in writing.' },
+      { title: 'Get rent-ready', text: 'We go through the checklist with you.' },
+      { title: 'Let and look after', text: 'We find the tenant and, if you choose, manage the tenancy.' },
+    ],
+    topic: 'Agency: landlord services',
+    message: "I'm a landlord and would like to talk about letting or managing my property.",
+    forWho: 'Landlords in Ethiopia and abroad',
+    side: 'lettings',
   },
 ]
 

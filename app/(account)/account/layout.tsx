@@ -2,6 +2,7 @@ import { getActiveMembership, getMemberships, getProfile, requireUser } from '@/
 import { getServerSupabase } from '@/lib/supabase/server'
 import { accountNavItems } from '@/lib/account-nav'
 import { getVertical } from '@/lib/data/verticals'
+import { getAgencyAvailability } from '@/lib/data/pillars'
 import { AccountNav } from '@/components/account/AccountNav'
 import { OrgSwitcher } from '@/components/account/OrgSwitcher'
 import { Container } from '@/components/ui/Layout'
@@ -16,7 +17,8 @@ export default async function AccountLayout({ children }: { children: React.Reac
     ? await getServerSupabase().from('service_request_matches').select('id', { count: 'exact', head: true }).eq('org_id', active.org.id).eq('status', 'offered')
     : { count: 0 }
   const jobsLive = (await getVertical('jobs'))?.status === 'live'
-  const items = accountNavItems(active, count ?? 0, offered ?? 0, jobsLive)
+  const agency = await getAgencyAvailability()
+  const items = accountNavItems(active, count ?? 0, offered ?? 0, jobsLive, { agency: agency.any })
 
   return (
     <Container className="py-6 lg:py-10">

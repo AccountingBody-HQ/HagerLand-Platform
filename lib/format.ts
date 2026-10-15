@@ -121,3 +121,13 @@ export function convertFromEtb(etb: number, etbPerUnit: number): number | null {
   const v = etb / etbPerUnit
   return v >= 1000 ? Math.round(v / 10) * 10 : Math.round(v)
 }
+
+/** "12 Oct 2026, 14:30 Ethiopia time" for appointments (stored in UTC, shown in Africa/Addis_Ababa). */
+export function formatAppointment(value: string | Date | null | undefined): string {
+  if (!value) return ''
+  const d = typeof value === 'string' ? new Date(value) : value
+  if (Number.isNaN(d.getTime())) return ''
+  const day = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Africa/Addis_Ababa' }).format(d)
+  const time = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Africa/Addis_Ababa' }).format(d)
+  return `${day}, ${time} Ethiopia time`
+}

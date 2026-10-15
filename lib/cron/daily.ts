@@ -13,6 +13,9 @@ import { revalidateEntity } from '@/lib/revalidate'
 import { QUOTE_VALID_DAYS } from '@/lib/listing-rules'
 import { canonicalUrl } from '@/lib/site'
 import { log } from '@/lib/log'
+import { tenancyReminderEmail, viewingConfirmedEmail } from '@/lib/email/agency'
+import { hagerlandInbox } from '@/lib/enquiries'
+import { formatDate } from '@/lib/format'
 
 const DAY = 86_400_000
 const BATCH = 500
@@ -32,6 +35,8 @@ export interface DailySummary {
   cvsPurged: number
   emailsRetried: number
   interestPurged: number
+  viewingReminders: number
+  tenancyReminders: number
   digestSent: boolean
 }
 
@@ -164,6 +169,52 @@ async function purgeReveals(now: number): Promise<number> {
   return data?.length ?? 0
 }
 
+/** Confirmed viewings in the next 36 hours get one reminder email (spec 26.5). */
+async function remindViewings(now: number): Promise<number> {
+  const db = getAdminSupabase()
+  const { data } = await db
+    .from('agency_viewings')
+    .select('id, reference, name, email, mode, scheduled_at, video_link, property:properties(title)')
+    .eq('status', 'confirmed')
+    .is('reminder_sent_at', null)
+    .gt('scheduled_at', iso(now))
+    .lte('scheduled_at', iso(now + 36 * 3_600_000))
+    .limit(BATCH)
+  let sent = 0
+  for (const v of data ?? []) {
+    const property = (Array.isArray(v.property) ? v.property[0] : v.property)?.title ?? 'the property'
+    if (v.email && v.scheduled_at) {
+      await sendEmail({ to: v.email, ...viewingConfirmedEmail({ name: v.name.split(' ')[0] || v.name, reference: v.reference, property, when: v.scheduled_at, mode: v.mode, videoLink: v.video_link, reminder: true }) })
+      sent++
+    }
+    await db.from('agency_viewings').update({ reminder_sent_at: iso(now) }).eq('id', v.id)
+    await db.from('agency_activity').insert({ entity_type: 'viewing', entity_id: v.id, kind: 'email', text: v.email ? 'Reminder emailed to the visitor.' : 'No email address: call the visitor to remind them.', actor: 'daily job' })
+  }
+  return sent
+}
+
+/** Renewal dates within 30 days and notice dates within 14 days remind the agency team once (spec 26.6). */
+async function remindTenancies(now: number): Promise<number> {
+  const db = getAdminSupabase()
+  const to = Array.from(new Set([await hagerlandInbox('sales'), process.env.ADMIN_DIGEST_EMAIL].filter((x): x is string => Boolean(x))))
+  const day = (ms: number) => iso(ms).slice(0, 10)
+  const [renewals, notices] = await Promise.all([
+    db.from('tenancies').select('id, reference, title, tenant_names, renewal_date').eq('status', 'active').is('renewal_reminded_at', null).not('renewal_date', 'is', null).lte('renewal_date', day(now + 30 * DAY)).limit(BATCH),
+    db.from('tenancies').select('id, reference, title, tenant_names, notice_date').eq('status', 'active').is('notice_reminded_at', null).not('notice_date', 'is', null).lte('notice_date', day(now + 14 * DAY)).limit(BATCH),
+  ])
+  let sent = 0
+  for (const [kind, rows] of [['renewal', renewals.data ?? []], ['notice', notices.data ?? []]] as const) {
+    for (const t of rows) {
+      const date = 'renewal_date' in t ? t.renewal_date : (t as { notice_date: string | null }).notice_date
+      if (to.length && date) await sendEmail({ to, ...tenancyReminderEmail({ kind, title: t.title, reference: t.reference, date: formatDate(date), tenant: t.tenant_names }) })
+      await db.from('tenancies').update(kind === 'renewal' ? { renewal_reminded_at: iso(now) } : { notice_reminded_at: iso(now) }).eq('id', t.id)
+      await db.from('agency_activity').insert({ entity_type: 'tenancy', entity_id: t.id, kind: 'email', text: `${kind === 'renewal' ? 'Renewal' : 'Notice'} reminder sent to the team (${date ? formatDate(date) : ''}).`, actor: 'daily job' })
+      sent++
+    }
+  }
+  return sent
+}
+
 /** Lines for the admin digest; empty when there is nothing to report. */
 async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Promise<[string, string][]> {
   const db = getAdminSupabase()
@@ -198,6 +249,12 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
     db.from('trade_accounts').select('id', head).eq('status', 'pending'),
     db.from('email_outbox').select('id', head).in('status', ['failed', 'gave_up']),
   ])
+  const [agValuations, agViewings, agOffers, agApplications] = await Promise.all([
+    db.from('agency_valuations').select('id', head).eq('status', 'requested'),
+    db.from('agency_viewings').select('id', head).eq('status', 'requested'),
+    db.from('agency_offers').select('id', head).eq('status', 'submitted'),
+    db.from('rental_applications').select('id', head).in('status', ['submitted', 'referencing']),
+  ])
   const n = (r: { count: number | null }) => r.count ?? 0
   const lines: [string, string][] = []
   const add = (label: string, value: number) => value > 0 && lines.push([label, String(value)])
@@ -221,6 +278,12 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
   add('Requests every provider declined', n(srAllDeclined))
   add('Provider answers overdue (48 h)', n(srUnanswered))
   add('Property Care leads to contact', n(careNew))
+  add('Agency: valuations to book', n(agValuations))
+  add('Agency: viewings to confirm', n(agViewings))
+  add('Agency: offers waiting for the owner', n(agOffers))
+  add('Agency: applications to decide', n(agApplications))
+  add('Viewing reminders sent today', s.viewingReminders)
+  add('Tenancy renewal or notice reminders today', s.tenancyReminders)
   add('New interest registrations (24 h)', n(interest))
   add('Partner applications to review', n(partners))
   add('New job applications (24 h)', n(applications))
@@ -255,10 +318,12 @@ export async function runDaily(now = Date.now()): Promise<DailySummary> {
   const jobsExpired = await step('expire jobs', () => expireJobs(now), 0)
   const cvsPurged = await step('cv purge', () => purgeApplicationCvs(now), 0)
   const interestPurged = await step('interest purge', () => purgeInterest(now), 0)
+  const viewingReminders = await step('viewing reminders', () => remindViewings(now), 0)
+  const tenancyReminders = await step('tenancy reminders', () => remindTenancies(now), 0)
   const emailsRetried = await step('email retries', async () => (await retryOutbox(now)).sent, 0)
   // rate_limits is a pre-existing (legacy) table: expired counters are only deleted when AB switches this on.
   const rateLimitsPurged = process.env.CRON_PURGE_RATE_LIMITS === 'true' ? await step('rate limit purge', async () => (await purgeExpiredRateLimits(7), true), false) : false
-  const summary = { expired, expiredEmailed: emailed, reminded, quotesExpired, verificationDocsPurged, revealsPurged, rateLimitsPurged, matchReminders, searchAlerts, jobsExpired, cvsPurged, emailsRetried, interestPurged }
+  const summary = { expired, expiredEmailed: emailed, reminded, quotesExpired, verificationDocsPurged, revealsPurged, rateLimitsPurged, matchReminders, searchAlerts, jobsExpired, cvsPurged, emailsRetried, interestPurged, viewingReminders, tenancyReminders }
   let digestSent = false
   const to = process.env.ADMIN_DIGEST_EMAIL
   if (to) {

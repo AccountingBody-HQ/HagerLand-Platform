@@ -6,8 +6,12 @@ import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { Container, Section } from '@/components/ui/Layout'
 import { ButtonLink } from '@/components/ui/Button'
 import { EnquiryForm } from '@/components/enquiry/EnquiryForm'
+import { LicenceNote } from '@/components/content/LicenceNote'
+import { getAgencyAvailability } from '@/lib/data/pillars'
+import { getBusinessDetails } from '@/lib/data/business'
+import { getSiteSettings } from '@/lib/data/reference'
 
-export const revalidate = 3600
+export const revalidate = 300
 
 export function generateStaticParams() {
   return AGENCY_SERVICES.map((s) => ({ service: s.slug }))
@@ -25,6 +29,10 @@ export default async function AgencyServicePage(props: { params: Promise<{ servi
   const params = await props.params
   const s = AGENCY_SERVICES.find((x) => x.slug === params.service)
   if (!s) notFound()
+  // Each service follows its side of the agency: sales need Buy & Sell Direct, lettings need Rent & Let Direct (26.1).
+  const [agency, business, settings] = await Promise.all([getAgencyAvailability(), getBusinessDetails(), getSiteSettings()])
+  if (s.side === 'sales' ? !agency.sales : !agency.lettings) notFound()
+  const rentReady = s.slug === 'landlords' && Array.isArray(settings.rent_ready_checklist) ? settings.rent_ready_checklist.filter((x): x is string => typeof x === 'string') : []
   return (
     <>
       <section className="border-b border-border bg-stone-50">
@@ -59,11 +67,32 @@ export default async function AgencyServicePage(props: { params: Promise<{ servi
                   </li>
                 ))}
               </ol>
-              <p className="mt-4 text-small text-muted">Our fees and what we will do are always agreed with you in writing before we start.</p>
             </div>
-            {(s.slug === 'sell' || s.slug === 'let') && (
-              <ButtonLink href="/request-service/property-valuers" variant="secondary">
-                Request a valuation first
+            {rentReady.length > 0 && (
+              <div>
+                <h2 className="hl-h2">Rent-ready checklist</h2>
+                <ul className="mt-4 space-y-2">
+                  {rentReady.map((i) => (
+                    <li key={i} className="flex gap-3">
+                      <Check className="mt-1 size-5 shrink-0 text-green" aria-hidden /> {i}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            <div>
+              <h2 className="hl-h3">Fees</h2>
+              {business.agencyFeeSchedule ? <p className="mt-2 whitespace-pre-line text-muted">{business.agencyFeeSchedule}</p> : <p className="mt-2 text-muted">Our fees and what we will do are agreed with you in writing before we start.</p>}
+              <LicenceNote kind="estate_agency" licence={business.licences.estate_agency} className="mt-3" />
+            </div>
+            {(s.slug === 'sell' || s.slug === 'let' || s.slug === 'landlords') && (
+              <ButtonLink href="/agency/valuation" variant="secondary">
+                Book a valuation first
+              </ButtonLink>
+            )}
+            {s.slug === 'landlords' && (
+              <ButtonLink href="/diaspora/property-care" variant="secondary" className="ml-0 sm:ml-3">
+                About HagerLand Property Care
               </ButtonLink>
             )}
           </div>

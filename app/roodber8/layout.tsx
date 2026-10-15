@@ -13,7 +13,7 @@ export const metadata = { title: { default: 'Admin', template: '%s · HagerLand 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   await requireAdminPage()
   const db = getAdminSupabase()
-  const [queue, quotes, interest, requests, care, trade, email] = await Promise.all([
+  const [queue, quotes, interest, requests, care, trade, email, agency] = await Promise.all([
     queueCounts(),
     db.from('quote_requests').select('id', { count: 'exact', head: true }).eq('status', 'submitted'),
     db.from('interest_registrations').select('id', { count: 'exact', head: true }).eq('status', 'new'),
@@ -21,8 +21,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     db.from('property_care_requests').select('id', { count: 'exact', head: true }).eq('status', 'new'),
     db.from('trade_accounts').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
     db.from('email_outbox').select('id', { count: 'exact', head: true }).eq('status', 'failed'),
+    db.from('agency_viewings').select('id', { count: 'exact', head: true }).eq('status', 'requested'),
   ])
-  const badges = { review: totalQueue(queue), quotes: quotes.count ?? 0, interest: interest.count ?? 0, requests: requests.count ?? 0, care: care.count ?? 0, trade: trade.count ?? 0, email: email.count ?? 0 }
+  const badges = { review: totalQueue(queue), quotes: quotes.count ?? 0, interest: interest.count ?? 0, requests: requests.count ?? 0, care: care.count ?? 0, trade: trade.count ?? 0, email: email.count ?? 0, agency: agency.count ?? 0 }
   return (
     <div className="flex min-h-dvh flex-col bg-stone-100">
       <header className="sticky top-0 z-40 flex h-14 items-center gap-3 border-b border-white/10 bg-ink px-3 text-white">

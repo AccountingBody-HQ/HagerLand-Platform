@@ -9,13 +9,14 @@ export type UploadScope =
   | { purpose: 'media'; entityType: MediaEntity; entityId: string }
   | { purpose: 'private'; area: PrivateArea; id: string }
 
-/** Who may upload where. Admins may upload anywhere; guests only to their own materials-list folder. */
+/** Who may upload where. Admins may upload anywhere (including agency documents); guests only to their own form's folder. */
 export async function canUpload(scope: UploadScope): Promise<boolean> {
   if ((await isAdminRequest())) return true
   if (scope.purpose === 'media') return (await getUser()) ? userCanEditEntity(scope.entityType, scope.entityId) : false
   switch (scope.area) {
     case 'materials':
     case 'request':
+    case 'application':
       // Guests upload into a folder named by a random id their form created; the file is only linked on submit.
       return /^[0-9a-f-]{36}$/.test(scope.id)
     case 'match': {

@@ -30,6 +30,655 @@ export type Database = {
         }
         Relationships: []
       }
+      agency_activity: {
+        Row: {
+          actor: string
+          created_at: string
+          entity_id: string
+          entity_type: string
+          id: string
+          kind: string
+          text: string
+        }
+        ComputedFields: never
+        Insert: {
+          actor?: string
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          kind: string
+          text: string
+        }
+        Update: {
+          actor?: string
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          kind?: string
+          text?: string
+        }
+        Relationships: []
+      }
+      agency_contacts: {
+        Row: {
+          assigned_agent: string | null
+          consent_at: string | null
+          consent_source: string | null
+          country_code: string
+          created_at: string
+          email: string | null
+          id: string
+          marketing_consent: boolean
+          name: string
+          notes: string | null
+          phone: string | null
+          reference: string
+          roles: string[]
+          time_zone: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          assigned_agent?: string | null
+          consent_at?: string | null
+          consent_source?: string | null
+          country_code?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          marketing_consent?: boolean
+          name: string
+          notes?: string | null
+          phone?: string | null
+          reference?: string
+          roles?: string[]
+          time_zone?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          assigned_agent?: string | null
+          consent_at?: string | null
+          consent_source?: string | null
+          country_code?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          marketing_consent?: boolean
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          reference?: string
+          roles?: string[]
+          time_zone?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      agency_documents: {
+        Row: {
+          created_at: string
+          entity_id: string
+          entity_type: string
+          id: string
+          label: string
+          storage_path: string
+          uploaded_by: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          label: string
+          storage_path: string
+          uploaded_by?: string
+        }
+        Update: {
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          label?: string
+          storage_path?: string
+          uploaded_by?: string
+        }
+        Relationships: []
+      }
+      agency_instructions: {
+        Row: {
+          address_line: string | null
+          agency_type: string | null
+          agreement_path: string | null
+          asking_price_etb: number | null
+          assigned_agent: string | null
+          completed_at: string | null
+          contact_id: string | null
+          created_at: string
+          deal_id: string | null
+          fee_amount_etb: number | null
+          fee_percent: number | null
+          fee_type: string | null
+          final_price_etb: number | null
+          id: string
+          live_at: string | null
+          location_id: string | null
+          notes: string | null
+          property_id: string | null
+          property_type: Database['public']['Enums']['property_type'] | null
+          purpose: Database['public']['Enums']['listing_purpose']
+          reference: string
+          source: string
+          stage: string
+          term_end: string | null
+          term_start: string | null
+          title: string
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          address_line?: string | null
+          agency_type?: string | null
+          agreement_path?: string | null
+          asking_price_etb?: number | null
+          assigned_agent?: string | null
+          completed_at?: string | null
+          contact_id?: string | null
+          created_at?: string
+          deal_id?: string | null
+          fee_amount_etb?: number | null
+          fee_percent?: number | null
+          fee_type?: string | null
+          final_price_etb?: number | null
+          id?: string
+          live_at?: string | null
+          location_id?: string | null
+          notes?: string | null
+          property_id?: string | null
+          property_type?: Database['public']['Enums']['property_type'] | null
+          purpose: Database['public']['Enums']['listing_purpose']
+          reference?: string
+          source?: string
+          stage?: string
+          term_end?: string | null
+          term_start?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          address_line?: string | null
+          agency_type?: string | null
+          agreement_path?: string | null
+          asking_price_etb?: number | null
+          assigned_agent?: string | null
+          completed_at?: string | null
+          contact_id?: string | null
+          created_at?: string
+          deal_id?: string | null
+          fee_amount_etb?: number | null
+          fee_percent?: number | null
+          fee_type?: string | null
+          final_price_etb?: number | null
+          id?: string
+          live_at?: string | null
+          location_id?: string | null
+          notes?: string | null
+          property_id?: string | null
+          property_type?: Database['public']['Enums']['property_type'] | null
+          purpose?: Database['public']['Enums']['listing_purpose']
+          reference?: string
+          source?: string
+          stage?: string
+          term_end?: string | null
+          term_start?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'agency_instructions_contact_id_fkey'
+            columns: ['contact_id']
+            isOneToOne: false
+            referencedRelation: 'agency_contacts'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'agency_instructions_deal_id_fkey'
+            columns: ['deal_id']
+            isOneToOne: false
+            referencedRelation: 'deals'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'agency_instructions_location_id_fkey'
+            columns: ['location_id']
+            isOneToOne: false
+            referencedRelation: 'locations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'agency_instructions_property_id_fkey'
+            columns: ['property_id']
+            isOneToOne: false
+            referencedRelation: 'properties'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'agency_instructions_property_id_fkey'
+            columns: ['property_id']
+            isOneToOne: false
+            referencedRelation: 'properties_public'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      agency_offers: {
+        Row: {
+          amount_etb: number
+          conditions: string | null
+          contact_id: string | null
+          counter_amount_etb: number | null
+          created_at: string
+          decided_at: string | null
+          email: string | null
+          funding_note: string | null
+          id: string
+          instruction_id: string | null
+          ip_hash: string | null
+          name: string
+          phone: string
+          property_id: string
+          reference: string
+          status: string
+          updated_at: string
+          user_id: string | null
+          vendor_decision: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          amount_etb: number
+          conditions?: string | null
+          contact_id?: string | null
+          counter_amount_etb?: number | null
+          created_at?: string
+          decided_at?: string | null
+          email?: string | null
+          funding_note?: string | null
+          id?: string
+          instruction_id?: string | null
+          ip_hash?: string | null
+          name: string
+          phone: string
+          property_id: string
+          reference?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+          vendor_decision?: string | null
+        }
+        Update: {
+          amount_etb?: number
+          conditions?: string | null
+          contact_id?: string | null
+          counter_amount_etb?: number | null
+          created_at?: string
+          decided_at?: string | null
+          email?: string | null
+          funding_note?: string | null
+          id?: string
+          instruction_id?: string | null
+          ip_hash?: string | null
+          name?: string
+          phone?: string
+          property_id?: string
+          reference?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+          vendor_decision?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'agency_offers_contact_id_fkey'
+            columns: ['contact_id']
+            isOneToOne: false
+            referencedRelation: 'agency_contacts'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'agency_offers_instruction_id_fkey'
+            columns: ['instruction_id']
+            isOneToOne: false
+            referencedRelation: 'agency_instructions'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'agency_offers_property_id_fkey'
+            columns: ['property_id']
+            isOneToOne: false
+            referencedRelation: 'properties'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'agency_offers_property_id_fkey'
+            columns: ['property_id']
+            isOneToOne: false
+            referencedRelation: 'properties_public'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      agency_tasks: {
+        Row: {
+          assigned_to: string | null
+          created_at: string
+          created_by: string
+          done: boolean
+          done_at: string | null
+          due_on: string | null
+          entity_id: string
+          entity_type: string
+          id: string
+          title: string
+        }
+        ComputedFields: never
+        Insert: {
+          assigned_to?: string | null
+          created_at?: string
+          created_by?: string
+          done?: boolean
+          done_at?: string | null
+          due_on?: string | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          title: string
+        }
+        Update: {
+          assigned_to?: string | null
+          created_at?: string
+          created_by?: string
+          done?: boolean
+          done_at?: string | null
+          due_on?: string | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      agency_valuations: {
+        Row: {
+          address_line: string | null
+          appointment_at: string | null
+          assigned_agent: string | null
+          contact_id: string | null
+          created_at: string
+          details: string | null
+          id: string
+          instruction_id: string | null
+          ip_hash: string | null
+          location_id: string | null
+          notes: string | null
+          outcome: string
+          preferred_times: string | null
+          property_type: Database['public']['Enums']['property_type'] | null
+          purpose: Database['public']['Enums']['listing_purpose']
+          reference: string
+          report_path: string | null
+          status: string
+          time_zone: string | null
+          updated_at: string
+          user_id: string | null
+          value_high_etb: number | null
+          value_low_etb: number | null
+        }
+        ComputedFields: never
+        Insert: {
+          address_line?: string | null
+          appointment_at?: string | null
+          assigned_agent?: string | null
+          contact_id?: string | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          instruction_id?: string | null
+          ip_hash?: string | null
+          location_id?: string | null
+          notes?: string | null
+          outcome?: string
+          preferred_times?: string | null
+          property_type?: Database['public']['Enums']['property_type'] | null
+          purpose: Database['public']['Enums']['listing_purpose']
+          reference?: string
+          report_path?: string | null
+          status?: string
+          time_zone?: string | null
+          updated_at?: string
+          user_id?: string | null
+          value_high_etb?: number | null
+          value_low_etb?: number | null
+        }
+        Update: {
+          address_line?: string | null
+          appointment_at?: string | null
+          assigned_agent?: string | null
+          contact_id?: string | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          instruction_id?: string | null
+          ip_hash?: string | null
+          location_id?: string | null
+          notes?: string | null
+          outcome?: string
+          preferred_times?: string | null
+          property_type?: Database['public']['Enums']['property_type'] | null
+          purpose?: Database['public']['Enums']['listing_purpose']
+          reference?: string
+          report_path?: string | null
+          status?: string
+          time_zone?: string | null
+          updated_at?: string
+          user_id?: string | null
+          value_high_etb?: number | null
+          value_low_etb?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'agency_valuations_contact_id_fkey'
+            columns: ['contact_id']
+            isOneToOne: false
+            referencedRelation: 'agency_contacts'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'agency_valuations_instruction_id_fkey'
+            columns: ['instruction_id']
+            isOneToOne: false
+            referencedRelation: 'agency_instructions'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'agency_valuations_location_id_fkey'
+            columns: ['location_id']
+            isOneToOne: false
+            referencedRelation: 'locations'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      agency_viewings: {
+        Row: {
+          assigned_agent: string | null
+          confirmed_at: string | null
+          contact_id: string | null
+          created_at: string
+          email: string | null
+          feedback: string | null
+          id: string
+          instruction_id: string | null
+          ip_hash: string | null
+          message: string | null
+          mode: string
+          name: string
+          phone: string
+          preferred_times: string | null
+          property_id: string
+          reference: string
+          reminder_sent_at: string | null
+          scheduled_at: string | null
+          status: string
+          time_zone: string | null
+          updated_at: string
+          user_id: string | null
+          video_link: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          assigned_agent?: string | null
+          confirmed_at?: string | null
+          contact_id?: string | null
+          created_at?: string
+          email?: string | null
+          feedback?: string | null
+          id?: string
+          instruction_id?: string | null
+          ip_hash?: string | null
+          message?: string | null
+          mode: string
+          name: string
+          phone: string
+          preferred_times?: string | null
+          property_id: string
+          reference?: string
+          reminder_sent_at?: string | null
+          scheduled_at?: string | null
+          status?: string
+          time_zone?: string | null
+          updated_at?: string
+          user_id?: string | null
+          video_link?: string | null
+        }
+        Update: {
+          assigned_agent?: string | null
+          confirmed_at?: string | null
+          contact_id?: string | null
+          created_at?: string
+          email?: string | null
+          feedback?: string | null
+          id?: string
+          instruction_id?: string | null
+          ip_hash?: string | null
+          message?: string | null
+          mode?: string
+          name?: string
+          phone?: string
+          preferred_times?: string | null
+          property_id?: string
+          reference?: string
+          reminder_sent_at?: string | null
+          scheduled_at?: string | null
+          status?: string
+          time_zone?: string | null
+          updated_at?: string
+          user_id?: string | null
+          video_link?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'agency_viewings_contact_id_fkey'
+            columns: ['contact_id']
+            isOneToOne: false
+            referencedRelation: 'agency_contacts'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'agency_viewings_instruction_id_fkey'
+            columns: ['instruction_id']
+            isOneToOne: false
+            referencedRelation: 'agency_instructions'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'agency_viewings_property_id_fkey'
+            columns: ['property_id']
+            isOneToOne: false
+            referencedRelation: 'properties'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'agency_viewings_property_id_fkey'
+            columns: ['property_id']
+            isOneToOne: false
+            referencedRelation: 'properties_public'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      applicant_requirements: {
+        Row: {
+          beds_min: number | null
+          budget_max_etb: number | null
+          budget_min_etb: number | null
+          contact_id: string
+          created_at: string
+          id: string
+          is_active: boolean
+          last_emailed_at: string | null
+          location_ids: string[]
+          notes: string | null
+          property_types: Database['public']['Enums']['property_type'][]
+          purpose: Database['public']['Enums']['listing_purpose']
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          beds_min?: number | null
+          budget_max_etb?: number | null
+          budget_min_etb?: number | null
+          contact_id: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          last_emailed_at?: string | null
+          location_ids?: string[]
+          notes?: string | null
+          property_types?: Database['public']['Enums']['property_type'][]
+          purpose: Database['public']['Enums']['listing_purpose']
+          updated_at?: string
+        }
+        Update: {
+          beds_min?: number | null
+          budget_max_etb?: number | null
+          budget_min_etb?: number | null
+          contact_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          last_emailed_at?: string | null
+          location_ids?: string[]
+          notes?: string | null
+          property_types?: Database['public']['Enums']['property_type'][]
+          purpose?: Database['public']['Enums']['listing_purpose']
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'applicant_requirements_contact_id_fkey'
+            columns: ['contact_id']
+            isOneToOne: false
+            referencedRelation: 'agency_contacts'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       audit_log: {
         Row: {
           action: string
@@ -312,6 +961,7 @@ export type Database = {
           match_id: string | null
           notes: string | null
           org_id: string | null
+          pillar_key: string | null
           reference: string
           source_id: string | null
           source_type: string
@@ -331,6 +981,7 @@ export type Database = {
           match_id?: string | null
           notes?: string | null
           org_id?: string | null
+          pillar_key?: string | null
           reference?: string
           source_id?: string | null
           source_type: string
@@ -349,6 +1000,7 @@ export type Database = {
           match_id?: string | null
           notes?: string | null
           org_id?: string | null
+          pillar_key?: string | null
           reference?: string
           source_id?: string | null
           source_type?: string
@@ -385,6 +1037,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: 'organisations_public'
             referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'deals_pillar_key_fkey'
+            columns: ['pillar_key']
+            isOneToOne: false
+            referencedRelation: 'pillars'
+            referencedColumns: ['key']
+          },
+          {
+            foreignKeyName: 'deals_pillar_key_fkey'
+            columns: ['pillar_key']
+            isOneToOne: false
+            referencedRelation: 'pillars_public'
+            referencedColumns: ['key']
           },
         ]
       }
@@ -3201,6 +3867,108 @@ export type Database = {
           },
         ]
       }
+      rental_applications: {
+        Row: {
+          contact_id: string | null
+          created_at: string
+          decided_at: string | null
+          document_paths: string[]
+          email: string | null
+          employment_note: string | null
+          id: string
+          income_note: string | null
+          instruction_id: string | null
+          ip_hash: string | null
+          message: string | null
+          move_in_date: string | null
+          name: string
+          occupants: number | null
+          phone: string
+          property_id: string
+          reference: string
+          referencing_notes: string | null
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          contact_id?: string | null
+          created_at?: string
+          decided_at?: string | null
+          document_paths?: string[]
+          email?: string | null
+          employment_note?: string | null
+          id?: string
+          income_note?: string | null
+          instruction_id?: string | null
+          ip_hash?: string | null
+          message?: string | null
+          move_in_date?: string | null
+          name: string
+          occupants?: number | null
+          phone: string
+          property_id: string
+          reference?: string
+          referencing_notes?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          contact_id?: string | null
+          created_at?: string
+          decided_at?: string | null
+          document_paths?: string[]
+          email?: string | null
+          employment_note?: string | null
+          id?: string
+          income_note?: string | null
+          instruction_id?: string | null
+          ip_hash?: string | null
+          message?: string | null
+          move_in_date?: string | null
+          name?: string
+          occupants?: number | null
+          phone?: string
+          property_id?: string
+          reference?: string
+          referencing_notes?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'rental_applications_contact_id_fkey'
+            columns: ['contact_id']
+            isOneToOne: false
+            referencedRelation: 'agency_contacts'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'rental_applications_instruction_id_fkey'
+            columns: ['instruction_id']
+            isOneToOne: false
+            referencedRelation: 'agency_instructions'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'rental_applications_property_id_fkey'
+            columns: ['property_id']
+            isOneToOne: false
+            referencedRelation: 'properties'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'rental_applications_property_id_fkey'
+            columns: ['property_id']
+            isOneToOne: false
+            referencedRelation: 'properties_public'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       reports: {
         Row: {
           created_at: string
@@ -3240,6 +4008,55 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      sale_progress_items: {
+        Row: {
+          created_at: string
+          done: boolean
+          done_at: string | null
+          id: string
+          instruction_id: string
+          label: string
+          offer_id: string | null
+          sort: number
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          done?: boolean
+          done_at?: string | null
+          id?: string
+          instruction_id: string
+          label: string
+          offer_id?: string | null
+          sort?: number
+        }
+        Update: {
+          created_at?: string
+          done?: boolean
+          done_at?: string | null
+          id?: string
+          instruction_id?: string
+          label?: string
+          offer_id?: string | null
+          sort?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'sale_progress_items_instruction_id_fkey'
+            columns: ['instruction_id']
+            isOneToOne: false
+            referencedRelation: 'agency_instructions'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'sale_progress_items_offer_id_fkey'
+            columns: ['offer_id']
+            isOneToOne: false
+            referencedRelation: 'agency_offers'
+            referencedColumns: ['id']
+          },
+        ]
       }
       saved_items: {
         Row: {
@@ -3696,6 +4513,144 @@ export type Database = {
           value?: NonNullable<Json>
         }
         Relationships: []
+      }
+      tenancies: {
+        Row: {
+          advance_months: number | null
+          application_id: string | null
+          created_at: string
+          currency: string
+          deposit_minor: number | null
+          end_date: string | null
+          id: string
+          instruction_id: string | null
+          landlord_contact_id: string | null
+          managed_property_id: string | null
+          notes: string | null
+          notice_date: string | null
+          notice_reminded_at: string | null
+          property_id: string | null
+          reference: string
+          renewal_date: string | null
+          renewal_reminded_at: string | null
+          rent_minor: number
+          rent_period: string
+          start_date: string
+          status: string
+          tenant_contact_id: string | null
+          tenant_names: string
+          tenant_user_id: string | null
+          title: string
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          advance_months?: number | null
+          application_id?: string | null
+          created_at?: string
+          currency?: string
+          deposit_minor?: number | null
+          end_date?: string | null
+          id?: string
+          instruction_id?: string | null
+          landlord_contact_id?: string | null
+          managed_property_id?: string | null
+          notes?: string | null
+          notice_date?: string | null
+          notice_reminded_at?: string | null
+          property_id?: string | null
+          reference?: string
+          renewal_date?: string | null
+          renewal_reminded_at?: string | null
+          rent_minor: number
+          rent_period?: string
+          start_date: string
+          status?: string
+          tenant_contact_id?: string | null
+          tenant_names: string
+          tenant_user_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          advance_months?: number | null
+          application_id?: string | null
+          created_at?: string
+          currency?: string
+          deposit_minor?: number | null
+          end_date?: string | null
+          id?: string
+          instruction_id?: string | null
+          landlord_contact_id?: string | null
+          managed_property_id?: string | null
+          notes?: string | null
+          notice_date?: string | null
+          notice_reminded_at?: string | null
+          property_id?: string | null
+          reference?: string
+          renewal_date?: string | null
+          renewal_reminded_at?: string | null
+          rent_minor?: number
+          rent_period?: string
+          start_date?: string
+          status?: string
+          tenant_contact_id?: string | null
+          tenant_names?: string
+          tenant_user_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'tenancies_application_id_fkey'
+            columns: ['application_id']
+            isOneToOne: false
+            referencedRelation: 'rental_applications'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'tenancies_instruction_id_fkey'
+            columns: ['instruction_id']
+            isOneToOne: false
+            referencedRelation: 'agency_instructions'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'tenancies_landlord_contact_id_fkey'
+            columns: ['landlord_contact_id']
+            isOneToOne: false
+            referencedRelation: 'agency_contacts'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'tenancies_managed_property_id_fkey'
+            columns: ['managed_property_id']
+            isOneToOne: false
+            referencedRelation: 'managed_properties'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'tenancies_property_id_fkey'
+            columns: ['property_id']
+            isOneToOne: false
+            referencedRelation: 'properties'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'tenancies_property_id_fkey'
+            columns: ['property_id']
+            isOneToOne: false
+            referencedRelation: 'properties_public'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'tenancies_tenant_contact_id_fkey'
+            columns: ['tenant_contact_id']
+            isOneToOne: false
+            referencedRelation: 'agency_contacts'
+            referencedColumns: ['id']
+          },
+        ]
       }
       trade_accounts: {
         Row: {
@@ -4849,6 +5804,17 @@ export type Database = {
       }
     }
     Functions: {
+      agency_requirement_matches: {
+        Args: { p_limit?: number; p_requirement: string }
+        Returns: {
+          bedrooms: number
+          id: string
+          price_etb: number
+          published_at: string
+          slug: string
+          title: string
+        }[]
+      }
       can_edit_entity: { Args: { p_entity_id: string; p_entity_type: string }; Returns: boolean }
       category_descendants: { Args: { root: string; tbl: string }; Returns: string[] }
       country_currency: { Args: { p_country: string }; Returns: string }

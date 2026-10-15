@@ -26,6 +26,7 @@ export const ADMIN_NAV = [
   { href: '/roodber8/service-requests', label: 'Service requests', icon: Wrench, badgeKey: 'requests' },
   { href: '/roodber8/request-questions', label: 'Request questions', icon: ListChecks },
   { href: '/roodber8/deals', label: 'Deals and commissions', icon: Receipt },
+  { href: '/roodber8/agency', label: 'Agency', icon: Handshake, badgeKey: 'agency' },
   { href: '/roodber8/property-care', label: 'Property Care', icon: KeyRound, badgeKey: 'care' },
   { href: '/roodber8/sales', label: 'HagerLand sales', icon: HandCoins },
   { href: '/roodber8/jobs', label: 'Jobs and applications', icon: Briefcase },
