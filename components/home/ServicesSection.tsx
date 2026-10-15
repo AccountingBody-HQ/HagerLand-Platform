@@ -1,16 +1,17 @@
 import Link from 'next/link'
-import { ArrowRight, Globe, HardHat } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import type { AllServices, ServiceTile } from '@/lib/navigation'
 import { Container } from '@/components/ui/Layout'
 import { DynamicIcon } from '@/components/ui/DynamicIcon'
 import { SoonBadge } from '@/components/verticals/SoonBadge'
+import { ButtonLink } from '@/components/ui/Button'
 
 type T = (s: string) => string
 
 function ServiceCard({ tile, t, lh }: { tile: ServiceTile; t: T; lh: (h: string) => string }) {
   return (
-    <Link href={lh(tile.href)} className="group flex h-full gap-4 rounded-xl border border-border bg-white p-4 shadow-xs transition-[border-color,box-shadow] hover:border-green/40 hover:shadow-md sm:flex-col sm:gap-0 sm:p-6">
-      <span className="flex shrink-0 items-start justify-between gap-3">
+    <Link href={lh(tile.href)} className="group flex h-full items-start gap-4 rounded-xl border border-border bg-white p-5 transition-colors hover:border-green/50 sm:flex-col sm:items-stretch sm:gap-0 sm:p-6">
+      <span className="flex shrink-0 items-center justify-between gap-3">
         <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-green-tint text-green">
           <DynamicIcon name={tile.icon} className="size-5" />
         </span>
@@ -36,7 +37,7 @@ function ServiceCard({ tile, t, lh }: { tile: ServiceTile; t: T; lh: (h: string)
  */
 export function ServicesSection({ all, t, lh, freeListing }: { all: AllServices; t: T; lh: (h: string) => string; freeListing: boolean }) {
   return (
-    <section aria-labelledby="services-title" className="bg-white py-16 sm:py-24">
+    <section aria-labelledby="services-title" className="bg-white py-14 sm:py-20">
       <Container>
         <div className="max-w-2xl">
           <h2 id="services-title" className="hl-h2">
@@ -45,7 +46,7 @@ export function ServicesSection({ all, t, lh, freeListing }: { all: AllServices;
           <p className="mt-4 text-[1.0625rem] leading-relaxed text-muted sm:text-lg">{t('Buy, rent, build, manage and maintain property in Ethiopia, supported by our own team and verified professionals.')}</p>
         </div>
 
-        <div className="mt-10 space-y-10 sm:mt-16 sm:space-y-14">
+        <div className="mt-8 space-y-10 sm:mt-10 sm:space-y-14">
           {all.groups.map((g) => (
             <div key={g.id} className="grid gap-4 sm:gap-6 lg:grid-cols-[minmax(0,15rem)_1fr] lg:gap-10">
               <div className="lg:pt-2">
@@ -64,42 +65,36 @@ export function ServicesSection({ all, t, lh, freeListing }: { all: AllServices;
         </div>
 
         {(all.diaspora || all.professionals) && (
-          <div className="mt-16 grid gap-5 sm:mt-20 lg:grid-cols-2">
+          <div className="mt-14 grid gap-4 sm:mt-20 lg:grid-cols-2">
             {all.diaspora && (
-              <div className="flex flex-col rounded-2xl bg-gold-soft p-7 sm:p-10">
-                <span className="flex size-12 items-center justify-center rounded-xl bg-white text-gold-dark shadow-xs">
-                  <Globe className="size-6" aria-hidden />
-                </span>
-                <h3 className="mt-6 font-display text-h3 font-bold text-ink lg:text-h3-lg">{t('Living abroad? We act as your hands on the ground in Ethiopia.')}</h3>
+              <div className="flex flex-col rounded-xl bg-gold-soft p-7 sm:p-10">
+                <h3 className="hl-h3 text-ink">{t('Living abroad? We act as your hands on the ground in Ethiopia.')}</h3>
                 <p className="mt-3 flex-1 text-ink/80">{t('Buy, build or look after property at home without travelling for every step. One accountable team, with photo reports and clear statements, instead of relying on friends and relatives.')}</p>
-                <div className="mt-7 flex flex-col gap-3 sm:flex-row [&>*]:sm:flex-1">
-                  <Link href={lh(all.diaspora.href)} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-ink px-5 font-semibold text-white hover:bg-ink/90">
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row [&>*]:sm:flex-1">
+                  <ButtonLink href={lh(all.diaspora.href)} size="lg">
                     {t('See how we help')}
                     {all.diaspora.soon && <SoonBadge />}
-                  </Link>
-                  <Link href={lh('/diaspora/property-care')} className="inline-flex min-h-12 items-center justify-center rounded-md bg-white px-5 font-semibold text-ink ring-1 ring-ink/15 hover:bg-white/70">
+                  </ButtonLink>
+                  <ButtonLink href={lh('/diaspora/property-care')} variant="secondary" size="lg">
                     {t('HagerLand Property Care')}
-                  </Link>
+                  </ButtonLink>
                 </div>
               </div>
             )}
             {all.professionals && (
-              <div className="hl-blueprint flex flex-col rounded-2xl bg-ink p-7 text-white sm:p-10">
-                <span className="flex size-12 items-center justify-center rounded-xl bg-white/10 text-gold">
-                  <HardHat className="size-6" aria-hidden />
-                </span>
-                <h3 className="mt-6 font-display text-h3 font-bold text-white lg:text-h3-lg">{t('Are you a professional or supplier? Reach customers across Ethiopia and abroad.')}</h3>
+              <div className="hl-blueprint flex flex-col rounded-xl bg-ink p-7 text-white sm:p-10">
+                <h3 className="hl-h3 text-white">{t('Are you a professional or supplier? Reach customers across Ethiopia and abroad.')}</h3>
                 <p className="mt-3 flex-1 text-white/80">
                   {t('Architects, engineers, contractors, estate agents, tradespeople and suppliers: show your work, get verified and receive enquiries from people ready to buy, build and renovate.')}
                   {freeListing && ` ${t('Listing is free while we launch.')}`}
                 </p>
-                <div className="mt-7 flex flex-col gap-3 sm:flex-row [&>*]:sm:flex-1">
-                  <Link href={lh('/list-with-us#professionals')} className="inline-flex min-h-12 items-center justify-center rounded-md bg-gold px-5 font-semibold text-ink hover:bg-gold/90">
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row [&>*]:sm:flex-1">
+                  <ButtonLink href={lh('/list-with-us#professionals')} variant="gold" size="lg">
                     {t('List your business')}
-                  </Link>
-                  <Link href={lh(all.professionals.href)} className="inline-flex min-h-12 items-center justify-center rounded-md px-5 font-semibold text-white ring-1 ring-white/30 hover:bg-white/10">
+                  </ButtonLink>
+                  <ButtonLink href={lh(all.professionals.href)} variant="outline-inverse" size="lg">
                     {t('Browse professionals')}
-                  </Link>
+                  </ButtonLink>
                 </div>
               </div>
             )}

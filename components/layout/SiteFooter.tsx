@@ -4,7 +4,6 @@ import { getBusinessDetails } from '@/lib/data/business'
 import { buildFooterColumns } from '@/lib/navigation'
 import { getVerticals } from '@/lib/data/verticals'
 import { getPillars } from '@/lib/data/pillars'
-import { SoonBadge } from '@/components/verticals/SoonBadge'
 import { CurrencySwitcher } from '@/components/currency/CurrencySwitcher'
 import { Wordmark } from '@/components/brand/Logo'
 import { SocialIcon, socialLabel } from '@/components/brand/SocialIcon'
@@ -26,8 +25,8 @@ export async function SiteFooter({ amharicOn = false }: { amharicOn?: boolean })
   return (
     <footer className="bg-ink text-white">
       <Container className="py-14">
-        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1fr]">
-          <div>
+        <div className="grid grid-cols-2 gap-x-6 gap-y-10 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1fr]">
+          <div className="col-span-2 lg:col-span-1">
             <Wordmark inverse />
             <p className="mt-4 max-w-xs font-display font-bold text-white">{t(brand.masterLine)}</p>
             <p className="mt-3 max-w-xs text-small leading-relaxed text-white/75">{t(brand.supportLine)}</p>
@@ -59,7 +58,7 @@ export async function SiteFooter({ amharicOn = false }: { amharicOn?: boolean })
                   <li key={l.href}>
                     <Link href={l.href} className="inline-block py-[11px] leading-snug text-white/75 hover:text-white">
                       {l.label}
-                      {l.soon && <SoonBadge className="ml-2 align-[0.1em]" />}
+                      {l.soon && <span className="ml-1.5 whitespace-nowrap text-small text-white/60">· {t('Soon')}</span>}
                     </Link>
                   </li>
                 ))}

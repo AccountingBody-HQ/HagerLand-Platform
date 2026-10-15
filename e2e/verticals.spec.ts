@@ -53,6 +53,9 @@ test.describe('pillar navigation (spec 26.4)', () => {
     await expect(services.getByRole('link', { name: /Building & Construction Supplies.*Get a quote/ })).toHaveAttribute('href', '/supplies')
     await expect(services.getByRole('link', { name: /Property Finance.*Register interest/ })).toHaveAttribute('href', '/finance#register')
     await expect(services.getByText('Coming soon').filter({ visible: true })).toHaveCount(2)
+    // Round 2b: the only "Coming soon" on the whole homepage are Finance and Insurance (no Our Developments band).
+    await expect(page.locator('main').getByText('Coming soon').filter({ visible: true })).toHaveCount(2)
+    await expect(page.getByRole('heading', { name: 'Grow with HagerLand' })).toHaveCount(0)
     await expect(services.getByRole('heading', { name: /^Living abroad\? We act as your hands on the ground/ })).toBeVisible()
     await expect(services.getByRole('heading', { name: /^Are you a professional or supplier\?/ })).toBeVisible()
     await expect(page.locator('main')).not.toContainText(/ecosystem|pillar|nucleus|Provided by HagerLand|Trusted partners/i)
