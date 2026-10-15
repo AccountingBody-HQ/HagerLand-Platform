@@ -584,6 +584,20 @@ select pg_temp.record_check('Signed-in user cannot create a building project dir
   pg_temp.write_denied($q$insert into public.build_projects (user_id, title, budget_band, timeline, services, name, phone, email) values ('00000000-0000-4000-8000-000000000002', 'RLS TEST', 'not_sure', 'later', array['design'], 'RLS', '+251911000000', 'rls@test.hagerland.invalid')$q$));
 reset role;
 
+-- ---------- Section 26: knowledge & advice (0031) ----------
+reset role;
+set role anon;
+select pg_temp.record_check('Anonymous cannot read ' || name, pg_temp.read_denied(name)) from unnest(array['area_guides', 'market_insight', 'newsletter_subscriptions']) as t(name);
+select pg_temp.record_check('Anonymous reads published area guides and minimum-sample market figures only through views',
+  (select count(*) >= 0 from public.area_guides_public) and not exists (select 1 from public.market_insight_public where sample_count < 1));
+reset role;
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000002", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000002', false);
+select pg_temp.record_check('Signed-in user cannot read newsletter_subscriptions', pg_temp.read_denied('newsletter_subscriptions'));
+reset role;
+select pg_temp.record_check('Market insight refresh is not callable by visitors',
+  not has_function_privilege('anon', 'public.refresh_market_insight()', 'EXECUTE') and not has_function_privilege('authenticated', 'public.refresh_market_insight()', 'EXECUTE'));
+
 -- ---------- Clean up ----------
 reset role;
 select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);

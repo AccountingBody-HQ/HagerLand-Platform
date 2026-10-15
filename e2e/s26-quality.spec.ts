@@ -6,8 +6,8 @@ import { adminSession, createUser, db, seedPublishedProperty, signIn } from './h
  * Section 26 pages: zero serious or critical axe problems (WCAG 2.2 AA) and no sideways scrolling at phone, tablet
  * and desktop widths. Each work package adds its new public, account and admin pages here.
  */
-export const S26_PUBLIC = ['/buy', '/rent', '/build', '/maintain', '/manage', '/advice', '/agency', '/agency/valuation', '/agency/landlords', '/agency/tenants', '/diaspora/property-care', '/build/project']
-export const S26_ADMIN = ['/roodber8/pillars', '/roodber8/agency', '/roodber8/agency/contacts', '/roodber8/agency/instructions', '/roodber8/agency/valuations', '/roodber8/agency/viewings', '/roodber8/agency/offers', '/roodber8/agency/applications', '/roodber8/agency/tenancies', '/roodber8/agency/settings', '/roodber8/projects']
+export const S26_PUBLIC = ['/buy', '/rent', '/build', '/maintain', '/manage', '/advice', '/agency', '/agency/valuation', '/agency/landlords', '/agency/tenants', '/diaspora/property-care', '/build/project', '/advice/market-insight', '/advice/checklists', '/advice/glossary']
+export const S26_ADMIN = ['/roodber8/pillars', '/roodber8/agency', '/roodber8/agency/contacts', '/roodber8/agency/instructions', '/roodber8/agency/valuations', '/roodber8/agency/viewings', '/roodber8/agency/offers', '/roodber8/agency/applications', '/roodber8/agency/tenancies', '/roodber8/agency/settings', '/roodber8/projects', '/roodber8/area-guides', '/roodber8/newsletter']
 
 async function axeProblems(page: Page, path: string): Promise<string[]> {
   await page.goto(path)

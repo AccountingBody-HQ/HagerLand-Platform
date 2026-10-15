@@ -679,6 +679,39 @@ export type Database = {
           },
         ]
       }
+      area_guides: {
+        Row: {
+          faqs: NonNullable<Json>
+          is_published: boolean
+          location_id: string
+          notes: string
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          faqs?: NonNullable<Json>
+          is_published?: boolean
+          location_id: string
+          notes?: string
+          updated_at?: string
+        }
+        Update: {
+          faqs?: NonNullable<Json>
+          is_published?: boolean
+          location_id?: string
+          notes?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'area_guides_location_id_fkey'
+            columns: ['location_id']
+            isOneToOne: true
+            referencedRelation: 'locations'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       audit_log: {
         Row: {
           action: string
@@ -2176,6 +2209,57 @@ export type Database = {
           },
         ]
       }
+      market_insight: {
+        Row: {
+          id: string
+          location_id: string | null
+          max_etb: number
+          median_etb: number
+          min_etb: number
+          p25_etb: number
+          p75_etb: number
+          property_type: string
+          purpose: Database['public']['Enums']['listing_purpose']
+          refreshed_at: string
+          sample_count: number
+        }
+        ComputedFields: never
+        Insert: {
+          id?: string
+          location_id?: string | null
+          max_etb: number
+          median_etb: number
+          min_etb: number
+          p25_etb: number
+          p75_etb: number
+          property_type: string
+          purpose: Database['public']['Enums']['listing_purpose']
+          refreshed_at?: string
+          sample_count: number
+        }
+        Update: {
+          id?: string
+          location_id?: string | null
+          max_etb?: number
+          median_etb?: number
+          min_etb?: number
+          p25_etb?: number
+          p75_etb?: number
+          property_type?: string
+          purpose?: Database['public']['Enums']['listing_purpose']
+          refreshed_at?: string
+          sample_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'market_insight_location_id_fkey'
+            columns: ['location_id']
+            isOneToOne: false
+            referencedRelation: 'locations'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       media: {
         Row: {
           alt: string | null
@@ -2231,6 +2315,49 @@ export type Database = {
           updated_at?: string
           uploaded_by?: string | null
           width?: number | null
+        }
+        Relationships: []
+      }
+      newsletter_subscriptions: {
+        Row: {
+          consent_at: string
+          consent_text: string
+          created_at: string
+          email: string
+          id: string
+          ip_hash: string | null
+          name: string | null
+          source: string | null
+          status: string
+          unsubscribe_token_hash: string
+          unsubscribed_at: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          consent_at?: string
+          consent_text: string
+          created_at?: string
+          email: string
+          id?: string
+          ip_hash?: string | null
+          name?: string | null
+          source?: string | null
+          status?: string
+          unsubscribe_token_hash: string
+          unsubscribed_at?: string | null
+        }
+        Update: {
+          consent_at?: string
+          consent_text?: string
+          created_at?: string
+          email?: string
+          id?: string
+          ip_hash?: string | null
+          name?: string | null
+          source?: string | null
+          status?: string
+          unsubscribe_token_hash?: string
+          unsubscribed_at?: string | null
         }
         Relationships: []
       }
@@ -5047,6 +5174,36 @@ export type Database = {
       }
     }
     Views: {
+      area_guides_public: {
+        Row: {
+          faqs: Json | null
+          location_id: string | null
+          notes: string | null
+          updated_at: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          faqs?: Json | null
+          location_id?: string | null
+          notes?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          faqs?: Json | null
+          location_id?: string | null
+          notes?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'area_guides_location_id_fkey'
+            columns: ['location_id']
+            isOneToOne: true
+            referencedRelation: 'locations'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       build_cost_rates_public: {
         Row: {
           finish: string | null
@@ -5291,6 +5448,33 @@ export type Database = {
           },
           {
             foreignKeyName: 'job_posts_location_id_fkey'
+            columns: ['location_id']
+            isOneToOne: false
+            referencedRelation: 'locations'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      market_insight_public: {
+        Row: {
+          location_id: string | null
+          location_level: Database['public']['Enums']['location_level'] | null
+          location_name: string | null
+          location_path: string | null
+          max_etb: number | null
+          median_etb: number | null
+          min_etb: number | null
+          p25_etb: number | null
+          p75_etb: number | null
+          property_type: string | null
+          purpose: Database['public']['Enums']['listing_purpose'] | null
+          refreshed_at: string | null
+          sample_count: number | null
+        }
+        ComputedFields: never
+        Relationships: [
+          {
+            foreignKeyName: 'market_insight_location_id_fkey'
             columns: ['location_id']
             isOneToOne: false
             referencedRelation: 'locations'
@@ -6048,6 +6232,7 @@ export type Database = {
       record_search_miss: { Args: { q: string; vertical: string }; Returns: undefined }
       refresh_all_featured: { Args: Record<PropertyKey, never>; Returns: number }
       refresh_featured: { Args: { p_entity_id: string; p_entity_type: string }; Returns: undefined }
+      refresh_market_insight: { Args: Record<PropertyKey, never>; Returns: number }
       search_all: { Args: { p_limit?: number; p_q: string }; Returns: Json }
       search_developments: {
         Args: {

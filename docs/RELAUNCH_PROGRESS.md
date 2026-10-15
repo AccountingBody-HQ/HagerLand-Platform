@@ -69,7 +69,7 @@ Authorised by AB on 15 Oct 2026 (brief: `docs/BRIEF_SECTION_26.md`, appended to 
 | S4 | Rent & let lifecycle + tenancies | done | 2026-10-15 | see git log | Built together with S3 (one migration, one commit). Landlord services and tenants pages; tenancies with renewal/notice reminders in the daily job; repairs from managed tenancies go to Repair & Maintain. The general tenant guide is a draft for AB (S7) |
 | S5 | Manage pillar + owner portal | done | 2026-10-15 | see git log | Migration 0029. RLS 175/175 local. owner-portal spec passed. Also 26.8 (no separate package): admin can assign a request to “HagerLand Services” and send HagerLand’s quote; the customer flow is unchanged |
 | S6 | Build & develop project flow | done | 2026-10-15 | see git log | Migration 0030. RLS 178/178 local. build-project spec passed. Starting a project needs an account (it runs for months and is followed in one place); finance becomes interest while Finance is coming soon |
-| S7 | Knowledge & advice hub, area guides, market insight | todo | | | |
+| S7 | Knowledge & advice hub, area guides, market insight | done | 2026-10-15 | see git log | Migration 0031. RLS 185/185 local. advice spec + unit tests passed. Six starter drafts (tenant guide, 4 checklists, glossary) wait for AB's review; their pages are honest and noindex until published |
 | S8 | Provider multi-pillar onboarding + verified reviews | todo | | | |
 | S9 | Demand intelligence + pillar KPIs | todo | | | |
 | S10 | Staff accounts and roles | todo | | | |

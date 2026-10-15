@@ -1,0 +1,2 @@
+-- expect: 3|6|0031
+select (select count(*) from pg_tables where schemaname = 'public' and tablename in ('area_guides', 'market_insight', 'newsletter_subscriptions')), (select count(*) from public.guides where slug in ('renting-a-home-a-guide-for-tenants', 'buying-checklist', 'renting-checklist', 'building-checklist', 'selling-checklist', 'property-glossary') and status = 'draft' and needs_review), (select version from public.schema_migrations where version = '0031');

@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import {
-  BadgePercent, BarChart3, MailWarning, BookOpen, Calculator, Briefcase, Building2, LayoutGrid, Handshake, UserPlus, Coins, Wrench, ListChecks, Receipt, KeyRound, ClipboardCheck, ClipboardList, FileClock, FolderTree, Gauge, Import, Inbox, MapPin, Megaphone, Menu, Package, Settings, Store, Users, X, HandCoins, House, Layers, HardHat,
+  BadgePercent, BarChart3, MailWarning, BookOpen, Calculator, Briefcase, Building2, LayoutGrid, Handshake, UserPlus, Coins, Wrench, ListChecks, Receipt, KeyRound, ClipboardCheck, ClipboardList, FileClock, FolderTree, Gauge, Import, Inbox, MapPin, Megaphone, Menu, Package, Settings, Store, Users, X, HandCoins, House, Layers, HardHat, Mail,
 } from 'lucide-react'
 import { cn } from '@/lib/cn'
 
@@ -35,6 +35,8 @@ export const ADMIN_NAV = [
   { href: '/roodber8/partners', label: 'Partner applications', icon: Handshake },
   { href: '/roodber8/users', label: 'Users', icon: Users },
   { href: '/roodber8/guides', label: 'Guides', icon: BookOpen },
+  { href: '/roodber8/area-guides', label: 'Area guides', icon: MapPin },
+  { href: '/roodber8/newsletter', label: 'Newsletter', icon: Mail },
   { href: '/roodber8/build-costs', label: 'Build-cost rates', icon: Calculator },
   { href: '/roodber8/promotions', label: 'Promotions', icon: Megaphone },
   { href: '/roodber8/import', label: 'Imports', icon: Import },

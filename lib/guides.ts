@@ -8,6 +8,11 @@ export const GUIDE_TOPICS = [
   { value: 'supplies', label: 'Materials and supplies' },
   { value: 'diaspora', label: 'Ethiopians abroad' },
   { value: 'services', label: 'Services and maintenance' },
+  { value: 'buying', label: 'Buying' },
+  { value: 'renting', label: 'Renting' },
+  { value: 'selling', label: 'Selling' },
+  { value: 'checklists', label: 'Process checklists' },
+  { value: 'glossary', label: 'Glossary' },
 ] as const
 export type GuideTopic = (typeof GUIDE_TOPICS)[number]['value']
 

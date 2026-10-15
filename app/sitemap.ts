@@ -8,6 +8,7 @@ import { listTag } from '@/lib/revalidate'
 import { getVerticals } from '@/lib/data/verticals'
 import { getAgencyAvailability, getPillars } from '@/lib/data/pillars'
 import { pillarHref } from '@/lib/pillars'
+import { getMarketInsight } from '@/lib/data/advice'
 import { jobSitemapEntries } from '@/lib/data/jobs'
 import { listGuides } from '@/lib/data/guides'
 import { getBuildRates, getSiteSettings } from '@/lib/data/reference'
@@ -61,8 +62,12 @@ async function build(id: SitemapId): Promise<MetadataRoute.Sitemap> {
       // Pillar hubs follow pillar visibility: only live pillars are listed; coming-soon hubs are noindex (spec 26.16).
       const [pillars, agency] = await Promise.all([getPillars(), getAgencyAvailability()])
       const livePillars = pillars.filter((p) => p.status === 'live').map(pillarHref)
+      // Advice pages are listed only once they have content (otherwise they are noindex, spec 26.10).
+      const adviceLive = livePillars.includes('/advice')
+      const [insight, checklists, glossary] = adviceLive ? await Promise.all([getMarketInsight(), listGuides({ topic: 'checklists', limit: 1 }), listGuides({ topic: 'glossary', limit: 1 })]) : [[], [], []]
+      const advicePaths = [...(insight.length ? ['/advice/market-insight'] : []), ...(checklists.length ? ['/advice/checklists'] : []), ...(glossary.length ? ['/advice/glossary'] : [])]
       const hiddenAgency = new Set([...(agency.sales ? [] : AGENCY_SALES_PATHS), ...(agency.lettings ? [] : AGENCY_LETTINGS_PATHS), ...(agency.any ? [] : ['/agency'])])
-      const paths = Array.from(new Set([...STATIC_PATHS, ...livePillars, ...verticals.filter((v) => v.status === 'live').map(verticalHref)]))
+      const paths = Array.from(new Set([...STATIC_PATHS, ...livePillars, ...advicePaths, ...verticals.filter((v) => v.status === 'live').map(verticalHref)]))
         .filter(isListed)
         .filter((p) => !hiddenAgency.has(p))
       // Amharic versions of the main pages, only while the Amharic locale is switched on (spec 25.2m).

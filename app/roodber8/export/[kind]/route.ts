@@ -141,6 +141,11 @@ export async function GET(request: NextRequest, props: { params: Promise<{ kind:
       rows = r.signups.map((s, i) => ({ week_starting: s.week, signups: s.count, enquiries: r.enquiries[i]?.count ?? 0 }))
       break
     }
+    case 'newsletter': {
+      const { data } = await db.from('newsletter_subscriptions').select('email, name, consent_at, consent_text, source').eq('status', 'subscribed').order('created_at').limit(50000)
+      rows = data ?? []
+      break
+    }
     case 'agency-instructions': {
       const { data } = await db.from('agency_instructions').select('reference, created_at, stage, purpose, title, address_line, fee_type, fee_percent, fee_amount_etb, agency_type, term_start, term_end, asking_price_etb, final_price_etb, assigned_agent, source, live_at, completed_at').order('created_at', { ascending: false }).limit(20000)
       rows = data ?? []

@@ -382,6 +382,15 @@ select (select count(*) from pg_tables where schemaname = 'public' and tablename
 ```
 **You should see:** `1 | 2 | 0030`. The security test shows 178 `PASS` rows.
 
+## 0031_advice.sql (Section 26, S7)
+**What it does:** adds area guides (your notes and FAQs for a place), market insight (median and middle-range asking prices of live listings by place and type, rebuilt every day; shown only where at least 5 listings exist, a number you can change in Settings) and newsletter sign-ups with their consent records. It widens the guide topics and adds six unpublished starter drafts marked "Needs AB review": a tenants' guide, checklists for buying, renting, building and selling, and a glossary. Nothing is published until you review it.
+
+**Check:**
+```sql
+select (select count(*) from pg_tables where schemaname = 'public' and tablename in ('area_guides', 'market_insight', 'newsletter_subscriptions')), (select count(*) from guides where slug in ('renting-a-home-a-guide-for-tenants', 'buying-checklist', 'renting-checklist', 'building-checklist', 'selling-checklist', 'property-glossary') and status = 'draft' and needs_review), (select version from schema_migrations where version = '0031');
+```
+**You should see:** `3 | 6 | 0031`. The security test shows 185 `PASS` rows.
+
 ---
 
 ## Security test (run after all migrations)
@@ -390,7 +399,7 @@ statements: that is the test cleaning up after itself; click **Run this query**.
 It temporarily creates two test users and a test listing, tries things that should and should not be
 allowed, then deletes everything it created.
 
-**You should see:** every row starting with `PASS` (38 rows after migration 0011, 42 after 0013, 57 after 0014, 67 after 0016, 74 after 0017, 96 after 0019, 106 after 0020, 125 after 0022, 133 after 0024, 143 after 0027, 169 after 0028, 175 after 0029, 178 after 0030; each later migration adds its own checks and its section below says the new total).
+**You should see:** every row starting with `PASS` (38 rows after migration 0011, 42 after 0013, 57 after 0014, 67 after 0016, 74 after 0017, 96 after 0019, 106 after 0020, 125 after 0022, 133 after 0024, 143 after 0027, 169 after 0028, 175 after 0029, 178 after 0030, 185 after 0031; each later migration adds its own checks and its section below says the new total).
 
 ## TypeScript types
 `lib/database.types.ts` was generated from these exact migrations. After all migrations are applied,

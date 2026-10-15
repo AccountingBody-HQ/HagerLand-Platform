@@ -16,6 +16,10 @@ import { SortSelect } from './SortSelect'
 import { SaveSearchButton } from '@/components/saved/SaveSearchButton'
 import { getUser } from '@/lib/auth'
 import { getMapConfig } from '@/lib/map-config'
+import { getAreaGuide, getMarketInsight } from '@/lib/data/advice'
+import { InsightTable } from '@/components/advice/InsightTable'
+import { JsonLd } from '@/components/seo/JsonLd'
+import { faqJsonLd } from '@/lib/seo'
 
 export async function PropertyResults({ ctx }: { ctx: ResultsContext }) {
   const root = `/property/${ctx.purpose === 'sale' ? 'for-sale' : 'to-rent'}`
@@ -24,6 +28,9 @@ export async function PropertyResults({ ctx }: { ctx: ResultsContext }) {
     ctx.filters.page === 1 ? searchProperties({ purpose: ctx.purpose, locationId: ctx.location?.id, filters: { ...ctx.filters, page: 1 }, featuredOnly: true, pageSize: 2 }) : Promise.resolve({ total: 0, items: [] }),
     getSummary(ctx),
   ])
+  // Area guide (spec 26.10): live asking-price figures for this place once enough listings exist, plus AB's notes.
+  const showArea = Boolean(ctx.location) && !ctx.typeSegment && ctx.filters.page === 1
+  const [areaRows, areaGuide] = showArea && ctx.location ? await Promise.all([getMarketInsight({ purpose: ctx.purpose, locationId: ctx.location.id }), getAreaGuide(ctx.location.id)]) : [[], null]
   const user = await getUser()
   const totalPages = Math.ceil(result.total / PROPERTY_PAGE_SIZE)
   // On a type page the type lives in the path: removing its chip goes back to the location page.
@@ -157,6 +164,33 @@ export async function PropertyResults({ ctx }: { ctx: ResultsContext }) {
           <Pagination className="mt-10" page={ctx.filters.page} totalPages={totalPages} hrefFor={(page) => `${ctx.basePath}${toQuery(lf, { page })}`} />
         </div>
       </div>
+      {ctx.location && (areaRows.length > 0 || areaGuide) && (
+        <section aria-labelledby="area-guide" className="mt-14 border-t border-border pt-10">
+          <h2 id="area-guide" className="hl-h2">
+            About {ctx.location.name}
+          </h2>
+          {areaGuide?.notes && <p className="mt-3 max-w-3xl whitespace-pre-line text-ink">{areaGuide.notes}</p>}
+          {areaRows.length > 0 && (
+            <div className="mt-6">
+              <InsightTable rows={areaRows.slice().sort((a, b) => (a.property_type === 'all' ? -1 : b.property_type === 'all' ? 1 : b.sample_count - a.sample_count))} caption={`${ctx.purpose === 'sale' ? 'For sale' : 'To rent'} in ${ctx.location.name}`} showPlace={false} />
+            </div>
+          )}
+          {areaGuide && areaGuide.faqs.length > 0 && (
+            <div className="mt-6 max-w-3xl">
+              <h3 className="hl-h3">Questions about {ctx.location.name}</h3>
+              <dl className="mt-3 space-y-4">
+                {areaGuide.faqs.map((f) => (
+                  <div key={f.question}>
+                    <dt className="font-semibold text-ink">{f.question}</dt>
+                    <dd className="mt-1 text-muted">{f.answer}</dd>
+                  </div>
+                ))}
+              </dl>
+              <JsonLd data={faqJsonLd(areaGuide.faqs)} />
+            </div>
+          )}
+        </section>
+      )}
     </Container>
   )
 }

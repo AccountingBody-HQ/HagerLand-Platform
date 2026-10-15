@@ -318,6 +318,8 @@ export async function runDaily(now = Date.now()): Promise<DailySummary> {
   const jobsExpired = await step('expire jobs', () => expireJobs(now), 0)
   const cvsPurged = await step('cv purge', () => purgeApplicationCvs(now), 0)
   const interestPurged = await step('interest purge', () => purgeInterest(now), 0)
+  // Market insight (spec 26.10): asking-price figures rebuilt from live listings once a day.
+  await step('market insight', async () => void (await getAdminSupabase().rpc('refresh_market_insight')), undefined)
   const viewingReminders = await step('viewing reminders', () => remindViewings(now), 0)
   const tenancyReminders = await step('tenancy reminders', () => remindTenancies(now), 0)
   const emailsRetried = await step('email retries', async () => (await retryOutbox(now)).sent, 0)
