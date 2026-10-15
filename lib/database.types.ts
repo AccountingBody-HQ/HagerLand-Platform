@@ -2050,6 +2050,45 @@ export type Database = {
           },
         ]
       }
+      managed_property_documents: {
+        Row: {
+          created_at: string
+          id: string
+          label: string
+          managed_property_id: string
+          storage_path: string
+          uploaded_by: string
+          visible_to_owner: boolean
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          id?: string
+          label: string
+          managed_property_id: string
+          storage_path: string
+          uploaded_by?: string
+          visible_to_owner?: boolean
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label?: string
+          managed_property_id?: string
+          storage_path?: string
+          uploaded_by?: string
+          visible_to_owner?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'managed_property_documents_managed_property_id_fkey'
+            columns: ['managed_property_id']
+            isOneToOne: false
+            referencedRelation: 'managed_properties'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       media: {
         Row: {
           alt: string | null
@@ -2570,6 +2609,48 @@ export type Database = {
             columns: ['location_id']
             isOneToOne: false
             referencedRelation: 'locations'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      owner_messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          managed_property_id: string
+          read_by_owner_at: string | null
+          read_by_staff_at: string | null
+          sender: string
+          sender_name: string
+        }
+        ComputedFields: never
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          managed_property_id: string
+          read_by_owner_at?: string | null
+          read_by_staff_at?: string | null
+          sender: string
+          sender_name: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          managed_property_id?: string
+          read_by_owner_at?: string | null
+          read_by_staff_at?: string | null
+          sender?: string
+          sender_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'owner_messages_managed_property_id_fkey'
+            columns: ['managed_property_id']
+            isOneToOne: false
+            referencedRelation: 'managed_properties'
             referencedColumns: ['id']
           },
         ]

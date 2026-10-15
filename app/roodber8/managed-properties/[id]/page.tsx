@@ -13,6 +13,8 @@ import { ManagedPropertyFields } from '@/components/admin/ManagedPropertyFields'
 import { InspectionPhotos } from '@/components/admin/CareTools'
 import { AuditTrail } from '@/components/admin/AuditTrail'
 import { Field, Input, Select, Textarea } from '@/components/ui/Field'
+import { linkOwnerAccountAction, replyToOwnerAction } from '@/app/roodber8/actions/owner-portal'
+import { ManagedDocumentUpload } from '@/components/admin/OwnerPortalTools'
 
 export const metadata = { title: 'Managed property' }
 
@@ -32,6 +34,12 @@ export default async function ManagedPropertyPage(props: { params: Promise<{ id:
     db.from('audit_log').select('id, action, created_at, diff').eq('entity_id', p.id).order('created_at', { ascending: false }).limit(50),
     getLocations(),
   ])
+  const [{ data: docRows }, { data: messages }] = await Promise.all([
+    db.from('managed_property_documents').select('id, label, storage_path, visible_to_owner').eq('managed_property_id', p.id).order('created_at', { ascending: false }),
+    db.from('owner_messages').select('id, sender, sender_name, body, created_at').eq('managed_property_id', p.id).order('created_at').limit(200),
+  ])
+  const docs = await Promise.all((docRows ?? []).map(async (d) => ({ ...d, url: await signedDocumentUrl(d.storage_path, d.label) })))
+  const ownerEmail = p.owner_user_id ? ((await db.auth.admin.getUserById(p.owner_user_id)).data.user?.email ?? null) : null
   const photos = await Promise.all((inspections ?? []).map(async (i) => Promise.all(i.photo_paths.map((path) => signedDocumentUrl(path)))))
   const today = new Date().toISOString().slice(0, 10)
   const locations = locs.filter((l) => l.country_code === 'ET').map((l) => ({ id: l.id, label: l.display_name })).sort((a, b) => a.label.localeCompare(b.label))
@@ -167,6 +175,44 @@ export default async function ManagedPropertyPage(props: { params: Promise<{ id:
           </Panel>
         </div>
         <div className="space-y-5">
+          <Panel title="Owner portal">
+            {ownerEmail ? <p className="mb-3 text-small">Linked account: <strong>{ownerEmail}</strong></p> : <p className="mb-3 text-small text-muted">No account linked: the owner portal does not show this property to anyone.</p>}
+            <ActionForm action={linkOwnerAccountAction.bind(null, p.id)} submitLabel={ownerEmail ? 'Change' : 'Link account'} className="grid gap-3" resetOnSuccess={false}>
+              <Field label="Owner's account email" htmlFor="op-email" hint="Leave empty and save to unlink.">
+                <Input id="op-email" name="email" type="email" defaultValue={ownerEmail ?? p.owner_email ?? ''} />
+              </Field>
+            </ActionForm>
+            <h3 className="mb-2 mt-5 text-small font-semibold">Documents</h3>
+            <ul className="mb-3 space-y-1 text-small">
+              {docs.map((d) => (
+                <li key={d.id}>
+                  {d.url ? <a href={d.url} className="text-green underline">{d.label}</a> : d.label} <span className="text-caption text-muted">· {d.visible_to_owner ? 'shared with the owner' : 'staff only'}</span>
+                </li>
+              ))}
+              {docs.length === 0 && <li className="text-muted">None yet.</li>}
+            </ul>
+            <ManagedDocumentUpload id={p.id} />
+            <h3 className="mb-2 mt-5 text-small font-semibold">Messages</h3>
+            <ol className="mb-3 max-h-80 space-y-2 overflow-y-auto">
+              {(messages ?? []).map((m) => (
+                <li key={m.id} className={`rounded-md p-2 text-small ${m.sender === 'owner' ? 'bg-stone-100' : 'bg-green-tint'}`}>
+                  <span className="block text-caption text-muted">
+                    {m.sender === 'owner' ? `Owner · ${m.sender_name}` : `HagerLand · ${m.sender_name}`} · {formatDate(m.created_at)}
+                  </span>
+                  <span className="whitespace-pre-line">{m.body}</span>
+                </li>
+              ))}
+              {(messages ?? []).length === 0 && <li className="text-small text-muted">No messages.</li>}
+            </ol>
+            <ActionForm action={replyToOwnerAction.bind(null, p.id)} submitLabel="Send reply" className="grid gap-3">
+              <Field label="Your name (shown to the owner)" htmlFor="op-name">
+                <Input id="op-name" name="sender_name" maxLength={120} />
+              </Field>
+              <Field label="Reply" htmlFor="op-body">
+                <Textarea id="op-body" name="body" rows={3} maxLength={4000} />
+              </Field>
+            </ActionForm>
+          </Panel>
           <Panel title="Details">
             <ActionForm action={saveManagedPropertyAction} submitLabel="Save" resetOnSuccess={false} className="grid gap-3">
               <ManagedPropertyFields

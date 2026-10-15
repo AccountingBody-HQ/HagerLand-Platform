@@ -1,3 +1,5 @@
+import { getBusinessDetails } from '@/lib/data/business'
+import { LicenceNote } from '@/components/content/LicenceNote'
 import { CalendarCheck, Camera, Eye, FileText, Handshake, ShieldCheck, UserCheck } from 'lucide-react'
 import { buildMetadata, faqJsonLd } from '@/lib/seo'
 import { brand } from '@/lib/brand'
@@ -41,7 +43,7 @@ const FAQ = [
 
 /** HagerLand Property Care (spec 24.6, PLATFORM_VISION §9). */
 export default async function PropertyCarePage() {
-  const settings = await getSiteSettings()
+  const [settings, business] = await Promise.all([getSiteSettings(), getBusinessDetails()])
   const pricing = typeof settings.property_care_pricing === 'string' ? settings.property_care_pricing.trim() : ''
   return (
     <>
@@ -109,6 +111,7 @@ export default async function PropertyCarePage() {
             <p className="mt-2 whitespace-pre-line">{pricing}</p>
           </div>
         )}
+        <LicenceNote kind="property_management" licence={business.licences.property_management} className="mt-6" />
       </Section>
 
       <Section tone="stone" id="consultation">

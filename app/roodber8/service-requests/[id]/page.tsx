@@ -13,6 +13,14 @@ import { AdminHeader, KeyValue, Panel, StatusBadge, filterInput } from '@/compon
 import { AuditTrail } from '@/components/admin/AuditTrail'
 import { MatchBoard, MatchCommercialTool, NoProviderTool, RequestNotesTool, RequestStatusTool, WithdrawMatchTool, type Suggestion } from '@/components/admin/ServiceRequestTools'
 import { Badge } from '@/components/ui/Badge'
+import { RunButton } from '@/components/admin/AgencyTools'
+import { ActionForm } from '@/components/forms/ActionForm'
+import { Field, Input, Select } from '@/components/ui/Field'
+import { assignHagerlandTeamAction, hagerlandQuoteAction } from '@/app/roodber8/actions/service-requests'
+import { getPillar } from '@/lib/data/pillars'
+import { VERTICAL_PILLAR } from '@/lib/pillars'
+import { CURRENCIES } from '@/lib/countries'
+import type { VerticalKey } from '@/lib/verticals'
 
 export const metadata = { title: 'Service request' }
 
@@ -43,6 +51,10 @@ export default async function ServiceRequestDetail(
   const orgIds = (matches ?? []).map((m) => m.org_id)
   const { data: orgs } = orgIds.length ? await db.from('organisations').select('id, name').in('id', orgIds) : { data: [] }
   const orgName = new Map((orgs ?? []).map((o) => [o.id, o.name]))
+  // Direct mode (spec 26.8): HagerLand's own team can take the request when the pillar's Direct mode is on.
+  const { data: team } = await db.from('organisations').select('id').eq('slug', 'hagerland-services').maybeSingle()
+  const pillarKey = VERTICAL_PILLAR[r.vertical_key as VerticalKey]
+  const directOn = Boolean(pillarKey && (await getPillar(pillarKey))?.direct)
   const active = (matches ?? []).filter((m) => !['declined', 'withdrawn'].includes(m.status))
   const slots = Math.max(0, MAX_MATCHES - active.length)
   const open = ['submitted', 'triaged', 'matched', 'quoted'].includes(r.status)
@@ -135,6 +147,31 @@ export default async function ServiceRequestDetail(
                         {m.quote_valid_until ? ` · valid until ${formatDate(m.quote_valid_until)}` : ''}
                       </p>
                     )}
+                    {team && m.org_id === team.id && ['accepted', 'quoted'].includes(m.status) && (
+                      <div className="mt-3 border-t border-border pt-3">
+                        <p className="mb-2 text-small font-semibold">HagerLand’s quote</p>
+                        <ActionForm action={hagerlandQuoteAction.bind(null, m.id)} submitLabel="Send HagerLand’s quote" resetOnSuccess={false}>
+                          <Field label="Amount" htmlFor={`hq-a-${m.id}`}>
+                            <Input id={`hq-a-${m.id}`} name="amount" inputMode="decimal" defaultValue={m.quote_amount_minor !== null ? m.quote_amount_minor / 100 : ''} />
+                          </Field>
+                          <Field label="Currency" htmlFor={`hq-c-${m.id}`}>
+                            <Select id={`hq-c-${m.id}`} name="currency" defaultValue={m.quote_currency ?? r.currency}>
+                              {CURRENCIES.map((c) => (
+                                <option key={c} value={c}>
+                                  {c}
+                                </option>
+                              ))}
+                            </Select>
+                          </Field>
+                          <Field label="Valid until" htmlFor={`hq-v-${m.id}`} optional>
+                            <Input id={`hq-v-${m.id}`} name="valid_until" type="date" defaultValue={m.quote_valid_until ?? ''} />
+                          </Field>
+                          <Field label="Message to the customer" htmlFor={`hq-m-${m.id}`} optional>
+                            <Input id={`hq-m-${m.id}`} name="message" defaultValue={m.quote_message ?? ''} maxLength={2000} />
+                          </Field>
+                        </ActionForm>
+                      </div>
+                    )}
                     <div className="mt-3 border-t border-border pt-3">
                       <MatchCommercialTool
                         matchId={m.id}
@@ -150,6 +187,12 @@ export default async function ServiceRequestDetail(
               </ul>
             )}
           </Panel>
+          {open && slots > 0 && directOn && team && !orgIds.includes(team.id) && (
+            <Panel title="Provided by HagerLand">
+              <p className="mb-3 text-small text-muted">HagerLand delivers this service directly. Assign it to HagerLand’s own team as well as, or instead of, the providers below.</p>
+              <RunButton label="Assign HagerLand’s own team" fn={assignHagerlandTeamAction.bind(null, r.id)} variant="primary" />
+            </Panel>
+          )}
           {open && slots > 0 && (
             <Panel title="Send to providers">
               <form method="get" className="mb-4 flex flex-wrap items-end gap-2">

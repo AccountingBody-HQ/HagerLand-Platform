@@ -1,10 +1,15 @@
 'use server'
 
+import { VERTICAL_PILLAR } from '@/lib/pillars'
+import type { VerticalKey } from '@/lib/verticals'
+import { getPillar } from '@/lib/data/pillars'
+import { notifyCustomerOfQuote } from '@/lib/service-requests/notify'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { assertAdmin, audit, changedFields } from '@/lib/admin/guard'
-import { fail, ok, type ActionResult } from '@/lib/action-result'
+import { fail, invalid, ok, type ActionResult } from '@/lib/action-result'
+import { CURRENCIES } from '@/lib/countries'
 import { MAX_MATCHES, URGENCY_LABEL } from '@/lib/service-requests/labels'
 import { validateQuestionJson } from '@/lib/service-requests/questions'
 import { orgManagerEmails } from '@/lib/enquiries'
@@ -173,4 +178,61 @@ export async function saveRequestSettingsAction(categoryId: string, input: { que
   revalidateReference()
   revalidatePath('/roodber8/request-questions')
   return ok({ message: `Saved ${q.questions.length} question${q.questions.length === 1 ? '' : 's'}.` })
+}
+
+/**
+ * Repair & Maintain Direct mode (spec 26.8): assign a request to HagerLand's own team ("HagerLand Services") as well
+ * as, or instead of, third-party providers. HagerLand accepts it straight away; the customer sees the same flow.
+ */
+export async function assignHagerlandTeamAction(id: string): Promise<Msg> {
+  await assertAdmin()
+  if (!z.uuid().safeParse(id).success) return fail('Not found.')
+  const db = getAdminSupabase()
+  const { data: r } = await db.from('service_requests').select('id, reference, status, vertical_key').eq('id', id).maybeSingle()
+  if (!r) return fail('Not found.')
+  if (['won', 'lost', 'cancelled'].includes(r.status)) return fail('This request is closed.')
+  const pillar = VERTICAL_PILLAR[r.vertical_key as VerticalKey]
+  if (!pillar || !(await getPillar(pillar))?.direct) return fail('HagerLand does not provide this service directly. Switch Direct on in Pillars and modes first.')
+  const { data: team } = await db.from('organisations').select('id').eq('slug', 'hagerland-services').maybeSingle()
+  if (!team) return fail('The HagerLand Services organisation is missing (migration 0029).')
+  const { data: existing } = await db.from('service_request_matches').select('org_id, status').eq('request_id', id)
+  if ((existing ?? []).some((m) => m.org_id === team.id)) return fail('HagerLand’s team already has this request.')
+  if ((existing ?? []).filter((m) => !['declined', 'withdrawn'].includes(m.status)).length >= MAX_MATCHES) return fail(`A request can go to at most ${MAX_MATCHES} providers at a time.`)
+  const { error } = await db.from('service_request_matches').insert({ request_id: id, org_id: team.id, status: 'accepted', responded_at: new Date().toISOString() })
+  if (error) return fail('Could not assign the request.')
+  await db.from('service_requests').update({ status: 'matched', matched_at: new Date().toISOString() }).eq('id', id).in('status', ['submitted', 'triaged'])
+  await audit('service_request.assign_hagerland', { type: 'service_request', id, label: r.reference })
+  refresh(id)
+  return ok({ message: 'Assigned to HagerLand’s own team. Add HagerLand’s quote below when it is ready.' })
+}
+
+const hagerlandQuoteSchema = z.object({
+  amount: z.coerce.number({ error: 'Enter the amount' }).positive('Enter the amount').max(1_000_000_000),
+  currency: z.enum(CURRENCIES),
+  message: z.preprocess((v) => (v === '' ? undefined : v), z.string().trim().max(2000).optional()),
+  valid_until: z.preprocess((v) => (v === '' ? undefined : v), z.iso.date().optional()),
+})
+
+/** HagerLand's own quote on a request assigned to its team (spec 26.8). The customer is emailed like any quote. */
+export async function hagerlandQuoteAction(matchId: string, _prev: Msg | null, formData: FormData): Promise<Msg> {
+  await assertAdmin()
+  if (!z.uuid().safeParse(matchId).success) return fail('Not found.')
+  const p = hagerlandQuoteSchema.safeParse(Object.fromEntries(formData))
+  if (!p.success) return invalid(p.error)
+  const d = p.data
+  const db = getAdminSupabase()
+  const { data: team } = await db.from('organisations').select('id').eq('slug', 'hagerland-services').maybeSingle()
+  const { data: m } = await db
+    .from('service_request_matches')
+    .update({ status: 'quoted', quote_amount_minor: Math.round(d.amount * 100), quote_currency: d.currency, quote_message: d.message ?? null, quote_valid_until: d.valid_until ?? null, quoted_at: new Date().toISOString() })
+    .eq('id', matchId)
+    .eq('org_id', team?.id ?? '')
+    .in('status', ['accepted', 'quoted'])
+    .select('id, request_id, org_id')
+    .maybeSingle()
+  if (!m) return fail('This match is not HagerLand’s, or is closed.')
+  await notifyCustomerOfQuote(m, d.amount, d.currency)
+  await audit('service_request.hagerland_quote', { type: 'service_request', id: m.request_id }, { amount: d.amount, currency: d.currency })
+  refresh(m.request_id)
+  return ok({ message: 'Quote sent to the customer.' })
 }

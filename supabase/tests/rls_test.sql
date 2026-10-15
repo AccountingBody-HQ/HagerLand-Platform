@@ -560,6 +560,18 @@ reset role;
 select pg_temp.record_check('Agency matching is not callable by visitors',
   not has_function_privilege('anon', 'public.agency_requirement_matches(uuid, integer)', 'EXECUTE') and not has_function_privilege('authenticated', 'public.agency_requirement_matches(uuid, integer)', 'EXECUTE'));
 
+-- ---------- Section 26: owner portal (0029) ----------
+reset role;
+set role anon;
+select pg_temp.record_check('Anonymous cannot read ' || name, pg_temp.read_denied(name)) from unnest(array['managed_property_documents', 'owner_messages']) as t(name);
+reset role;
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000002", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000002', false);
+select pg_temp.record_check('Signed-in user cannot read ' || name, pg_temp.read_denied(name)) from unnest(array['managed_property_documents', 'owner_messages', 'managed_properties']) as t(name);
+reset role;
+select pg_temp.record_check('HagerLand Services is a labelled HagerLand organisation offering repair services',
+  exists (select 1 from public.organisations o where o.slug = 'hagerland-services' and o.is_hagerland and o.status = 'published' and exists (select 1 from public.organisation_services s where s.org_id = o.id)));
+
 -- ---------- Clean up ----------
 reset role;
 select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);

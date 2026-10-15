@@ -6,7 +6,7 @@ import { adminSession, createUser, db, seedPublishedProperty, signIn } from './h
  * Section 26 pages: zero serious or critical axe problems (WCAG 2.2 AA) and no sideways scrolling at phone, tablet
  * and desktop widths. Each work package adds its new public, account and admin pages here.
  */
-export const S26_PUBLIC = ['/buy', '/rent', '/build', '/maintain', '/manage', '/advice', '/agency', '/agency/valuation', '/agency/landlords', '/agency/tenants']
+export const S26_PUBLIC = ['/buy', '/rent', '/build', '/maintain', '/manage', '/advice', '/agency', '/agency/valuation', '/agency/landlords', '/agency/tenants', '/diaspora/property-care']
 export const S26_ADMIN = ['/roodber8/pillars', '/roodber8/agency', '/roodber8/agency/contacts', '/roodber8/agency/instructions', '/roodber8/agency/valuations', '/roodber8/agency/viewings', '/roodber8/agency/offers', '/roodber8/agency/applications', '/roodber8/agency/tenancies', '/roodber8/agency/settings']
 
 async function axeProblems(page: Page, path: string): Promise<string[]> {
@@ -63,5 +63,10 @@ test('Section 26 listing, account and record pages: accessibility', async ({ pag
   for (const p of [`/roodber8/agency/instructions/${ins!.id}`, `/roodber8/agency/contacts/${c!.id}`]) all.push(...(await axeProblems(page, p)))
   await signIn(page, user.email, user.password)
   all.push(...(await axeProblems(page, '/account/agency')))
+  all.push(...(await axeProblems(page, '/owner')))
+  const { data: mp } = await db().from('managed_properties').insert({ owner_name: 'A11y owner', title: 'E2E a11y managed', status: 'active', owner_user_id: user.id }).select('id').single()
+  all.push(...(await axeProblems(page, `/owner/${mp!.id}`)))
+  await adminSession(page)
+  all.push(...(await axeProblems(page, `/roodber8/managed-properties/${mp!.id}`)))
   expect(all).toEqual([])
 })

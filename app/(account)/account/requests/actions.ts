@@ -9,12 +9,11 @@ import { fail, invalid, ok, type ActionResult } from '@/lib/action-result'
 import { optionalText } from '@/lib/validation/common'
 import { CURRENCIES } from '@/lib/countries'
 import { GUEST_LINK_DAYS } from '@/lib/service-requests/labels'
-import { newRequestToken } from '@/lib/service-requests/token'
+import { notifyCustomerOfQuote } from '@/lib/service-requests/notify'
 import { hagerlandInbox } from '@/lib/enquiries'
 import { sendEmail } from '@/lib/email/send'
-import { adminNoticeEmail, serviceQuoteReceivedEmail } from '@/lib/email/templates'
+import { adminNoticeEmail } from '@/lib/email/templates'
 import { canonicalUrl } from '@/lib/site'
-import { formatMoney } from '@/lib/format'
 import { log } from '@/lib/log'
 
 type Msg = ActionResult<{ message: string }>
@@ -82,19 +81,7 @@ export async function submitMatchQuoteAction(_prev: Msg | null, formData: FormDa
     if (error) log.error('match-quote', 'update failed', error)
     return fail('You can send a quote once you have accepted the request.')
   }
-  const db = getAdminSupabase()
-  const { data: r } = await db.from('service_requests').update({ status: 'quoted' }).eq('id', m.request_id).in('status', ['submitted', 'triaged', 'matched', 'quoted']).select('id, reference, name, email, requester_user_id').maybeSingle()
-  const { data: org } = await db.from('organisations').select('name').eq('id', m.org_id).maybeSingle()
-  if (r?.email) {
-    let link = canonicalUrl(`/account/service-requests/${r.id}`)
-    if (!r.requester_user_id) {
-      // Only a hash of guest links is stored, so each quote email carries a fresh link (older links stop working).
-      const t = newRequestToken()
-      await db.from('service_requests').update({ access_token_hash: t.hash, access_token_expires_at: t.expiresAt }).eq('id', r.id)
-      link = canonicalUrl(`/requests/${t.token}`)
-    }
-    await sendEmail({ to: r.email, ...serviceQuoteReceivedEmail({ name: r.name.split(' ')[0] || r.name, reference: r.reference, providerName: org?.name ?? 'A provider', amount: formatMoney(d.amount, d.currency, { decimals: Number.isInteger(d.amount) ? 0 : 2 }), link }) })
-  }
+  const { guest } = await notifyCustomerOfQuote(m, d.amount, d.currency)
   revalidatePath('/account/requests', 'layout')
-  return ok({ message: `Quote sent. The customer has been emailed${r?.requester_user_id ? '' : ` a link that works for ${GUEST_LINK_DAYS} days`}.` })
+  return ok({ message: `Quote sent. The customer has been emailed${guest ? ` a link that works for ${GUEST_LINK_DAYS} days` : ''}.` })
 }

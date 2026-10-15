@@ -364,6 +364,15 @@ select (select count(*) from pg_tables where schemaname = 'public' and tablename
 ```
 **You should see:** `12 | t | 0028`. The security test shows 169 `PASS` rows.
 
+## 0029_owner_portal.sql (Section 26, S5)
+**What it does:** adds two staff-only tables for the Property Care owner portal (documents HagerLand shares with an owner, and messages between owner and HagerLand), and one new business record, "HagerLand Services": HagerLand's own repairs team, labelled as HagerLand, so a repair request can be given to HagerLand's team as well as, or instead of, other providers.
+
+**Check:**
+```sql
+select (select count(*) from pg_tables where schemaname = 'public' and tablename in ('managed_property_documents', 'owner_messages')), (select count(*) from organisations where slug = 'hagerland-services' and is_hagerland), (select version from schema_migrations where version = '0029');
+```
+**You should see:** `2 | 1 | 0029`. The security test shows 175 `PASS` rows.
+
 ---
 
 ## Security test (run after all migrations)
@@ -372,7 +381,7 @@ statements: that is the test cleaning up after itself; click **Run this query**.
 It temporarily creates two test users and a test listing, tries things that should and should not be
 allowed, then deletes everything it created.
 
-**You should see:** every row starting with `PASS` (38 rows after migration 0011, 42 after 0013, 57 after 0014, 67 after 0016, 74 after 0017, 96 after 0019, 106 after 0020, 125 after 0022, 133 after 0024, 143 after 0027, 169 after 0028; each later migration adds its own checks and its section below says the new total).
+**You should see:** every row starting with `PASS` (38 rows after migration 0011, 42 after 0013, 57 after 0014, 67 after 0016, 74 after 0017, 96 after 0019, 106 after 0020, 125 after 0022, 133 after 0024, 143 after 0027, 169 after 0028, 175 after 0029; each later migration adds its own checks and its section below says the new total).
 
 ## TypeScript types
 `lib/database.types.ts` was generated from these exact migrations. After all migrations are applied,

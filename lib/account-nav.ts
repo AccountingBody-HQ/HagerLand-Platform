@@ -6,6 +6,8 @@ import type { Membership } from '@/lib/auth'
 export interface AccountExtras {
   /** HagerLand estate agency is on (sales or lettings). */
   agency?: boolean
+  /** The user owns a property HagerLand manages (owner portal, spec 26.7). */
+  owner?: boolean
 }
 
 export function accountNavItems(active: Membership | null, newEnquiries: number, newMatches = 0, jobsLive = false, extras: AccountExtras = {}): AccountNavItem[] {
@@ -24,6 +26,7 @@ export function accountNavItems(active: Membership | null, newEnquiries: number,
   items.push({ href: '/account/service-requests', label: 'My service requests', icon: 'requests' })
   // Valuations, viewings, offers, applications and tenancies with HagerLand's estate agency (spec 26.5).
   if (extras.agency) items.push({ href: '/account/agency', label: 'Viewings, offers and tenancies', icon: 'agency' })
+  if (extras.owner) items.push({ href: '/owner', label: 'Owner portal', icon: 'owner' })
   if (jobsLive) items.push({ href: '/account/applications', label: 'My job applications', icon: 'applications' }, { href: '/account/candidate', label: 'Candidate profile', icon: 'candidate' })
   items.push({ href: '/account/quotes', label: 'Quotes', icon: 'quotes' })
   items.push({ href: '/account/saved', label: 'Saved', icon: 'saved' })
