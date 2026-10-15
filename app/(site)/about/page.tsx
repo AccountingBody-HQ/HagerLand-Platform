@@ -43,9 +43,9 @@ export default async function AboutPage() {
           <div>
             <h2 className="hl-h2">What we do</h2>
             <p className="mt-4 text-muted">Ten services that work together, so a plot of land can become a finished, well-kept home. Some we provide ourselves, such as our estate agency, {brand.divisions.propertyCare} and {brand.divisions.supply}; for the rest we work with professionals and partners we check.</p>
-            <div className="mt-8 space-y-8">
+            <div className="mt-8 divide-y divide-border">
               {all.groups.map((g) => (
-                <div key={g.id}>
+                <div key={g.id} className="py-8 first:pt-0 last:pb-0 sm:py-9">
                   <h3 className="hl-eyebrow text-green">{g.title}</h3>
                   <ul className="mt-3 grid gap-4 sm:grid-cols-2">
                     {g.tiles.map((tile) => (

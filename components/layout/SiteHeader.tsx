@@ -185,19 +185,53 @@ export function SiteHeader({ nav: siteNav, amharicOn = false }: { nav: SiteNav; 
     }
   }, [])
 
+  /*
+   * How the open menu was opened decides how it closes. A menu opened by a click (or Enter) stays open until a click
+   * outside, Escape, or a link is chosen: moving the mouse over other menu items or out of the menu row on the way to
+   * a link must not close or swap it (the "All services" panel sits below the menu row, so the pointer always crosses
+   * it). A menu opened by hovering follows the mouse, but only switches after the pointer rests on another item, so
+   * crossing items diagonally on the way to a link does not swap the menu.
+   */
+  const openedBy = useRef<'click' | 'hover' | null>(null)
+  const switchTimer = useRef<number | null>(null)
+  const clearTimers = () => {
+    if (closeTimer.current) window.clearTimeout(closeTimer.current)
+    if (switchTimer.current) window.clearTimeout(switchTimer.current)
+  }
+  useEffect(() => {
+    if (openId === null) openedBy.current = null
+  }, [openId])
   // A click right after the hover opened a menu keeps it open instead of closing it again.
   const hoverOpenedAt = useRef(0)
   const hoverOpen = (id: string) => {
-    if (closeTimer.current) window.clearTimeout(closeTimer.current)
-    if (openId !== id) hoverOpenedAt.current = Date.now()
-    setOpenId(id)
+    clearTimers()
+    if (openId === id || (openId !== null && openedBy.current === 'click')) return
+    const open = () => {
+      openedBy.current = 'hover'
+      hoverOpenedAt.current = Date.now()
+      setOpenId(id)
+    }
+    if (openId === null) open()
+    else switchTimer.current = window.setTimeout(open, 180)
+  }
+  /** The pointer left a menu item before its menu took over: cancel the pending switch. */
+  const hoverLeaveItem = () => {
+    if (switchTimer.current) window.clearTimeout(switchTimer.current)
+  }
+  /** Hovering a plain link in the menu row closes a hovered menu, never one opened by a click. */
+  const hoverPlain = () => {
+    clearTimers()
+    if (openedBy.current !== 'click') setOpenId(null)
   }
   const toggle = (id: string) => {
-    // A pending hover-close (from leaving another menu) must not close the menu just opened by a click.
-    if (closeTimer.current) window.clearTimeout(closeTimer.current)
-    setOpenId(openId === id && Date.now() - hoverOpenedAt.current > 400 ? null : id)
+    clearTimers()
+    const close = openId === id && Date.now() - hoverOpenedAt.current > 400
+    openedBy.current = close ? null : 'click'
+    setOpenId(close ? null : id)
   }
   const hoverClose = () => {
+    if (switchTimer.current) window.clearTimeout(switchTimer.current)
+    if (openedBy.current === 'click') return
     closeTimer.current = window.setTimeout(() => setOpenId(null), 150)
   }
   const openGroup = nav.find((g) => g.id === openId)
@@ -269,7 +303,7 @@ export function SiteHeader({ nav: siteNav, amharicOn = false }: { nav: SiteNav; 
       <nav aria-label="Main" className="hidden border-t border-border lg:block" onMouseLeave={hoverClose}>
         <ul className="mx-auto flex h-12 max-w-content items-center gap-0.5 px-6 lg:px-8">
           {nav.map((g) => (
-            <li key={g.id} onMouseEnter={() => (g.links.length === 0 ? setOpenId(null) : hoverOpen(g.id))}>
+            <li key={g.id} onMouseEnter={() => (g.links.length === 0 ? hoverPlain() : hoverOpen(g.id))} onMouseLeave={hoverLeaveItem}>
               {g.links.length === 0 ? (
                 <Link href={g.href} className={cn('inline-flex h-11 items-center gap-1.5 whitespace-nowrap rounded-md px-2.5 text-small font-semibold hover:bg-stone-100 xl:px-3 xl:text-[0.9375rem]', isActive(g) ? 'text-ink' : 'text-ink/80')}>
                   {g.label}

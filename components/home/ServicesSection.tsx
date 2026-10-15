@@ -45,9 +45,9 @@ export function ServicesSection({ all, t, lh, freeListing }: { all: AllServices;
           <p className="mt-4 text-[1.0625rem] leading-relaxed text-muted sm:text-lg">{t('Buy, rent, build, manage and maintain property in Ethiopia, supported by our own team and verified professionals.')}</p>
         </div>
 
-        <div className="mt-10 space-y-10 sm:mt-16 sm:space-y-14">
+        <div className="mt-10 divide-y divide-border sm:mt-16">
           {all.groups.map((g) => (
-            <div key={g.id} className="grid gap-4 sm:gap-6 lg:grid-cols-[minmax(0,15rem)_1fr] lg:gap-10">
+            <div key={g.id} className="grid gap-4 py-8 first:pt-0 last:pb-0 sm:gap-6 sm:py-9 lg:grid-cols-[minmax(0,15rem)_1fr] lg:gap-10">
               <div className="lg:pt-2">
                 <h3 className="font-display text-h3 font-bold text-ink">{t(g.title)}</h3>
                 <p className="mt-2 text-muted">{t(g.text)}</p>
