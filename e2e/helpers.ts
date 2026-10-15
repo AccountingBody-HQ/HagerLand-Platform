@@ -276,3 +276,24 @@ export function linkMatching(html: string, pattern: RegExp): string {
 export function randomPhone(): string {
   return `09${String(Math.floor(Math.random() * 1e8)).padStart(8, '0')}`
 }
+
+/**
+ * Sets a pillar's (or sub-service's) modes directly in the local database. Switching Direct or Aggregate on needs a
+ * stage-gate row first (the database refuses otherwise), so one is written for the test.
+ */
+export async function setPillarModes(key: string, modes: { direct?: boolean; aggregate?: boolean; interest?: boolean }, opts: { service?: boolean } = {}): Promise<void> {
+  const d = db()
+  const table = opts.service ? 'pillar_services' : 'pillars'
+  const { data: row } = await d.from(table).select('*').eq('key', key).single()
+  if (!row) throw new Error(`No ${table} row ${key}`)
+  const pillar = opts.service ? (row as { pillar_key: string }).pillar_key : key
+  for (const mode of ['direct', 'aggregate'] as const) {
+    if (modes[mode] && !(row as Record<string, boolean>)[`${mode}_enabled`]) {
+      const { error } = await d.from('pillar_gate_checks').insert({ pillar_key: pillar, service_key: opts.service ? key : null, mode, capability_confirmed: true, owner_name: 'E2E test', regulatory_confirmed: true, regulatory_note: 'E2E test', regulatory_date: '2026-10-15', terms_pricing_set: true, providers_required: 0, providers_active: 0, actor: 'e2e' })
+      if (error) throw error
+    }
+  }
+  const patch = Object.fromEntries(Object.entries(modes).map(([k, v]) => [`${k}_enabled`, v]))
+  const { error } = await d.from(table).update(patch).eq('key', key)
+  if (error) throw error
+}

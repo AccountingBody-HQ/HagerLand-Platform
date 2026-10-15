@@ -4,13 +4,14 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import {
-  BadgePercent, BarChart3, MailWarning, BookOpen, Calculator, Briefcase, Building2, LayoutGrid, Handshake, UserPlus, Coins, Wrench, ListChecks, Receipt, KeyRound, ClipboardCheck, ClipboardList, FileClock, FolderTree, Gauge, Import, Inbox, MapPin, Megaphone, Menu, Package, Settings, Store, Users, X, HandCoins, House,
+  BadgePercent, BarChart3, MailWarning, BookOpen, Calculator, Briefcase, Building2, LayoutGrid, Handshake, UserPlus, Coins, Wrench, ListChecks, Receipt, KeyRound, ClipboardCheck, ClipboardList, FileClock, FolderTree, Gauge, Import, Inbox, MapPin, Megaphone, Menu, Package, Settings, Store, Users, X, HandCoins, House, Layers,
 } from 'lucide-react'
 import { cn } from '@/lib/cn'
 
 export const ADMIN_NAV = [
   { href: '/roodber8', label: 'Dashboard', icon: Gauge },
   { href: '/roodber8/review', label: 'Review queue', icon: ClipboardCheck, badgeKey: 'review' },
+  { href: '/roodber8/pillars', label: 'Pillars and modes', icon: Layers },
   { href: '/roodber8/verticals', label: 'Verticals', icon: LayoutGrid },
   { href: '/roodber8/properties', label: 'Properties', icon: House },
   { href: '/roodber8/developments', label: 'Developments', icon: Building2 },

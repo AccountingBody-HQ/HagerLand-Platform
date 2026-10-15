@@ -22,7 +22,7 @@ export default async function VerticalsPage() {
         title="Verticals"
         description={
           <>
-            Switch each part of HagerLand between <strong>Live</strong>, <strong>Coming soon</strong> (a landing page with a register-interest form, not indexed by search engines) and <strong>Hidden</strong> (removed from menus, pages return “not found”). Changes show on the site within a minute.
+            Switch each part of HagerLand between <strong>Live</strong>, <strong>Coming soon</strong> (a landing page with a register-interest form, not indexed by search engines) and <strong>Hidden</strong> (removed from menus, pages return “not found”). Changes show on the site within a minute. Areas that belong to one pillar (Supplies, Contractors, Repairs, Finance, Insurance, Jobs, Our Developments) and Property (Buy and Rent) now follow the pillar modes in <Link href="/roodber8/pillars" className="font-semibold text-green hover:underline">Pillars and modes</Link>; Professionals and Diaspora are cross-cutting layers and keep their own switch here.
           </>
         }
       />
@@ -31,7 +31,15 @@ export default async function VerticalsPage() {
           <li key={v.key}>
             <Panel
               title={v.name}
-              actions={<VerticalStatusSwitch verticalKey={v.key} name={v.name} status={v.status} />}
+              actions={
+                v.controlled_by_pillar || v.controlled_by_service ? (
+                  <Link href="/roodber8/pillars" className="text-small font-semibold text-green hover:underline">
+                    Follows pillar modes
+                  </Link>
+                ) : (
+                  <VerticalStatusSwitch verticalKey={v.key} name={v.name} status={v.status} />
+                )
+              }
             >
               <div className="mb-4 flex flex-wrap items-center gap-3 text-small text-muted">
                 <StatusBadge status={v.status} />

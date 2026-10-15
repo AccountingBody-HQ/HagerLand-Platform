@@ -525,6 +525,26 @@ exception when insufficient_privilege then
   perform pg_temp.record_check('Signed-in user cannot change verticals through the public view', true);
 end $$;
 
+-- ---------- Section 26: pillars, modes and stage gates (0027) ----------
+reset role;
+set role anon;
+select pg_temp.record_check('Anonymous cannot read ' || name, pg_temp.read_denied(name)) from unnest(array['pillars', 'pillar_services', 'pillar_gate_checks', 'organisation_pillars']) as t(name);
+select pg_temp.record_check('Anonymous reads visible pillars only, with their modes',
+  (select count(*) from public.pillars_public) > 0 and not exists (select 1 from public.pillars_public where status = 'hidden'));
+reset role;
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000002", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000002', false);
+select pg_temp.record_check('Signed-in user cannot read ' || name, pg_temp.read_denied(name)) from unnest(array['pillars', 'pillar_services', 'pillar_gate_checks']) as t(name);
+select pg_temp.record_check('Signed-in user cannot add a pillar to an organisation they are not in',
+  pg_temp.write_denied($q$insert into public.organisation_pillars (org_id, pillar_key) values ('00000000-0000-4000-8000-0000000000b1', 'build')$q$));
+reset role;
+do $$ begin
+  update public.pillars set aggregate_enabled = true where key = 'finance' and not aggregate_enabled;
+  perform pg_temp.record_check('Aggregate cannot be switched on without a completed stage gate', not exists (select 1 from public.pillars where key = 'finance' and aggregate_enabled));
+exception when insufficient_privilege then
+  perform pg_temp.record_check('Aggregate cannot be switched on without a completed stage gate', true);
+end $$;
+
 -- ---------- Clean up ----------
 reset role;
 select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);

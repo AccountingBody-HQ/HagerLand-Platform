@@ -1,6 +1,7 @@
 import 'server-only'
 import { cache } from 'react'
 import { SOCIAL_KEYS, type SocialKey } from '@/lib/brand'
+import { LICENCE_KINDS, type LicenceKind } from '@/lib/validation/settings'
 import { getSiteSettings } from './reference'
 
 export interface BusinessDetails {
@@ -15,6 +16,17 @@ export interface BusinessDetails {
   quoteResponseTarget: string
   announcement: { text: string; href: string } | null
   verifiedBusinessCountMin: number
+  /** Licence or approval references that have a number filled in (spec 26.1). */
+  licences: Partial<Record<LicenceKind, Licence>>
+  /** Published estate agency fee schedule; empty means "fees agreed in writing". */
+  agencyFeeSchedule: string
+}
+
+export interface Licence {
+  number: string
+  authority: string
+  holder: string
+  date: string
 }
 
 const str = (v: unknown): string => (typeof v === 'string' ? v.trim() : '')
@@ -46,5 +58,12 @@ export const getBusinessDetails = cache(async (): Promise<BusinessDetails> => {
     quoteResponseTarget: str(s.quote_response_target),
     announcement: ann.enabled === true && str(ann.text) ? { text: str(ann.text), href: str(ann.href) } : null,
     verifiedBusinessCountMin: typeof s.verified_business_count_min === 'number' ? s.verified_business_count_min : 25,
+    licences: Object.fromEntries(
+      LICENCE_KINDS.map((k) => {
+        const l = obj(obj(s.licences)[k])
+        return [k, { number: str(l.number), authority: str(l.authority), holder: str(l.holder), date: str(l.date) }] as const
+      }).filter(([, l]) => l.number),
+    ),
+    agencyFeeSchedule: str(s.agency_fee_schedule),
   }
 })

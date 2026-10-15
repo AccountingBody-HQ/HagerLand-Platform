@@ -57,6 +57,25 @@ Authorised by AB on 13 Oct 2026 (brief: `docs/BRIEF_PHASE_1_5_AND_GO_LIVE.md`), 
 | 25.5 | Go-live readiness: full re-run, preflight script, final report | done | 2026-10-15 | see git log | Everything re-run (LAUNCH_REPORT evidence). `scripts/preflight.sh`, `scripts/cutover/*`, read-only production smoke tests; cutover rehearsed on the local copy. Matrix: 907 Done, 5 Deferred by rule, 0 Not done. Waiting for AB's checklist and "GO LIVE" |
 | 25.6 | Cutover (only after AB types GO LIVE) | todo | | | Replaces WP-20 |
 
+## Section 26 work packages (property ecosystem operating model)
+
+Authorised by AB on 15 Oct 2026 (brief: `docs/BRIEF_SECTION_26.md`, appended to the spec as Section 26 with AB's update of the same day: regulatory approval covers every service). Run autonomously in this order. Migrations 0027+ are tested on the local copy and applied to live only in the 25.6 cutover.
+
+| WP | Title | Status | Date | Commit | Notes / deviations |
+|----|-------|--------|------|--------|--------------------|
+| S1 | Pillar registry, modes, stage gates, migration from verticals | done | 2026-10-15 | see git log | Migration 0027. RLS 143/143 local. pillars spec + unit tests passed. Pillar-controlled verticals follow the modes (Jobs now live) |
+| S2 | Navigation, pillar hubs, homepage ecosystem visual | todo | | | |
+| S3 | Estate agency operations (admin CRM + public valuation/viewing/offer/apply + licence display) | todo | | | |
+| S4 | Rent & let lifecycle + tenancies | todo | | | |
+| S5 | Manage pillar + owner portal | todo | | | |
+| S6 | Build & develop project flow | todo | | | |
+| S7 | Knowledge & advice hub, area guides, market insight | todo | | | |
+| S8 | Provider multi-pillar onboarding + verified reviews | todo | | | |
+| S9 | Demand intelligence + pillar KPIs | todo | | | |
+| S10 | Staff accounts and roles | todo | | | |
+| S11 | Content, legal and SEO updates + 26.18 | todo | | | |
+| S12 | Full regression, matrix, LAUNCH_REPORT, re-run 25.5 | todo | | | |
+
 ## WP-0 checklist
 
 - [x] Spec moved from `.next/docs/` (wiped on every build) to `docs/HAGERLAND_RELAUNCH_SPEC.md`

@@ -3,6 +3,7 @@ import { getAdminSupabase } from '@/lib/supabase/admin'
 import { SOCIAL_KEYS } from '@/lib/brand'
 import { LEGAL_WRITTEN } from '@/lib/content/legal'
 import { formatDate } from '@/lib/format'
+import { LICENCE_KINDS, LICENCE_LABELS } from '@/lib/validation/settings'
 import { AdminHeader, Panel } from '@/components/admin/AdminUi'
 import { ClaimsEditor, SettingsForm } from './SettingsForm'
 
@@ -41,6 +42,23 @@ export default async function SettingsPage() {
             { name: 'hours', label: 'Opening hours', value: v(contact.hours), placeholder: 'Mon–Sat, 8:30–17:30' },
             { name: 'address', label: 'Office address', type: 'textarea', value: v(contact.address) },
           ]}
+        />
+      </Panel>
+      <Panel title="Licences and approvals">
+        <p className="mb-3 text-small text-muted">
+          AB confirmed on 15 Oct 2026 that HagerLand&rsquo;s approval covers estate agency, property management (including collecting and holding rent for owners), recruitment and placement, and finance and insurance introductions. Record each licence or approval reference here. Once a number is filled in it is shown on the matching pages (estate agency also in the footer and the terms); empty ones stay hidden.
+        </p>
+        <SettingsForm
+          section="licences"
+          fields={LICENCE_KINDS.flatMap((k) => {
+            const l = (o('licences')[k] ?? {}) as Record<string, unknown>
+            return [
+              { name: `${k}_number`, label: `${LICENCE_LABELS[k]}: licence or approval number`, value: v(l.number) },
+              { name: `${k}_authority`, label: 'Issuing authority', value: v(l.authority) },
+              { name: `${k}_holder`, label: 'Licence holder (legal entity)', value: v(l.holder) },
+              { name: `${k}_date`, label: 'Date issued', type: 'date' as const, value: v(l.date) },
+            ]
+          })}
         />
       </Panel>
       <Panel title="Social media">
@@ -94,6 +112,26 @@ export default async function SettingsPage() {
             { name: 'private_owner_max_active_listings', label: 'Private owner listing limit', type: 'number', value: v(s.private_owner_max_active_listings ?? 3) },
             { name: 'min_results_for_index', label: 'Minimum results before a search page is shown to Google', type: 'number', value: v(s.min_results_for_index ?? 3) },
             { name: 'verified_business_count_min', label: 'Show “verified businesses” count from', type: 'number', value: v(s.verified_business_count_min ?? 25), hint: 'The homepage shows the number only once it reaches this.' },
+          ]}
+        />
+      </Panel>
+      <div id="gates">
+        <Panel title="Stage gates (Pillars and modes)">
+          <SettingsForm
+            section="gates"
+            fields={[
+              { name: 'stage_gate_min_providers', label: 'Verified providers or partners needed before Aggregate can be switched on', type: 'number', value: v(s.stage_gate_min_providers ?? 3) },
+              { name: 'regulatory_clearance_note', label: 'Pre-filled regulatory clearance note', value: v(s.regulatory_clearance_note), hint: 'Appears in every stage-gate checklist; you can still edit it there.' },
+            ]}
+          />
+        </Panel>
+      </div>
+      <Panel title="Estate agency and market insight">
+        <SettingsForm
+          section="agency"
+          fields={[
+            { name: 'agency_fee_schedule', label: 'Published agency fee schedule', type: 'textarea', value: v(s.agency_fee_schedule), hint: 'Leave empty to say “fees are agreed in writing” on agency pages. Shown exactly as written.' },
+            { name: 'market_insight_min_sample', label: 'Minimum listings before a market-insight figure is shown', type: 'number', value: v(s.market_insight_min_sample ?? 5) },
           ]}
         />
       </Panel>

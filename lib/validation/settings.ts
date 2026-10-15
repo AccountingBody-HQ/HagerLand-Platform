@@ -50,7 +50,7 @@ const email = z
   .default('')
   .refine((v) => !v || z.email().safeParse(v).success, 'Enter a valid email address.')
 
-export const SETTINGS_SECTIONS = ['contact', 'social', 'legal', 'business', 'announcement', 'thresholds', 'legal_dates', 'homepage', 'language'] as const
+export const SETTINGS_SECTIONS = ['contact', 'social', 'legal', 'business', 'announcement', 'thresholds', 'legal_dates', 'homepage', 'language', 'licences', 'gates', 'agency'] as const
 export type SettingsSection = (typeof SETTINGS_SECTIONS)[number]
 
 export const contactSchema = z.object({
@@ -123,3 +123,30 @@ export function parsePickRefs(input: string): string[] {
 
 /** Amharic locale switch (spec 25.2m): off until AB approves the native-speaker review. */
 export const languageSchema = z.object({ amharic_enabled: z.preprocess((v) => v === 'on' || v === 'true', z.boolean()) })
+
+/** Licence and approval references per regulated service (spec 26.1 and AB's update of 15 Oct 2026). */
+export const LICENCE_KINDS = ['estate_agency', 'property_management', 'recruitment', 'finance', 'insurance'] as const
+export type LicenceKind = (typeof LICENCE_KINDS)[number]
+export const LICENCE_LABELS: Record<LicenceKind, string> = {
+  estate_agency: 'Estate agency',
+  property_management: 'Property management (including collecting and holding rent)',
+  recruitment: 'Recruitment and placement',
+  finance: 'Finance introductions',
+  insurance: 'Insurance introductions',
+}
+const licenceFields = z.object({ number: text(80), authority: text(160), holder: text(200), date: isoOrEmpty })
+export const licencesSchema = z.object(Object.fromEntries(LICENCE_KINDS.map((k) => [k, licenceFields])) as Record<LicenceKind, typeof licenceFields>)
+
+/** Flat form fields ("estate_agency_number", …) → the nested settings value. */
+export function licencesInput(input: Record<string, unknown>): Record<string, Record<string, unknown>> {
+  return Object.fromEntries(LICENCE_KINDS.map((k) => [k, { number: input[`${k}_number`], authority: input[`${k}_authority`], holder: input[`${k}_holder`], date: input[`${k}_date`] }]))
+}
+
+/** Stage gates (spec 26.3): providers needed before Aggregate, and the pre-filled clearance note. */
+export const gatesSchema = z.object({
+  stage_gate_min_providers: z.coerce.number().int().min(0).max(100),
+  regulatory_clearance_note: text(300),
+})
+
+/** Estate agency (spec 26.5): a published fee schedule (empty = "fees agreed in writing"). */
+export const agencySchema = z.object({ agency_fee_schedule: text(2000), market_insight_min_sample: z.coerce.number().int().min(1).max(100).default(5) })

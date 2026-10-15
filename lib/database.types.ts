@@ -1630,6 +1630,54 @@ export type Database = {
           },
         ]
       }
+      organisation_pillars: {
+        Row: {
+          created_at: string
+          org_id: string
+          pillar_key: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          org_id: string
+          pillar_key: string
+        }
+        Update: {
+          created_at?: string
+          org_id?: string
+          pillar_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'organisation_pillars_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'organisation_pillars_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'organisation_pillars_pillar_key_fkey'
+            columns: ['pillar_key']
+            isOneToOne: false
+            referencedRelation: 'pillars'
+            referencedColumns: ['key']
+          },
+          {
+            foreignKeyName: 'organisation_pillars_pillar_key_fkey'
+            columns: ['pillar_key']
+            isOneToOne: false
+            referencedRelation: 'pillars_public'
+            referencedColumns: ['key']
+          },
+        ]
+      }
       organisation_services: {
         Row: {
           org_id: string
@@ -1921,6 +1969,190 @@ export type Database = {
             referencedColumns: ['key']
           },
         ]
+      }
+      pillar_gate_checks: {
+        Row: {
+          actor: string
+          capability_confirmed: boolean
+          created_at: string
+          id: string
+          mode: string
+          owner_name: string
+          pillar_key: string
+          providers_active: number
+          providers_required: number
+          regulatory_confirmed: boolean
+          regulatory_date: string
+          regulatory_note: string
+          service_key: string | null
+          terms_note: string | null
+          terms_pricing_set: boolean
+        }
+        ComputedFields: never
+        Insert: {
+          actor: string
+          capability_confirmed: boolean
+          created_at?: string
+          id?: string
+          mode: string
+          owner_name: string
+          pillar_key: string
+          providers_active?: number
+          providers_required?: number
+          regulatory_confirmed: boolean
+          regulatory_date: string
+          regulatory_note: string
+          service_key?: string | null
+          terms_note?: string | null
+          terms_pricing_set: boolean
+        }
+        Update: {
+          actor?: string
+          capability_confirmed?: boolean
+          created_at?: string
+          id?: string
+          mode?: string
+          owner_name?: string
+          pillar_key?: string
+          providers_active?: number
+          providers_required?: number
+          regulatory_confirmed?: boolean
+          regulatory_date?: string
+          regulatory_note?: string
+          service_key?: string | null
+          terms_note?: string | null
+          terms_pricing_set?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'pillar_gate_checks_pillar_key_fkey'
+            columns: ['pillar_key']
+            isOneToOne: false
+            referencedRelation: 'pillars'
+            referencedColumns: ['key']
+          },
+          {
+            foreignKeyName: 'pillar_gate_checks_pillar_key_fkey'
+            columns: ['pillar_key']
+            isOneToOne: false
+            referencedRelation: 'pillars_public'
+            referencedColumns: ['key']
+          },
+          {
+            foreignKeyName: 'pillar_gate_checks_service_key_fkey'
+            columns: ['service_key']
+            isOneToOne: false
+            referencedRelation: 'pillar_services'
+            referencedColumns: ['key']
+          },
+        ]
+      }
+      pillar_services: {
+        Row: {
+          aggregate_enabled: boolean
+          description: string
+          direct_enabled: boolean
+          interest_enabled: boolean
+          key: string
+          name: string
+          pillar_key: string
+          sort: number
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          aggregate_enabled?: boolean
+          description?: string
+          direct_enabled?: boolean
+          interest_enabled?: boolean
+          key: string
+          name: string
+          pillar_key: string
+          sort?: number
+          updated_at?: string
+        }
+        Update: {
+          aggregate_enabled?: boolean
+          description?: string
+          direct_enabled?: boolean
+          interest_enabled?: boolean
+          key?: string
+          name?: string
+          pillar_key?: string
+          sort?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'pillar_services_pillar_key_fkey'
+            columns: ['pillar_key']
+            isOneToOne: false
+            referencedRelation: 'pillars'
+            referencedColumns: ['key']
+          },
+          {
+            foreignKeyName: 'pillar_services_pillar_key_fkey'
+            columns: ['pillar_key']
+            isOneToOne: false
+            referencedRelation: 'pillars_public'
+            referencedColumns: ['key']
+          },
+        ]
+      }
+      pillars: {
+        Row: {
+          aggregate_enabled: boolean
+          description: string
+          direct_enabled: boolean
+          direct_owner: string | null
+          icon: string
+          interest_enabled: boolean
+          key: string
+          name: string
+          nav_label: string
+          number: number
+          seo_description: string | null
+          seo_title: string | null
+          slug: string
+          tagline: string
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          aggregate_enabled?: boolean
+          description?: string
+          direct_enabled?: boolean
+          direct_owner?: string | null
+          icon?: string
+          interest_enabled?: boolean
+          key: string
+          name: string
+          nav_label: string
+          number: number
+          seo_description?: string | null
+          seo_title?: string | null
+          slug: string
+          tagline?: string
+          updated_at?: string
+        }
+        Update: {
+          aggregate_enabled?: boolean
+          description?: string
+          direct_enabled?: boolean
+          direct_owner?: string | null
+          icon?: string
+          interest_enabled?: boolean
+          key?: string
+          name?: string
+          nav_label?: string
+          number?: number
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string
+          tagline?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       portfolio_projects: {
         Row: {
@@ -3575,6 +3807,8 @@ export type Database = {
       }
       verticals: {
         Row: {
+          controlled_by_pillar: string | null
+          controlled_by_service: string | null
           icon: string
           interest_enabled: boolean
           intro: string
@@ -3592,6 +3826,8 @@ export type Database = {
         }
         ComputedFields: never
         Insert: {
+          controlled_by_pillar?: string | null
+          controlled_by_service?: string | null
           icon?: string
           interest_enabled?: boolean
           intro?: string
@@ -3608,6 +3844,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          controlled_by_pillar?: string | null
+          controlled_by_service?: string | null
           icon?: string
           interest_enabled?: boolean
           intro?: string
@@ -3623,7 +3861,29 @@ export type Database = {
           status?: Database['public']['Enums']['vertical_status']
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: 'verticals_controlled_by_pillar_fkey'
+            columns: ['controlled_by_pillar']
+            isOneToOne: false
+            referencedRelation: 'pillars'
+            referencedColumns: ['key']
+          },
+          {
+            foreignKeyName: 'verticals_controlled_by_pillar_fkey'
+            columns: ['controlled_by_pillar']
+            isOneToOne: false
+            referencedRelation: 'pillars_public'
+            referencedColumns: ['key']
+          },
+          {
+            foreignKeyName: 'verticals_controlled_by_service_fkey'
+            columns: ['controlled_by_service']
+            isOneToOne: false
+            referencedRelation: 'pillar_services'
+            referencedColumns: ['key']
+          },
+        ]
       }
     }
     Views: {
@@ -4088,6 +4348,61 @@ export type Database = {
           },
         ]
       }
+      pillars_public: {
+        Row: {
+          aggregate_enabled: boolean | null
+          description: string | null
+          direct_enabled: boolean | null
+          icon: string | null
+          interest_enabled: boolean | null
+          key: string | null
+          name: string | null
+          nav_label: string | null
+          number: number | null
+          seo_description: string | null
+          seo_title: string | null
+          services: Json | null
+          slug: string | null
+          status: Database['public']['Enums']['vertical_status'] | null
+          tagline: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          aggregate_enabled?: boolean | null
+          description?: string | null
+          direct_enabled?: boolean | null
+          icon?: string | null
+          interest_enabled?: boolean | null
+          key?: string | null
+          name?: string | null
+          nav_label?: string | null
+          number?: number | null
+          seo_description?: string | null
+          seo_title?: string | null
+          services?: never
+          slug?: string | null
+          status?: never
+          tagline?: string | null
+        }
+        Update: {
+          aggregate_enabled?: boolean | null
+          description?: string | null
+          direct_enabled?: boolean | null
+          icon?: string | null
+          interest_enabled?: boolean | null
+          key?: string | null
+          name?: string | null
+          nav_label?: string | null
+          number?: number | null
+          seo_description?: string | null
+          seo_title?: string | null
+          services?: never
+          slug?: string | null
+          status?: never
+          tagline?: string | null
+        }
+        Relationships: []
+      }
       portfolio_public: {
         Row: {
           cover_path: string | null
@@ -4531,7 +4846,12 @@ export type Database = {
       is_trade_account: { Args: Record<PropertyKey, never>; Returns: boolean }
       location_summary: { Args: { p_location_id: string; p_purpose: Database['public']['Enums']['listing_purpose'] }; Returns: Json }
       locations_descendants: { Args: { root: string }; Returns: string[] }
+      mode_status: {
+        Args: { p_aggregate: boolean; p_direct: boolean; p_interest: boolean }
+        Returns: Database['public']['Enums']['vertical_status']
+      }
       next_reference: { Args: { p_prefix: string }; Returns: string }
+      pillar_active_providers: { Args: { p_pillar: string }; Returns: number }
       popular_locations: { Args: { p_limit?: number; p_purpose?: Database['public']['Enums']['listing_purpose'] }; Returns: Json }
       product_trade_prices: {
         Args: { p_ids: string[] }
@@ -4644,6 +4964,7 @@ export type Database = {
       }
       service_location_count: { Args: { p_location_id: string; p_service_id: string }; Returns: number }
       setting_int: { Args: { fallback: number; setting_key: string }; Returns: number }
+      sync_verticals_from_pillars: { Args: Record<PropertyKey, never>; Returns: undefined }
       tsquery_or_null: { Args: { q: string }; Returns: unknown }
     }
     Enums: {

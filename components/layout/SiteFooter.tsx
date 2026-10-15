@@ -13,6 +13,7 @@ import { translator } from '@/lib/i18n/translate'
 import { localizeHref } from '@/lib/i18n/config'
 import { localizeLink } from '@/lib/i18n/nav'
 import { LanguageSwitch } from './LanguageSwitch'
+import { licenceText } from '@/components/content/LicenceNote'
 
 export async function SiteFooter({ amharicOn = false }: { amharicOn?: boolean }) {
   const [business, verticals] = await Promise.all([getBusinessDetails(), getVerticals()])
@@ -72,6 +73,7 @@ export async function SiteFooter({ amharicOn = false }: { amharicOn?: boolean })
           <p>
             © {year} {brand.name}
             {business.legalLine && <span> · {business.legalLine}</span>}
+            {business.licences.estate_agency && <span data-testid="footer-licence"> · {licenceText('estate_agency', business.licences.estate_agency)}</span>}
           </p>
           <ul className="flex flex-wrap gap-x-5 gap-y-1">
             <li><Link href={localizeHref('/terms', locale)} className="hover:text-white">{t('Terms')}</Link></li>

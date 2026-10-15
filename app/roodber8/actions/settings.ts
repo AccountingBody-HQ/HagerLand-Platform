@@ -19,6 +19,10 @@ import {
   socialSchema,
   thresholdsSchema,
   type SettingsSection,
+  licencesSchema,
+  licencesInput,
+  gatesSchema,
+  agencySchema,
 } from '@/lib/validation/settings'
 
 type Msg = ActionResult<{ message: string }>
@@ -87,6 +91,24 @@ export async function saveSettingsAction(section: SettingsSection, _prev: Msg | 
       const p = languageSchema.safeParse(input)
       if (!p.success) return invalid(p.error)
       rows.push({ key: 'amharic_enabled', value: p.data.amharic_enabled })
+      break
+    }
+    case 'licences': {
+      const p = licencesSchema.safeParse(licencesInput(input))
+      if (!p.success) return invalid(p.error)
+      rows.push({ key: 'licences', value: p.data })
+      break
+    }
+    case 'gates': {
+      const p = gatesSchema.safeParse(input)
+      if (!p.success) return invalid(p.error)
+      for (const [key, value] of Object.entries(p.data)) rows.push({ key, value })
+      break
+    }
+    case 'agency': {
+      const p = agencySchema.safeParse(input)
+      if (!p.success) return invalid(p.error)
+      for (const [key, value] of Object.entries(p.data)) rows.push({ key, value })
       break
     }
     case 'homepage': {

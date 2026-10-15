@@ -17,12 +17,17 @@ export async function assertAdmin(): Promise<void> {
   if (!(await isAdminRequest())) throw new Error('Unauthorized')
 }
 
+/** Who is acting in admin, for audit entries: 'admin' (the master login). */
+export async function adminActor(): Promise<string> {
+  return 'admin'
+}
+
 /** Records an admin action in audit_log (spec 18.2 #17). Never throws. */
 export async function audit(action: string, entity: { type?: string; id?: string | null; label?: string | null }, diff?: Record<string, unknown> | null): Promise<void> {
   try {
     await getAdminSupabase()
       .from('audit_log')
-      .insert({ actor: 'admin', action, entity_type: entity.type ?? null, entity_id: entity.id ?? null, entity_label: entity.label?.slice(0, 200) ?? null, diff: (diff ?? null) as Json, ip_hash: hashIp(getClientIp(await headers())) })
+      .insert({ actor: await adminActor(), action, entity_type: entity.type ?? null, entity_id: entity.id ?? null, entity_label: entity.label?.slice(0, 200) ?? null, diff: (diff ?? null) as Json, ip_hash: hashIp(getClientIp(await headers())) })
   } catch (err) {
     log.error('audit', 'audit write failed', err, { action })
   }

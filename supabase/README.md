@@ -346,6 +346,15 @@ select version from schema_migrations where version = '0026';
 ```
 **You should see:** `5` and `0026`. The security test still shows 133 `PASS` rows.
 
+## 0027_pillars.sql (Section 26, S1)
+**What it does:** adds the ten business pillars (Buy, Rent, Build, Maintain, Manage, Finance, Insurance, Advice, Supplies, Jobs), each with three switches: Direct (HagerLand does it), Aggregate (trusted partners) and Interest (register-your-interest). A pillar shows when any switch is on, shows as "Coming soon" with only Interest on, and is hidden with none. Turning Direct or Aggregate on is refused by the database unless a stage-gate checklist was completed in the last 15 minutes. The areas that belong to one pillar (Supplies, Contractors, Repairs, Finance, Insurance, Jobs, Our Developments) and Property (Buy and Rent) now follow the pillar switches, so Jobs becomes live (AB confirmed recruitment is approved). Also adds settings for licence references, the partner minimum for Aggregate (3) and the agency fee schedule, and lets businesses say which pillars they serve.
+
+**Check:**
+```sql
+select (select count(*) from pillars), (select count(*) from pillar_services), (select status from verticals where key = 'jobs'), (select status from verticals where key = 'finance'), (select version from schema_migrations where version = '0027');
+```
+**You should see:** `10 | 3 | live | coming_soon | 0027`. The security test shows 143 `PASS` rows.
+
 ---
 
 ## Security test (run after all migrations)
@@ -354,7 +363,7 @@ statements: that is the test cleaning up after itself; click **Run this query**.
 It temporarily creates two test users and a test listing, tries things that should and should not be
 allowed, then deletes everything it created.
 
-**You should see:** every row starting with `PASS` (38 rows after migration 0011, 42 after 0013, 57 after 0014, 67 after 0016, 74 after 0017, 96 after 0019, 106 after 0020, 125 after 0022, 133 after 0024; each later migration adds its own checks and its section below says the new total).
+**You should see:** every row starting with `PASS` (38 rows after migration 0011, 42 after 0013, 57 after 0014, 67 after 0016, 74 after 0017, 96 after 0019, 106 after 0020, 125 after 0022, 133 after 0024, 143 after 0027; each later migration adds its own checks and its section below says the new total).
 
 ## TypeScript types
 `lib/database.types.ts` was generated from these exact migrations. After all migrations are applied,

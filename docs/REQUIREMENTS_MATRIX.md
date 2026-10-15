@@ -1059,6 +1059,137 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | X-256-02 | Cutover executed only after AB types GO LIVE | 25.6 | Done | scripts/cutover/env.sh | Enforced: every cutover script refuses production without HL_CONFIRM=GO-LIVE; nothing has been run against production |
 | X-257-01 | Step-by-step AB checklist for every 25.7 item in LAUNCH_REPORT.md | 25.7 | Done | docs/LAUNCH_REPORT.md section 3 | Steps 1-14 cover every 25.7 item with exact values where not secret |
 
+## Section 26 — Property ecosystem operating model (AB, 15 Oct 2026, with AB's update of the same day)
+
+| ID | Requirement | Source | Status | Implementing files | Test / verification |
+|----|-------------|--------|--------|--------------------|---------------------|
+| X-260-01 | Section 26 appended to the spec; S1–S12 in progress file; every requirement in this matrix | 26 intro | Done | docs/HAGERLAND_RELAUNCH_SPEC.md, docs/RELAUNCH_PROGRESS.md, docs/REQUIREMENTS_MATRIX.md | verify: Section 26 + AB update appended verbatim; S1–S12 rows in RELAUNCH_PROGRESS; this section |
+| X-260-02 | AB update (15 Oct 2026) recorded and applied where it overrides the brief | 26 update | Done | supabase/migrations/0027_pillars.sql, lib/pillars.ts | unit:pillars.test.ts › launch defaults follow AB’s approval of 15 Oct 2026 |
+| X-260-03 | Blueprint Implementation backlog rows verified against current code and recorded (Resolved / Built in Section 26 / Out of scope) | 26.0 | Not done |  |  |
+| X-260-04 | Blueprint Appendix A "Immediate technical findings" rows verified and recorded | 26.0 | Not done |  |  |
+| X-260-05 | Blueprint "Engineering handoff sequence" rows verified and recorded | 26.0 | Not done |  |  |
+| X-260-06 | Nothing the relaunch removed is reintroduced (housing, /api/housing, /api/property legacy routes, manage tokens, BirrBank, Sanity) | 26.0 | Not done |  |  |
+| X-261-01 | Estate agency is live (Direct) in Buy & Sell and Rent & Let; any coming-soon gating reversed | 26.1 | Not done |  |  |
+| X-261-02 | Settings: estate agency licence number, issuing authority, licence holder, date | 26.1 | Done | lib/validation/settings.ts, app/roodber8/settings/page.tsx, app/roodber8/actions/settings.ts | e2e:pillars.spec.ts › licence references entered in Settings appear in the footer, and disappear when cleared |
+| X-261-03 | Licence shown on agency pages when set | 26.1 | Not done |  |  |
+| X-261-04 | Licence shown in the footer legal line when set | 26.1 | Done | components/layout/SiteFooter.tsx, components/content/LicenceNote.tsx | e2e:pillars.spec.ts › licence references entered in Settings appear in the footer, and disappear when cleared |
+| X-261-05 | Licence shown in the Terms when set | 26.1 | Not done |  |  |
+| X-261-06 | LAUNCH_REPORT regulatory rows: "Approved — confirmed by AB (15 Oct 2026)" for all services | 26.1 + update | Not done |  |  |
+| X-261-07 | Dedicated admin on/off control for agency services, default ON | 26.1 | Done | supabase/migrations/0027_pillars.sql (pillar_services 'estate-agency'), app/roodber8/pillars/page.tsx | sql: select direct_enabled from pillar_services where key='estate-agency' → t; e2e:pillars.spec.ts › admin: aggregate needs … |
+| X-261-08 | Settings field per licence/approval (property management, recruitment, finance, insurance) shown on the relevant pages | update | Not done |  |  |
+| X-262-01 | Pillar registry (additive migration) evolved from the vertical registry; vertical keys mapped so nothing breaks | 26.2 | Done | supabase/migrations/0027_pillars.sql, lib/pillars.ts, lib/data/pillars.ts | sql:0027 check; e2e:pillars.spec.ts › launch modes: jobs is live … |
+| X-262-02 | Ten pillars in lifecycle order with hubs /buy /rent /build /maintain /manage /finance /insurance /advice /supplies /jobs | 26.2 | Not done |  |  |
+| X-262-03 | Pillar 1 Buy & Sell content: sale listings, new developments, agency sales services, offers, compare, saved searches | 26.2 | Not done |  |  |
+| X-262-04 | Pillar 2 Rent & Let content: rental listings, lettings, tenant applications, tenancies, landlord and tenant services | 26.2 | Not done |  |  |
+| X-262-05 | Pillar 3 Build & Develop content: professionals, contractors, building quotes, project brief, estimator, developments, Our Developments | 26.2 | Not done |  |  |
+| X-262-06 | Pillar 4 Repair & Maintain content: requests, emergency route, trades | 26.2 | Not done |  |  |
+| X-262-07 | Pillar 5 Manage Property content: Property Care, third-party managers, owner portal | 26.2 | Not done |  |  |
+| X-262-08 | Pillars 6 Finance and 7 Insurance hubs | 26.2 | Not done |  |  |
+| X-262-09 | Pillar 8 Knowledge & Advice hub content | 26.2 | Not done |  |  |
+| X-262-10 | Pillar 9 Supplies content: HagerLand Supply, supplier marketplace, special buys, trade accounts | 26.2 | Not done |  |  |
+| X-262-11 | Pillar 10 Jobs, Recruitment & Staffing hub | 26.2 | Not done |  |  |
+| X-262-12 | Diaspora layer present in every pillar; /diaspora hub kept | 26.2 | Not done |  |  |
+| X-262-13 | Professionals & providers layer present; /professionals and company profiles kept | 26.2 | Not done |  |  |
+| X-262-14 | Existing deeper routes remain, belong to a pillar, link back to their hub, with a documented canonical | 26.2 | Not done |  |  |
+| X-263-01 | Three independent modes per pillar and sub-service (Direct, Aggregate, Interest) | 26.3 | Done | supabase/migrations/0027_pillars.sql | sql:0027 check; e2e:pillars.spec.ts › admin: aggregate needs … |
+| X-263-02 | Visibility: any mode → visible; Interest only → "Coming soon"; all off → hidden (404, nav, sitemap) | 26.3 | Not done |  |  |
+| X-263-03 | Customer-facing labels "Provided by HagerLand", "Trusted partners", "Register your interest" (never D/A/I) | 26.3 | Not done |  |  |
+| X-263-04 | Stage gate before Direct/Aggregate ON: capability + named owner; N verified providers for Aggregate (N configurable); regulatory clearance with note and date; terms and pricing | 26.3 | Done | app/roodber8/actions/pillars.ts, components/admin/PillarTools.tsx, supabase/migrations/0027_pillars.sql (require_stage_gate) | e2e:pillars.spec.ts › admin: aggregate needs enough verified partners …; rls:Aggregate cannot be switched on without a completed stage gate |
+| X-263-05 | Stage gate answers, who and when recorded in the audit log | 26.3 | Done | app/roodber8/actions/pillars.ts | e2e:pillars.spec.ts › admin: aggregate needs … (audit_log pillar.mode.on/off) |
+| X-263-06 | Switching any mode off needs no gate | 26.3 | Done | app/roodber8/actions/pillars.ts | e2e:pillars.spec.ts › admin: … switching off is immediate |
+| X-263-07 | Stage-gate checklists pre-filled "regulatory clearance confirmed by AB, 15 Oct 2026" | update | Done | supabase/migrations/0027_pillars.sql (regulatory_clearance_note), components/admin/PillarTools.tsx | e2e:pillars.spec.ts › admin: … (Clearance note value, regulatory_date 2026-10-15) |
+| X-263-08 | Launch default modes set by migration and editable in admin (with AB's update: Manage D+A, Jobs D+A+I, Finance/Insurance I) | 26.3 + update | Done | supabase/migrations/0027_pillars.sql | unit:pillars.test.ts › launch defaults …; e2e:pillars.spec.ts › launch modes … |
+| X-263-09 | Finance/Insurance Aggregate switchable once partner organisations are verified (gate still requires active partners) | update | Done | supabase/migrations/0027_pillars.sql (pillar_active_providers: lender/broker, insurer/broker) | e2e:pillars.spec.ts › admin: aggregate needs enough verified partners … |
+| X-264-01 | Desktop header: at most 7 top-level items in lifecycle order (Buy · Rent · Build · Maintain · Manage · Supplies · More ▾) | 26.4 | Not done |  |  |
+| X-264-02 | "More" holds Finance, Insurance, Advice & guides, Jobs | 26.4 | Not done |  |  |
+| X-264-03 | Visible "Living abroad?" entry to the Diaspora layer; Find a professional in menu and search; Sign in; List with us ▾ | 26.4 | Not done |  |  |
+| X-264-04 | "All services" mega panel: 10 pillars + 2 layers grouped like the diagram, with mode labels | 26.4 | Not done |  |  |
+| X-264-05 | Mobile drawer shows everything | 26.4 | Not done |  |  |
+| X-264-06 | Each pillar hub: what it does, live modes, primary actions, deeper links, "From abroad?" panel, cross-pillar next steps | 26.4 | Not done |  |  |
+| X-264-07 | Homepage keeps hero + unified search, then a "Property ecosystem" section recreating the diagram (nucleus, 10 pillars with mode labels, two layers, journey strip) | 26.4 | Not done |  |  |
+| X-264-08 | Ecosystem visual is keyboard and screen-reader friendly and collapses to a clean list on phones | 26.4 | Not done |  |  |
+| X-265-01 | Agency contacts register (vendors, landlords, buyers, tenants) with marketing consent records | 26.5 | Not done |  |  |
+| X-265-02 | Applicant requirements (purpose, budget, areas, types, beds) with automatic matching to live listings and agent-triggered match emails | 26.5 | Not done |  |  |
+| X-265-03 | Instructions pipeline lead → valuation booked → valued → instructed → live → under offer / let agreed → completed / withdrawn / expired | 26.5 | Not done |  |  |
+| X-265-04 | Instruction terms: agreement document (private-docs), fee type % or fixed, fee amount, sole/multi agency, term dates | 26.5 | Not done |  |  |
+| X-265-05 | Live instruction linked to a listing with lister_type 'hagerland' ("Marketed by HagerLand") | 26.5 | Not done |  |  |
+| X-265-06 | Valuations: appointment, assigned agent, range, notes, report PDF, outcome | 26.5 | Not done |  |  |
+| X-265-07 | Public "Book a viewing" on HagerLand-marketed listings (in person/video, preferred times, contact, Turnstile); other listings keep the enquiry flow | 26.5 | Not done |  |  |
+| X-265-08 | Viewing admin: scheduling, assigned agent, confirmation and reminder emails, video link, feedback | 26.5 | Not done |  |  |
+| X-265-09 | Public "Make an offer" on HagerLand-marketed sale listings, worded as a non-binding expression of interest | 26.5 | Not done |  |  |
+| X-265-10 | Offer log with statuses and recorded vendor decisions; accepted → sale progression checklist (admin-editable defaults, no legal assertions) | 26.5 | Not done |  |  |
+| X-265-11 | "Apply to rent" on HagerLand-marketed lets (details, move-in, occupants, employment/income note, optional private documents); referencing notes; approve → tenancy | 26.5 | Not done |  |  |
+| X-265-12 | Customer account shows their valuations, viewings, offers, applications and tenancies | 26.5 | Not done |  |  |
+| X-265-13 | Completion creates a deal in the deals ledger (commission or letting fee) | 26.5 | Not done |  |  |
+| X-265-14 | Agency reports: instructions, valuations, viewings, offers, completions, average days on market, fee income | 26.5 | Not done |  |  |
+| X-265-15 | Tasks/reminders, activity timeline per record, private documents, all audit-logged | 26.5 | Not done |  |  |
+| X-265-16 | Fees shown only if a fee schedule is published in Settings; otherwise "fees agreed in writing" | 26.5 | Not done |  |  |
+| X-266-01 | Landlord services page (let only / let & manage / management only → Pillar 5) | 26.6 | Not done |  |  |
+| X-266-02 | Tenant guidance page (draft for AB review) | 26.6 | Not done |  |  |
+| X-266-03 | Rent-ready checklist (editable) | 26.6 | Not done |  |  |
+| X-266-04 | Tenancy records: parties, property, dates, rent and currency, advance months, deposit, renewal and notice dates | 26.6 | Not done |  |  |
+| X-266-05 | Tenancy reminders (renewal, notice) via the daily cron | 26.6 | Not done |  |  |
+| X-266-06 | Tenancy linked to a managed property when let & managed; maintenance requests from managed tenancies route to Pillar 4 | 26.6 | Not done |  |  |
+| X-267-01 | Property Care stays live (Direct) with consultation requests and its admin pipeline | 26.7 | Not done |  |  |
+| X-267-02 | Owner portal: owners linked by admin sign in and see inspections (10-minute signed photo links), rent statements, maintenance log and documents | 26.7 | Not done |  |  |
+| X-267-03 | Owner portal: raise maintenance requests (to Pillar 4) and messages to HagerLand | 26.7 | Not done |  |  |
+| X-267-04 | Owner portal visible only to linked owners; own on/off control (default ON) | 26.7 | Not done |  |  |
+| X-267-05 | Third-party property managers shown under Aggregate | 26.7 | Not done |  |  |
+| X-268-01 | Service request engine kept; Direct lets admin assign a request to HagerLand's own team (HagerLand Services organisation) as well as or instead of third parties | 26.8 | Not done |  |  |
+| X-268-02 | Customer sees one consistent flow whoever is assigned | 26.8 | Not done |  |  |
+| X-269-01 | "Start a building project": multi-step brief (plot location and size, floors, budget band, timeline, services needed) | 26.9 | Not done |  |  |
+| X-269-02 | One project reference HLP-YYYY-NNNNNN spawning linked service requests and an optional materials quote request | 26.9 | Not done |  |  |
+| X-269-03 | Customer project page showing everything in one place | 26.9 | Not done |  |  |
+| X-269-04 | Admin projects view with linked requests | 26.9 | Not done |  |  |
+| X-269-05 | Build hub combines estimator, professionals, contractors, supplies, finance interest and Our Developments interest | 26.9 | Not done |  |  |
+| X-2610-01 | /advice hub combining guides, area guides, market insight, checklists, glossary, newsletter | 26.10 | Not done |  |  |
+| X-2610-02 | Guides drafts still need AB review before publishing | 26.10 | Not done |  |  |
+| X-2610-03 | Area guides on location pages once enough data: asking-price ranges and medians by type, listing counts, admin-written notes and FAQs | 26.10 | Not done |  |  |
+| X-2610-04 | Market insight page: medians and ranges by area and type from live listings, minimum sample from Settings, labelled "Based on asking prices on HagerLand — not valuations", refreshed daily | 26.10 | Not done |  |  |
+| X-2610-05 | Process checklists (buying, renting, building, selling) and glossary (carta, lease, G+X, condominium, finishing levels) as drafts marked "Needs AB review" | 26.10 | Not done |  |  |
+| X-2610-06 | Newsletter signup with separate consent | 26.10 | Not done |  |  |
+| X-2610-07 | No legal or regulatory statement presented as fact | 26.10 | Not done |  |  |
+| X-2611-01 | Every pillar hub has a "From abroad?" panel tailored to the pillar | 26.11 | Not done |  |  |
+| X-2611-02 | Diaspora hub organised by the three segments + services abroad | 26.11 | Not done |  |  |
+| X-2611-03 | Contact forms show the visitor's time zone and allow preferred call times | 26.11 | Not done |  |  |
+| X-2612-01 | One provider onboarding where providers choose pillars and services they serve | 26.12 | Not done |  |  |
+| X-2612-02 | Provider dashboard shows leads from every pillar | 26.12 | Not done |  |  |
+| X-2612-03 | Verified reviews only from customers whose request reached "won" or whose deal completed; one per job; rating + text | 26.12 | Not done |  |  |
+| X-2612-04 | Reviews moderated before publishing; admin moderation queue | 26.12 | Not done |  |  |
+| X-2612-05 | Provider can reply once | 26.12 | Not done |  |  |
+| X-2612-06 | Reviews shown on company profiles with an average | 26.12 | Not done |  |  |
+| X-2612-07 | AggregateRating structured data only with at least 3 published reviews; never import or fabricate reviews | 26.12 | Not done |  |  |
+| X-2613-01 | Admin "Demand" dashboard: interest, unmatched/declined requests, zero-result searches, enquiries and leads by pillar, category, location and country, with trends | 26.13 | Not done |  |  |
+| X-2613-02 | Activation recommendations rank pillar × category × location by demand vs active supply, each linking to the stage-gate checklist | 26.13 | Not done |  |  |
+| X-2613-03 | Monthly CSV export of demand | 26.13 | Not done |  |  |
+| X-2613-04 | Demand summary in the daily digest | 26.13 | Not done |  |  |
+| X-2614-01 | Admin "Performance" dashboard per pillar: leads, median first-response time, conversion to won, revenue (deals), active listings, providers and partners | 26.14 | Not done |  |  |
+| X-2614-02 | Agency KPIs on the Performance dashboard; CSV export | 26.14 | Not done |  |  |
+| X-2615-01 | Staff users (Supabase Auth, separate from customer accounts) with roles owner, agent, operations, content | 26.15 | Not done |  |  |
+| X-2615-02 | Each staff member must enrol TOTP before access | 26.15 | Not done |  |  |
+| X-2615-03 | Role-based admin access per area (agent / operations / content / owner) | 26.15 | Not done |  |  |
+| X-2615-04 | Per-user audit log entries | 26.15 | Not done |  |  |
+| X-2615-05 | Staff management screen for the owner: invite, change role, disable | 26.15 | Not done |  |  |
+| X-2615-06 | /roodber8 master login remains as the owner's break-glass access | 26.15 | Not done |  |  |
+| X-2615-07 | Server-side role checks on every admin action and page; tests prove each role reaches only its areas | 26.15 | Not done |  |  |
+| X-2615-08 | Default: no staff besides AB | 26.15 | Not done |  |  |
+| X-2616-01 | Homepage, hubs, about, how-it-works, list-with-us, help and footer updated for the pillar model | 26.16 | Not done |  |  |
+| X-2616-02 | Terms: estate agency terms of business (instructions, fees in writing, viewings, offers non-binding, tenant applications) as drafts for AB's lawyer | 26.16 | Not done |  |  |
+| X-2616-03 | Privacy: tenant applications, applicant registers, viewings, reviews, staff access | 26.16 | Not done |  |  |
+| X-2616-04 | Sitemaps follow pillar visibility; coming-soon-only pillars noindex | 26.16 | Not done |  |  |
+| X-2616-05 | Structured data: RealEstateAgent with licence when set; reviews per the rule above | 26.16 | Not done |  |  |
+| X-2617-01 | Online payments/payouts stay out of scope (clean integration point) | 26.17 | Deferred-by-rule | lib/integrations.ts | See X-253 rows; no payment code; integration interface only |
+| X-2617-02 | SMS/OTP, WhatsApp Business API, live bank/insurer/mortgage APIs, native apps stay out of scope | 26.17 | Deferred-by-rule | — | See X-253 rows |
+| X-2617-03 | BirrBank integration (frozen by AB) out of scope | 26.17 | Deferred-by-rule | — | verify: no BirrBank code (legacy sweep); old /api/birrbank-* answer 410 |
+| X-2617-04 | Valuation / property price-history dataset (blueprint P3) out of scope | 26.17 | Deferred-by-rule | — | Market insight uses live asking prices only and says so (26.10) |
+| X-2618-01 | LAUNCH_REPORT section 4 lists only genuinely unbuilt items; whole report re-checked for outdated statements | 26.18a | Not done |  |  |
+| X-2618-02 | Preview redirect URL pattern in the Supabase Auth step verified against the real Vercel preview domain | 26.18b | Not done |  |  |
+| X-2618-03 | Blueprint reconciled per 26.0 | 26.18c | Not done |  |  |
+| X-2619-01 | S12 full regression: lint, typecheck, clean build, unit, browser, RLS, accessibility on every new page, phone widths, link crawl, Lighthouse | 26.19 | Not done |  |  |
+| X-2619-02 | LAUNCH_REPORT updated (what changed, evidence, page-by-page checklist incl. every new page, pre-go-live checklist, pillar mode defaults and regulatory flags) | 26.19 | Not done |  |  |
+| X-2619-03 | 25.5 go-live readiness re-run after Section 26 | 26.19 | Not done |  |  |
+| X-2619-04 | Every work package committed and pushed to relaunch/construction only; progress updated | 26.19 | Not done |  |  |
+
 ## Phase 3 roadmap (spec Section 21) — not requirements of this release
 
 Recorded for completeness, no status: orders, invoices and delivery scheduling; delivery zones and fees; paid plans and billing; paid featured placements and advertising slots; reviews and ratings; equipment hire marketplace; market data (price index, sold/let history); multiple admin users with roles; PWA, partner API, regional expansion at scale and brand splits. The items Section 25.3 names (payments, SMS OTP, WhatsApp API, partner APIs, native apps) are rows X-253-* above.
