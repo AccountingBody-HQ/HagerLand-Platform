@@ -17,6 +17,15 @@ const errorsOf = (page: import('@playwright/test').Page) => {
 // The style guide is a development page and is not part of the public site.
 for (const route of PUBLIC_ROUTES.filter((r) => !r.startsWith('/dev/'))) {
   test(`loads ${route}`, async ({ page }) => {
+    // The map exists only when map tiles are configured (NEXT_PUBLIC_MAP_TILE_URL); the results page then offers "Map view".
+    if (route === '/property/map') {
+      await page.goto('/property/for-sale')
+      const mapOn = (await page.getByRole('link', { name: 'Map view' }).count()) > 0
+      if (!mapOn) {
+        expect((await page.goto(route))?.status(), 'map without tiles').toBe(404)
+        return
+      }
+    }
     const errors = errorsOf(page)
     const res = await page.goto(route)
     expect(res?.status(), `status for ${route}`).toBe(200)

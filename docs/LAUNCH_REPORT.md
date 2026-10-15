@@ -1,6 +1,68 @@
 # HagerLand relaunch — Launch report
 
-**Date:** 15 October 2026 · **Branch:** `relaunch/construction` · **Status:** Phase 1 (WP-0 to WP-19), Phase 1.5 (E1–E10, H1–H6, Section 25) and Section 26, the property ecosystem operating model (S1–S12), are built and tested. Nothing has been changed on the live site. The cutover runs only after you complete section 3 and type **GO LIVE**.
+**Date:** 15 October 2026 · **Status: LIVE.** The new HagerLand went live on www.hagerland.com on 15 October 2026 at 16:05 UTC (merge commit `8752162` on `main`). Phase 1 (WP-0 to WP-19), Phase 1.5 (E1–E10, H1–H6, Section 25), Section 26 (S1–S12) and the cutover (WP-20) are done. The go-live record is directly below.
+
+## Go-live record (WP-20, spec 25.6), 15 October 2026
+
+AB typed GO LIVE on 15 Oct 2026 with the checklist status recorded under "Checklist as confirmed by AB" below. The cutover ran in the spec's order (the legacy lockdown comes after the merge, so the old site was never cut off from its tables while it was still serving).
+
+| Step | What happened | Result |
+|---|---|---|
+| 1. Checklist items that can be verified | `SUPABASE_DB_URL` present. The preview's `/api/health/full` could not be read: previews are behind Vercel login and this Codespace has no Vercel sign-in (changing that setting is off-limits). Relied on AB's confirmation; the same checks were covered on production after the deploy (rows 6 and 8) with the automatic rollback armed. | Done, with that limit |
+| 2. Fresh live backup | `backups/hagerland-public-20261015-1602.dump` (+ `.sql`) and `hagerland-auth-storage-20261015-1602.dump`: all 50 tables with data | PASS |
+| 3. Migrations 0010–0033 on live | 24 migrations, one at a time, each one transaction, each check PASS; 33 recorded in `schema_migrations`. Legacy row counts identical to the backup (companies 23, housing 20, jobs 1, events 3, …) | PASS |
+| 4. Security test on live | 190 of 190 PASS; no test users left behind | PASS |
+| 5. Merge to `main` | Merge commit `8752162` (parents `00de73c` and `f12d013`), no squash, no force. www.hagerland.com served it 130 seconds after the push (16:05 UTC) | PASS |
+| 6. Production smoke tests (read-only) | 176 passed. `/property/map` answered 404 on both screen sizes: correct, because no map provider is configured (no page or sitemap links to it); the test now expects that. 2 skipped: `/api/health/full` (see "Not verified" below) | PASS |
+| 7. Legacy lockdown on live | Proof 23 of 23 PASS; every legacy row still there. Smoke tests re-run after it: same result as row 6 | PASS |
+| 8. Preflight against production | Robots, all 12 sitemaps, the six security headers, hagerland.com → www redirect, admin sign-in protection and noindex: PASS. DNS: PASS after the script learned Vercel's newer DNS names and addresses (`vercel-dns-016.com`, `216.150.x.x`; responses come from `server: Vercel`). `/api/health/full`: not verifiable (below) | PASS except the item below |
+
+**Not verified, and why (no rollback, because none of them is a fault on the site):**
+
+- **`/api/health/full` on production.** `CRON_SECRET` in the Codespace's `.env.local` is empty, so the request was refused (401), which is the correct behaviour. Its parts were checked another way where possible: database and all 33 migrations (read from the database), storage buckets (`public-media` public, `private-docs` private), Supabase keys and site address (pages load data, canonical addresses are www.hagerland.com), the Turnstile site key (the widget loads and Cloudflare serves its challenge on `/contact`). Not checkable from here: `RESEND_API_KEY`, `EMAIL_FROM` domain verification, `ADMIN_DIGEST_EMAIL`, `IP_HASH_SALT`, `TURNSTILE_SECRET_KEY`, `CRON_SECRET` on Vercel.
+- **Admin sign-in with real details.** The sign-in page renders, is not indexed, and refuses visitors without a session (smoke tests). One sign-in attempt with the username, password and authenticator secret from `.env.local` was refused ("Those details did not match"): the Codespace copy differs from Vercel's values. Not retried, to avoid the 15-minute lock-out. AB signs in once to confirm (below).
+- **The daily job (cron).** Scheduled in `vercel.json` for 06:00 UTC; without the secret it correctly answers 401. Its first run is 16 Oct 2026 at 06:00 UTC, and it emails the daily digest to `ADMIN_DIGEST_EMAIL`: that email is the proof.
+
+**Checks on production after the deploy (AB's step 13), reported rather than blocking:**
+
+| Check | Result |
+|---|---|
+| Lighthouse (phone, simulated), live pages | Accessibility 100 and SEO 100 on every page. Performance: `/` 80, `/buy` 91, `/jobs` 90, `/company/hagerland-supply` 69, `/supplies` 67–87 (the same page measured 2.4 s and 7.3 s back to back: this Codespace's busy 2-core CPU, not the site). Best practices 96 (a browser "issues" note). Use PageSpeed Insights (Google's machines) for reliable speed figures |
+| Rich results (structured data) | Valid JSON-LD on `/` (Organization, WebSite), company pages (HomeAndConstructionBusiness), `/agency` (RealEstateAgent), breadcrumbs on hubs; every URL on www.hagerland.com |
+| Indexing | Live pages say `index, follow` with www canonicals; areas on Interest only (Finance, Insurance) are `noindex` on purpose until they have partners |
+| Security headers | All six present (preflight) |
+
+**Found during the cutover and fixed on `relaunch/construction`** (scripts only; the live site's code is unchanged): the merge script stopped waiting for the deployment at the old site's first 404 (the wait was done by hand); the preflight did not recognise Vercel's newer DNS; the smoke test assumed a map provider.
+
+### Checklist as confirmed by AB (15 Oct 2026)
+
+| Step | Status |
+|---|---|
+| 1 Supabase Pro | **Declined by AB**: stays on the Free plan (no downloadable backups, project pauses after a week without activity). Fresh backup taken before every write, as above. Keep taking backups with `scripts/backup-supabase.sh`. |
+| 2 Vercel environment variables | Done. Email is sent from `HagerLand <hello@accountingbody.com>` and `HagerLand Supply <supply@accountingbody.com>` (Resend free plan, domain accountingbody.com verified; hagerland.com is not verified in Resend). |
+| 3 Admin secrets | `ADMIN_PASSWORD` deliberately kept by AB; `ADMIN_SESSION_SECRET` may have been rotated in Vercel. |
+| 4 Supabase Auth | Done (site and redirect URLs, confirm email, minimum password 10, custom SMTP through Resend as hello@accountingbody.com, all four templates). |
+| 5 Resend | Free-plan fallback on accountingbody.com. |
+| 6 Turnstile | Done (hagerland.com, www.hagerland.com and the branch preview). Widget verified on production. |
+| 7 CRON_SECRET | Done in Vercel. (The Codespace's `.env.local` copy turned out to be empty.) |
+| 8 SUPABASE_DB_URL | Done; used for the cutover, then removed from `.env.local`. |
+| 9 Admin settings | Contact details saved; everything else on the defaults, to adjust from the live admin. |
+| 10 Lawyer review | **Not done. AB accepts launching with the drafted `/terms`, `/privacy` and `/cookies` and will arrange a review after launch.** |
+| 11 ICO | Done (confirmed by AB). |
+| 12 Licence references | **Deferred by AB.** The fields are empty, so no licence lines show; add them in admin → Settings → Licences and approvals when ready. |
+| 13 Preview review | Accepted by AB; production checks above. |
+
+### What AB does next
+
+1. **Sign in to the admin once** at https://www.hagerland.com/roodber8-login with your usual username, password and authenticator code, and open admin → Pillars and Settings. If it refuses you, check `ADMIN_USERNAME`, `ADMIN_PASSWORD` and `ADMIN_TOTP_SECRET` in Vercel (Production).
+2. **Tomorrow (16 Oct) after 06:00 UTC**, check that the daily digest email arrived. If it did not, check `CRON_SECRET` and `ADMIN_DIGEST_EMAIL` in Vercel, and Vercel → Settings → Cron Jobs.
+3. **Rotate the database password** once more in Supabase (Project Settings → Database). It was used in this Codespace for the cutover. `SUPABASE_DB_URL` has already been deleted from `.env.local`.
+4. **Download the backup files** in `backups/` to your computer, then delete them from the Codespace (they contain personal data).
+5. **Lawyer review** of `/terms`, `/privacy` and `/cookies`; then set their "last updated" dates in admin → Settings.
+6. **Licence and approval references**: add them in admin → Settings → Licences and approvals when you have them; each one then shows on its pages.
+7. **Google Search Console**: submit https://www.hagerland.com/sitemap.xml (and check the old addresses are being redirected).
+8. **First week**: read the daily digest, admin → Email problems and the error count every day; run PageSpeed Insights on `/`, `/supplies` and a company page.
+9. Optional: copy `CRON_SECRET` from Vercel into `.env.local` so `bash scripts/preflight.sh` can check `/api/health/full` on production; then run it once.
 
 This report is in four parts:
 
@@ -519,6 +581,11 @@ Checked again on 15 Oct 2026 after Section 26: everything below is genuinely not
 | S11 | The matrix had pointed the deferred integrations at a file that did not exist; `lib/integrations.ts` and an admin "Not configured" panel now provide them. | Spec 25.3 "clean integration point". |
 | S12 | Browser tests that switch an area on or off now use the pillar modes (the old area switches no longer control pillar-owned areas), refreshing the site with one admin click so no in-between state can stay cached. The legacy sweep no longer searches the word "pillars", which Section 26 reuses. | Spec 26.19 regression. |
 | S12 | 25.5 re-run after Section 26: cutover rehearsed again from the live state (0010–0033, every check PASS; security test 190/190; lockdown proof 23/23), preflight and production smoke tests against the local build (all pass except the email and Turnstile keys the test copy does not have), npm audit (0 critical), legacy sweep clean. | Brief 26.19, 25.5. |
+| WP-20 | Launch without the lawyer's review: AB accepts launching with the drafted `/terms`, `/privacy` and `/cookies` and will arrange a review after launch. | AB's decision, 15 Oct 2026 (checklist step 10). |
+| WP-20 | Licence and approval references deferred: the Settings fields stay empty, so no licence lines show on the site until AB adds them. | AB's decision, 15 Oct 2026 (checklist step 12). |
+| WP-20 | Supabase stays on the Free plan (Pro declined); backups are taken with `scripts/backup-supabase.sh`, including a fresh one before the cutover. | AB's decision, 15 Oct 2026 (checklist step 1). |
+| WP-20 | Email is sent from accountingbody.com (verified in Resend, free plan) instead of hagerland.com, which is not verified. The health check verifies the domain of `EMAIL_FROM`, so it follows this choice. | AB's decision, 15 Oct 2026 (checklist steps 2 and 5). |
+| WP-20 | The cutover kept the spec's order (lockdown after the merge) rather than the order in AB's GO LIVE message (lockdown before the merge), which AB also asked to follow "exactly as specified". | Locking the legacy tables first would have cut the old site off from its data while it was still serving. |
 
 ## Phase 1.5 decisions log (Sections 24–25)
 

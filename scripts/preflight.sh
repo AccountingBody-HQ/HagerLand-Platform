@@ -36,7 +36,8 @@ fi
 if [ -z "$LOCAL" ]; then
   dns="$(node -e '
     const dns = require("dns").promises
-    const vercel = (a) => a.some((x) => /vercel-dns\.com\.?$/.test(x) || /^76\.76\.21\./.test(x) || /^66\.33\.60\./.test(x))
+    // Vercel DNS names (vercel-dns.com and the newer vercel-dns-NNN.com) and Vercel anycast addresses, old and new (216.150.x).
+    const vercel = (a) => a.some((x) => /vercel-dns(-\d+)?\.com\.?$/.test(x) || /^76\.76\.21\./.test(x) || /^66\.33\.60\./.test(x) || /^216\.150\.(1|16)\./.test(x))
     const look = async (h) => [...(await dns.resolveCname(h).catch(() => [])), ...(await dns.resolve4(h).catch(() => []))]
     Promise.all([look("www.hagerland.com"), look("hagerland.com")]).then(([w, a]) => console.log(`${vercel(w)} ${vercel(a)}`))')"
   check "DNS: www.hagerland.com points to Vercel" "[ '${dns%% *}' = true ]"
