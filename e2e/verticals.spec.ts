@@ -44,6 +44,7 @@ test.describe('pillar navigation (spec 26.4)', () => {
   test('homepage keeps the hero and search, then the ten services in four customer groups, Living abroad and Professionals', async ({ page }) => {
     await page.goto('/')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('One platform for property, construction and everything around it.')
+    await expect(page.locator('main .hl-eyebrow').first()).toHaveText("Ethiopia's property and construction platform")
     await expect(page.getByText('Buy, rent, build and manage property in Ethiopia, with verified partners, wherever you live.').first()).toBeVisible()
     const services = page.locator('section[aria-labelledby="services-title"]')
     await expect(services.getByRole('heading', { level: 2, name: 'Everything your property needs' })).toBeVisible()

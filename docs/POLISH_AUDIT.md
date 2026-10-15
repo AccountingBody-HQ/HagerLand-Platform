@@ -62,7 +62,7 @@ No P0 issues were found: nothing was broken.
 | P-027 | P3 | Pages with the anti-bot widget (`/finance`, `/supplies`, forms) | Both | The browser console shows messages from inside Cloudflare's own widget frame (its own security rules and its anti-debugging lines). | Harmless and invisible to visitors, but it shows in audits. | No action possible: it is Cloudflare's code and policy. The homepage no longer loads the widget (P-013). | — | — |
 | P-028 | P3 | `/` | Mobile | Ten full-size cards made the services section long on phones. | Long scroll. | Done: compact cards on phones (icon beside the text), spacious from tablet width up. | S | home-mobile |
 | P-029 | P3 | `/` → professional chips | Both | Chips such as "Architects" lead to directories that are empty until the first professionals join. Those pages already offer "Get quotes" and "List your business". | Fine for now; could feel thin. | Recommended: revisit once the first verified professionals are live (R-6). | S | — |
-| P-030 | P3 | Hero eyebrow | Both | "For Ethiopians in Ethiopia and around the world." now sits just above a line ending "wherever you live". | Slight repetition. | Proposed, not changed (AB's brief): "Ethiopia's property and construction platform". | S | — |
+| P-030 | P3 | Hero eyebrow | Both | "For Ethiopians in Ethiopia and around the world." now sits just above a line ending "wherever you live". | Slight repetition. | Done at AB's request (R-3): "Ethiopia's property and construction platform". The audience line stays on About and Diaspora. Amharic entry added, marked for native review. | S | home-* |
 
 **Checked and fine (no change):** titles and descriptions are unique on every page; canonicals all point to www.hagerland.com; coming-soon pages are noindex as designed; every image has alt text; there is no sideways scroll at 390 px or 1440 px on any of the 73 public pages, 39 admin screens and 14 account pages; all 39 admin screens and 14 account pages load without errors (local copy); emails read naturally; the 404 page, search (with and without results), sign-in and sign-up are clear; licence lines stay hidden while the licence fields are empty.
 
@@ -73,8 +73,8 @@ No P0 issues were found: nothing was broken.
 | P0 | 0 | 0 | 0 |
 | P1 | 9 | 9 | 0 |
 | P2 | 18 | 17 | 1 (P-025, AB's text) |
-| P3 | 4 | 1 | 3 |
-| **Total** | **31** | **27** | **4** |
+| P3 | 4 | 2 | 2 |
+| **Total** | **31** | **28** | **3** |
 
 ---
 
@@ -82,7 +82,7 @@ No P0 issues were found: nothing was broken.
 
 | Where | Old | New |
 |---|---|---|
-| Eyebrow | For Ethiopians in Ethiopia and around the world. | Unchanged (a proposal is in P-030) |
+| Eyebrow | For Ethiopians in Ethiopia and around the world. | Ethiopia's property and construction platform (R-3, applied at AB's request) |
 | Main heading | One platform for property, construction and everything around it. | Unchanged |
 | Support line | Find it. Buy it. Finance it. Build it. Supply it. Insure it. Maintain it. Sell it. Rent it. | Buy, rent, build and manage property in Ethiopia, with verified partners, wherever you live. |
 | Search description (meta) | Property, building supplies, professionals, contractors, repairs and diaspora services in one place, for Ethiopians in Ethiopia and around the world. | Buy, rent, build and manage property in Ethiopia with verified partners, wherever you live: homes, building materials, contractors, repairs and property care. |
@@ -135,7 +135,7 @@ None. Every fix in this round was possible without changing the database. Option
 |---|---|---|---|
 | R-1 | Review and publish the six starter guides (admin → Guides) | Guides, checklists and the glossary then appear across Knowledge & Advice automatically. It is the biggest single trust and SEO gain available. | AB, M |
 | R-2 | Edit the Knowledge & Advice description (admin → Pillars and modes → Knowledge & Advice → Edit text), for example "Practical advice on buying, renting and building in Ethiopia, and answers from our team." | P-025 | AB, S |
-| R-3 | Consider the eyebrow "Ethiopia's property and construction platform" | P-030 | AB decides, S |
+| R-3 | Eyebrow "Ethiopia's property and construction platform" | P-030: applied at AB's request | Done |
 | R-4 | Have a native speaker review the Amharic catalogue before switching Amharic on | All entries are machine-drafted | AB, M |
 | R-5 | Set a map provider (`NEXT_PUBLIC_MAP_TILE_URL`, `NEXT_PUBLIC_MAP_ATTRIBUTION`) to turn on the property map | The map stays hidden until then | AB, S |
 | R-6 | Once the first verified professionals are live, revisit the homepage professional chips (keep them, or show a few verified companies) | P-029 | Later, S |

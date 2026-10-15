@@ -191,6 +191,8 @@ export const AM_MESSAGES: Record<string, string> = {
   'One platform for property, construction and everything around it.': 'ለንብረት፣ ለግንባታ እና በዙሪያቸው ላሉ ነገሮች ሁሉ አንድ መድረክ።',
   'For Ethiopians in Ethiopia and around the world.': 'በኢትዮጵያ እና በመላው ዓለም ላሉ ኢትዮጵያውያን።',
   "Ethiopia's construction and property platform": 'የኢትዮጵያ የግንባታ እና የንብረት መድረክ',
+  // Homepage hero eyebrow (polish round 1, R-3): NEEDS NATIVE REVIEW.
+  "Ethiopia's property and construction platform": 'የኢትዮጵያ የንብረት እና የግንባታ መድረክ',
   'Show prices in': 'ዋጋዎችን አሳይ በ',
 
   // Homepage

@@ -7,6 +7,8 @@ export const brand = {
   masterLine: 'One platform for property, construction and everything around it.',
   supportLine: 'Buy, rent, build and manage property in Ethiopia, with verified partners, wherever you live.',
   audienceLine: 'For Ethiopians in Ethiopia and around the world.',
+  /** Homepage hero eyebrow (AB, polish round 1, R-3). The audience line stays on About and Diaspora. */
+  heroEyebrow: "Ethiopia's property and construction platform",
   /** Short form of the master line for page titles (≤ 60 characters with the name). */
   titleLine: 'Property, construction and everything around it',
   descriptor: "Ethiopia's construction and property platform",

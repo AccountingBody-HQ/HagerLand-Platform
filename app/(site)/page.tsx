@@ -125,7 +125,7 @@ export default async function HomePage() {
 
       <section className="hl-blueprint bg-ink text-white">
         <Container className="py-12 sm:py-20">
-          <p className="hl-eyebrow text-gold">{t(brand.audienceLine)}</p>
+          <p className="hl-eyebrow text-gold">{t(brand.heroEyebrow)}</p>
           <h1 className="hl-display mt-4 max-w-4xl text-white">{t(brand.masterLine)}</h1>
           <p className="mt-6 max-w-2xl text-lg font-normal leading-relaxed text-white/80 sm:text-xl">{t(brand.supportLine)}</p>
           <div className="mt-10 max-w-4xl">
