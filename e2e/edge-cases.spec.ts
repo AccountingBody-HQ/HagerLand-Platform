@@ -425,6 +425,8 @@ test.describe('admin, email and legacy', () => {
       await page.getByLabel('I understand this cannot be undone automatically').check()
       await page.getByRole('button', { name: 'Merge', exact: true }).click()
       await expect.poll(async () => (await db().from('organisations').select('status').eq('id', dup.orgId).single()).data?.status).toBe('archived')
+      // The duplicate is archived first; services and links move after, so wait for the audit entry that ends the merge.
+      await expect.poll(async () => (await db().from('audit_log').select('id', { count: 'exact', head: true }).eq('action', 'organisation.merge').eq('entity_id', keep.orgId)).count).toBe(1)
       const { data: members } = await db().from('organisation_members').select('user_id').eq('org_id', keep.orgId)
       expect((members ?? []).map((m) => m.user_id).sort()).toEqual([dup.user.id, keep.user.id].sort())
       const { count } = await db().from('organisation_services').select('service_id', { count: 'exact', head: true }).eq('org_id', keep.orgId)

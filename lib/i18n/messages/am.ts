@@ -40,6 +40,22 @@ export const AM_MESSAGES: Record<string, string> = {
   'Jobs & Recruitment': 'ስራ እና ቅጥር',
   'Our Developments': 'የእኛ ፕሮጀክቶች',
 
+  // Pillar menus (Section 26)
+  Buy: 'ግዢ',
+  Rent: 'ኪራይ',
+  Manage: 'አስተዳደር',
+  Supplies: 'እቃዎች',
+  Jobs: 'ስራዎች',
+  'Advice & guides': 'ምክር እና መመሪያዎች',
+  'Living abroad?': 'በውጭ ሀገር ይኖራሉ?',
+  'Around the property lifecycle': 'በንብረት የሕይወት ዑደት ዙሪያ',
+  'Ecosystem enablers': 'ደጋፊ አገልግሎቶች',
+  'Across every service': 'በሁሉም አገልግሎቶች',
+  Overview: 'አጠቃላይ እይታ',
+  'Provided by HagerLand': 'በሀገርላንድ የሚሰጥ',
+  'Trusted partners': 'ታማኝ አጋሮች',
+  'Register your interest': 'ፍላጎትዎን ያስመዝግቡ',
+
   // Property menu
   'For sale': 'ለሽያጭ',
   'To rent': 'ለኪራይ',

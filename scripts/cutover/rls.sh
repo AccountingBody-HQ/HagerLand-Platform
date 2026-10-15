@@ -2,7 +2,7 @@
 # Cutover step 4: runs the security test (supabase/tests/rls_test.sql) against the database. It creates its own test
 # users and records and deletes them again. Every check must be PASS, and all of them must have run.
 . "$(dirname "$0")/env.sh"
-EXPECTED=133
+EXPECTED=190
 out="$("${PSQL[@]}" -At -f "$ROOT/supabase/tests/rls_test.sql")"
 pass="$(grep -c '^PASS' <<<"$out" || true)"
 fail="$(grep -c '^FAIL' <<<"$out" || true)"

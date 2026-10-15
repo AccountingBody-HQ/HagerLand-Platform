@@ -1,13 +1,13 @@
 # HagerLand relaunch — Launch report
 
-**Date:** 15 October 2026 · **Branch:** `relaunch/construction` · **Status:** Phase 1 (WP-0 to WP-19) and Phase 1.5 (E1–E10, H1–H6, Section 25) are built and tested. Nothing has been changed on the live site. The cutover runs only after you complete section 3 and type **GO LIVE**.
+**Date:** 15 October 2026 · **Branch:** `relaunch/construction` · **Status:** Phase 1 (WP-0 to WP-19), Phase 1.5 (E1–E10, H1–H6, Section 25) and Section 26, the property ecosystem operating model (S1–S12), are built and tested. Nothing has been changed on the live site. The cutover runs only after you complete section 3 and type **GO LIVE**.
 
 This report is in four parts:
 
 1. What is finished, and the evidence
 2. A page-by-page checklist for you to review
 3. Your pre-go-live checklist (spec 25.7)
-4. Known limitations and Phase 2
+4. Known limitations and what is not built yet
 
 ---
 
@@ -34,17 +34,36 @@ All 17 sections in spec 18.2 are built: dashboard, review queue (9 tabs), proper
 
 | Area | What it does |
 |---|---|
-| **Verticals** | Every part of HagerLand (Property, Supplies, Professionals, Contractors, Repairs, Finance, Insurance, Diaspora, Jobs, Our Developments) can be switched Live, Coming soon or Hidden in admin. Coming-soon parts have their own page with register-interest and become-a-partner forms, and are hidden from search engines. |
+| **Verticals** | Every part of HagerLand can be shown Live, Coming soon or Hidden. Coming-soon parts have their own page with register-interest and become-a-partner forms, and are hidden from search engines. Since Section 26, most parts follow the pillar modes (admin → Pillars and modes); Professionals and Diaspora keep their own switch. |
 | **Service requests** | One request goes to up to three suitable providers chosen by HagerLand; providers accept and quote; the customer compares and chooses. Emergencies are flagged. Deals, lead fees and commissions are recorded. Repairs, contractors, valuations, finance, insurance and recruitment all use it. |
 | **International** | Countries and cities abroad, Ethiopian-run businesses abroad, approximate prices in other currencies (only once you enter rates). |
 | **Diaspora and Property Care** | A diaspora hub and HagerLand Property Care: consultation requests, pipeline, managed properties, private inspection photos, rent statements. |
 | **Property extras** | Estate agency pages, save, compare, saved searches with email alerts, map (once a tile provider is set), property-type pages, valuation and financing requests. |
 | **Supplies extras** | Suppliers manage their own products, Special Buys, trade accounts and trade prices. |
-| **Jobs** | Job board, applications with CVs and candidate profiles, built and waiting as "coming soon". |
+| **Jobs** | Job board, applications with CVs and candidate profiles. Live since Section 26 (recruitment approved), with recruitment and placement by HagerLand and candidate and employer registers. |
 | **Teams** | Businesses invite colleagues with roles and add branches. |
 | **Guides and estimator** | A guides hub (three starter drafts for your review) and a build-cost estimator that appears once you enter rates. |
 | **Amharic** | `/am` version of the site's menus and homepage, switched off until a native speaker has reviewed it. |
 | **Hardening** | Emails that fail are retried; stale edits are refused instead of overwriting; "Download my data"; old API addresses answer "gone"; retention clean-ups; health checks; Next.js 15 / React 19. |
+
+### Added in Section 26 (15 October 2026): the property ecosystem
+
+Built from AB's ecosystem diagram (`docs/PROPERTY_ECOSYSTEM_MODEL.png`), the brief (`docs/BRIEF_SECTION_26.md`) and AB's update of the same day (regulatory approval covers every service).
+
+| Area | What it does |
+|---|---|
+| **Ten pillars and three modes** | Buy & Sell, Rent & Let, Build & Develop, Repair & Maintain, Manage, Finance, Insurance, Knowledge & Advice, Supplies, Jobs. Each has three switches in admin → **Pillars and modes**: Direct ("Provided by HagerLand"), Aggregate ("Trusted partners") and Interest ("Register your interest"). Any mode on shows the pillar; Interest alone shows "Coming soon"; all off hides it everywhere. Switching Direct or Aggregate on needs a short **stage-gate checklist** (owner, capability, verified partners for Aggregate, regulatory clearance pre-filled "confirmed by AB, 15 Oct 2026", terms), recorded in the audit log. The older area switches now follow the pillars. |
+| **Navigation and homepage** | Seven lifecycle menus (Buy · Rent · Build · Maintain · Manage · Supplies · More), an "All services" panel, "Living abroad?", hubs at `/buy` `/rent` `/build` `/maintain` `/manage` `/advice` (Supplies, Finance, Insurance and Jobs use their existing pages), a "From abroad?" panel and next steps on every hub, a "Part of …" link on deeper pages, and the homepage "Property ecosystem" drawn from your diagram (keyboard and screen-reader friendly, a simple list on phones). |
+| **HagerLand estate agency** | Admin → **Agency**: contacts with consent records, buyer and tenant requirements matched to live listings (match emails only with consent), instructions from lead to completion with written terms, valuations, viewings (confirmation and reminder emails, video links, feedback), offers (non-binding wording, owner decisions, sale progression checklist), applications to rent, tenancies (renewal and notice reminders), tasks, timelines, private documents, reports and CSV. Completing an instruction creates the deal (commission or letting fee). Public: Book a valuation, and on listings you market: Book a viewing, Make an offer, Apply to rent. Customers follow everything in their account. Licence numbers appear on agency pages, the footer and the terms once entered in Settings. |
+| **Rent & Let** | Landlord services (let only, let and manage, management only) with an editable rent-ready checklist, a page explaining how renting through HagerLand works, tenancy records, and repairs on managed tenancies sent to Repair & Maintain. |
+| **Manage Property** | Owner portal at `/owner` for owners you link to a managed property: inspections with private photos, rent statements, maintenance log, shared documents, messages and repair requests. Its own switch (on). |
+| **Repair & Maintain** | Admin can give a request to HagerLand's own team ("HagerLand Services") as well as, or instead of, providers, and send HagerLand's quote; customers see the same flow. |
+| **Build & Develop** | "Start a building project": a four-step brief that creates one project reference (HLP-…) with linked design, engineering and contractor requests, a materials quote and finance interest, all on one project page. |
+| **Knowledge & Advice** | Market insight (median asking prices by area and type, only with enough listings, always "not valuations"), area guides on place pages (your notes and FAQs), checklists and a glossary (drafts for your review), newsletter with its own consent and one-click unsubscribe. |
+| **Providers and reviews** | Businesses choose the pillars they serve; their lead list shows the pillar of each lead. Verified reviews only from customers who chose the provider for a job, moderated, one reply, average on profiles, rating data for search engines from three reviews. |
+| **Demand and performance** | Admin → **Demand**: interest, unmatched and declined requests, empty searches and enquiries by pillar, category, place and country, weekly trend, activation recommendations linked to each stage gate, monthly CSV, a line in the daily digest. Admin → **Performance**: leads, median first response, conversion, revenue, live listings and providers per pillar, plus agency figures, with CSV. |
+| **Staff accounts** | Admin → **Staff**: invite staff as owner, agent, operations or content. Each sets a password and must connect an authenticator app; each sees only their role's areas (checked on every page and action); their actions are logged under their name; disabling ends access at once. Your master sign-in stays as your break-glass access. No staff exist until you invite someone. |
+| **Content and legal** | Estate agency terms of business, Property Care, building projects and reviews in the Terms; agency, tenancies, reviews, newsletter and staff access in Privacy. All drafts for your lawyer. |
 
 ### Behind the scenes
 
@@ -64,27 +83,27 @@ All 17 sections in spec 18.2 are built: dashboard, review queue (9 tabs), proper
   - no secrets in the browser.
 - **Monitoring:** server errors are counted in the `errors` table and appear in the daily digest. Vercel Analytics and Speed Insights record cookieless events on Vercel.
 
-### Evidence (final commit on `relaunch/construction`, 15 Oct 2026)
+### Evidence (final commit on `relaunch/construction`, 15 Oct 2026, after Section 26)
 
 | Check | Result |
 |---|---|
 | Lint (`npm run lint`) | No warnings or errors |
 | Type check (`npx tsc --noEmit`) | 0 errors |
-| Clean production build (`rm -rf .next && npm run build`) | Succeeds with no warnings (Next.js 15.5.28, React 19). JavaScript shared by every page: 103 kB; largest public page 151 kB (budget 170 kB) |
-| Vercel preview builds | Succeeded for the last two commits (Next.js 14 and 15) |
-| Unit tests (Vitest) | 214 passed, in 32 files |
-| Browser tests (Playwright, local copy of the database) | **347 passed**, 36 skipped by design (tests that only apply to one screen width), 0 failed |
-| Production smoke tests (read-only, `smoke-prod/`), rehearsed on the local build | 166 passed; the only failure is the health check reporting the email and Turnstile keys, which the test copy does not have |
-| Database security test (`supabase/tests/rls_test.sql`) | 133 of 133 PASS (local copy, also after the legacy lockdown) |
-| Migrations on a fresh copy with the 22 legacy tables present | All 26 apply, each as one transaction; cutover rehearsal checks 17 of 17 PASS |
+| Clean production build (`rm -rf .next && npm run build`) | Succeeds with no warnings (Next.js 15.5.28, React 19). JavaScript shared by every page: 103 kB; homepage 145 kB, every public page under the 170 kB budget |
+| Unit tests (Vitest) | 230 passed, in 36 files |
+| Browser tests (Playwright, local copy of the database) | **408 passed**, 61 skipped by design (tests that only apply to one screen width), 0 failed |
+| Production smoke tests (read-only, `smoke-prod/`), rehearsed on the local build | 178 passed; the only failure is the health check reporting the email and Turnstile keys, which the test copy does not have |
+| Database security test (`supabase/tests/rls_test.sql`) | 190 of 190 PASS (local copy, also after the legacy lockdown) |
+| Migrations on a copy in the live state (22 legacy tables + 0001–0009) | All 24 (0010–0033) apply, each as one transaction, each check PASS; a second run applies nothing |
 | Legacy lockdown proof | 23 of 23 PASS (rehearsal); reverse script restores the old reads |
-| Accessibility (axe, WCAG 2.2 AA) | 0 serious or critical problems on every public, account and admin page |
+| Preflight (`scripts/preflight.sh`) against the local build | All PASS except the email and Turnstile keys (test copy) |
+| Accessibility (axe, WCAG 2.2 AA) | 0 serious or critical problems on every public, account and admin page, including every Section 26 page |
 | Phone and screen widths | No sideways scrolling at 360, 390, 768, 1024 and 1440 px |
 | Link crawl | 0 broken internal links |
-| `npm audit` | 0 critical; no Next.js advisories; build-time tooling findings explained in `docs/qa/npm-audit-2026-10-15.md` |
-| Legacy sweep (`scripts/legacy-sweep.sh`) | No relevant hits |
+| `npm audit` | 0 critical; no Next.js advisories; Section 26 added no packages; build-time tooling findings explained in `docs/qa/npm-audit-2026-10-15.md` |
+| Legacy sweep (`scripts/legacy-sweep.sh`) | No relevant hits ("pillars" is a word of the new platform again and is no longer searched) |
 | Requirements matrix (`docs/REQUIREMENTS_MATRIX.md`) | See "Requirements matrix summary" below |
-| Speed (Lighthouse, phone) | See below and `docs/qa/lighthouse-2026-10-15.md` |
+| Speed (Lighthouse, phone) | See below and `docs/qa/lighthouse-2026-10-15-s26.md` |
 
 The browser tests cover these complete journeys:
 
@@ -98,20 +117,22 @@ The browser tests cover these complete journeys:
 
 They also cover every admin screen, admin sign-in and lock-out, the daily job, sitemaps, share images, canonicals, structured data, security headers, upload abuse and rate limits.
 
-**Lighthouse (phone settings, test build, after the Next.js 15 upgrade).** Full tables: `docs/qa/lighthouse-2026-10-15.md` (the Phase 1 baseline is `docs/qa/lighthouse-2026-10-13.md`).
+**Lighthouse (phone settings, test build, after Section 26).** Full tables: `docs/qa/lighthouse-2026-10-15-s26.md` (earlier runs: `lighthouse-2026-10-15.md`, `lighthouse-2026-10-13.md`).
 
 | Page | Performance, real slow-4G throttling | Performance, simulated (two runs) | Accessibility |
 |---|---|---|---|
-| Homepage | 94 | 71–80 | 100 |
-| Property page | 91 | 74–81 | 100 |
-| Product page | 93–96 | 86–94 | 100 |
-| Company page | 92–95 | 80–90 | 100 |
-| Coming-soon page (`/jobs`) | 95 | 85–94 | 100 |
+| Homepage | 91 (quiet machine; 84 under load) | 73–81 | 100 |
+| Property page | 89 | 70–77 | 100 |
+| Product page | 92 | 76–79 | 100 |
+| Company page | 93 | 80–85 | 100 |
+| Jobs board (`/jobs`, now live) | 86 | 74–86 | 100 |
+| Buy hub (`/buy`, new) | 92 | 75–82 | 100 |
 
-- **Largest paint with real slow-4G throttling:** 1.6–1.8 s (target under 2.5 s).
-- **Layout shift:** at most 0.093 (target under 0.1).
+- **Largest paint with real slow-4G throttling:** 1.6–1.9 s (target under 2.5 s).
+- **Layout shift:** at most 0.027 (target under 0.1).
+- **This Codespace has 2 CPU cores** and scores move by up to 10 points between identical runs; the homepage went from 94 to 91 after Section 26 added the ecosystem diagram and the All services panel.
 - **SEO and best-practice scores** read lower on test builds only because they are deliberately marked "do not index" and run over plain http.
-- **Please check on the Vercel preview** (section 3, step 13): the simulated homepage and property scores are below 90 here.
+- **Please check on the Vercel preview** (section 3, step 13): several pages are below 90 here.
 
 ### Problems found and fixed during final testing
 
@@ -124,6 +145,10 @@ They also cover every admin screen, admin sign-in and lock-out, the daily job, s
 4. **Speed fixes:**
    - about 60 kB less code on every page;
    - admin screens no longer load all the other admin screens in the background.
+5. **Found in the Section 26 regression (S12):**
+   - the Build page linked to the build-cost estimator even when no build-cost rates exist, which gave "page not found". The link now shows only when the estimator is available;
+   - the new header menus (Buy, Rent, Build, Supplies, All services, Living abroad?, the mode badges) had no Amharic text. They are added to the Amharic catalogue, which still needs a native speaker's review before Amharic is switched on;
+   - if you switch a pillar's last mode off and straight back on, the site can keep showing it as hidden for up to 5 minutes (a page drawn in between refills the cache). Switch once, or wait a few seconds between switches.
 
 ### Decisions I made where the spec left a choice
 
@@ -146,12 +171,12 @@ Phase 1.5 decisions are in the "Phase 1.5 decisions log" at the end of this repo
 
 ### Requirements matrix summary
 
-`docs/REQUIREMENTS_MATRIX.md` lists 912 requirements from spec Sections 1–25 and PLATFORM_VISION (summary: `bash scripts/matrix-summary.sh`):
+`docs/REQUIREMENTS_MATRIX.md` lists 1,038 requirements from spec Sections 1–26 and PLATFORM_VISION (summary: `bash scripts/matrix-summary.sh`):
 
 | Status | Count |
 |---|---|
-| Done (with a passing test or a recorded verification) | 907 |
-| Deferred by rule (Section 25.3: payments, SMS codes, WhatsApp Business API, live bank/insurer partner connections, native apps) | 5 |
+| Done (with a passing test or a recorded verification) | 1,029 |
+| Deferred by rule (Sections 25.3 and 26.17: payments, SMS codes, WhatsApp Business API, live bank/insurer partner connections, native apps, BirrBank, a valuation/price-history dataset) | 9 |
 | Not done | 0 |
 
 Rows that can only be completed by you (for example the Resend domain, the lawyer's review, secrets) are marked Done for the platform side and point to the step in section 3 that finishes them; the cutover checks them again (health check and preflight) before and after going live.
@@ -206,7 +231,20 @@ For each page, check it on your phone and on a computer:
 | ☐ | `/property/compare`, `/property/map` | Compare (up to four); map only appears with a tile provider |
 | ☐ | `/property/for-sale/addis-ababa/bole/apartments` | Property-type page |
 | ☐ | `/supplies/special-buys`, `/supplies/trade` | Special Buys (empty until you add one), trade account application |
-| ☐ | `/finance`, `/insurance`, `/jobs` | Coming-soon pages: what is coming, register interest, become a partner |
+| ☐ | `/finance`, `/insurance` | Coming-soon pages: what is coming, register interest, become a partner, “From abroad?” and next steps |
+| ☐ | `/jobs` | Live job board, “Recruitment and placement by HagerLand”, candidate and employer registers |
+| ☐ | Header: menus, **All services**, **Living abroad?**; phone: the menu | Seven lifecycle menus with mode labels; every pillar and both layers in the drawer (Section 26) |
+| ☐ | `/` “Property ecosystem” section | Your diagram: PROPERTY in the middle, pillars 1–8 around it, Supplies and Jobs below, Diaspora and Professionals as layers, the journey strip |
+| ☐ | `/buy`, `/rent`, `/build`, `/maintain`, `/manage`, `/advice` | Pillar hubs: what each does, “Provided by HagerLand” / “Trusted partners”, actions, deeper pages, “From abroad?”, next steps |
+| ☐ | Any deeper page, e.g. `/property/to-rent` | “Part of Rent & Let Property” link at the top |
+| ☐ | `/agency/valuation`, `/agency/landlords`, `/agency/tenants` | Book a valuation; landlord services with the rent-ready checklist; how renting through HagerLand works |
+| ☐ | A listing marked “Marketed by HagerLand”: `/property/<listing>`, `/viewing`, `/offer` or `/apply` | Agency panel, viewing form (in person or video, your time zone), offer form (non-binding wording), application form (optional documents) |
+| ☐ | `/build/project` | Four-step building project brief (sign in first) |
+| ☐ | `/advice/market-insight`, `/advice/checklists`, `/advice/glossary` | Market figures appear once 5 listings exist per figure; checklists and glossary say “coming shortly” until you publish the drafts |
+| ☐ | `/property/to-rent/addis-ababa/bole` (bottom) | “About Bole”: market figures and your area guide once published |
+| ☐ | `/owner` | Owner portal (owners you link only) |
+| ☐ | `/company/<a company>` with reviews | Reviews with average and replies |
+| ☐ | `/newsletter/unsubscribe` (from a newsletter email) | One-click unsubscribe |
 | ☐ | `/guides` | Hidden from search engines until you publish a guide |
 | ☐ | `/build-cost-estimator` | "Page not found" until you enter build-cost rates (then the estimator) |
 | ☐ | `/advertise` | Advertising enquiry form |
@@ -230,7 +268,13 @@ For each page, check it on your phone and on a computer:
 | ☐ | `/account/service-requests` | As a provider: requests offered to you, accept, quote |
 | ☐ | `/account/products` | As a supplier: your products, submit for review |
 | ☐ | `/account/company/team`, `/account/company/branches` | Invite people, roles, branches |
-| ☐ | `/account/jobs`, `/account/applications`, `/account/candidate` | Only once Jobs is switched live |
+| ☐ | `/account/jobs`, `/account/applications`, `/account/candidate` | Jobs is live: post a job, applications, candidate profile |
+| ☐ | `/account/agency` | Viewings, offers, valuations, applications and tenancies; “Report a repair” on managed tenancies |
+| ☐ | `/account/projects` and one project | Building projects with linked requests and quotes |
+| ☐ | `/account/reviews` | As a provider: reviews and one reply each |
+| ☐ | `/account/company` | “Which parts of HagerLand do you serve?” |
+| ☐ | `/account/requests` | Leads labelled and filterable by pillar |
+| ☐ | `/account/service-requests/<a won request>` | “How did it go?” review box |
 
 ### Admin (sign in at `/roodber8-login`)
 
@@ -265,12 +309,24 @@ For each page, check it on your phone and on a computer:
 | ☐ | `/roodber8/trade-accounts` | Approve or reject trade accounts |
 | ☐ | `/roodber8/jobs` | Job review (when Jobs is live) |
 | ☐ | `/roodber8/email-problems` | Emails waiting to be resent |
+| ☐ | `/roodber8/pillars` | Ten pillars, three switches each, stage-gate checklist, sub-switches (estate agency, owner portal, Our Developments) |
+| ☐ | `/roodber8/verticals` | Areas that follow a pillar say so; Professionals and Diaspora keep their own switch |
+| ☐ | `/roodber8/agency` (and Contacts, Instructions, Valuations, Viewings, Offers, Applications, Tenancies, Checklists) | Overview, reports and CSV; each record with tasks, documents and timeline |
+| ☐ | `/roodber8/managed-properties/<one>` | Owner portal panel: link the owner’s account, share documents, reply to messages |
+| ☐ | `/roodber8/service-requests/<one>` | “Assign HagerLand’s own team” and HagerLand’s quote (Repair & Maintain) |
+| ☐ | `/roodber8/projects` | Building projects with linked requests |
+| ☐ | `/roodber8/reviews` | Review moderation |
+| ☐ | `/roodber8/area-guides`, `/roodber8/newsletter` | Area guide editor; newsletter sign-ups and CSV |
+| ☐ | `/roodber8/demand`, `/roodber8/performance` | Demand, recommendations, monthly CSV; pillar KPIs and agency figures |
+| ☐ | `/roodber8/staff` | Invite staff, change role, disable |
+| ☐ | `/roodber8-login` → “Staff sign in”; `/roodber8-login/staff?token=…` (from an invitation) | Staff sign-in; password and authenticator set-up |
+| ☐ | `/roodber8/settings` | New: Licences and approvals, Stage gates, Estate agency and market insight, Integrations (“Not configured”) |
 
 ---
 
 ## 3. Your pre-go-live checklist (spec 25.7), in order
 
-Do these steps, then type **GO LIVE**. I then run the cutover myself (backup, migrations 0010–0026 with checks, security test, merge to `main`, production smoke tests, legacy lockdown, preflight; `scripts/cutover/README.md`), and roll back automatically if anything fails. You no longer run any SQL by hand.
+Do these steps, then type **GO LIVE**. I then run the cutover myself (backup, migrations 0010–0033 with checks, security test, merge to `main`, production smoke tests, legacy lockdown, preflight; `scripts/cutover/README.md`), and roll back automatically if anything fails. You no longer run any SQL by hand.
 
 Never paste secret values into chat, email or a git commit.
 
@@ -355,10 +411,34 @@ SUPABASE_DB_URL="postgresql://postgres.<project-ref>:<password>@<pooler-host>:54
 
 Open the preview, sign in at `/roodber8-login`, and fill in **Settings**: legal entity (name, registration number, address, governing law), contact details (phone, WhatsApp, Telegram, email, Supply email, address, hours), social links (https only), delivery area and quote reply time. Anything left empty stays hidden, so it is safe to launch with some blank. The preview writes to your live database's settings table, which already exists; if the Settings page shows an error before go-live, fill it in within the first hour after go-live instead.
 
+Also in Settings (new in Section 26):
+- **Licences and approvals:** for estate agency, property management, recruitment and placement, finance and insurance introductions, enter the licence or approval number, issuing authority, holder and date. Each appears on its pages (estate agency also in the footer and the Terms, and in the agency's search-engine data) once its number is filled in; empty ones stay hidden.
+- **Estate agency and market insight:** a published fee schedule (leave empty to say "fees are agreed in writing") and the minimum number of listings before a market figure is shown (5).
+- **Stage gates:** the number of verified partners needed before Aggregate can be switched on (3) and the pre-filled clearance note ("Regulatory clearance confirmed by AB, 15 Oct 2026").
+- **Agency → Checklists:** the sale progression steps and the rent-ready checklist (plain steps, no legal statements).
+
 Also confirm or edit:
 - the master line "One platform for property, construction and everything around it." (`lib/brand.ts`);
 - "usually within one business day" for reviews, and "Delivered to site" on supplies pages;
-- which parts are Live or Coming soon at launch (admin → **Verticals**; defaults: Property, Supply, Professionals, Contractors, Repairs, Diaspora live; Finance, Insurance, Jobs, Our Developments coming soon).
+- the pillar modes at launch (admin → **Pillars and modes**; defaults in the table below), and, in admin → **Guides**, the six new drafts marked "Needs AB review" (a tenants' guide, four checklists, the glossary): publish them once you have checked the wording;
+- optionally, invite staff (admin → **Staff**). Each must connect an authenticator app. Nobody else has access until you do.
+
+**Pillar modes at launch** (set by migration 0027, changeable in admin):
+
+| Pillar | Provided by HagerLand (Direct) | Trusted partners (Aggregate) | Register your interest | Shows as |
+|---|---|---|---|---|
+| 1 Buy & Sell | On (HagerLand estate agency) | On (marketplace) | Off | Live |
+| 2 Rent & Let | On (HagerLand lettings) | On | Off | Live |
+| 3 Build & Develop | Off (no HagerLand development yet) | On (professionals, contractors, developments, estimator) | On (Our Developments) | Live; Our Developments coming soon |
+| 4 Repair & Maintain | On (HagerLand coordinates; own team) | On (providers) | Off | Live |
+| 5 Manage Property | On (HagerLand Property Care; owner portal on) | On (third-party managers) | Off | Live |
+| 6 Property Finance | Off | Off (switchable once verified partners are added) | On | Coming soon |
+| 7 Property Insurance | Off | Off (switchable once verified partners are added) | On | Coming soon |
+| 8 Knowledge & Advice | On | Off | Off | Live |
+| 9 Supplies | On (HagerLand Supply) | On (supplier marketplace) | Off | Live |
+| 10 Jobs | On (HagerLand recruitment and placement) | On (job board) | On (candidate and employer registers) | Live |
+
+Diaspora Services and Professionals are cross-cutting layers with their own switch in admin → Verticals (both live).
 
 ### Step 10 — Lawyer review of the legal pages
 
@@ -368,14 +448,14 @@ Send `/terms`, `/privacy` and `/cookies` (from the preview) to a qualified lawye
 
 HagerLand serves people in the UK. Do the ICO's self-assessment "Does my organisation need to pay a data protection fee?" at ico.org.uk (search "data protection fee self assessment"). If it says yes, register and pay (usually £52 a year for a small organisation) and note the registration number in the privacy policy via your lawyer.
 
-### Step 12 — Regulatory checks before switching any regulated part live
+### Step 12 — Regulatory approval and licence references
 
-Estate agency, Property Care (property management), recruitment, finance and insurance: ask your lawyer the questions in **Regulatory checks** below. Until each is cleared, keep it **Coming soon** in admin → Verticals. Finance, Insurance and Jobs are coming soon by default. The estate agency pages (`/agency`, part of Property) and Property Care (part of Diaspora) go live with those parts and cannot be switched off on their own: if your lawyer has not cleared them when you are ready, say so before typing GO LIVE and they will be held back.
+You confirmed on 15 Oct 2026 that HagerLand's approval covers every service: estate agency, property management (including collecting and holding rent for owners), recruitment and placement, and finance and insurance introductions (see **Regulatory checks** below, now all "Approved"). What remains for you: enter each licence or approval reference in admin → Settings → **Licences and approvals** (step 9), and, before switching Finance or Insurance Aggregate on, add and verify the partner organisations (the stage gate needs 3 by default).
 
 ### Step 13 — Final look at the preview
 
 1. Work through the page-by-page checklist in section 2.
-2. While signed in to Vercel, run Lighthouse (Chrome → Inspect → Lighthouse → Mobile) on the homepage, a property page, a product page, a company page and `/jobs`. Target: Performance 90 or more. Codespace results: `docs/qa/lighthouse-2026-10-15.md`.
+2. While signed in to Vercel, run Lighthouse (Chrome → Inspect → Lighthouse → Mobile) on the homepage, a property page, a product page, a company page, `/jobs` and `/buy`. Target: Performance 90 or more. Codespace results: `docs/qa/lighthouse-2026-10-15-s26.md`.
 3. Paste the homepage and a property, product and company page into Google's Rich Results Test, and check securityheaders.com.
 
 ### Step 14 — Type GO LIVE
@@ -384,36 +464,65 @@ When every step above is done, type exactly **GO LIVE**. After go-live: resubmit
 
 ---
 
-## 4. Known limitations and Phase 2
+## 4. Known limitations and what is not built yet
+
+Checked again on 15 Oct 2026 after Section 26: everything below is genuinely not built, or a limitation of what is built. (The earlier "Phase 2" list is gone because almost all of it was built in Phase 1.5: Amharic architecture, property-type pages, the map, approximate prices in other currencies, Special Buys, the deals ledger and guides.)
 
 ### Known limitations
 
-- **Next.js version:** done in E10: the site now runs Next.js 15.5.28 and React 19, and `npm audit` lists no Next.js advisories (`docs/qa/npm-audit-2026-10-15.md`). AVIF conversion stays off and image resizing still only accepts our own photo bucket.
-- **Tailwind 3 and ESLint build tools** have audit warnings. They only run while building, never on the live site.
-- **Lighthouse scores:** with real slow-4G throttling every measured page scores 91–96 (largest paint under 2 s, layout shift under 0.1). Lighthouse's simulated estimate in this Codespace gives the homepage 71–80 and a property page 74–81, below the 90 target; product, company and coming-soon pages reach 86–94. Please check on the Vercel preview (section 3, step 13). If the homepage stays under 90 there, trimming its JavaScript is the first performance task after launch. Results: `docs/qa/lighthouse-2026-10-15.md`.
-- **Imports:** with no `GOOGLE_PLACES_API_KEY` the Imports screen shows a set-up message. With no `ANTHROPIC_API_KEY` you write each description yourself during review.
-- **Admin user search by email** scans the account list page by page. This is fine for thousands of users; a faster lookup is a Phase 2 item.
-- **Legacy tables:** the old tables stay readable as before until the WP-20 lockdown.
-- **Legal pages:** these must be reviewed by a lawyer before launch.
+- **Lighthouse:** see the Section 26 results in `docs/qa/lighthouse-2026-10-15-s26.md`. With real slow-4G throttling the measured pages score in the 90s; Lighthouse's simulated estimate in this Codespace is lower and varies between runs. Please check on the Vercel preview (step 13). If the homepage stays under 90 there, trimming its JavaScript is the first performance task after launch.
+- **Build tools:** Tailwind 3 and ESLint have `npm audit` warnings; they only run while building, never on the live site (`docs/qa/npm-audit-2026-10-15.md`).
+- **Amharic:** the `/am` version translates menus, headings and the main buttons only, machine-assisted and marked for native review, and is off until you switch it on.
+- **Maps:** hidden until you choose a tile provider (`NEXT_PUBLIC_MAP_TILE_URL`).
+- **Imports and AI drafts:** need `GOOGLE_PLACES_API_KEY` and `ANTHROPIC_API_KEY`; without them the Imports screen says so and you write descriptions yourself.
+- **Admin user search by email** scans the account list page by page: fine for thousands of users.
+- **Staff two-factor set-up** shows a setup key and an "open in authenticator" link, not a QR code (no QR library was added).
+- **Market insight and demand** count asking prices and requests on HagerLand only; empty searches have no day-by-day history, so their period uses the date they were last seen; revenue figures count deals in birr (deals in other currencies are listed in Deals).
+- **Legal pages** must be reviewed by your lawyer (step 10).
+- **Legacy tables** stay readable as before until the lockdown in the cutover.
 
-### Phase 2 (from the spec)
+### Not built yet (needs a decision or an outside contract)
 
-- Amharic version of the site (`/am`) with translated pages and listings.
-- Property-type landing pages (for example `/property/for-sale/addis-ababa/bole/apartments`) once there is enough content.
-- Map pin picker for listings (after a map provider is chosen).
-- Phone (SMS) sign-in and WhatsApp notifications.
-- USD price display for buyers abroad.
-- Special buys in Supplies; online orders and payments.
-- Paid plans and paid promotions (the promotions screen already records price and paid status).
-- Slug change with automatic redirects for categories and locations.
-- A deals table for commissions on sales HagerLand brokers.
-- Guides and articles.
+- Online payments and payouts (Chapa, Telebirr, cards), orders, invoices, delivery scheduling, delivery zones and fees. An integration point exists (`lib/integrations.ts`, admin → Settings → Integrations: "Not configured").
+- Phone (SMS) sign-in codes and WhatsApp Business notifications (integration points as above).
+- Live connections to banks', insurers' and mortgage providers' own systems (requests reach partners by email and their account today).
+- Native mobile apps (the website works on phones).
+- A valuation and property price-history dataset (market insight uses live asking prices only and says so).
+- BirrBank integration (frozen by you).
+- Paid plans, billing, paid featured placements and advertising slots (the promotions screen records price and paid status; nothing is charged).
+- Changing the web address (slug) of a category or place with automatic redirects.
+- Equipment hire marketplace.
 
 ---
 
+## Section 26 decisions log
+
+| Package | Decision | Why |
+|---|---|---|
+| S1 | Pillars are a new registry (`pillars`, `pillar_services`) beside the vertical registry, not a rename: the areas that belong to one pillar (Supplies, Contractors, Repairs, Finance, Insurance, Jobs, Our Developments) and Property (the more visible of Buy and Rent) follow the pillar modes through a database trigger; Professionals and Diaspora remain layers with their own switch. | Every existing URL, gate, test and the coming-soon pages keep working (spec 26.2). |
+| S1 | The stage gate is enforced in the database too: switching Direct or Aggregate on is refused unless a checklist was completed in the last 15 minutes; Aggregate also needs at least N verified, live providers or partners for that pillar (N = 3, Settings). Partners count from the business kind (for example lenders and brokers for Finance) or from the pillars a business chose. | Spec 26.3; a direct database change cannot bypass it. |
+| S1 | Estate agency, the owner portal and Our Developments are sub-services with their own three switches. Agency sales need Buy & Sell Direct and lettings need Rent & Let Direct as well as the agency switch. | Spec 26.1 "dedicated on/off control", 26.7. |
+| S1 | Licence references are one Settings group for the five regulated services; each is shown only once its number is filled in. | AB's update of 15 Oct 2026. |
+| S2 | Desktop header: seven lifecycle menus on the second row; "All services", "Living abroad?", search, sign in and List with us on the top row. Pillar hubs live at the short URLs; Supplies, Finance, Insurance and Jobs keep their existing pages as hubs and gain the hub panels. | Spec 26.4: at most 7 top-level items. |
+| S2 | The homepage diagram is an ordered list (1 to 8, then 9 and 10) placed in a ring with CSS grid from 1024 px; the PROPERTY nucleus is decorative with a screen-reader sentence. | Keyboard and screen-reader order follow the pillar numbers; phones get a clean list. |
+| S3 | Agency records are staff-only tables; customers see their own records through server pages that match their account or the confirmed email they used, so staff notes are never exposed. Contacts are matched by email (by phone only when there is no email). | Privacy; found by the tests (two people can share a phone). |
+| S3 | Viewing and valuation times are typed and shown in Ethiopia time ("10:30 Ethiopia time") and stored in UTC; reminders go 36 hours ahead from the daily job. | Spec 25.4 time rules; the daily job runs once a day. |
+| S3 | Offers and applications are only on listings HagerLand markets (lister type "hagerland" and a live instruction side switched on); all other listings keep the enquiry form. | Spec 26.5. |
+| S3 | Completing an instruction creates a won deal: commission = fee % × final price (or the fixed fee), pillar Buy or Rent. Deals gained a pillar column (backfilled for older deals). | Spec 26.5, 26.14. |
+| S4 | The tenant guidance is a guide draft for your review; `/agency/tenants` only describes HagerLand's own process (viewing, application, tenancy, repairs). | Spec 26.6 "draft for AB review"; no legal statements. |
+| S5 | Repairs raised by a tenant or an owner become Repair & Maintain service requests (source tenancy or owner portal) and a planned maintenance-log entry. HagerLand's own team is a labelled organisation, "HagerLand Services". | Spec 26.6–26.8: one consistent flow. |
+| S6 | Starting a building project needs a free account (it runs over months and is followed on one page). Finance becomes registered interest while Finance is coming soon. The HLP reference counter is shared with partner applications, so every HLP number stays unique. | Spec 26.9. |
+| S7 | Market insight is rebuilt daily into a table; visitors see only figures with at least the minimum number of listings, labelled "Based on asking prices on HagerLand — not valuations". Checklists and the glossary pages are honest and unindexed until you publish the drafts. | Spec 26.10. |
+| S8 | A review needs the job to be "won" with that provider (database rule), one per job; the provider's single reply cannot be changed (database rule). Guests review through their request link. | Spec 26.12. |
+| S10 | Staff sign in on the admin sign-in page with email, password and authenticator. Their authenticator secrets are encrypted with a key derived from `ADMIN_TOTP_SECRET` (kept at cutover), so no new setting is needed. Roles are checked by the middleware, on every page and in every admin action (each action file names its area); staff logins are never customer sessions. | Spec 26.15. |
+| S11 | Closed viewings, offers and applications are deleted after 24 months by the daily job, as the privacy policy now says. | Privacy statements must be true. |
+| S11 | The matrix had pointed the deferred integrations at a file that did not exist; `lib/integrations.ts` and an admin "Not configured" panel now provide them. | Spec 25.3 "clean integration point". |
+| S12 | Browser tests that switch an area on or off now use the pillar modes (the old area switches no longer control pillar-owned areas), refreshing the site with one admin click so no in-between state can stay cached. The legacy sweep no longer searches the word "pillars", which Section 26 reuses. | Spec 26.19 regression. |
+| S12 | 25.5 re-run after Section 26: cutover rehearsed again from the live state (0010–0033, every check PASS; security test 190/190; lockdown proof 23/23), preflight and production smoke tests against the local build (all pass except the email and Turnstile keys the test copy does not have), npm audit (0 critical), legacy sweep clean. | Brief 26.19, 25.5. |
+
 ## Phase 1.5 decisions log (Sections 24–25)
 
-Decisions made while building Phase 1.5 and preparing go-live, recorded as the brief asks.
+Decisions made while building Phase 1.5 and preparing go-live, recorded as the brief asks. Some were later changed by Section 26 (for example the owner portal now exists, and Jobs is live): see the Section 26 log above.
 
 | Package | Decision | Why |
 |---|---|---|
@@ -513,20 +622,23 @@ Decisions made while building Phase 1.5 and preparing go-live, recorded as the b
 | 25.5 | Vercel previews are behind Vercel login. The smoke tests can run against a preview only if you create a "Protection Bypass for Automation" secret (Vercel → Settings → Deployment Protection) and pass it as `VERCEL_AUTOMATION_BYPASS_SECRET`; otherwise they run on production right after the merge. | Changing Vercel settings is yours to do. |
 | 25.5 | Cutover rehearsal on the local copy (15 Oct 2026), starting from the live state (22 legacy tables + migrations 0001–0009): non-interactive backup (3 files written), migrations 0010–0026 applied one at a time with every check PASS (17 of 17; a second run applies nothing), security test 133/133 PASS, legacy lockdown proof 23/23 PASS (before it, the public key could read active legacy rows), reverse script restores the previous reads exactly, security test still 133/133 after the lockdown, rehearsal merge of relaunch/construction into main without conflicts, preflight against the local build (all PASS except the email and Turnstile keys, which the test copy does not have). | Brief 25.6, rehearsed with `CUTOVER_DB=local`. |
 
-## Regulatory checks before switching services on (spec 24.11)
+## Regulatory checks (spec 24.11, updated for Section 26)
 
-HagerLand has built these services but makes no legal claims about them. Before you switch each one live (admin → Verticals), ask a qualified Ethiopian lawyer (and, for people in the UK, a UK adviser) these questions. Nothing below is legal advice.
+On 15 Oct 2026 you confirmed that HagerLand's regulatory approval covers all its services. Record each licence or approval reference in admin → Settings → **Licences and approvals** so it can be shown on the relevant pages. Nothing below is legal advice.
 
-| Service | Check with your lawyer | Where it matters on the site |
+| Service | Status | Where it matters on the site |
 |---|---|---|
-| Estate agency (Sell / Let with HagerLand, buyer representation, sourcing) | Does HagerLand need a brokerage or real-estate agency licence, and are there rules on commission and written agency agreements? | /agency pages, "Marketed by HagerLand" labels |
-| Service requests and commissions | Can HagerLand charge providers a commission or referral fee, and how must it be invoiced (VAT, receipts)? Do customers need to be told? (The terms already say HagerLand may receive a fee.) | Request engine, deals ledger, Terms §12 |
-| Finance | Is passing customer requests to banks or lenders an activity that needs approval from the National Bank of Ethiopia (for example as an agent or introducer)? Any rules on advertising credit? | /finance (coming soon), "Ask about financing" links |
-| Insurance | Is passing requests to insurers or brokers insurance intermediation that needs a licence? | /insurance (coming soon) |
-| Jobs and recruitment | Does a job board, or helping employers find staff ("staffing requirements", placements), need a private employment agency licence, especially for placements abroad? | /jobs (coming soon), Recruitment request type |
-| HagerLand Property Care | Is managing properties, collecting rent or holding money for owners abroad regulated (property management, foreign exchange, tax on rent)? | /diaspora/property-care |
-| Personal data | What does Ethiopia's personal data protection law require (for example registration, a named contact, consent wording, keeping data outside Ethiopia)? For UK visitors, does the UK GDPR apply and is an ICO registration needed? | Privacy policy, CVs, data export and deletion |
-| Selling online | Do consumer protection or e-commerce rules apply to HagerLand Supply quotes, Special Buys and trade prices (price display, VAT-inclusive prices)? | /supplies, Special Buys, trade accounts |
-| Terms and privacy wording | Ask the lawyer to review `/terms`, `/privacy` and `/cookies` as a whole, then set the "last updated" dates in admin → Settings. | Legal pages |
+| Estate agency (sell, let, buyer representation, sourcing, developer sales, valuations, viewings, offers, tenant applications) | **Approved — confirmed by AB (15 Oct 2026)** | `/agency` pages, listing agency panel, "Marketed by HagerLand" labels, Terms |
+| Property management, including collecting and holding rent for owners (HagerLand Property Care, owner portal) | **Approved — confirmed by AB (15 Oct 2026)** | `/manage`, `/diaspora/property-care`, `/owner` |
+| Recruitment and placement (staffing requirements) and the job board | **Approved — confirmed by AB (15 Oct 2026)** | `/jobs`, Recruitment request type |
+| Finance introductions | **Approved — confirmed by AB (15 Oct 2026)** | `/finance` (Interest on; Aggregate once verified partners are added), "Ask about financing" |
+| Insurance introductions | **Approved — confirmed by AB (15 Oct 2026)** | `/insurance` (Interest on; Aggregate once verified partners are added) |
+| Service requests, commissions and lead fees | **Approved — confirmed by AB (15 Oct 2026)** | Request engine, deals ledger, Terms |
 
-Until a service is cleared, keep it "coming soon": its pages explain what is coming and collect interest without offering the service.
+Still for your lawyer (not services, but the documents and data rules):
+
+| Topic | Check with your lawyer | Where it matters |
+|---|---|---|
+| Terms and privacy wording | Review `/terms` (including the new estate agency terms of business), `/privacy` and `/cookies` as a whole, then set the "last updated" dates in admin → Settings. | Legal pages |
+| Personal data | What does Ethiopia's personal data protection law require (registration, a named contact, consent wording, data held outside Ethiopia)? For UK visitors, is an ICO registration needed (step 11)? | Privacy policy, CVs, tenant applications, data export and deletion |
+| Selling online | Do consumer protection or e-commerce rules apply to HagerLand Supply quotes, Special Buys and trade prices (price display, VAT-inclusive prices)? | `/supplies`, Special Buys, trade accounts |

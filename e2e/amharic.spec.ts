@@ -40,7 +40,7 @@ test('switched on, /am serves Amharic menus with hreflang, keeps links in Amhari
     await expect(page.locator('html')).toHaveAttribute('lang', 'am')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('ለንብረት፣ ለግንባታ እና በዙሪያቸው ላሉ ነገሮች ሁሉ አንድ መድረክ።')
     const nav = page.getByRole('navigation', { name: 'Main' })
-    await expect(nav.getByRole('button', { name: /ንብረት/ }).first()).toBeVisible()
+    await expect(nav.getByRole('button', { name: /ግዢ/ }).first()).toBeVisible()
     await expect(page.getByRole('link', { name: 'English' }).first()).toHaveAttribute('href', '/')
     await expect(page.locator('footer').getByRole('link', { name: 'ግላዊነት' })).toHaveAttribute('href', '/am/privacy')
     // The English page now advertises its Amharic version and offers the switch.

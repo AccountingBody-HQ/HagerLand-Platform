@@ -189,20 +189,6 @@ export async function asFreshVisitor(page: Page): Promise<void> {
   await page.route('http://localhost:3100/**', (route) => route.continue({ headers: { ...route.request().headers(), 'x-forwarded-for': ip } }))
 }
 
-/** Sets a vertical's status directly (cleanup only: the public cache refreshes within 5 minutes). */
-export async function setVerticalStatus(key: string, status: 'live' | 'coming_soon' | 'hidden'): Promise<void> {
-  const { error } = await db().from('verticals').update({ status }).eq('key', key)
-  if (error) throw error
-}
-
-/** Switches a vertical through the real admin screen, which refreshes the site at once and writes the audit log. */
-export async function adminSwitchVertical(page: Page, name: string, label: 'Live' | 'Coming soon' | 'Hidden'): Promise<void> {
-  await adminSession(page)
-  await page.goto('/roodber8/verticals')
-  await page.getByRole('group', { name: `Status of ${name}` }).getByRole('button', { name: label }).click()
-  await expect(page.getByText(new RegExp(`${name} is now ${label}`))).toBeVisible()
-}
-
 /** A confirmed user created directly (local stack only), with an optional published business they own. */
 export async function createUser(opts: { name?: string } = {}): Promise<{ id: string; email: string; password: string }> {
   const d = db()
@@ -296,4 +282,19 @@ export async function setPillarModes(key: string, modes: { direct?: boolean; agg
   const patch = Object.fromEntries(Object.entries(modes).map(([k, v]) => [`${k}_enabled`, v]))
   const { error } = await d.from(table).update(patch).eq('key', key)
   if (error) throw error
+}
+
+/**
+ * Sets a pillar's (or pillar service's) modes, then refreshes the site's cached menus and statuses through the
+ * real admin screen with a single Interest click that lands on the wanted state. (Switching twice would pass
+ * through an in-between state, e.g. hidden, which a page rendered between the two refreshes can put back in the cache.)
+ */
+export async function adminSetPillarModes(page: Page, key: string, name: string, modes: { direct?: boolean; aggregate?: boolean; interest?: boolean }, opts: { service?: boolean } = {}): Promise<void> {
+  const { data: row } = await db().from(opts.service ? 'pillar_services' : 'pillars').select('interest_enabled').eq('key', key).single()
+  const interest = modes.interest ?? Boolean(row?.interest_enabled)
+  await setPillarModes(key, { ...modes, interest: !interest }, opts)
+  await adminSession(page)
+  await page.goto('/roodber8/pillars')
+  await page.getByRole('switch', { name: `Interest capture for ${name}` }).click()
+  await expect(page.getByText(`Interest capture is now ${interest ? 'on' : 'off'} for ${name}.`)).toBeVisible()
 }

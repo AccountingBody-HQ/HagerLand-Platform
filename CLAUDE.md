@@ -53,13 +53,14 @@ Next.js 15.5 App Router · React 19 · TypeScript strict · Tailwind · Supabase
 ## Architecture (spec Sections 4, 6, 7)
 - Unified entity model: `profiles`, `organisations` (+ members, services, product categories, invitations, branches), `locations` tree (countries at the top), `properties`, `developments` (+ progress updates), `products`, `media`, `enquiries`, `quote_requests`, `claims`, `verification_requests`, `promotions`, `site_settings`, `audit_log`.
 - Phase 1.5 (spec Section 24, PLATFORM_VISION wins where they differ): `verticals` registry (Live / Coming soon / Hidden, `VerticalGate` in each vertical's layout, middleware noindex), request engine (`service_requests`, matches, quotes, `deals`), Property Care, saved items and saved searches, exchange rates, jobs and candidate profiles, guides and build-cost rates, trade accounts, `email_outbox`, Amharic (`lib/i18n`, `/am` rewrite in middleware, off by default). Migrations are recorded in `schema_migrations`.
+- Section 26 (property ecosystem): `pillars` + `pillar_services` with Direct/Aggregate/Interest modes and DB-enforced stage gates (`pillar_gate_checks`); pillar-controlled verticals follow the modes by trigger. Agency CRM (`agency_*`, `rental_applications`, `tenancies`), owner portal, `build_projects`, `reviews`, `market_insight`, `staff_users`. Route ↔ pillar map: `docs/PILLAR_ROUTES.md`.
 - RLS on every new table; anon reads only through `*_public` views and SECURITY DEFINER search functions. Contact details only via `/api/contact-reveal`.
 - Supabase Auth via `@supabase/ssr`; accounts at `/account`, admin at `/roodber8`.
 - Route map: spec Section 4.3.
 
 ## Gotchas
 - Google Places imports use Places API (New): `POST places.googleapis.com/v1/places:searchText` with `pageToken` **in the POST body**. Do not reintroduce legacy Places pagination.
-- Admin GET routes authenticate with `cookies()`. Keep that pattern. Admin pages/actions also call `requireAdminPage()` / `assertAdmin()` (lib/admin/guard.ts) and record actions with `audit()`.
+- Admin GET routes authenticate with `cookies()`. Keep that pattern. Admin pages/actions also call `requireAdminPage()` / `assertAdmin(AREA)` (lib/admin/guard.ts) and record actions with `audit()`. Every admin action file declares `const AREA = '/roodber8/…'` so staff roles (lib/admin/roles.ts) are checked per action; a unit test enforces it. New admin areas must be added to the role map.
 - Google Places content may only be used to discover businesses: store `place_id`, never Google reviews/ratings/photos.
 - Tests that write data run only against the local Supabase copy (`supabase/local-stack`, `.env.test.local`, `scripts/with-test-env.sh` refuses non-localhost URLs). Never point tests at the live project.
 - `rate_limits` and `import_log` are pre-existing (legacy) tables the app still uses: never delete their data without AB's agreement (the daily job's rate-limit purge is opt-in via `CRON_PURGE_RATE_LIMITS`).
@@ -73,7 +74,9 @@ Next.js 15.5 App Router · React 19 · TypeScript strict · Tailwind · Supabase
 - User-facing text in shared chrome goes through `t()` / `getT()` (`lib/i18n`) so Amharic can fall back cleanly.
 - Do not run `npx prettier --write` (no prettier config; it reformats the codebase).
 - Next 15: `cookies()`, `headers()`, `params` and `searchParams` are async (await them). `requireAdminPage()`, `assertAdmin()`, `isAdminRequest()` and `getLocale()` are async too.
+- Files with `'use server'` may export only async functions (move constants to `lib/`). Non-component exports from `'use client'` modules are not usable in server components (the admin menu list lives in `components/admin/admin-nav-items.ts`).
+- Email links use the canonical (live) host even in test builds: e2e tests take the path from them.
 - React 19 resets a form after its action runs. Forms that show validation errors use `NoResetForm` (`components/forms/NoResetForm.tsx`) so typed values stay; submit buttons read its pending state via `useFormPending()`.
 
 ## Status
-Phase 1 (WP-0 to WP-19) and Phase 1.5 (E1–E10, H1–H6, `docs/BRIEF_PHASE_1_5_AND_GO_LIVE.md`) are built; see `docs/LAUNCH_REPORT.md`, `docs/RELAUNCH_PROGRESS.md` and `docs/REQUIREMENTS_MATRIX.md`. Cutover (25.6) runs only after AB types exactly "GO LIVE".
+Phase 1 (WP-0 to WP-19), Phase 1.5 (E1–E10, H1–H6, `docs/BRIEF_PHASE_1_5_AND_GO_LIVE.md`) and Section 26 (S1–S12, `docs/BRIEF_SECTION_26.md`) are built; see `docs/LAUNCH_REPORT.md`, `docs/RELAUNCH_PROGRESS.md` and `docs/REQUIREMENTS_MATRIX.md`. Cutover (25.6) runs only after AB types exactly "GO LIVE".

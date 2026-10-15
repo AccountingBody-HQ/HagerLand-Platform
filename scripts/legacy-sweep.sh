@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Legacy-content sweep (spec 15.5): looks for wording of the old site in shipped code and config.
-# Generic words of the new platform ("diaspora", "jobs", "events", "housing", "cars") are not searched:
-# they are legitimate now. The only expected hits are the redirect lists for old addresses.
+# Generic words of the new platform ("diaspora", "jobs", "events", "housing", "cars", and "pillars", which
+# Section 26 reuses for the ten business pillars of the property ecosystem) are not searched: they are legitimate now. The only expected hits are the redirect lists for old addresses.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-TERMS=("Where Ethiopia Does Business" "Made in Ethiopia" "BirrBank" "birrbank" "community directory" "Connect and Cooperate" "pillars" "Homeland" "ሃገር ·" "accountingbody" "hagerland-platform.vercel.app" "Free, always" "tutors" "money transfer" "addressCountry: 'GB'" "en_GB")
+TERMS=("Where Ethiopia Does Business" "Made in Ethiopia" "BirrBank" "birrbank" "community directory" "Connect and Cooperate" "Homeland" "ሃገር ·" "accountingbody" "hagerland-platform.vercel.app" "Free, always" "tutors" "money transfer" "addressCountry: 'GB'" "en_GB")
 # Files that must name old sections on purpose: redirects (next.config.mjs) and the 410 list for old APIs.
 ALLOWED='^(next\.config\.mjs|lib/legacy-api\.ts):'
 hits=0

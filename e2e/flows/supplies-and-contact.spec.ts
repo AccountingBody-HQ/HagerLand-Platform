@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { adminSession, adminSwitchVertical, asFreshVisitor, db, randomPhone, trackErrors } from '../helpers'
+import { adminSession, adminSetPillarModes, asFreshVisitor, db, randomPhone, trackErrors } from '../helpers'
 
 test('a guest builds a quote list, requests a quote, and HagerLand issues it', async ({ browser, page }) => {
   test.setTimeout(180_000)
@@ -67,7 +67,7 @@ test('register interest in HagerLand Developments and send a contact message', a
   await expect(page.getByText('Coming soon').first()).toBeVisible()
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Homes we intend to build')
   // When AB switches it live, the full hub returns and interest goes to the HagerLand sales inbox.
-  await adminSwitchVertical(page, 'Our Developments', 'Live')
+  await adminSetPillarModes(page, 'our-developments', 'Our Developments', { direct: true }, { service: true })
   await page.context().clearCookies()
   await page.goto('/our-developments')
   const form = page.locator('form', { has: page.locator('#ri-empty-name') })
@@ -77,7 +77,7 @@ test('register interest in HagerLand Developments and send a contact message', a
   await expect(page.getByText('Thanks, your interest is registered')).toBeVisible()
   const { data: e } = await db().from('enquiries').select('id, target_type, intent').eq('name', 'Yonas Bekele').order('created_at', { ascending: false }).limit(1).single()
   expect(e).toMatchObject({ target_type: 'hagerland_development', intent: 'register_interest' })
-  await adminSwitchVertical(page, 'Our Developments', 'Coming soon')
+  await adminSetPillarModes(page, 'our-developments', 'Our Developments', { direct: false }, { service: true })
 
   await page.goto('/contact')
   await page.fill('#contact-name', 'Selam Abebe')

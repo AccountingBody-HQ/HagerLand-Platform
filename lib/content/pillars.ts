@@ -101,7 +101,6 @@ export const PILLAR_CONTENT: Record<PillarKey, PillarContent> = {
       { label: 'Start a building project', href: '/build/project', text: 'Describe your plot and plans once; we link the requests you need.', icon: 'hard-hat' },
       { label: 'Contractors & builders', href: '/contractors', text: 'Describe your project and get up to three quotes.', icon: 'hammer', needs: 'contractors' },
       { label: 'Architects and engineers', href: '/professionals/design-consultancy', text: 'Design, structure and building services.', icon: 'ruler', needs: 'professionals' },
-      { label: 'Build-cost estimator', href: '/build-cost-estimator', text: 'A rough cost per m² before you ask for quotes.', icon: 'calculator' },
       { label: 'New developments', href: '/developments', text: 'Projects by developers across Ethiopia.', icon: 'building', needs: 'property' },
     ],
     abroad: {

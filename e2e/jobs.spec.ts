@@ -1,36 +1,36 @@
 import { expect, test, type Page } from '@playwright/test'
-import { adminSession, adminSwitchVertical, createProvider, createUser, db, mailWithSubject, signIn, testPhotos } from './helpers'
+import { adminSession, adminSetPillarModes, createProvider, createUser, db, mailWithSubject, signIn, testPhotos } from './helpers'
 
 /** Jobs & Recruitment (spec 24.9), development progress updates (25.2j) and Our Developments (24.10). */
 
 test.describe.configure({ mode: 'serial' })
 
-/** Back to coming soon through the admin screen (which also refreshes the cached status), when a test left it live. */
+/** Jobs and Our Developments follow their pillar modes: switched through the admin screen unless already in that state. */
+async function switchArea(page: Page, key: 'jobs' | 'our-developments', live: boolean) {
+  const { data } = await db().from('verticals').select('status').eq('key', key).single()
+  if ((data?.status === 'live') === live) return
+  if (key === 'jobs') await adminSetPillarModes(page, 'jobs', 'Jobs, Recruitment & Staffing', { direct: live, aggregate: live, interest: true })
+  else await adminSetPillarModes(page, 'our-developments', 'Our Developments', { direct: live }, { service: true })
+}
+
+/** Back to the launch modes (Jobs live, Our Developments interest only) when a test changed them. */
 test.afterAll(async ({ browser }) => {
-  for (const [key, name] of [['jobs', 'Jobs & Recruitment'], ['our-developments', 'Our Developments']] as const) {
-    const { data } = await db().from('verticals').select('status').eq('key', key).single()
-    if (data?.status === 'coming_soon') continue
-    const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
-    await adminSwitchVertical(page, name, 'Coming soon')
-    await page.close()
-  }
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
+  await switchArea(page, 'jobs', true)
+  await switchArea(page, 'our-developments', false)
+  await page.close()
 })
 
 const PDF = Buffer.from('%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj 2 0 obj<</Type/Pages/Kids[]/Count 0>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF\n')
-
-const STATUS = { Live: 'live', 'Coming soon': 'coming_soon', Hidden: 'hidden' } as const
-
-/** Switches through the admin screen unless the vertical is already in that state. */
-async function switchVertical(page: Page, key: string, name: string, label: keyof typeof STATUS) {
-  const { data } = await db().from('verticals').select('status').eq('key', key).single()
-  if (data?.status !== STATUS[label]) await adminSwitchVertical(page, name, label)
-}
 
 async function uploadCv(page: Page, name = 'cv.pdf', mimeType = 'application/pdf', buffer = PDF) {
   await page.locator('input[type=file]').setInputFiles({ name, mimeType, buffer })
 }
 
-test('while coming soon, jobs shows the landing with employer and candidate interest, and account pages say so', async ({ page }) => {
+test('with Interest only, jobs shows the landing with employer and candidate interest, and account pages say so', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop', 'switches pillar modes through the admin screen')
+  await switchArea(page, 'jobs', false)
+  await page.context().clearCookies()
   await page.goto('/jobs')
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Jobs in construction, engineering and property')
   await expect(page.getByText('I am hiring')).toBeVisible()
@@ -51,7 +51,7 @@ test('switched live: an employer posts a job, HagerLand approves it, a candidate
   const candidate = await createUser({ name: 'Selam Candidate' })
   const title = `E2E Site engineer ${stamp}`
 
-  await switchVertical(page, 'jobs', 'Jobs & Recruitment', 'Live')
+  await switchArea(page, 'jobs', true)
 
   // Employer posts and submits a job.
   const emp = await browser.newPage()
@@ -159,7 +159,7 @@ test('switched live: an employer posts a job, HagerLand approves it, a candidate
 
 test('staffing requirements go through the request engine, and the daily job closes old jobs and deletes old CVs', async ({ page, request }, info) => {
   test.skip(info.project.name !== 'desktop', 'admin at desktop width')
-  await switchVertical(page, 'jobs', 'Jobs & Recruitment', 'Live')
+  await switchArea(page, 'jobs', true)
   const { data: svc } = await db().from('service_categories').select('vertical_key, question_schema').eq('slug', 'staffing').single()
   expect(svc?.vertical_key).toBe('jobs')
   expect(JSON.stringify(svc?.question_schema)).toContain('How many people?')
@@ -263,7 +263,7 @@ test('Our Developments: coming soon makes no claims; live, HagerLand projects ar
       await page.getByRole('button', { name: 'Approve' }).first().click()
       await expect.poll(async () => (await db().from('developments').select('status').eq('id', m.id).single()).data?.status).toBe('published')
     }
-    await switchVertical(page, 'our-developments', 'Our Developments', 'Live')
+    await switchArea(page, 'our-developments', true)
     await page.goto(`/our-developments?live=${stamp}`)
     await expect(page.getByRole('heading', { name: 'Current projects' })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Completed' })).toBeVisible()
@@ -274,7 +274,7 @@ test('Our Developments: coming soon makes no claims; live, HagerLand projects ar
     await expect(page.getByText(/ETB 4,200,000/).first()).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Register interest or book a visit' })).toBeVisible()
   } finally {
-    await switchVertical(page, 'our-developments', 'Our Developments', 'Coming soon')
+    await switchArea(page, 'our-developments', false)
     await db().from('developments').delete().in('id', (made ?? []).map((m) => m.id))
   }
 })

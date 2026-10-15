@@ -1,16 +1,17 @@
 import { expect, test } from '@playwright/test'
-import { adminSwitchVertical, asFreshVisitor, createProvider, db, randomPhone, seedPublishedProperty, setVerticalStatus, uniqueEmail } from './helpers'
+import { adminSetPillarModes, asFreshVisitor, createProvider, db, randomPhone, seedPublishedProperty, setPillarModes, uniqueEmail } from './helpers'
 
 /** Finance and insurance through licensed partners (spec 24.8). */
 
 test.describe.configure({ mode: 'serial' })
 
+/** Back to the launch modes (Interest only) when a test left Aggregate on. */
 test.afterAll(async () => {
-  await setVerticalStatus('finance', 'coming_soon')
-  await setVerticalStatus('insurance', 'coming_soon')
+  await setPillarModes('finance', { direct: false, aggregate: false, interest: true })
+  await setPillarModes('insurance', { direct: false, aggregate: false, interest: true })
 })
 
-test('while coming soon, finance and insurance list every category for interest and make no offers', async ({ page }) => {
+test('with Interest only, finance and insurance list every category for interest and make no offers', async ({ page }) => {
   await page.goto('/finance')
   const finance = page.locator('#register').getByLabel('Which type of finance interests you?')
   for (const c of ['Mortgages', 'Diaspora mortgages', 'Housing finance', 'Land financing', 'Construction finance', 'Development finance', 'Bridging finance', 'Commercial property finance', 'Home-improvement finance', 'Supplier credit', 'Equipment finance']) await expect(finance.locator('option', { hasText: new RegExp(`^${c}$`) })).toHaveCount(1)
@@ -21,14 +22,14 @@ test('while coming soon, finance and insurance list every category for interest 
   await expect(page.locator('#partner').getByLabel('Type of organisation').locator('option')).toHaveText(['Insurer', 'Broker', 'Other'])
 })
 
-test('switched live, finance requests go through the engine to a lender, and property pages ask about financing', async ({ page }, info) => {
+test('with Aggregate on, finance requests go through the engine to a lender, and property pages ask about financing', async ({ page }, info) => {
   test.skip(info.project.name !== 'desktop', 'admin at desktop width')
   test.setTimeout(180_000)
   const lender = await createProvider({ name: `E2E Partner Bank ${Date.now()}`, serviceSlug: 'mortgages', locationPath: 'addis-ababa' })
   await db().from('organisations').update({ kind: 'lender' }).eq('id', lender.orgId)
   const prop = await seedPublishedProperty({ title: `E2E finance ask ${Date.now()}` })
   try {
-    await adminSwitchVertical(page, 'Finance', 'Live')
+    await adminSetPillarModes(page, 'finance', 'Property Finance', { aggregate: true })
     await page.goto('/finance')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Property and construction finance')
     await expect(page.getByText('provided through approved, licensed partners')).toBeVisible()
@@ -60,21 +61,21 @@ test('switched live, finance requests go through the engine to a lender, and pro
     await expect(page.getByRole('checkbox', { name: new RegExp(`^E2E Partner Bank`) }).first()).toBeVisible()
     await db().from('service_requests').delete().eq('id', req!.id)
   } finally {
-    await adminSwitchVertical(page, 'Finance', 'Coming soon')
+    await adminSetPillarModes(page, 'finance', 'Property Finance', { aggregate: false })
     await db().from('organisations').delete().eq('id', lender.orgId)
     await db().from('properties').delete().eq('id', prop.id)
   }
 })
 
-test('switched live, insurance lists its request categories', async ({ page }, info) => {
+test('with Aggregate on, insurance lists its request categories', async ({ page }, info) => {
   test.skip(info.project.name !== 'desktop', 'admin at desktop width')
-  await adminSwitchVertical(page, 'Insurance', 'Live')
+  await adminSetPillarModes(page, 'insurance', 'Property Insurance', { aggregate: true })
   try {
     await page.goto('/insurance')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Property and construction insurance')
     await expect(page.getByRole('link', { name: 'Get quotes: Landlord insurance' })).toHaveAttribute('href', '/request-service/landlord-insurance')
   } finally {
-    await adminSwitchVertical(page, 'Insurance', 'Coming soon')
+    await adminSetPillarModes(page, 'insurance', 'Property Insurance', { aggregate: false })
   }
 })
 

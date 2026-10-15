@@ -83,13 +83,14 @@ test('owner invites an agent; the agent sets a password and enrols two-factor, t
   expect((await page.request.get('/api/admin/places-search?q=x')).status()).toBe(403)
 
   // Work is audited per person.
+  const contact = `Audited Contact ${Date.now()}`
   await page.goto('/roodber8/agency/contacts')
-  await page.fill('#nc-name', 'Audited Contact')
+  await page.fill('#nc-name', contact)
   await page.fill('#nc-phone', '+251911223399')
   await page.getByRole('checkbox', { name: 'Buyer' }).check()
   await page.getByRole('button', { name: 'Add contact' }).click()
   await expect(page.getByText('Contact added.')).toBeVisible()
-  const { data: a } = await db().from('audit_log').select('actor').eq('action', 'agency.contact.create').eq('entity_label', 'Audited Contact').single()
+  const { data: a } = await db().from('audit_log').select('actor').eq('action', 'agency.contact.create').eq('entity_label', contact).single()
   expect(a?.actor).toBe(`staff:${email}`)
 
   // The staff login is not a customer account.
