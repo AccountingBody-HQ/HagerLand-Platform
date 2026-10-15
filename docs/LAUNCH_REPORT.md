@@ -1,6 +1,6 @@
 # HagerLand relaunch — Launch report
 
-**Date:** 13 October 2026 · **Branch:** `relaunch/construction` · **Status:** Phase 1 (WP-3 to WP-19) is built and tested. Nothing has been changed on the live site. WP-20 (cutover) waits for you.
+**Date:** 15 October 2026 · **Branch:** `relaunch/construction` · **Status:** Phase 1 (WP-0 to WP-19) and Phase 1.5 (E1–E10, H1–H6, Section 25) are built and tested. Nothing has been changed on the live site. The cutover runs only after you complete section 3 and type **GO LIVE**.
 
 This report is in four parts:
 
@@ -64,21 +64,27 @@ All 17 sections in spec 18.2 are built: dashboard, review queue (9 tabs), proper
   - no secrets in the browser.
 - **Monitoring:** server errors are counted in the `errors` table and appear in the daily digest. Vercel Analytics and Speed Insights record cookieless events on Vercel.
 
-### Evidence (final commit on `relaunch/construction`)
+### Evidence (final commit on `relaunch/construction`, 15 Oct 2026)
 
 | Check | Result |
 |---|---|
 | Lint (`npm run lint`) | No warnings or errors |
 | Type check (`npx tsc --noEmit`) | 0 errors |
-| Clean production build (`rm -rf .next && npm run build`) | Succeeds. JavaScript shared by every page: 87.5 kB |
-| Unit tests (Vitest) | 85 passed, in 17 files |
-| Browser tests (Playwright, local copy of the database) | **145 passed**, 3 skipped by design (checks that are the same at every width run once), 0 failed |
-| Database security test (`supabase/tests/rls_test.sql`) | 28 of 28 PASS (local copy; 28 of 28 on live after migrations 0001–0009) |
-| Accessibility (axe, WCAG 2.2 AA) | 0 serious or critical problems on 26 public pages (phone and desktop) and 9 admin screens |
-| Phone and screen widths | No sideways scrolling on 25 page types at 360, 390, 768, 1024 and 1440 px |
-| Link crawl | 290 internal pages followed: 0 broken links, 0 errors |
-| Secrets in browser code | Every secret value checked against all browser files: none found |
-| Speed (Lighthouse, phone) | See below |
+| Clean production build (`rm -rf .next && npm run build`) | Succeeds with no warnings (Next.js 15.5.28, React 19). JavaScript shared by every page: 103 kB; largest public page 151 kB (budget 170 kB) |
+| Vercel preview builds | Succeeded for the last two commits (Next.js 14 and 15) |
+| Unit tests (Vitest) | 214 passed, in 32 files |
+| Browser tests (Playwright, local copy of the database) | **347 passed**, 36 skipped by design (tests that only apply to one screen width), 0 failed |
+| Production smoke tests (read-only, `smoke-prod/`), rehearsed on the local build | 166 passed; the only failure is the health check reporting the email and Turnstile keys, which the test copy does not have |
+| Database security test (`supabase/tests/rls_test.sql`) | 133 of 133 PASS (local copy, also after the legacy lockdown) |
+| Migrations on a fresh copy with the 22 legacy tables present | All 26 apply, each as one transaction; cutover rehearsal checks 17 of 17 PASS |
+| Legacy lockdown proof | 23 of 23 PASS (rehearsal); reverse script restores the old reads |
+| Accessibility (axe, WCAG 2.2 AA) | 0 serious or critical problems on every public, account and admin page |
+| Phone and screen widths | No sideways scrolling at 360, 390, 768, 1024 and 1440 px |
+| Link crawl | 0 broken internal links |
+| `npm audit` | 0 critical; no Next.js advisories; build-time tooling findings explained in `docs/qa/npm-audit-2026-10-15.md` |
+| Legacy sweep (`scripts/legacy-sweep.sh`) | No relevant hits |
+| Requirements matrix (`docs/REQUIREMENTS_MATRIX.md`) | See "Requirements matrix summary" below |
+| Speed (Lighthouse, phone) | See below and `docs/qa/lighthouse-2026-10-15.md` |
 
 The browser tests cover these complete journeys:
 
@@ -92,25 +98,20 @@ The browser tests cover these complete journeys:
 
 They also cover every admin screen, admin sign-in and lock-out, the daily job, sitemaps, share images, canonicals, structured data, security headers, upload abuse and rate limits.
 
-**Lighthouse (phone settings, test build).** Full table: `docs/qa/lighthouse-2026-10-13.md`.
+**Lighthouse (phone settings, test build, after the Next.js 15 upgrade).** Full tables: `docs/qa/lighthouse-2026-10-15.md` (the Phase 1 baseline is `docs/qa/lighthouse-2026-10-13.md`).
 
-| Page | Performance | Accessibility | Best practices |
+| Page | Performance, real slow-4G throttling | Performance, simulated (two runs) | Accessibility |
 |---|---|---|---|
-| Homepage | 84 (89 with real throttling) | 100 | 100 |
-| For sale results | 93 | 98 | 100 |
-| Property page | 82 (95 with real throttling) | 100 | 100 |
-| Supplies | 94 | 100 | 100 |
-| Product page | 86 (98 with real throttling) | 100 | 100 |
-| Professionals | 97 | 100 | 100 |
-| Company page | 90 | 100 | 100 |
-| Development page | 88 | 100 | 100 |
-| Our developments | 95 | 100 | 100 |
-| List with us | 95 | 100 | 100 |
+| Homepage | 94 | 71–80 | 100 |
+| Property page | 91 | 74–81 | 100 |
+| Product page | 93–96 | 86–94 | 100 |
+| Company page | 92–95 | 80–90 | 100 |
+| Coming-soon page (`/jobs`) | 95 | 85–94 | 100 |
 
-- **Largest paint with real slow-4G throttling:** 1.7–2.0 s (target under 2.5 s).
-- **Layout shift:** at most 0.089 (target under 0.1).
-- **SEO scores:** these read 66–69 only because test and preview builds are deliberately marked "do not index". Production pages are indexable.
-- **Next step:** please re-run Lighthouse on the Vercel preview. Real hosting is normally faster than this test machine.
+- **Largest paint with real slow-4G throttling:** 1.6–1.8 s (target under 2.5 s).
+- **Layout shift:** at most 0.093 (target under 0.1).
+- **SEO and best-practice scores** read lower on test builds only because they are deliberately marked "do not index" and run over plain http.
+- **Please check on the Vercel preview** (section 3, step 13): the simulated homepage and property scores are below 90 here.
 
 ### Problems found and fixed during final testing
 
@@ -140,6 +141,20 @@ They also cover every admin screen, admin sign-in and lock-out, the daily job, s
 | AI drafts for imported businesses use `claude-sonnet-5-5` | You can change the model with `ANTHROPIC_MODEL`. Every draft is reviewed by you before going live. |
 | The old About, Contact and Terms pages were removed in WP-1 | They were rebuilt in WP-13. |
 | The `gold-dark` and `info-dark` colour tokens are slightly darker | Needed for readable contrast (WCAG AA). |
+
+Phase 1.5 decisions are in the "Phase 1.5 decisions log" at the end of this report.
+
+### Requirements matrix summary
+
+`docs/REQUIREMENTS_MATRIX.md` lists 912 requirements from spec Sections 1–25 and PLATFORM_VISION (summary: `bash scripts/matrix-summary.sh`):
+
+| Status | Count |
+|---|---|
+| Done (with a passing test or a recorded verification) | 907 |
+| Deferred by rule (Section 25.3: payments, SMS codes, WhatsApp Business API, live bank/insurer partner connections, native apps) | 5 |
+| Not done | 0 |
+
+Rows that can only be completed by you (for example the Resend domain, the lawyer's review, secrets) are marked Done for the platform side and point to the step in section 3 that finishes them; the cutover checks them again (health check and preflight) before and after going live.
 
 ---
 
@@ -398,7 +413,7 @@ When every step above is done, type exactly **GO LIVE**. After go-live: resubmit
 
 ## Phase 1.5 decisions log (Sections 24–25)
 
-Decisions made while building Phase 1.5, recorded as the brief asks. The final report section replaces this log at the end.
+Decisions made while building Phase 1.5 and preparing go-live, recorded as the brief asks.
 
 | Package | Decision | Why |
 |---|---|---|

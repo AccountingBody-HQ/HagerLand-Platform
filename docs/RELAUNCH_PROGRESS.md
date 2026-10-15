@@ -54,7 +54,7 @@ Authorised by AB on 13 Oct 2026 (brief: `docs/BRIEF_PHASE_1_5_AND_GO_LIVE.md`), 
 | H6 | Edge cases and cross-cutting hardening (25.4) | done | 2026-10-14 | see git log | Migration 0024 (email outbox). RLS 133/133 local. edge-cases spec (44 tests) + 8 new unit test files |
 | E9 | Content, legal, admin additions, SEO, full QA pass | done | 2026-10-15 | see git log | Migrations 0025 (quote document grant) and 0026 (indexes); 0019's new table renamed `job_posts` (legacy `jobs` clash, see open items). RLS 133/133 local. Full e2e regression + 214 unit passed. Lighthouse in `docs/qa/lighthouse-2026-10-15.md`. Decisions in LAUNCH_REPORT (E9, 25.5) |
 | E10 | Next.js 15 upgrade (or clean revert with reasons), npm audit | done | 2026-10-15 | see git log | Next.js 15.5.28 + React 19, fully green (full e2e 347 passed). npm audit: no critical, no Next.js advisories; build-time tooling findings documented in `docs/qa/npm-audit-2026-10-15.md`. NoResetForm keeps typed values after React 19's form reset; forms refuse to send during uploads |
-| 25.5 | Go-live readiness: full re-run, preflight script, final report | todo | | | |
+| 25.5 | Go-live readiness: full re-run, preflight script, final report | done | 2026-10-15 | see git log | Everything re-run (LAUNCH_REPORT evidence). `scripts/preflight.sh`, `scripts/cutover/*`, read-only production smoke tests; cutover rehearsed on the local copy. Matrix: 907 Done, 5 Deferred by rule, 0 Not done. Waiting for AB's checklist and "GO LIVE" |
 | 25.6 | Cutover (only after AB types GO LIVE) | todo | | | Replaces WP-20 |
 
 ## WP-0 checklist

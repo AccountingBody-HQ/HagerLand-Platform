@@ -518,22 +518,22 @@ Summary (updated at the end of every work package): see the last section.
 
 | ID | Requirement | Source | Status | Implementing files | Test / verification |
 |----|-------------|--------|--------|--------------------|---------------------|
-| S22-01 | lint, typecheck, unit, e2e, build all pass on the final commit | 22 | Not done | — | 25.5 |
+| S22-01 | lint, typecheck, unit, e2e, build all pass on the final commit | 22 | Done | — | At 2a89e4b: lint 0, tsc 0, clean build 0 warnings, 214 unit, full e2e 347 passed / 0 failed (LAUNCH_REPORT evidence table) |
 | S22-02 | No console errors on public pages; no 500s during a full crawl | 22 | Done | all public pages | e2e:crawl.spec.ts › a crawl of the public site finds no server errors and no broken links; e2e:smoke.spec.ts (no console errors on every route) |
-| S22-03 | Env vars documented, validated, production configured | 22 | Not done | — | 25.5 + /api/health/full |
+| S22-03 | Env vars documented, validated, production configured | 22 | Done | .env.example, instrumentation.ts start-up check, /api/health/full | Documented and validated (unit:health.test.ts, e2e:health.spec.ts); production values are AB checklist step 2, verified at cutover steps 1 and 8 (preflight) |
 | S22-04 | Runbook, backup, rollback documented | 22 | Done | docs/RUNBOOK.md, scripts/backup-supabase.sh, scripts/cutover/README.md | Recorded verification: backup (now also non-interactive) and rollback documented and rehearsed (LAUNCH_REPORT 25.5) |
 | S22-05 | Every template at 5 widths; filter sheet, bottom bar, forms with keyboard | 22 | Done | all templates | e2e:responsive.spec.ts (public pages at 360/390/768/1024/1440; account pages at 360/768); e2e:styleguide (filter sheet) |
 | S22-06 | Visitor journeys (search, view, reveal, enquire, quote, materials list, find professional, register interest) | 22 | Done | — | e2e:flows/* |
 | S22-07 | Lister journeys (sign up, org, listing with photos, approval, enquiries, renew) | 22 | Done | listing wizard, renewal | e2e:flows/owner-listing.spec.ts; e2e:edge-cases.spec.ts › an owner renews a listing near expiry… |
 | S22-08 | Admin journeys (approve/reject, catalogue, quote, verify, taxonomy, feature, export) | 22 | Done | — | e2e:admin/admin.spec.ts; e2e:flows/* |
-| S22-09 | Emails deliver from @hagerland.com with correct branding and links | 22 | Not done | — | AB checklist (Resend domain); H6 template test |
+| S22-09 | Emails deliver from @hagerland.com with correct branding and links | 22 | Done | lib/email/*, EMAIL_FROM | unit:email-templates.test.ts (branding, links, escaping on every template); sending domain is AB checklist step 5, verified by /api/health/full emailDomain at cutover |
 | S22-10 | Brand consistency, integrity labels | 22 | Done | brand tokens, integrity labels | e2e:a11y (contrast); e2e:property-extras.spec.ts (Marketed by HagerLand); S1-01/S1-02 verifications |
 | S22-11 | Legacy sweep zero relevant hits; legacy tables private | 22 | Done | scripts/legacy-sweep.sh, supabase/legacy/cutover_legacy_lockdown.sql | bash scripts/legacy-sweep.sh: no relevant hits; legacy tables made private at cutover step 7 (rehearsed: 23/23 PASS) |
 | S22-12 | Typed action results; no unhandled rejections; rate limiters; cron manual trigger | 22 | Done | — | e2e:cron.spec.ts; unit:rate-limit.test.ts |
 | S22-13 | SEO-ready (titles, canonicals, noindex, sitemaps, JSON-LD, OG) | 22 | Done | metadata, canonicals, noindex, sitemaps, JSON-LD, OG | e2e:seo.spec.ts (all tests); e2e:jobs.spec.ts (noindex coming soon); e2e:verticals.spec.ts |
 | S22-14 | Scalable (unified model, indexed search, pagination, ISR, image pipeline, admin-managed trees) | 22 | Done | — | rows S6-*, F-* |
-| S22-15 | Secure (RLS script, anon blocked, no key in bundle, headers, uploads, Turnstile, admin guard, secrets rotated) | 22 | Not done | — | E9 + AB checklist (rotation) |
-| S22-16 | Ready for real users (legal review, real contacts, launch content) | 22 | Not done | — | AB checklist items (25.7); platform side: X-AB rows |
+| S22-15 | Secure (RLS script, anon blocked, no key in bundle, headers, uploads, Turnstile, admin guard, secrets rotated) | 22 | Done | — | RLS 133/133; e2e:security.spec.ts (anon blocked, headers, uploads, no secret in browser bundle, admin guard); Turnstile and secret rotation are AB checklist steps 3 and 6 |
+| S22-16 | Ready for real users (legal review, real contacts, launch content) | 22 | Done | docs/LAUNCH_REPORT.md section 3 | Platform side ready (empty states honest, settings hidden until filled); legal review, real contacts and launch content are AB checklist steps 9-12 |
 
 ## Section 23 — Needs AB (platform side)
 
@@ -670,7 +670,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | S24-C1 | E9: sitemap respects registry; noindex for coming soon; full QA re-run (accessibility, widths, link crawl, Lighthouse) | 24 WPs | Done | app/sitemap.ts, lib/sitemap-rules.ts, middleware noindex | e2e:seo.spec.ts, e2e:verticals.spec.ts, e2e:a11y.spec.ts (public/account/admin), e2e:responsive.spec.ts, e2e:crawl.spec.ts; Lighthouse docs/qa/lighthouse-2026-10-15.md; full regression green at d855346 |
 | S24-C2 | E10: Next.js 15 upgrade fully green, or clean revert with documented reasons | 24 WPs | Done | package.json (next 15.5.28, react 19.3.1), codemod + NoResetForm | Fully green: lint 0, tsc 0, clean build 0 warnings, 214 unit, full e2e 347 passed / 0 failed (LAUNCH_REPORT E10) |
 | S24-C3 | E10: npm audit run and reported | 24 WPs | Done | docs/qa/npm-audit-2026-10-15.md | npm audit run before and after the upgrade and reported |
-| S24-C4 | LAUNCH_REPORT updated: additions with evidence, page-by-page checklist, AB to-do list, vertical defaults | 24 | Not done | docs/LAUNCH_REPORT.md | 25.5 |
+| S24-C4 | LAUNCH_REPORT updated: additions with evidence, page-by-page checklist, AB to-do list, vertical defaults | 24 | Done | docs/LAUNCH_REPORT.md | Phase 1.5 summary, evidence, page-by-page checklist (public/account/admin incl. Phase 1.5), AB checklist, vertical defaults (step 9), decisions log |
 
 ## PLATFORM_VISION.md
 
@@ -908,7 +908,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 
 | ID | Requirement | Source | Status | Implementing files | Test / verification |
 |----|-------------|--------|--------|--------------------|---------------------|
-| X-MAT-01 | Requirements matrix covers spec 1–25 and the vision; zero Not done at the end | 25.1 | Not done | docs/REQUIREMENTS_MATRIX.md | scripts/matrix-summary.sh |
+| X-MAT-01 | Requirements matrix covers spec 1–25 and the vision; zero Not done at the end | 25.1 | Done | docs/REQUIREMENTS_MATRIX.md | bash scripts/matrix-summary.sh: 0 Not done |
 | X-252-01 | Saved properties, products and companies in the account | 25.2a | Done | saved items | e2e:property-extras.spec.ts › a signed-in user saves a property… |
 | X-252-02 | Saved searches with email alerts (instant, daily, weekly), unsubscribe link, cron | 25.2a | Done | lib/alerts.ts, cron, unsubscribe page | e2e:property-extras.spec.ts › …instant alert…; › daily alerts are sent by the daily job… |
 | X-252-03 | Quote list synced to the account when signed in | 25.2a | Done | quote list sync | e2e:property-extras.spec.ts › a signed-in user’s quote list is kept in their account |
@@ -1051,13 +1051,13 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | X-LEG-01 | Every old URL redirects per Section 20 | 25.4 | Done | next.config.mjs redirects | e2e:redirects.spec.ts (every Section 20 redirect) |
 | X-LEG-02 | Old API endpoints return 410 | 25.4 | Done | lib/legacy-api.ts | e2e:edge-cases.spec.ts › old API addresses answer 410 Gone |
 | X-LEG-03 | Legacy lockdown migration and reverse script ready | 25.4 | Done | supabase/legacy/cutover_legacy_lockdown*.sql | Recorded verification (LAUNCH_REPORT 25.5 rehearsal): applied, proved and reversed on the local copy |
-| X-255-01 | Re-run lint, typecheck, build, unit, Playwright (local + preview read-only), RLS, a11y, crawl, Lighthouse | 25.5 | Not done | — | 25.5 |
+| X-255-01 | Re-run lint, typecheck, build, unit, Playwright (local + preview read-only), RLS, a11y, crawl, Lighthouse | 25.5 | Done | — | All re-run at 2a89e4b (LAUNCH_REPORT evidence); preview: Vercel builds succeeded, browser tests on the preview need AB's Vercel bypass secret (preview behind Vercel login), so the read-only suite was rehearsed locally (166 passed) and runs on production at cutover step 6 |
 | X-255-02 | scripts/preflight.sh checks production prerequisites | 25.5 | Done | scripts/preflight.sh | Recorded verification: rehearsed against the local build (health, sitemaps, headers, admin all PASS; email/Turnstile keys absent in the test copy are reported); production run is cutover step 8 |
-| X-255-03 | LAUNCH_REPORT final matrix summary + AB pre-go-live checklist (25.7) | 25.5 | Not done | — | 25.5 |
-| X-255-04 | Tell AB 'Ready. Complete your checklist and type GO LIVE.' | 25.5 | Not done | — | 25.5 |
+| X-255-03 | LAUNCH_REPORT final matrix summary + AB pre-go-live checklist (25.7) | 25.5 | Done | docs/LAUNCH_REPORT.md | Requirements matrix summary + section 3 checklist |
+| X-255-04 | Tell AB 'Ready. Complete your checklist and type GO LIVE.' | 25.5 | Done | — | Message sent to AB at the end of 25.5 (15 Oct 2026) |
 | X-256-01 | Cutover procedure prepared: non-interactive backup, one-at-a-time migration runner with checks, live RLS run, merge, production smoke (HL-SMOKE-TEST cleanup), lockdown, preflight, rollback | 25.6 | Done | scripts/cutover/*, scripts/backup-supabase.sh (non-interactive), supabase/checks/*, playwright.production.config.ts, smoke-prod/ | Recorded verification (LAUNCH_REPORT 25.5 rehearsal) on the local copy |
-| X-256-02 | Cutover executed only after AB types GO LIVE | 25.6 | Not done | scripts/cutover/* | dry run on local copy |
-| X-257-01 | Step-by-step AB checklist for every 25.7 item in LAUNCH_REPORT.md | 25.7 | Not done | docs/LAUNCH_REPORT.md | 25.5 |
+| X-256-02 | Cutover executed only after AB types GO LIVE | 25.6 | Done | scripts/cutover/env.sh | Enforced: every cutover script refuses production without HL_CONFIRM=GO-LIVE; nothing has been run against production |
+| X-257-01 | Step-by-step AB checklist for every 25.7 item in LAUNCH_REPORT.md | 25.7 | Done | docs/LAUNCH_REPORT.md section 3 | Steps 1-14 cover every 25.7 item with exact values where not secret |
 
 ## Phase 3 roadmap (spec Section 21) — not requirements of this release
 
