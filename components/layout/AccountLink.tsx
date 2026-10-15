@@ -5,9 +5,8 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { CircleUserRound } from 'lucide-react'
 import { cn } from '@/lib/cn'
-
-/** Supabase keeps the session in "sb-<project>-auth-token" cookies (split into .0, .1 … when large). */
-const SESSION_COOKIE = /(?:^|;\s*)sb-[a-z0-9-]+-auth-token(?:\.\d+)?=/
+import { hasSessionCookie } from '@/lib/session-cookie'
+import { useI18n } from '@/lib/i18n/client'
 
 /**
  * "Sign in" or "My account", decided in the browser so public pages stay cacheable.
@@ -17,14 +16,15 @@ const SESSION_COOKIE = /(?:^|;\s*)sb-[a-z0-9-]+-auth-token(?:\.\d+)?=/
 export function AccountLink({ className, inverse }: { className?: string; inverse?: boolean }) {
   const [signedIn, setSignedIn] = useState(false)
   const pathname = usePathname()
+  const { t, href } = useI18n()
 
   useEffect(() => {
-    setSignedIn(SESSION_COOKIE.test(document.cookie))
+    setSignedIn(hasSessionCookie())
   }, [pathname])
 
   return (
     <Link
-      href={signedIn ? '/account' : '/login'}
+      href={href(signedIn ? '/account' : '/login')}
       className={cn(
         'inline-flex h-11 items-center gap-2 rounded-md px-3 text-[0.9375rem] font-semibold transition-colors',
         inverse ? 'text-white hover:bg-white/10' : 'text-ink hover:bg-stone-100',
@@ -32,7 +32,7 @@ export function AccountLink({ className, inverse }: { className?: string; invers
       )}
     >
       {signedIn && <CircleUserRound className="size-5" aria-hidden />}
-      {signedIn ? 'My account' : 'Sign in'}
+      {signedIn ? t('My account') : t('Sign in')}
     </Link>
   )
 }

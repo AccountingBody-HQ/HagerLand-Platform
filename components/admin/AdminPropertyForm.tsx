@@ -7,12 +7,13 @@ import { Field, Select } from '@/components/ui/Field'
 import { FormAlert, SubmitButton } from '@/components/forms/FormParts'
 import { Panel } from './AdminUi'
 
-export function AdminPropertyForm({ id, values, listers, developments, currentLister }: { id?: string; values: WizardValues; listers: { id: string; label: string }[]; developments: { id: string; name: string }[]; currentLister?: string | null }) {
+export function AdminPropertyForm({ id, version, values, listers, developments, currentLister }: { id?: string; version?: string; values: WizardValues; listers: { id: string; label: string }[]; developments: { id: string; name: string }[]; currentLister?: string | null }) {
   const [state, action] = useFormState(saveAdminPropertyAction, null)
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
   return (
     <form action={action} className="space-y-5" noValidate>
       {id && <input type="hidden" name="id" value={id} />}
+      {version && <input type="hidden" name="expected_updated_at" value={version} />}
       {state && !state.ok && <FormAlert>{state.error}</FormAlert>}
       {state?.ok && <FormAlert tone="success">{state.message}</FormAlert>}
       <Panel title="Lister">

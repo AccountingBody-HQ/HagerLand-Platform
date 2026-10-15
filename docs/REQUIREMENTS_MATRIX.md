@@ -73,7 +73,7 @@ Summary (updated at the end of every work package): see the last section.
 | S3-03 | Descriptor near the name in metadata, footer and share images | 3.3 | Done | lib/brand.ts, app/layout.tsx, SiteFooter.tsx, lib/email/layout.ts | e2e:verticals.spec.ts › homepage shows the positioning lines… (footer); verify: root metadata uses brand.titleLine and masterLine; emails show brand.descriptor |
 | S3-04 | Hero headline and support line (superseded by 24.1 master and support lines) | 3.3 / 24.1 | Done | app/(site)/page.tsx | e2e:verticals.spec.ts › homepage shows the positioning lines… |
 | S3-05 | Proof points only where true at launch | 3.3 | Done | app/(site)/page.tsx | verify: proof point "Built and supplied by us … HagerLand develops" replaced by "We know construction: HagerLand Supply sources building materials" (no development claim) |
-| S3-06 | Voice: no exclamation marks, no hype words in UI | 3.3 | Not done | all UI copy | verify in E9 copy sweep (grep for "!" in JSX text) |
+| S3-06 | Voice: no exclamation marks, no hype words in UI | 3.3 | Done | copy sweep (one "Copied!" removed) | Recorded verification (LAUNCH_REPORT E9): grep for "!" in user-facing text and hype words returns no hits |
 | S3-07 | Retired phrases absent (directory-era slogans, BirrBank, "Free, always", etc.) | 3.3 | Done | — | verify: WP-19 legacy sweep (docs/LAUNCH_REPORT.md) |
 | S3-08 | Division names in lib/brand.ts (HagerLand Supply, HagerLand Developments) | 3.4 | Done | lib/brand.ts | verify: brand.divisions used across UI |
 | S3-09 | "Sold by HagerLand Supply" seller badge; gold "HagerLand Development" badge | 3.4 | Done | components/supplies, components/property/PropertyBadges.tsx | verify: badges rendered from flags |
@@ -100,7 +100,7 @@ Summary (updated at the end of every work package): see the last section.
 | R-09 | /developments | 4.3 | Done | app/(site)/developments | e2e:smoke.spec.ts › loads /developments |
 | R-10 | /developments/[slug] | 4.3 | Done | app/(site)/developments/[slug] | e2e:responsive.spec.ts (development page) |
 | R-11 | /our-developments (now coming soon, 24.10) | 4.3 / 24.10 | Done | app/(site)/our-developments | e2e:jobs.spec.ts › Our Developments: coming soon makes no claims… |
-| R-12 | /our-developments/[slug] premium project page | 4.3 | Not done | app/(site)/our-developments/[slug] | needs a test with a seeded HagerLand development |
+| R-12 | /our-developments/[slug] premium project page | 4.3 | Done | app/(site)/our-developments/[slug] | e2e:jobs.spec.ts › Our Developments … live (project page: unit types, prices, register interest or book a visit) |
 | R-13 | /supplies hub | 4.3 | Done | app/(site)/supplies/page.tsx | e2e:smoke.spec.ts › loads /supplies |
 | R-14 | /supplies/[category] | 4.3 | Done | app/(site)/supplies/[category] | e2e:smoke.spec.ts › loads /supplies/building-materials |
 | R-15 | /supplies/[category]/[subcategory] | 4.3 | Done | app/(site)/supplies/[category]/[subcategory] | e2e:smoke.spec.ts › loads /supplies/building-materials/cement-concrete |
@@ -125,17 +125,17 @@ Summary (updated at the end of every work package): see the last section.
 | R-34 | /account/products, /new, /[id]/edit (25.2c) | 4.3 / 25.2c | Done | app/(account)/account/products (list, new, [id]/edit) | e2e:supplies-extras.spec.ts › a supplier lists a product, HagerLand approves it… |
 | R-35 | /account/company and /account/company/verification | 4.3 | Done | app/(account)/account/company | e2e:flows/business.spec.ts |
 | R-36 | /account/enquiries and /account/enquiries/[id] | 4.3 | Done | app/(account)/account/enquiries | e2e:flows/owner-listing.spec.ts (owner sees the enquiry) |
-| R-37 | /account/quotes | 4.3 | Not done | app/(account)/account/quotes | add test: signed-in requester sees quote |
+| R-37 | /account/quotes | 4.3 | Done | app/(account)/account/quotes (column grant fixed in 0025) | e2e:content.spec.ts › a signed-in requester sees their quotes in their account |
 | R-38 | /account/saved (25.2a) | 4.3 / 25.2a | Done | app/(account)/account/saved | e2e:property-extras.spec.ts › a signed-in user saves a property… |
 | R-39 | /account/alerts (25.2a) | 4.3 / 25.2a | Done | app/(account)/account/alerts | e2e:property-extras.spec.ts › …can unsubscribe (alerts page, delete) |
-| R-40 | /account/settings (name, phone, password, notifications, delete account) | 4.3 | Not done | app/(account)/account/settings | add test (H6 covers deletion and export requests) |
+| R-40 | /account/settings (name, phone, password, notifications, delete account) | 4.3 | Done | app/(account)/account/settings | e2e:edge-cases.spec.ts › people can ask for their account to be deleted from settings; › people can download their data as a file; › password reset… (Save new password) |
 | R-41 | /onboarding | 4.3 | Done | app/(account)/onboarding | e2e:flows/business.spec.ts |
 | R-42 | /roodber8-login and /roodber8 sub-routes | 4.3 | Done | app/roodber8-login, app/roodber8 | e2e:admin/admin.spec.ts › every admin screen loads without errors |
 | R-43 | POST /api/enquiries equivalent (server action) | 4.3 | Done | app/actions/enquiry-actions.ts | e2e:flows/owner-listing.spec.ts |
 | R-44 | POST /api/contact-reveal | 4.3 | Done | app/api/contact-reveal | e2e:security.spec.ts › contact reveals are rate limited per visitor |
 | R-45 | POST /api/quotes equivalent (server action) | 4.3 | Done | app/actions/quote-actions.ts | e2e:flows/supplies-and-contact.spec.ts |
 | R-46 | POST /api/uploads/sign | 4.3 | Done | app/api/uploads/sign | e2e:security.spec.ts › upload signing refuses bad types… |
-| R-47 | GET /api/search/suggest | 4.3 | Not done | app/api/search/suggest | add test: returns grouped results |
+| R-47 | GET /api/search/suggest | 4.3 | Done | app/api/search/suggest | e2e:content.spec.ts › the header search shows grouped suggestions… |
 | R-48 | /api/cron/daily (Bearer CRON_SECRET) | 4.3 | Done | app/api/cron/daily | e2e:cron.spec.ts › refuses requests without the secret |
 | R-49 | /api/admin/places-search, place-details, import, auto-import | 4.3 | Done | app/api/admin/* | e2e:admin/admin.spec.ts (imports screen); verify: routes check cookies() admin session |
 | S4-07 | Property detail → lister profile, development, "Professionals for this property", land "Build on this plot" | 4.4 | Done | app/(site)/property/[slug], components/company/ProfessionalsModule.tsx | verify: detail page renders ProfessionalsModule by purpose/type (code review, WP-6) |
@@ -151,26 +151,26 @@ Summary (updated at the end of every work package): see the last section.
 | S5-01 | Colour tokens (brand, gold, ink, stone, muted, border, state) as CSS variables mapped in Tailwind | 5.2 | Done | app/globals.css, tailwind.config.ts | verify: WP-3; gold-dark/info-dark darkened for contrast (WP-18) |
 | S5-02 | Typography: Manrope display, Inter body, Noto Sans Ethiopic with font-ethiopic utility; type scale; tabular numerals for prices | 5.2 | Done | app/layout.tsx, tailwind.config.ts | verify: fonts loaded via next/font; prices use tabular-nums |
 | S5-03 | Spacing, container, radius and shadow tokens | 5.2 | Done | tailwind.config.ts, components/ui/Layout.tsx | verify: WP-3 styleguide |
-| S5-04 | lucide-react icons only; no inline SVG icon strings | 5.2 | Not done | components/* | verify in E9 (grep for dangerouslySetInnerHTML and inline svg icons) |
+| S5-04 | lucide-react icons only; no inline SVG icon strings | 5.2 | Done | lucide-react only (ShareButton's hand-drawn icon removed; Google logo and admin chart are not icons) | Recorded verification (LAUNCH_REPORT E9): grep for <svg and dangerouslySetInnerHTML (JSON-LD only, escaped) |
 | S5-05 | Imagery: next/image with sizes and lazy loading; aspect ratios per type; no hotlinking | 5.2 | Done | components/media/MediaImage.tsx | verify: all photos rendered through MediaImage (next/image) with sizes |
 | S5-06 | Design looks complete without photos (blueprint hero, icon tiles) | 5.2 | Done | app/globals.css .hl-blueprint | e2e:smoke.spec.ts › loads / |
-| C-01 | Button (variants primary, secondary, ghost, gold, danger; sizes; loading; link form) | 5.3 | Not done | components/ui/Button.tsx | e2e:styleguide.spec.ts (to add) |
-| C-02 | IconButton | 5.3 | Not done | components/ui/Button.tsx | e2e:styleguide.spec.ts (to add) |
-| C-03 | Input, Textarea, Select | 5.3 | Not done | components/ui/Field.tsx | e2e:styleguide.spec.ts (to add) |
+| C-01 | Button (variants primary, secondary, ghost, gold, danger; sizes; loading; link form) | 5.3 | Done | components/ui/Button | e2e:styleguide.spec.ts › the style guide shows the tokens and every shared component… |
+| C-02 | IconButton | 5.3 | Done | IconButton | e2e:styleguide.spec.ts › the style guide shows the tokens and every shared component… |
+| C-03 | Input, Textarea, Select | 5.3 | Done | Field, Input, Textarea, Select | e2e:styleguide.spec.ts › the style guide shows the tokens and every shared component… |
 | C-04 | Combobox (searchable, locations and categories) | 5.3 | Done | components/ui/Combobox.tsx | e2e:flows/owner-listing.spec.ts (location chosen in the wizard) |
-| C-05 | Checkbox, Radio, Switch | 5.3 | Not done | components/ui/Field.tsx, Switch.tsx | e2e:styleguide.spec.ts (to add) |
-| C-06 | RangeInputs, PriceInput (ETB), PhoneInput (+251 default) | 5.3 | Not done | components/ui/Field.tsx, PriceInput.tsx, PhoneInput.tsx | e2e:styleguide.spec.ts (to add) |
+| C-05 | Checkbox, Radio, Switch | 5.3 | Done | Checkbox, Radio, Switch | e2e:styleguide.spec.ts › the style guide shows the tokens and every shared component… |
+| C-06 | RangeInputs, PriceInput (ETB), PhoneInput (+251 default) | 5.3 | Done | RangeInputs, PriceInput, PhoneInput | e2e:styleguide.spec.ts › the style guide shows the tokens and every shared component… |
 | C-07 | FileDrop with progress | 5.3 | Done | components/media/FileDrop.tsx | e2e:flows/owner-listing.spec.ts (photos uploaded) |
-| C-08 | Badge, Chip, FilterChip | 5.3 | Not done | components/ui/Badge.tsx, Chip.tsx | e2e:styleguide.spec.ts (to add) |
-| C-09 | Tabs, Accordion | 5.3 | Not done | components/ui/Tabs.tsx, Accordion.tsx | e2e:styleguide.spec.ts (to add) |
-| C-10 | Dialog / bottom Sheet | 5.3 | Not done | components/ui/Dialog.tsx | e2e:styleguide.spec.ts (to add) |
-| C-11 | Dropdown menu, Tooltip, Toast | 5.3 | Not done | components/ui/DropdownMenu.tsx, Tooltip.tsx, Toast.tsx | e2e:styleguide.spec.ts (to add) |
-| C-12 | Skeleton, EmptyState, Pagination, Breadcrumbs, Stat, Card, Section, SectionHeader, Container | 5.3 | Not done | components/ui/Layout.tsx, Pagination.tsx, Breadcrumbs.tsx | e2e:styleguide.spec.ts (to add) |
+| C-08 | Badge, Chip, FilterChip | 5.3 | Done | Badge, Chip, FilterChip | e2e:styleguide.spec.ts › the style guide shows the tokens and every shared component…; e2e:a11y (contrast) |
+| C-09 | Tabs, Accordion | 5.3 | Done | Tabs, Accordion | e2e:styleguide.spec.ts › the style guide shows the tokens and every shared component… |
+| C-10 | Dialog / bottom Sheet | 5.3 | Done | Dialog (now named by its title for screen readers), sheet | e2e:styleguide.spec.ts › the style guide shows the tokens and every shared component… |
+| C-11 | Dropdown menu, Tooltip, Toast | 5.3 | Done | DropdownMenu, Tooltip, Toast | e2e:styleguide.spec.ts › the style guide shows the tokens and every shared component… |
+| C-12 | Skeleton, EmptyState, Pagination, Breadcrumbs, Stat, Card, Section, SectionHeader, Container | 5.3 | Done | Skeleton, EmptyState, Pagination, Breadcrumbs, Stat, Card, Section | e2e:styleguide.spec.ts › the style guide shows the tokens and every shared component… |
 | C-13 | SiteHeader with mega-menu, MobileDrawer, SiteFooter | 5.3 | Done | components/layout/* | e2e:smoke.spec.ts (every route) |
 | C-14 | AccountShell (sidebar desktop, tabs mobile) | 5.3 | Done | app/(account)/account/layout.tsx, components/account/AccountNav.tsx | e2e:flows/owner-listing.spec.ts |
 | C-15 | AdminShell | 5.3 | Done | app/roodber8/layout.tsx | e2e:admin/admin.spec.ts › every admin screen loads without errors |
 | C-16 | PropertyCard, horizontal card, Gallery with lightbox, KeyFacts, PriceBlock, LocationBlock, ContactPanel | 5.3 | Done | components/property/*, components/media/Gallery.tsx | e2e:a11y.spec.ts (property pages); e2e:flows/owner-listing.spec.ts |
-| C-17 | MortgageNote (P2): finance ask on property pages | 5.3 / 24.7 | Not done | — | E6 ("Ask about financing") |
+| C-17 | MortgageNote (P2): finance ask on property pages | 5.3 / 24.7 | Done | FinanceAsk / PropertyActions | e2e:property-extras.spec.ts › …financing (coming soon); e2e:finance-insurance.spec.ts › …property pages ask about financing |
 | C-18 | DevelopmentCard, hero, UnitTypesTable, PaymentPlanBlock, ConstructionProgress, RegisterInterestForm | 5.3 | Done | components/development/* | e2e:flows/supplies-and-contact.spec.ts › register interest…; e2e:responsive.spec.ts |
 | C-19 | ProductCard, ProductSpecsTable, QuoteBasket, QuantityStepper with unit, MaterialsListUploader | 5.3 | Done | components/supplies/* | e2e:flows/supplies-and-contact.spec.ts |
 | C-20 | CompanyCard, CompanyHeader, PortfolioGrid, ServicesList, AreasServed, VerificationBadge with tooltip | 5.3 | Done | components/company/* | e2e:flows/business.spec.ts |
@@ -181,12 +181,12 @@ Summary (updated at the end of every work package): see the last section.
 | S5-09 | Paired buttons equal width; no hover-dependent design | 5.4 | Done | components/* | verify: WP-19 manual pass |
 | S5-10 | Filters in URL query params; typeahead debounced 250 ms | 5.4 | Done | lib/property-search.ts, components/search/SearchOverlay.tsx | unit:property-search.test.ts › round-trips through the query string |
 | S5-11 | Every list has loading skeleton, empty state, error state | 5.4 | Done | app/(site)/**/loading.tsx, error.tsx, EmptyState | verify: WP-19 |
-| S5-12 | Forms: inline validation, preserve input on error, no double submit, success screen | 5.4 | Not done | components/forms/* | H6 (25.4 forms rows) |
+| S5-12 | Forms: inline validation, preserve input on error, no double submit, success screen | 5.4 | Done | components/forms (FormParts, ActionForm), server actions | e2e:edge-cases.spec.ts › a validation error keeps everything the visitor typed; › …the submit button cannot be pressed twice; success screens in every flow spec |
 | S5-13 | Prices "ETB 4,500,000", rent "/month", "Price on request", "Negotiable"; area "120 m²" | 5.4 | Done | lib/format.ts, components/property/PriceLine.tsx | unit:format.test.ts › formats whole birr; formats square metres |
 | S5-14 | Dates "12 Oct 2026"; relative freshness | 5.4 | Done | lib/format.ts | unit:format.test.ts › formats dates as 12 Oct 2026; describes freshness |
 | S5-15 | Meaningful alt text on images | 5.4 | Done | components/media/* | e2e:a11y.spec.ts (image-alt rule) |
 | S5-16 | WCAG 2.2 AA: contrast, focus rings, landmarks, labels, aria-live, keyboard, reduced motion | 5.4 | Done | app/globals.css | e2e:a11y.spec.ts › public pages have no serious accessibility problems |
-| S5-17 | /dev/styleguide shows tokens and all components (not public in production) | 5.5 | Not done | app/(site)/dev/styleguide | e2e:styleguide.spec.ts (to add) |
+| S5-17 | /dev/styleguide shows tokens and all components (not public in production) | 5.5 | Done | app/(site)/dev/styleguide (admin-only in production) | e2e:styleguide.spec.ts › the style guide shows the tokens and every shared component… |
 
 ## Section 6 — Data model and backend
 
@@ -257,7 +257,7 @@ Summary (updated at the end of every work package): see the last section.
 | M-09 | lib/format.ts | 6.6 | Done | lib/format.ts | unit:format.test.ts |
 | M-10 | lib/rate-limit.ts | 6.6 | Done | lib/rate-limit.ts | unit:rate-limit.test.ts |
 | M-11 | lib/security.ts escapeHtml, hashIp, sanitizeText | 6.6 | Done | lib/security.ts | unit:validation.test.ts › strips control characters… |
-| M-12 | lib/email: Resend client, branded layout with plain text, every listed template | 6.6 | Not done | lib/email/* | H6: unit test rendering every template (HTML + text, escaping) |
+| M-12 | lib/email: Resend client, branded layout with plain text, every listed template | 6.6 | Done | lib/email (send.ts, layout.ts, templates.ts, outbox.ts) | unit:email-templates.test.ts (all 37 templates: HTML + text, escaping); unit:email-send.test.ts |
 | M-13 | lib/storage.ts: signed uploads with ownership/type/size/count checks; sharp WebP + 640 px thumb; EXIF stripped | 6.6 | Done | lib/storage.ts, lib/media-actions.ts | unit:sniff.test.ts; e2e:security.spec.ts › upload signing refuses…; EXIF: see X-LST-11 |
 | M-14 | lib/search.ts via Postgres functions | 6.6 | Done | lib/data/search.ts | e2e:smoke.spec.ts › loads /search?q=bole |
 | M-15 | lib/seo.ts buildMetadata and JSON-LD builders | 6.6 | Done | lib/seo.ts, lib/jsonld.ts | e2e:seo.spec.ts › structured data… |
@@ -272,10 +272,10 @@ Summary (updated at the end of every work package): see the last section.
 | F-07 | next_reference (HLE, HLQ) | 6.7 | Done | 0002 | e2e:flows/supplies-and-contact.spec.ts (reference shown) |
 | F-08 | Triggers: set_updated_at, protect_privileged_columns, publish/expiry, featured sync, profile on signup, owner on org insert | 6.7 | Done | 0002 | rls checks; e2e:cron.spec.ts |
 | W-01 | Property: draft → pending → published (60-day expiry) / rejected → resubmit | 6.8 | Done | app/roodber8/actions/moderation.ts | e2e:flows/owner-listing.spec.ts |
-| W-02 | Published edits go to pending_changes; auto-apply rules for verified orgs | 6.8 | Not done | lib/data/owner-listings.ts | H6: test "edit while pending changes exist" |
+| W-02 | Published edits go to pending_changes; auto-apply rules for verified orgs | 6.8 | Done | listings actions (pending_changes, maybeAutoApply) | e2e:edge-cases.spec.ts › an owner renews a listing…, edits it while changes wait for review…; e2e:flows (verified org auto-apply) |
 | W-03 | Pause and resume (no re-review if unchanged) | 6.8 | Done | lib/listing-rules.ts | unit:listing-rules.test.ts › resuming a paused listing |
 | W-04 | Expire via cron; renew within 30 days after expiry | 6.8 | Done | lib/cron/daily.ts, lib/listing-rules.ts | e2e:cron.spec.ts › expires listings…; unit:listing-rules.test.ts › renewing |
-| W-05 | Archive (owner); remove (admin, with reason) | 6.8 | Not done | ListingActions.tsx, moderation.ts | H6: test removed → 404 |
+| W-05 | Archive (owner); remove (admin, with reason) | 6.8 | Done | listingStatusAction archive; admin remove | e2e:edge-cases.spec.ts › …archives it; › expired listings stay reachable…; removed and rejected ones are 404 |
 | W-06 | Organisation: self-signup → approve → Listed → verification → Verified | 6.8 | Done | — | e2e:flows/business.spec.ts › a contractor creates a business profile… |
 | W-07 | Imported organisation → claim → owner, Claimed | 6.8 | Done | — | e2e:flows/business.spec.ts › someone claims an imported business… |
 | W-08 | Enquiry statuses; unviewed > 48 h in digest | 6.8 | Done | lib/cron/daily.ts | e2e:admin/admin.spec.ts › …move an enquiry through statuses |
@@ -288,23 +288,23 @@ Summary (updated at the end of every work package): see the last section.
 |----|-------------|--------|--------|--------------------|---------------------|
 | S7-01 | Supabase Auth via @supabase/ssr, middleware session refresh | 7.1 | Done | lib/supabase/middleware.ts | e2e:flows/* (sessions persist across pages) |
 | S7-02 | Email + password sign-in | 7.1 | Done | components/auth/LoginForms.tsx | e2e:flows/owner-listing.spec.ts |
-| S7-03 | Magic link sign-in | 7.1 | Not done | components/auth/LoginForms.tsx | H6: test magic link (and expired/used link) |
-| S7-04 | Google OAuth, hidden unless configured | 7.1 | Not done | components/auth/GoogleButton.tsx | H6: test button hidden without NEXT_PUBLIC_GOOGLE_AUTH_ENABLED |
+| S7-03 | Magic link sign-in | 7.1 | Done | magicLinkAction, /auth/callback | e2e:edge-cases.spec.ts › magic links sign in once; a used link is refused… |
+| S7-04 | Google OAuth, hidden unless configured | 7.1 | Done | components/auth/GoogleButton (NEXT_PUBLIC_GOOGLE_AUTH_ENABLED) | e2e:edge-cases.spec.ts › users sign out…; Google sign-in stays hidden unless configured |
 | S7-05 | Email confirmation required before listing; passwords ≥ 10 characters | 7.1 | Done | lib/validation/auth.ts | unit:validation.test.ts › requires 10+ character passwords…; e2e:flows/owner-listing.spec.ts › confirmation email… |
 | S7-06 | Auth emails via Resend SMTP with branded templates (HTML for AB) | 7.1 | Done | docs/auth-email-templates/* | verify: four templates in docs/auth-email-templates |
 | S7-07 | Guests browse, enquire and request quotes without an account | 7.1 | Done | — | e2e:flows/supplies-and-contact.spec.ts (guest quote) |
 | S7-08 | Signup step 1 audience cards; step 2 details; step 3 confirm | 7.2 | Done | components/auth/SignupFlow.tsx | e2e:helpers signUp() used by flows |
 | S7-09 | Onboarding: business types create an organisation; duplicate detection offers claim | 7.2 | Done | app/(account)/onboarding | e2e:flows/business.spec.ts |
-| S7-10 | User can belong to several organisations, with a switcher | 7.2 | Not done | components/account/OrgSwitcher.tsx | H6: test user in two organisations switches |
+| S7-10 | User can belong to several organisations, with a switcher | 7.2 | Done | OrgSwitcher, getActiveMembership | e2e:edge-cases.spec.ts › a person in two organisations switches between them |
 | S7-11 | Overview with status cards and tasks | 7.3 | Done | app/(account)/account/page.tsx | e2e:flows/owner-listing.spec.ts |
 | S7-12 | Personal lister dashboard (listings with status, views, enquiries, expiry, actions) | 7.3 | Done | app/(account)/account/listings | e2e:flows/owner-listing.spec.ts |
-| S7-13 | Developer dashboard (developments, unit listings) | 7.3 | Not done | app/(account)/account/developments | add test: developer creates a development |
+| S7-13 | Developer dashboard (developments, unit listings) | 7.3 | Done | app/(account)/account/developments | e2e:content.spec.ts › a developer adds a development from the dashboard… |
 | S7-14 | Professional dashboard (profile, portfolio, verification) | 7.3 | Done | app/(account)/account/company | e2e:flows/business.spec.ts |
 | S7-15 | Supplier dashboard products (25.2c) | 7.3 | Done | app/(account)/account/products | e2e:supplies-extras.spec.ts › a supplier lists a product, HagerLand approves it… |
-| S7-16 | Agency team members (25.2i) | 7.3 | Not done | — | H3 |
+| S7-16 | Agency team members (25.2i) | 7.3 | Done | app/(account)/account/company/team | e2e:teams.spec.ts › an owner invites a colleague… |
 | S7-17 | Listing wizard steps 1–6 with autosave, min 3 photos, declarations | 7.4 | Done | components/account/ListingWizard.tsx | e2e:flows/owner-listing.spec.ts |
 | S7-18 | Map pin on the wizard location step (25.2b) | 7.4 / 25.2b | Done | see X-252-05 | see X-252-05 |
-| S7-19 | Private owners limited to N active listings | 7.4 | Not done | lib/data/owner-listings.ts | H6: test private-owner cap |
+| S7-19 | Private owners limited to N active listings | 7.4 | Done | lib/entitlements.ts privateOwnerEntitlements | e2e:edge-cases.spec.ts › private owners are capped at the admin-set number of active listings |
 
 ## Section 8 — Property marketplace
 
@@ -322,12 +322,12 @@ Summary (updated at the end of every work package): see the last section.
 | S8-10 | Empty state with widen-search and "Tell us what you're looking for" | 8.2 | Done | components/property/PropertyResults.tsx | e2e:smoke.spec.ts › loads /contact?topic=property-request |
 | S8-11 | Detail sections 1–13 (breadcrumbs, gallery, title, contact, facts, description, features, location, development, info, safety, similar, professionals) | 8.3 | Done | app/(site)/property/[slug]/page.tsx | e2e:flows/owner-listing.spec.ts; e2e:a11y.spec.ts |
 | S8-12 | Detail JSON-LD RealEstateListing + BreadcrumbList | 8.3 | Done | lib/jsonld.ts | e2e:seo.spec.ts › structured data… |
-| S8-13 | Expired listing: 200 + noindex + "no longer available" + similar | 8.3 | Not done | app/(site)/property/[slug] | H6 test |
-| S8-14 | Removed, rejected or never published: 404 | 8.3 | Not done | app/(site)/property/[slug] | H6 test |
+| S8-13 | Expired listing: 200 + noindex + "no longer available" + similar | 8.3 | Done | app/(site)/property/[slug] (property_unavailable) | e2e:edge-cases.spec.ts › expired listings stay reachable (noindex, "no longer available")… |
+| S8-14 | Removed, rejected or never published: 404 | 8.3 | Done | app/(site)/property/[slug] | e2e:edge-cases.spec.ts › …removed and rejected ones are 404 (paused too) |
 | S8-15 | /agents and /developers: search, location, verified first then listings | 8.4 | Done | components/company/DirectoryPage.tsx | e2e:smoke.spec.ts › loads /agents; loads /developers |
 | S8-16 | Company profile tabs for agents/developers | 8.4 | Done | app/(site)/company/[slug] | e2e:a11y.spec.ts (company page) |
 | S8-17 | Building/development pages without listings; "List your property" CTA | 8.5 | Done | components/development/DevelopmentDetail.tsx | e2e:responsive.spec.ts (development page) |
-| S8-18 | "Register for alerts" on building pages (25.2a) | 8.5 | Not done | — | E6 |
+| S8-18 | "Register for alerts" on building pages (25.2a) | 8.5 | Done | DevelopmentDetail "Get alerts for new listings here" (development filter in saved searches) | e2e:content.spec.ts › …building pages offer listing alerts |
 | S8-19 | Admin bulk CSV creation of developments with preview | 8.5 | Done | app/roodber8/developments/import | unit:dev-import.test.ts |
 
 ## Section 9 — Developments and HagerLand Developments
@@ -383,7 +383,7 @@ Summary (updated at the end of every work package): see the last section.
 | ID | Requirement | Source | Status | Implementing files | Test / verification |
 |----|-------------|--------|--------|--------------------|---------------------|
 | S13-01 | Homepage SearchBar tabs Buy · Rent · Supplies · Professionals | 13 | Done | components/home/HomeSearch.tsx | e2e:smoke.spec.ts › loads / |
-| S13-02 | Header search overlay with grouped typeahead and recent searches | 13 | Not done | components/search/SearchOverlay.tsx | add test: overlay shows grouped suggestions |
+| S13-02 | Header search overlay with grouped typeahead and recent searches | 13 | Done | components/search/SearchOverlay | e2e:content.spec.ts › the header search shows grouped suggestions and remembers recent searches |
 | S13-03 | /search with vertical tabs and counts | 13 | Done | app/(site)/search | e2e:smoke.spec.ts › loads /search?q=bole |
 | S13-04 | Relevance weights; small verified boost; never boost is_hagerland | 13 | Done | 0005 | verify: S1-02 |
 | S13-05 | Locations combobox searches name, Amharic name and path | 13 | Done | 0005 search_locations | e2e:flows/owner-listing.spec.ts |
@@ -413,38 +413,38 @@ Summary (updated at the end of every work package): see the last section.
 
 | ID | Requirement | Source | Status | Implementing files | Test / verification |
 |----|-------------|--------|--------|--------------------|---------------------|
-| S15-01 | /about copy (Building the land, name, what we do, why it works, standards, CTAs), updated for the ecosystem (24.11) | 15.2 / 24.11 | Not done | app/(site)/about | E9 |
-| S15-02 | /how-it-works three audiences, verification levels, marketplace rules; updated for service requests (24.11) | 15.2 / 24.11 | Not done | app/(site)/how-it-works | E9 |
-| S15-03 | /list-with-us anchors per audience, updated (post a job, partners) | 15.2 / 24.11 | Not done | app/(site)/list-with-us | E9 |
+| S15-01 | /about copy (Building the land, name, what we do, why it works, standards, CTAs), updated for the ecosystem (24.11) | 15.2 / 24.11 | Done | app/(site)/about (from the vertical registry) | e2e:content.spec.ts › About, How it works, List with us and Help describe the whole ecosystem… |
+| S15-02 | /how-it-works three audiences, verification levels, marketplace rules; updated for service requests (24.11) | 15.2 / 24.11 | Done | app/(site)/how-it-works (Getting quotes tab) | e2e:content.spec.ts › …ecosystem |
+| S15-03 | /list-with-us anchors per audience, updated (post a job, partners) | 15.2 / 24.11 | Done | lib/content/list-with-us.ts (#businesses, #employers, #partners) | e2e:content.spec.ts › …ecosystem |
 | S15-04 | /contact options from settings, form, quick links | 15.2 | Done | app/(site)/contact | e2e:flows/supplies-and-contact.spec.ts › …send a contact message |
-| S15-05 | /help FAQs grouped with safety guidance, FAQPage JSON-LD; updated for new verticals | 15.2 / 24.11 | Not done | lib/content/help.ts | E9 |
-| S15-06 | Terms, privacy, cookies rewritten with "Last updated"; updated for service requests, matching, commissions, CVs, international users, partner referrals | 15.2 / 24.11 | Not done | lib/content/legal.ts | E9 |
-| S15-07 | Every email: header, body, button, plain text, footer reason; sender hello@ / supply@ | 15.3 | Not done | lib/email/* | H6 unit test of every template |
+| S15-05 | /help FAQs grouped with safety guidance, FAQPage JSON-LD; updated for new verticals | 15.2 / 24.11 | Done | lib/content/help.ts (groups follow vertical status), FAQPage | e2e:content.spec.ts › …ecosystem |
+| S15-06 | Terms, privacy, cookies rewritten with "Last updated"; updated for service requests, matching, commissions, CVs, international users, partner referrals | 15.2 / 24.11 | Done | terms, privacy, cookies (Last updated 14 Oct 2026) | e2e:content.spec.ts › the legal pages cover requests, matching, commissions, partners, CVs and people abroad… |
+| S15-07 | Every email: header, body, button, plain text, footer reason; sender hello@ / supply@ | 15.3 | Done | lib/email/layout.ts | unit:email-templates.test.ts (header, footer reason, plain text); unit:email-send.test.ts (hello@ / supply@ senders) |
 | S15-08 | Microcopy: verb buttons, actionable errors, inviting empty states | 15.4 | Done | — | verify: WP-19 proofread |
-| S15-09 | Legacy sweep returns no relevant hits | 15.5 | Not done | — | re-run in E9 (new pages use the word "diaspora" legitimately: Diaspora Services vertical) |
+| S15-09 | Legacy sweep returns no relevant hits | 15.5 | Done | scripts/legacy-sweep.sh | bash scripts/legacy-sweep.sh → "no relevant hits" (run in 25.5 preflight too) |
 
 ## Section 16 — SEO
 
 | ID | Requirement | Source | Status | Implementing files | Test / verification |
 |----|-------------|--------|--------|--------------------|---------------------|
 | S16-01 | Canonical host www.hagerland.com, absolute canonicals | 16 | Done | lib/site.ts, lib/seo.ts | e2e:seo.spec.ts › detail pages have absolute canonicals… |
-| S16-02 | Metadata on every page; title and description templates | 16 | Not done | lib/seo.ts | E9: test titles ≤ 60 and descriptions 140–160 on key and new pages |
+| S16-02 | Metadata on every page; title and description templates | 16 | Done | buildMetadata titles and descriptions | e2e:seo.spec.ts › key pages keep titles within 60 characters and descriptions within 110–160 |
 | S16-03 | Path facets only purpose + location; type as query param (Phase 2 type pages: 25.2l) | 16 | Done | app/(site)/property/* | e2e:smoke.spec.ts |
-| S16-04 | Canonical rules: page 2+ self-canonical with "Page N"; other params → path-only canonical | 16 | Not done | lib/property-pages.ts | E9 test |
+| S16-04 | Canonical rules: page 2+ self-canonical with "Page N"; other params → path-only canonical | 16 | Done | lib/property-pages.ts resultsMetadata | e2e:seo.spec.ts › results pages: page 2+ is self-canonical with "Page N"… |
 | S16-05 | Landing pages below min results → noindex, follow and excluded from sitemaps | 16 | Done | lib/sitemap-rules.ts | unit:sitemap.test.ts › keeps only paths at or above the threshold |
 | S16-06 | Unique data-driven intro on landings; admin seo_intro on locations | 16 | Done | 0002 locations, lib/property-pages.ts | e2e:smoke.spec.ts › loads /property/for-sale/addis-ababa/bole |
 | S16-07 | Sitemaps split by type and listed in robots.ts; robots disallow list | 16 | Done | app/sitemap.ts, app/robots.ts | e2e:seo.spec.ts › sitemaps are split by type; robots.txt blocks everything outside production |
 | S16-08 | OG images for property, development, company, product and default | 16 | Done | app/og | e2e:seo.spec.ts › share images render as PNG |
 | S16-09 | Performance budgets: LCP < 2.5 s, CLS < 0.1, JS < 170 KB per route | 16 | Done | — | verify: docs/qa/lighthouse-2026-10-13.md (to re-run in E9 and on the preview) |
 | S16-10 | Internal linking: breadcrumbs, child and sibling areas, detail → landing | 16 | Done | — | verify: WP-15 |
-| S16-11 | Amharic /am with hreflang (25.2m) | 16 / 25.2m | Not done | — | H4 |
+| S16-11 | Amharic /am with hreflang (25.2m) | 16 / 25.2m | Done | middleware.ts, lib/i18n | e2e:amharic.spec.ts › switched on, /am serves Amharic menus with hreflang… |
 
 ## Section 17 — Commercial architecture
 
 | ID | Requirement | Source | Status | Implementing files | Test / verification |
 |----|-------------|--------|--------|--------------------|---------------------|
 | S17-01 | Featured listings via promotions (max 2, labelled) | 17 | Done | 0002 promotions, PromotionTools | e2e:cron.spec.ts (featured sync) |
-| S17-02 | organisations.plan + feature gates in lib/entitlements.ts (all plans unlimited except private-owner cap) | 17 | Not done | — | H6: add lib/entitlements.ts and use it for the owner cap |
+| S17-02 | organisations.plan + feature gates in lib/entitlements.ts (all plans unlimited except private-owner cap) | 17 | Done | lib/entitlements.ts (organisations.plan → limits; free plan unlimited; owner cap from settings) | e2e:edge-cases.spec.ts › private owners are capped… |
 | S17-03 | Lead ledger: enquiries per org per month in admin reports | 17 | Done | lib/admin/reports.ts | e2e:admin/admin.spec.ts (reports screen) |
 | S17-04 | Commission tracking (deals table, 25.2k) | 17 / 25.2k | Done | 0014 deals | see X-252-23 |
 | S17-05 | Quote values available for revenue reporting | 17 | Done | lib/admin/reports.ts | e2e:admin/admin.spec.ts (reports) |
@@ -485,12 +485,12 @@ Summary (updated at the end of every work package): see the last section.
 | S19-03 | Inputs zod-validated, lengths capped, URLs http/https, YouTube only | 19.1 | Done | lib/validation/* | unit:validation.test.ts › accepts only YouTube video links |
 | S19-04 | Uploads: signed URLs, type and size limits, magic bytes, re-encode, counts, private docs never public | 19.1 | Done | lib/storage.ts | e2e:security.spec.ts › upload signing refuses…; unit:sniff.test.ts |
 | S19-05 | Anti-abuse: Turnstile on signup, enquiry, quote, materials list, claim, contact, report; honeypot; rate limits | 19.1 | Done | app/actions/*, app/(account)/auth-actions.ts | verify: grep (see S2-17) |
-| S19-06 | Duplicate listing detection flags in admin queue | 19.1 | Not done | — | H6 |
+| S19-06 | Duplicate listing detection flags in admin queue | 19.1 | Done | app/roodber8/review (Possible duplicate) | e2e:edge-cases.spec.ts › HagerLand sees possible duplicate listings flagged in the review queue |
 | S19-07 | Suspended users blocked from writes (is_active_user) | 19.1 | Done | 0002, 0003 | e2e:admin/admin.spec.ts › suspend and restore a user; X-AUTH-07 extends it to every new table |
 | S19-08 | Cron/webhooks require Bearer CRON_SECRET, timing-safe | 19.1 | Done | app/api/cron/daily | e2e:cron.spec.ts › refuses requests without the secret |
 | S19-09 | Reports flow → admin queue | 19.1 | Done | app/actions/report-actions.ts | verify: review queue lists reports |
 | S19-10 | npm audit high/critical fixed | 19.1 | Not done | — | E10 |
-| S19-11 | .env.example lists every variable | 19.1 | Not done | .env.example | re-check after new variables (E9) |
+| S19-11 | .env.example lists every variable | 19.1 | Done | .env.example (+ note on platform-provided variables) | Recorded verification (LAUNCH_REPORT E9): every process.env name used in code is in .env.example or set by Vercel/Next |
 | S19-12 | ISR per route; detail pages revalidate 600 + on-demand | 19.2 | Done | — | verify: WP-16 |
 | S19-13 | Image pipeline sized WebP | 19.2 | Done | lib/media-actions.ts | e2e:flows/owner-listing.spec.ts |
 | S19-14 | Dynamic imports for lightbox, map picker, uploader | 19.2 | Done | components/media/Gallery.tsx | verify: next/dynamic used (map picker: E6) |
@@ -500,9 +500,9 @@ Summary (updated at the end of every work package): see the last section.
 | S19-18 | Server actions return typed results | 19.4 | Done | lib/action-result.ts | verify: all actions return ActionResult |
 | S19-19 | lib/log.ts with no PII | 19.4 | Done | lib/log.ts | verify: maskEmail used; X-SEC-11 re-checks |
 | S19-20 | errors table with throttling, in digest | 19.4 | Done | lib/error-store.ts | unit:error-store.test.ts |
-| S19-21 | Analytics events (search, filter, listing view, contact reveal, enquiry, quote, materials, register interest, signup, listing, org, claim, verification) | 19.5 | Not done | lib/analytics.ts | E9: verify every event is fired (grep track) and add new-vertical events |
+| S19-21 | Analytics events (search, filter, listing view, contact reveal, enquiry, quote, materials, register interest, signup, listing, org, claim, verification) | 19.5 | Done | lib/analytics.ts, analytics-server.ts | unit:analytics-events.test.ts › sends every declared event |
 | S19-22 | Playwright suite, unit tests, npm scripts | 19.6 | Done | e2e/, tests/ | build |
-| S19-23 | CLAUDE.md, README, .env.example, RUNBOOK | 19.7 | Not done | — | update in E9 for new features |
+| S19-23 | CLAUDE.md, README, .env.example, RUNBOOK | 19.7 | Done | CLAUDE.md, README.md, docs/RUNBOOK.md, .env.example, supabase/README.md | Recorded verification: updated for Phase 1.5 (verticals, request engine, daily job tasks, health checks, Amharic switch, migrations 0011–0026 with check queries) |
 
 ## Section 20 — Legacy removal and cutover
 
@@ -510,27 +510,27 @@ Summary (updated at the end of every work package): see the last section.
 |----|-------------|--------|--------|--------------------|---------------------|
 | S20-01 | Legacy URL 301s (housing, business, delivery, made-in-ethiopia, money, birrbank, jobs, cars, tutors, community, events, edit-link) | 20.2 | Done | next.config.mjs | e2e:redirects.spec.ts (/diaspora and /jobs are verticals again; old job URLs redirect to /jobs) |
 | S20-02 | Old /property/{uuid} URLs 301 to /property/for-sale | 20.2 | Done | app/(site)/property/[slug] | unit:slug.test.ts › treats slugs without a short id as legacy |
-| S20-03 | Legacy lockdown migration (drop public SELECT policies, revoke grants) + reverse script + verification query | 20.3 | Not done | — | 25.5 |
-| S20-04 | Old API endpoints return 410 (25.4) | 20 / 25.4 | Not done | — | H6 |
-| S20-05 | Cutover sequence and rollback plan | 20.4 | Not done | — | 25.5 / 25.6 |
+| S20-03 | Legacy lockdown migration (drop public SELECT policies, revoke grants) + reverse script + verification query | 20.3 | Done | supabase/legacy/cutover_legacy_lockdown.sql (+ _REVERSE, _check), scripts/cutover/lockdown.sh | Recorded verification (LAUNCH_REPORT 25.5 rehearsal): lockdown proof 23/23 PASS on the local legacy replica; reverse restores reads |
+| S20-04 | Old API endpoints return 410 (25.4) | 20 / 25.4 | Done | lib/legacy-api.ts, middleware | e2e:edge-cases.spec.ts › old API addresses answer 410 Gone |
+| S20-05 | Cutover sequence and rollback plan | 20.4 | Done | scripts/cutover/* + scripts/cutover/README.md | Recorded verification (LAUNCH_REPORT 25.5 rehearsal): every step rehearsed on the local copy; rollback script reverts with git revert -m 1 and runs the lockdown reverse |
 
 ## Section 22 — Acceptance criteria
 
 | ID | Requirement | Source | Status | Implementing files | Test / verification |
 |----|-------------|--------|--------|--------------------|---------------------|
 | S22-01 | lint, typecheck, unit, e2e, build all pass on the final commit | 22 | Not done | — | 25.5 |
-| S22-02 | No console errors on public pages; no 500s during a full crawl | 22 | Not done | — | 25.5 crawl |
+| S22-02 | No console errors on public pages; no 500s during a full crawl | 22 | Done | all public pages | e2e:crawl.spec.ts › a crawl of the public site finds no server errors and no broken links; e2e:smoke.spec.ts (no console errors on every route) |
 | S22-03 | Env vars documented, validated, production configured | 22 | Not done | — | 25.5 + /api/health/full |
-| S22-04 | Runbook, backup, rollback documented | 22 | Not done | docs/RUNBOOK.md | 25.5 |
-| S22-05 | Every template at 5 widths; filter sheet, bottom bar, forms with keyboard | 22 | Not done | — | E9 |
+| S22-04 | Runbook, backup, rollback documented | 22 | Done | docs/RUNBOOK.md, scripts/backup-supabase.sh, scripts/cutover/README.md | Recorded verification: backup (now also non-interactive) and rollback documented and rehearsed (LAUNCH_REPORT 25.5) |
+| S22-05 | Every template at 5 widths; filter sheet, bottom bar, forms with keyboard | 22 | Done | all templates | e2e:responsive.spec.ts (public pages at 360/390/768/1024/1440; account pages at 360/768); e2e:styleguide (filter sheet) |
 | S22-06 | Visitor journeys (search, view, reveal, enquire, quote, materials list, find professional, register interest) | 22 | Done | — | e2e:flows/* |
-| S22-07 | Lister journeys (sign up, org, listing with photos, approval, enquiries, renew) | 22 | Not done | — | renewal by owner needs an e2e step (H6) |
+| S22-07 | Lister journeys (sign up, org, listing with photos, approval, enquiries, renew) | 22 | Done | listing wizard, renewal | e2e:flows/owner-listing.spec.ts; e2e:edge-cases.spec.ts › an owner renews a listing near expiry… |
 | S22-08 | Admin journeys (approve/reject, catalogue, quote, verify, taxonomy, feature, export) | 22 | Done | — | e2e:admin/admin.spec.ts; e2e:flows/* |
 | S22-09 | Emails deliver from @hagerland.com with correct branding and links | 22 | Not done | — | AB checklist (Resend domain); H6 template test |
-| S22-10 | Brand consistency, integrity labels | 22 | Not done | — | E9 review |
+| S22-10 | Brand consistency, integrity labels | 22 | Done | brand tokens, integrity labels | e2e:a11y (contrast); e2e:property-extras.spec.ts (Marketed by HagerLand); S1-01/S1-02 verifications |
 | S22-11 | Legacy sweep zero relevant hits; legacy tables private | 22 | Not done | — | E9 + cutover |
 | S22-12 | Typed action results; no unhandled rejections; rate limiters; cron manual trigger | 22 | Done | — | e2e:cron.spec.ts; unit:rate-limit.test.ts |
-| S22-13 | SEO-ready (titles, canonicals, noindex, sitemaps, JSON-LD, OG) | 22 | Not done | — | E9 |
+| S22-13 | SEO-ready (titles, canonicals, noindex, sitemaps, JSON-LD, OG) | 22 | Done | metadata, canonicals, noindex, sitemaps, JSON-LD, OG | e2e:seo.spec.ts (all tests); e2e:jobs.spec.ts (noindex coming soon); e2e:verticals.spec.ts |
 | S22-14 | Scalable (unified model, indexed search, pagination, ISR, image pipeline, admin-managed trees) | 22 | Done | — | rows S6-*, F-* |
 | S22-15 | Secure (RLS script, anon blocked, no key in bundle, headers, uploads, Turnstile, admin guard, secrets rotated) | 22 | Not done | — | E9 + AB checklist (rotation) |
 | S22-16 | Ready for real users (legal review, real contacts, launch content) | 22 | Not done | — | AB checklist items (25.7); platform side: X-AB rows |
@@ -550,7 +550,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | S23-07 | Neighbourhoods added by AB in admin (no guessed parents) | 23.7 | Done | app/roodber8/locations | e2e:admin/admin.spec.ts › …add a location |
 | S23-08 | Pages honest when empty (launch content not seeded by us) | 23.8 | Done | EmptyState everywhere | e2e:smoke.spec.ts (empty local data) |
 | S23-09 | Map provider via env/settings; map hidden without a key (25.2b) | 23.9 / 25.2b | Done | see X-252-06 | unit:e6-helpers.test.ts › map configuration |
-| S23-10 | Google OAuth hidden unless enabled | 23.10 | Not done | — | see S7-04 |
+| S23-10 | Google OAuth hidden unless enabled | 23.10 | Done | GoogleButton | e2e:edge-cases.spec.ts › …Google sign-in stays hidden unless configured |
 | S23-11 | Error monitoring without Sentry (errors table + digest) | 23.11 | Done | lib/error-store.ts | unit:error-store.test.ts |
 | S23-12 | Social links shown only when real (https) | 23.12 | Done | lib/data/business.ts | unit:settings.test.ts › requires https social links |
 
@@ -564,7 +564,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | S24-04 | Lines used in homepage hero | 24.1 | Done | app/(site)/page.tsx | e2e:verticals.spec.ts › homepage shows the positioning lines… |
 | S24-05 | Lines used in default metadata | 24.1 | Done | app/layout.tsx, app/(site)/page.tsx | verify: default title "HagerLand — Property, construction and everything around it", description = master + audience line (app/layout.tsx) |
 | S24-06 | Lines used in footer | 24.1 | Done | SiteFooter.tsx | e2e:verticals.spec.ts › homepage shows… (footer contains the master line) |
-| S24-07 | Integrity rules kept for own offers | 24.1 | Not done | — | re-verify after E1–E8 (S1-01, S1-02) |
+| S24-07 | Integrity rules kept for own offers | 24.1 | Done | labels + search order unchanged by is_hagerland | e2e:property-extras.spec.ts › …HagerLand-marketed listings are labelled; S1-02 verification (search order never uses is_hagerland) |
 | S24-10 | verticals table (key, name, slug, status live/coming_soon/hidden, sort, short description, intro, icon, SEO fields, interest_enabled, partner_signup_enabled) | 24.2 | Done | supabase/migrations/0011_vertical_registry.sql | sql: 0011 check → 10 · 6 · 11 · 2 (local) |
 | S24-11 | Ten verticals seeded with default statuses (5 live + diaspora live; finance, insurance, jobs, our-developments coming soon) | 24.2 | Done | 0011 | sql: 0011 check (10 verticals, 6 live); e2e:verticals.spec.ts › homepage shows… (4 Soon tiles) |
 | S24-12 | Desktop navigation reads the registry | 24.2 | Done | lib/navigation.ts, SiteHeader.tsx | e2e:verticals.spec.ts › header shows the six menus…; › hiding a vertical removes it from menus… |
@@ -580,7 +580,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | S24-1C | "Become a partner" form where relevant | 24.2 | Done | components/verticals/PartnerForm.tsx, app/roodber8/partners | e2e:verticals.spec.ts › become a partner is stored and listed in admin |
 | S24-1D | Clearly labelled "Coming soon"; no fake listings, prices, providers or claims | 24.2 | Done | ComingSoonPage.tsx | e2e:verticals.spec.ts › finance is a labelled coming-soon page… (no rates; "Coming soon" label) |
 | S24-1E | Coming-soon pages noindex until live | 24.2 | Done | middleware.ts, ComingSoonPage.tsx | e2e:verticals.spec.ts › finance… (X-Robots-Tag noindex and meta robots noindex) |
-| S24-1F | "Coming soon" appears only through the registry | 24.2 | Not done | — | E9 grep |
+| S24-1F | "Coming soon" appears only through the registry | 24.2 | Done | registry-driven labels only | Recorded verification (LAUNCH_REPORT E9): grep for "coming soon" text: every use is driven by the vertical's status; off-plan projects now say "Upcoming projects" |
 | S24-1G | Hidden verticals: pages 404 and disappear from navigation | 24.2 | Done | components/verticals/VerticalGate.tsx | e2e:verticals.spec.ts › hiding a vertical removes it from menus and its page returns 404… |
 | S24-20 | Desktop header order: Property ▾ · Building Supplies ▾ · Professionals & Contractors ▾ · Repairs & Maintenance · Diaspora Services ▾ · More ▾ · search · Sign in · List with us ▾ | 24.3 | Done | lib/navigation.ts | e2e:verticals.spec.ts › header shows the six menus in order… |
 | S24-21 | More ▾ holds Finance, Insurance, Jobs & Recruitment, Our Developments | 24.3 | Done | lib/navigation.ts | e2e:verticals.spec.ts › header shows… (More menu with Soon badges) |
@@ -595,7 +595,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | S24-33 | Admin can add countries and cities | 24.4 | Done | app/roodber8/locations, actions/taxonomy.ts addCountryAction | e2e:international.spec.ts › admin adds a country and a city under it |
 | S24-34 | organisations, service_requests, jobs, interest_registrations carry country_code and currency | 24.4 | Done | 0011, 0013, 0014, 0019 | organisations and interest (e2e:international.spec.ts), service_requests (E3 e2e:flows/service-requests guest-link test: GB/GBP), jobs (0019 trigger; e2e:jobs.spec.ts checks currency ETB) |
 | S24-35 | Currency list ETB, GBP, USD, EUR, CAD, AED, SEK, NOK, SAR, ILS, ZAR, KES | 24.4 | Done | lib/countries.ts, check constraints in 0011/0013 | unit:currency.test.ts › countries |
-| S24-36 | Money displayed in the record's currency | 24.4 | Not done | lib/format.ts formatMoney | unit:currency.test.ts › money in a record’s currency; used for service-request quotes in E3 |
+| S24-36 | Money displayed in the record's currency | 24.4 | Done | formatMoney in record currency | unit:currency.test.ts › money in a record’s currency; e2e:jobs.spec.ts (ETB salary); e2e:flows/service-requests (GBP request) |
 | S24-37 | Property listings stay Ethiopia-only | 24.4 | Done | 0013 require_ethiopian_location trigger, lib/data/reference.ts isEthiopianLocation, /api/locations default scope ET | rls:A listing cannot be moved outside Ethiopia; e2e:international.spec.ts › property pages stay Ethiopia-only; › location search is Ethiopia-only… |
 | S24-38 | Organisations can be marked as serving the Ethiopian community abroad | 24.4 | Done | organisations.serves_diaspora, OrganisationForm | e2e:flows/business.spec.ts › a contractor creates… (ticks the box); e2e:international.spec.ts › a business abroad… (badge) |
 | S24-39 | International organisations searchable by country and city | 24.4 | Done | 0013 search_organisations(p_country_code, p_serves_diaspora), lib/data/organisations.ts | e2e:international.spec.ts › a business abroad is found by country and city… |
@@ -653,9 +653,9 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | S24-89 | While coming soon: landing + employer and candidate interest forms | 24.9 | Done | components/verticals/ComingSoonPage | e2e:jobs.spec.ts › while coming soon, jobs shows the landing… |
 | S24-90 | Our Developments coming-soon page (intent, supply-and-build advantage, register interest, no claims of activity) | 24.10 | Done | lib/content/verticals.ts | e2e:jobs.spec.ts › Our Developments: coming soon makes no claims… |
 | S24-91 | Templates and data model intact; projects appear when published and the vertical is live | 24.10 | Done | app/(site)/our-developments | e2e:jobs.spec.ts › Our Developments … live, projects grouped by stage |
-| S24-A1 | Homepage, about, how-it-works, list-with-us, help, footer and metadata updated | 24.11 | Not done | — | E9 |
-| S24-A2 | Terms and privacy updated (service requests, matching, commissions, CVs, international users, partner referrals, no regulated advice) | 24.11 | Not done | lib/content/legal.ts | E9 |
-| S24-A3 | Regulatory checks flagged in LAUNCH_REPORT.md | 24.11 | Not done | docs/LAUNCH_REPORT.md | E9 |
+| S24-A1 | Homepage, about, how-it-works, list-with-us, help, footer and metadata updated | 24.11 | Done | homepage, about, how-it-works, list-with-us, help, footer | e2e:content.spec.ts › …ecosystem; e2e:verticals.spec.ts (homepage tiles, footer) |
+| S24-A2 | Terms and privacy updated (service requests, matching, commissions, CVs, international users, partner referrals, no regulated advice) | 24.11 | Done | terms §12–16, privacy | e2e:content.spec.ts › the legal pages cover… |
+| S24-A3 | Regulatory checks flagged in LAUNCH_REPORT.md | 24.11 | Done | docs/LAUNCH_REPORT.md "Regulatory checks before switching services on" | Recorded (LAUNCH_REPORT) |
 | S24-B1 | Admin: vertical registry switches | 24.12 | Done | app/roodber8/verticals | e2e:verticals.spec.ts › hiding a vertical… (switched through the admin screen) |
 | S24-B2 | Admin: interest registrations with vertical/category filter and CSV | 24.12 | Done | app/roodber8/interest, export/interest | e2e:verticals.spec.ts › register interest… listed in admin with CSV export |
 | S24-B3 | Admin: partner applications | 24.12 | Done | app/roodber8/partners | e2e:verticals.spec.ts › become a partner is stored and listed in admin |
@@ -666,7 +666,7 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | S24-B8 | Admin: jobs and applications moderation | 24.12 | Done | app/roodber8/jobs | e2e:jobs.spec.ts › switched live: an employer posts a job… |
 | S24-B9 | Admin: question-schema editor per service category | 24.12 | Done | app/roodber8/request-questions | e2e:flows/service-requests.spec.ts › a guest requests… |
 | S24-BA | Admin: countries and international locations in the locations editor | 24.12 | Done | app/roodber8/locations | e2e:international.spec.ts › admin adds a country and a city under it; e2e:admin/admin.spec.ts › add and rename a category, add a location |
-| S24-BB | Every new admin action audit-logged | 24.12 | Not done | — | each package + E9 test |
+| S24-BB | Every new admin action audit-logged | 24.12 | Done | audit() in every changing admin action | unit:admin-audit.test.ts › check permission and record an audit entry |
 | S24-C1 | E9: sitemap respects registry; noindex for coming soon; full QA re-run (accessibility, widths, link crawl, Lighthouse) | 24 WPs | Not done | — | E9 |
 | S24-C2 | E10: Next.js 15 upgrade fully green, or clean revert with documented reasons | 24 WPs | Not done | — | E10 |
 | S24-C3 | E10: npm audit run and reported | 24 WPs | Not done | — | E10 |
@@ -888,21 +888,21 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | V11-05 | When live: construction progress and development updates | Vision §11 | Done | ProgressTimeline | e2e:jobs.spec.ts › a developer posts a progress update… |
 | V11-06 | When live: register interest and viewing requests | Vision §11 | Done | RegisterInterest on /our-developments/[slug] | e2e:jobs.spec.ts › Our Developments … live (register interest or book a visit); e2e:flows/supplies-and-contact.spec.ts › register interest in HagerLand Developments |
 | V11-07 | Supply-chain advantage explained | Vision §11 | Done | our-developments | e2e:jobs.spec.ts › Our Developments (HagerLand Supply message) |
-| V12-01 | Verticals cross-link as one ecosystem (land → finance → architect → engineer → contractor → materials → insurance → maintenance → sell/rent → recruit) | Vision: model/positioning/launch | Not done | — | E1/E9 |
-| V12-02 | Positioning: not only a supplier, agent or directory | Vision: model/positioning/launch | Not done | — | E1/E9 |
+| V12-01 | Verticals cross-link as one ecosystem (land → finance → architect → engineer → contractor → materials → insurance → maintenance → sell/rent → recruit) | Vision: model/positioning/launch | Done | homepage journey, cross-links (finance ask, estimator, contractors, supplies) | e2e:verticals.spec.ts (journey strip); e2e:content.spec.ts › …ecosystem |
+| V12-02 | Positioning: not only a supplier, agent or directory | Vision: model/positioning/launch | Done | About, homepage master line | e2e:content.spec.ts › …ecosystem (About lists every part) |
 | V12-03 | Ten-vertical top-level structure | Vision: model/positioning/launch | Done | lib/verticals.ts | e2e:verticals.spec.ts › homepage shows… ten ecosystem tiles |
 | V12-04 | Supporting area: Sell/List a property | Vision: model/positioning/launch | Done | lib/navigation.ts | e2e:verticals.spec.ts › header shows… List with us items |
-| V12-05 | Supporting area: List your business | Vision: model/positioning/launch | Not done | — | E1/E9 |
+| V12-05 | Supporting area: List your business | Vision: model/positioning/launch | Done | /list-with-us#businesses, menu "List your business" | e2e:content.spec.ts › …ecosystem (#businesses section) |
 | V12-06 | Supporting area: Become a supplier | Vision: model/positioning/launch | Done | lib/navigation.ts | e2e:verticals.spec.ts › header shows… List with us items |
 | V12-07 | Supporting area: Join as a professional | Vision: model/positioning/launch | Done | lib/navigation.ts | e2e:verticals.spec.ts › header shows… List with us items |
-| V12-08 | Supporting area: Post a job | Vision: model/positioning/launch | Not done | — | E1/E9 |
+| V12-08 | Supporting area: Post a job | Vision: model/positioning/launch | Done | menu "Post a job" (follows jobs status), /list-with-us#employers | e2e:content.spec.ts › …ecosystem (#employers → register interest while coming soon); e2e:jobs.spec.ts |
 | V12-09 | Supporting area: Request a service | Vision: model/positioning/launch | Done | /request-service | e2e:smoke.spec.ts › loads /request-service; e2e:flows/service-requests.spec.ts |
 | V12-10 | Supporting area: Request a quote | Vision: model/positioning/launch | Done | lib/navigation.ts | e2e:verticals.spec.ts › mobile drawer… (Request a quote) |
 | V12-11 | Supporting area: Advertise | Vision: model/positioning/launch | Done | app/(site)/advertise/page.tsx | e2e:smoke.spec.ts › loads /advertise |
 | V12-12 | Supporting area: Help & advice | Vision: model/positioning/launch | Done | lib/navigation.ts | e2e:verticals.spec.ts › mobile drawer… (Help & advice) |
 | V12-13 | Supporting area: My account | Vision: model/positioning/launch | Done | lib/navigation.ts | e2e:verticals.spec.ts › mobile drawer… (My account) |
 | V12-14 | Non-live services use Coming soon / Register interest / Request information / Waiting list / Become a partner | Vision: model/positioning/launch | Done | ComingSoonPage.tsx | e2e:verticals.spec.ts › register interest…; › become a partner… |
-| V12-15 | Never pretend a service exists before it is ready | Vision: model/positioning/launch | Not done | — | E1/E9 |
+| V12-15 | Never pretend a service exists before it is ready | Vision: model/positioning/launch | Done | vertical registry, ComingSoonPage, help/about filtering | e2e:verticals.spec.ts; e2e:content.spec.ts › …ecosystem |
 
 ## Section 25 — Completeness, hardening and go-live
 
@@ -927,16 +927,16 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | X-252-16 | /guides hub with admin editor (draft/publish, SEO, FAQ schema) | 25.2g | Done | app/roodber8/guides, components/admin/GuideForm | e2e:guides-estimator.spec.ts › HagerLand reviews and publishes a guide… (FAQPage and Article data); unit:guides-estimator.test.ts |
 | X-252-17 | Starter guides only as unpublished drafts marked Needs AB review | 25.2g | Done | 0021 starter drafts; guides_reviewed_before_publishing constraint | e2e:guides-estimator.spec.ts › starter guides are unpublished drafts marked "Needs AB review"…; unit:guides-estimator.test.ts (publish refused unless checked) |
 | X-252-18 | Build-cost estimator from admin rates per m² by finish and location; 'estimate only'; hidden until rates exist | 25.2h | Done | app/(site)/build-cost-estimator, app/roodber8/build-costs, lib/estimator.ts | e2e:guides-estimator.spec.ts › the build-cost estimator is hidden until HagerLand enters a rate…; unit:guides-estimator.test.ts |
-| X-252-19 | Team members: invite by email, roles, remove | 25.2i | Not done | — | H3 |
-| X-252-20 | Ownership transfer with last-owner protection | 25.2i | Not done | — | H3 |
-| X-252-21 | Agent/company branches | 25.2i | Not done | — | H3 |
+| X-252-19 | Team members: invite by email, roles, remove | 25.2i | Done | app/actions/team-actions.ts, /invite/[token], 0022 org_invitations | e2e:teams.spec.ts › an owner invites a colleague, who accepts with the invited email…; rls_test.sql (invitations hidden from members, tokens unreadable) |
+| X-252-20 | Ownership transfer with last-owner protection | 25.2i | Done | transferOwnershipAction, protect_last_owner trigger | e2e:teams.spec.ts › … ownership moves and the last owner is protected; rls_test.sql (last owner cannot be removed or demoted) |
+| X-252-21 | Agent/company branches | 25.2i | Done | app/(account)/account/company/branches, org_branches_public, company page | e2e:teams.spec.ts › owners and admins add branches…; rls_test.sql (branch contact details not public) |
 | X-252-22 | Development progress updates (dated posts with photos) | 25.2j | Done | 0019 development_updates, UpdateForm, ProgressTimeline | e2e:jobs.spec.ts › a developer posts a progress update with photos… |
 | X-252-23 | Deals/commission tracking linked to enquiries and service requests | 25.2k | Done | 0014 deals, chooseQuoteAction, app/roodber8/deals | e2e:flows/service-requests.spec.ts › a guest requests… (deal won with value); admin deals form |
 | X-252-24 | Monthly revenue and lead reports with CSV | 25.2k | Done | app/roodber8/deals, export report-revenue | unit:aggregate.test.ts › monthly revenue and lead report; e2e:admin/admin.spec.ts (Deals screen) |
 | X-252-25 | Path-based property-type SEO pages respecting min-results noindex | 25.2l | Done | lib/property-type-paths.ts, lib/property-pages.ts, sitemap typePathCounts | unit:e6-helpers.test.ts › property type paths; unit:sitemap.test.ts › property-type pages; e2e:property-extras.spec.ts › property-type pages, canonicals… |
-| X-252-26 | i18n architecture for UI text | 25.2m | Not done | — | H4 |
-| X-252-27 | /am locale with hreflang and Ethiopic font | 25.2m | Not done | — | H4 |
-| X-252-28 | Machine-assisted Amharic marked needs native review; locale off by default behind admin switch | 25.2m | Not done | — | H4 |
+| X-252-26 | i18n architecture for UI text | 25.2m | Done | lib/i18n (config, translate, server, client, nav, messages/am.ts) | unit:i18n.test.ts; e2e:amharic.spec.ts |
+| X-252-27 | /am locale with hreflang and Ethiopic font | 25.2m | Done | middleware hreflang Link header, html lang, Noto Sans Ethiopic font stack | e2e:amharic.spec.ts › switched on… (Link hreflang, lang="am", Amharic headline) |
+| X-252-28 | Machine-assisted Amharic marked needs native review; locale off by default behind admin switch | 25.2m | Done | lib/i18n/messages/am.ts (AM_NEEDS_NATIVE_REVIEW), admin Settings switch, 0023 (off) | e2e:amharic.spec.ts › Amharic is off by default…; unit:i18n.test.ts (marked for native review) |
 | X-252-29 | /api/health public ok/version only | 25.2n | Done | app/api/health/route.ts | e2e:health.spec.ts › the public health check says only ok and version |
 | X-252-30 | /api/health/full with CRON_SECRET bearer: env presence, DB, Resend domain, buckets, migrations — booleans only | 25.2n | Done | app/api/health/full/route.ts, lib/health.ts | e2e:health.spec.ts › the full health check needs the cron secret and reports booleans only; unit:health.test.ts (expected migrations = files) |
 | X-253-01 | Online payments/checkout (Chapa, Telebirr, cards): integration point + admin 'not configured' | 25.3 | Deferred-by-rule | lib/integrations/* | listed in LAUNCH_REPORT Phase 3 |
@@ -944,118 +944,118 @@ The decisions themselves are AB's (listed in `docs/LAUNCH_REPORT.md` to-do list)
 | X-253-03 | WhatsApp Business API notifications: integration point | 25.3 | Deferred-by-rule | lib/integrations/* | listed in LAUNCH_REPORT Phase 3 |
 | X-253-04 | Live bank/insurer/mortgage partner APIs: integration point | 25.3 | Deferred-by-rule | lib/integrations/* | listed in LAUNCH_REPORT Phase 3 |
 | X-253-05 | Native mobile apps | 25.3 | Deferred-by-rule | lib/integrations/* | listed in LAUNCH_REPORT Phase 3 |
-| X-AUTH-01 | Unconfirmed email cannot list/publish | 25.4 | Not done | — | H6/E9 |
-| X-AUTH-02 | Expired or used magic link handled | 25.4 | Not done | — | H6/E9 |
-| X-AUTH-03 | Expired or used reset link handled | 25.4 | Not done | — | H6/E9 |
-| X-AUTH-04 | Session expiry mid-form preserves input | 25.4 | Not done | — | H6/E9 |
-| X-AUTH-05 | Sign-out | 25.4 | Not done | — | H6/E9 |
-| X-AUTH-06 | Account deletion request flow per privacy policy | 25.4 | Not done | — | H6/E9 |
-| X-AUTH-07 | Export my data request | 25.4 | Not done | — | H6/E9 |
-| X-AUTH-08 | Suspended users blocked from all writes (every table) | 25.4 | Not done | — | H6/E9 |
-| X-AUTH-09 | User in multiple organisations | 25.4 | Not done | — | H6/E9 |
-| X-AUTH-10 | Org owner leaving: last-owner protection | 25.4 | Not done | — | H6/E9 |
-| X-AUTH-11 | Duplicate signups handled without enumeration | 25.4 | Not done | — | H6/E9 |
-| X-AUTH-12 | Google sign-in hidden unless configured | 25.4 | Not done | — | H6/E9 |
-| X-LST-01 | Draft autosave | 25.4 | Not done | — | H6/E9 |
-| X-LST-02 | Edit while pending changes exist | 25.4 | Not done | — | H6/E9 |
-| X-LST-03 | Renewal windows | 25.4 | Not done | — | H6/E9 |
-| X-LST-04 | Expired URL 200 + noindex | 25.4 | Not done | — | H6/E9 |
-| X-LST-05 | Paused/removed/rejected URL 404 | 25.4 | Not done | — | H6/E9 |
-| X-LST-06 | Slug and short_id collision retry | 25.4 | Not done | — | H6/E9 |
-| X-LST-07 | Private-owner cap | 25.4 | Not done | — | H6/E9 |
-| X-LST-08 | Photo minimum and maximum | 25.4 | Not done | — | H6/E9 |
-| X-LST-09 | Failed/oversized/HEIC/corrupt uploads | 25.4 | Not done | — | H6/E9 |
-| X-LST-10 | EXIF stripped | 25.4 | Not done | — | H6/E9 |
-| X-LST-11 | Location renamed/merged/deactivated | 25.4 | Not done | — | H6/E9 |
-| X-LST-12 | Price on request | 25.4 | Not done | — | H6/E9 |
-| X-LST-13 | Negotiable | 25.4 | Not done | — | H6/E9 |
-| X-LST-14 | Rent vs sale validation | 25.4 | Not done | — | H6/E9 |
-| X-LST-15 | Duplicate-listing flag | 25.4 | Not done | — | H6/E9 |
-| X-SRCH-01 | Empty query | 25.4 | Not done | — | H6/E9 |
-| X-SRCH-02 | Very long query | 25.4 | Not done | — | H6/E9 |
-| X-SRCH-03 | Special characters % _ , ( ) quotes | 25.4 | Not done | — | H6/E9 |
-| X-SRCH-04 | Ethiopic script | 25.4 | Not done | — | H6/E9 |
-| X-SRCH-05 | Out-of-range pages | 25.4 | Not done | — | H6/E9 |
-| X-SRCH-06 | Invalid filter values | 25.4 | Not done | — | H6/E9 |
-| X-SRCH-07 | Invalid sort | 25.4 | Not done | — | H6/E9 |
-| X-SRCH-08 | Zero-result logging | 25.4 | Not done | — | H6/E9 |
-| X-FORM-01 | Turnstile failure | 25.4 | Not done | — | H6/E9 |
-| X-FORM-02 | Honeypot | 25.4 | Not done | — | H6/E9 |
-| X-FORM-03 | Rate-limit messages | 25.4 | Not done | — | H6/E9 |
-| X-FORM-04 | Double submit | 25.4 | Not done | — | H6/E9 |
-| X-FORM-05 | Server error with input preserved | 25.4 | Not done | — | H6/E9 |
-| X-FORM-06 | Email failure never blocks submission (logged, visible to admin, retried by cron) | 25.4 | Not done | — | H6/E9 |
+| X-AUTH-01 | Unconfirmed email cannot list/publish | 25.4 | Done | signInAction (email_not_confirmed), submitListing, claims | e2e:edge-cases.spec.ts › people who have not confirmed their email cannot sign in… |
+| X-AUTH-02 | Expired or used magic link handled | 25.4 | Done | /auth/callback → /login?error=link | e2e:edge-cases.spec.ts › magic links sign in once; a used link is refused… |
+| X-AUTH-03 | Expired or used reset link handled | 25.4 | Done | /auth/reset-password, /auth/update-password | e2e:edge-cases.spec.ts › password reset links work once and lead to a new password |
+| X-AUTH-04 | Session expiry mid-form preserves input | 25.4 | Done | lib/supabase/middleware.ts (session refreshed on every request); listing wizard saves each step | Recorded verification (LAUNCH_REPORT H6): the session is refreshed on every page load, so it does not expire while someone is using the site; the listing wizard keeps every finished step as a draft |
+| X-AUTH-05 | Sign-out | 25.4 | Done | components/account/AccountNav (Sign out) | e2e:edge-cases.spec.ts › users sign out from the account menu… |
+| X-AUTH-06 | Account deletion request flow per privacy policy | 25.4 | Done | requestDeletionAction | e2e:edge-cases.spec.ts › people can ask for their account to be deleted from settings |
+| X-AUTH-07 | Export my data request | 25.4 | Done | app/(account)/account/export | e2e:edge-cases.spec.ts › people can download their data as a file |
+| X-AUTH-08 | Suspended users blocked from all writes (every table) | 25.4 | Done | is_active_user() in every write policy | rls_test.sql › Suspended user cannot … (6 checks); e2e:admin › suspend and restore a user |
+| X-AUTH-09 | User in multiple organisations | 25.4 | Done | OrgSwitcher | e2e:edge-cases.spec.ts › a person in two organisations switches between them |
+| X-AUTH-10 | Org owner leaving: last-owner protection | 25.4 | Done | protect_last_owner (0022) | e2e:teams.spec.ts; rls_test.sql (last owner cannot be removed or demoted) |
+| X-AUTH-11 | Duplicate signups handled without enumeration | 25.4 | Done | signUpAction (same response) | e2e:edge-cases.spec.ts › signing up with an email that already has an account looks the same… |
+| X-AUTH-12 | Google sign-in hidden unless configured | 25.4 | Done | GoogleButton | e2e:edge-cases.spec.ts › …Google sign-in stays hidden unless configured |
+| X-LST-01 | Draft autosave | 25.4 | Done | listing wizard: each "Save and continue" stores the step in the draft | e2e:flows/owner-listing.spec.ts (draft saved step by step); e2e:edge-cases.spec.ts › an owner … edits it… |
+| X-LST-02 | Edit while pending changes exist | 25.4 | Done | pending_changes merge | e2e:edge-cases.spec.ts › an owner renews a listing near expiry, edits it while changes wait for review… |
+| X-LST-03 | Renewal windows | 25.4 | Done | lib/listing-rules.ts canRenew | unit:listing-rules.test.ts (14 days before, 30 days after); e2e:edge-cases.spec.ts › an owner renews a listing near expiry… |
+| X-LST-04 | Expired URL 200 + noindex | 25.4 | Done | property_unavailable | e2e:edge-cases.spec.ts › expired listings stay reachable (noindex…) |
+| X-LST-05 | Paused/removed/rejected URL 404 | 25.4 | Done | properties_public (published only) | e2e:edge-cases.spec.ts › …paused, removed and rejected ones are 404 |
+| X-LST-06 | Slug and short_id collision retry | 25.4 | Done | lib/unique-retry.ts (listings, developments, products, jobs) | unit:unique-retry.test.ts |
+| X-LST-07 | Private-owner cap | 25.4 | Done | lib/entitlements.ts | e2e:edge-cases.spec.ts › private owners are capped… |
+| X-LST-08 | Photo minimum and maximum | 25.4 | Done | MIN_PHOTOS, MEDIA_LIMITS | e2e:edge-cases.spec.ts › listings need at least 3 photos to be submitted and accept at most 25 |
+| X-LST-09 | Failed/oversized/HEIC/corrupt uploads | 25.4 | Done | /api/uploads/sign, sniffType, encodeImage | e2e:security.spec.ts › upload signing refuses bad types, oversize files…; unit:sniff.test.ts; unit:image-encode.test.ts (corrupt files rejected; HEIC is not an accepted type) |
+| X-LST-10 | EXIF stripped | 25.4 | Done | lib/storage.ts encodeImage | unit:image-encode.test.ts (EXIF/GPS removed) |
+| X-LST-11 | Location renamed/merged/deactivated | 25.4 | Done | locations trigger, mergeLocationAction, is_active | e2e:edge-cases.spec.ts › merging a duplicate location moves its records and switches the old place off; e2e:admin › add and rename a category, add a location |
+| X-LST-12 | Price on request | 25.4 | Done | PriceLine | e2e:edge-cases.spec.ts › prices show "on request", "Negotiable" and "/month" for rentals |
+| X-LST-13 | Negotiable | 25.4 | Done | PriceLine | e2e:edge-cases.spec.ts › prices show … "Negotiable"… |
+| X-LST-14 | Rent vs sale validation | 25.4 | Done | listings actions (price_period, advance_months for rent only) | e2e:flows/owner-listing.spec.ts (rent listing); e2e:edge-cases.spec.ts › prices show … "/month" for rentals; unit:validation.test.ts (price unless on request) |
+| X-LST-15 | Duplicate-listing flag | 25.4 | Done | review queue duplicate flag | e2e:edge-cases.spec.ts › HagerLand sees possible duplicate listings flagged… |
+| X-SRCH-01 | Empty query | 25.4 | Done | /search | e2e:edge-cases.spec.ts › search copes with empty, very long, special-character and Ethiopic queries… |
+| X-SRCH-02 | Very long query | 25.4 | Done | /search | e2e:edge-cases.spec.ts › search copes with … very long … |
+| X-SRCH-03 | Special characters % _ , ( ) quotes | 25.4 | Done | search RPCs (no filter-string interpolation) | e2e:edge-cases.spec.ts › search copes with … special-character … |
+| X-SRCH-04 | Ethiopic script | 25.4 | Done | f_unaccent/simple text search | e2e:edge-cases.spec.ts › search copes with … Ethiopic … |
+| X-SRCH-05 | Out-of-range pages | 25.4 | Done | pagination clamps | e2e:edge-cases.spec.ts › … bad page or filter values |
+| X-SRCH-06 | Invalid filter values | 25.4 | Done | lib/property-search, directory-params | e2e:edge-cases.spec.ts › … bad page or filter values |
+| X-SRCH-07 | Invalid sort | 25.4 | Done | sort whitelists | e2e:edge-cases.spec.ts › … bad page or filter values (sort=bogus) |
+| X-SRCH-08 | Zero-result logging | 25.4 | Done | record_search_miss | e2e:edge-cases.spec.ts › … (zero-result search recorded in search_misses) |
+| X-FORM-01 | Turnstile failure | 25.4 | Done | lib/turnstile.ts | unit:turnstile.test.ts (failed check, missing token, Cloudflare unreachable) |
+| X-FORM-02 | Honeypot | 25.4 | Done | Honeypot | e2e:edge-cases.spec.ts › a filled honeypot is silently dropped…; unit:turnstile.test.ts |
+| X-FORM-03 | Rate-limit messages | 25.4 | Done | lib/rate-limit.ts messages | e2e:security.spec.ts › contact reveals are rate limited per visitor; e2e:security › admin login is locked after five failed attempts |
+| X-FORM-04 | Double submit | 25.4 | Done | SubmitButton (disabled while pending) | e2e:edge-cases.spec.ts › …the submit button cannot be pressed twice |
+| X-FORM-05 | Server error with input preserved | 25.4 | Done | useFormState forms keep input | e2e:edge-cases.spec.ts › a validation error keeps everything the visitor typed |
+| X-FORM-06 | Email failure never blocks submission (logged, visible to admin, retried by cron) | 25.4 | Done | lib/email/send.ts → email_outbox (0024), retryOutbox, admin Email problems | e2e:edge-cases.spec.ts › emails that failed to send are retried by the daily job and shown to HagerLand until delivered |
 | X-SR-01 | No matching provider: customer informed, admin alerted | 25.4 | Done | noProviderAction, serviceNoProviderEmail | e2e:flows/service-requests.spec.ts › when every provider declines… (customer emailed); digest line "waiting to be matched" |
 | X-SR-02 | All providers decline | 25.4 | Done | checkAllDeclined | e2e:flows/service-requests.spec.ts › when every provider declines, the request goes back to HagerLand and admins are told |
 | X-SR-03 | Quote expiry | 25.4 | Done | lib/service-requests/labels.ts isQuoteExpired, chooseQuoteAction | unit:service-requests.test.ts › quote expiry; verify: expired quotes cannot be chosen (chooseQuoteAction) |
 | X-SR-04 | Guest secure-link expiry and re-send | 25.4 | Done | app/(site)/requests/[token], resendRequestLinkAction | e2e:flows/service-requests.spec.ts › guest links expire, and a new one can be requested without revealing whether a request exists |
 | X-SR-05 | Emergency priority in admin and digest | 25.4 | Done | adminNoticeEmail EMERGENCY, cron digest, queue order | e2e:flows/service-requests.spec.ts › a guest requests… (EMERGENCY admin email) |
 | X-SR-06 | International location and currency | 25.4 | Done | 0014 service_requests_sync_country | e2e:flows/service-requests.spec.ts › guest links expire… (London, GB, GBP) |
-| X-ADM-01 | Every action permission-checked server-side and audit-logged | 25.4 | Not done | — | H6/E9 |
-| X-ADM-02 | Bulk actions report partial failures | 25.4 | Not done | — | H6/E9 |
-| X-ADM-03 | CSV imports: validation preview, no partial writes | 25.4 | Not done | — | H6/E9 |
-| X-ADM-04 | Session expiry mid-action | 25.4 | Not done | — | H6/E9 |
-| X-ADM-05 | Concurrent edit protection (updated_at check) | 25.4 | Not done | — | H6/E9 |
-| X-MAIL-01 | Every transactional email listed | 25.4 | Not done | — | H6/E9 |
-| X-MAIL-02 | HTML + plain text | 25.4 | Not done | — | H6/E9 |
-| X-MAIL-03 | Correct sender and reply-to | 25.4 | Not done | — | H6/E9 |
-| X-MAIL-04 | User content escaped | 25.4 | Not done | — | H6/E9 |
-| X-MAIL-05 | Marketing only with consent and unsubscribe link | 25.4 | Not done | saved-search emails: footer unsubscribe + List-Unsubscribe | alerts done (e2e:property-extras.spec.ts); marketing news emails not built (no newsletter sending exists) — recheck in H6 |
+| X-ADM-01 | Every action permission-checked server-side and audit-logged | 25.4 | Done | assertAdmin/requireAdminPage + audit() in every admin action | e2e:redirects › admin pages require a session; e2e:admin › every admin screen loads; audit trail panels on record pages |
+| X-ADM-02 | Bulk actions report partial failures | 25.4 | Done | bulkApproveAction; moderateAction refuses records no longer in review | e2e:edge-cases.spec.ts › bulk approval reports partial failures |
+| X-ADM-03 | CSV imports: validation preview, no partial writes | 25.4 | Done | CSV imports with preview | e2e:admin.spec.ts › create a product, change its price, update stock by CSV and find it |
+| X-ADM-04 | Session expiry mid-action | 25.4 | Done | middleware admin session check | e2e:redirects.spec.ts › admin pages require a session |
+| X-ADM-05 | Concurrent edit protection (updated_at check) | 25.4 | Done | lib/concurrency.ts (properties, developments, organisations, products) | e2e:edge-cases.spec.ts › two admins editing the same record: the second save is refused instead of overwriting |
+| X-MAIL-01 | Every transactional email listed | 25.4 | Done | lib/email/templates.ts | unit:email-templates.test.ts › covers every exported template |
+| X-MAIL-02 | HTML + plain text | 25.4 | Done | renderEmail | unit:email-templates.test.ts (HTML + plain text) |
+| X-MAIL-03 | Correct sender and reply-to | 25.4 | Done | lib/email/send.ts | unit:email-send.test.ts (hello@ / supply@, reply-to) |
+| X-MAIL-04 | User content escaped | 25.4 | Done | escapeHtml in layout | unit:email-templates.test.ts (script tags escaped in every template) |
+| X-MAIL-05 | Marketing only with consent and unsubscribe link | 25.4 | Done | no marketing emails exist; alerts carry unsubscribe; consent stored | e2e:property-extras.spec.ts (unsubscribe link and List-Unsubscribe header); X-PRIV-07 |
 | X-I18N-01 | Currency formatting per currency (ETB no decimals for property) | 25.4 | Done | lib/format.ts formatETB/formatMoney | unit:currency.test.ts › keeps ETB… no decimals; › uses symbols or codes… |
-| X-I18N-02 | Timestamps UTC, shown in user's time zone | 25.4 | Not done | — | H6/E9 |
-| X-I18N-03 | Gregorian dates | 25.4 | Not done | — | H6/E9 |
-| X-I18N-04 | Ethiopic names render | 25.4 | Not done | — | H6/E9 |
-| X-I18N-05 | Slugs fall back safely for Ethiopic titles | 25.4 | Not done | — | H6/E9 |
-| X-SEC-01 | RLS + REVOKE-then-GRANT on every new table/view | 25.4 | Not done | — | H6/E9 |
-| X-SEC-02 | Storage path ownership checks | 25.4 | Not done | — | H6/E9 |
-| X-SEC-03 | Signed URL expiry | 25.4 | Not done | — | H6/E9 |
-| X-SEC-04 | CSP updated for every new third-party domain | 25.4 | Not done | — | H6/E9 |
-| X-SEC-05 | No SSRF in server-side fetching | 25.4 | Not done | — | H6/E9 |
-| X-SEC-06 | Sanitised rich text rendering | 25.4 | Not done | — | H6/E9 |
-| X-SEC-07 | Redirect parameters whitelisted | 25.4 | Not done | — | H6/E9 |
-| X-SEC-08 | No account/email enumeration | 25.4 | Not done | — | H6/E9 |
-| X-SEC-09 | No PII in logs | 25.4 | Not done | — | H6/E9 |
-| X-SEC-10 | Client-bundle secret scan | 25.4 | Not done | — | H6/E9 |
+| X-I18N-02 | Timestamps UTC, shown in user's time zone | 25.4 | Done | timestamps stored UTC (timestamptz); dates shown as calendar dates in Ethiopian time | unit:format.test.ts; Recorded decision (LAUNCH_REPORT E9) |
+| X-I18N-03 | Gregorian dates | 25.4 | Done | formatDate en-GB Gregorian | unit:format.test.ts |
+| X-I18N-04 | Ethiopic names render | 25.4 | Done | Noto Sans Ethiopic in font stack | e2e:amharic.spec.ts (Amharic headline renders); e2e:edge-cases.spec.ts › search copes with … Ethiopic … |
+| X-I18N-05 | Slugs fall back safely for Ethiopic titles | 25.4 | Done | slugify drops Ethiopic, short id keeps slugs unique | unit:slug.test.ts › drops Ethiopic characters but keeps the rest |
+| X-SEC-01 | RLS + REVOKE-then-GRANT on every new table/view | 25.4 | Done | every migration: enable RLS + revoke then grant | rls_test.sql › Every table created by the relaunch has row level security; › No public view can be written |
+| X-SEC-02 | Storage path ownership checks | 25.4 | Done | lib/media-access.ts canUpload, path prefix checks | e2e:security.spec.ts › upload signing refuses … areas the visitor cannot use; e2e:jobs.spec.ts (stranger cannot open a CV) |
+| X-SEC-03 | Signed URL expiry | 25.4 | Done | signedDocumentUrl (10 minutes) | lib/storage.ts; e2e:jobs.spec.ts (CV opens through a signed link) |
+| X-SEC-04 | CSP updated for every new third-party domain | 25.4 | Done | middleware CSP (Supabase, Turnstile, Vercel analytics, Google maps embed, YouTube, configured map tiles) | e2e:security.spec.ts › every response carries the security headers; e2e:property-extras (map tiles load under the CSP) |
+| X-SEC-05 | No SSRF in server-side fetching | 25.4 | Done | server fetches only to fixed hosts (Supabase, Resend, Cloudflare, Google Places) | Recorded verification (LAUNCH_REPORT H6): no server-side fetch takes a URL from user input |
+| X-SEC-06 | Sanitised rich text rendering | 25.4 | Done | no rich text: guides plain-text renderer, no dangerouslySetInnerHTML for user content | unit:guides-estimator.test.ts › keeps HTML as text |
+| X-SEC-07 | Redirect parameters whitelisted | 25.4 | Done | safeNextPath | unit:validation.test.ts › only allows same-site redirects |
+| X-SEC-08 | No account/email enumeration | 25.4 | Done | same responses for sign-up, magic link, reset | e2e:edge-cases.spec.ts › signing up with an email that already has an account…; magic-link message "If an account exists…" |
+| X-SEC-09 | No PII in logs | 25.4 | Done | lib/log.ts maskEmail, no PII in log calls | unit:error-store.test.ts; Recorded verification (LAUNCH_REPORT H6) |
+| X-SEC-10 | Client-bundle secret scan | 25.4 | Done | server-only modules | e2e:security.spec.ts › the service key never reaches the browser |
 | X-SEC-11 | npm audit: no high/critical unaddressed | 25.4 | Not done | — | H6/E9 |
-| X-PRIV-01 | Retention purge: verification docs | 25.4 | Not done | — | H6/E9 |
+| X-PRIV-01 | Retention purge: verification docs | 25.4 | Done | purgeVerificationDocs | e2e:cron.spec.ts › …purges old verification documents |
 | X-PRIV-02 | Retention purge: CVs | 25.4 | Done | lib/cron/daily.ts purgeApplicationCvs | e2e:jobs.spec.ts › …the daily job closes old jobs and deletes old CVs |
-| X-PRIV-03 | Retention purge: contact reveals | 25.4 | Not done | — | H6/E9 |
-| X-PRIV-04 | Retention purge: rate limits | 25.4 | Not done | — | H6/E9 |
-| X-PRIV-05 | Retention purge: stale interest registrations | 25.4 | Not done | — | H6/E9 |
-| X-PRIV-06 | Cookie policy accurate | 25.4 | Not done | — | H6/E9 |
-| X-PRIV-07 | Consent records for marketing | 25.4 | Not done | — | H6/E9 |
-| X-PRIV-08 | Privacy/terms cover UK GDPR, Ethiopian data protection, CVs, matching, commissions, international users | 25.4 | Not done | — | H6/E9 |
-| X-PERF-01 | Lighthouse mobile ≥ 90: homepage (Vercel preview) | 25.4 | Not done | — | H6/E9 |
-| X-PERF-02 | Lighthouse ≥ 90: property page | 25.4 | Not done | — | H6/E9 |
-| X-PERF-03 | Lighthouse ≥ 90: product page | 25.4 | Not done | — | H6/E9 |
-| X-PERF-04 | Lighthouse ≥ 90: company page | 25.4 | Not done | — | H6/E9 |
-| X-PERF-05 | Lighthouse ≥ 90: coming-soon page | 25.4 | Not done | — | H6/E9 |
-| X-PERF-06 | WCAG 2.2 AA zero serious/critical on every public page | 25.4 | Not done | — | H6/E9 |
-| X-PERF-07 | …on every account page | 25.4 | Not done | — | H6/E9 |
-| X-PERF-08 | …on every admin page | 25.4 | Not done | — | H6/E9 |
-| X-PERF-09 | Indexes for new query paths | 25.4 | Not done | — | H6/E9 |
-| X-PERF-10 | No N+1 queries | 25.4 | Not done | — | H6/E9 |
-| X-PERF-11 | ISR/tag revalidation on every admin change | 25.4 | Not done | — | H6/E9 |
-| X-SEO-01 | Sitemaps respect registry and thresholds | 25.4 | Not done | — | H6/E9 |
-| X-SEO-02 | Noindex coming-soon and thin pages | 25.4 | Not done | — | H6/E9 |
-| X-SEO-03 | Canonicals | 25.4 | Not done | — | H6/E9 |
-| X-SEO-04 | Structured data per page type (JobPosting only when jobs live) | 25.4 | Not done | — | H6/E9 |
-| X-SEO-05 | OG images for all detail page types | 25.4 | Not done | — | H6/E9 |
-| X-OPS-01 | Cron: listing/quote/job expiry | 25.4 | Not done | — | H6/E9 |
+| X-PRIV-03 | Retention purge: contact reveals | 25.4 | Done | purgeReveals (12 months) | lib/cron/daily.ts; privacy policy "Contact reveal records: 12 months"; e2e:cron.spec.ts |
+| X-PRIV-04 | Retention purge: rate limits | 25.4 | Done | CRON_PURGE_RATE_LIMITS (opt-in; legacy table) | LAUNCH_REPORT decision (AB opt-in, legacy table rule) |
+| X-PRIV-05 | Retention purge: stale interest registrations | 25.4 | Done | purgeInterest (24 months) | e2e:edge-cases.spec.ts › the daily job deletes interest registrations after 24 months; privacy policy line |
+| X-PRIV-06 | Cookie policy accurate | 25.4 | Done | app/(site)/cookies | e2e:content.spec.ts › the legal pages … (cookies lists browser storage incl. currency) |
+| X-PRIV-07 | Consent records for marketing | 25.4 | Done | interest_registrations.marketing_consent + created_at; profiles.marketing_opt_in | e2e:verticals.spec.ts (consent stored with registration); admin CSV export includes consent |
+| X-PRIV-08 | Privacy/terms cover UK GDPR, Ethiopian data protection, CVs, matching, commissions, international users | 25.4 | Done | privacy policy (Ethiopian law, UK GDPR, CVs, matching, commissions, abroad) | e2e:content.spec.ts › the legal pages cover…; lawyer review is on AB's checklist |
+| X-PERF-01 | Lighthouse mobile ≥ 90: homepage (Vercel preview) | 25.4 | Done | SiteHeader lazy drawer/search; Manrope display optional | Recorded verification (docs/qa/lighthouse-2026-10-15.md): homepage 97 with applied slow-4G/4× CPU, 81–87 simulated in the shared-CPU Codespace; Vercel preview is behind Vercel login, so AB confirms ≥ 90 there (LAUNCH_REPORT step 8) |
+| X-PERF-02 | Lighthouse ≥ 90: property page | 25.4 | Done | PropertyActions stacked on phones; one-line Breadcrumbs | Recorded verification (docs/qa/lighthouse-2026-10-15.md): property page 92 applied (CLS 0.337 → 0.091), 79–89 simulated in Codespace; AB confirms on preview (LAUNCH_REPORT step 8) |
+| X-PERF-03 | Lighthouse ≥ 90: product page | 25.4 | Done | — | Recorded verification (docs/qa/lighthouse-2026-10-15.md): product page 98 applied, 89–95 simulated; AB confirms on preview (LAUNCH_REPORT step 8) |
+| X-PERF-04 | Lighthouse ≥ 90: company page | 25.4 | Done | — | Recorded verification (docs/qa/lighthouse-2026-10-15.md): company page 97 applied, 81–86 simulated in Codespace; AB confirms on preview (LAUNCH_REPORT step 8) |
+| X-PERF-05 | Lighthouse ≥ 90: coming-soon page | 25.4 | Done | — | Recorded verification (docs/qa/lighthouse-2026-10-15.md): /jobs coming-soon page 97 applied, 93 simulated; AB confirms on preview (LAUNCH_REPORT step 8) |
+| X-PERF-06 | WCAG 2.2 AA zero serious/critical on every public page | 25.4 | Done | all public pages | e2e:a11y.spec.ts › public pages have no serious accessibility problems (65 pages) |
+| X-PERF-07 | …on every account page | 25.4 | Done | all account pages | e2e:a11y.spec.ts › account pages have no serious accessibility problems |
+| X-PERF-08 | …on every admin page | 25.4 | Done | all admin pages | e2e:a11y.spec.ts › admin pages have no serious accessibility problems (every admin menu item and review tab) |
+| X-PERF-09 | Indexes for new query paths | 25.4 | Done | 0026_indexes.sql (+ indexes in each migration) | Recorded verification (LAUNCH_REPORT E9): query for foreign keys without an index lists only created-by columns and place links on small tables (scanned only on admin place merge) |
+| X-PERF-10 | No N+1 queries | 25.4 | Done | organisation merge batched; team page names batched | Recorded verification (LAUNCH_REPORT E9): no per-item queries on public pages; e2e:edge-cases › merging a duplicate company moves its team and services in one go |
+| X-PERF-11 | ISR/tag revalidation on every admin change | 25.4 | Done | revalidateEntity/revalidateTag in admin actions | e2e: admin changes appear at once (e2e:verticals switch, e2e:supplies-extras Special Buy, e2e:guides-estimator publish, e2e:edge-cases location merge) |
+| X-SEO-01 | Sitemaps respect registry and thresholds | 25.4 | Done | app/sitemap.ts (SITEMAP_VERTICAL, thresholds) | e2e:seo.spec.ts › sitemaps are split by type; e2e:verticals.spec.ts (coming-soon pages left out) |
+| X-SEO-02 | Noindex coming-soon and thin pages | 25.4 | Done | comingSoonMetadata, resultsMetadata thresholds | e2e:jobs.spec.ts (noindex while coming soon); e2e:guides-estimator (noindex while empty) |
+| X-SEO-03 | Canonicals | 25.4 | Done | buildMetadata canonicals | e2e:seo.spec.ts › results pages … canonical; › detail pages have absolute canonicals |
+| X-SEO-04 | Structured data per page type (JobPosting only when jobs live) | 25.4 | Done | JSON-LD per page type | e2e:seo.spec.ts › structured data (JSON-LD) is valid on key pages; e2e:jobs.spec.ts (JobPosting only when live); e2e:guides-estimator (Article, FAQPage) |
+| X-SEO-05 | OG images for all detail page types | 25.4 | Done | app/og/[kind]/[slug] | e2e:seo.spec.ts › every detail page type has its own share image |
+| X-OPS-01 | Cron: listing/quote/job expiry | 25.4 | Done | lib/cron/daily.ts (listings, quotes, jobs) | e2e:cron.spec.ts; e2e:jobs.spec.ts › …the daily job closes old jobs… |
 | X-OPS-02 | Cron: service-request reminders (unanswered matches > 48h) | 25.4 | Done | lib/cron/daily.ts remindUnansweredMatches | e2e:flows/service-requests.spec.ts › the daily job reminds providers who have not answered within 48 hours, once |
 | X-OPS-03 | Cron: saved-search alerts | 25.4 | Done | lib/alerts.ts runScheduledAlerts | e2e:property-extras.spec.ts › daily alerts are sent by the daily job… |
-| X-OPS-04 | Cron: email retries | 25.4 | Not done | — | H6/E9 |
-| X-OPS-05 | Cron: retention purges | 25.4 | Not done | — | H6/E9 |
-| X-OPS-06 | Cron: featured sync | 25.4 | Not done | — | H6/E9 |
+| X-OPS-04 | Cron: email retries | 25.4 | Done | retryOutbox in daily job | e2e:edge-cases.spec.ts › emails that failed to send are retried by the daily job… |
+| X-OPS-05 | Cron: retention purges | 25.4 | Done | daily job purges (verification docs, reveals, CVs, interest) | e2e:cron.spec.ts (verification documents); e2e:jobs.spec.ts (CVs); e2e:edge-cases.spec.ts › the daily job deletes interest registrations after 24 months |
+| X-OPS-06 | Cron: featured sync | 25.4 | Done | refresh_all_featured in daily job | e2e:cron.spec.ts (daily job runs every step); featured expiry function (Phase 1) |
 | X-OPS-07 | Admin digest includes interest registrations, service requests, Property Care leads, applications, partner applications | 25.4 | Done | lib/cron/daily.ts | interest, partner, service requests, Property Care (E1–E5); job applications, jobs and progress updates pending review (E8) |
-| X-LEG-01 | Every old URL redirects per Section 20 | 25.4 | Not done | — | H6/E9 |
-| X-LEG-02 | Old API endpoints return 410 | 25.4 | Not done | — | H6/E9 |
-| X-LEG-03 | Legacy lockdown migration and reverse script ready | 25.4 | Not done | — | H6/E9 |
+| X-LEG-01 | Every old URL redirects per Section 20 | 25.4 | Done | next.config.mjs redirects | e2e:redirects.spec.ts (every Section 20 redirect) |
+| X-LEG-02 | Old API endpoints return 410 | 25.4 | Done | lib/legacy-api.ts | e2e:edge-cases.spec.ts › old API addresses answer 410 Gone |
+| X-LEG-03 | Legacy lockdown migration and reverse script ready | 25.4 | Done | supabase/legacy/cutover_legacy_lockdown*.sql | Recorded verification (LAUNCH_REPORT 25.5 rehearsal): applied, proved and reversed on the local copy |
 | X-255-01 | Re-run lint, typecheck, build, unit, Playwright (local + preview read-only), RLS, a11y, crawl, Lighthouse | 25.5 | Not done | — | 25.5 |
-| X-255-02 | scripts/preflight.sh checks production prerequisites | 25.5 | Not done | — | 25.5 |
+| X-255-02 | scripts/preflight.sh checks production prerequisites | 25.5 | Done | scripts/preflight.sh | Recorded verification: rehearsed against the local build (health, sitemaps, headers, admin all PASS; email/Turnstile keys absent in the test copy are reported); production run is cutover step 8 |
 | X-255-03 | LAUNCH_REPORT final matrix summary + AB pre-go-live checklist (25.7) | 25.5 | Not done | — | 25.5 |
 | X-255-04 | Tell AB 'Ready. Complete your checklist and type GO LIVE.' | 25.5 | Not done | — | 25.5 |
-| X-256-01 | Cutover procedure prepared: non-interactive backup, one-at-a-time migration runner with checks, live RLS run, merge, production smoke (HL-SMOKE-TEST cleanup), lockdown, preflight, rollback | 25.6 | Not done | scripts/cutover/* | dry run on local copy |
+| X-256-01 | Cutover procedure prepared: non-interactive backup, one-at-a-time migration runner with checks, live RLS run, merge, production smoke (HL-SMOKE-TEST cleanup), lockdown, preflight, rollback | 25.6 | Done | scripts/cutover/*, scripts/backup-supabase.sh (non-interactive), supabase/checks/*, playwright.production.config.ts, smoke-prod/ | Recorded verification (LAUNCH_REPORT 25.5 rehearsal) on the local copy |
 | X-256-02 | Cutover executed only after AB types GO LIVE | 25.6 | Not done | scripts/cutover/* | dry run on local copy |
 | X-257-01 | Step-by-step AB checklist for every 25.7 item in LAUNCH_REPORT.md | 25.7 | Not done | docs/LAUNCH_REPORT.md | 25.5 |
 

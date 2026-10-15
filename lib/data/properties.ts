@@ -50,7 +50,7 @@ export function propertySearchArgs(query: PropertyQuery) {
     p_lister_type: f.lister,
     p_added_within_days: f.added,
     p_include_negotiable: !f.excludeNegotiable,
-    p_development_id: query.developmentId,
+    p_development_id: query.developmentId ?? f.development,
     p_lister_org_id: query.listerOrgId,
     p_exclude_id: query.excludeId,
     p_featured_only: query.featuredOnly ?? false,

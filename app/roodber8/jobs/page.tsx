@@ -16,13 +16,13 @@ export default async function AdminJobsPage({ searchParams }: { searchParams: Re
   const db = getAdminSupabase()
   const status = STATUSES.find((s) => s === searchParams.status)
   const page = Math.max(1, Number(searchParams.page) || 1)
-  let q = db.from('jobs').select('id, title, category, employment_type, status, applications_count, employer_org_id, published_at, expires_at, updated_at').order('updated_at', { ascending: false }).range((page - 1) * PAGE, page * PAGE)
+  let q = db.from('job_posts').select('id, title, category, employment_type, status, applications_count, employer_org_id, published_at, expires_at, updated_at').order('updated_at', { ascending: false }).range((page - 1) * PAGE, page * PAGE)
   if (status) q = q.eq('status', status)
   const head = { count: 'exact' as const, head: true }
   const [{ data }, live, pending, apps, apps30, hired] = await Promise.all([
     q,
-    db.from('jobs').select('id', head).eq('status', 'published'),
-    db.from('jobs').select('id', head).eq('status', 'pending_review'),
+    db.from('job_posts').select('id', head).eq('status', 'published'),
+    db.from('job_posts').select('id', head).eq('status', 'pending_review'),
     db.from('job_applications').select('id', head),
     db.from('job_applications').select('id', head).gte('created_at', new Date(Date.now() - 30 * 86_400_000).toISOString()),
     db.from('job_applications').select('id', head).eq('status', 'hired'),

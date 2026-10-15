@@ -6,6 +6,8 @@ import { ButtonLink } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
 import { EmptyState } from '@/components/ui/Layout'
 import { formatDate, formatETBCents } from '@/lib/format'
+import { log } from '@/lib/log'
+import { FormAlert } from '@/components/forms/FormParts'
 
 export const metadata = { title: 'My quotes' }
 
@@ -21,12 +23,15 @@ const STATUS: Record<string, { label: string; tone: 'neutral' | 'info' | 'green'
 
 export default async function MyQuotesPage() {
   const user = await requireUser('/account/quotes')
-  const { data } = await getServerSupabase().from('quote_requests').select('id, reference, status, created_at, quoted_total_etb_cents, quoted_at, source, quote_document_path').eq('requester_user_id', user.id).order('created_at', { ascending: false })
+  const { data, error } = await getServerSupabase().from('quote_requests').select('id, reference, status, created_at, quoted_total_etb_cents, quoted_at, source, quote_document_path').eq('requester_user_id', user.id).order('created_at', { ascending: false })
+  if (error) log.error('account', 'quotes failed to load', error)
   const quotes = data ?? []
   return (
     <div>
       <AccountPageHeader title="My quotes" description="Quote requests you sent to HagerLand Supply while signed in." action={<ButtonLink href="/supplies/materials-list">Request a quote</ButtonLink>} />
-      {quotes.length === 0 ? (
+      {error ? (
+        <FormAlert>We could not load your quotes just now. Please refresh the page.</FormAlert>
+      ) : quotes.length === 0 ? (
         <EmptyState icon={<ClipboardList />} title="No quote requests yet" description="Build a quote list from the catalogue, or send us your materials list." actions={<ButtonLink href="/supplies">Browse supplies</ButtonLink>} />
       ) : (
         <ul className="space-y-3">

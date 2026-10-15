@@ -19,6 +19,8 @@ import { revalidateEntity } from '@/lib/revalidate'
 import { canonicalUrl } from '@/lib/site'
 import { shortId, slugify } from '@/lib/slug'
 import { log } from '@/lib/log'
+import { withUniqueRetry } from '@/lib/unique-retry'
+import { trackServer } from '@/lib/analytics-server'
 
 const NOT_LIVE = 'Jobs on HagerLand open soon. Register your interest on the jobs page and we will tell you when they do.'
 
@@ -42,23 +44,25 @@ export async function saveJobAction(_prev: JobState, formData: FormData): Promis
   const supabase = getServerSupabase()
   let id = d.id
   if (!id) {
-    const { data, error } = await supabase
-      .from('jobs')
+    const { data, error } = await withUniqueRetry(() =>
+      supabase
+      .from('job_posts')
       .insert({ ...jobColumns(d), slug: `${slugify(d.title, 60)}-${shortId(4)}`, employer_org_id: active.org.id, status: submit ? 'pending_review' : 'draft' })
       .select('id')
-      .single()
+      .single(),
+    )
     if (error || !data) {
       log.error('jobs', 'create failed', error)
       return fail('We could not save the job. Please try again.')
     }
     id = data.id
   } else {
-    const { data: row } = await supabase.from('jobs').select('id, status').eq('id', id).maybeSingle()
+    const { data: row } = await supabase.from('job_posts').select('id, status').eq('id', id).maybeSingle()
     if (!row) return fail('Job not found.')
     if (row.status === 'published') return fail('This job is live. Pause it first, then edit it and send it for review again.')
     if (row.status === 'removed') return fail('HagerLand removed this job. It cannot be changed.')
     const { error } = await supabase
-      .from('jobs')
+      .from('job_posts')
       .update({ ...jobColumns(d), ...(submit ? { status: 'pending_review' as const } : {}) })
       .eq('id', id)
     if (error) {
@@ -76,7 +80,7 @@ export async function setJobStatusAction(id: string, status: 'paused' | 'archive
   const parsed = z.object({ id: z.uuid(), status: z.enum(['paused', 'archived', 'pending_review']) }).safeParse({ id, status })
   if (!parsed.success) return fail('Invalid request.')
   if (parsed.data.status === 'pending_review' && !(await jobsLive())) return fail(NOT_LIVE)
-  const { data, error } = await getServerSupabase().from('jobs').update({ status: parsed.data.status }).eq('id', parsed.data.id).neq('status', 'removed').select('id').maybeSingle()
+  const { data, error } = await getServerSupabase().from('job_posts').update({ status: parsed.data.status }).eq('id', parsed.data.id).neq('status', 'removed').select('id').maybeSingle()
   if (error || !data) return fail('We could not change this job. Please try again.')
   revalidateEntity('job', parsed.data.id, ['/account/jobs', `/account/jobs/${parsed.data.id}`])
   return ok({ message: parsed.data.status === 'paused' ? 'Job paused. It is hidden from the job board.' : parsed.data.status === 'archived' ? 'Job closed.' : 'Sent to HagerLand for review.' })
@@ -109,12 +113,13 @@ export async function applyForJobAction(_prev: ApplyState, formData: FormData): 
     return fail('We could not send your application. Please try again.')
   }
   const { count } = await db.from('job_applications').select('id', { count: 'exact', head: true }).eq('job_id', job.id)
-  await db.from('jobs').update({ applications_count: count ?? 0 }).eq('id', job.id)
+  await db.from('job_posts').update({ applications_count: count ?? 0 }).eq('id', job.id)
   const managers = await orgManagerEmails(job.employer_org_id)
   await Promise.all([
     managers.length ? sendEmail({ to: managers, ...newApplicationEmail({ orgName: job.employer_name ?? 'there', title: job.title ?? '', reference: row.reference, applicantName: d.name, url: canonicalUrl(`/account/jobs/${job.id}`) }) }) : Promise.resolve(false),
     sendEmail({ to: d.email, ...applicationReceivedEmail({ name: d.name.split(' ')[0], title: job.title ?? '', employer: job.employer_name ?? '', reference: row.reference }) }),
   ])
+  await trackServer('job_application_submitted')
   redirect(`/account/applications?applied=${row.reference}`)
 }
 

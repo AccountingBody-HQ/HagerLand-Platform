@@ -51,7 +51,8 @@ Next.js 14.2 App Router · TypeScript strict · Tailwind · Supabase (Postgres, 
 - Tokens, typography and components: spec Section 5.
 
 ## Architecture (spec Sections 4, 6, 7)
-- Unified entity model: `profiles`, `organisations` (+ members, services, product categories), `locations` tree, `properties`, `developments`, `products`, `media`, `enquiries`, `quote_requests`, `claims`, `verification_requests`, `promotions`, `site_settings`, `audit_log`.
+- Unified entity model: `profiles`, `organisations` (+ members, services, product categories, invitations, branches), `locations` tree (countries at the top), `properties`, `developments` (+ progress updates), `products`, `media`, `enquiries`, `quote_requests`, `claims`, `verification_requests`, `promotions`, `site_settings`, `audit_log`.
+- Phase 1.5 (spec Section 24, PLATFORM_VISION wins where they differ): `verticals` registry (Live / Coming soon / Hidden, `VerticalGate` in each vertical's layout, middleware noindex), request engine (`service_requests`, matches, quotes, `deals`), Property Care, saved items and saved searches, exchange rates, jobs and candidate profiles, guides and build-cost rates, trade accounts, `email_outbox`, Amharic (`lib/i18n`, `/am` rewrite in middleware, off by default). Migrations are recorded in `schema_migrations`.
 - RLS on every new table; anon reads only through `*_public` views and SECURITY DEFINER search functions. Contact details only via `/api/contact-reveal`.
 - Supabase Auth via `@supabase/ssr`; accounts at `/account`, admin at `/roodber8`.
 - Route map: spec Section 4.3.
@@ -65,6 +66,12 @@ Next.js 14.2 App Router · TypeScript strict · Tailwind · Supabase (Postgres, 
 - Photos are stored as WebP. `next/og` cannot read WebP: share images convert with sharp first (`lib/og.tsx`).
 - Hidden form fields that must change after a click (e.g. confirmations) must be set before submitting; a button that hides itself on click loses the submission (see `OrganisationForm`).
 - Admin nav links use `prefetch={false}`: every admin page is a dynamic, database-backed render.
+- The test build lives in `.next-test` (`npm run test:e2e:build`); Playwright reuses any server already on port 3100, so kill a stale `next-server` first or tests run against an old build.
+- `supabase/local-stack/setup.sh` applies only migrations not yet in `schema_migrations`; after a Codespace restart, remove broken Docker containers (`docker rm -f`, keep the db one) and run it again.
+- Editors send `expected_updated_at`; save actions refuse stale edits (`lib/concurrency.ts`). Keep that when adding editors.
+- Emails go through `lib/email/send.ts`: a failed send is queued in `email_outbox`, never thrown at the visitor.
+- User-facing text in shared chrome goes through `t()` / `getT()` (`lib/i18n`) so Amharic can fall back cleanly.
+- Do not run `npx prettier --write` (no prettier config; it reformats the codebase).
 
 ## Status
-Phase 1 (WP-0 to WP-19) is built; see `docs/LAUNCH_REPORT.md` and `docs/RELAUNCH_PROGRESS.md`. WP-20 (cutover) is AB's go-ahead only.
+Phase 1 (WP-0 to WP-19) and Phase 1.5 (E1–E9, H1–H6, `docs/BRIEF_PHASE_1_5_AND_GO_LIVE.md`) are built; see `docs/LAUNCH_REPORT.md`, `docs/RELAUNCH_PROGRESS.md` and `docs/REQUIREMENTS_MATRIX.md`. Cutover (25.6) runs only after AB types exactly "GO LIVE".

@@ -3,7 +3,7 @@ import { ArrowRight, Check } from 'lucide-react'
 import type { Metadata } from 'next'
 import { COMING_SOON } from '@/lib/content/verticals'
 import { getVerticals } from '@/lib/data/verticals'
-import { buildMetadata } from '@/lib/seo'
+import { buildMetadata, truncateDescription } from '@/lib/seo'
 import { verticalForPath, verticalHref, type Vertical } from '@/lib/verticals'
 import { Container, Section } from '@/components/ui/Layout'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
@@ -16,7 +16,7 @@ import { PartnerForm } from './PartnerForm'
 export function comingSoonMetadata(v: Vertical): Metadata {
   return buildMetadata({
     title: `${v.name} — coming soon`,
-    description: (v.seoDescription ?? v.shortDescription ?? `${v.name} is coming soon to HagerLand. Register your interest.`).slice(0, 160),
+    description: truncateDescription(v.seoDescription ?? `${v.shortDescription ?? v.name} Coming soon to HagerLand: register your interest and we will tell you when it opens.`),
     path: verticalHref(v),
     noindex: true,
   })

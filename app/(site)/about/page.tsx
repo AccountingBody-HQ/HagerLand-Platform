@@ -4,18 +4,28 @@ import { buildMetadata } from '@/lib/seo'
 import { Section, SectionHeader } from '@/components/ui/Layout'
 import { ButtonLink } from '@/components/ui/Button'
 import { PageHero } from '@/components/content/PageHero'
+import { SoonBadge } from '@/components/verticals/SoonBadge'
+import { getVerticals } from '@/lib/data/verticals'
+import type { VerticalKey } from '@/lib/verticals'
 
 export const metadata = buildMetadata({
   title: 'About HagerLand',
-  description: "HagerLand brings Ethiopia's property and construction market together: homes and land, construction materials and trusted professionals, all reviewed and current.",
+  description: "HagerLand is Ethiopia's construction and property platform: property, materials, professionals, contractors and repairs, for Ethiopians at home and abroad.",
   path: '/about',
 })
 
-const WHAT_WE_DO = [
-  { title: 'Property marketplace', text: 'Homes, land and commercial property for sale and to rent across Ethiopia, plus a growing database of developments and buildings. Every listing is reviewed before it goes live, and listings expire unless their owner renews them.' },
-  { title: brand.divisions.supply, text: 'Our own construction materials business. Send us a materials list or build a quote from the catalogue, and we reply with one clear price and delivery details.' },
-  { title: 'Professionals & services', text: 'Architects, engineers, contractors and tradespeople with real portfolios. Businesses earn the Verified badge only after we check their documents.' },
-  { title: brand.divisions.developments, text: 'Homes we build ourselves, with materials we source ourselves. Our own projects are always clearly labelled.' },
+/** What we do, one entry per vertical; the registry decides what shows and what is marked "coming soon" (spec 24.2, 24.11). */
+const WHAT_WE_DO: { key: VerticalKey; title: string; text: string; soonText?: string }[] = [
+  { key: 'property', title: 'Property marketplace', text: 'Homes, land and commercial property for sale and to rent across Ethiopia, developments and buildings, and our own estate agency services. Every listing is reviewed before it goes live, and listings expire unless their owner renews them.' },
+  { key: 'building-supplies', title: brand.divisions.supply, text: 'Construction materials from our own supply business and approved suppliers. Send a materials list or build a quote, and get one clear price with delivery.' },
+  { key: 'professionals', title: 'Professionals', text: 'Architects, engineers, surveyors and other specialists with real portfolios. Businesses earn the Verified badge only after we check their documents.' },
+  { key: 'contractors', title: 'Contractors and trades', text: 'Describe your project once and we match it to up to three suitable contractors, who quote you directly.' },
+  { key: 'repairs-maintenance', title: 'Repairs and maintenance', text: 'Plumbing, electrical, roofing, cleaning and emergency repairs, through the same request service.' },
+  { key: 'diaspora', title: 'For Ethiopians abroad', text: `Buy, build and look after property in Ethiopia from wherever you live, including ${brand.divisions.propertyCare}, and find Ethiopian-run services near you.` },
+  { key: 'finance', title: 'Finance', text: 'Requests for mortgages and construction finance go to approved, licensed partners. HagerLand does not give financial advice.', soonText: 'Finance through approved, licensed partners is coming soon.' },
+  { key: 'insurance', title: 'Insurance', text: 'Requests for home, building and construction insurance go to approved, licensed partners. HagerLand does not give insurance advice.', soonText: 'Insurance through approved, licensed partners is coming soon.' },
+  { key: 'jobs', title: 'Jobs and recruitment', text: 'A job board and recruitment help for construction, engineering and property.', soonText: 'A job board and recruitment help for construction, engineering and property are coming soon.' },
+  { key: 'our-developments', title: brand.divisions.developments, text: 'Homes we build ourselves, with materials we source ourselves. Our own projects are always clearly labelled.', soonText: 'HagerLand intends to develop carefully selected projects. We are not building or selling any yet.' },
 ]
 
 const STANDARDS = [
@@ -25,13 +35,18 @@ const STANDARDS = [
   { icon: Scale, title: 'Our own projects, clearly labelled', text: 'HagerLand’s own developments and supplies are always labelled and never given hidden priority in search.' },
 ]
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const verticals = await getVerticals()
+  const items = WHAT_WE_DO.flatMap((w) => {
+    const v = verticals.find((x) => x.key === w.key)
+    return v ? [{ ...w, soon: v.status === 'coming_soon' }] : []
+  })
   return (
     <>
       <PageHero
         crumb="About"
         title="Building the land."
-        intro="HagerLand brings Ethiopia's property and construction market together in one trusted place. Find a home or a plot, source the materials to build, and hire the people to build it — with listings that are reviewed, current and honest."
+        intro={`${brand.masterLine} ${brand.audienceLine} Find land or a home, plan and finance it, source the materials, hire the people to build and maintain it, and sell or rent it later, with listings that are reviewed, current and honest.`}
       />
       <Section>
         <div className="grid gap-10 lg:grid-cols-[1fr_1.4fr]">
@@ -45,10 +60,13 @@ export default function AboutPage() {
           <div>
             <h2 className="hl-h2">What we do</h2>
             <dl className="mt-6 grid gap-6 sm:grid-cols-2">
-              {WHAT_WE_DO.map((w) => (
-                <div key={w.title}>
-                  <dt className="font-display text-h3 font-bold">{w.title}</dt>
-                  <dd className="mt-2 text-muted">{w.text}</dd>
+              {items.map((w) => (
+                <div key={w.key}>
+                  <dt className="flex flex-wrap items-center gap-2 font-display text-h3 font-bold">
+                    {w.title}
+                    {w.soon && <SoonBadge long />}
+                  </dt>
+                  <dd className="mt-2 text-muted">{w.soon && w.soonText ? w.soonText : w.text}</dd>
                 </div>
               ))}
             </dl>
@@ -59,7 +77,7 @@ export default function AboutPage() {
         <div className="max-w-3xl">
           <h2 className="hl-h2">Why it works together</h2>
           <p className="mt-4 text-[1.0625rem]">
-            Because we supply materials and build homes ourselves, we understand construction from the inside — prices, quality, timelines and the problems people face. That knowledge shapes every part of the platform.
+            Because we supply construction materials ourselves, we understand building from the inside: prices, quality, timelines and the problems people face. That knowledge shapes every part of the platform, and each service leads to the next, from a plot of land to a finished, insured and well-kept home.
           </p>
         </div>
       </Section>

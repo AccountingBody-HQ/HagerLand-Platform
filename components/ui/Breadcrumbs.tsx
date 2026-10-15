@@ -13,17 +13,18 @@ export function Breadcrumbs({ items, className, inverse }: { items: Crumb[]; cla
   const all: Crumb[] = [{ label: 'Home', href: '/' }, ...items]
   return (
     <nav aria-label="Breadcrumb" className={cn('text-small', className)}>
-      <ol className="flex flex-wrap items-center gap-x-1">
+      {/* One line that scrolls sideways if needed: the height never changes when web fonts load (no layout shift). */}
+      <ol className="flex items-center gap-x-1 overflow-x-auto whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {all.map((c, i) => {
           const last = i === all.length - 1
           return (
-            <li key={`${c.label}-${i}`} className="flex items-center gap-1">
+            <li key={`${c.label}-${i}`} className="flex shrink-0 items-center gap-1">
               {c.href && !last ? (
                 <Link href={c.href} className={cn('inline-flex min-h-11 items-center hover:underline', inverse ? 'text-white/75 hover:text-white' : 'text-muted hover:text-ink')}>
                   {c.label}
                 </Link>
               ) : (
-                <span aria-current={last ? 'page' : undefined} className={cn('line-clamp-1', inverse ? 'text-white' : 'text-ink')}>
+                <span aria-current={last ? 'page' : undefined} className={cn('block max-w-[70vw] truncate sm:max-w-md', inverse ? 'text-white' : 'text-ink')}>
                   {c.label}
                 </span>
               )}

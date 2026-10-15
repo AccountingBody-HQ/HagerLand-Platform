@@ -88,6 +88,14 @@ export interface ProcessedImage {
   bytes: number
 }
 
+/** Re-encodes an image as WebP (max 2400px, plus a 640px thumbnail). Metadata, including GPS location, is not copied. */
+export async function encodeImage(buf: Buffer): Promise<{ full: { data: Buffer; info: { width: number; height: number } }; thumb: Buffer }> {
+  const pipeline = sharp(buf, { failOn: 'error', limitInputPixels: 80_000_000 }).rotate()
+  const full = await pipeline.clone().resize({ width: 2400, height: 2400, fit: 'inside', withoutEnlargement: true }).webp({ quality: 80 }).toBuffer({ resolveWithObject: true })
+  const thumb = await pipeline.clone().resize({ width: 640, height: 640, fit: 'inside', withoutEnlargement: true }).webp({ quality: 72 }).toBuffer()
+  return { full, thumb }
+}
+
 /**
  * Validates and re-encodes an uploaded image: WebP, max 2400px long edge, quality 80,
  * plus a 640px thumbnail. Re-encoding drops all metadata, including GPS location.
@@ -98,9 +106,7 @@ export async function processIncomingImage(incomingPath: string, entityType: Med
     const sniffed = sniffType(buf)
     if (!sniffed || !IMAGE_TYPES.includes(sniffed)) throw new UploadError('That file is not a JPEG, PNG or WebP image.')
     if (buf.length > MAX_IMAGE_BYTES) throw new UploadError('Images must be under 12 MB.')
-    const pipeline = sharp(buf, { failOn: 'error', limitInputPixels: 80_000_000 }).rotate()
-    const full = await pipeline.clone().resize({ width: 2400, height: 2400, fit: 'inside', withoutEnlargement: true }).webp({ quality: 80 }).toBuffer({ resolveWithObject: true })
-    const thumb = await pipeline.clone().resize({ width: 640, height: 640, fit: 'inside', withoutEnlargement: true }).webp({ quality: 72 }).toBuffer()
+    const { full, thumb } = await encodeImage(buf)
     const id = crypto.randomUUID()
     const storagePath = `${entityType}/${entityId}/${id}.webp`
     const thumbPath = `${entityType}/${entityId}/${id}-640.webp`

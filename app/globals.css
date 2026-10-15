@@ -25,6 +25,8 @@
   --hl-border-strong: 203 208 204;
   --hl-success: 28 124 76;
   --hl-warning: 183 121 31;
+  /* Warning text on light backgrounds (meets WCAG AA for small text). */
+  --hl-warning-dark: 138 87 14;
   --hl-danger: 194 65 12;
   --hl-error: 180 35 24;
   --hl-info: 37 99 235;

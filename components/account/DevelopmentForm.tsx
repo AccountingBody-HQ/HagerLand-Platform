@@ -16,6 +16,8 @@ import type { UnitType } from '@/lib/data/developments'
 
 export interface DevelopmentDefaults {
   id?: string
+  /** The record's updated_at when the form opened (concurrent-edit check). */
+  updated_at?: string | null
   status?: string
   name?: string
   kind?: string
@@ -65,6 +67,7 @@ export function DevelopmentForm({
   return (
     <form action={formAction} className="space-y-8" noValidate>
       {defaults.id && <input type="hidden" name="id" value={defaults.id} />}
+      {defaults.id && defaults.updated_at && <input type="hidden" name="expected_updated_at" value={defaults.updated_at} />}
       <input type="hidden" name="unit_types" value={JSON.stringify(units.filter((u) => u.type.trim()))} />
       <input type="hidden" name="brochure_path" value={brochure ?? ''} />
       {state && !state.ok && <FormAlert>{state.error}</FormAlert>}

@@ -4,6 +4,10 @@ import { ADMIN_SESSION_COOKIE, verifyAdminSessionEdge } from '@/lib/admin-sessio
 import { verticalForPath } from '@/lib/verticals'
 import { mapTileOrigin } from '@/lib/map-config'
 import { isIndexableVertical, verticalStatusesEdge } from '@/lib/vertical-status-edge'
+import { AM_PREFIX, LOCALE_HEADER, isAmharicPath, isPrefixable, stripLocale } from '@/lib/i18n/config'
+import { amharicEnabledEdge } from '@/lib/i18n/edge'
+import { canonicalUrl } from '@/lib/site'
+import { isLegacyApi } from '@/lib/legacy-api'
 
 const isDev = process.env.NODE_ENV !== 'production'
 
@@ -44,6 +48,7 @@ function withSecurityHeaders(res: NextResponse): NextResponse {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+  if (isLegacyApi(pathname)) return withSecurityHeaders(NextResponse.json({ error: 'This address is no longer available.' }, { status: 410 }))
 
   const isAdminPage = pathname === '/roodber8' || pathname.startsWith('/roodber8/')
   const isAdminApi = pathname.startsWith('/api/admin/')
@@ -62,10 +67,34 @@ export async function middleware(request: NextRequest) {
     return withSecurityHeaders(res)
   }
 
-  const response = await refreshSession(request, NextResponse.next({ request }))
+  // Language (spec 25.2m): "/am/…" serves the same page in Amharic, only while Amharic is switched on.
+  // The language header can only come from here: anything a visitor sends is replaced.
+  const amharic = isAmharicPath(pathname)
+  const amharicOn = await amharicEnabledEdge()
+  const page = amharic ? stripLocale(pathname) : pathname
+  if (amharic && (!amharicOn || !isPrefixable(page) || page === '/roodber8-login')) {
+    return withSecurityHeaders(NextResponse.rewrite(new URL('/__language-not-available', request.url)))
+  }
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.delete(LOCALE_HEADER)
+  if (amharic) requestHeaders.set(LOCALE_HEADER, 'am')
+  const make = () => {
+    if (!amharic) return NextResponse.next({ request: { headers: requestHeaders } })
+    const url = request.nextUrl.clone()
+    url.pathname = page
+    return NextResponse.rewrite(url, { request: { headers: requestHeaders } })
+  }
+  const response = await refreshSession(request, make)
+  if (amharic) response.headers.set('Content-Language', 'am')
+  // hreflang alternates for public pages while both languages exist.
+  if (amharicOn && isPrefixable(page) && !page.startsWith('/account') && request.method === 'GET') {
+    const en = canonicalUrl(page)
+    const am = canonicalUrl(page === '/' ? AM_PREFIX : `${AM_PREFIX}${page}`)
+    response.headers.set('Link', `<${en}>; rel="alternate"; hreflang="en", <${am}>; rel="alternate"; hreflang="am", <${en}>; rel="alternate"; hreflang="x-default"`)
+  }
   if (pathname === '/roodber8-login') response.headers.set('X-Robots-Tag', 'noindex, nofollow')
   // Pages of a vertical that is coming soon or hidden are never indexed (spec 24.2).
-  const vertical = verticalForPath(pathname)
+  const vertical = verticalForPath(page)
   if (vertical) {
     const statuses = await verticalStatusesEdge()
     if (statuses && !isIndexableVertical(statuses, vertical)) response.headers.set('X-Robots-Tag', 'noindex, follow')

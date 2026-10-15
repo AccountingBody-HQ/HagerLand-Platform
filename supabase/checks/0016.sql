@@ -1,0 +1,2 @@
+-- expect: 5|0|1
+select (select count(*) from information_schema.tables where table_schema = 'public' and table_name in ('property_care_requests', 'managed_properties', 'property_inspections', 'rent_statements', 'maintenance_log')), (select count(*) from pg_tables where schemaname = 'public' and not rowsecurity and tablename in ('property_care_requests', 'managed_properties', 'property_inspections', 'rent_statements', 'maintenance_log')), (select count(*) from public.site_settings_public where key = 'property_care_pricing');

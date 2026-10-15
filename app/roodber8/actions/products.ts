@@ -13,6 +13,7 @@ import { revalidateEntity } from '@/lib/revalidate'
 import { parseCsv } from '@/lib/admin/csv'
 import { sendEmail } from '@/lib/email/send'
 import { tradeDecisionEmail } from '@/lib/email/templates'
+import { STALE_EDIT, isStaleEdit } from '@/lib/concurrency'
 
 type ProductUpdate = Database['public']['Tables']['products']['Update']
 
@@ -22,6 +23,7 @@ export async function saveProductAction(_prev: ActionResult<{ id: string }> | nu
   const parsed = productSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   const d = parsed.data
+  if (d.id && (await isStaleEdit('products', d.id, formData.get('expected_updated_at')))) return fail(STALE_EDIT)
   const db = getAdminSupabase()
   let brandId = d.brand_id ?? null
   if (!brandId && d.new_brand) {

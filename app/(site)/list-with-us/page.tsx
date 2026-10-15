@@ -1,6 +1,7 @@
 import { Check } from 'lucide-react'
 import { buildMetadata, faqJsonLd } from '@/lib/seo'
 import { getBusinessDetails } from '@/lib/data/business'
+import { getVerticals } from '@/lib/data/verticals'
 import { AUDIENCES, LIST_WITH_US_FAQ } from '@/lib/content/list-with-us'
 import { Container, Section } from '@/components/ui/Layout'
 import { ButtonLink } from '@/components/ui/Button'
@@ -13,12 +14,25 @@ export const revalidate = 600
 
 export const metadata = buildMetadata({
   title: 'List with HagerLand',
-  description: 'List a property, join as an agent, developer, contractor or professional, or become a supplier. Reach people buying, building and renting across Ethiopia.',
+  description: 'List a property, your business or your products, post jobs or become a partner. Reach people buying, building and renting in Ethiopia and abroad.',
   path: '/list-with-us',
 })
 
+/** Which vertical each audience depends on: hidden verticals hide their audience; coming-soon ones point to registering interest. */
+const AUDIENCE_VERTICAL: Record<string, { key: 'jobs' | 'finance'; soon: { label: string; href: string } }> = {
+  employers: { key: 'jobs', soon: { label: 'Register interest as an employer', href: '/jobs#register' } },
+  partners: { key: 'finance', soon: { label: 'Become a partner', href: '/finance#partner' } },
+}
+
 export default async function ListWithUsPage() {
-  const business = await getBusinessDetails()
+  const [business, verticals] = await Promise.all([getBusinessDetails(), getVerticals()])
+  const audiences = AUDIENCES.flatMap((a) => {
+    const dep = AUDIENCE_VERTICAL[a.id]
+    if (!dep) return [a]
+    const v = verticals.find((x) => x.key === dep.key)
+    if (!v) return []
+    return [v.status === 'live' ? a : { ...a, cta: dep.soon, how: `${a.how} This service opens soon.` }]
+  })
   return (
     <>
       <PageHero
@@ -31,7 +45,7 @@ export default async function ListWithUsPage() {
         }
       >
         <nav aria-label="Who is this for" className="mt-6 flex flex-wrap gap-2">
-          {AUDIENCES.map((a) => (
+          {audiences.map((a) => (
             <ChipLink key={a.id} href={`#${a.id}`}>
               {a.title}
             </ChipLink>
@@ -39,7 +53,7 @@ export default async function ListWithUsPage() {
         </nav>
       </PageHero>
       <Container className="space-y-6 py-12 sm:py-16">
-        {AUDIENCES.map((a) => (
+        {audiences.map((a) => (
           <section key={a.id} id={a.id} aria-labelledby={`${a.id}-h`} className="grid scroll-mt-24 gap-6 rounded-xl border border-border bg-white p-6 sm:p-8 lg:grid-cols-[1fr_1.2fr_auto] lg:items-start">
             <div>
               <h2 id={`${a.id}-h`} className="hl-h2">

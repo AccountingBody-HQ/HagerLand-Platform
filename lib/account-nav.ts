@@ -9,7 +9,7 @@ export function accountNavItems(active: Membership | null, newEnquiries: number,
   if (!kind || ['agency', 'developer', 'hagerland'].includes(kind)) items.push({ href: '/account/listings', label: 'Listings', icon: 'listings' })
   if (kind === 'developer') items.push({ href: '/account/developments', label: 'Developments', icon: 'developments' })
   if (kind === 'supplier' || kind === 'manufacturer') items.push({ href: '/account/products', label: 'Products', icon: 'products' })
-  if (active) items.push({ href: '/account/company', label: 'Company profile', icon: 'company' })
+  if (active) items.push({ href: '/account/company', label: 'Company profile', icon: 'company' }, { href: '/account/company/team', label: 'Team', icon: 'team' }, { href: '/account/company/branches', label: 'Branches', icon: 'branches' })
   if (kind && ['contractor', 'professional_firm', 'sole_trader', 'developer'].includes(kind)) items.push({ href: '/account/company/portfolio', label: 'Portfolio', icon: 'portfolio' })
   items.push({ href: '/account/enquiries', label: 'Enquiries', icon: 'enquiries', badge: newEnquiries || undefined })
   // Requests HagerLand matched to the business (spec 24.5).

@@ -44,6 +44,7 @@ next-env.d.ts
 
 # test output
 /e2e/.results/
+/smoke-prod/.results/
 /playwright-report/
 /test-results/
 /lighthouse/

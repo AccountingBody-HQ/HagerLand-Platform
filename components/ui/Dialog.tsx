@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, type ReactNode } from 'react'
+import { useEffect, useRef, type ReactNode, useId } from 'react'
 import { X } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { IconButton } from './Button'
@@ -35,9 +35,11 @@ export function Dialog({
     if (!open && el.open) el.close()
   }, [open])
 
+  const titleId = useId()
   return (
     <dialog
       ref={ref}
+      aria-labelledby={titleId}
       onClose={onClose}
       onCancel={(e) => {
         e.preventDefault()
@@ -63,7 +65,9 @@ export function Dialog({
         )}
       >
         <div className="flex items-center justify-between gap-4 border-b border-border px-5 py-3">
-          <h2 className="font-display text-h3 font-bold">{title}</h2>
+          <h2 id={titleId} className="font-display text-h3 font-bold">
+            {title}
+          </h2>
           <IconButton label="Close" onClick={onClose}>
             <X />
           </IconButton>

@@ -598,6 +598,58 @@ export type Database = {
           },
         ]
       }
+      email_outbox: {
+        Row: {
+          attempts: number
+          created_at: string
+          headers: NonNullable<Json>
+          html: string
+          id: string
+          last_error: string | null
+          next_attempt_at: string
+          reply_to: string | null
+          sender: string
+          sent_at: string | null
+          status: string
+          subject: string
+          text_body: string
+          to_addresses: string[]
+        }
+        ComputedFields: never
+        Insert: {
+          attempts?: number
+          created_at?: string
+          headers?: NonNullable<Json>
+          html: string
+          id?: string
+          last_error?: string | null
+          next_attempt_at?: string
+          reply_to?: string | null
+          sender?: string
+          sent_at?: string | null
+          status?: string
+          subject: string
+          text_body: string
+          to_addresses: string[]
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          headers?: NonNullable<Json>
+          html?: string
+          id?: string
+          last_error?: string | null
+          next_attempt_at?: string
+          reply_to?: string | null
+          sender?: string
+          sent_at?: string | null
+          status?: string
+          subject?: string
+          text_body?: string
+          to_addresses?: string[]
+        }
+        Relationships: []
+      }
       enquiries: {
         Row: {
           created_at: string
@@ -971,7 +1023,7 @@ export type Database = {
             foreignKeyName: 'job_applications_job_id_fkey'
             columns: ['job_id']
             isOneToOne: false
-            referencedRelation: 'jobs'
+            referencedRelation: 'job_posts'
             referencedColumns: ['id']
           },
           {
@@ -983,7 +1035,7 @@ export type Database = {
           },
         ]
       }
-      jobs: {
+      job_posts: {
         Row: {
           applications_count: number
           category: string
@@ -1071,21 +1123,21 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'jobs_employer_org_id_fkey'
+            foreignKeyName: 'job_posts_employer_org_id_fkey'
             columns: ['employer_org_id']
             isOneToOne: false
             referencedRelation: 'organisations'
             referencedColumns: ['id']
           },
           {
-            foreignKeyName: 'jobs_employer_org_id_fkey'
+            foreignKeyName: 'job_posts_employer_org_id_fkey'
             columns: ['employer_org_id']
             isOneToOne: false
             referencedRelation: 'organisations_public'
             referencedColumns: ['id']
           },
           {
-            foreignKeyName: 'jobs_location_id_fkey'
+            foreignKeyName: 'job_posts_location_id_fkey'
             columns: ['location_id']
             isOneToOne: false
             referencedRelation: 'locations'
@@ -1372,6 +1424,129 @@ export type Database = {
           width?: number | null
         }
         Relationships: []
+      }
+      org_branches: {
+        Row: {
+          address_line: string | null
+          created_at: string
+          email: string | null
+          id: string
+          location_id: string | null
+          name: string
+          opening_note: string | null
+          org_id: string
+          phone: string | null
+          sort: number
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          address_line?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          location_id?: string | null
+          name: string
+          opening_note?: string | null
+          org_id: string
+          phone?: string | null
+          sort?: number
+          updated_at?: string
+        }
+        Update: {
+          address_line?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          location_id?: string | null
+          name?: string
+          opening_note?: string | null
+          org_id?: string
+          phone?: string | null
+          sort?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'org_branches_location_id_fkey'
+            columns: ['location_id']
+            isOneToOne: false
+            referencedRelation: 'locations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'org_branches_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'org_branches_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      org_invitations: {
+        Row: {
+          accepted_at: string | null
+          accepted_by: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string | null
+          org_id: string
+          revoked_at: string | null
+          role: Database['public']['Enums']['org_role']
+          token_hash: string
+        }
+        ComputedFields: never
+        Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by?: string | null
+          org_id: string
+          revoked_at?: string | null
+          role?: Database['public']['Enums']['org_role']
+          token_hash: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string | null
+          org_id?: string
+          revoked_at?: string | null
+          role?: Database['public']['Enums']['org_role']
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'org_invitations_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'org_invitations_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+        ]
       }
       org_product_categories: {
         Row: {
@@ -3681,21 +3856,21 @@ export type Database = {
         ComputedFields: never
         Relationships: [
           {
-            foreignKeyName: 'jobs_employer_org_id_fkey'
+            foreignKeyName: 'job_posts_employer_org_id_fkey'
             columns: ['employer_org_id']
             isOneToOne: false
             referencedRelation: 'organisations'
             referencedColumns: ['id']
           },
           {
-            foreignKeyName: 'jobs_employer_org_id_fkey'
+            foreignKeyName: 'job_posts_employer_org_id_fkey'
             columns: ['employer_org_id']
             isOneToOne: false
             referencedRelation: 'organisations_public'
             referencedColumns: ['id']
           },
           {
-            foreignKeyName: 'jobs_location_id_fkey'
+            foreignKeyName: 'job_posts_location_id_fkey'
             columns: ['location_id']
             isOneToOne: false
             referencedRelation: 'locations'
@@ -3745,6 +3920,42 @@ export type Database = {
           width?: number | null
         }
         Relationships: []
+      }
+      org_branches_public: {
+        Row: {
+          address_line: string | null
+          id: string | null
+          location_display: string | null
+          location_id: string | null
+          name: string | null
+          opening_note: string | null
+          org_id: string | null
+          sort: number | null
+        }
+        ComputedFields: never
+        Relationships: [
+          {
+            foreignKeyName: 'org_branches_location_id_fkey'
+            columns: ['location_id']
+            isOneToOne: false
+            referencedRelation: 'locations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'org_branches_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'org_branches_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+        ]
       }
       org_product_categories_public: {
         Row: {

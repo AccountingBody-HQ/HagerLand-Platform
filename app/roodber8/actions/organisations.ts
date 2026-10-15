@@ -10,6 +10,7 @@ import { fail, invalid, ok, type ActionResult } from '@/lib/action-result'
 import { shortId, slugify } from '@/lib/slug'
 import { revalidateEntity } from '@/lib/revalidate'
 import type { OrgFormState } from '@/app/(account)/account/company/org-actions'
+import { STALE_EDIT, isStaleEdit } from '@/lib/concurrency'
 
 // Admin can also add finance and insurance partners (spec 24.8).
 const adminOrgSchema = organisationSchema.extend({ kind: z.enum([...USER_ORG_KINDS, 'lender', 'insurer', 'broker', 'hagerland']) })
@@ -28,6 +29,7 @@ export async function saveAdminOrgAction(_prev: OrgFormState | null, formData: F
   const parsed = adminOrgSchema.safeParse(organisationFormValues(formData))
   if (!parsed.success) return invalid(parsed.error)
   const d = parsed.data
+  if (d.existing_id && (await isStaleEdit('organisations', d.existing_id, formData.get('expected_updated_at')))) return fail(STALE_EDIT)
   const db = getAdminSupabase()
   const columns = {
     name: d.name,
@@ -126,7 +128,7 @@ export async function removeMemberAction(orgId: string, userId: string): Promise
   assertAdmin()
   if (!z.uuid().safeParse(orgId).success || !z.uuid().safeParse(userId).success) return fail('Invalid.')
   const { error } = await getAdminSupabase().from('organisation_members').delete().eq('org_id', orgId).eq('user_id', userId)
-  if (error) return fail('Could not remove the member.')
+  if (error) return fail(error.message.includes('at least one owner') ? 'This is the only owner. Make someone else an owner first.' : 'Could not remove the member.')
   await audit('organisation.member_remove', { type: 'organisation', id: orgId }, { user_id: userId })
   revalidatePath(`/roodber8/organisations/${orgId}`)
   return ok({ message: 'Member removed.' })
@@ -147,12 +149,14 @@ export async function mergeOrganisationsAction(sourceId: string, targetId: strin
   if (!source || !target) return fail('Organisation not found.')
   if (source.is_hagerland) return fail('HagerLand organisations cannot be merged.')
   const { data: members } = await db.from('organisation_members').select('user_id, role').eq('org_id', sourceId)
-  for (const m of members ?? []) await db.from('organisation_members').upsert({ org_id: targetId, user_id: m.user_id, role: m.role }, { onConflict: 'org_id,user_id', ignoreDuplicates: true })
+  if (members?.length) await db.from('organisation_members').upsert(members.map((m) => ({ org_id: targetId, user_id: m.user_id, role: m.role })), { onConflict: 'org_id,user_id', ignoreDuplicates: true })
+  // Archived first: an archived duplicate may lose its last owner (every live organisation keeps one).
+  await db.from('organisations').update({ status: 'archived' }).eq('id', sourceId)
   await db.from('organisation_members').delete().eq('org_id', sourceId)
   const { data: svc } = await db.from('organisation_services').select('service_id').eq('org_id', sourceId)
-  for (const s of svc ?? []) await db.from('organisation_services').upsert({ org_id: targetId, service_id: s.service_id }, { ignoreDuplicates: true })
+  if (svc?.length) await db.from('organisation_services').upsert(svc.map((s) => ({ org_id: targetId, service_id: s.service_id })), { ignoreDuplicates: true })
   const { data: cats } = await db.from('org_product_categories').select('product_category_id').eq('org_id', sourceId)
-  for (const c of cats ?? []) await db.from('org_product_categories').upsert({ org_id: targetId, product_category_id: c.product_category_id }, { ignoreDuplicates: true })
+  if (cats?.length) await db.from('org_product_categories').upsert(cats.map((c) => ({ org_id: targetId, product_category_id: c.product_category_id })), { ignoreDuplicates: true })
   await Promise.all([
     db.from('properties').update({ lister_org_id: targetId }).eq('lister_org_id', sourceId),
     db.from('developments').update({ developer_org_id: targetId }).eq('developer_org_id', sourceId),
@@ -161,7 +165,6 @@ export async function mergeOrganisationsAction(sourceId: string, targetId: strin
     db.from('enquiries').update({ recipient_org_id: targetId }).eq('recipient_org_id', sourceId),
     db.from('claims').update({ org_id: targetId }).eq('org_id', sourceId),
   ])
-  await db.from('organisations').update({ status: 'archived' }).eq('id', sourceId)
   await db.from('admin_notes').insert({ entity_type: 'organisation', entity_id: sourceId, note: `Merged into ${target.name} (${targetId}).` })
   await audit('organisation.merge', { type: 'organisation', id: targetId, label: target.name }, { merged: { id: sourceId, name: source.name } })
   revalidateEntity('organisation', targetId)

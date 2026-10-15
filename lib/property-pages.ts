@@ -99,7 +99,7 @@ export async function resultsMetadata(ctx: ResultsContext): Promise<Metadata> {
   const onlyType = !ctx.typeSegment && ctx.filters.types.length > 0 && !hasFilters({ ...ctx.filters, types: [], page: 1 }) ? segmentForTypes(ctx.filters.types) : null
   const canonicalPath = onlyType ? `${ctx.basePath}/${onlyType}` : filtered ? ctx.basePath : `${ctx.basePath}${ctx.filters.page > 1 ? `?page=${ctx.filters.page}` : ''}`
   const description = truncateDescription(
-    `Browse ${result.total > 0 ? `${result.total} ` : ''}${ctx.purpose === 'sale' ? 'homes, land and commercial property for sale' : 'homes and commercial property to rent'} in ${placeName(ctx)}. Every listing is reviewed by HagerLand before it goes live.`,
+    `Browse ${result.total > 0 ? `${result.total} ` : ''}${ctx.purpose === 'sale' ? 'homes, land and commercial property for sale' : 'apartments, houses and commercial property to rent'} in ${placeName(ctx)}. Every listing is reviewed by HagerLand before it goes live, and stale ones are removed.`,
   )
   return buildMetadata({
     title: `${heading}${pageSuffix}`,

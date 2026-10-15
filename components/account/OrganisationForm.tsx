@@ -20,6 +20,8 @@ export interface OrgFormCategory {
 }
 
 export interface OrgFormDefaults {
+  /** The record's updated_at when the form opened (concurrent-edit check). */
+  version?: string | null
   id?: string
   name?: string
   kind?: string
@@ -72,6 +74,7 @@ export function OrganisationForm({
   return (
     <form action={formAction} className="space-y-8" noValidate>
       {defaults.id && <input type="hidden" name="existing_id" value={defaults.id} />}
+      {defaults.id && defaults.version && <input type="hidden" name="expected_updated_at" value={defaults.version} />}
       <input type="hidden" name="confirm_new" value={confirmNew ? '1' : '0'} />
       {state && !state.ok && duplicates.length === 0 && <FormAlert>{state.error}</FormAlert>}
       {state?.ok && state.message && <FormAlert tone="success">{state.message}</FormAlert>}

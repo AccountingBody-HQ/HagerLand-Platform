@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { db, seedPublishedProperty } from './helpers'
+import { db, seedPublishedProperty, seedShowcase } from './helpers'
 
 test.describe('SEO', () => {
   test('sitemaps are split by type', async ({ request }) => {
@@ -71,4 +71,42 @@ test('structured data (JSON-LD) is valid on key pages', async ({ page }, info) =
     for (const t of types) expect(found, path).toContain(t)
   }
   await s.cleanup()
+})
+
+test('key pages keep titles within 60 characters and descriptions within 110–160', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop', 'metadata is the same at every width')
+  const pages = ['/', '/property', '/property/for-sale', '/property/to-rent', '/developments', '/supplies', '/supplies/special-buys', '/supplies/trade', '/professionals', '/agents', '/developers', '/suppliers', '/contractors', '/repairs-maintenance', '/agency', '/diaspora', '/diaspora/property-care', '/guides', '/about', '/how-it-works', '/list-with-us', '/help', '/contact', '/terms', '/privacy', '/cookies', '/professionals/architects']
+  const problems: string[] = []
+  for (const path of pages) {
+    await page.goto(path)
+    const title = await page.title()
+    const desc = (await page.locator('meta[name=description]').getAttribute('content')) ?? ''
+    if (title.length > 60) problems.push(`${path}: title ${title.length} "${title}"`)
+    if (desc.length < 110 || desc.length > 160) problems.push(`${path}: description ${desc.length}`)
+  }
+  expect(problems).toEqual([])
+})
+
+test('results pages: page 2+ is self-canonical with "Page N"; filters and sort point to the path-only URL', async ({ page }) => {
+  await page.goto('/property/for-sale?page=2')
+  await expect(page).toHaveTitle(/– Page 2/)
+  await expect(page.locator('link[rel=canonical]')).toHaveAttribute('href', 'https://www.hagerland.com/property/for-sale?page=2')
+  await page.goto('/property/for-sale?beds=2&sort=price_asc')
+  await expect(page.locator('link[rel=canonical]')).toHaveAttribute('href', 'https://www.hagerland.com/property/for-sale')
+  await page.goto('/property/for-sale/addis-ababa')
+  await expect(page.locator('link[rel=canonical]')).toHaveAttribute('href', 'https://www.hagerland.com/property/for-sale/addis-ababa')
+})
+
+test('every detail page type has its own share image', async ({ request }, info) => {
+  test.skip(info.project.name !== 'desktop', 'same at every width')
+  const s = await seedShowcase()
+  try {
+    for (const path of [`/og/development/${s.developmentSlug}`, `/og/company/${s.orgSlug}`, `/og/product/${s.productSlug}`, `/og/property/${s.propertySlugs[0]}`]) {
+      const res = await request.get(path)
+      expect(res.status(), path).toBe(200)
+      expect(res.headers()['content-type'], path).toBe('image/png')
+    }
+  } finally {
+    await s.cleanup()
+  }
 })

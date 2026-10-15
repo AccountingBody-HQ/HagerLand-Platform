@@ -11,6 +11,8 @@ import { fail, invalid, ok, type ActionResult } from '@/lib/action-result'
 import { shortId, slugify } from '@/lib/slug'
 import { revalidateEntity } from '@/lib/revalidate'
 import { log } from '@/lib/log'
+import { STALE_EDIT, isStaleEdit } from '@/lib/concurrency'
+import { withUniqueRetry } from '@/lib/unique-retry'
 
 type ProductUpdate = Database['public']['Tables']['products']['Update']
 
@@ -49,14 +51,17 @@ export async function saveOwnProductAction(_prev: ActionResult<{ id: string }> |
   const parsed = productSchema.safeParse({ ...Object.fromEntries(formData), seller_org_id: active.org.id, new_brand: '' })
   if (!parsed.success) return invalid(parsed.error)
   const d = parsed.data
+  if (d.id && (await isStaleEdit('products', d.id, formData.get('expected_updated_at')))) return fail(STALE_EDIT)
   const supabase = getServerSupabase()
   const changes = columns(d)
   if (!d.id) {
-    const { data, error } = await supabase
+    const { data, error } = await withUniqueRetry(() =>
+      supabase
       .from('products')
       .insert({ ...changes, name: d.name, category_id: d.category_id, seller_org_id: active.org.id, slug: `${slugify(d.name, 70)}-${shortId(4)}`, status: 'draft' })
       .select('id')
-      .single()
+      .single(),
+    )
     if (error || !data) {
       log.error('products', 'owner create failed', error)
       return fail(error?.code === '23505' ? 'You already have a product with this SKU.' : 'We could not save the product. Please try again.')

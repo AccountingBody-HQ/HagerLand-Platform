@@ -22,7 +22,7 @@ export default async function AdminGuidesPage() {
         columns={[
           { key: 't', label: 'Guide', render: (r) => (<Link href={`/roodber8/guides/${r.id}`} className="font-semibold text-green hover:underline">{r.title}</Link>) },
           { key: 'topic', label: 'Topic', render: (r) => GUIDE_TOPICS.find((t) => t.value === r.topic)?.label ?? r.topic },
-          { key: 'rev', label: 'Review', render: (r) => (r.needs_review ? <span className="rounded-full bg-warning/15 px-2 py-0.5 text-caption font-semibold text-warning">Needs AB review</span> : 'Checked') },
+          { key: 'rev', label: 'Review', render: (r) => (r.needs_review ? <span className="rounded-full bg-warning/15 px-2 py-0.5 text-caption font-semibold text-warning-dark">Needs AB review</span> : 'Checked') },
           { key: 'u', label: 'Updated', render: (r) => formatDate(r.updated_at) },
           { key: 's', label: 'Status', render: (r) => <StatusBadge status={r.status} /> },
         ]}

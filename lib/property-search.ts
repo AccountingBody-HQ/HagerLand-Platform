@@ -20,6 +20,8 @@ export interface PropertyFilters {
   lister?: string
   added?: number
   excludeNegotiable?: boolean
+  /** Listings in one development or building (alerts on building pages, spec 8.5). */
+  development?: string
   sort: 'relevance' | 'newest' | 'price_asc' | 'price_desc' | 'area_desc'
   page: number
 }
@@ -74,6 +76,7 @@ export function parsePropertyParams(raw: RawParams): PropertyFilters {
     lister: LISTER_TYPES.some((l) => l.value === raw.lister) ? (raw.lister as string) : undefined,
     added: ADDED_WITHIN.some((a) => a.value === raw.added) ? Number(raw.added) : undefined,
     excludeNegotiable: raw.negotiable === '0' ? true : undefined,
+    development: typeof raw.development === 'string' && /^[0-9a-f-]{36}$/.test(raw.development) ? raw.development : undefined,
     sort,
     page: Math.min(Math.max(num(raw.page, 500) ?? 1, 1), 500),
   }
@@ -99,6 +102,7 @@ export function toQuery(f: PropertyFilters, overrides: Partial<PropertyFilters> 
   if (v.lister) p.set('lister', v.lister)
   if (v.added) p.set('added', String(v.added))
   if (v.excludeNegotiable) p.set('negotiable', '0')
+  if (v.development) p.set('development', v.development)
   if (v.sort !== (v.q ? 'relevance' : 'newest')) p.set('sort', v.sort)
   if (v.page > 1) p.set('page', String(v.page))
   const s = p.toString()

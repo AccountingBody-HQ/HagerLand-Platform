@@ -13,6 +13,7 @@ import { getLocationChain, isEthiopianLocation, NOT_IN_ETHIOPIA } from '@/lib/da
 import { propertyHeadline } from '@/lib/labels'
 import { revalidateEntity } from '@/lib/revalidate'
 import type { Database } from '@/lib/database.types'
+import { STALE_EDIT, isStaleEdit } from '@/lib/concurrency'
 
 type Insert = Database['public']['Tables']['properties']['Insert']
 
@@ -40,6 +41,8 @@ export async function saveAdminPropertyAction(_prev: AdminPropertyState, formDat
   for (const r of [l, b, loc, d, c]) if (!r.success) return invalid(r.error)
   if (!l.success || !b.success || !loc.success || !d.success || !c.success) return fail('Please check the form.')
   if (!(await isEthiopianLocation(loc.data.location_id))) return fail(NOT_IN_ETHIOPIA, { location_id: 'Choose a place in Ethiopia' })
+  const editingId = formData.get('id')
+  if (typeof editingId === 'string' && editingId && (await isStaleEdit('properties', editingId, formData.get('expected_updated_at')))) return fail(STALE_EDIT)
   const db = getAdminSupabase()
 
   let listerOrgId: string | null = null

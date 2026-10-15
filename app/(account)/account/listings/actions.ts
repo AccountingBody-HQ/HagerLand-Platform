@@ -16,6 +16,8 @@ import { sendEmail } from '@/lib/email/send'
 import { listingSubmittedEmail } from '@/lib/email/templates'
 import { log } from '@/lib/log'
 import { canRenew, resumeOutcome } from '@/lib/listing-rules'
+import { privateOwnerEntitlements, withinLimit } from '@/lib/entitlements'
+import { withUniqueRetry } from '@/lib/unique-retry'
 
 type PropertyUpdate = Database['public']['Tables']['properties']['Update']
 type PropertyRow = Database['public']['Tables']['properties']['Row']
@@ -71,11 +73,13 @@ export async function saveListingStepAction(_prev: WizardState, formData: FormDa
     if (!(await isEthiopianLocation(loc.data.location_id))) return fail(NOT_IN_ETHIOPIA, { location_id: 'Choose a place in Ethiopia' })
     const active = await getActiveMembership()
     const listerType = active?.org.kind === 'agency' ? 'agent' : active?.org.kind === 'developer' ? 'developer' : 'owner'
-    const sid = shortId()
     const profile = await getProfile()
-    const { data, error } = await supabase
-      .from('properties')
-      .insert({
+    const { data, error } = await withUniqueRetry(async () => {
+      // A new short id each try: a duplicate (very rare) is retried instead of failing.
+      const sid = shortId()
+      return supabase
+        .from('properties')
+        .insert({
         short_id: sid,
         slug: await slugFor({ ...basics.data, location_id: loc.data.location_id }, sid),
         ...basics.data,
@@ -94,6 +98,7 @@ export async function saveListingStepAction(_prev: WizardState, formData: FormDa
       })
       .select('id')
       .single()
+    })
     if (error || !data) {
       log.error('listing', 'create draft failed', error)
       return fail('We could not save your listing. Please try again.')
@@ -191,9 +196,9 @@ async function submitListing(row: PropertyRow, raw: Record<string, unknown>, use
   if (!['draft', 'rejected'].includes(row.status)) return ok({ id: row.id, next: 'done' })
 
   if (!row.lister_org_id) {
-    const cap = await getSettingNumber('private_owner_max_active_listings', 3)
+    const { maxActiveListings: cap } = await privateOwnerEntitlements()
     const { count } = await getServerSupabase().from('properties').select('id', { count: 'exact', head: true }).eq('lister_user_id', userId).is('lister_org_id', null).in('status', ['pending_review', 'published', 'paused'])
-    if ((count ?? 0) >= cap) return fail(`Private owners can have up to ${cap} active listings. Archive one, or create a business profile if you are an agent or developer.`)
+    if (!withinLimit(cap, count ?? 0)) return fail(`Private owners can have up to ${cap} active listings. Archive one, or create a business profile if you are an agent or developer.`)
   }
 
   const { error } = await getServerSupabase().from('properties').update({ status: 'pending_review' }).eq('id', row.id)

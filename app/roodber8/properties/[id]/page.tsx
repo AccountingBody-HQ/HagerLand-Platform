@@ -75,7 +75,7 @@ export default async function AdminPropertyPage({ params, searchParams }: { para
               <MediaManager entityType="property" entityId={p.id} kind="floorplan" initial={(media ?? []) as MediaItem[]} label="Add floor plans" />
             </div>
           </Panel>
-          <AdminPropertyForm id={p.id} values={values} listers={listers} developments={developments} currentLister={p.lister_org_id ?? 'keep'} />
+          <AdminPropertyForm id={p.id} version={p.updated_at} values={values} listers={listers} developments={developments} currentLister={p.lister_org_id ?? 'keep'} />
         </div>
         <aside className="space-y-5">
           <Panel title="Lister">

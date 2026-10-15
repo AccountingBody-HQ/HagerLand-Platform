@@ -27,7 +27,7 @@ export function OrgAvatar({ name, logoPath, size = 'md' }: { name: string; logoP
 
 export function CompanyCard({ org }: { org: OrganisationListItem }) {
   return (
-    <article className="relative flex h-full flex-col rounded-lg border border-border bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
+    <article className="relative flex h-full min-w-0 flex-col rounded-lg border border-border bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
       <div className="flex items-start gap-4">
         <OrgAvatar name={org.name ?? ''} logoPath={org.logo_path} />
         <div className="min-w-0 flex-1">
@@ -40,7 +40,11 @@ export function CompanyCard({ org }: { org: OrganisationListItem }) {
           <div className="relative z-10 mt-2 flex flex-wrap gap-1.5">
             <VerificationBadge level={org.verification_level} verifiedAt={org.verified_at} />
             {org.is_hagerland && <Badge tone="gold">HagerLand</Badge>}
-            {org.serves_diaspora && <Badge tone="info">Serves the Ethiopian community abroad</Badge>}
+            {org.serves_diaspora && (
+              <Badge tone="info" className="whitespace-normal text-left">
+                Serves the Ethiopian community abroad
+              </Badge>
+            )}
           </div>
         </div>
       </div>

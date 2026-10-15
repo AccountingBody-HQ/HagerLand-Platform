@@ -23,10 +23,11 @@ export default async function CookiesPage() {
             <li><strong>Business switcher</strong> (<code>hl_org</code>): remembers which of your businesses you are working as.</li>
             <li><strong>View counter</strong> (<code>hl_seen</code>): stops one visit being counted as many views of a listing. It holds short codes, not personal details.</li>
             <li><strong>Security check</strong> (Cloudflare Turnstile): may set a cookie when you send a form, to tell people from bots.</li>
+            <li><strong>Staff sign-in</strong>: HagerLand staff have a separate sign-in cookie for the admin area. Visitors never get it.</li>
           </ul>
         </TextSection>
         <TextSection title="Things stored in your browser">
-          <p>Your quote list, recent searches and any campaign link you arrived from are kept in your browser’s storage on your device. They are not sent to us until you submit a form.</p>
+          <p>Your quote list, the properties you are comparing, your recent searches, the currency you chose for approximate prices and any campaign link you arrived from are kept in your browser’s storage on your device. They are not sent to us until you submit a form (a signed-in quote list is also kept in your account so you can use it on other devices).</p>
         </TextSection>
         <TextSection title="Analytics">
           <p>We use Vercel Web Analytics and Speed Insights, which measure page visits and loading speed without cookies and without identifying you.</p>

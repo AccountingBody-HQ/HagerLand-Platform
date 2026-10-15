@@ -97,6 +97,12 @@ export default async function SettingsPage() {
           ]}
         />
       </Panel>
+      <Panel title="Amharic (አማርኛ)">
+        <p className="mb-3 text-small text-muted">
+          The Amharic version of the site (addresses starting with /am) uses a machine-assisted translation of menus, buttons and main headings. It needs a review by a native speaker before it goes live. While this is off, /am pages do not exist and nothing links to them.
+        </p>
+        <SettingsForm section="language" fields={[{ name: 'amharic_enabled', label: 'Show the Amharic version', type: 'checkbox', value: s.amharic_enabled === true ? 'true' : '', hint: 'Turn on only after the translation has been reviewed. Updates within a minute.' }]} />
+      </Panel>
       <Panel title="Legal pages “last updated” dates">
         <SettingsForm
           section="legal_dates"

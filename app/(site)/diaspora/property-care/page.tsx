@@ -13,7 +13,7 @@ import { PropertyCareForm } from '@/components/diaspora/PropertyCareForm'
 export const revalidate = 600
 
 export const metadata = buildMetadata({
-  title: `${brand.divisions.propertyCare}: property management for owners abroad`,
+  title: `${brand.divisions.propertyCare} for owners abroad`,
   description: 'Professional management of your property in Ethiopia while you live abroad: maintenance, security, inspections with photo reports, tenants and rent collection.',
   path: '/diaspora/property-care',
 })

@@ -24,6 +24,9 @@ import { COMING_SOON } from '@/lib/content/verticals'
 import { SoonBadge } from '@/components/verticals/SoonBadge'
 import { InterestForm } from '@/components/verticals/InterestForm'
 import { GuidesTeaser } from '@/components/guides/GuidesTeaser'
+import { getLocale } from '@/lib/i18n/server'
+import { translator } from '@/lib/i18n/translate'
+import { localizeHref } from '@/lib/i18n/config'
 
 export const revalidate = 300
 
@@ -78,6 +81,9 @@ export default async function HomePage() {
     getPopularLocations(null, 8),
   ])
   const totalProperties = saleNewest.total + rentNewest.total
+  const locale = getLocale()
+  const t = translator(locale)
+  const lh = (h: string) => localizeHref(h, locale)
 
   const quickLinks = [
     live.property && boleApartments.total > 0 && { label: 'Apartments in Bole', href: '/property/for-sale/addis-ababa/bole?type=apartment' },
@@ -130,9 +136,9 @@ export default async function HomePage() {
 
       <section className="hl-blueprint bg-ink text-white">
         <Container className="py-12 sm:py-20">
-          <p className="hl-eyebrow text-gold">{brand.audienceLine}</p>
-          <h1 className="hl-display mt-4 max-w-4xl text-white">{brand.masterLine}</h1>
-          <p className="mt-5 max-w-2xl text-[1.0625rem] font-semibold text-white/85">{brand.supportLine}</p>
+          <p className="hl-eyebrow text-gold">{t(brand.audienceLine)}</p>
+          <h1 className="hl-display mt-4 max-w-4xl text-white">{t(brand.masterLine)}</h1>
+          <p className="mt-5 max-w-2xl text-[1.0625rem] font-semibold text-white/85">{t(brand.supportLine)}</p>
           <div className="mt-8 max-w-4xl">
             <HomeSearch services={services.map((g) => ({ name: g.name, children: g.children.map((c) => ({ name: c.name, slug: c.slug })) }))} />
           </div>
@@ -151,23 +157,23 @@ export default async function HomePage() {
       </section>
 
       <Section labelledBy="ecosystem-title">
-        <SectionHeader id="ecosystem-title" title="Everything around your property" description="Services that work together, from finding land to selling or renting what you built." />
+        <SectionHeader id="ecosystem-title" title={t('Everything around your property')} description={t('Services that work together, from finding land to selling or renting what you built.')} />
         <ul className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
           {verticals.map((v) => {
             const gold = v.key === 'our-developments'
             return (
               <li key={v.key}>
-                <Link href={verticalHref(v)} className={`group flex h-full flex-col rounded-xl border p-4 transition-shadow hover:shadow-md sm:p-5 ${gold ? 'border-gold/40 bg-gold-soft/50' : 'border-border bg-white'}`}>
+                <Link href={lh(verticalHref(v))} className={`group flex h-full flex-col rounded-xl border p-4 transition-shadow hover:shadow-md sm:p-5 ${gold ? 'border-gold/40 bg-gold-soft/50' : 'border-border bg-white'}`}>
                   <span className="flex items-start justify-between gap-2">
                     <span className={`flex size-11 items-center justify-center rounded-lg ${gold ? 'bg-gold text-white' : 'bg-green-soft text-green'}`}>
                       <DynamicIcon name={v.icon} className="size-6" />
                     </span>
                     {v.status === 'coming_soon' && <SoonBadge />}
                   </span>
-                  <span className="mt-4 font-display text-body font-bold text-ink sm:text-h3">{v.name}</span>
-                  <span className="mt-1 text-small text-muted">{v.shortDescription}</span>
+                  <span className="mt-4 font-display text-body font-bold text-ink sm:text-h3">{t(v.name)}</span>
+                  <span className="mt-1 text-small text-muted">{v.shortDescription ? t(v.shortDescription) : null}</span>
                   <span className={`mt-auto inline-flex items-center gap-1 pt-4 text-small font-semibold ${gold ? 'text-gold-dark' : 'text-green'}`}>
-                    {v.status === 'live' ? 'Explore' : 'Register interest'} <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
+                    {v.status === 'live' ? t('Explore') : t('Register interest')} <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
                   </span>
                 </Link>
               </li>
@@ -175,17 +181,17 @@ export default async function HomePage() {
           })}
         </ul>
         <div className="mt-10 rounded-xl border border-border bg-stone-50 p-4 sm:p-6">
-          <h3 className="hl-eyebrow text-muted">One journey</h3>
+          <h3 className="hl-eyebrow text-muted">{t('One journey')}</h3>
           <ol className="mt-3 flex flex-wrap items-center gap-x-1 gap-y-2">
             {journey.map((j, i) => (
               <li key={j.label} className="flex items-center gap-1">
                 {j.v ? (
-                  <Link href={j.href} className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-white px-3.5 text-small font-semibold text-ink ring-1 ring-border hover:ring-green">
-                    {j.label}
+                  <Link href={lh(j.href)} className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-white px-3.5 text-small font-semibold text-ink ring-1 ring-border hover:ring-green">
+                    {t(j.label)}
                     {j.v.status === 'coming_soon' && <SoonBadge />}
                   </Link>
                 ) : (
-                  <span className="inline-flex min-h-11 items-center rounded-full px-3.5 text-small font-semibold text-muted">{j.label}</span>
+                  <span className="inline-flex min-h-11 items-center rounded-full px-3.5 text-small font-semibold text-muted">{t(j.label)}</span>
                 )}
                 {i < journey.length - 1 && <ArrowRight className="size-4 text-subtle" aria-hidden />}
               </li>

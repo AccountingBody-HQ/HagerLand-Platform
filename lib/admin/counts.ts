@@ -34,7 +34,7 @@ export async function queueCounts(): Promise<QueueCounts> {
     db.from('claims').select('id', head).eq('status', 'pending'),
     db.from('verification_requests').select('id', head).eq('status', 'pending'),
     db.from('reports').select('id', head).eq('status', 'open'),
-    db.from('jobs').select('id', head).eq('status', 'pending_review'),
+    db.from('job_posts').select('id', head).eq('status', 'pending_review'),
     db.from('development_updates').select('id', head).eq('status', 'pending_review'),
     db.from('products').select('id', head).eq('status', 'pending_review'),
     db.from('products').select('id', head).not('pending_changes', 'is', null).in('status', ['published', 'paused']),

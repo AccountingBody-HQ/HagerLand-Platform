@@ -96,3 +96,12 @@ export async function getLocationNames(ids: string[]): Promise<string[]> {
     (unwrap(await getPublicSupabase({ tags: ['reference'], revalidate: 3600 }).from('locations').select('name').in('id', ids), 'location names') ?? []).map((l) => l.name),
   )
 }
+
+/** Branches of a published organisation, without contact details (spec 25.2i). */
+export async function getBranches(orgId: string): Promise<{ id: string; name: string; location_display: string | null; address_line: string | null; opening_note: string | null }[]> {
+  return safeQuery('branches', [], async () => {
+    const { data, error } = await getPublicSupabase({ tags: [tag('organisation', orgId)], revalidate: 600 }).from('org_branches_public').select('id, name, location_display, address_line, opening_note').eq('org_id', orgId).order('sort')
+    if (error) throw error
+    return (data ?? []).map((b) => ({ id: b.id ?? '', name: b.name ?? '', location_display: b.location_display, address_line: b.address_line, opening_note: b.opening_note }))
+  })
+}

@@ -101,6 +101,7 @@ export default async function AdminOrgPage({ params, searchParams }: { params: {
               defaults={{
                 ...v,
                 id: o.id,
+                version: o.updated_at,
                 location: loc ? { value: loc.id, label: loc.name, description: loc.display_name } : null,
                 areas: (v.areas_served ?? []).map((id) => locations.find((l) => l.id === id)).filter((l): l is NonNullable<typeof l> => Boolean(l)).map((l) => ({ value: l.id, label: l.name })),
                 service_ids: (svc ?? []).map((s) => s.service_id),

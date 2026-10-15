@@ -1,11 +1,11 @@
 import { cookies } from 'next/headers'
 import { notFound } from 'next/navigation'
-import { BadgeCheck, Building2, Hammer, Inbox, MapPin } from 'lucide-react'
+import { BadgeCheck, Building2, Hammer, Inbox, MapPin, Search } from 'lucide-react'
 import { IS_PRODUCTION } from '@/lib/site'
 import { SESSION_COOKIE, verifySessionToken } from '@/lib/admin-auth'
 import { formatArea, formatDate, formatETB, formatPhone, relativeTime } from '@/lib/format'
 import { Badge } from '@/components/ui/Badge'
-import { Button, ButtonLink } from '@/components/ui/Button'
+import { Button, ButtonLink, IconButton } from '@/components/ui/Button'
 import { Checkbox, Field, Input, Radio, RangeInputs, Select, Textarea } from '@/components/ui/Field'
 import { Card, Container, EmptyState, SectionHeader, Skeleton, Stat } from '@/components/ui/Layout'
 import { Accordion } from '@/components/ui/Accordion'
@@ -83,7 +83,7 @@ export default function StyleguidePage() {
           <p className="hl-h3">Heading three — Key facts</p>
           <p className="text-body">Body text, 16px. Find homes and land, source construction materials, and hire trusted professionals across Ethiopia.</p>
           <p className="text-small text-muted">Small text, 14px, muted.</p>
-          <p className="text-caption text-subtle">Caption, 12px, subtle.</p>
+          <p className="text-caption text-muted">Caption, 12px, muted. (The subtle colour is for icons and placeholders only, never for text.)</p>
           <p className="font-ethiopic text-h3">ሀገር — ቤት፣ መሬት እና የግንባታ እቃዎች</p>
           <p className="font-display text-h2 font-bold tabular-nums">{formatETB(4500000)} · {formatArea(120)}</p>
           <p className="text-small text-muted">
@@ -103,6 +103,9 @@ export default function StyleguidePage() {
           <Button disabled>Disabled</Button>
           <Button size="sm">Small</Button>
           <Button size="lg">Large</Button>
+          <IconButton label="Search">
+            <Search />
+          </IconButton>
         </div>
         <div className="mt-4 flex max-w-md gap-3 [&>*]:flex-1">
           <ButtonLink href="/property">Equal width</ButtonLink>

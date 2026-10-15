@@ -33,11 +33,13 @@ export async function signUpAction(_prev: ActionResult<{ email: string }> | null
     return fail('Please complete the security check and try again.')
   }
   const { intent, full_name, email, phone, password } = parsed.data
+  // After confirming, people return to where they started (e.g. a team invitation), else to onboarding.
+  const next = formData.get('next') ? safeNextPath(formData.get('next')) : '/onboarding'
   const { error } = await getServerSupabase().auth.signUp({
     email,
     password,
     options: {
-      emailRedirectTo: callbackUrl('/onboarding'),
+      emailRedirectTo: callbackUrl(next),
       data: { full_name, phone, signup_intent: intent, account_type: BUSINESS_INTENTS.includes(intent) ? 'business' : 'personal' },
     },
   })

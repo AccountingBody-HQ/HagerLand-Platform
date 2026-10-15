@@ -108,7 +108,7 @@ test('a guest requests a plumber, HagerLand matches a provider, the provider quo
   await expect(guest.getByText('ETB 25,000')).toBeVisible()
   await guest.getByRole('button', { name: 'Choose this quote' }).click()
   await guest.getByRole('button', { name: 'Yes, choose' }).click()
-  await expect(guest.getByText(/You chose/)).toBeVisible()
+  await expect(guest.getByText(/^You chose E2E Fast Plumbing/)).toBeVisible()
   await expect(guest.getByText('You chose this quote')).toBeVisible()
 
   const [{ data: after }, { data: deal }] = await Promise.all([

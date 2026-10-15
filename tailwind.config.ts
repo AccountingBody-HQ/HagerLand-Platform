@@ -30,7 +30,7 @@ const config: Config = {
         subtle: token('subtle'),
         border: { DEFAULT: token('border'), strong: token('border-strong') },
         success: token('success'),
-        warning: token('warning'),
+        warning: { DEFAULT: token('warning'), dark: token('warning-dark') },
         danger: token('danger'),
         error: token('error'),
         info: { DEFAULT: token('info'), dark: token('info-dark') },

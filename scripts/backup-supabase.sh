@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Manual Supabase database backup (the Free plan has no downloadable backups).
 # Usage, from the repository root in a Codespace terminal:  bash scripts/backup-supabase.sh
+# Non-interactive (cutover): SUPABASE_DB_URL=<full connection string> bash scripts/backup-supabase.sh
 # Writes to ./backups/ (git-ignored). Download the files to your computer, then delete them here.
 #
 # The backup tool (pg_dump) must be the same major version as the database or newer.
@@ -36,19 +37,26 @@ STAMP="$(date -u +%Y%m%d-%H%M)"
 mkdir -p "$OUT_DIR"
 chmod 700 "$OUT_DIR"
 
-echo "Paste the Session pooler connection string exactly as Supabase shows it"
-echo "(it contains [YOUR-PASSWORD]; leave that placeholder in), then press Enter:"
-read -r DB_URL
-if [[ "$DB_URL" != postgres* || "$DB_URL" != *":[YOUR-PASSWORD]@"* ]]; then
-  echo "That does not look right. Copy the Session pooler string again, with [YOUR-PASSWORD] still in it."
-  exit 1
-fi
-DB_URL="${DB_URL/:\[YOUR-PASSWORD\]@/@}"
+if [ -n "${SUPABASE_DB_URL:-}" ]; then
+  # Non-interactive (cutover): the full connection string, password included, comes from the environment.
+  DB_URL="$SUPABASE_DB_URL"
+  PGPASSWORD="${PGPASSWORD:-}"
+  echo "Using SUPABASE_DB_URL from the environment."
+else
+  echo "Paste the Session pooler connection string exactly as Supabase shows it"
+  echo "(it contains [YOUR-PASSWORD]; leave that placeholder in), then press Enter:"
+  read -r DB_URL
+  if [[ "$DB_URL" != postgres* || "$DB_URL" != *":[YOUR-PASSWORD]@"* ]]; then
+    echo "That does not look right. Copy the Session pooler string again, with [YOUR-PASSWORD] still in it."
+    exit 1
+  fi
+  DB_URL="${DB_URL/:\[YOUR-PASSWORD\]@/@}"
 
-echo "Now type or paste your database password (nothing will appear as you type), then press Enter:"
-read -rs PGPASSWORD
-echo
-export PGPASSWORD PGSSLMODE=require
+  echo "Now type or paste your database password (nothing will appear as you type), then press Enter:"
+  read -rs PGPASSWORD
+  echo
+fi
+export PGPASSWORD PGSSLMODE="${PGSSLMODE:-require}"
 
 # Step 0: make sure we have tools that can talk to this database.
 if ! command -v psql >/dev/null; then

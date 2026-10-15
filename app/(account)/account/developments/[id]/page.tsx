@@ -47,7 +47,7 @@ export default async function EditDevelopmentPage({ params, searchParams }: { pa
         </div>
       </Card>
       <Card className="p-5 sm:p-8">
-        <DevelopmentForm defaults={{ ...defaults, id: row.id, status: row.status }} />
+        <DevelopmentForm defaults={{ ...defaults, id: row.id, status: row.status, updated_at: row.updated_at }} />
       </Card>
       <Card className="space-y-5 p-5 sm:p-8">
         <div>

@@ -8,10 +8,17 @@ import { saveSearchAction } from '@/app/actions/saved-search-actions'
 import { Field, Input, Select } from '@/components/ui/Field'
 import { FormAlert, SubmitButton } from '@/components/forms/FormParts'
 import { track } from '@/lib/analytics'
+import { hasSessionCookie } from '@/lib/session-cookie'
 
 /** "Save this search" on property results (spec 8.2, 25.2a). */
-export function SaveSearchButton({ signedIn, purpose, location, query, defaultName, returnTo }: { signedIn: boolean; purpose: 'sale' | 'rent'; location: string | null; query: string; defaultName: string; returnTo: string }) {
+export function SaveSearchButton({ signedIn: known, purpose, location, query, defaultName, returnTo, label = 'Save this search' }: { signedIn?: boolean; purpose: 'sale' | 'rent'; location: string | null; query: string; defaultName: string; returnTo: string; label?: string }) {
   const [open, setOpen] = useState(false)
+  // On cached pages the server does not know who is signed in: the browser checks the session cookie.
+  const [cookieSignedIn, setCookieSignedIn] = useState(false)
+  useEffect(() => {
+    if (known === undefined) setCookieSignedIn(hasSessionCookie())
+  }, [known])
+  const signedIn = known ?? cookieSignedIn
   const [state, action] = useFormState(saveSearchAction, null)
   useEffect(() => {
     if (state?.ok) track('search_saved')
@@ -20,14 +27,14 @@ export function SaveSearchButton({ signedIn, purpose, location, query, defaultNa
   if (!signedIn)
     return (
       <Link href={`/login?next=${encodeURIComponent(returnTo)}`} className={btn}>
-        <BellPlus className="size-4" aria-hidden /> Save this search
+        <BellPlus className="size-4" aria-hidden /> {label}
       </Link>
     )
   if (state?.ok) return <FormAlert tone="success">{state.data.message}</FormAlert>
   if (!open)
     return (
       <button type="button" className={btn} onClick={() => setOpen(true)}>
-        <BellPlus className="size-4" aria-hidden /> Save this search
+        <BellPlus className="size-4" aria-hidden /> {label}
       </button>
     )
   return (

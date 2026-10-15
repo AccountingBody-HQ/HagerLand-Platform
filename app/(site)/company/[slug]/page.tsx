@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { Building2, CalendarDays, MapPin, Users } from 'lucide-react'
-import { getLocationNames, getOrganisationBySlug, getOrganisationProductCategories, getOrganisationServices, getPortfolio } from '@/lib/data/organisations'
+import { getBranches, getLocationNames, getOrganisationBySlug, getOrganisationProductCategories, getOrganisationServices, getPortfolio } from '@/lib/data/organisations'
 import { searchProperties } from '@/lib/data/properties'
 import { searchDevelopments } from '@/lib/data/developments'
 import { searchProducts } from '@/lib/data/products'
@@ -54,7 +54,7 @@ export default async function CompanyPage({ params }: { params: { slug: string }
   if (!o || !o.id) notFound()
   const isLister = o.kind === 'agency' || o.kind === 'developer' || o.kind === 'hagerland'
   const isSeller = o.kind === 'supplier' || o.kind === 'manufacturer'
-  const [chain, services, productCats, portfolio, areaNames, forSale, toRent, developments, products] = await Promise.all([
+  const [chain, services, productCats, portfolio, areaNames, forSale, toRent, developments, products, branches] = await Promise.all([
     o.location_id ? getLocationChain(o.location_id) : Promise.resolve([] as Location[]),
     getOrganisationServices(o.id),
     getOrganisationProductCategories(o.id),
@@ -64,6 +64,7 @@ export default async function CompanyPage({ params }: { params: { slug: string }
     isLister ? searchProperties({ purpose: 'rent', listerOrgId: o.id, pageSize: 6 }) : Promise.resolve({ total: 0, items: [] }),
     o.kind === 'developer' || o.kind === 'hagerland' ? searchDevelopments({ developerOrgId: o.id, pageSize: 6 }) : Promise.resolve({ total: 0, items: [] }),
     isSeller ? searchProducts({ sellerOrgId: o.id, sort: 'newest', pageSize: 48 }) : Promise.resolve({ total: 0, items: [] }),
+    getBranches(o.id),
   ])
   const city = cityOf(chain)
   const region = chain.find((l) => l.level === 'region') ?? null
@@ -77,6 +78,7 @@ export default async function CompanyPage({ params }: { params: { slug: string }
     { id: 'for-sale', label: 'For sale', show: forSale.total > 0 },
     { id: 'to-rent', label: 'To rent', show: toRent.total > 0 },
     { id: 'developments', label: 'Developments', show: developments.total > 0 },
+    { id: 'branches', label: 'Branches', show: branches.length > 0 },
     { id: 'areas', label: 'Areas served', show: areaNames.length > 0 },
   ].filter((s) => s.show)
   const directory = o.kind === 'agency' ? { label: 'Estate agents', href: '/agents' } : o.kind === 'developer' ? { label: 'Developers', href: '/developers' } : o.kind === 'supplier' || o.kind === 'manufacturer' ? { label: 'Suppliers', href: '/suppliers' } : { label: 'Professionals', href: '/professionals' }
@@ -286,6 +288,27 @@ export default async function CompanyPage({ params }: { params: { slug: string }
                   {developments.items.map((d) => (
                     <li key={d.id}>
                       <DevelopmentCard development={d} />
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {branches.length > 0 && (
+              <section id="branches" aria-labelledby="branches-heading" className="scroll-mt-24">
+                <h2 id="branches-heading" className="hl-h3 mb-4">
+                  Branches
+                </h2>
+                <ul className="grid gap-3 sm:grid-cols-2">
+                  {branches.map((b) => (
+                    <li key={b.id} className="rounded-lg border border-border p-4">
+                      <p className="font-semibold">{b.name}</p>
+                      {b.location_display && (
+                        <p className="mt-1 flex items-start gap-1.5 text-small text-muted">
+                          <MapPin className="mt-0.5 size-4 shrink-0" aria-hidden /> {[b.address_line, b.location_display].filter(Boolean).join(', ')}
+                        </p>
+                      )}
+                      {b.opening_note && <p className="mt-1 text-small text-muted">{b.opening_note}</p>}
                     </li>
                   ))}
                 </ul>

@@ -39,6 +39,12 @@ export default async function SettingsPage() {
       <Panel title="Password">
         <UpdatePasswordForm />
       </Panel>
+      <Panel title="Your data">
+        <p className="mb-3 text-muted">Download a copy of the information linked to your account: profile, listings, enquiries, requests, saved items, applications and more.</p>
+        <a href="/account/export" className="inline-flex min-h-11 items-center gap-2 rounded-md border border-border-strong px-4 font-semibold hover:bg-stone-50" download>
+          Download my data
+        </a>
+      </Panel>
       <Panel title="Delete account">
         {profile?.deletion_requested_at ? (
           <FormAlert tone="info">You asked us to delete your account on {formatDate(profile.deletion_requested_at)}. We will email you when it is done.</FormAlert>

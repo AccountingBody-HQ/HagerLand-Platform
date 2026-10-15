@@ -109,7 +109,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
             {p.price_type !== 'on_request' && p.price_etb_cents !== null && <ApproxPrice etb={p.price_etb_cents / 100} className="block" />}
             <TradePrice productId={p.id} />
             {p.price_type !== 'on_request' && p.price_updated_at && <p className="mt-1 text-small text-muted">Price updated {formatDate(p.price_updated_at)}</p>}
-            {volatile && <p className="mt-1 text-small text-warning">Prices change often — we confirm today&apos;s price on your quote.</p>}
+            {volatile && <p className="mt-1 text-small text-warning-dark">Prices change often — we confirm today&apos;s price on your quote.</p>}
             <ul className="mt-3 space-y-1 text-small text-muted">
               {Number(p.min_order_qty) > 1 && <li>Minimum order: {Number(p.min_order_qty)} {unitLabel(p.unit, Number(p.min_order_qty))}</li>}
               {p.pack_size && <li>Pack size: {p.pack_size}</li>}

@@ -18,6 +18,8 @@ interface Spec {
 
 export interface ProductDefaults {
   id?: string
+  /** The record's updated_at when the form opened (concurrent-edit check). */
+  updated_at?: string | null
   name?: string
   category_id?: string
   brand_id?: string | null
@@ -55,6 +57,7 @@ export function ProductForm({ action: save, defaults, categories, brands, seller
   return (
     <form action={action} className="space-y-5" noValidate>
       {defaults.id && <input type="hidden" name="id" value={defaults.id} />}
+      {defaults.id && defaults.updated_at && <input type="hidden" name="expected_updated_at" value={defaults.updated_at} />}
       <input type="hidden" name="specs" value={JSON.stringify(specs.filter((s) => s.label.trim() && s.value.trim()))} />
       {state && !state.ok && <FormAlert>{state.error}</FormAlert>}
       {state?.ok && <FormAlert tone="success">{state.message}</FormAlert>}

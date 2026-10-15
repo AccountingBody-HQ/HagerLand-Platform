@@ -77,6 +77,9 @@ export async function moderateAction(input: { entity: string; id: string; op: st
   const owner = await loadOwner(entity, id)
   const record = row as Record<string, unknown>
   const pending = (record.pending_changes as Record<string, unknown> | null | undefined) ?? null
+  // Another admin may have decided it meanwhile: approving never republishes something removed or already live.
+  if (op === 'approve' && !['pending_review', 'rejected', 'draft'].includes(String(record.status))) return fail('This is no longer waiting for review. Reload the page.')
+  if (op === 'approve_changes' && !pending) return fail('These changes were already decided. Reload the page.')
   let message = ''
 
   try {

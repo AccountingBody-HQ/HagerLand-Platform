@@ -44,7 +44,7 @@ export function EmailForm({ current }: { current: string }) {
     <form action={action} className="space-y-4" noValidate>
       {state && !state.ok && <FormAlert>{state.error}</FormAlert>}
       {state?.ok && <FormAlert tone="success">{state.message}</FormAlert>}
-      <p className="text-small text-muted">Current email: <strong className="text-ink">{current}</strong></p>
+      <p className="text-small text-muted">Current email: <strong className="break-all text-ink">{current}</strong></p>
       <Field label="New email" htmlFor="em-new" error={errors.email}>
         <Input id="em-new" name="email" type="email" autoComplete="email" invalid={Boolean(errors.email)} aria-describedby={describedBy('em-new', errors.email)} />
       </Field>

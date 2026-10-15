@@ -8,7 +8,8 @@ import { listTag } from '@/lib/revalidate'
 import { getVerticals } from '@/lib/data/verticals'
 import { jobSitemapEntries } from '@/lib/data/jobs'
 import { listGuides } from '@/lib/data/guides'
-import { getBuildRates } from '@/lib/data/reference'
+import { getBuildRates, getSiteSettings } from '@/lib/data/reference'
+import { localizeHref } from '@/lib/i18n/config'
 import { verticalForPath, verticalHref, type VerticalKey } from '@/lib/verticals'
 
 export const revalidate = 3600
@@ -52,10 +53,12 @@ async function build(id: SitemapId): Promise<MetadataRoute.Sitemap> {
   const db = getPublicSupabase({ tags: ['sitemap', listTag('property'), listTag('development'), listTag('organisation'), listTag('product')], revalidate: 3600 })
   const min = await getSettingNumber('min_results_for_index', 3)
   switch (id) {
-    case 'static':
-      return Array.from(new Set([...STATIC_PATHS, ...verticals.filter((v) => v.status === 'live').map(verticalHref)]))
-        .filter(isListed)
-        .map((p) => entry(p, null, p === '/' ? 1 : 0.7))
+    case 'static': {
+      const paths = Array.from(new Set([...STATIC_PATHS, ...verticals.filter((v) => v.status === 'live').map(verticalHref)])).filter(isListed)
+      // Amharic versions of the main pages, only while the Amharic locale is switched on (spec 25.2m).
+      const amharic = (await getSiteSettings()).amharic_enabled === true ? paths.map((p) => localizeHref(p, 'am')) : []
+      return [...paths.map((p) => entry(p, null, p === '/' ? 1 : 0.7)), ...amharic.map((p) => entry(p, null, 0.5))]
+    }
     case 'properties': {
       const { data } = await db.from('properties_public').select('slug, updated_at').order('published_at', { ascending: false }).limit(LIMIT)
       return (data ?? []).filter((r) => r.slug).map((r) => entry(`/property/${r.slug}`, r.updated_at))

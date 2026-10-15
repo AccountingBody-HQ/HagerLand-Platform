@@ -16,7 +16,7 @@ export const revalidate = 600
 export function generateMetadata() {
   return verticalLandingMetadata('diaspora', () =>
     buildMetadata({
-      title: 'Diaspora services: property in Ethiopia from abroad',
+      title: 'Diaspora services for Ethiopians abroad',
       description: 'For Ethiopians abroad: buy, build, renovate and look after property in Ethiopia, and find Ethiopian-run trades and professionals where you live.',
       path: '/diaspora',
     }),

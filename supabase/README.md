@@ -233,8 +233,8 @@ select vertical_key, count(*) from service_categories where vertical_key in ('fi
 ---
 
 ## 0019_jobs.sql (Phase 1.5, E8)
-**What it does:** adds the jobs board (jobs, applications, candidate profiles) and construction-progress
-updates for developments.
+**What it does:** adds the jobs board (job posts, applications, candidate profiles) and construction-progress
+updates for developments. The new table is called `job_posts` because your database still has the old site's `jobs` table, which is left untouched.
 - **Jobs** are posted by organisations, reviewed by you before going live, and close on their closing date (or 60 days after approval).
 - **Applications** (references `HLA-…`) are created only by the website after checks. Only the applicant, the employer's team and HagerLand can read them. CVs sit in the private document store and are deleted after 12 months.
 - **Candidate profiles** are private unless the candidate chooses "approved employers". Even then, employers never see contact details or CVs.
@@ -245,7 +245,7 @@ Nothing is public while Jobs & Recruitment is "coming soon".
 
 **Check:**
 ```sql
-select (select count(*) from information_schema.tables where table_schema = 'public' and table_name in ('jobs', 'job_applications', 'candidate_profiles', 'development_updates')) as new_tables,
+select (select count(*) from information_schema.tables where table_schema = 'public' and table_name in ('job_posts', 'job_applications', 'candidate_profiles', 'development_updates')) as new_tables,
        (select count(*) from service_categories where slug in ('recruitment', 'staffing')) as staffing_categories,
        (select version from schema_migrations where version = '0019') as recorded;
 ```
@@ -284,13 +284,77 @@ select (select count(*) from guides where needs_review and status = 'draft') as 
 
 ---
 
+## 0022_teams_branches.sql (Phase 1.5, H3)
+**What it does:**
+- **Team invitations:** owners and admins invite colleagues by email from Account → Team. The link works for 7 days and only for the invited email address.
+- **Last-owner rule:** every live organisation keeps at least one owner. The database refuses to remove or demote the last owner. Ownership can be handed over first.
+- **Branches:** other offices of an agency or company, shown on its public profile by name and place. A branch's phone and email stay private.
+
+**Check:**
+```sql
+select (select count(*) from information_schema.tables where table_schema = 'public' and table_name in ('org_invitations', 'org_branches')) as new_tables,
+       (select count(*) from pg_trigger where tgname = 'protect_last_owner') as owner_rule,
+       (select version from schema_migrations where version = '0022') as recorded;
+```
+**You should see:** `2 | 1 | 0022`. The security test now shows 125 `PASS` rows.
+
+---
+
+## 0023_amharic_locale.sql (Phase 1.5, H4)
+**What it does:** adds the "Show the Amharic version" switch (admin → Settings → Amharic). It is **off**. While it is off, addresses starting with `/am` do not exist. Switch it on only after a native speaker has reviewed the Amharic text (`lib/i18n/messages/am.ts`).
+
+**Check:**
+```sql
+select value from site_settings where key = 'amharic_enabled';
+select version from schema_migrations where version = '0023';
+```
+**You should see:** `false` and `0023`.
+
+---
+
+## 0024_email_outbox.sql (Phase 1.5, H6)
+**What it does:** if an email cannot be sent (for example during a Resend outage), it is kept here instead of being lost. What the visitor did still succeeds. The daily job retries each email up to five times, and admin → Email problems lists them with "Retry now" and "Stop retrying". Delivered and abandoned emails are deleted after 30 days. Only the server can read this table.
+
+**Check:**
+```sql
+select count(*) from email_outbox;
+select version from schema_migrations where version = '0024';
+```
+**You should see:** `0` (nothing has failed yet) and `0024`. The security test now shows 133 `PASS` rows.
+
+---
+
+## 0025_quote_document_grant.sql (Phase 1.5, E9)
+**What it does:** fixes "My quotes" in the account. That page shows a "Download quote" button, which needs one column (`quote_document_path`) that signed-in users had not been given permission to read, so the whole list failed to load. The file itself stays in private storage and is only handed out after the ownership check in `/api/quote-document`.
+
+**Check:**
+```sql
+select has_column_privilege('authenticated', 'public.quote_requests', 'quote_document_path', 'select');
+select version from schema_migrations where version = '0025';
+```
+**You should see:** `true` and `0025`.
+
+---
+
+## 0026_indexes.sql (Phase 1.5, E9)
+**What it does:** adds 22 indexes (lookup shortcuts) on the new tables' links that pages filter on, or that are scanned when an account or business is deleted. Nothing about the data changes; pages and deletions just stay fast as the tables grow.
+
+**Check:**
+```sql
+select count(*) from pg_indexes where schemaname = 'public' and indexname in ('deals_org_idx', 'service_requests_category_idx', 'claims_user_idx', 'media_uploader_idx', 'development_updates_created_by_idx');
+select version from schema_migrations where version = '0026';
+```
+**You should see:** `5` and `0026`. The security test still shows 133 `PASS` rows.
+
+---
+
 ## Security test (run after all migrations)
 Paste `supabase/tests/rls_test.sql` and run it. Supabase may warn that the query contains `delete`
 statements: that is the test cleaning up after itself; click **Run this query**.
 It temporarily creates two test users and a test listing, tries things that should and should not be
 allowed, then deletes everything it created.
 
-**You should see:** every row starting with `PASS` (38 rows after migration 0011, 42 after 0013, 57 after 0014, 67 after 0016, 74 after 0017, 96 after 0019, 106 after 0020; each later migration adds its own checks and its section below says the new total).
+**You should see:** every row starting with `PASS` (38 rows after migration 0011, 42 after 0013, 57 after 0014, 67 after 0016, 74 after 0017, 96 after 0019, 106 after 0020, 125 after 0022, 133 after 0024; each later migration adds its own checks and its section below says the new total).
 
 ## TypeScript types
 `lib/database.types.ts` was generated from these exact migrations. After all migrations are applied,

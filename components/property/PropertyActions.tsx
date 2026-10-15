@@ -8,7 +8,7 @@ import { useToast } from '@/components/ui/Toast'
 import { COMPARE_MAX } from '@/lib/compare'
 import { cn } from '@/lib/cn'
 
-const btn = 'inline-flex min-h-11 items-center gap-2 rounded-md border border-border-strong bg-white px-4 font-semibold text-ink hover:bg-stone-100'
+const btn = 'inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-border-strong bg-white px-4 font-semibold text-ink hover:bg-stone-100'
 
 /** Save, compare, request a valuation and ask about financing (spec 24.7). */
 export function PropertyActions({ id, slug, title, valuationHref, financeHref, financeSoon }: { id: string; slug: string; title: string; valuationHref: string | null; financeHref: string | null; financeSoon: boolean }) {
@@ -16,8 +16,8 @@ export function PropertyActions({ id, slug, title, valuationHref, financeHref, f
   const toast = useToast()
   const inCompare = list.some((x) => x.id === id)
   return (
-    <div className="flex flex-wrap gap-2">
-      <SaveButton entityType="property" entityId={id} />
+    <div className="grid gap-2 sm:flex sm:flex-wrap">
+      <SaveButton entityType="property" entityId={id} className="justify-center" />
       <button
         type="button"
         aria-pressed={inCompare}

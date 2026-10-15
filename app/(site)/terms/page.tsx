@@ -22,10 +22,10 @@ export default async function TermsPage() {
           <LegalEntity legal={legal} />
         </TextSection>
         <TextSection title={`2. What ${brand.name} is`}>
-          <p>{brand.name} is an online marketplace where people list and find property, construction materials and professional services in Ethiopia. Unless a listing is labelled as {brand.divisions.supply} or {brand.divisions.developments}, we are not a party to any agreement between you and another user, and we do not own, sell or let the properties listed by others.</p>
+          <p>{brand.name} is an online platform where people list and find property, construction materials, professionals and services in Ethiopia, and request quotes for work, including people who live abroad. Unless a listing is labelled as {brand.divisions.supply} or {brand.divisions.developments}, we are not a party to any agreement between you and another user, and we do not own, sell or let the properties listed by others.</p>
         </TextSection>
         <TextSection title="3. Our dual role">
-          <p>{brand.name} also sells construction materials through {brand.divisions.supply} and builds and sells homes through {brand.divisions.developments}. Our own products and projects are always clearly labelled. They are not ranked above other listings in organic search results, and any promoted placement is marked as such.</p>
+          <p>{brand.name} also sells construction materials through {brand.divisions.supply}, offers estate agency services, and intends to develop homes through {brand.divisions.developments}. Our own products, services and projects are always clearly labelled. They are not ranked above other listings in organic search results, and any promoted placement is marked as such.</p>
         </TextSection>
         <TextSection title="4. Accounts">
           <ul>
@@ -65,21 +65,40 @@ export default async function TermsPage() {
         <TextSection title="11. Enquiries and contact details">
           <p>When you send an enquiry, we share your name, contact details and message with the recipient so they can reply. Contact details shown on listings may only be used to discuss that listing. Do not use them for marketing.</p>
         </TextSection>
-        <TextSection title="12. Intellectual property">
+        <TextSection title="12. Service requests and matching">
+          <ul>
+            <li>When you request a service, we send your request to up to three providers we believe can help, and they may contact you and send quotes. You choose whether to accept a quote.</li>
+            <li>Any agreement for the work is between you and the provider. We are not a party to it, and we do not guarantee the work, price or timing. Agree everything in writing before you pay.</li>
+            <li>Providers who receive requests must reply honestly, quote only for work they can do and keep customers’ details private. {brand.name} may receive a fee or commission from a provider for work that comes through the platform. This never changes the price we show you or the order of search results.</li>
+          </ul>
+        </TextSection>
+        <TextSection title="13. Finance and insurance partners">
+          <p>Where finance or insurance services are available, requests are passed to approved, licensed partners, who decide on eligibility, prices and terms and give you their own documents. {brand.name} does not give financial or insurance advice and is not a lender, insurer or broker.</p>
+        </TextSection>
+        <TextSection title="14. Jobs">
+          <p>Where the jobs service is available, employers are responsible for their job adverts and for treating applicants fairly and lawfully. Employers must never ask candidates for money. Applicants’ details and CVs may only be used to recruit for the job applied for.</p>
+        </TextSection>
+        <TextSection title="15. People outside Ethiopia">
+          <p>You may use {brand.name} from anywhere. Prices shown in other currencies are approximate and for guidance only; the price in Ethiopian Birr is the one that counts. Laws on owning, buying or renting property in Ethiopia, and on transferring money, may apply to you; check them with a qualified adviser before you commit.</p>
+        </TextSection>
+        <TextSection title="16. Trade accounts and Special Buys">
+          <p>Trade accounts are for businesses we approve and may be closed if the account is misused. Trade prices are confidential to the account holder. Special Buys are available while the stated quantity lasts and until the end date shown.</p>
+        </TextSection>
+        <TextSection title="17. Intellectual property">
           <p>The {brand.name} name, logo and site design belong to us. You keep ownership of the content you upload, and you give us a licence to host, display, adapt (for example resize photos) and share it on {brand.name} and in our marketing of your listing, for as long as it is on the site and for a reasonable time after.</p>
         </TextSection>
-        <TextSection title="13. Liability">
+        <TextSection title="18. Liability">
           <p>We provide the site with reasonable care, but we do not promise that it will always be available or error-free. To the extent the law allows, we are not liable for losses arising from dealings between users, from content posted by others, or for indirect losses. Nothing in these terms limits liability that cannot be limited by law.</p>
         </TextSection>
-        <TextSection title="14. Changes">
+        <TextSection title="19. Changes">
           <p>We may update these terms. The date at the top shows the latest version. If a change is significant we will tell registered users by email.</p>
         </TextSection>
         {legal.governingLaw && (
-          <TextSection title="15. Governing law">
+          <TextSection title="20. Governing law">
             <p>These terms are governed by {legal.governingLaw}.</p>
           </TextSection>
         )}
-        <TextSection title={legal.governingLaw ? '16. Contact' : '15. Contact'}>
+        <TextSection title={legal.governingLaw ? '21. Contact' : '20. Contact'}>
           <p>
             Questions about these terms? <Link href="/contact">Contact us</Link>.
           </p>

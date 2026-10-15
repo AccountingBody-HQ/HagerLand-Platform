@@ -48,11 +48,11 @@ Authorised by AB on 13 Oct 2026 (brief: `docs/BRIEF_PHASE_1_5_AND_GO_LIVE.md`), 
 | E8 | Jobs & Recruitment (built, coming soon) + Our Developments coming soon + 25.2j development progress updates | done | 2026-10-14 | see git log | Migration 0019. RLS 96/96 local. Jobs spec 7 passed + full regression; site search covers jobs when live; privacy policy CV retention added |
 | H1 | Supplies marketplace: supplier self-serve products, Special Buys, trade accounts (25.2c, d, e) | done | 2026-10-14 | see git log | Migration 0020. RLS 106/106 local. supplies-extras spec passed |
 | H2 | Guides hub and build-cost estimator (25.2g, h) | done | 2026-10-14 | see git log | Migration 0021. Guides (drafts need AB review) and estimator (hidden until rates). guides-estimator spec + unit tests passed |
-| H3 | Organisation team members and branches (25.2i) | todo | | | |
-| H4 | Amharic i18n architecture, /am locale behind an admin switch (25.2m) | todo | | | |
+| H3 | Organisation team members and branches (25.2i) | done | 2026-10-14 | see git log | Migration 0022. RLS 125/125 local. teams spec passed |
+| H4 | Amharic i18n architecture, /am locale behind an admin switch (25.2m) | done | 2026-10-14 | see git log | Migration 0023 (switch off). Amharic catalogue marked needs native review. amharic spec + unit tests |
 | H5 | Health endpoints (25.2n) | done | 2026-10-14 | see git log | `/api/health`, `/api/health/full` (CRON_SECRET; booleans only). e2e health spec + unit test passed |
-| H6 | Edge cases and cross-cutting hardening (25.4) | todo | | | |
-| E9 | Content, legal, admin additions, SEO, full QA pass | todo | | | |
+| H6 | Edge cases and cross-cutting hardening (25.4) | done | 2026-10-14 | see git log | Migration 0024 (email outbox). RLS 133/133 local. edge-cases spec (44 tests) + 8 new unit test files |
+| E9 | Content, legal, admin additions, SEO, full QA pass | done | 2026-10-15 | see git log | Migrations 0025 (quote document grant) and 0026 (indexes); 0019's new table renamed `job_posts` (legacy `jobs` clash, see open items). RLS 133/133 local. Full e2e regression + 214 unit passed. Lighthouse in `docs/qa/lighthouse-2026-10-15.md`. Decisions in LAUNCH_REPORT (E9, 25.5) |
 | E10 | Next.js 15 upgrade (or clean revert with reasons), npm audit | todo | | | |
 | 25.5 | Go-live readiness: full re-run, preflight script, final report | todo | | | |
 | 25.6 | Cutover (only after AB types GO LIVE) | todo | | | Replaces WP-20 |
@@ -113,6 +113,8 @@ Order: backup → legacy hotfix → migrations 0001–0009 → RLS test.
 - Resend Free: needs hagerland.com verified as a sending domain (and Pro if the free domain slot is used by accountingbody.com) before emails go live.
 - Legacy live-site security (13 Oct 2026): hotfix `supabase/legacy/2026-10-13_drop_open_read_policies.sql` removes the seven `USING (true)` anon read policies (cars, community, companies, events, housing, jobs, tutors) so non-active rows are hidden. **Still exposed, deliberately, until the WP-20 legacy lockdown:** ACTIVE rows on the legacy tables remain readable by the public anon key in full, including `manage_token`, `verification_token`, `contact_email`, `contact_phone` and similar columns. The live site's anon `select('*')` queries (detail pages) and claim pages (which select `manage_token`) depend on this, so tightening it now would break the live site. It is closed at cutover by the legacy lockdown migration (Section 20.3).
 - Legacy tables also grant ALL privileges to anon/authenticated (Supabase defaults); writes are blocked only because no INSERT/UPDATE/DELETE policies exist. Revoke at the WP-20 lockdown.
+- 15 Oct 2026: the 13 Oct name-collision check covered 0001–0009 only. Migration 0019 (Phase 1.5) created `public.jobs`, which already exists on live as the old site's table, so it would have failed at cutover. Fixed before anything reached live: the new table is `job_posts`. The local test copy now carries a structural replica of all legacy tables (`supabase/local-stack/legacy.sql`) and applies each migration as one transaction, so this cannot recur unnoticed.
+- Legacy lockdown for the cutover is ready: `supabase/legacy/cutover_legacy_lockdown.sql` (+ `_REVERSE`, `_check`), run by `scripts/cutover/lockdown.sh` at cutover step 7.
 - Schema snapshot taken 13 Oct 2026 (`docs/legacy-schema-snapshot.md`): no name clashes with migrations 0001–0009; `import_log` and `rate_limits` match what the code expects. Database is PostgreSQL 17.6.
 
 ## Pre-launch tasks for AB

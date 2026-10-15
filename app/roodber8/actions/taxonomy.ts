@@ -62,6 +62,7 @@ export async function moveCategoryAction(kind: string, id: string, dir: 'up' | '
   const { data: siblings } = await sib
   const changes = reorder(siblings ?? [], id, dir)
   for (const c of changes) await db.from(table).update({ sort: c.sort }).eq('id', c.id)
+  if (changes.length) await audit('category.move', { type: `${k.data}_category`, id }, { dir })
   return done('/roodber8/categories', changes.length ? 'Moved.' : 'Already at the end.')
 }
 
@@ -110,6 +111,7 @@ export async function moveLocationAction(id: string, dir: 'up' | 'down'): Promis
   const { data: siblings } = row.parent_id ? await db.from('locations').select('id, sort').eq('parent_id', row.parent_id) : await db.from('locations').select('id, sort').is('parent_id', null)
   const changes = reorder(siblings ?? [], id, dir)
   for (const c of changes) await db.from('locations').update({ sort: c.sort }).eq('id', c.id)
+  if (changes.length) await audit('location.move', { type: 'location', id }, { dir })
   return done('/roodber8/locations', changes.length ? 'Moved.' : 'Already at the end.')
 }
 

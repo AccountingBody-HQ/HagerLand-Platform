@@ -50,7 +50,7 @@ const email = z
   .default('')
   .refine((v) => !v || z.email().safeParse(v).success, 'Enter a valid email address.')
 
-export const SETTINGS_SECTIONS = ['contact', 'social', 'legal', 'business', 'announcement', 'thresholds', 'legal_dates', 'homepage'] as const
+export const SETTINGS_SECTIONS = ['contact', 'social', 'legal', 'business', 'announcement', 'thresholds', 'legal_dates', 'homepage', 'language'] as const
 export type SettingsSection = (typeof SETTINGS_SECTIONS)[number]
 
 export const contactSchema = z.object({
@@ -120,3 +120,6 @@ export function parsePickRefs(input: string): string[] {
     ),
   ).slice(0, 12)
 }
+
+/** Amharic locale switch (spec 25.2m): off until AB approves the native-speaker review. */
+export const languageSchema = z.object({ amharic_enabled: z.preprocess((v) => v === 'on' || v === 'true', z.boolean()) })

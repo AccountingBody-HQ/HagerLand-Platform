@@ -13,6 +13,7 @@ import { revalidateEntity } from '@/lib/revalidate'
 import { parseCsv } from '@/lib/admin/csv'
 import { prepareImport, type ImportRow } from '@/lib/admin/dev-import'
 import { isEthiopianLocation, NOT_IN_ETHIOPIA } from '@/lib/data/reference'
+import { STALE_EDIT, isStaleEdit } from '@/lib/concurrency'
 
 type DevUpdate = Database['public']['Tables']['developments']['Update']
 
@@ -25,6 +26,7 @@ export async function saveAdminDevelopmentAction(_prev: ActionResult<{ id: strin
   const devId = z.preprocess((v) => (v === '' || v === null ? null : v), z.uuid().nullable()).safeParse(formData.get('developer_org_id'))
   if (!devId.success) return fail('Choose a valid developer.')
   const d = parsed.data
+  if (d.id && (await isStaleEdit('developments', d.id, formData.get('expected_updated_at')))) return fail(STALE_EDIT)
   const db = getAdminSupabase()
   let isHagerland = false
   if (devId.data) {

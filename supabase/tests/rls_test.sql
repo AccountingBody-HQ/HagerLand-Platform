@@ -278,19 +278,19 @@ reset role;
 update public.organisations set status = 'published' where id = '00000000-0000-4000-8000-0000000000b1';
 set role authenticated;
 select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000001", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', false);
-insert into public.jobs (id, slug, employer_org_id, title, category, employment_type, location_id, description, status)
+insert into public.job_posts (id, slug, employer_org_id, title, category, employment_type, location_id, description, status)
 select '00000000-0000-4000-8000-0000000000d1', 'rls-test-job', '00000000-0000-4000-8000-0000000000b1', 'RLS TEST site engineer', 'engineering', 'full_time',
   (select id from public.locations where path = 'addis-ababa/bole'), 'A test job description that is long enough to pass.', 'pending_review';
-select pg_temp.record_check('Employer member can post a job for review', exists (select 1 from public.jobs where id = '00000000-0000-4000-8000-0000000000d1'));
+select pg_temp.record_check('Employer member can post a job for review', exists (select 1 from public.job_posts where id = '00000000-0000-4000-8000-0000000000d1'));
 do $$ begin
-  update public.jobs set status = 'published' where id = '00000000-0000-4000-8000-0000000000d1';
+  update public.job_posts set status = 'published' where id = '00000000-0000-4000-8000-0000000000d1';
   perform pg_temp.record_check('Employer cannot publish their own job', false);
 exception when insufficient_privilege then
   perform pg_temp.record_check('Employer cannot publish their own job', true);
 end $$;
 reset role;
-update public.jobs set status = 'published' where id = '00000000-0000-4000-8000-0000000000d1';
-select pg_temp.record_check('Approving a job sets its expiry', (select expires_at > now() + interval '59 days' from public.jobs where id = '00000000-0000-4000-8000-0000000000d1'));
+update public.job_posts set status = 'published' where id = '00000000-0000-4000-8000-0000000000d1';
+select pg_temp.record_check('Approving a job sets its expiry', (select expires_at > now() + interval '59 days' from public.job_posts where id = '00000000-0000-4000-8000-0000000000d1'));
 insert into public.job_applications (id, job_id, applicant_user_id, name, email, cv_path)
 values ('00000000-0000-4000-8000-0000000000d2', '00000000-0000-4000-8000-0000000000d1', '00000000-0000-4000-8000-000000000002', 'Other Test', 'rls-other@test.hagerland.invalid', 'docs/cv/00000000-0000-4000-8000-000000000002/test.pdf');
 set role authenticated;
@@ -311,7 +311,7 @@ do $$ begin
 exception when insufficient_privilege then
   perform pg_temp.record_check('Applications are only created by the server', true);
 end $$;
-with changed as (update public.jobs set title = 'RLS TEST hijacked' where id = '00000000-0000-4000-8000-0000000000d1' returning 1)
+with changed as (update public.job_posts set title = 'RLS TEST hijacked' where id = '00000000-0000-4000-8000-0000000000d1' returning 1)
 select pg_temp.record_check('Non-member cannot edit the job', (select count(*) from changed) = 0);
 insert into public.candidate_profiles (user_id, full_name, skills, cv_path) values ('00000000-0000-4000-8000-000000000002', 'Other Test', '{AutoCAD}', 'docs/cv/00000000-0000-4000-8000-000000000002/test.pdf');
 select pg_temp.record_check('Candidate profile is private by default', (select visibility from public.candidate_profiles where user_id = '00000000-0000-4000-8000-000000000002') = 'private');
@@ -333,17 +333,18 @@ select pg_temp.record_check('Users who are not employers see no candidates', not
 reset role;
 set role anon;
 select pg_temp.record_check('Anonymous sees the approved job in the public view', exists (select 1 from public.jobs_public where id = '00000000-0000-4000-8000-0000000000d1'));
-select pg_temp.record_check('Anonymous cannot read ' || name, pg_temp.read_denied(name)) from unnest(array['jobs', 'job_applications', 'candidate_profiles', 'candidates_for_employers', 'development_updates']) as t(name);
+select pg_temp.record_check('Anonymous cannot read ' || name, pg_temp.read_denied(name)) from unnest(array['job_posts', 'job_applications', 'candidate_profiles', 'candidates_for_employers', 'development_updates']) as t(name);
 reset role;
-update public.jobs set status = 'paused' where id = '00000000-0000-4000-8000-0000000000d1';
+update public.job_posts set status = 'paused' where id = '00000000-0000-4000-8000-0000000000d1';
 set role anon;
 select pg_temp.record_check('Paused jobs leave the public view', not exists (select 1 from public.jobs_public where id = '00000000-0000-4000-8000-0000000000d1'));
 reset role;
 delete from public.candidate_profiles where user_id = '00000000-0000-4000-8000-000000000002';
-delete from public.jobs where id = '00000000-0000-4000-8000-0000000000d1';
+delete from public.job_posts where id = '00000000-0000-4000-8000-0000000000d1';
 
 -- ---------- Special Buys and trade accounts (0020) ----------
 reset role;
+select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);
 insert into public.organisations (id, kind, name, slug, status, created_by) values ('00000000-0000-4000-8000-0000000000e1', 'supplier', 'RLS TEST Supplier', 'rls-test-supplier', 'published', null);
 insert into public.organisation_members (org_id, user_id, role) values ('00000000-0000-4000-8000-0000000000e1', '00000000-0000-4000-8000-000000000001', 'owner');
 insert into public.products (id, slug, name, category_id, seller_org_id, price_type, price_etb_cents, trade_price_etb_cents, status)
@@ -400,8 +401,111 @@ delete from public.trade_accounts where business_name = 'RLS TEST';
 delete from public.products where id = '00000000-0000-4000-8000-0000000000e2';
 delete from public.organisations where id = '00000000-0000-4000-8000-0000000000e1';
 
+-- ---------- Teams and branches (0022) ----------
+reset role;
+select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);
+insert into public.organisations (id, kind, name, slug, status) values ('00000000-0000-4000-8000-0000000000f2', 'agency', 'RLS TEST Agency', 'rls-test-agency', 'published');
+insert into public.organisation_members (org_id, user_id, role) values ('00000000-0000-4000-8000-0000000000f2', '00000000-0000-4000-8000-000000000001', 'owner'), ('00000000-0000-4000-8000-0000000000f2', '00000000-0000-4000-8000-000000000002', 'member');
+insert into public.org_invitations (org_id, email, role, token_hash) values ('00000000-0000-4000-8000-0000000000f2', 'invitee@test.hagerland.invalid', 'member', 'rls-test-hash');
+do $$ begin
+  delete from public.organisation_members where org_id = '00000000-0000-4000-8000-0000000000f2' and user_id = '00000000-0000-4000-8000-000000000001';
+  perform pg_temp.record_check('The last owner cannot be removed', false);
+exception when raise_exception then
+  perform pg_temp.record_check('The last owner cannot be removed', true);
+end $$;
+do $$ begin
+  update public.organisation_members set role = 'admin' where org_id = '00000000-0000-4000-8000-0000000000f2' and user_id = '00000000-0000-4000-8000-000000000001';
+  perform pg_temp.record_check('The last owner cannot be demoted', false);
+exception when raise_exception then
+  perform pg_temp.record_check('The last owner cannot be demoted', true);
+end $$;
+update public.organisation_members set role = 'owner' where org_id = '00000000-0000-4000-8000-0000000000f2' and user_id = '00000000-0000-4000-8000-000000000002';
+update public.organisation_members set role = 'admin' where org_id = '00000000-0000-4000-8000-0000000000f2' and user_id = '00000000-0000-4000-8000-000000000001';
+select pg_temp.record_check('Ownership can move to another member', (select role from public.organisation_members where org_id = '00000000-0000-4000-8000-0000000000f2' and user_id = '00000000-0000-4000-8000-000000000002') = 'owner');
+update public.organisation_members set role = 'member' where org_id = '00000000-0000-4000-8000-0000000000f2' and user_id = '00000000-0000-4000-8000-000000000001';
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000001", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', false);
+select pg_temp.record_check('Plain members do not see invitations', not exists (select 1 from public.org_invitations where org_id = '00000000-0000-4000-8000-0000000000f2'));
+do $$ begin
+  insert into public.org_branches (org_id, name) values ('00000000-0000-4000-8000-0000000000f2', 'RLS TEST branch');
+  perform pg_temp.record_check('Plain members cannot add branches', false);
+exception when insufficient_privilege then
+  perform pg_temp.record_check('Plain members cannot add branches', true);
+end $$;
+do $$ begin
+  insert into public.organisation_members (org_id, user_id, role) values ('00000000-0000-4000-8000-0000000000f2', '00000000-0000-4000-8000-000000000001', 'owner');
+  perform pg_temp.record_check('Users cannot make themselves owners', false);
+exception when insufficient_privilege then
+  perform pg_temp.record_check('Users cannot make themselves owners', true);
+end $$;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000002", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000002', false);
+select pg_temp.record_check('Owners see their invitations', exists (select 1 from public.org_invitations where org_id = '00000000-0000-4000-8000-0000000000f2'));
+do $$ begin
+  perform token_hash from public.org_invitations limit 1;
+  perform pg_temp.record_check('Invitation tokens are never readable', false);
+exception when insufficient_privilege then
+  perform pg_temp.record_check('Invitation tokens are never readable', true);
+end $$;
+insert into public.org_branches (org_id, name, phone) values ('00000000-0000-4000-8000-0000000000f2', 'RLS TEST branch', '+251911000000');
+select pg_temp.record_check('Owners add branches', exists (select 1 from public.org_branches where name = 'RLS TEST branch'));
+reset role;
+set role anon;
+select pg_temp.record_check('Anonymous sees branch names of published organisations', exists (select 1 from public.org_branches_public where name = 'RLS TEST branch'));
+do $$ begin
+  perform phone from public.org_branches_public limit 1;
+  perform pg_temp.record_check('Branch phone numbers are not public', false);
+exception when undefined_column then
+  perform pg_temp.record_check('Branch phone numbers are not public', true);
+end $$;
+select pg_temp.record_check('Anonymous cannot read ' || name, pg_temp.read_denied(name)) from unnest(array['org_invitations', 'org_branches', 'trade_accounts', 'guides', 'build_cost_rates']) as t(name);
+reset role;
+delete from public.organisations where id = '00000000-0000-4000-8000-0000000000f2';
+select pg_temp.record_check('Deleting an organisation removes its members', not exists (select 1 from public.organisation_members where org_id = '00000000-0000-4000-8000-0000000000f2'));
+
+-- ---------- Suspended users are blocked from every write (spec 6.5, 25.4) ----------
+reset role;
+select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);
+update public.profiles set is_suspended = true where id = '00000000-0000-4000-8000-000000000002';
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000002", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000002', false);
+create or replace function pg_temp.write_denied(sql text)
+returns boolean language plpgsql as $$
+begin
+  execute sql;
+  return false;
+exception when insufficient_privilege then
+  return true;
+end $$;
+select pg_temp.record_check('Suspended user cannot ' || label, pg_temp.write_denied(sql)) from (values
+  ('create a listing', $q$insert into public.properties (slug, purpose, property_type, title, description, price_etb, location_id, lister_user_id, contact_phone, status) select 'rls-test-suspended', 'sale', 'apartment', 'RLS TEST suspended', 'Test', 1, id, '00000000-0000-4000-8000-000000000002', '+251911000000', 'draft' from public.locations where path = 'addis-ababa/bole'$q$),
+  ('create an organisation', $q$insert into public.organisations (kind, name, slug, created_by) values ('contractor', 'RLS TEST suspended org', 'rls-test-suspended-org', '00000000-0000-4000-8000-000000000002')$q$),
+  ('save items', $q$insert into public.saved_items (user_id, entity_type, entity_id) values ('00000000-0000-4000-8000-000000000002', 'property', gen_random_uuid())$q$),
+  ('save searches', $q$insert into public.saved_searches (user_id, name, params) values ('00000000-0000-4000-8000-000000000002', 'RLS TEST', '{}')$q$),
+  ('create a candidate profile', $q$insert into public.candidate_profiles (user_id, full_name) values ('00000000-0000-4000-8000-000000000002', 'Suspended')$q$),
+  ('keep a quote list', $q$insert into public.quote_lists (user_id, items) values ('00000000-0000-4000-8000-000000000002', '[]')$q$)
+) as t(label, sql);
+reset role;
+update public.profiles set is_suspended = false where id = '00000000-0000-4000-8000-000000000002';
+
+-- ---------- Every new table has row level security; views are read-only (spec 25.4) ----------
+reset role;
+select pg_temp.record_check('Every table created by the relaunch has row level security switched on',
+  not exists (
+    select 1 from pg_class c join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = 'public' and c.relkind = 'r' and not c.relrowsecurity
+      -- Legacy tables of the old site (Section 20) are handled by the legacy lockdown migration.
+      and c.relname not in ('import_log', 'rate_limits', 'companies', 'jobs_legacy', 'housing', 'money', 'cars', 'tutors', 'community', 'events', 'delivery', 'made_in_ethiopia', 'business_claims', 'listing_enquiries', 'admin_audit', 'countries')
+  ));
+select pg_temp.record_check('No public view can be written by visitors or signed-in users',
+  not exists (
+    select 1 from pg_class c join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = 'public' and c.relkind = 'v'
+      and (has_table_privilege('anon', c.oid, 'INSERT') or has_table_privilege('anon', c.oid, 'UPDATE') or has_table_privilege('anon', c.oid, 'DELETE')
+        or has_table_privilege('authenticated', c.oid, 'INSERT') or has_table_privilege('authenticated', c.oid, 'UPDATE') or has_table_privilege('authenticated', c.oid, 'DELETE'))
+  ));
+
 -- Tables only the server (service role) may touch: anonymous and signed-in users are refused.
-select set_config('hl.private_tables', 'schema_migrations,verticals,interest_registrations,partner_applications,exchange_rates,deals,property_care_requests,managed_properties,property_inspections,rent_statements,maintenance_log', false);
+select set_config('hl.private_tables', 'schema_migrations,verticals,interest_registrations,partner_applications,exchange_rates,deals,property_care_requests,managed_properties,property_inspections,rent_statements,maintenance_log,build_cost_rates', false);
 
 set role anon;
 select pg_temp.record_check('Anonymous cannot read ' || name, pg_temp.read_denied(name)) from unnest(string_to_array(current_setting('hl.private_tables'), ',')) as t(name);

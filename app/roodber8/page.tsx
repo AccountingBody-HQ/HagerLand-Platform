@@ -11,7 +11,7 @@ function Kpi({ label, value, href, tone }: { label: string; value: number; href?
   const body = (
     <>
       <p className="text-small text-muted">{label}</p>
-      <p className={`mt-1 font-display text-h2 font-bold tabular-nums ${tone === 'alert' && value > 0 ? 'text-warning' : 'text-ink'}`}>{formatNumber(value)}</p>
+      <p className={`mt-1 font-display text-h2 font-bold tabular-nums ${tone === 'alert' && value > 0 ? 'text-warning-dark' : 'text-ink'}`}>{formatNumber(value)}</p>
     </>
   )
   return href ? (

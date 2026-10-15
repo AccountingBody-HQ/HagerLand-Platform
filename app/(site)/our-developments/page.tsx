@@ -35,7 +35,7 @@ const STEPS = [
 /** Current, coming-soon and completed projects (Vision §11). */
 const GROUPS: { title: string; match: (c: string | null) => boolean }[] = [
   { title: 'Current projects', match: (c) => c === 'under_construction' || c === null },
-  { title: 'Coming soon', match: (c) => c === 'off_plan' },
+  { title: 'Upcoming projects', match: (c) => c === 'off_plan' },
   { title: 'Completed', match: (c) => c === 'ready' },
 ]
 

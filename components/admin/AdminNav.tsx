@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import {
-  BadgePercent, BarChart3, BookOpen, Calculator, Briefcase, Building2, LayoutGrid, Handshake, UserPlus, Coins, Wrench, ListChecks, Receipt, KeyRound, ClipboardCheck, ClipboardList, FileClock, FolderTree, Gauge, Import, Inbox, MapPin, Megaphone, Menu, Package, Settings, Store, Users, X, HandCoins, House,
+  BadgePercent, BarChart3, MailWarning, BookOpen, Calculator, Briefcase, Building2, LayoutGrid, Handshake, UserPlus, Coins, Wrench, ListChecks, Receipt, KeyRound, ClipboardCheck, ClipboardList, FileClock, FolderTree, Gauge, Import, Inbox, MapPin, Megaphone, Menu, Package, Settings, Store, Users, X, HandCoins, House,
 } from 'lucide-react'
 import { cn } from '@/lib/cn'
 
@@ -37,6 +37,7 @@ export const ADMIN_NAV = [
   { href: '/roodber8/import', label: 'Imports', icon: Import },
   { href: '/roodber8/reports', label: 'Reports', icon: BarChart3 },
   { href: '/roodber8/settings', label: 'Settings', icon: Settings },
+  { href: '/roodber8/email-problems', label: 'Email problems', icon: MailWarning, badgeKey: 'email' },
   { href: '/roodber8/audit', label: 'Audit log', icon: FileClock },
 ] as const
 

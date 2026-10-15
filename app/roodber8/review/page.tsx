@@ -119,7 +119,7 @@ export default async function ReviewPage({ searchParams }: { searchParams: { tab
                       <Link href={`/roodber8/properties/${r.id}`} className="font-semibold text-ink hover:underline">
                         {r.title}
                       </Link>
-                      {d && <span className="rounded-full bg-warning/15 px-2 py-0.5 text-caption font-semibold text-warning">Possible duplicate of “{d.title}”</span>}
+                      {d && <span className="rounded-full bg-warning/15 px-2 py-0.5 text-caption font-semibold text-warning-dark">Possible duplicate of “{d.title}”</span>}
                     </div>
                     <KeyValue
                       items={[
@@ -373,7 +373,7 @@ export default async function ReviewPage({ searchParams }: { searchParams: { tab
   }
 
   if (tab === 'jobs') {
-    const { data } = await db.from('jobs').select('id, title, category, employment_type, description, requirements, salary_min_minor, salary_max_minor, salary_period, currency, closing_date, employer_org_id, location_id, updated_at').eq('status', 'pending_review').order('updated_at').limit(100)
+    const { data } = await db.from('job_posts').select('id, title, category, employment_type, description, requirements, salary_min_minor, salary_max_minor, salary_period, currency, closing_date, employer_org_id, location_id, updated_at').eq('status', 'pending_review').order('updated_at').limit(100)
     const rows = data ?? []
     const [{ data: orgs }, { data: locs }] = await Promise.all([
       db.from('organisations').select('id, name, status, verification_level').in('id', rows.map((r) => r.employer_org_id)),

@@ -1,6 +1,7 @@
 import 'server-only'
 import { Resend } from 'resend'
 import { log, maskEmail } from '@/lib/log'
+import { getAdminSupabase } from '@/lib/supabase/admin'
 
 export interface EmailMessage {
   to: string | string[]
@@ -37,11 +38,13 @@ async function sendToTestMailbox(base: string, msg: EmailMessage, recipients: st
   return res.ok
 }
 
-/** Sends an email through Resend. Never throws: failures are logged and reported as false. */
-export async function sendEmail(msg: EmailMessage): Promise<boolean> {
+type Delivery = { ok: true } | { ok: false; error: string; configured: boolean }
+
+/** One attempt to deliver through Resend (or the local test mailbox). Never throws. */
+export async function deliverEmail(msg: EmailMessage): Promise<Delivery> {
   const key = process.env.RESEND_API_KEY
   const recipients = (Array.isArray(msg.to) ? msg.to : [msg.to]).filter(Boolean)
-  if (recipients.length === 0) return false
+  if (recipients.length === 0) return { ok: false, error: 'no recipients', configured: false }
   const from =
     msg.from === 'supply'
       ? process.env.EMAIL_FROM_SUPPLY ?? process.env.EMAIL_FROM ?? 'HagerLand Supply <supply@hagerland.com>'
@@ -49,15 +52,15 @@ export async function sendEmail(msg: EmailMessage): Promise<boolean> {
   const testMailbox = process.env.EMAIL_TEST_MAILPIT_URL
   if (testMailbox) {
     try {
-      return await sendToTestMailbox(testMailbox, msg, recipients, from)
+      return (await sendToTestMailbox(testMailbox, msg, recipients, from)) ? { ok: true } : { ok: false, error: 'test mailbox refused the message', configured: true }
     } catch (err) {
       log.error('email', 'test mailbox send failed', err)
-      return false
+      return { ok: false, error: 'test mailbox unreachable', configured: true }
     }
   }
   if (!key) {
     log.warn('email', 'RESEND_API_KEY not set; email not sent', { subject: msg.subject })
-    return false
+    return { ok: false, error: 'email is not configured', configured: false }
   }
   if (!resend) resend = new Resend(key)
   try {
@@ -72,11 +75,29 @@ export async function sendEmail(msg: EmailMessage): Promise<boolean> {
     })
     if (error) {
       log.error('email', 'send failed', error, { subject: msg.subject, to: recipients.map(maskEmail) })
-      return false
+      return { ok: false, error: error.message?.slice(0, 500) ?? 'send failed', configured: true }
     }
-    return true
+    return { ok: true }
   } catch (err) {
     log.error('email', 'send threw', err, { subject: msg.subject })
-    return false
+    return { ok: false, error: err instanceof Error ? err.message.slice(0, 500) : 'send threw', configured: true }
   }
+}
+
+/**
+ * Sends an email. Never throws and never blocks the caller (spec 25.4): if delivery fails, the message is
+ * kept in the email outbox, shown to HagerLand in admin and retried by the daily job.
+ */
+export async function sendEmail(msg: EmailMessage): Promise<boolean> {
+  const result = await deliverEmail(msg)
+  if (result.ok) return true
+  if (result.configured) {
+    const to = (Array.isArray(msg.to) ? msg.to : [msg.to]).filter(Boolean)
+    try {
+      await getAdminSupabase().from('email_outbox').insert({ to_addresses: to, subject: msg.subject.slice(0, 300), html: msg.html, text_body: msg.text, reply_to: msg.replyTo ?? null, sender: msg.from ?? 'default', headers: msg.headers ?? {}, last_error: result.error.slice(0, 500) })
+    } catch (err) {
+      log.error('email', 'could not queue a failed email', err, { subject: msg.subject })
+    }
+  }
+  return false
 }

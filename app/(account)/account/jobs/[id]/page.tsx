@@ -26,7 +26,7 @@ export default async function EmployerJobPage({ params, searchParams }: { params
   if ((await getVertical('jobs'))?.status !== 'live') return <JobsNotLive />
   if (!/^[0-9a-f-]{36}$/.test(params.id)) notFound()
   const supabase = getServerSupabase()
-  const { data: job } = await supabase.from('jobs').select('*').eq('id', params.id).maybeSingle()
+  const { data: job } = await supabase.from('job_posts').select('*').eq('id', params.id).maybeSingle()
   if (!job) notFound()
   const [{ data: apps }, loc] = await Promise.all([
     supabase.from('job_applications').select('id, reference, name, email, phone, cover_note, cv_path, status, employer_notes, created_at').eq('job_id', job.id).order('created_at', { ascending: false }),

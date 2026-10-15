@@ -70,7 +70,7 @@ test('switched live: an employer posts a job, HagerLand approves it, a candidate
   await emp.getByLabel('Description').fill('Supervise reinforced concrete works on a G+12 residential building in Bole.')
   await emp.getByRole('button', { name: 'Submit for review' }).click()
   await expect(emp.getByText('Sent to HagerLand for review')).toBeVisible()
-  const { data: job } = await db().from('jobs').select('id, slug, status, currency').eq('title', title).single()
+  const { data: job } = await db().from('job_posts').select('id, slug, status, currency').eq('title', title).single()
   expect(job).toMatchObject({ status: 'pending_review', currency: 'ETB' })
 
   // Not public before approval.
@@ -82,7 +82,7 @@ test('switched live: an employer posts a job, HagerLand approves it, a candidate
   await expect(page.getByText(title)).toBeVisible()
   await page.goto(`/roodber8/jobs/${job!.id}`)
   await page.getByRole('button', { name: 'Approve' }).click()
-  await expect.poll(async () => (await db().from('jobs').select('status').eq('id', job!.id).single()).data?.status).toBe('published')
+  await expect.poll(async () => (await db().from('job_posts').select('status').eq('id', job!.id).single()).data?.status).toBe('published')
   await mailWithSubject(employer.user.email, `Your job is live: ${title}`)
 
   // Public board, filters and JobPosting structured data.
@@ -152,7 +152,7 @@ test('switched live: an employer posts a job, HagerLand approves it, a candidate
   await expect(emp.getByText(`Civil engineer, 6 years on high-rise projects ${stamp}`)).toBeVisible()
   await expect(emp.locator('main')).not.toContainText(candidate.email)
 
-  await db().from('jobs').delete().eq('id', job!.id)
+  await db().from('job_posts').delete().eq('id', job!.id)
   await db().from('candidate_profiles').delete().eq('user_id', candidate.id)
   await db().from('organisations').delete().eq('id', employer.orgId)
 })
@@ -170,11 +170,11 @@ test('staffing requirements go through the request engine, and the daily job clo
   const applicant = await createUser()
   const { data: loc } = await db().from('locations').select('id').eq('path', 'addis-ababa').single()
   const { data: job } = await db()
-    .from('jobs')
+    .from('job_posts')
     .insert({ slug: `e2e-old-job-${Date.now()}`, employer_org_id: employer.orgId, title: 'E2E Old job', category: 'construction', employment_type: 'contract', location_id: loc!.id, description: 'A job that closed a while ago, for the daily job test.', status: 'published' })
     .select('id')
     .single()
-  await db().from('jobs').update({ expires_at: new Date(Date.now() - 86_400_000).toISOString() }).eq('id', job!.id)
+  await db().from('job_posts').update({ expires_at: new Date(Date.now() - 86_400_000).toISOString() }).eq('id', job!.id)
   const cvPath = `docs/cv/${applicant.id}/old.pdf`
   await db().storage.from('private-docs').upload(cvPath, PDF, { contentType: 'application/pdf' })
   const { data: app } = await db()
@@ -185,7 +185,7 @@ test('staffing requirements go through the request engine, and the daily job clo
   const res = await (await request.get('/api/cron/daily', { headers: { authorization: `Bearer ${process.env.CRON_SECRET}` } })).json()
   expect(res.jobsExpired).toBeGreaterThanOrEqual(1)
   expect(res.cvsPurged).toBeGreaterThanOrEqual(1)
-  expect((await db().from('jobs').select('status').eq('id', job!.id).single()).data?.status).toBe('expired')
+  expect((await db().from('job_posts').select('status').eq('id', job!.id).single()).data?.status).toBe('expired')
   const { data: after } = await db().from('job_applications').select('cv_path, cv_purged_at').eq('id', app!.id).single()
   expect(after).toMatchObject({ cv_path: null })
   expect(after?.cv_purged_at).not.toBeNull()

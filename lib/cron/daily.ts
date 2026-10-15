@@ -2,6 +2,7 @@ import 'server-only'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { PRIVATE_BUCKET } from '@/lib/media'
 import { sendEmail } from '@/lib/email/send'
+import { retryOutbox } from '@/lib/email/outbox'
 import { adminDigestEmail, listingExpiredEmail, listingExpiringEmail, providerReminderEmail } from '@/lib/email/templates'
 import { orgManagerEmails } from '@/lib/enquiries'
 import { MATCH_REMINDER_HOURS } from '@/lib/service-requests/labels'
@@ -29,6 +30,8 @@ export interface DailySummary {
   searchAlerts: number
   jobsExpired: number
   cvsPurged: number
+  emailsRetried: number
+  interestPurged: number
   digestSent: boolean
 }
 
@@ -120,7 +123,7 @@ async function purgeVerificationDocs(now: number): Promise<number> {
 
 /** Open jobs close on their closing date (or 60 days after approval). */
 async function expireJobs(now: number): Promise<number> {
-  const { data } = await getAdminSupabase().from('jobs').update({ status: 'expired' }).eq('status', 'published').lt('expires_at', iso(now)).select('id').limit(BATCH)
+  const { data } = await getAdminSupabase().from('job_posts').update({ status: 'expired' }).eq('status', 'published').lt('expires_at', iso(now)).select('id').limit(BATCH)
   for (const j of data ?? []) revalidateEntity('job', j.id)
   return data?.length ?? 0
 }
@@ -150,6 +153,12 @@ async function purgeApplicationCvs(now: number): Promise<number> {
   return purged
 }
 
+/** Interest registrations are kept 24 months (privacy policy), then deleted. */
+async function purgeInterest(now: number): Promise<number> {
+  const { data } = await getAdminSupabase().from('interest_registrations').delete().lt('created_at', iso(now - 730 * DAY)).select('id')
+  return data?.length ?? 0
+}
+
 async function purgeReveals(now: number): Promise<number> {
   const { data } = await getAdminSupabase().from('contact_reveals').delete().lt('created_at', iso(now - 365 * DAY)).select('id')
   return data?.length ?? 0
@@ -160,7 +169,7 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
   const db = getAdminSupabase()
   const head = { count: 'exact' as const, head: true }
   const since = iso(now - DAY)
-  const [pProps, pDevs, pOrgs, pPortfolio, claims, verifs, reports, enq, enqUnanswered, quotes, quotesOpen, signups, expiring, errors, interest, partners, srNew, srEmergency, srToMatch, srUnanswered, srAllDeclined, careNew, pJobs, pUpdates, applications, tradePending] = await Promise.all([
+  const [pProps, pDevs, pOrgs, pPortfolio, claims, verifs, reports, enq, enqUnanswered, quotes, quotesOpen, signups, expiring, errors, interest, partners, srNew, srEmergency, srToMatch, srUnanswered, srAllDeclined, careNew, pJobs, pUpdates, applications, tradePending, emailProblems] = await Promise.all([
     db.from('properties').select('id', head).eq('status', 'pending_review'),
     db.from('developments').select('id', head).eq('status', 'pending_review'),
     db.from('organisations').select('id', head).eq('status', 'pending_review'),
@@ -183,10 +192,11 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
     db.from('service_request_matches').select('id', head).eq('status', 'offered').lt('offered_at', iso(now - MATCH_REMINDER_HOURS * 3_600_000)),
     db.from('service_requests').select('id', head).eq('status', 'triaged').not('admin_alerted_at', 'is', null),
     db.from('property_care_requests').select('id', head).eq('status', 'new'),
-    db.from('jobs').select('id', head).eq('status', 'pending_review'),
+    db.from('job_posts').select('id', head).eq('status', 'pending_review'),
     db.from('development_updates').select('id', head).eq('status', 'pending_review'),
     db.from('job_applications').select('id', head).gte('created_at', since),
     db.from('trade_accounts').select('id', head).eq('status', 'pending'),
+    db.from('email_outbox').select('id', head).in('status', ['failed', 'gave_up']),
   ])
   const n = (r: { count: number | null }) => r.count ?? 0
   const lines: [string, string][] = []
@@ -215,6 +225,7 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
   add('Partner applications to review', n(partners))
   add('New job applications (24 h)', n(applications))
   add('Trade account applications to decide', n(tradePending))
+  add('Emails not yet delivered (see admin → Email problems)', n(emailProblems))
   add('Listings expiring within 7 days', n(expiring))
   add('Listings expired today', s.expired)
   add('Quotes expired today', s.quotesExpired)
@@ -243,9 +254,11 @@ export async function runDaily(now = Date.now()): Promise<DailySummary> {
   const revealsPurged = await step('reveals purge', () => purgeReveals(now), 0)
   const jobsExpired = await step('expire jobs', () => expireJobs(now), 0)
   const cvsPurged = await step('cv purge', () => purgeApplicationCvs(now), 0)
+  const interestPurged = await step('interest purge', () => purgeInterest(now), 0)
+  const emailsRetried = await step('email retries', async () => (await retryOutbox(now)).sent, 0)
   // rate_limits is a pre-existing (legacy) table: expired counters are only deleted when AB switches this on.
   const rateLimitsPurged = process.env.CRON_PURGE_RATE_LIMITS === 'true' ? await step('rate limit purge', async () => (await purgeExpiredRateLimits(7), true), false) : false
-  const summary = { expired, expiredEmailed: emailed, reminded, quotesExpired, verificationDocsPurged, revealsPurged, rateLimitsPurged, matchReminders, searchAlerts, jobsExpired, cvsPurged }
+  const summary = { expired, expiredEmailed: emailed, reminded, quotesExpired, verificationDocsPurged, revealsPurged, rateLimitsPurged, matchReminders, searchAlerts, jobsExpired, cvsPurged, emailsRetried, interestPurged }
   let digestSent = false
   const to = process.env.ADMIN_DIGEST_EMAIL
   if (to) {

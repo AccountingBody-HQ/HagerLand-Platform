@@ -58,12 +58,18 @@ Every day at 06:00 UTC Vercel calls `/api/cron/daily` (set in `vercel.json`, pro
 - emails owners once, 7 days before their listing expires;
 - marks quotes as expired 14 days after they were issued;
 - switches "featured" badges on and off as promotions start and end;
-- deletes verification documents 90 days after the decision, and contact-reveal records older than 12 months;
-- emails you a digest at `ADMIN_DIGEST_EMAIL`, only when there is something to look at (reviews waiting, new leads, unanswered enquiries, errors).
+- reminds providers once when they have not answered a service request within 48 hours;
+- sends daily and weekly saved-search alerts (instant alerts go out when a listing is approved);
+- closes jobs past their closing date;
+- retries emails that failed to send (up to five times; see admin → **Email problems**);
+- deletes verification documents 90 days after the decision, contact-reveal records older than 12 months, CVs sent with job applications after 12 months, and interest registrations after 24 months;
+- emails you a digest at `ADMIN_DIGEST_EMAIL`, only when there is something to look at (reviews waiting, new leads and requests, emergencies, unanswered enquiries, emails waiting to be resent, errors).
 
 To check it ran: Vercel → Project → **Logs**, filter by `/api/cron/daily`, or Vercel → **Settings → Cron Jobs**.
 
 The pre-existing `rate_limits` table is not cleaned unless you set `CRON_PURGE_RATE_LIMITS=true` in Vercel. It only holds short-lived counters, so switching it on after launch is safe.
+
+Health checks: `/api/health` answers `ok` for anyone (use it for an uptime monitor). `/api/health/full` with the header `Authorization: Bearer <CRON_SECRET>` answers true/false for each setting, the database, every migration, the storage buckets and the email domain.
 
 ## 5. Errors
 
@@ -73,6 +79,8 @@ Server errors are written to Vercel's logs and counted in the `errors` table (on
 
 - Address: `/roodber8`. Sign-in needs the username, password and a 6-digit code from your authenticator app. Five wrong attempts lock that connection for 15 minutes.
 - Every admin action is recorded in **Audit log**.
+- **Verticals** switches each part of HagerLand between Live, Coming soon and Hidden. Pages follow within about a minute. Service lists are cached for up to an hour, so after a migration that adds services, new ones can take up to an hour to appear.
+- **Settings → Amharic (አማርኛ)** switches the `/am` version on or off (off until a native speaker has reviewed the translation in `lib/i18n/messages/am.ts`).
 - Business details shown on the website (phone, email, address, social links, legal name, delivery area, quote reply time, "why buy" points, announcement bar, homepage picks) are edited in **Settings**. Anything left empty is hidden from visitors.
 
 ## 7. Testing changes safely (for developers)

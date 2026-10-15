@@ -12,8 +12,8 @@ export const revalidate = 120
 export async function generateMetadata() {
   const items = await getSpecialBuys(1)
   return buildMetadata({
-    title: 'Special Buys: surplus and clearance building supplies',
-    description: `Limited surplus and clearance offers on building materials from ${brand.divisions.supply} and approved suppliers, while stocks last.`,
+    title: 'Special Buys: surplus and clearance supplies',
+    description: `Limited surplus and clearance offers on building materials from ${brand.divisions.supply} and approved suppliers, at reduced prices while stocks last.`,
     path: '/supplies/special-buys',
     noindex: items.length === 0,
   })

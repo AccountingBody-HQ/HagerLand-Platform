@@ -518,3 +518,18 @@ export function tradeDecisionEmail(p: { name: string; approved: boolean; note?: 
     reason: TRADE_REASON,
   })
 }
+
+export function teamInvitationEmail(p: { orgName: string; inviterName: string; role: string; link: string }): RenderedEmail {
+  return renderEmail({
+    subject: `You're invited to join ${p.orgName} on HagerLand`,
+    preheader: `${p.inviterName} invited you to manage ${p.orgName} on HagerLand.`,
+    heading: `Join ${p.orgName} on HagerLand`,
+    paragraphs: [
+      'Hello,',
+      `${p.inviterName} has invited you to join ${p.orgName} on HagerLand as ${p.role === 'admin' ? 'an admin' : 'a team member'}.`,
+      'Open the link below and sign in, or create a free account, with this email address. The link works for 7 days.',
+    ],
+    button: { label: 'Accept the invitation', href: p.link },
+    reason: 'You are receiving this because a HagerLand business invited this email address to its team. If you were not expecting it, you can ignore this email.',
+  })
+}

@@ -1,10 +1,11 @@
 -- 0019 · Jobs & Recruitment (spec 24.9) and development progress updates (spec 25.2j). Additive only.
 -- The jobs vertical starts "coming soon": nothing here is public until AB switches it live.
+-- The table is called job_posts because the live database still holds the old site's legacy table "jobs", which stays untouched.
 
 -- ---------------------------------------------------------------------------
 -- Jobs
 -- ---------------------------------------------------------------------------
-create table public.jobs (
+create table public.job_posts (
   id uuid primary key default gen_random_uuid(),
   short_id text not null unique default public.gen_short_id(),
   slug text not null unique,
@@ -37,12 +38,12 @@ create table public.jobs (
   updated_at timestamptz not null default now(),
   constraint jobs_salary_range check (salary_min_minor is null or salary_max_minor is null or salary_max_minor >= salary_min_minor)
 );
-create index jobs_status_idx on public.jobs (status, published_at desc);
-create index jobs_employer_idx on public.jobs (employer_org_id);
-create index jobs_location_idx on public.jobs (location_id);
-create index jobs_country_idx on public.jobs (country_code);
-create index jobs_search_idx on public.jobs using gin (search_tsv);
-create trigger set_updated_at before update on public.jobs for each row execute function public.set_updated_at();
+create index job_posts_status_idx on public.job_posts (status, published_at desc);
+create index job_posts_employer_idx on public.job_posts (employer_org_id);
+create index job_posts_location_idx on public.job_posts (location_id);
+create index job_posts_country_idx on public.job_posts (country_code);
+create index job_posts_search_idx on public.job_posts using gin (search_tsv);
+create trigger set_updated_at before update on public.job_posts for each row execute function public.set_updated_at();
 
 -- Country and currency follow the job's location; publishing sets the expiry (closing date, else 60 days).
 create function public.jobs_before_write()
@@ -64,8 +65,8 @@ begin
   return new;
 end
 $$;
-create trigger jobs_before_write before insert or update on public.jobs for each row execute function public.jobs_before_write();
-create trigger protect_privileged_columns before insert or update on public.jobs
+create trigger jobs_before_write before insert or update on public.job_posts for each row execute function public.jobs_before_write();
+create trigger protect_privileged_columns before insert or update on public.job_posts
   for each row execute function public.protect_privileged_columns(
     '["published_at","expires_at","rejection_reason","views_count","applications_count","short_id","employer_org_id","created_by"]',
     '{"published_at":null,"expires_at":null,"rejection_reason":null,"views_count":0,"applications_count":0}',
@@ -76,7 +77,7 @@ select j.id, j.short_id, j.slug, j.employer_org_id, o.name as employer_name, o.s
        o.verification_level as employer_verification, j.title, j.category, j.employment_type, j.location_id, l.display_name as location_display,
        j.country_code, j.currency, j.salary_min_minor, j.salary_max_minor, j.salary_period, j.description, j.requirements, j.closing_date,
        j.published_at, j.expires_at, j.updated_at, j.search_tsv
-from public.jobs j
+from public.job_posts j
 join public.organisations o on o.id = j.employer_org_id and o.status = 'published'
 left join public.locations l on l.id = j.location_id
 where j.status = 'published' and (j.expires_at is null or j.expires_at > now());
@@ -89,7 +90,7 @@ comment on view public.jobs_public is
 create table public.job_applications (
   id uuid primary key default gen_random_uuid(),
   reference text not null unique default public.next_reference('HLA'),
-  job_id uuid not null references public.jobs (id) on delete cascade,
+  job_id uuid not null references public.job_posts (id) on delete cascade,
   applicant_user_id uuid not null references auth.users (id) on delete cascade,
   name text not null check (char_length(name) between 2 and 120),
   email text not null check (char_length(email) <= 254),
@@ -169,17 +170,17 @@ on conflict (slug) do nothing;
 -- ---------------------------------------------------------------------------
 -- Row Level Security
 -- ---------------------------------------------------------------------------
-alter table public.jobs enable row level security;
+alter table public.job_posts enable row level security;
 alter table public.job_applications enable row level security;
 alter table public.candidate_profiles enable row level security;
 alter table public.development_updates enable row level security;
-revoke all on table public.jobs, public.job_applications, public.candidate_profiles, public.development_updates from public, anon, authenticated;
+revoke all on table public.job_posts, public.job_applications, public.candidate_profiles, public.development_updates from public, anon, authenticated;
 
 -- Employers (members of the posting organisation) manage their jobs; nobody deletes (archive instead).
-grant select, insert, update on public.jobs to authenticated;
-create policy "Members read their organisation's jobs" on public.jobs for select to authenticated using (public.is_org_member(employer_org_id));
-create policy "Members post jobs" on public.jobs for insert to authenticated with check (public.is_active_user() and public.is_org_member(employer_org_id));
-create policy "Members edit their organisation's jobs" on public.jobs for update to authenticated using (public.is_org_member(employer_org_id)) with check (public.is_active_user() and public.is_org_member(employer_org_id));
+grant select, insert, update on public.job_posts to authenticated;
+create policy "Members read their organisation's jobs" on public.job_posts for select to authenticated using (public.is_org_member(employer_org_id));
+create policy "Members post jobs" on public.job_posts for insert to authenticated with check (public.is_active_user() and public.is_org_member(employer_org_id));
+create policy "Members edit their organisation's jobs" on public.job_posts for update to authenticated using (public.is_org_member(employer_org_id)) with check (public.is_active_user() and public.is_org_member(employer_org_id));
 
 -- Applicants read their own applications; employers read applications to their jobs and set status and notes.
 -- Inserts happen on the server after checks (CV ownership, the job is open).
@@ -187,11 +188,11 @@ grant select on public.job_applications to authenticated;
 grant update (status, employer_notes) on public.job_applications to authenticated;
 create policy "Applicants read own applications" on public.job_applications for select to authenticated using (applicant_user_id = auth.uid());
 create policy "Employers read applications to their jobs" on public.job_applications for select to authenticated using (
-  exists (select 1 from public.jobs j where j.id = job_id and public.is_org_member(j.employer_org_id))
+  exists (select 1 from public.job_posts j where j.id = job_id and public.is_org_member(j.employer_org_id))
 );
 create policy "Employers update applications to their jobs" on public.job_applications for update to authenticated
-  using (exists (select 1 from public.jobs j where j.id = job_id and public.is_org_member(j.employer_org_id)))
-  with check (public.is_active_user() and exists (select 1 from public.jobs j where j.id = job_id and public.is_org_member(j.employer_org_id)));
+  using (exists (select 1 from public.job_posts j where j.id = job_id and public.is_org_member(j.employer_org_id)))
+  with check (public.is_active_user() and exists (select 1 from public.job_posts j where j.id = job_id and public.is_org_member(j.employer_org_id)));
 
 -- Candidates own their profile; it is private unless they choose "visible to employers".
 grant select, insert, update, delete on public.candidate_profiles to authenticated;

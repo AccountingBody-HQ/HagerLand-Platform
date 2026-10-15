@@ -8,7 +8,7 @@ import { PageHero } from '@/components/content/PageHero'
 
 export const metadata = buildMetadata({
   title: 'How HagerLand works',
-  description: 'How to find property, list a property, or grow a business on HagerLand. What our verification levels mean and the rules that keep the marketplace fair.',
+  description: 'How to find property, get quotes for work, list a property or grow a business on HagerLand, what verification means and the rules that keep it fair.',
   path: '/how-it-works',
 })
 
@@ -34,7 +34,7 @@ function Steps({ steps, cta }: { steps: { title: string; text: string }[]; cta: 
 export default function HowItWorksPage() {
   return (
     <>
-      <PageHero crumb="How it works" title="How HagerLand works" intro="Whether you are looking, listing or running a business, here is what to expect." />
+      <PageHero crumb="How it works" title="How HagerLand works" intro="Whether you are looking, getting quotes, listing or running a business, here is what to expect." />
       <Section>
         <Tabs
           items={[
@@ -49,6 +49,21 @@ export default function HowItWorksPage() {
                     { title: 'Compare', text: 'Look at photos, key facts, documents status and the lister’s verification level.' },
                     { title: 'Contact directly', text: 'Call, WhatsApp, Telegram or send an enquiry. Your message goes straight to the lister.' },
                     { title: 'View safely', text: 'View the property and check the title deed (carta) and lease documents before you pay anything.' },
+                  ]}
+                />
+              ),
+            },
+            {
+              id: 'services',
+              label: 'Getting quotes',
+              content: (
+                <Steps
+                  cta={{ label: 'Request a service', href: '/request-service' }}
+                  steps={[
+                    { title: 'Describe the job', text: 'Choose the service, answer a few questions and add photos or plans. You do not need an account.' },
+                    { title: 'We match it', text: 'HagerLand sends your request to up to three suitable providers who work where you need them. Emergencies are looked at first.' },
+                    { title: 'Compare quotes', text: 'Providers contact you and send their quotes to your private request page.' },
+                    { title: 'Choose and agree', text: 'Pick the provider you prefer. Agree the work, price and timing in writing before you pay anything.' },
                   ]}
                 />
               ),
@@ -79,7 +94,7 @@ export default function HowItWorksPage() {
                     { title: 'Create a profile', text: 'Add your services, the areas you cover and how customers can reach you.' },
                     { title: 'Get Verified', text: 'Upload your trade licence and TIN certificate. We check them and add the Verified badge.' },
                     { title: 'Show your work', text: 'Add portfolio projects with photos. Real work wins more enquiries than words.' },
-                    { title: 'Receive enquiries', text: 'Customers contact you directly. Manage every lead from your account.' },
+                    { title: 'Receive enquiries and requests', text: 'Customers contact you directly, and HagerLand sends you matching customer requests to quote for. Manage everything from your account, with your team.' },
                   ]}
                 />
               ),

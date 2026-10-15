@@ -12,6 +12,8 @@ import { shortId, slugify } from '@/lib/slug'
 import { revalidateEntity } from '@/lib/revalidate'
 import { log } from '@/lib/log'
 import { isEthiopianLocation, NOT_IN_ETHIOPIA } from '@/lib/data/reference'
+import { STALE_EDIT, isStaleEdit } from '@/lib/concurrency'
+import { withUniqueRetry } from '@/lib/unique-retry'
 
 type DevUpdate = Database['public']['Tables']['developments']['Update']
 
@@ -49,15 +51,18 @@ export async function saveDevelopmentAction(_prev: DevelopmentState, formData: F
   if (!parsed.success) return invalid(parsed.error)
   if (!(await isEthiopianLocation(parsed.data.location_id))) return fail(NOT_IN_ETHIOPIA, { location_id: 'Choose a place in Ethiopia' })
   const d = parsed.data
+  if (d.id && (await isStaleEdit('developments', d.id, formData.get('expected_updated_at')))) return fail(STALE_EDIT)
   if (d.brochure_path && !d.brochure_path.startsWith(`docs/brochure/`)) return fail('Please upload the brochure again.')
   const supabase = getServerSupabase()
 
   if (!d.id) {
-    const { data, error } = await supabase
+    const { data, error } = await withUniqueRetry(() =>
+      supabase
       .from('developments')
       .insert({ ...columns(d), name: d.name, slug: `${slugify(d.name, 60)}-${shortId(4)}`, developer_org_id: active.org.id, created_by: user.id, status: 'draft' })
       .select('id')
-      .single()
+      .single(),
+    )
     if (error || !data) {
       log.error('development', 'create failed', error)
       return fail('We could not save the development. Please try again.')

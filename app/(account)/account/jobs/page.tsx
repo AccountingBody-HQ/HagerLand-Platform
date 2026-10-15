@@ -21,7 +21,7 @@ export default async function MyJobsPage() {
   const active = await getActiveMembership()
   if (!active)
     return <EmptyState icon={<Briefcase />} title="Jobs are posted by organisations" description="Create your business profile first. Once it is approved, you can post jobs." actions={<ButtonLink href="/onboarding?business=1">Create a business profile</ButtonLink>} />
-  const { data } = await getServerSupabase().from('jobs').select('id, title, status, employment_type, applications_count, expires_at, updated_at').eq('employer_org_id', active.org.id).neq('status', 'archived').order('updated_at', { ascending: false })
+  const { data } = await getServerSupabase().from('job_posts').select('id, title, status, employment_type, applications_count, expires_at, updated_at').eq('employer_org_id', active.org.id).neq('status', 'archived').order('updated_at', { ascending: false })
   const rows = data ?? []
   return (
     <div>

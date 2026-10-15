@@ -22,7 +22,7 @@ const CARDS: Record<SignupIntent, { title: string; description: string; icon: Re
   supplier: { title: "I'm a supplier, merchant or manufacturer", description: 'Reach builders and buyers', icon: <Briefcase /> },
 }
 
-export function SignupFlow({ initialIntent }: { initialIntent: SignupIntent | null }) {
+export function SignupFlow({ initialIntent, next }: { initialIntent: SignupIntent | null; next?: string }) {
   const [intent, setIntent] = useState<SignupIntent | null>(initialIntent)
   const [state, action] = useFormState(signUpAction, null)
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
@@ -81,6 +81,7 @@ export function SignupFlow({ initialIntent }: { initialIntent: SignupIntent | nu
         <ArrowLeft className="size-4" aria-hidden /> {CARDS[intent].title}
       </button>
       <input type="hidden" name="intent" value={intent} />
+      {next && <input type="hidden" name="next" value={next} />}
       <Honeypot />
       {state && !state.ok && <FormAlert>{state.error}</FormAlert>}
       <Field label="Full name" htmlFor="su-name" error={errors.full_name} required>

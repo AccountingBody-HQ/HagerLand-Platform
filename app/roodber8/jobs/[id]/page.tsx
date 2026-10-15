@@ -19,7 +19,7 @@ export default async function AdminJobPage({ params }: { params: { id: string } 
   requireAdminPage()
   if (!/^[0-9a-f-]{36}$/.test(params.id)) notFound()
   const db = getAdminSupabase()
-  const { data: job } = await db.from('jobs').select('*').eq('id', params.id).maybeSingle()
+  const { data: job } = await db.from('job_posts').select('*').eq('id', params.id).maybeSingle()
   if (!job) notFound()
   const [{ data: org }, { data: loc }, { data: apps }, trail] = await Promise.all([
     db.from('organisations').select('id, name, status').eq('id', job.employer_org_id).maybeSingle(),

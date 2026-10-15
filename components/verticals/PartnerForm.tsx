@@ -12,6 +12,7 @@ import { Turnstile } from '@/components/forms/Turnstile'
 import { COUNTRIES, OTHER_COUNTRY } from '@/lib/countries'
 import { PARTNER_TYPE_LABELS, type PartnerType } from '@/lib/content/verticals'
 import type { VerticalKey } from '@/lib/verticals'
+import { track } from '@/lib/analytics'
 
 /** "Become a partner" for banks, lenders, insurers and brokers (spec 24.2, 24.8). */
 export function PartnerForm({ verticalKey, types, idPrefix = 'par' }: { verticalKey: VerticalKey; types: PartnerType[]; idPrefix?: string }) {
@@ -20,6 +21,9 @@ export function PartnerForm({ verticalKey, types, idPrefix = 'par' }: { vertical
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
   const id = (n: string) => `${idPrefix}-${n}`
   useEffect(() => setSourceUrl(window.location.href.slice(0, 500)), [])
+  useEffect(() => {
+    if (state?.ok) track('partner_application_submitted', { vertical: verticalKey })
+  }, [state, verticalKey])
 
   if (state?.ok) {
     return (

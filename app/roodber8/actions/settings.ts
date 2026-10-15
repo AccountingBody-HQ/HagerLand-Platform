@@ -11,6 +11,7 @@ import {
   businessSchema,
   contactSchema,
   homepageSchema,
+  languageSchema,
   legalDatesSchema,
   legalSchema,
   parsePickRefs,
@@ -80,6 +81,12 @@ export async function saveSettingsAction(section: SettingsSection, _prev: Msg | 
       const p = legalDatesSchema.safeParse(input)
       if (!p.success) return invalid(p.error)
       rows.push({ key: 'legal_last_updated', value: Object.fromEntries(Object.entries(p.data).filter(([, v]) => v)) })
+      break
+    }
+    case 'language': {
+      const p = languageSchema.safeParse(input)
+      if (!p.success) return invalid(p.error)
+      rows.push({ key: 'amharic_enabled', value: p.data.amharic_enabled })
       break
     }
     case 'homepage': {

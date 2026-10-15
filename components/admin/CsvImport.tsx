@@ -74,7 +74,7 @@ export function CsvImport<Row extends { errors: string[]; duplicate?: boolean; l
                   <tr key={r.line} className={r.errors.length ? 'bg-error/5' : r.duplicate ? 'bg-warning/5' : ''}>
                     <td className="w-12 px-3 py-2 text-muted">{r.line}</td>
                     <td className="px-3 py-2">{renderRow(r)}</td>
-                    <td className="px-3 py-2 text-caption">{r.errors.length ? <span className="text-error">{r.errors.join('; ')}</span> : r.duplicate ? <span className="text-warning">Duplicate, will be skipped</span> : <span className="text-green">Ready</span>}</td>
+                    <td className="px-3 py-2 text-caption">{r.errors.length ? <span className="text-error">{r.errors.join('; ')}</span> : r.duplicate ? <span className="text-warning-dark">Duplicate, will be skipped</span> : <span className="text-green">Ready</span>}</td>
                   </tr>
                 ))}
               </tbody>

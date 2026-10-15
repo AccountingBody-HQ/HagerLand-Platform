@@ -3,6 +3,7 @@
 # Never touches the live project. Usage from the repo root:
 #   bash supabase/local-stack/setup.sh        # first time: create keys, start, apply migrations
 #   bash supabase/local-stack/setup.sh reset  # wipe the local database and start fresh
+#   bash supabase/local-stack/setup.sh reset 0009  # fresh, but stop after migration 0009 (the live state before cutover: rehearsal)
 # Writes supabase/local-stack/.env and .env.test.local (both git-ignored).
 set -euo pipefail
 cd "$(dirname "$0")"
@@ -40,15 +41,20 @@ done
 export PGPASSWORD=postgres
 P="psql -h localhost -p 54322 -U postgres -d postgres -v ON_ERROR_STOP=1 -q"
 if [ "$($P -Atc "select to_regclass('public.locations') is null")" = "t" ]; then
-  echo "Creating stand-ins for the two legacy tables the app uses..."
-  $P -c "create table if not exists public.import_log (google_place_id text not null, section text not null, listing_id text, listing_name text, status text not null default 'imported', error text, imported_at timestamptz not null default now(), primary key (google_place_id, section));
-         create table if not exists public.rate_limits (key text primary key, count integer not null default 1, reset_at timestamptz not null);"
-  for f in "$ROOT"/supabase/migrations/*.sql; do echo "Applying $(basename "$f")"; $P -f "$f"; done
+  echo "Creating a replica of the live site's legacy tables (structure only)..."
+  $P -f legacy.sql
+  UPTO="${2:-9999}"
+  for f in "$ROOT"/supabase/migrations/*.sql; do
+    [ "$((10#$(basename "$f" | cut -d_ -f1)))" -le "$((10#$UPTO))" ] || break
+    echo "Applying $(basename "$f")"; $P -1 -f "$f"
+  done
 else
   for f in "$ROOT"/supabase/migrations/*.sql; do
     n=$(basename "$f" | cut -d_ -f1)
-    if [ "$n" -ge 10 ] && [ "$($P -Atc "select count(*) from public.site_settings where key = 'migration_$n'")" = "0" ]; then
-      echo "Applying $(basename "$f")"; $P -f "$f"; $P -c "insert into public.site_settings (key, value) values ('migration_$n', 'true') on conflict do nothing"
+    # Applied migrations are recorded in public.schema_migrations (0011 back-filled 0001-0010), as in production.
+    # Each file runs as one transaction (-1), as in the Supabase SQL editor and the cutover runner.
+    if [ "$n" -ge 10 ] && [ "$($P -Atc "select case when to_regclass('public.schema_migrations') is null then (select count(*) from public.site_settings where key = 'migration_$n') else (select count(*) from public.schema_migrations where version = '$n') end")" = "0" ]; then
+      echo "Applying $(basename "$f")"; $P -1 -f "$f"
     fi
   done
 fi

@@ -26,6 +26,7 @@ import { getBusinessDetails } from '@/lib/data/business'
 import { ApproxPrice } from '@/components/currency/ApproxPrice'
 import { SaveButton } from '@/components/saved/SaveButton'
 import { FinanceAsk } from '@/components/verticals/FinanceAsk'
+import { SaveSearchButton } from '@/components/saved/SaveSearchButton'
 
 /** Shared body for third-party developments and HagerLand's own projects (premium variant). */
 export async function DevelopmentDetail({ d, premium }: { d: PublicDevelopment; premium?: boolean }) {
@@ -162,6 +163,17 @@ export async function DevelopmentDetail({ d, premium }: { d: PublicDevelopment; 
               <Download className="size-5" aria-hidden /> Download brochure (PDF)
             </a>
           )}
+
+          <div>
+            <SaveSearchButton
+              purpose="sale"
+              location={null}
+              query={`development=${id}`}
+              defaultName={`New homes in ${d.name}`}
+              returnTo={`/${d.is_hagerland ? 'our-developments' : 'developments'}/${d.slug}`}
+              label="Get alerts for new listings here"
+            />
+          </div>
 
           <section aria-labelledby="loc-heading">
             <h2 id="loc-heading" className="hl-h3 mb-3">

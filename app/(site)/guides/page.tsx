@@ -11,8 +11,8 @@ export const revalidate = 600
 export async function generateMetadata() {
   const guides = await listGuides({ limit: 1 })
   return buildMetadata({
-    title: 'Guides to property, building and supplies in Ethiopia',
-    description: 'Practical guides from HagerLand on buying, renting, building, choosing contractors and ordering materials.',
+    title: 'Guides to property and building in Ethiopia',
+    description: 'Practical, plain-English guides from HagerLand on buying and renting property, building, choosing contractors and ordering materials in Ethiopia.',
     path: '/guides',
     noindex: guides.length === 0,
   })

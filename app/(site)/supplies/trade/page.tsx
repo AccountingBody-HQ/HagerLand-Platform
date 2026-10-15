@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic'
 
 export const metadata = buildMetadata({
   title: 'Trade accounts',
-  description: `Contractors, developers and builders can apply for a ${brand.divisions.supply} trade account to see trade prices.`,
+  description: `Contractors, developers and builders can apply for a ${brand.divisions.supply} trade account to see trade prices on materials whenever they are signed in.`,
   path: '/supplies/trade',
 })
 

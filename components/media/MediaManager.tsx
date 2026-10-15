@@ -60,7 +60,7 @@ export function MediaManager({
         />
       )}
       {minRequired && items.length < minRequired && (
-        <p className="text-small text-warning">
+        <p className="text-small text-warning-dark">
           Add at least {minRequired} photos ({minRequired - items.length} more) before you submit.
         </p>
       )}
