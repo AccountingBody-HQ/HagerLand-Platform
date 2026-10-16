@@ -18,10 +18,14 @@ export const SERVICE_COPY: Record<PillarKey, { benefit: string; action: string; 
   jobs: { benefit: 'Construction and property jobs, and staff for your business.', action: 'Browse jobs', soonAction: 'Register interest' },
 }
 
-/** How customers think about the services: four groups, each in a fixed order. */
-export const SERVICE_GROUPS: { id: string; title: string; text: string; keys: PillarKey[] }[] = [
-  { id: 'buy-rent', title: 'Buy, sell and rent', text: 'Find your next home or investment, or let our agents sell and let yours.', keys: ['buy', 'rent', 'finance'] },
+/**
+ * How customers think about the services: four groups, each in a fixed order. The first group (Supplies, Jobs,
+ * Knowledge & Advice) is HagerLand's priority: the homepage shows it as the "Start here" band, the menus list it
+ * first. `soonTitle` replaces the title while every service in the group is coming soon.
+ */
+export const SERVICE_GROUPS: { id: string; title: string; soonTitle?: string; text: string; keys: PillarKey[] }[] = [
+  { id: 'start', title: 'Supplies, jobs and advice', text: 'Materials for every build, the people to do the work, and advice before you start.', keys: ['supplies', 'jobs', 'advice'] },
+  { id: 'property', title: 'Property', text: 'Buy, sell, rent and look after property, with our own estate agents and Property Care.', keys: ['buy', 'rent', 'manage'] },
   { id: 'build', title: 'Build and improve', text: 'From the first drawing to repairs years later.', keys: ['build', 'maintain'] },
-  { id: 'own', title: 'Own and manage', text: 'Look after what you own, protect it and decide with confidence.', keys: ['manage', 'insurance', 'advice'] },
-  { id: 'supply', title: 'Supplies and jobs', text: 'Materials for every build, and the people to do the work.', keys: ['supplies', 'jobs'] },
+  { id: 'money', title: 'Finance and insurance', soonTitle: 'Coming soon', text: 'Finance and insurance through licensed partners.', keys: ['finance', 'insurance'] },
 ]

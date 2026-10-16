@@ -45,7 +45,7 @@ test.describe('desktop header menus', () => {
   test('every menu in the main row: a link inside it can be reached with the mouse and clicked', async ({ page }) => {
     await page.goto('/')
     const nav = page.getByRole('navigation', { name: 'Main', exact: true })
-    for (const name of ['Buy', 'Rent', 'Build', 'Maintain', 'Manage', 'Supplies', 'More']) {
+    for (const name of ['Supplies', 'Advice', 'Buy', 'Rent', 'Build', 'Maintain', 'Manage', 'More']) {
       await page.goto('/')
       const button = nav.getByRole('button', { name: new RegExp(`^${name}`) })
       await button.click()

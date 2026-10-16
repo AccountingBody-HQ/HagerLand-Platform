@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { BadgeCheck, ClipboardCheck, Clock, Scale } from 'lucide-react'
 import { brand } from '@/lib/brand'
+import { cn } from '@/lib/cn'
 import { buildMetadata } from '@/lib/seo'
 import { Section, SectionHeader } from '@/components/ui/Layout'
 import { ButtonLink } from '@/components/ui/Button'
@@ -47,7 +48,7 @@ export default async function AboutPage() {
               {all.groups.map((g) => (
                 <div key={g.id} className="py-8 first:pt-0 last:pb-0 sm:py-9">
                   <h3 className="hl-eyebrow text-green">{g.title}</h3>
-                  <ul className="mt-3 grid gap-4 sm:grid-cols-2">
+                  <ul className={cn('mt-3 grid gap-4', g.tiles.length === 3 ? 'md:grid-cols-3' : g.tiles.length === 2 ? 'sm:grid-cols-2' : '')}>
                     {g.tiles.map((tile) => (
                       <li key={tile.key}>
                         <Link href={tile.href} className="font-display text-body font-bold text-ink hover:underline">

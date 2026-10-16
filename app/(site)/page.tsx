@@ -23,7 +23,8 @@ import { isLive, verticalHref, visibleVertical } from '@/lib/verticals'
 import { COMING_SOON } from '@/lib/content/verticals'
 import { SoonBadge } from '@/components/verticals/SoonBadge'
 import { GuidesTeaser } from '@/components/guides/GuidesTeaser'
-import { ServicesSection } from '@/components/home/ServicesSection'
+import { PriorityBand, ServicesSection } from '@/components/home/ServicesSection'
+import { listGuides } from '@/lib/data/guides'
 import { getSiteNav } from '@/lib/data/site-nav'
 import { getLocale } from '@/lib/i18n/server'
 import { translator } from '@/lib/i18n/translate'
@@ -56,7 +57,7 @@ function featuredThenNewest(featured: PublicProperty[], newest: PublicProperty[]
 }
 
 export default async function HomePage() {
-  const [bole, services, settings, verticals, siteNav] = await Promise.all([getLocationByPath('addis-ababa/bole'), getServiceCategories(), getSiteSettings(), getVerticals(), getSiteNav()])
+  const [bole, services, settings, verticals, siteNav, guides] = await Promise.all([getLocationByPath('addis-ababa/bole'), getServiceCategories(), getSiteSettings(), getVerticals(), getSiteNav(), listGuides({ limit: 1 })])
   const live = {
     property: isLive(verticals, 'property'),
     supplies: isLive(verticals, 'building-supplies'),
@@ -144,6 +145,8 @@ export default async function HomePage() {
           )}
         </Container>
       </section>
+
+      <PriorityBand all={siteNav.all} t={t} lh={lh} hasGuides={guides.length > 0} />
 
       <ServicesSection all={siteNav.all} t={t} lh={lh} freeListing={business.freeListingConfirmed} />
 

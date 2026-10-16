@@ -4,12 +4,14 @@ import type { AllServices, ServiceTile } from '@/lib/navigation'
 import { Container } from '@/components/ui/Layout'
 import { DynamicIcon } from '@/components/ui/DynamicIcon'
 import { SoonBadge } from '@/components/verticals/SoonBadge'
+import { ButtonLink } from '@/components/ui/Button'
+import { cn } from '@/lib/cn'
 
 type T = (s: string) => string
 
-function ServiceCard({ tile, t, lh }: { tile: ServiceTile; t: T; lh: (h: string) => string }) {
+function ServiceCard({ tile, t, lh, compact }: { tile: ServiceTile; t: T; lh: (h: string) => string; compact?: boolean }) {
   return (
-    <Link href={lh(tile.href)} className="group flex h-full gap-4 rounded-xl border border-border bg-white p-4 shadow-xs transition-[border-color,box-shadow] hover:border-green/40 hover:shadow-md sm:flex-col sm:gap-0 sm:p-6">
+    <Link href={lh(tile.href)} className={cn('group flex h-full gap-4 rounded-xl border border-border bg-white p-4 shadow-xs transition-[border-color,box-shadow] hover:border-green/40 hover:shadow-md sm:flex-col sm:gap-0', compact ? 'sm:p-5' : 'sm:p-6')}>
       <span className="flex shrink-0 items-start justify-between gap-3">
         <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-green-tint text-green">
           <DynamicIcon name={tile.icon} className="size-5" />
@@ -17,10 +19,10 @@ function ServiceCard({ tile, t, lh }: { tile: ServiceTile; t: T; lh: (h: string)
         {tile.soon && <SoonBadge long className="hidden sm:inline-flex" />}
       </span>
       <span className="flex min-w-0 flex-1 flex-col">
-        <span className="font-display text-[1.125rem] font-bold leading-snug text-ink sm:mt-5 sm:text-[1.1875rem]">{t(tile.name)}</span>
+        <span className={cn('font-display text-[1.125rem] font-bold leading-snug text-ink sm:text-[1.1875rem]', compact ? 'sm:mt-4' : 'sm:mt-5')}>{t(tile.name)}</span>
         {tile.soon && <SoonBadge long className="mt-1.5 self-start sm:hidden" />}
         <span className="mt-1.5 flex-1 text-muted sm:mt-2">{t(tile.tagline)}</span>
-        <span className="mt-3 inline-flex items-center gap-1.5 font-semibold text-green sm:mt-5">
+        <span className={cn('mt-3 inline-flex items-center gap-1.5 font-semibold text-green', compact ? 'sm:mt-4' : 'sm:mt-5')}>
           {t(tile.action)}
           <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
         </span>
@@ -29,8 +31,69 @@ function ServiceCard({ tile, t, lh }: { tile: ServiceTile; t: T; lh: (h: string)
   )
 }
 
+/** Grid columns equal to the number of cards in a group (max 3), so a row never has an empty space. */
+const COLUMNS: Record<number, string> = { 1: '', 2: 'sm:grid-cols-2', 3: 'md:grid-cols-3' }
+
 /**
- * "Everything your property needs" (homepage): the ten services in four customer groups, then two invitations,
+ * "Start here" (homepage, directly under the hero): HagerLand's priority services, Supplies, Jobs and Knowledge &
+ * Advice, as three equal, larger cards with one or two actions each that lead somewhere useful today.
+ */
+export function PriorityBand({ all, t, lh, hasGuides }: { all: AllServices; t: T; lh: (h: string) => string; hasGuides: boolean }) {
+  const group = all.groups.find((g) => g.id === 'start')
+  if (!group) return null
+  const actions = (tile: ServiceTile): { label: string; href: string }[] => {
+    if (tile.soon) return [{ label: tile.action, href: tile.href }]
+    if (tile.key === 'supplies')
+      return [
+        { label: 'Send your materials list', href: '/supplies/materials-list' },
+        { label: 'Browse supplies', href: '/supplies' },
+      ]
+    if (tile.key === 'jobs')
+      return [
+        { label: 'Browse jobs', href: '/jobs' },
+        { label: 'Post a job', href: '/account/jobs/new' },
+      ]
+    if (tile.key === 'advice')
+      return [
+        { label: 'Get advice', href: '/advice' },
+        hasGuides ? { label: 'Read the guides', href: '/guides' } : { label: 'Help & FAQs', href: '/help' },
+      ]
+    return [{ label: tile.action, href: tile.href }]
+  }
+  return (
+    <section aria-labelledby="start-title" className="bg-white pt-16 sm:pt-24">
+      <Container>
+        <h2 id="start-title" className="hl-h2">
+          {t('Start here')}
+        </h2>
+        <ul className={cn('mt-8 grid gap-4 sm:mt-10', COLUMNS[group.tiles.length])}>
+          {group.tiles.map((tile) => (
+            <li key={tile.key} className="flex flex-col rounded-xl border border-green/15 bg-green-tint p-6 sm:p-8">
+              <span className="flex items-start justify-between gap-3">
+                <span className="flex size-14 items-center justify-center rounded-xl bg-white text-green">
+                  <DynamicIcon name={tile.icon} className="size-7" />
+                </span>
+                {tile.soon && <SoonBadge long />}
+              </span>
+              <h3 className="mt-6 font-display text-h3 font-bold text-ink lg:text-h3-lg">{t(tile.name)}</h3>
+              <p className="mt-2 flex-1 text-muted">{t(tile.tagline)}</p>
+              <div className="mt-6 flex flex-col gap-3">
+                {actions(tile).map((a, i) => (
+                  <ButtonLink key={a.href} href={lh(a.href)} variant={i === 0 ? 'primary' : 'secondary'}>
+                    {t(a.label)}
+                  </ButtonLink>
+                ))}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </Container>
+    </section>
+  )
+}
+
+/**
+ * "Everything your property needs" (homepage): the other seven services in three groups, then two invitations,
  * for people living abroad and for professionals and suppliers. Plain customer language only; "Coming soon"
  * is the one availability label visitors see.
  */
@@ -46,16 +109,16 @@ export function ServicesSection({ all, t, lh, freeListing }: { all: AllServices;
         </div>
 
         <div className="mt-10 divide-y divide-border sm:mt-16">
-          {all.groups.map((g) => (
+          {all.groups.filter((g) => g.id !== 'start').map((g) => (
             <div key={g.id} className="grid gap-4 py-8 first:pt-0 last:pb-0 sm:gap-6 sm:py-9 lg:grid-cols-[minmax(0,15rem)_1fr] lg:gap-10">
               <div className="lg:pt-2">
                 <h3 className="font-display text-h3 font-bold text-ink">{t(g.title)}</h3>
                 <p className="mt-2 text-muted">{t(g.text)}</p>
               </div>
-              <ul className="grid gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
+              <ul className={cn('grid gap-3 sm:gap-4', COLUMNS[g.tiles.length])}>
                 {g.tiles.map((tile) => (
                   <li key={tile.key}>
-                    <ServiceCard tile={tile} t={t} lh={lh} />
+                    <ServiceCard tile={tile} t={t} lh={lh} compact={g.id === 'money'} />
                   </li>
                 ))}
               </ul>

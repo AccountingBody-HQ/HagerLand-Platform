@@ -4,22 +4,22 @@ import { adminSession, asFreshVisitor, db, latestMail, setPillarModes, uniqueEma
 /** Vertical registry, navigation, coming-soon pages and interest capture (spec 24.1–24.3). */
 
 test.describe('pillar navigation (spec 26.4)', () => {
-  test('header shows at most seven menus in lifecycle order, More holds the rest, plus All services and Living abroad', async ({ page }, info) => {
+  test('header puts Supplies, Jobs and Advice first, then Buy to Manage; More holds Finance and Insurance; plus All services and Living abroad', async ({ page }, info) => {
     test.skip(info.project.name !== 'desktop', 'desktop header')
     await page.goto('/')
     const nav = page.getByRole('navigation', { name: 'Main', exact: true })
-    await expect(nav.locator(':scope > ul > li')).toHaveText([/^Buy/, /^Rent/, /^Build/, /^Maintain/, /^Manage/, /^Supplies/, /^More/])
+    await expect(nav.locator(':scope > ul > li')).toHaveText([/^Supplies/, /^Jobs/, /^Advice/, /^Buy/, /^Rent/, /^Build/, /^Maintain/, /^Manage/, /^More/])
+    await expect(nav.getByRole('link', { name: /^Jobs/ })).toHaveAttribute('href', '/jobs')
     await nav.getByRole('button', { name: /^More/ }).click()
     const panel = page.locator('#mega-panel')
+    await expect(panel.getByRole('link')).toHaveCount(2)
     await expect(panel.getByRole('link', { name: /Property Finance.*Soon/ })).toBeVisible()
     await expect(panel.getByRole('link', { name: /Property Insurance.*Soon/ })).toBeVisible()
-    await expect(panel.getByRole('link', { name: /Advice & guides/ })).toBeVisible()
-    await expect(panel.getByRole('link', { name: /Jobs, Recruitment & Staffing/ })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Living abroad?' })).toHaveAttribute('href', '/diaspora')
     await page.getByRole('button', { name: 'All services' }).click()
     const all = page.locator('#all-services-panel')
     await expect(all.getByRole('link')).toHaveCount(12)
-    for (const group of ['Buy, sell and rent', 'Build and improve', 'Own and manage', 'Supplies and jobs']) await expect(all.getByText(group, { exact: true })).toBeVisible()
+    await expect(all.locator('p').filter({ hasText: /^(Supplies, jobs and advice|Property|Build and improve|Coming soon)$/ })).toHaveText(['Supplies, jobs and advice', 'Property', 'Build and improve', 'Coming soon'])
     await expect(all.getByRole('link', { name: /Buy & Sell Property.*estate agents/ })).toBeVisible()
     await expect(all.getByRole('link', { name: /Property Finance.*Soon/ })).toBeVisible()
     await expect(all).not.toContainText(/Provided by HagerLand|Trusted partners/)
@@ -41,18 +41,34 @@ test.describe('pillar navigation (spec 26.4)', () => {
     for (const name of ['Request a service', 'Request a quote', 'Find a professional', 'Help & advice', 'My account']) await expect(drawer.getByRole('link', { name })).toBeVisible()
   })
 
-  test('homepage keeps the hero and search, then the ten services in four customer groups, Living abroad and Professionals', async ({ page }) => {
+  test('homepage: hero and search, then "Start here" (Supplies, Jobs, Advice), then the other seven services in rows without gaps', async ({ page }) => {
     await page.goto('/')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('One platform for property, construction and everything around it.')
     await expect(page.locator('main .hl-eyebrow').first()).toHaveText("Ethiopia's property and construction platform")
     await expect(page.getByText('Buy, rent, build and manage property in Ethiopia, with verified partners, wherever you live.').first()).toBeVisible()
+    const start = page.locator('section[aria-labelledby="start-title"]')
+    await expect(start.getByRole('heading', { level: 2, name: 'Start here' })).toBeVisible()
+    await expect(start.getByRole('heading', { level: 3 })).toHaveText(['Building & Construction Supplies', 'Jobs, Recruitment & Staffing', 'Knowledge & Advice'])
+    await expect(start.getByRole('link', { name: 'Send your materials list' })).toHaveAttribute('href', '/supplies/materials-list')
+    await expect(start.getByRole('link', { name: 'Browse supplies' })).toHaveAttribute('href', '/supplies')
+    await expect(start.getByRole('link', { name: 'Browse jobs' })).toHaveAttribute('href', '/jobs')
+    await expect(start.getByRole('link', { name: 'Get advice' })).toHaveAttribute('href', '/advice')
+    // The band comes straight after the hero, before "Everything your property needs".
+    const order = await page.evaluate(() => Array.from(document.querySelectorAll('main h2')).map((h) => h.textContent?.trim()))
+    expect(order.indexOf('Start here')).toBeLessThan(order.indexOf('Everything your property needs'))
     const services = page.locator('section[aria-labelledby="services-title"]')
     await expect(services.getByRole('heading', { level: 2, name: 'Everything your property needs' })).toBeVisible()
-    for (const group of ['Buy, sell and rent', 'Build and improve', 'Own and manage', 'Supplies and jobs']) await expect(services.getByRole('heading', { level: 3, name: group })).toBeVisible()
-    await expect(services.getByRole('listitem')).toHaveCount(10)
-    await expect(services.getByRole('link', { name: /Building & Construction Supplies.*Get a quote/ })).toHaveAttribute('href', '/supplies')
+    await expect(services.getByRole('heading', { level: 3 }).filter({ hasText: /^(Property|Build and improve|Coming soon)$/ })).toHaveText(['Property', 'Build and improve', 'Coming soon'])
+    await expect(services.getByRole('listitem')).toHaveCount(7)
+    // Every group's grid has as many columns as cards, so no row has an empty space (desktop).
+    if (page.viewportSize()!.width >= 1024) {
+      for (const list of await services.locator('ul').all()) {
+        const cols = await list.evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(' ').length)
+        expect(cols).toBe(await list.locator(':scope > li').count())
+      }
+    }
     await expect(services.getByRole('link', { name: /Property Finance.*Register interest/ })).toHaveAttribute('href', '/finance#register')
-    await expect(services.getByText('Coming soon').filter({ visible: true })).toHaveCount(2)
+    await expect(services.getByRole('listitem').getByText('Coming soon').filter({ visible: true })).toHaveCount(2)
     await expect(services.getByRole('heading', { name: /^Living abroad\? We act as your hands on the ground/ })).toBeVisible()
     await expect(services.getByRole('heading', { name: /^Are you a professional or supplier\?/ })).toBeVisible()
     await expect(page.locator('main')).not.toContainText(/ecosystem|pillar|nucleus|Provided by HagerLand|Trusted partners/i)
