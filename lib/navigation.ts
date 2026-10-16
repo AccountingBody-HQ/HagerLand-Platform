@@ -166,10 +166,10 @@ const PILLAR_CTA: Partial<Record<PillarKey, NavLink>> = {
   supplies: { label: 'Become a supplier', href: '/list-with-us#suppliers' },
 }
 
-/** Header menus in lifecycle order (spec 26.4): Buy · Rent · Build · Maintain · Manage · Supplies · More. */
+/** Header menus: HagerLand's priorities first (Supplies, Jobs, Advice), then Buy · Rent · Build · Maintain · Manage · More. */
 export function buildMainNav(pillars: Pillar[], verticals: Vertical[], ctx: NavContext): NavGroup[] {
   const groups: NavGroup[] = []
-  for (const key of ['buy', 'rent', 'build', 'maintain', 'manage', 'supplies'] as const) {
+  for (const key of ['supplies', 'jobs', 'advice', 'buy', 'rent', 'build', 'maintain', 'manage'] as const) {
     const p = pillars.find((x) => x.key === key)
     if (!p) continue
     groups.push({
@@ -183,14 +183,14 @@ export function buildMainNav(pillars: Pillar[], verticals: Vertical[], ctx: NavC
       soon: p.status === 'coming_soon',
     })
   }
-  const more = (['finance', 'insurance', 'advice', 'jobs'] as const).map((k) => pillars.find((x) => x.key === k)).filter((p): p is Pillar => Boolean(p))
+  const more = (['finance', 'insurance'] as const).map((k) => pillars.find((x) => x.key === k)).filter((p): p is Pillar => Boolean(p))
   if (more.length)
     groups.push({
       id: 'more',
       label: 'More',
       title: 'More services',
       href: pillarHref(more[0]),
-      links: more.map((p) => ({ label: p.key === 'advice' ? 'Advice & guides' : p.name, href: pillarHref(p), description: SERVICE_COPY[p.key].benefit, icon: p.icon, soon: p.status === 'coming_soon' || undefined })),
+      links: more.map((p) => ({ label: p.name, href: pillarHref(p), description: SERVICE_COPY[p.key].benefit, icon: p.icon, soon: p.status === 'coming_soon' || undefined })),
     })
   return groups
 }
@@ -209,7 +209,10 @@ export function buildAllServices(pillars: Pillar[], verticals: Vertical[]): AllS
     return v ? { key, name, tagline, href: verticalHref(v), icon, action, soon: v.status === 'coming_soon' } : null
   }
   return {
-    groups: SERVICE_GROUPS.map((g) => ({ id: g.id, title: g.title, text: g.text, tiles: g.keys.map((k) => pillars.find((p) => p.key === k)).filter((p): p is Pillar => Boolean(p)).map(serviceTile) })).filter((g) => g.tiles.length > 0),
+    groups: SERVICE_GROUPS.map((g) => {
+      const tiles = g.keys.map((k) => pillars.find((p) => p.key === k)).filter((p): p is Pillar => Boolean(p)).map(serviceTile)
+      return { id: g.id, title: g.soonTitle && tiles.every((x) => x.soon) ? g.soonTitle : g.title, text: g.text, tiles }
+    }).filter((g) => g.tiles.length > 0),
     diaspora: audience('diaspora', 'Living abroad', 'Buy, build and look after property in Ethiopia from wherever you live.', 'globe', 'Services for Ethiopians abroad'),
     professionals: audience('professionals', 'Find a professional', 'Architects, engineers, contractors, agents and trades.', 'users', 'Browse professionals'),
   }

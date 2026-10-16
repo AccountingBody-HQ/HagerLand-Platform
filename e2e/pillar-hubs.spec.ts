@@ -83,7 +83,7 @@ test('visibility: interest only is coming soon and noindex; all modes off is hid
     expect(sitemap).not.toContain('/advice<')
     expect(sitemap).toContain('/buy<')
     await page.goto('/')
-    await expect(page.locator('section[aria-labelledby="services-title"]').getByText('Knowledge & Advice')).toHaveCount(0)
+    await expect(page.locator('section[aria-labelledby="start-title"], section[aria-labelledby="services-title"]').getByText('Knowledge & Advice')).toHaveCount(0)
   } finally {
     await setPillarModes('advice', { direct: true, interest: false })
     await page.goto('/roodber8/pillars')
