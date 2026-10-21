@@ -1,12 +1,13 @@
 import type { MetadataRoute } from 'next'
 import { IS_PRODUCTION, CANONICAL_URL } from '@/lib/site'
-import { SITEMAP_IDS } from '@/lib/sitemap-rules'
+import { ROBOTS_DISALLOW, sitemapUrls } from '@/lib/sitemap-rules'
 
 export default function robots(): MetadataRoute.Robots {
   if (!IS_PRODUCTION) return { rules: { userAgent: '*', disallow: '/' } }
+  const maps = sitemapUrls()
   return {
-    rules: { userAgent: '*', allow: '/', disallow: ['/roodber8', '/roodber8-login', '/api/', '/account', '/onboarding', '/auth', '/search', '/supplies/quote', '/dev/', '/requests/', '/request-service/sent', '/alerts/', '/property/compare'] },
-    sitemap: SITEMAP_IDS.map((id) => `${CANONICAL_URL}/sitemap/${id}.xml`),
+    rules: { userAgent: '*', allow: '/', disallow: [...ROBOTS_DISALLOW] },
+    sitemap: [maps.index, ...maps.children],
     host: CANONICAL_URL,
   }
 }
