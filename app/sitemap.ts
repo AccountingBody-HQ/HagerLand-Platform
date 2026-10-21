@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next'
 import { getPublicSupabase } from '@/lib/supabase/public'
 import { getProductCategories, getServiceCategories, getSettingNumber } from '@/lib/data/reference'
 import { canonicalUrl } from '@/lib/site'
-import { countByAncestors, indexablePaths, SITEMAP_IDS, typePathCounts, type SitemapId } from '@/lib/sitemap-rules'
+import { countByAncestors, indexablePaths, SITEMAP_IDS, STATIC_PATHS, typePathCounts, type SitemapId } from '@/lib/sitemap-rules'
 import { log } from '@/lib/log'
 import { listTag } from '@/lib/revalidate'
 import { getVerticals } from '@/lib/data/verticals'
@@ -22,7 +22,6 @@ export async function generateSitemaps() {
   return SITEMAP_IDS.map((id) => ({ id }))
 }
 
-const STATIC_PATHS = ['/', '/property', '/property/for-sale', '/property/to-rent', '/supplies', '/supplies/materials-list', '/professionals', '/agents', '/developers', '/suppliers', '/developments', '/our-developments', '/about', '/how-it-works', '/list-with-us', '/advertise', '/request-service', '/agency', '/agency/sell', '/agency/let', '/agency/buyer-representation', '/agency/property-sourcing', '/agency/developer-sales', '/diaspora/property-care', '/diaspora/services-abroad', '/contact', '/help', '/terms', '/privacy', '/cookies']
 const AGENCY_SALES_PATHS = ['/agency/sell', '/agency/buyer-representation', '/agency/property-sourcing', '/agency/developer-sales']
 const AGENCY_LETTINGS_PATHS = ['/agency/let']
 const LIMIT = 50_000

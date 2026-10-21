@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { db, seedPublishedProperty, seedShowcase } from './helpers'
+import { SITEMAP_IDS } from '../lib/sitemap-rules'
 
 test.describe('SEO', () => {
   test('sitemaps are split by type', async ({ request }) => {
@@ -13,6 +14,22 @@ test.describe('SEO', () => {
     expect(staticXml).toContain('https://www.hagerland.com/supplies')
     expect(staticXml).not.toContain('/roodber8')
     expect(await (await request.get('/sitemap/properties.xml')).text()).toContain('<urlset')
+  })
+
+  test('/sitemap.xml is an index of every sitemap, each valid XML', async ({ request }) => {
+    const res = await request.get('/sitemap.xml')
+    expect(res.status()).toBe(200)
+    expect(res.headers()['content-type']).toContain('application/xml')
+    const xml = await res.text()
+    expect(xml).toContain('<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
+    const locs = Array.from(xml.matchAll(/<sitemap><loc>([^<]+)<\/loc><\/sitemap>/g)).map((m) => new URL(m[1]).pathname)
+    expect(locs).toEqual(SITEMAP_IDS.map((id) => `/sitemap/${id}.xml`))
+    for (const path of locs) {
+      const child = await request.get(path)
+      expect(child.status(), path).toBe(200)
+      expect(child.headers()['content-type'], path).toContain('xml')
+      expect(await child.text(), path).toMatch(/<urlset[\s>][\s\S]*<\/urlset>/)
+    }
   })
 
   test('robots.txt blocks everything outside production', async ({ request }) => {

@@ -109,6 +109,35 @@ test('security headers, robots and sitemaps', async ({ request }) => {
   for (const m of maps) expect((await request.get(new URL(m).pathname)).status(), m).toBe(200)
 })
 
+test('sitemap index matches robots.txt; every sitemap is valid XML; static sitemap lists only public pages', async ({ request }) => {
+  const res = await request.get('/sitemap.xml')
+  expect(res.status()).toBe(200)
+  expect(res.headers()['content-type']).toContain('application/xml')
+  const xml = await res.text()
+  expect(xml).toContain('<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
+  const children = Array.from(xml.matchAll(/<sitemap><loc>([^<]+)<\/loc><\/sitemap>/g)).map((m) => m[1])
+  expect(children.length).toBeGreaterThan(0)
+  for (const c of children) {
+    const child = await request.get(new URL(c).pathname)
+    expect(child.status(), c).toBe(200)
+    expect(child.headers()['content-type'], c).toContain('xml')
+    expect(await child.text(), c).toMatch(/<urlset[\s>][\s\S]*<\/urlset>/)
+  }
+  if (base().startsWith('https://www.hagerland.com')) {
+    const robots = await (await request.get('/robots.txt')).text()
+    const maps = Array.from(robots.matchAll(/^Sitemap: (\S+)/gm)).map((m) => m[1])
+    expect(maps).toEqual(['https://www.hagerland.com/sitemap.xml', ...children])
+    const disallowed = Array.from(robots.matchAll(/^Disallow: (\S+)/gm)).map((m) => m[1])
+    const banned = ['/roodber8', '/roodber8-login', '/api', '/account', '/onboarding', '/auth', '/search', '/dev', ...disallowed]
+    const urls = Array.from((await (await request.get('/sitemap/static.xml')).text()).matchAll(/<loc>([^<]+)<\/loc>/g)).map((m) => m[1])
+    for (const u of urls) {
+      expect(u.startsWith('https://www.hagerland.com/'), u).toBe(true)
+      const path = new URL(u).pathname
+      expect(banned.some((b) => path === b.replace(/\/$/, '') || path.startsWith(b.endsWith('/') ? b : `${b}/`)), u).toBe(false)
+    }
+  }
+})
+
 test('/api/health/full: every check is true', async ({ request }) => {
   const secret = process.env.CRON_SECRET
   test.skip(!secret, 'CRON_SECRET not provided')
