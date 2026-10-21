@@ -1,8 +1,7 @@
 // Guide studio (admin): checks and cleans the JSON AB pastes back from Claude before it becomes a draft guide.
 // Pure, so it is unit-tested; the import action adds the database look-ups (existing slugs and titles).
-import { findCheckMarkers, GUIDE_TOPICS, type FaqItem, type GuideTopic } from '@/lib/guides'
+import { findCheckMarkers, GUIDE_LINK, GUIDE_TOPICS, guideLinkHref, type FaqItem, type GuideTopic } from '@/lib/guides'
 import { slugify } from '@/lib/slug'
-import { approvedInternalPath, isOfficialGovUrl } from './studio-options'
 import { GUIDE_JSON_LIMITS } from './studio-prompt'
 
 export interface ImportedGuide {
@@ -72,18 +71,17 @@ export function normaliseTitle(title: string): string {
 }
 
 /**
- * Cleans links in guide text. The guide page shows text only, so links become their words: approved HagerLand pages
- * keep the anchor text, an official .gov.et site keeps its address in brackets for AB to check, anything else is removed.
+ * Cleans links. In guide text (`keepLinks`), "[words](/path)" to an approved HagerLand page stays a link; every other
+ * link becomes its words, and bare web addresses are removed. Titles, summaries and FAQ show no links: words only.
  */
-export function sanitiseLinks(text: string, notes: string[]): string {
-  const withMarkdown = text.replace(/\[([^\]\n]+)\]\(([^)\s]+)\)/g, (_m, label: string, href: string) => {
-    if (approvedInternalPath(href)) return label
-    if (isOfficialGovUrl(href)) return `${label} (${href})`
-    notes.push(`Removed a link that is not on the approved list: ${href}`)
+export function sanitiseLinks(text: string, notes: string[], keepLinks = false): string {
+  const withMarkdown = text.replace(GUIDE_LINK, (whole, label: string, target: string) => {
+    const href = guideLinkHref(target)
+    if (href && keepLinks) return `[${label}](${href})`
+    if (!href) notes.push(`Turned a link that is not on the approved list into plain words: ${target || whole}`)
     return label
   })
   return withMarkdown.replace(/https?:\/\/[^\s)\]]+/g, (href) => {
-    if (isOfficialGovUrl(href)) return href
     notes.push(`Removed a web address that is not on the approved list: ${href}`)
     return ''
   })
@@ -93,7 +91,7 @@ export function sanitiseLinks(text: string, notes: string[]): string {
 export function sanitiseContent(raw: string, notes: string[]): { body: string; tags: string[] } {
   const tags = Array.from(new Set(Array.from(raw.matchAll(/<\/?([a-z][a-z0-9]*)\b[^>]*>/gi)).map((m) => m[1].toLowerCase())))
   let tidied = false
-  const lines = sanitiseLinks(raw.replace(/\r\n/g, '\n'), notes)
+  const lines = sanitiseLinks(raw.replace(/\r\n/g, '\n'), notes, true)
     .split('\n')
     .map((line) => {
       const next = line

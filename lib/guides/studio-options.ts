@@ -66,13 +66,3 @@ export function approvedInternalPath(href: string): string | null {
   const path = href.trim().replace(/^https?:\/\/(www\.)?hagerland\.com/i, '').replace(/\/+$/, '') || '/'
   return APPROVED_PATHS.has(path) ? path : null
 }
-
-/** Official Ethiopian government sites (*.gov.et over https). */
-export function isOfficialGovUrl(href: string): boolean {
-  try {
-    const u = new URL(href.trim())
-    return u.protocol === 'https:' && (u.hostname === 'gov.et' || u.hostname.endsWith('.gov.et'))
-  } catch {
-    return false
-  }
-}

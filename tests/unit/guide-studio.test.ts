@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { buildGuidePrompt, GUIDE_JSON_LIMITS, type GuidePromptInput } from '@/lib/guides/studio-prompt'
 import { checkGuideJson, extractJsonText, sanitiseContent, uniqueSlug } from '@/lib/guides/studio-import'
-import { APPROVED_GUIDE_LINKS, approvedInternalPath, isOfficialGovUrl } from '@/lib/guides/studio-options'
+import { APPROVED_GUIDE_LINKS, approvedInternalPath } from '@/lib/guides/studio-options'
 import { GUIDE_TOPIC_BANK, ideaExists } from '@/lib/content/guide-topic-bank'
 import { findCheckMarkers, guideCheckMarkers, guideSchema, GUIDE_TOPICS, parseGuideBody, visibleGuide } from '@/lib/guides'
 
@@ -49,6 +49,10 @@ describe('buildGuidePrompt', () => {
   it('lists only approved links and states HagerLand honestly', () => {
     for (const l of APPROVED_GUIDE_LINKS) expect(prompt).toContain(`- ${l.href} (`)
     expect(prompt).not.toMatch(/- \/(finance|insurance|our-developments)\b/)
+    expect(prompt).toContain('[anchor text](/path)')
+    expect(prompt).toContain('Include 2 to 4 links')
+    expect(prompt).toMatch(/Never use "click here"/)
+    expect(prompt).not.toContain('.gov.et')
     expect(prompt).toContain('"coming soon" only')
     expect(prompt).toMatch(/Never say or imply that HagerLand is a lender/)
   })
@@ -72,11 +76,11 @@ describe('buildGuidePrompt', () => {
 })
 
 describe('guide JSON import', () => {
-  it('accepts good JSON, ignores the stated marker count and turns approved links into text', () => {
+  it('accepts good JSON, ignores the stated marker count and keeps approved links', () => {
     const r = checkGuideJson(JSON.stringify(good), none)
     expect(r.ok).toBe(true)
-    expect(r.guide?.body).toContain('See our buying page and property care.')
-    expect(r.guide?.body).not.toContain('](')
+    expect(r.guide?.body).toContain('See [our buying page](/buy) and [property care](/diaspora/property-care).')
+    expect(r.notes).toEqual([])
     expect(r.markers).toEqual(['name of the title document in Addis Ababa'])
     expect(r.guide).toMatchObject({ slug: 'how-to-check-a-title-deed', topic: 'buying', seo_title: good.seo_title })
   })
@@ -104,14 +108,19 @@ describe('guide JSON import', () => {
     expect(r.errors.find((e) => e.field === 'content')?.message).toContain('<script>, <p>')
   })
 
-  it('removes external links but keeps official .gov.et addresses', () => {
-    const r = checkGuideJson(JSON.stringify({ ...good, content: `${body}\n\nRead [this blog](https://example.com/post) or https://spam.example and [the ministry](https://www.mudi.gov.et) [CHECK: confirm this official address is current].` }), none)
+  it('turns every other link into plain words and lists each change', () => {
+    const r = checkGuideJson(JSON.stringify({ ...good, content: `${body}\n\nRead [this blog](https://example.com/post), [the ministry](https://www.mudi.gov.et), [admin](/roodber8), [x](javascript:alert(1)) or https://spam.example. Also [jobs](/jobs#latest).` }), none)
     expect(r.ok).toBe(true)
-    expect(r.guide?.body).not.toContain('example.com')
-    expect(r.guide?.body).toContain('this blog')
-    expect(r.guide?.body).toContain('the ministry (https://www.mudi.gov.et)')
-    expect(r.notes.join(' ')).toContain('https://example.com/post')
-    expect(r.markers).toHaveLength(2)
+    expect(r.guide?.body).toContain('Read this blog, the ministry, admin, x')
+    expect(r.guide?.body).not.toMatch(/example\.com|gov\.et|roodber8|javascript/)
+    expect(r.guide?.body).toContain('[jobs](/jobs#latest)')
+    expect(r.notes).toEqual(expect.arrayContaining([expect.stringContaining('https://example.com/post'), expect.stringContaining('https://www.mudi.gov.et'), expect.stringContaining('/roodber8'), expect.stringContaining('https://spam.example')]))
+  })
+
+  it('shows no links in the title, summary or FAQ', () => {
+    const r = checkGuideJson(JSON.stringify({ ...good, summary: 'See [buying](/buy) before you pay.', faq: [{ question: 'Where?', answer: 'On [the rent page](/rent).' }] }), none)
+    expect(r.guide?.summary).toBe('See buying before you pay.')
+    expect(r.guide?.faq[0].answer).toBe('On the rent page.')
   })
 
   it('reports fields that are too long, missing or a bad slug', () => {
@@ -140,14 +149,11 @@ describe('guide JSON import', () => {
     expect(r.duplicateTitle).toBe('HOW TO CHECK A TITLE DEED IN ETHIOPIA')
   })
 
-  it('accepts only approved internal paths and official government sites', () => {
+  it('accepts only approved internal paths', () => {
     expect(approvedInternalPath('/supplies/materials-list')).toBe('/supplies/materials-list')
     expect(approvedInternalPath('https://www.hagerland.com/jobs/')).toBe('/jobs')
     expect(approvedInternalPath('/finance')).toBeNull()
     expect(approvedInternalPath('/roodber8')).toBeNull()
-    expect(isOfficialGovUrl('https://www.mofed.gov.et/x')).toBe(true)
-    expect(isOfficialGovUrl('http://www.mofed.gov.et')).toBe(false)
-    expect(isOfficialGovUrl('https://gov.et.example.com')).toBe(false)
   })
 })
 
