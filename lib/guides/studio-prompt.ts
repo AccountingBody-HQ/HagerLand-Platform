@@ -88,10 +88,11 @@ Every guide also includes, after the body and in this order:
 - "## How HagerLand can help": one short paragraph. Mention only what HagerLand really offers (see the honesty rules) and point to 1 or 2 relevant pages from the approved list.
 
 # Internal links
-- Use 2 to 4 links in total, chosen ONLY from this approved list of HagerLand pages:
+- Include 2 to 4 links in total, chosen ONLY from this approved list of HagerLand pages:
 ${links}
-- Write each link in this exact form: [anchor text](/path). Use natural, descriptive anchor text that still reads correctly as plain words if the link is removed. Never use "click here".
-- No other HagerLand addresses. No external links, except to an official Ethiopian government website (an address ending in .gov.et), and then always with a [CHECK: confirm this official address is current] marker straight after it.
+- Write each link in exactly this form: [anchor text](/path), with the path copied exactly from the list. Place links inside paragraphs or bullets, never in headings.
+- Use natural, descriptive anchor text that tells the reader where the link goes (for example "send your materials list for quotes"). Never use "click here", "here" or a bare address as anchor text.
+- No other links: no other HagerLand addresses, no external websites and no bare web addresses. Anything else is shown as plain words.
 
 # Honesty about HagerLand
 - HagerLand is a platform that connects people with property listings, building materials suppliers, professionals and services, construction jobs, and help for owners abroad. Describe it only in those terms.
@@ -109,7 +110,7 @@ HagerLand stores guide text in a simple plain-text format. Use only these:
 - Paragraphs: separated by one blank line.
 - Headings: a line that starts with "## " (one heading level only; never "#" or "###").
 - Bullets: lines that start with "- ". Bullets of one list sit on consecutive lines, with a blank line before and after the list.
-- Links: [anchor text](/path) as described above.
+- Links: [anchor text](/path) to approved pages only, as described above.
 Nothing else: no HTML tags, no bold or italics (no ** or __), no numbered-list syntax ("1."), no tables, no images, no emojis, no code. Inside the JSON string, write line breaks as \\n.
 
 # FAQ
@@ -118,7 +119,7 @@ Nothing else: no HTML tags, no bold or italics (no ** or __), no numbered-list s
 # Silent self-audit (do this before you answer; do not show it)
 - "content" is between ${length.min} and ${length.max} words.
 - Every uncertain fact, price, fee, timeframe, office name and legal point has a marker in the exact [CHECK: …] format.
-- Every link is from the approved list or is a .gov.et address with a CHECK marker; 2 to 4 links in total.
+- Every link is in the [anchor text](/path) form and from the approved list; 2 to 4 links in total.
 - Nothing is invented; no claims about HagerLand beyond the honesty rules.
 - The structure is complete: opening, body for the guide type, Common mistakes, Doing this from abroad (if required or suitable), Key points (exactly 4), How HagerLand can help.
 - Only the allowed formatting is used. Field lengths are within the limits. The JSON is valid.

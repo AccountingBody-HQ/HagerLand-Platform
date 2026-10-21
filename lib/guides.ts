@@ -1,6 +1,7 @@
 // Guides content hub (spec 25.2g): topics, the admin form schema and a small, safe body format.
 import { z } from 'zod'
 import { optionalText, textSchema } from '@/lib/validation/common'
+import { approvedInternalPath } from '@/lib/guides/studio-options'
 
 export const GUIDE_TOPICS = [
   { value: 'property', label: 'Buying, selling and renting' },
@@ -60,6 +61,44 @@ export function parseGuideBody(body: string): GuideBlock[] {
     flush()
   }
   return blocks
+}
+
+export type InlineSegment = { type: 'text'; text: string } | { type: 'link'; text: string; href: string }
+
+/** "[words](target)"; the target may hold one level of brackets, so "javascript:alert(1)" is matched whole. Shared with the importer. */
+export const GUIDE_LINK = /\[([^\]\n]+)\]\(((?:[^()\s]|\([^()\s]*\))*)\)/g
+const BROKEN_LINK = /\[([^\]\n]+)\]\([^)\s]*(?=\s|$)/g
+
+/** An approved HagerLand page (studio-options), optionally with a #fragment, as the href to link to; otherwise null. */
+export function guideLinkHref(target: string): string | null {
+  const [path, fragment, ...rest] = target.trim().split('#')
+  if (rest.length || (fragment !== undefined && !/^[A-Za-z0-9_-]+$/.test(fragment))) return null
+  const approved = approvedInternalPath(path)
+  return approved ? `${approved}${fragment ? `#${fragment}` : ''}` : null
+}
+
+/**
+ * Splits guide text into plain text and links. "[words](/path)" becomes a link only for an approved HagerLand page;
+ * any other link (external, unknown, javascript:, broken) shows as its words, never as brackets or a link.
+ */
+export function parseGuideInline(text: string): InlineSegment[] {
+  const out: InlineSegment[] = []
+  const push = (t: string) => {
+    if (!t) return
+    const last = out[out.length - 1]
+    if (last?.type === 'text') last.text += t
+    else out.push({ type: 'text', text: t })
+  }
+  let at = 0
+  for (const m of Array.from(text.matchAll(GUIDE_LINK))) {
+    push(text.slice(at, m.index).replace(BROKEN_LINK, '$1'))
+    const href = guideLinkHref(m[2])
+    if (href) out.push({ type: 'link', text: m[1], href })
+    else push(m[1])
+    at = (m.index ?? 0) + m[0].length
+  }
+  push(text.slice(at).replace(BROKEN_LINK, '$1'))
+  return out
 }
 
 /** FAQ entries typed in admin as "Q: …" / "A: …" pairs separated by blank lines. */

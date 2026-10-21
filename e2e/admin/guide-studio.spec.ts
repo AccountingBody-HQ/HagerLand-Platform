@@ -71,6 +71,7 @@ test('admin validates JSON, sees the preview and CHECK notes, imports a draft th
   await expect(page.getByRole('listitem').filter({ hasText: 'which office issues building permits' })).toBeVisible()
   await expect(page.getByRole('heading', { level: 1, name: TITLE })).toBeVisible()
   await expect(page.getByText('Send your list through our materials list page.')).toBeVisible()
+  await expect(page.getByRole('link', { name: 'our materials list page' })).toHaveAttribute('href', '/supplies/materials-list')
 
   await page.getByRole('button', { name: 'Import as draft' }).click()
   await expect(page.getByText('Imported as a draft marked “Needs AB review”.')).toBeVisible()

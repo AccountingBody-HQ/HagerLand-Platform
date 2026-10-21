@@ -1,6 +1,20 @@
-import { GUIDE_TOPICS, parseGuideBody, type FaqItem } from '@/lib/guides'
+import Link from 'next/link'
+import { GUIDE_TOPICS, parseGuideBody, parseGuideInline, type FaqItem } from '@/lib/guides'
 import { formatDate } from '@/lib/format'
 import { Accordion } from '@/components/ui/Accordion'
+
+/** Paragraph or bullet text; links appear only for approved HagerLand pages (parseGuideInline). */
+function Inline({ text }: { text: string }) {
+  return parseGuideInline(text).map((s, i) =>
+    s.type === 'link' ? (
+      <Link key={i} href={s.href} className="font-semibold text-green hover:underline">
+        {s.text}
+      </Link>
+    ) : (
+      s.text
+    ),
+  )
+}
 
 /** The guide article as visitors see it; also used for the Guide studio import preview. */
 export function GuideArticle({ guide, faq }: { guide: { topic: string | null; title: string | null; summary: string | null; body: string | null; updated_at: string | null }; faq: FaqItem[] }) {
@@ -20,11 +34,15 @@ export function GuideArticle({ guide, faq }: { guide: { topic: string | null; ti
           ) : b.type === 'ul' ? (
             <ul key={i} className="list-disc space-y-1 pl-6">
               {b.items.map((it, j) => (
-                <li key={j}>{it}</li>
+                <li key={j}>
+                  <Inline text={it} />
+                </li>
               ))}
             </ul>
           ) : (
-            <p key={i}>{b.text}</p>
+            <p key={i}>
+              <Inline text={b.text} />
+            </p>
           ),
         )}
       </div>
