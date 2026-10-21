@@ -13,7 +13,16 @@ export default async function AdminGuidesPage() {
   const { data } = await getAdminSupabase().from('guides').select('id, title, slug, topic, status, needs_review, updated_at').order('updated_at', { ascending: false })
   return (
     <div>
-      <AdminHeader title="Guides" description="The /guides content hub. Drafts are not public. Starter drafts are marked “Needs AB review” and cannot be published until you tick “Content checked”." actions={<ButtonLink href="/roodber8/guides/new" size="sm">New guide</ButtonLink>} />
+      <AdminHeader title="Guides" description="The /guides content hub. Drafts are not public. Starter drafts are marked “Needs AB review” and cannot be published until you tick “Content checked”." actions={
+          <div className="flex gap-2">
+            <ButtonLink href="/roodber8/guides/studio" size="sm" variant="secondary" prefetch={false}>
+              Guide studio
+            </ButtonLink>
+            <ButtonLink href="/roodber8/guides/new" size="sm">
+              New guide
+            </ButtonLink>
+          </div>
+        } />
       <DataTable
         label="Guides"
         rows={data ?? []}

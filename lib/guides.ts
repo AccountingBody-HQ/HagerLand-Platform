@@ -83,6 +83,27 @@ export function asFaq(v: unknown): FaqItem[] {
   return Array.isArray(v) ? v.filter((f): f is FaqItem => Boolean(f) && typeof f === 'object' && typeof (f as FaqItem).question === 'string' && typeof (f as FaqItem).answer === 'string') : []
 }
 
+/** "[CHECK: …]" notes mark facts still to verify (Guide studio). A guide that contains one is never checked, published or shown. */
+const CHECK_MARKER = /\[CHECK:\s*([^\]]*)\]/gi
+
+export function findCheckMarkers(...texts: (string | null | undefined)[]): string[] {
+  return texts.flatMap((t) => Array.from((t ?? '').matchAll(CHECK_MARKER)).map((m) => m[1].trim()))
+}
+
+/** Markers anywhere a visitor could read them: title, summary, text, FAQ and the SEO fields. */
+export function guideCheckMarkers(g: { title?: string | null; summary?: string | null; body?: string | null; faq?: unknown; seo_title?: string | null; seo_description?: string | null }): string[] {
+  return findCheckMarkers(g.title, g.summary, g.body, g.seo_title, g.seo_description, ...asFaq(g.faq).flatMap((f) => [f.question, f.answer]))
+}
+
+/** Public guard: a guide that still contains a CHECK note is never shown to visitors (its page answers 404). */
+export function visibleGuide<T extends Parameters<typeof guideCheckMarkers>[0]>(g: T | null): T | null {
+  return g && guideCheckMarkers(g).length === 0 ? g : null
+}
+
+export function checkNotesMessage(count: number): string {
+  return `Remove or resolve the CHECK notes first (${count} remaining).`
+}
+
 export const guideSchema = z
   .object({
     id: z.preprocess((v) => (v === '' || v === null ? undefined : v), z.uuid().optional()),
@@ -96,5 +117,11 @@ export const guideSchema = z
     seo_description: optionalText(170, 'SEO description'),
     status: z.enum(['draft', 'published', 'archived']),
     reviewed: z.preprocess((v) => v === 'on' || v === 'true', z.boolean()),
+  })
+  // CHECK notes first, so their message is the one shown when both rules fail.
+  .superRefine((d, ctx) => {
+    if (!d.reviewed && d.status !== 'published') return
+    const markers = findCheckMarkers(d.title, d.summary, d.body, d.faq_text, d.seo_title, d.seo_description)
+    if (markers.length) ctx.addIssue({ code: 'custom', message: checkNotesMessage(markers.length), path: ['reviewed'] })
   })
   .refine((d) => d.status !== 'published' || d.reviewed, { message: 'Tick "Content checked" before publishing.', path: ['reviewed'] })

@@ -4,7 +4,7 @@ import { useActionState } from 'react'
 import { saveGuideAction } from '@/app/roodber8/actions/guides'
 import { Field, Input, Select, Textarea } from '@/components/ui/Field'
 import { FormAlert, SubmitButton } from '@/components/forms/FormParts'
-import { GUIDE_TOPICS } from '@/lib/guides'
+import { checkNotesMessage, GUIDE_TOPICS } from '@/lib/guides'
 import { Panel } from './AdminUi'
 import { NoResetForm } from '@/components/forms/NoResetForm'
 
@@ -23,7 +23,7 @@ export interface GuideDefaults {
 }
 
 /** Guide editor (spec 25.2g). */
-export function GuideForm({ defaults }: { defaults: GuideDefaults }) {
+export function GuideForm({ defaults, checkNotes = 0 }: { defaults: GuideDefaults; checkNotes?: number }) {
   const [state, action] = useActionState(saveGuideAction, null)
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
   return (
@@ -80,9 +80,10 @@ export function GuideForm({ defaults }: { defaults: GuideDefaults }) {
             </Select>
           </Field>
           <label className="flex min-h-11 items-center gap-2 self-end">
-            <input type="checkbox" name="reviewed" defaultChecked={defaults.needs_review === false} className="size-5 accent-green" /> Content checked: no unverified legal or regulatory statements
+            <input type="checkbox" name="reviewed" defaultChecked={defaults.needs_review === false && checkNotes === 0} disabled={checkNotes > 0} className="size-5 accent-green" /> Content checked: no unverified legal or regulatory statements
           </label>
         </div>
+        {checkNotes > 0 && <p className="mt-2 text-small text-warning-dark">{checkNotesMessage(checkNotes)}</p>}
         {errors.reviewed && <p className="mt-2 text-small text-error">{errors.reviewed}</p>}
       </Panel>
       <SubmitButton size="lg" pendingText="Saving…">

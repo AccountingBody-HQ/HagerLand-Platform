@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import { ExternalLink } from 'lucide-react'
 import { requireAdminPage } from '@/lib/admin/guard'
 import { getAdminSupabase } from '@/lib/supabase/admin'
-import { asFaq, faqToText } from '@/lib/guides'
+import { asFaq, checkNotesMessage, faqToText, guideCheckMarkers } from '@/lib/guides'
 import { deleteGuideAction } from '../../actions/guides'
 import { AdminHeader, StatusBadge } from '@/components/admin/AdminUi'
 import { GuideForm } from '@/components/admin/GuideForm'
@@ -21,6 +21,7 @@ export default async function AdminGuidePage(
   if (!/^[0-9a-f-]{36}$/.test(params.id)) notFound()
   const { data: g } = await getAdminSupabase().from('guides').select('*').eq('id', params.id).maybeSingle()
   if (!g) notFound()
+  const markers = guideCheckMarkers(g)
   return (
     <div className="space-y-5">
       <AdminHeader
@@ -40,7 +41,18 @@ export default async function AdminGuidePage(
         }
       />
       {searchParams.created && <FormAlert tone="success">Guide created.</FormAlert>}
-      <GuideForm defaults={{ ...g, faq_text: faqToText(asFaq(g.faq)) }} />
+      {markers.length > 0 && (
+        <div role="status" className="rounded-md border border-gold/40 bg-gold-soft px-4 py-3 text-small text-ink">
+          <p className="font-semibold">{checkNotesMessage(markers.length)}</p>
+          <p className="mt-1">Each note marks a fact to verify. Check it, correct the text and delete the [CHECK: …] note. Until none remain, “Content checked” and publishing are blocked.</p>
+          <ul className="mt-2 list-disc space-y-1 pl-6">
+            {markers.map((m, i) => (
+              <li key={i}>{m}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      <GuideForm defaults={{ ...g, faq_text: faqToText(asFaq(g.faq)) }} checkNotes={markers.length} />
     </div>
   )
 }
