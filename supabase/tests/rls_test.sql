@@ -641,6 +641,17 @@ select pg_temp.record_check('Signed-in user cannot read or create supply partner
   and pg_temp.write_denied($q$insert into public.supply_contacts (org_id, name) select id, 'RLS' from public.organisations limit 1$q$));
 reset role;
 
+-- ---------- Supplier offers (0035): HagerLand only ----------
+reset role;
+set role anon;
+select pg_temp.record_check('Anonymous cannot read supplier_offers', pg_temp.read_denied('supplier_offers'));
+reset role;
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000002", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000002', false);
+select pg_temp.record_check('Signed-in user cannot read or create supplier offers', pg_temp.read_denied('supplier_offers')
+  and pg_temp.write_denied($q$insert into public.supplier_offers (org_id, product_id, item_key, unit, price_etb_cents, price_date, valid_until, source) select seller_org_id, id, 'rls', 'piece', 100, current_date, current_date, 'other' from public.products limit 1$q$));
+reset role;
+
 -- ---------- Clean up ----------
 reset role;
 select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);

@@ -3,6 +3,7 @@ import { requireAdminPage } from '@/lib/admin/guard'
 import { formatDate, formatPhone } from '@/lib/format'
 import { ORG_KIND_LABEL } from '@/lib/org-labels'
 import { listSupplyPartners } from '@/lib/supply/data'
+import { offerCounts } from '@/lib/supply/offers-data'
 import { labelFor, RELATIONSHIP_STATUSES, SUPPLY_ROLES } from '@/lib/supply/partners'
 import { ButtonLink } from '@/components/ui/Button'
 import { AdminHeader, DataTable, FilterBar, FilterField, Panel, SimplePager, StatusBadge, filterInput } from '@/components/admin/AdminUi'
@@ -17,12 +18,15 @@ export default async function SupplyPartnersPage(props: { searchParams: Promise<
   const status = RELATIONSHIP_STATUSES.some((s) => s.value === sp.status) ? sp.status : undefined
   const role = SUPPLY_ROLES.some((r) => r.value === sp.role) ? sp.role : undefined
   const due = sp.due === '1'
+  const prices = sp.prices === 'expiring' || sp.prices === 'expired' ? sp.prices : undefined
   const q = (sp.q ?? '').slice(0, 120)
   const page = Math.max(1, Math.min(1000, Number(sp.page) || 1))
-  const all = await listSupplyPartners({ status, role, due, q })
+  const [listed, counts] = await Promise.all([listSupplyPartners({ status, role, due, q }), offerCounts()])
+  const countFor = (orgId: string) => counts.get(orgId) ?? { current: 0, expiringSoon: 0, expired: 0 }
+  const all = prices ? listed.filter((r) => (prices === 'expiring' ? countFor(r.orgId).expiringSoon : countFor(r.orgId).expired) > 0) : listed
   const rows = all.slice((page - 1) * PER_PAGE, page * PER_PAGE)
-  const filtered = Boolean(status || role || due || q)
-  const hrefFor = (p: number) => `/roodber8/supply/partners?${new URLSearchParams({ ...(status && { status }), ...(role && { role }), ...(due && { due: '1' }), ...(q && { q }), page: String(p) })}`
+  const filtered = Boolean(status || role || due || q || prices)
+  const hrefFor = (p: number) => `/roodber8/supply/partners?${new URLSearchParams({ ...(status && { status }), ...(role && { role }), ...(due && { due: '1' }), ...(prices && { prices }), ...(q && { q }), page: String(p) })}`
   const today = new Date().toISOString().slice(0, 10)
 
   return (
@@ -31,9 +35,14 @@ export default async function SupplyPartnersPage(props: { searchParams: Promise<
         title="Supply partners"
         description="HagerLand’s private record of the businesses we buy materials from. Never shown on the site."
         actions={
-          <ButtonLink href="/roodber8/organisations/new?supplier=1" size="sm" prefetch={false}>
-            Add new supplier
-          </ButtonLink>
+          <>
+            <ButtonLink href="/roodber8/supply/partners/expiring" size="sm" variant="secondary" prefetch={false}>
+              Prices expiring this week
+            </ButtonLink>
+            <ButtonLink href="/roodber8/organisations/new?supplier=1" size="sm" prefetch={false}>
+              Add new supplier
+            </ButtonLink>
+          </>
         }
       />
       <FilterBar action="/roodber8/supply/partners">
@@ -58,6 +67,13 @@ export default async function SupplyPartnersPage(props: { searchParams: Promise<
                 {r.label}
               </option>
             ))}
+          </select>
+        </FilterField>
+        <FilterField label="Prices">
+          <select name="prices" defaultValue={prices ?? ''} className={filterInput}>
+            <option value="">Any</option>
+            <option value="expiring">Expiring this week</option>
+            <option value="expired">Expired</option>
           </select>
         </FilterField>
         <FilterField label="Re-verification">
@@ -110,6 +126,18 @@ export default async function SupplyPartnersPage(props: { searchParams: Promise<
                 ),
               },
               { key: 'phone', label: 'Phone', render: (r) => (r.phone ? formatPhone(r.phone) : '') },
+              {
+                key: 'prices',
+                label: 'Prices',
+                render: (r) => {
+                  const c = countFor(r.orgId)
+                  return (
+                    <Link href={`/roodber8/supply/partners/${r.orgId}/offers`} prefetch={false} className="hover:underline">
+                      {c.current} current · {c.expiringSoon} expiring within 7 days · {c.expired} expired
+                    </Link>
+                  )
+                },
+              },
               { key: 'roles', label: 'Roles', render: (r) => r.roles.map((x) => labelFor(SUPPLY_ROLES, x)).join(', ') },
               {
                 key: 'status',

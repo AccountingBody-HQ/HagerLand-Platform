@@ -53,8 +53,7 @@ Every job follows these, even when the prompt does not repeat them. Where a rule
 
 ## Working rules (spec Section 0)
 - The owner (AB) is a solo founder learning as we build: explain in plain English at every stop.
-- One work package (spec Section 21) at a time. Never start the next until AB replies "continue". Stop and wait for "go" at every [STOP-GATE].
-- All relaunch work on branch `relaunch/construction`. `main` (live site) is untouched until WP-20. Rollback point: tag `pre-construction-relaunch`.
+- Every job follows "Standards for every job (AB's rules)" above: a new branch from current `main`, merged only when the prompt authorises release (pre-relaunch rollback point: tag `pre-construction-relaunch`).
 - **Never run SQL against the database.** Write numbered migrations in `supabase/migrations/` (e.g. `0001_core_schema.sql`); hand each to AB with a plain explanation and a verification query; wait for confirmation before writing code that depends on it.
 - Database is in production use. New schema is additive. Never DROP or TRUNCATE legacy tables (companies, jobs, housing, money, cars, tutors, community, events, delivery, made_in_ethiopia, business_claims, listing_enquiries, import_log, admin_audit, rate_limits, countries, ...).
 - Stay on Next.js 15.5.x / React 19 (upgraded in E10, authorised by the Phase 1.5 brief). No other major upgrades without AB.

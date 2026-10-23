@@ -189,7 +189,7 @@ export async function removeMemberAction(orgId: string, userId: string): Promise
  * Supply partner records follow a merge: the duplicate's record moves across, or, when both have one, the kept
  * record gains the duplicate's roles, other names (and its name) and evidence. Contacts always move.
  */
-async function mergeSupplyRecords(sourceId: string, targetId: string, sourceName: string): Promise<{ partner: 'none' | 'moved' | 'combined'; contacts: number }> {
+async function mergeSupplyRecords(sourceId: string, targetId: string, sourceName: string): Promise<{ partner: 'none' | 'moved' | 'combined'; contacts: number; offers: { moved: number; superseded: number } }> {
   const db = getAdminSupabase()
   const [{ data: from }, { data: into }] = await Promise.all([
     db.from('supply_partners').select('roles, aka, evidence_paths').eq('org_id', sourceId).maybeSingle(),
@@ -212,9 +212,48 @@ async function mergeSupplyRecords(sourceId: string, targetId: string, sourceName
     await db.from('admin_notes').insert({ entity_type: 'organisation', entity_id: targetId, note: `Supply partner record of ${sourceName} (${sourceId}) combined into this one: roles, other names and evidence added.` })
     partner = 'combined'
   }
-  // Branches stay with the archived duplicate, so moved contacts lose their branch link.
+  // Branches stay with the archived duplicate, so moved contacts and prices lose their branch link.
   const { data: moved } = await db.from('supply_contacts').update({ org_id: targetId, branch_id: null }).eq('org_id', sourceId).select('id')
-  return { partner, contacts: moved?.length ?? 0 }
+  const offers = await mergeSupplierOffers(sourceId, targetId, sourceName)
+  return { partner, contacts: moved?.length ?? 0, offers }
+}
+
+/**
+ * Prices follow a merge. When both businesses have a current price for the same item and unit, the newer one (later
+ * price date, then later entry) stays current and the other becomes superseded, so only one is current.
+ */
+async function mergeSupplierOffers(sourceId: string, targetId: string, sourceName: string): Promise<{ moved: number; superseded: number }> {
+  const db = getAdminSupabase()
+  const [{ data: from }, { data: into }] = await Promise.all([
+    db.from('supplier_offers').select('id, item_key, unit, price_date, captured_at').eq('org_id', sourceId).eq('status', 'current'),
+    db.from('supplier_offers').select('id, item_key, unit, price_date, captured_at, branch_id').eq('org_id', targetId).eq('status', 'current'),
+  ])
+  const newer = (a: { price_date: string; captured_at: string }, b: { price_date: string; captured_at: string }) => a.price_date > b.price_date || (a.price_date === b.price_date && a.captured_at > b.captured_at)
+  let superseded = 0
+  // Prices for different branches of the duplicate become whole-business prices: keep only the newest per item.
+  const keepers = new Map<string, NonNullable<typeof from>[number]>()
+  for (const s of from ?? []) {
+    const key = `${s.item_key}|${s.unit}`
+    const kept = keepers.get(key)
+    if (!kept) keepers.set(key, s)
+    else {
+      const [loser, winner] = newer(s, kept) ? [kept, s] : [s, kept]
+      await db.from('supplier_offers').update({ status: 'superseded', superseded_by: winner.id }).eq('id', loser.id)
+      keepers.set(key, winner)
+      superseded++
+    }
+  }
+  for (const s of Array.from(keepers.values())) {
+    // Moved prices lose their branch, so they compete with the kept business's whole-business prices.
+    const t = (into ?? []).find((o) => o.item_key === s.item_key && o.unit === s.unit && o.branch_id === null)
+    if (!t) continue
+    const [loser, winner] = newer(s, t) ? [t, s] : [s, t]
+    await db.from('supplier_offers').update({ status: 'superseded', superseded_by: winner.id }).eq('id', loser.id)
+    superseded++
+  }
+  const { data: moved } = await db.from('supplier_offers').update({ org_id: targetId, branch_id: null }).eq('org_id', sourceId).select('id')
+  if (superseded) await db.from('admin_notes').insert({ entity_type: 'organisation', entity_id: targetId, note: `Prices from ${sourceName} (${sourceId}) merged in: ${superseded} older duplicate price${superseded === 1 ? '' : 's'} marked superseded.` })
+  return { moved: moved?.length ?? 0, superseded }
 }
 
 /**
