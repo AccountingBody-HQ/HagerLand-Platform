@@ -102,17 +102,29 @@ export function SupplyPartnerPanel({
   contacts,
   evidence,
   duplicates,
+  prices,
 }: {
   orgId: string
   partner: SupplyPartnerView | null
   contacts: SupplyContactView[]
   evidence: { path: string; url: string | null }[]
   duplicates: { id: string; name: string; status: string; reason: string }[]
+  prices: { current: number; expiringSoon: number; expired: number }
 }) {
   return (
     <div className="space-y-6">
       <p className="text-small text-muted">Private to HagerLand: never shown on the site, to customers or to the business itself.</p>
       {!partner && <Duplicates duplicates={duplicates} />}
+      {partner && (
+        <p className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-md bg-stone-50 px-3 py-2 text-small">
+          <span className="font-semibold">
+            Prices: {prices.current} current · {prices.expiringSoon} expiring within 7 days · {prices.expired} expired
+          </span>
+          <Link href={`/roodber8/supply/partners/${orgId}/offers`} prefetch={false} className="font-semibold text-green underline">
+            Open price list
+          </Link>
+        </p>
+      )}
       {partner && <StatusControl orgId={orgId} status={partner.relationship_status} changedAt={partner.status_changed_at} />}
       <ProfileForm orgId={orgId} partner={partner} />
       {partner && (

@@ -21,6 +21,7 @@ import { FormAlert } from '@/components/forms/FormParts'
 import { SupplyPartnerPanel } from '@/components/admin/SupplyPartnerPanel'
 import { ScrollToSection } from '@/components/admin/ScrollToSection'
 import { findPossibleDuplicates, getSupplyPartner } from '@/lib/supply/data'
+import { offerCounts } from '@/lib/supply/offers-data'
 
 export const metadata = { title: 'Organisation' }
 
@@ -45,7 +46,7 @@ export default async function AdminOrgPage(
     notesFor('organisation', o.id),
     auditFor(o.id),
   ])
-  const supply = await getSupplyPartner(o.id)
+  const [supply, prices] = await Promise.all([getSupplyPartner(o.id), offerCounts([o.id])])
   const duplicates = supply.partner ? [] : await findPossibleDuplicates(o)
   const { data: memberProfiles } = await db.from('profiles').select('id, full_name').in('id', (members ?? []).map((m) => m.user_id))
   const memberEmails = await Promise.all(
@@ -124,7 +125,7 @@ export default async function AdminOrgPage(
           </Panel>
           <div id="supply-partner" className="scroll-mt-24">
           <Panel title="Supply partner">
-            <SupplyPartnerPanel orgId={o.id} partner={supply.partner} contacts={supply.contacts} evidence={supply.evidence} duplicates={duplicates} />
+            <SupplyPartnerPanel orgId={o.id} partner={supply.partner} contacts={supply.contacts} evidence={supply.evidence} duplicates={duplicates} prices={prices.get(o.id) ?? { current: 0, expiringSoon: 0, expired: 0 }} />
           </Panel>
           </div>
           <Panel title="Verification documents">

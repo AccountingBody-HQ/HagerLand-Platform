@@ -4985,6 +4985,174 @@ export type Database = {
         }
         Relationships: []
       }
+      supplier_offers: {
+        Row: {
+          branch_id: string | null
+          captured_at: string
+          captured_by: string | null
+          category_id: string | null
+          confidence: string | null
+          created_at: string
+          delivery_area_ids: string[]
+          delivery_charge_etb_cents: number | null
+          delivery_note: string | null
+          evidence_paths: string[]
+          fx_linked: boolean
+          id: string
+          item_key: string
+          item_name: string | null
+          lead_time_days: number | null
+          min_order_qty: number | null
+          org_id: string
+          pack_size: number | null
+          price_date: string
+          price_etb_cents: number
+          product_id: string | null
+          source: string
+          source_note: string | null
+          status: string
+          superseded_by: string | null
+          unit: string
+          updated_at: string
+          valid_until: string
+          vat_included: string
+        }
+        ComputedFields: never
+        Insert: {
+          branch_id?: string | null
+          captured_at?: string
+          captured_by?: string | null
+          category_id?: string | null
+          confidence?: string | null
+          created_at?: string
+          delivery_area_ids?: string[]
+          delivery_charge_etb_cents?: number | null
+          delivery_note?: string | null
+          evidence_paths?: string[]
+          fx_linked?: boolean
+          id?: string
+          item_key: string
+          item_name?: string | null
+          lead_time_days?: number | null
+          min_order_qty?: number | null
+          org_id: string
+          pack_size?: number | null
+          price_date: string
+          price_etb_cents: number
+          product_id?: string | null
+          source: string
+          source_note?: string | null
+          status?: string
+          superseded_by?: string | null
+          unit: string
+          updated_at?: string
+          valid_until: string
+          vat_included?: string
+        }
+        Update: {
+          branch_id?: string | null
+          captured_at?: string
+          captured_by?: string | null
+          category_id?: string | null
+          confidence?: string | null
+          created_at?: string
+          delivery_area_ids?: string[]
+          delivery_charge_etb_cents?: number | null
+          delivery_note?: string | null
+          evidence_paths?: string[]
+          fx_linked?: boolean
+          id?: string
+          item_key?: string
+          item_name?: string | null
+          lead_time_days?: number | null
+          min_order_qty?: number | null
+          org_id?: string
+          pack_size?: number | null
+          price_date?: string
+          price_etb_cents?: number
+          product_id?: string | null
+          source?: string
+          source_note?: string | null
+          status?: string
+          superseded_by?: string | null
+          unit?: string
+          updated_at?: string
+          valid_until?: string
+          vat_included?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'supplier_offers_branch_id_fkey'
+            columns: ['branch_id']
+            isOneToOne: false
+            referencedRelation: 'org_branches'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'supplier_offers_branch_id_fkey'
+            columns: ['branch_id']
+            isOneToOne: false
+            referencedRelation: 'org_branches_public'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'supplier_offers_category_id_fkey'
+            columns: ['category_id']
+            isOneToOne: false
+            referencedRelation: 'org_product_categories_public'
+            referencedColumns: ['product_category_id']
+          },
+          {
+            foreignKeyName: 'supplier_offers_category_id_fkey'
+            columns: ['category_id']
+            isOneToOne: false
+            referencedRelation: 'product_categories'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'supplier_offers_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'supplier_offers_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'supplier_offers_product_id_fkey'
+            columns: ['product_id']
+            isOneToOne: false
+            referencedRelation: 'products'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'supplier_offers_product_id_fkey'
+            columns: ['product_id']
+            isOneToOne: false
+            referencedRelation: 'products_public'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'supplier_offers_product_id_fkey'
+            columns: ['product_id']
+            isOneToOne: false
+            referencedRelation: 'special_buys_public'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'supplier_offers_superseded_by_fkey'
+            columns: ['superseded_by']
+            isOneToOne: false
+            referencedRelation: 'supplier_offers'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       supply_contacts: {
         Row: {
           branch_id: string | null

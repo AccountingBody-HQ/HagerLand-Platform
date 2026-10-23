@@ -56,6 +56,19 @@ In **Verification**, enter the date you saw the trade licence, checked the TIN, 
 
 Change it with **Change status**; the date of the change is kept and every change is in the audit log.
 
+## Prices (price lists)
+
+Each partner has a private price list: on its page, the Supply partner panel shows **Prices: N current · M expiring within 7 days · K expired** and an **Open price list** link. Prices are never shown on the site and never change HagerLand's public catalogue prices.
+
+- **Add price**: pick a catalogue product, or choose a category and type the item as the partner names it (“Dangote OPC 42.5 cement 50 kg”). Then the unit, the price in birr (`1250` or `1,250.50`), the price date and **Valid until**. Valid until is filled in for you: **7 days** for cement and reinforcement steel, **14 days** for imported or foreign-currency items, **30 days** for everything else. Change it if the partner said otherwise. Add delivery areas, delivery charge, lead time, VAT, where the price came from, and a photo or PDF of the price list if you have one.
+- **Paste a price list**: copy the lines (from a Telegram photo, a PDF or a spreadsheet), one per line: `item, unit, price` and optionally a pack size, for example `Rebar 12mm, piece, 980`. Click **Check the list**: each line shows what was read, whether HagerLand already knows the item, and any problem in red. Choose a category for each new item, fill in the details shared by the whole list once (date, delivery, source, the photo), and save. Every line is saved, or none.
+- **A new price replaces the old one.** Enter a new price for the same item, unit and branch and the old one becomes “superseded”. Click **History** on the item to see every earlier price with its dates.
+- **Freshness**: **Fresh** (less than half its validity used), **Ageing** (more than half), **Expired** (past Valid until). Expired prices stay in the list, clearly marked.
+- **Withdraw**: when the partner no longer sells something. It stays in the history.
+- **Prices expiring this week** (button on Supply partners, or the **Prices** filter): every current price that runs out within 7 days or has already run out, with the person to call and their phone. Nothing is sent automatically. People marked “Do not contact” are never suggested.
+
+**Never quote a customer from an expired price: call the partner for a new one first.**
+
 ## Find partners and duplicates
 
 On **Supply partners**, search by name, another name, or any phone number (the business's phone, WhatsApp or Telegram number, or a contact's phone) in any format. Filter by status, role, or **Re-verification: Due now** to see who needs checking again.
