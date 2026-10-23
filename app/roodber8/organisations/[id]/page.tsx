@@ -18,6 +18,8 @@ import { AuditTrail } from '@/components/admin/AuditTrail'
 import { MembersTool, MergeTool, OrgAdminFields } from '@/components/admin/OrgTools'
 import { SingleImageUpload } from '@/components/media/SingleImageUpload'
 import { FormAlert } from '@/components/forms/FormParts'
+import { SupplyPartnerPanel } from '@/components/admin/SupplyPartnerPanel'
+import { findPossibleDuplicates, getSupplyPartner } from '@/lib/supply/data'
 
 export const metadata = { title: 'Organisation' }
 
@@ -42,6 +44,8 @@ export default async function AdminOrgPage(
     notesFor('organisation', o.id),
     auditFor(o.id),
   ])
+  const supply = await getSupplyPartner(o.id)
+  const duplicates = supply.partner ? [] : await findPossibleDuplicates(o)
   const { data: memberProfiles } = await db.from('profiles').select('id, full_name').in('id', (members ?? []).map((m) => m.user_id))
   const memberEmails = await Promise.all(
     (members ?? []).map(async (m) => ({
@@ -113,6 +117,9 @@ export default async function AdminOrgPage(
               }}
               submitLabel="Save changes"
             />
+          </Panel>
+          <Panel title="Supply partner">
+            <SupplyPartnerPanel orgId={o.id} partner={supply.partner} contacts={supply.contacts} evidence={supply.evidence} duplicates={duplicates} />
           </Panel>
           <Panel title="Verification documents">
             {docs.length === 0 ? (

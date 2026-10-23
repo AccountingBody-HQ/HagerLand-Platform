@@ -629,6 +629,18 @@ exception when check_violation then
   perform pg_temp.record_check('An active staff account must have two-factor enrolled', true);
 end $$;
 
+-- ---------- Supply partners (0034): HagerLand only ----------
+reset role;
+set role anon;
+select pg_temp.record_check('Anonymous cannot read ' || name, pg_temp.read_denied(name)) from unnest(array['supply_partners', 'supply_contacts']) as t(name);
+reset role;
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000002", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000002', false);
+select pg_temp.record_check('Signed-in user cannot read or create supply partner records', pg_temp.read_denied('supply_partners') and pg_temp.read_denied('supply_contacts')
+  and pg_temp.write_denied($q$insert into public.supply_partners (org_id) select id from public.organisations limit 1$q$)
+  and pg_temp.write_denied($q$insert into public.supply_contacts (org_id, name) select id, 'RLS' from public.organisations limit 1$q$));
+reset role;
+
 -- ---------- Clean up ----------
 reset role;
 select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);

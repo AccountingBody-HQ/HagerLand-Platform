@@ -138,8 +138,40 @@ export async function removeMemberAction(orgId: string, userId: string): Promise
 }
 
 /**
+ * Supply partner records follow a merge: the duplicate's record moves across, or, when both have one, the kept
+ * record gains the duplicate's roles, other names (and its name) and evidence. Contacts always move.
+ */
+async function mergeSupplyRecords(sourceId: string, targetId: string, sourceName: string): Promise<{ partner: 'none' | 'moved' | 'combined'; contacts: number }> {
+  const db = getAdminSupabase()
+  const [{ data: from }, { data: into }] = await Promise.all([
+    db.from('supply_partners').select('roles, aka, evidence_paths').eq('org_id', sourceId).maybeSingle(),
+    db.from('supply_partners').select('roles, aka, evidence_paths').eq('org_id', targetId).maybeSingle(),
+  ])
+  let partner: 'none' | 'moved' | 'combined' = 'none'
+  if (from && !into) {
+    await db.from('supply_partners').update({ org_id: targetId }).eq('org_id', sourceId)
+    partner = 'moved'
+  } else if (from && into) {
+    await db
+      .from('supply_partners')
+      .update({
+        roles: Array.from(new Set([...into.roles, ...from.roles])),
+        aka: Array.from(new Set([...into.aka, ...from.aka, sourceName])).slice(0, 20),
+        evidence_paths: Array.from(new Set([...into.evidence_paths, ...from.evidence_paths])).slice(0, 20),
+      })
+      .eq('org_id', targetId)
+    await db.from('supply_partners').delete().eq('org_id', sourceId)
+    await db.from('admin_notes').insert({ entity_type: 'organisation', entity_id: targetId, note: `Supply partner record of ${sourceName} (${sourceId}) combined into this one: roles, other names and evidence added.` })
+    partner = 'combined'
+  }
+  // Branches stay with the archived duplicate, so moved contacts lose their branch link.
+  const { data: moved } = await db.from('supply_contacts').update({ org_id: targetId, branch_id: null }).eq('org_id', sourceId).select('id')
+  return { partner, contacts: moved?.length ?? 0 }
+}
+
+/**
  * Merge a duplicate into the organisation to keep: moves members, listings, developments,
- * portfolio, products, services, supply categories and leads, then archives the duplicate (spec 18.2 #5).
+ * portfolio, products, services, supply categories, supply partner records and leads, then archives the duplicate (spec 18.2 #5).
  */
 export async function mergeOrganisationsAction(sourceId: string, targetId: string): Promise<ActionResult<{ message: string }>> {
   await assertAdmin(AREA)
@@ -168,8 +200,9 @@ export async function mergeOrganisationsAction(sourceId: string, targetId: strin
     db.from('enquiries').update({ recipient_org_id: targetId }).eq('recipient_org_id', sourceId),
     db.from('claims').update({ org_id: targetId }).eq('org_id', sourceId),
   ])
+  const supply = await mergeSupplyRecords(sourceId, targetId, source.name)
   await db.from('admin_notes').insert({ entity_type: 'organisation', entity_id: sourceId, note: `Merged into ${target.name} (${targetId}).` })
-  await audit('organisation.merge', { type: 'organisation', id: targetId, label: target.name }, { merged: { id: sourceId, name: source.name } })
+  await audit('organisation.merge', { type: 'organisation', id: targetId, label: target.name }, { merged: { id: sourceId, name: source.name }, supply })
   revalidateEntity('organisation', targetId)
   revalidateEntity('organisation', sourceId)
   return ok({ message: `${source.name} was merged into ${target.name}.` })

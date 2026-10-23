@@ -1,6 +1,6 @@
 /** The admin menu (spec 18.2, 26). Staff see the items their role may open (lib/admin/roles.ts). */
 import {
-  BadgePercent, BarChart3, MailWarning, BookOpen, Calculator, Briefcase, Building2, LayoutGrid, Handshake, UserPlus, Coins, Wrench, ListChecks, Receipt, KeyRound, ClipboardCheck, ClipboardList, FileClock, FolderTree, Gauge, Import, Inbox, MapPin, Megaphone, Package, Settings, Store, Users, HandCoins, House, Layers, HardHat, Mail, Star, TrendingUp, Activity, UserCog,
+  BadgePercent, BarChart3, MailWarning, BookOpen, Calculator, Briefcase, Building2, LayoutGrid, Handshake, UserPlus, Coins, Wrench, ListChecks, Receipt, KeyRound, ClipboardCheck, ClipboardList, FileClock, FolderTree, Gauge, Import, Inbox, MapPin, Megaphone, Package, Settings, Store, Users, HandCoins, House, Layers, HardHat, Mail, Star, TrendingUp, Activity, UserCog, Truck,
 } from 'lucide-react'
 
 export const ADMIN_NAV = [
@@ -18,6 +18,7 @@ export const ADMIN_NAV = [
   { href: '/roodber8/exchange-rates', label: 'Exchange rates', icon: Coins },
   { href: '/roodber8/enquiries', label: 'Enquiries', icon: Inbox },
   { href: '/roodber8/quotes', label: 'Quotes', icon: ClipboardList, badgeKey: 'quotes' },
+  { href: '/roodber8/supply/partners', label: 'Supply partners', icon: Truck },
   { href: '/roodber8/service-requests', label: 'Service requests', icon: Wrench, badgeKey: 'requests' },
   { href: '/roodber8/projects', label: 'Building projects', icon: HardHat },
   { href: '/roodber8/reviews', label: 'Reviews', icon: Star, badgeKey: 'reviews' },
