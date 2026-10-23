@@ -5,7 +5,7 @@ import 'server-only'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { addDays, itemKey } from './offers'
 import { customerTotalCents, hagerlandEarned, needsAction, summariseLedger, supplierTotalCents, type LedgerSummary, type MoneyModel, type OrderStatus } from './money'
-import { todayInAddis } from './shortlist'
+import { addisDate, inAddisMonth, todayInAddis } from './shortlist'
 import {
   commissionOutstanding,
   demandByArea,
@@ -203,7 +203,8 @@ async function demandItems(since: string, until: string | null, includeCancelled
 export async function demandData(days: number, includeCancelled: boolean): Promise<DemandData> {
   const db = getAdminSupabase()
   const today = todayInAddis()
-  const since = new Date(Date.now() - days * 86_400_000).toISOString()
+  // From the start of that day in Addis Ababa.
+  const since = `${addDays(today, -days)}T00:00:00+03:00`
   const { items, quoteIds } = await demandItems(since, null, includeCancelled)
   const itemIds = items.map((i) => i.itemId)
   const [{ data: lines }, { data: offers }, { data: jobs }, { data: projects }] = await Promise.all([
@@ -303,9 +304,7 @@ export async function supplyReport(month: string): Promise<SupplyReport> {
   ])
   const { data: withLines } = quoteIds.length ? await db.from('supply_quote_lines').select('quote_request_id').in('quote_request_id', quoteIds).limit(50000) : { data: [] }
   const all = orders ?? []
-  const from = new Date(startTs).getTime()
-  const to = new Date(nextTs).getTime()
-  const inMonth = (ts: string | null) => Boolean(ts) && new Date(ts as string).getTime() >= from && new Date(ts as string).getTime() < to
+  const inMonth = (ts: string | null) => inAddisMonth(ts, month)
   const created = all.filter((o) => inMonth(o.created_at))
   const createdIds = created.map((o) => o.id)
   const [{ data: lines }, { data: disputes }] = await Promise.all([
@@ -394,7 +393,7 @@ export async function supplyActionItems(owner: boolean): Promise<ActionItem[]> {
       for (const c of overdue) items.push({ kind: 'commission_overdue', text: `${refs?.find((r) => r.id === c.orderId)?.reference ?? 'Order'}: commission due for ${c.days} days`, href: `/roodber8/supply/orders/${c.orderId}` })
     }
   }
-  for (const c of contacts ?? []) if ((c.last_contacted_at ?? c.created_at).slice(0, 10) < sixMonthsAgo) items.push({ kind: 'contact_due', text: `${(c.org as { name: string } | null)?.name ?? ''}: confirm ${c.name}’s details (not contacted for 6 months)`, href: `/roodber8/organisations/${c.org_id}#supply-partner` })
+  for (const c of contacts ?? []) if (addisDate(c.last_contacted_at ?? c.created_at) < sixMonthsAgo) items.push({ kind: 'contact_due', text: `${(c.org as { name: string } | null)?.name ?? ''}: confirm ${c.name}’s details (not contacted for 6 months)`, href: `/roodber8/organisations/${c.org_id}#supply-partner` })
   for (const p of partners ?? []) items.push({ kind: 'reverify_due', text: `${(p.org as { name: string } | null)?.name ?? ''}: re-verify (due ${p.reverify_by})`, href: `/roodber8/organisations/${p.org_id}#supply-partner` })
   const seen = new Set<string>()
   for (const l of openLines ?? []) {

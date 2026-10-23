@@ -127,6 +127,16 @@ export function todayInAddis(now = new Date()): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Addis_Ababa', year: 'numeric', month: '2-digit', day: '2-digit' }).format(now)
 }
 
+/** The Ethiopian calendar date (YYYY-MM-DD) of a moment, e.g. 2026-10-10T21:01Z is already 11 October in Addis Ababa. */
+export function addisDate(moment: string | Date): string {
+  return todayInAddis(typeof moment === 'string' ? new Date(moment) : moment)
+}
+
+/** True when a moment falls in a month (YYYY-MM) of the Ethiopian calendar date. */
+export function inAddisMonth(moment: string | null, month: string): boolean {
+  return Boolean(moment) && addisDate(moment as string).slice(0, 7) === month
+}
+
 function shortDate(date: string): string {
   return new Date(`${date}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' })
 }

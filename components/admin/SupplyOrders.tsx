@@ -6,7 +6,7 @@ import { FileText } from 'lucide-react'
 import { addProofAction, createOrdersAction, proofUploadAction, recordOrderEntryAction, removeProofAction, saveDraftOrderAction, setOrderStatusAction, type OrderGroupInput } from '@/app/roodber8/actions/supply-orders'
 import { addManualEntryAction, reverseEntryAction } from '@/app/roodber8/actions/supply-ledger'
 import { bpsToPercent, canTransition, ENTRY_LABEL, lineTotalCents, MODEL_LABEL, roundHalfUp, type MoneyModel, type OrderStatus } from '@/lib/supply/money'
-import { formatEtbExact } from '@/lib/supply/shortlist'
+import { formatEtbExact, todayInAddis } from '@/lib/supply/shortlist'
 import { unitLabel } from '@/lib/units'
 import { formatDate, formatPhone } from '@/lib/format'
 import { Button } from '@/components/ui/Button'
@@ -39,7 +39,7 @@ function useRun() {
 }
 
 const cents = (c: number) => (c / 100).toFixed(2)
-const today = () => new Date().toISOString().slice(0, 10)
+const today = () => todayInAddis()
 
 /* ------------------------------------------------------------- Create orders -------------------------------------------------------------- */
 

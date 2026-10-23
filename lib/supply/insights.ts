@@ -3,7 +3,7 @@
 // Ethiopian time (todayInAddis). A figure needs at least 3 data points before it is shown as a number.
 import { addDays, daysBetween, freshness } from './offers'
 import { hagerlandEarned, roundHalfUp, summariseLedger, type LedgerRow, type MoneyModel } from './money'
-import { tokenSimilarity } from './shortlist'
+import { addisDate, tokenSimilarity } from './shortlist'
 
 export const MIN_SAMPLE = 3
 export const NOT_ENOUGH = 'Not enough history yet'
@@ -314,7 +314,8 @@ export function partnerPerformance(p: {
     return min > 0 ? (((l.totalCents as number) - min) / min) * 100 : 0
   })
   const delivered = p.orders.filter((o) => o.deliveredAt && o.promisedOn)
-  const onTime = delivered.filter((o) => (o.deliveredAt as string).slice(0, 10) <= (o.promisedOn as string))
+  // Delivered on or before the promised day, by the date in Addis Ababa (a delivery at 23:30 there is still that day).
+  const onTime = delivered.filter((o) => addisDate(o.deliveredAt as string) <= (o.promisedOn as string))
   const confirmed = p.orders.filter((o) => o.placedAt && o.confirmedAt)
   const placed = p.orders.filter((o) => o.placedAt)
   const current = p.offers.filter((o) => o.status === 'current')
@@ -333,7 +334,7 @@ export function partnerPerformance(p: {
     disputes: p.orders.filter((o) => o.everDisputed).length,
     completedWithoutProof: p.orders.filter((o) => o.status === 'completed' && !o.hasProof).length,
     prices: { current: current.length, fresh: fresh.filter((f) => f === 'fresh').length, ageing: fresh.filter((f) => f === 'ageing').length, expired: fresh.filter((f) => f === 'expired').length },
-    contactsDue: p.contacts.filter((c) => !c.doNotContact && (c.lastContactedAt ?? c.createdAt).slice(0, 10) < sixMonthsAgo).length,
+    contactsDue: p.contacts.filter((c) => !c.doNotContact && addisDate(c.lastContactedAt ?? c.createdAt) < sixMonthsAgo).length,
     reverifyDue: Boolean(p.reverifyBy && p.reverifyBy <= p.today),
     replied: replied.length,
     deliveredWithPromise: delivered.length,

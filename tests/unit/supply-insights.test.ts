@@ -18,6 +18,7 @@ import {
   type TrendOffer,
 } from '@/lib/supply/insights'
 import type { MoneyModel } from '@/lib/supply/money'
+import { addisDate, inAddisMonth, todayInAddis } from '@/lib/supply/shortlist'
 
 const TODAY = '2026-10-23'
 const bole = { id: 'bole', name: 'Bole' }
@@ -224,5 +225,38 @@ describe('digest: supplies section', () => {
   it('never stops the digest: a failure gives no lines', async () => {
     const { supplyDigestLines } = await import('@/lib/supply/digest')
     expect(await supplyDigestLines(async () => Promise.reject(new Error('database down')))).toEqual([])
+  })
+})
+
+describe('Ethiopian calendar dates (Africa/Addis_Ababa, UTC+3)', () => {
+  const delivered = (deliveredAt: string) => ({ status: 'delivered', placedAt: '2026-10-05T08:00:00Z', confirmedAt: '2026-10-05T09:00:00Z', deliveredAt, promisedOn: '2026-10-10', everDisputed: false, hasProof: true })
+  const perf = (deliveredAt: string, contacts: { lastContactedAt: string | null; createdAt: string; doNotContact: boolean }[] = []) =>
+    partnerPerformance({ lines: [], cheapest: new Map(), orders: [delivered(deliveredAt)], offers: [], contacts, reverifyBy: null, today: TODAY })
+
+  it('a delivery at 20:59 UTC on the promised day is on time (23:59 in Addis); 21:01 UTC is the next day there, so late', () => {
+    expect(perf('2026-10-10T20:59:00Z').onTime).toBe(1)
+    expect(perf('2026-10-10T21:01:00Z').onTime).toBe(0)
+    expect(perf('2026-10-10T21:01:00Z').deliveredWithPromise).toBe(1)
+  })
+
+  it('converts moments to the Addis date', () => {
+    expect(addisDate('2026-10-10T20:59:00Z')).toBe('2026-10-10')
+    expect(addisDate('2026-10-10T21:01:00Z')).toBe('2026-10-11')
+    expect(todayInAddis(new Date('2026-10-31T22:00:00Z'))).toBe('2026-11-01')
+  })
+
+  it('a ledger entry recorded at 22:00 UTC on 31 October is dated 1 November and counts in the November report', () => {
+    const recordedAt = '2026-10-31T22:00:00Z'
+    expect(inAddisMonth(recordedAt, '2026-11')).toBe(true)
+    expect(inAddisMonth(recordedAt, '2026-10')).toBe(false)
+    expect(inAddisMonth('2026-10-31T20:59:00Z', '2026-10')).toBe(true)
+    expect(inAddisMonth(null, '2026-10')).toBe(false)
+    expect(todayInAddis(new Date(recordedAt)).slice(0, 7)).toBe('2026-11')
+  })
+
+  it('a contact is due by the Addis date of the last contact', () => {
+    // 182 days before 2026-10-23 is 2026-04-24.
+    expect(perf('2026-10-10T08:00:00Z', [{ lastContactedAt: '2026-04-23T20:59:00Z', createdAt: '2026-01-01', doNotContact: false }]).contactsDue).toBe(1)
+    expect(perf('2026-10-10T08:00:00Z', [{ lastContactedAt: '2026-04-23T21:01:00Z', createdAt: '2026-01-01', doNotContact: false }]).contactsDue).toBe(0)
   })
 })
