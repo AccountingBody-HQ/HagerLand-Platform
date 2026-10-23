@@ -652,6 +652,19 @@ select pg_temp.record_check('Signed-in user cannot read or create supplier offer
   and pg_temp.write_denied($q$insert into public.supplier_offers (org_id, product_id, item_key, unit, price_etb_cents, price_date, valid_until, source) select seller_org_id, id, 'rls', 'piece', 100, current_date, current_date, 'other' from public.products limit 1$q$));
 reset role;
 
+-- ---------- Suppliers for each quote (0036) ----------
+reset role;
+set role anon;
+select pg_temp.record_check('Anonymous cannot read supply_quote_lines', pg_temp.read_denied('supply_quote_lines'));
+reset role;
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000002", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000002', false);
+select pg_temp.record_check('Signed-in user cannot read or create supply quote lines', pg_temp.read_denied('supply_quote_lines')
+  and pg_temp.write_denied($q$insert into public.supply_quote_lines (quote_request_id, org_id) select q.id, o.id from public.quote_requests q, public.organisations o limit 1$q$));
+select pg_temp.record_check('Signed-in user cannot add quote items (including HagerLand-only items)',
+  pg_temp.write_denied($q$insert into public.quote_request_items (quote_request_id, free_text_item, quantity, unit, added_by_admin) select id, 'RLS', 1, 'bag', true from public.quote_requests limit 1$q$));
+reset role;
+
 -- ---------- Clean up ----------
 reset role;
 select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);

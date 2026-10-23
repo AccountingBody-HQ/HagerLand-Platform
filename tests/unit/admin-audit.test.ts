@@ -14,7 +14,8 @@ describe('admin actions', () => {
         const body = part.split('\nexport ')[0]
         // Every action names the admin area it belongs to, so staff roles are checked against it (spec 26.15).
         if (!/assertAdmin\((AREA|'\/roodber8\/[a-z-]+'|entityArea\(entity\))\)|assertOwner\(\)/.test(body)) missing.push(`${f} ${name}: no assertAdmin(area)`)
-        if (!READ_ONLY.has(name) && !body.includes('audit(') && !body.includes('moderateAction(')) missing.push(`${f} ${name}: no audit`)
+        // moderateAction() and saveOffer() (lib/supply/offer-write.ts) always write the audit entry themselves.
+        if (!READ_ONLY.has(name) && !body.includes('audit(') && !body.includes('moderateAction(') && !body.includes('saveOffer(')) missing.push(`${f} ${name}: no audit`)
       }
     }
     expect(missing).toEqual([])

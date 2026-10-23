@@ -69,6 +69,21 @@ Each partner has a private price list: on its page, the Supply partner panel sho
 
 **Never quote a customer from an expired price: call the partner for a new one first.**
 
+## Finding suppliers for a quote
+
+Open **Customer requests → Quotes** and the quote. Everything below is private to HagerLand: the customer, their emails and their account never show it. **Nothing is sent to suppliers or customers automatically**: you phone or message suppliers yourself.
+
+1. **Items.** The customer's own items are listed as they sent them. If they uploaded a list, type its lines in with **Add item** (item, optional category, quantity, unit, note). Your items are labelled **Added by HagerLand**; you can **Edit** or **Remove** them (removal is kept in the history, and is refused once a supplier is chosen for the item). The customer's items cannot be changed here.
+2. **Suppliers.** For each item you see **Suggested suppliers**, cheapest delivered total first: price, delivered total, freshness, lead time and a reason in plain words (“Active partner. Delivers to Bole. Price checked 3 days ago. Cheapest delivered total.”). Trial partners (terms agreed) say **Trial**. Warnings such as “VAT not known” or “Similar name: check it is the same item” are shown under the reason. **Not suggested** lists partners left out and why (“Price expired 12 Oct”, “Does not deliver to Bole”, “Minimum order 200 bags; quote asks for 50 bags”).
+3. **Add supplier manually** adds any active or trial partner to an item (“Added by staff”).
+4. **Ask.** Tick the suppliers you are going to contact, contact them yourself (their phone, WhatsApp or Telegram is shown), then click **Mark as asked**. People marked **Do not contact** cannot be ticked.
+5. **Enter reply** when a supplier answers: unit price, quantity, delivery charge (0 if free), valid until, note. **Also save as this supplier’s current price** (ticked) updates their price list; the old price stays in the history.
+6. **Compare.** Replies are sorted by delivered total; the cheapest is marked, with the difference from the supplier’s price list. The **Basket** box says whether one supplier can do everything for at most 3% more than splitting the order (one delivery, one invoice), or which supplier is cheapest for each item.
+7. **Choose** one supplier per item (**Undo choice** to change your mind), or **Reject** with a reason.
+8. **Suggested total** shows the cost of the chosen suppliers (price × quantity + delivery). The owner also sees margin and commission boxes, worked out on screen only (not saved yet). Copy the price into **Issue the quote**, which works exactly as before.
+
+A finished quote (declined, expired or cancelled) shows all of this but cannot be changed. Operations staff can do everything except see the margin and commission boxes.
+
 ## Find partners and duplicates
 
 On **Supply partners**, search by name, another name, or any phone number (the business's phone, WhatsApp or Telegram number, or a contact's phone) in any format. Filter by status, role, or **Re-verification: Due now** to see who needs checking again.

@@ -142,7 +142,7 @@ test('issue a quote and move an enquiry through statuses', async ({ page }) => {
   await d.from('quote_request_items').insert({ quote_request_id: q!.id, free_text_item: 'Cement OPC 50kg', quantity: 40, unit: 'bag' })
   await page.goto(`/roodber8/quotes/${q!.id}`)
   await expect(page.getByRole('heading', { level: 1, name: q!.reference })).toBeVisible()
-  await expect(page.getByText('Cement OPC 50kg')).toBeVisible()
+  await expect(page.getByRole('cell', { name: 'Cement OPC 50kg' })).toBeVisible()
   await page.fill('#q-total', '52000')
   await page.getByRole('button', { name: 'Issue quote' }).click()
   await expect(page.getByText(/Quote (issued|saved)/)).toBeVisible()
