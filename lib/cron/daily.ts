@@ -1,4 +1,6 @@
 import 'server-only'
+import { supplyDigestLines } from '@/lib/supply/digest'
+import { supplyDigestCounts } from '@/lib/supply/insights-data'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { PRIVATE_BUCKET } from '@/lib/media'
 import { sendEmail } from '@/lib/email/send'
@@ -310,6 +312,7 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
   add('Jobs closed today', s.jobsExpired)
   const demand = await demandDigestLine(now)
   if (demand) lines.push(demand)
+  lines.push(...(await supplyDigestLines(() => supplyDigestCounts(now))))
   for (const e of errors.data ?? []) lines.push([`Error ×${e.count}`, `${e.route}: ${e.message}`.slice(0, 160)])
   return lines
 }

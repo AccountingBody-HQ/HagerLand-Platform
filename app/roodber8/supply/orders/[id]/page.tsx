@@ -7,10 +7,11 @@ import { orderDetail } from '@/lib/supply/orders-data'
 import { formatEtbExact } from '@/lib/supply/shortlist'
 import { AdminHeader, KeyValue, Panel, StatusBadge } from '@/components/admin/AdminUi'
 import { DeliveryProofs, DraftEditor, OrderEntryForm, OrderLinesTable, OrderStatusControls } from '@/components/admin/SupplyOrders'
+import { PromisedDateControl } from '@/components/admin/SupplyInsights'
 
 export const metadata = { title: 'Supply order' }
 
-const EVENT_TEXT: Record<string, string> = { created: 'Order created', status: 'Status changed', ledger_entry: 'Money recorded', proof_added: 'Delivery proof added', proof_removed: 'Delivery proof removed' }
+const EVENT_TEXT: Record<string, string> = { created: 'Order created', status: 'Status changed', ledger_entry: 'Money recorded', proof_added: 'Delivery proof added', proof_removed: 'Delivery proof removed', promised_date: 'Promised delivery date' }
 
 export default async function SupplyOrderPage(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params
@@ -127,6 +128,9 @@ export default async function SupplyOrderPage(props: { params: Promise<{ id: str
             {o.model === 'A' && o.status === 'paid' && <p className="mt-2 text-caption text-muted">Paid in full: you may now place the order with the supplier.</p>}
             {o.model === 'A' && ['draft', 'awaiting_payment'].includes(o.status) && <p className="mt-2 text-caption text-muted">Never place an order before the customer has paid in full.</p>}
           </Panel>
+          <Panel title="Delivery date">
+            <PromisedDateControl orderId={o.id} value={o.promisedOn} updatedAt={o.updatedAt} editable={!['delivered', 'completed', 'cancelled'].includes(o.status)} />
+          </Panel>
           <Panel title="Supplier">
             <p className="font-semibold">{o.supplier}</p>
             {o.partnerStatus === 'terms_agreed' && <p className="text-small text-muted">Trial partner</p>}
@@ -146,6 +150,7 @@ export default async function SupplyOrderPage(props: { params: Promise<{ id: str
                   <p className="font-semibold">
                     {e.type === 'status' && e.toStatus ? `${ORDER_STATUS_LABEL[e.fromStatus as keyof typeof ORDER_STATUS_LABEL] ?? e.fromStatus} → ${ORDER_STATUS_LABEL[e.toStatus as keyof typeof ORDER_STATUS_LABEL] ?? e.toStatus}` : (EVENT_TEXT[e.type] ?? e.type)}
                     {e.type === 'ledger_entry' && e.detail ? `: ${ENTRY_LABEL[String(e.detail.entry_type)] ?? ''} ${formatEtbExact(Number(e.detail.amount_cents ?? 0))}` : ''}
+                    {e.type === 'promised_date' && e.detail ? `: ${e.detail.from ? String(e.detail.from) : 'none'} → ${e.detail.to ? String(e.detail.to) : 'none'}` : ''}
                   </p>
                   <p className="text-caption text-muted">
                     {formatDate(e.createdAt)}

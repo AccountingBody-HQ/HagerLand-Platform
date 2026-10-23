@@ -20,6 +20,8 @@ export interface ShortlistPartner {
   status: string
   /** Every contact recorded for the partner asked not to be contacted. */
   doNotContact: boolean
+  /** From partner performance (lib/supply/insights.ts reliability()); null with fewer than 3 data points. */
+  reliability?: { score: number; reason: string } | null
 }
 
 export interface ShortlistOffer {
@@ -71,8 +73,9 @@ export interface Candidate {
   validUntil: string
   freshness: Freshness
   leadTimeDays: number | null
-  /** Delivery reliability arrives with orders (Phase 4–5). */
-  reliability: null
+  /** Reliability 0–100 (lib/supply/insights.ts); null until the partner has at least 3 data points. */
+  reliability: number | null
+  reliabilityReason: string | null
   doNotContact: boolean
   flags: string[]
   reason: string
@@ -202,7 +205,8 @@ function check(item: ShortlistItem, partner: ShortlistPartner, offer: ShortlistO
       validUntil: offer.validUntil,
       freshness: fresh,
       leadTimeDays: offer.leadTimeDays,
-      reliability: null,
+      reliability: partner.reliability?.score ?? null,
+      reliabilityReason: partner.reliability?.reason ?? null,
       doNotContact: partner.doNotContact,
       flags,
       place,
@@ -215,11 +219,12 @@ function lateFor(c: { leadTimeDays: number | null }, input: ShortlistInput): num
   return daysBetween(input.today, input.neededBy) < c.leadTimeDays ? 1 : 0
 }
 
-/** Cheapest delivered total, then newer price, then (later) reliability, then on time and shorter lead time, then name. */
+/** Cheapest delivered total, then newer price, then more reliable (no history counts last), then on time and shorter lead time, then name. */
 function compare(a: Omit<Candidate, 'reason'>, b: Omit<Candidate, 'reason'>, input: ShortlistInput): number {
   return (
     a.deliveredTotalCents - b.deliveredTotalCents ||
     b.priceDate.localeCompare(a.priceDate) ||
+    (b.reliability ?? -1) - (a.reliability ?? -1) ||
     lateFor(a, input) - lateFor(b, input) ||
     (a.leadTimeDays ?? Number.MAX_SAFE_INTEGER) - (b.leadTimeDays ?? Number.MAX_SAFE_INTEGER) ||
     a.partnerName.localeCompare(b.partnerName) ||
@@ -257,7 +262,7 @@ export function shortlist(input: ShortlistInput): ItemShortlist[] {
         place ? `Delivers to ${place}.` : null,
         `Price checked ${ago(c.priceDate, input.today)}.`,
         i === 0 ? 'Cheapest delivered total.' : null,
-        'No delivery history yet.',
+        c.reliabilityReason ?? 'No delivery history yet.',
       ]
         .filter(Boolean)
         .join(' '),

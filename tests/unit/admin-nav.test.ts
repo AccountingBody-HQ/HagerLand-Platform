@@ -49,9 +49,9 @@ const BEFORE: [string, string][] = [
 const labels = (groups: { label: string; items: readonly { label: string }[] }[]) => groups.map((g) => [g.label, g.items.map((i) => i.label)])
 
 describe('admin menu', () => {
-  it('keeps every earlier item exactly once, with the same label and address (plus the Phase 4 supply items)', () => {
+  it('keeps every earlier item exactly once, with the same label and address (plus the Phase 4 and 5 supply items)', () => {
     const now = ADMIN_NAV.map((i) => [i.href, i.label])
-    const added = [['/roodber8/supply/orders', 'Supply orders'], ['/roodber8/supply/ledger', 'Supply ledger']]
+    const added = [['/roodber8/supply/orders', 'Supply orders'], ['/roodber8/supply/ledger', 'Supply ledger'], ['/roodber8/supply/performance', 'Partner performance'], ['/roodber8/reports/supply', 'Supply report']]
     expect(new Set(now.map((x) => x.join('|'))).size).toBe(now.length)
     expect([...now].sort()).toEqual([...BEFORE, ...added].sort())
   })
@@ -60,13 +60,13 @@ describe('admin menu', () => {
     expect(labels([...ADMIN_NAV_GROUPS])).toEqual([
       ['Overview', ['Dashboard', 'Review queue']],
       ['Customer requests', ['Enquiries', 'Quotes', 'Service requests', 'Building projects', 'Interest registrations']],
-      ['Supplies', ['Supply partners', 'Supply orders', 'Products', 'Categories', 'Trade accounts']],
+      ['Supplies', ['Supply partners', 'Supply orders', 'Partner performance', 'Products', 'Categories', 'Trade accounts']],
       ['Jobs', ['Jobs and applications']],
       ['Property', ['Properties', 'Developments', 'Agency', 'Property Care', 'HagerLand sales']],
       ['Businesses & people', ['Organisations', 'Users', 'Partner applications', 'Imports', 'Reviews']],
       ['Money', ['Deals and commissions', 'Supply ledger']],
       ['Content', ['Guides', 'Area guides', 'Newsletter', 'Promotions']],
-      ['Insights', ['Demand', 'Performance', 'Reports']],
+      ['Insights', ['Demand', 'Performance', 'Reports', 'Supply report']],
       ['Setup', ['Settings', 'Pillars and modes', 'Verticals', 'Locations', 'Exchange rates', 'Build-cost rates', 'Request questions', 'Staff']],
       ['System', ['Email problems', 'Audit log']],
     ])

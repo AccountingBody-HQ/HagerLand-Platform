@@ -24,6 +24,10 @@ import { findPossibleDuplicates, getSupplyPartner } from '@/lib/supply/data'
 import { offerCounts } from '@/lib/supply/offers-data'
 import { partnerAgreements } from '@/lib/supply/agreements-data'
 import { AgreementsPanel } from '@/components/admin/SupplyAgreements'
+import { partnerPerformanceRows } from '@/lib/supply/insights-data'
+import { organisationActivity } from '@/lib/supply/activity-data'
+import { PerformanceSummary } from '@/components/admin/PartnerPerformance'
+import { ActivityList } from '@/components/admin/OrganisationActivity'
 
 export const metadata = { title: 'Organisation' }
 
@@ -51,6 +55,7 @@ export default async function AdminOrgPage(
   const [supply, prices, owner] = await Promise.all([getSupplyPartner(o.id), offerCounts([o.id]), isOwnerSession()])
   // Agreements are owner only: never loaded for staff (blueprint 13.3).
   const agreements = owner && supply.partner ? await partnerAgreements(o.id) : []
+  const [performance, activity] = await Promise.all([supply.partner ? partnerPerformanceRows({ orgIds: [o.id], owner }).then((r) => r[0] ?? null) : Promise.resolve(null), organisationActivity(o.id)])
   const duplicates = supply.partner ? [] : await findPossibleDuplicates(o)
   const { data: memberProfiles } = await db.from('profiles').select('id, full_name').in('id', (members ?? []).map((m) => m.user_id))
   const memberEmails = await Promise.all(
@@ -132,6 +137,16 @@ export default async function AdminOrgPage(
             <SupplyPartnerPanel orgId={o.id} partner={supply.partner} contacts={supply.contacts} evidence={supply.evidence} duplicates={duplicates} prices={prices.get(o.id) ?? { current: 0, expiringSoon: 0, expired: 0 }} />
           </Panel>
           </div>
+          {performance && (
+            <div id="supply-performance" className="scroll-mt-24">
+              <Panel title="Supply performance">
+                <PerformanceSummary row={performance} />
+              </Panel>
+            </div>
+          )}
+          <Panel title="Jobs, projects and supply activity">
+            <ActivityList activity={activity} />
+          </Panel>
           {owner && supply.partner && (
             <Panel title="Agreement">
               <AgreementsPanel orgId={o.id} agreements={agreements} />

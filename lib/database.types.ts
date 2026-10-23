@@ -5630,6 +5630,8 @@ export type Database = {
           org_id: string
           placed_at: string | null
           proceed_without_agreement: boolean
+          promised_change_reason: string | null
+          promised_delivery_on: string | null
           quote_request_id: string
           reference: string
           status: string
@@ -5654,6 +5656,8 @@ export type Database = {
           org_id: string
           placed_at?: string | null
           proceed_without_agreement?: boolean
+          promised_change_reason?: string | null
+          promised_delivery_on?: string | null
           quote_request_id: string
           reference?: string
           status?: string
@@ -5677,6 +5681,8 @@ export type Database = {
           org_id?: string
           placed_at?: string | null
           proceed_without_agreement?: boolean
+          promised_change_reason?: string | null
+          promised_delivery_on?: string | null
           quote_request_id?: string
           reference?: string
           status?: string

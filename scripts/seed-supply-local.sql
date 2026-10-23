@@ -217,3 +217,125 @@ begin
   end loop;
 end
 $$;
+
+-- ---------------------------------------------------------------------------
+-- Phase 5: history for every insight. Price history over five months; quotes in four more sub-cities (some items
+-- nobody can supply); suppliers asked with and without replies; orders with promised dates (on time, late, none,
+-- overdue); commission due at different ages; an agreement past its end date and one ending soon; an old contact;
+-- a partner due for re-verification; a contractor with job posts, a building project and a quote.
+-- ---------------------------------------------------------------------------
+do $$
+declare
+  places record;
+  q_perf constant uuid := '5eed9000-0000-4000-8000-000000000003';
+  merkato constant uuid := '5eed0000-0000-4000-8000-000000000002';
+  abebe constant uuid := '5eed0000-0000-4000-8000-000000000001';
+  bole_trading constant uuid := '5eed0000-0000-4000-8000-000000000003';
+  contractor constant uuid := '5eed0000-0000-4000-8000-000000000007';
+  seed_user constant uuid := '5eedbeef-0000-4000-8000-000000000001';
+  oid uuid;
+  item uuid;
+  promised int[] := array[2, -3, null, -1, 5];
+  targets text[] := array['completed', 'delivered', 'delivered', 'out_for_delivery', 'completed'];
+  due_days int[] := array[10, 45, 75, null, 120];
+begin
+  if exists (select 1 from public.supplier_offers where id = '5eed0f50-0000-4000-8000-000000000001') then
+    return;
+  end if;
+  select * into places from seed_places;
+
+  -- Price history: older prices, already replaced.
+  insert into public.supplier_offers (id, org_id, category_id, item_name, item_key, unit, pack_size, price_etb_cents, price_date, valid_until, delivery_area_ids, source, status, captured_at)
+  values
+    ('5eed0f50-0000-4000-8000-000000000001', abebe, places.cement, 'Dangote cement 50kg', 'dangote cement 50kg', 'bag', 50, 115000, current_date - 150, current_date - 143, array[places.bole, places.kirkos], 'direct_call', 'superseded', now() - interval '150 days'),
+    ('5eed0f50-0000-4000-8000-000000000002', abebe, places.cement, 'Dangote cement 50kg', 'dangote cement 50kg', 'bag', 50, 118000, current_date - 95, current_date - 88, array[places.bole, places.kirkos], 'direct_call', 'superseded', now() - interval '95 days'),
+    ('5eed0f50-0000-4000-8000-000000000003', abebe, places.cement, 'Dangote cement 50kg', 'dangote cement 50kg', 'bag', 50, 121000, current_date - 40, current_date - 33, array[places.bole, places.kirkos], 'direct_call', 'superseded', now() - interval '40 days'),
+    ('5eed0f50-0000-4000-8000-000000000004', merkato, places.cement, 'Dangote cement 50kg', 'dangote cement 50kg', 'bag', null, 116000, current_date - 100, current_date - 93, array[places.addis], 'direct_call', 'superseded', now() - interval '100 days'),
+    ('5eed0f50-0000-4000-8000-000000000005', merkato, places.cement, 'Dangote cement 50kg', 'dangote cement 50kg', 'bag', null, 119500, current_date - 50, current_date - 43, array[places.addis], 'direct_call', 'superseded', now() - interval '50 days');
+
+  -- Quotes in four more sub-cities.
+  insert into public.quote_requests (id, reference, name, phone, delivery_location_id, source, status, created_at)
+  values
+    ('5eed9000-0000-4000-8000-000000000011', 'HLQ-SEED-KIRKOS', 'Seed Kirkos Customer', '+251911111001', places.kirkos, 'materials_list', 'in_review', now() - interval '12 days'),
+    ('5eed9000-0000-4000-8000-000000000012', 'HLQ-SEED-YEKA', 'Seed Yeka Customer', '+251911111002', places.yeka, 'materials_list', 'submitted', now() - interval '5 days'),
+    ('5eed9000-0000-4000-8000-000000000013', 'HLQ-SEED-LIDETA', 'Seed Lideta Customer', '+251911111003', places.lideta, 'materials_list', 'submitted', now() - interval '3 days'),
+    ('5eed9000-0000-4000-8000-000000000014', 'HLQ-SEED-NIFAS', 'Seed Nifas Silk-Lafto Customer', '+251911111004', places.nifas, 'materials_list', 'quoted', now() - interval '20 days');
+  insert into public.quote_request_items (id, quote_request_id, free_text_item, category_id, quantity, unit)
+  values
+    ('5eed9100-0000-4000-8000-000000000011', '5eed9000-0000-4000-8000-000000000011', 'Gypsum board 12mm', null, 80, 'sheet'),
+    ('5eed9100-0000-4000-8000-000000000012', '5eed9000-0000-4000-8000-000000000012', 'Dangote cement 50kg', places.cement, 120, 'bag'),
+    ('5eed9100-0000-4000-8000-000000000013', '5eed9000-0000-4000-8000-000000000013', 'Corrugated roofing sheet 0.3mm', places.roofing, 60, 'sheet'),
+    ('5eed9100-0000-4000-8000-000000000014', '5eed9000-0000-4000-8000-000000000014', 'Ceramic floor tiles 60x60', places.tiles, 140, 'm2');
+
+  -- Performance quote: five items; Merkato is asked, replies and is chosen for each; Abebe replies to some; Bole Trading never replies.
+  insert into public.quote_requests (id, reference, name, phone, delivery_location_id, source, status, created_at)
+  values (q_perf, 'HLQ-SEED-PERF', 'Seed Performance Customer', '+251911111005', places.bole, 'materials_list', 'accepted', now() - interval '30 days');
+  for i in 1..5 loop
+    item := ('5eed9400-0000-4000-8000-' || lpad(i::text, 12, '0'))::uuid;
+    oid := ('5eed0e00-0000-4000-8000-' || lpad(i::text, 12, '0'))::uuid;
+    insert into public.quote_request_items (id, quote_request_id, free_text_item, category_id, quantity, unit) values (item, q_perf, 'Dangote cement 50kg', places.cement, 20, 'bag');
+    insert into public.supply_quote_lines (id, quote_request_id, quote_item_id, org_id, status, unit, unit_price_cents, quantity, delivery_charge_cents, asked_at, received_at, chosen_at, created_by)
+    values (('5eed9500-0000-4000-8000-' || lpad(i::text, 12, '0'))::uuid, q_perf, item, merkato, 'chosen', 'bag', 121000 + i * 500, 20, 50000, now() - interval '29 days', now() - interval '29 days' + (i || ' hours')::interval, now() - interval '28 days', 'seed');
+    if i <= 3 then
+      insert into public.supply_quote_lines (id, quote_request_id, quote_item_id, org_id, status, unit, unit_price_cents, quantity, delivery_charge_cents, asked_at, received_at, created_by)
+      values (('5eed9600-0000-4000-8000-' || lpad(i::text, 12, '0'))::uuid, q_perf, item, abebe, 'received', 'bag', 124000, 20, 20000, now() - interval '29 days', now() - interval '29 days' + interval '3 hours', 'seed');
+    end if;
+    insert into public.supply_quote_lines (id, quote_request_id, quote_item_id, org_id, status, unit, quantity, asked_at, created_by)
+    values (('5eed9700-0000-4000-8000-' || lpad(i::text, 12, '0'))::uuid, q_perf, item, bole_trading, 'asked', 'bag', 20, now() - interval '29 days', 'seed');
+
+    -- One model B order per item, with a promised date (or none) set before delivery.
+    insert into public.supply_orders (id, quote_request_id, org_id, agreement_id, money_model, commission_rate_bps, supplier_delivery_charge_cents, promised_delivery_on, created_by, updated_by)
+    values (oid, q_perf, merkato, '5eeda000-0000-4000-8000-000000000002', 'B', 500, 50000, case when promised[i] is null then null else current_date + promised[i] end, 'seed', 'seed');
+    insert into public.supply_order_lines (order_id, supply_quote_line_id, quote_item_id, item_name, quantity, unit, supplier_unit_price_cents, vat_flag)
+    values (oid, ('5eed9500-0000-4000-8000-' || lpad(i::text, 12, '0'))::uuid, item, 'Dangote cement 50kg', 20, 'bag', 121000 + i * 500, 'yes');
+    perform pg_temp.seed_step(oid, 'placed');
+    perform pg_temp.seed_step(oid, 'confirmed');
+    perform pg_temp.seed_step(oid, 'out_for_delivery');
+    if targets[i] in ('delivered', 'completed') then
+      perform pg_temp.seed_step(oid, 'delivered');
+    end if;
+    if i = 2 then
+      perform pg_temp.seed_step(oid, 'disputed', 'Arrived three days late');
+      perform pg_temp.seed_step(oid, 'delivered');
+    end if;
+    if targets[i] = 'completed' then
+      perform pg_temp.seed_proof(oid, 1);
+      perform pg_temp.seed_step(oid, 'completed');
+    end if;
+    if due_days[i] is not null then
+      insert into public.supply_ledger_entries (entry_type, direction, amount_cents, occurred_on, order_id, org_id, quote_request_id, created_by)
+      values ('commission_due', 'receivable', round(((121000 + i * 500) * 20 + 50000) * 0.05), current_date - due_days[i], oid, merkato, q_perf, 'seed');
+    end if;
+  end loop;
+  -- Part of the oldest commission has been received.
+  insert into public.supply_ledger_entries (entry_type, direction, amount_cents, occurred_on, method, reference, order_id, org_id, quote_request_id, created_by)
+  values ('commission_received', 'in', 50000, current_date - 60, 'bank_transfer', 'SEED-PART-COMMISSION', '5eed0e00-0000-4000-8000-000000000005', merkato, q_perf, 'seed');
+
+  -- Agreements: one past its end date but still active, one ending within 30 days.
+  insert into public.supply_agreements (id, org_id, money_model, commission_rate_bps, start_date, end_date, status, created_by)
+  values
+    ('5eeda000-0000-4000-8000-000000000006', '5eed0000-0000-4000-8000-000000000004', 'A', null, current_date - 400, current_date - 5, 'active', 'seed'),
+    ('5eeda000-0000-4000-8000-000000000007', '5eed0000-0000-4000-8000-000000000006', 'B', 300, current_date - 300, current_date + 20, 'active', 'seed');
+
+  -- A contact not reached for ten months, and a partner due for re-verification.
+  insert into public.supply_contacts (id, org_id, name, role, phone, phone_normalised, preferred_channel, consent_basis, last_contacted_at, created_at)
+  values ('5eedc000-0000-4000-8000-000000000005', merkato, 'Old warehouse manager', 'Manager', '0911 50 50 50', '+251911505051', null, 'business_provided', now() - interval '300 days', now() - interval '400 days');
+  update public.supply_partners set reverify_by = current_date - 10 where org_id = bole_trading and reverify_by is null;
+
+  -- A contractor with job posts, a building project it was matched to, and a quote its owner asked for.
+  insert into auth.users (id, email, raw_user_meta_data) values (seed_user, 'seed-contractor@test.hagerland.invalid', '{"full_name": "Seed Contractor Owner"}') on conflict (id) do nothing;
+  insert into public.organisations (id, kind, name, slug, status, source, location_id) values (contractor, 'contractor', 'Seed Builders PLC (seed)', 'seed-builders-plc', 'published', 'admin', places.bole) on conflict (id) do nothing;
+  insert into public.organisation_members (org_id, user_id, role) values (contractor, seed_user, 'owner') on conflict do nothing;
+  insert into public.job_posts (slug, employer_org_id, title, category, employment_type, description, status, location_id)
+  values
+    ('seed-truck-drivers-loaders', contractor, 'Truck drivers and loaders', 'Drivers & loaders', 'full_time', 'Seed job post: drivers and loaders for building materials deliveries in Addis Ababa.', 'published', places.bole),
+    ('seed-site-foreman', contractor, 'Site foreman', 'Construction', 'contract', 'Seed job post: site foreman for a G+2 house in Bole.', 'published', places.bole);
+  insert into public.build_projects (id, user_id, title, location_id, budget_band, timeline, services, name, phone, email, status)
+  values ('5eedb000-0000-4000-8000-000000000001', seed_user, 'Seed G+2 house in Bole', places.bole, '5m_10m', '3_months', array['contractor', 'materials'], 'Seed Contractor Owner', '+251911222333', 'seed-contractor@test.hagerland.invalid', 'in_progress');
+  insert into public.service_requests (id, vertical_key, title, name, phone, project_id, status)
+  values ('5eedb100-0000-4000-8000-000000000001', 'contractors', 'Seed: build a G+2 house in Bole', 'Seed Contractor Owner', '+251911222333', '5eedb000-0000-4000-8000-000000000001', 'matched');
+  insert into public.service_request_matches (request_id, org_id, status) values ('5eedb100-0000-4000-8000-000000000001', contractor, 'accepted');
+  insert into public.quote_requests (id, reference, requester_user_id, name, phone, delivery_location_id, source, status, project_id)
+  values ('5eed9000-0000-4000-8000-000000000015', 'HLQ-SEED-BUILDERS', seed_user, 'Seed Contractor Owner', '+251911222333', places.bole, 'materials_list', 'submitted', '5eedb000-0000-4000-8000-000000000001');
+end
+$$;

@@ -83,6 +83,7 @@ export interface OrderDetail {
   model: MoneyModel
   status: OrderStatus
   statusReason: string | null
+  promisedOn: string | null
   proceedWithoutAgreement: boolean
   supplierDeliveryCents: number | null
   supplierTotalCents: number
@@ -132,6 +133,7 @@ export async function orderDetail(orderId: string, owner: boolean): Promise<Orde
     model: o.money_model as MoneyModel,
     status: o.status as OrderStatus,
     statusReason: o.status_reason,
+    promisedOn: o.promised_delivery_on,
     proceedWithoutAgreement: o.proceed_without_agreement,
     supplierDeliveryCents: o.supplier_delivery_charge_cents,
     supplierTotalCents: supplierTotal,
@@ -164,7 +166,7 @@ export async function orderDetail(orderId: string, owner: boolean): Promise<Orde
     // Payments are money: Operations sees the timeline without them.
     events: (events ?? [])
       .filter((e) => owner || e.event_type !== 'ledger_entry')
-      .map((e) => ({ id: e.id, type: e.event_type, fromStatus: e.from_status, toStatus: e.to_status, reason: e.reason, actor: e.actor, createdAt: e.created_at, detail: owner ? (e.detail as Record<string, unknown> | null) : null })),
+      .map((e) => ({ id: e.id, type: e.event_type, fromStatus: e.from_status, toStatus: e.to_status, reason: e.reason, actor: e.actor, createdAt: e.created_at, detail: (e.detail as Record<string, unknown> | null) ?? null })),
     contact: best ? { name: best.name, phone: best.phone_normalised ?? best.phone, whatsapp: best.whatsapp } : null,
   }
   if (owner) {

@@ -39,7 +39,15 @@ export default async function ReportsPage(props: { searchParams: Promise<{ perio
   const short = (w: string) => formatDate(w).replace(/ \d{4}$/, '')
   return (
     <div className="space-y-5">
-      <AdminHeader title="Reports" description="Simple numbers from the live data. Every table can be downloaded as CSV." />
+      <AdminHeader
+        title="Reports"
+        description="Simple numbers from the live data. Every table can be downloaded as CSV."
+        actions={
+          <ButtonLink href="/roodber8/reports/supply" variant="secondary" size="sm" prefetch={false}>
+            Supply report
+          </ButtonLink>
+        }
+      />
       <nav aria-label="Period" className="flex gap-2">
         {(['30', '90', '365'] as const).map((p) => (
           <Link key={p} href={`/roodber8/reports?period=${p}`} aria-current={period.key === p ? 'page' : undefined} className={cn('rounded-md px-3 py-2 text-small font-semibold', period.key === p ? 'bg-ink text-white' : 'bg-white text-ink hover:bg-stone-100')}>

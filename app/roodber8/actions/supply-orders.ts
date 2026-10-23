@@ -344,3 +344,28 @@ export async function removeProofAction(orderId: string, proofId: string, reason
   refresh(orderId, order.quote_request_id)
   return ok({ message: 'Proof marked as removed.' })
 }
+
+/* -------------------------------------------------------------- Promised delivery -------------------------------------------------------------- */
+
+const promisedSchema = z.object({ date: z.preprocess(blank, z.iso.date().optional()), reason: z.string().trim().max(500), expectedUpdatedAt: z.string().max(40) })
+
+/** The delivery date the supplier promised (owner and operations). Every change goes on the order's timeline. */
+export async function setPromisedDateAction(orderId: string, date: string, reason: string, expectedUpdatedAt: string): Promise<Msg> {
+  await assertAdmin(AREA)
+  const order = await loadOrder(orderId)
+  if (!order) return fail('Order not found.')
+  const parsed = promisedSchema.safeParse({ date, reason, expectedUpdatedAt })
+  if (!parsed.success) return fail('Enter a date, like 2026-11-05.')
+  if (['delivered', 'completed', 'cancelled'].includes(order.status)) return fail('The promised date cannot change once the order is delivered, completed or cancelled.')
+  if (parsed.data.expectedUpdatedAt && new Date(order.updated_at).getTime() !== new Date(parsed.data.expectedUpdatedAt).getTime()) return fail(STALE_EDIT)
+  const next = parsed.data.date ?? null
+  if (next === order.promised_delivery_on) return ok({ message: 'No change.' })
+  const { error } = await getAdminSupabase()
+    .from('supply_orders')
+    .update({ promised_delivery_on: next, promised_change_reason: parsed.data.reason || null, updated_by: (await adminActor()).slice(0, 120) })
+    .eq('id', orderId)
+  if (error) return fail(error.code === '23514' ? error.message : 'Could not save the date.')
+  await audit('supply.order.promised_date', { type: 'supply_order', id: orderId, label: order.reference }, { from: order.promised_delivery_on, to: next, reason: parsed.data.reason || null })
+  refresh(orderId, order.quote_request_id)
+  return ok({ message: next ? `Promised delivery date set to ${next}.` : 'Promised delivery date cleared.' })
+}

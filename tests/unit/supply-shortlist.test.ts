@@ -67,6 +67,21 @@ describe('shortlist filters and reasons', () => {
     expect(r.candidates[0].reliability).toBeNull()
   })
 
+  it('uses reliability after price and freshness, and explains it in plain words', () => {
+    const partners = [
+      { ...partner('a', 'Alpha'), reliability: { score: 60, reason: 'Replied to 3 of 5 requests.' } },
+      { ...partner('b', 'Beta'), reliability: { score: 95, reason: 'Replied to 5 of 6 requests; 4 of 4 deliveries on time.' } },
+      partner('c', 'Gamma'),
+      { ...partner('d', 'Delta'), reliability: { score: 100, reason: 'Replied to 3 of 3 requests.' } },
+    ]
+    const r = shortlist(input([offer({ id: '1', orgId: 'a' }), offer({ id: '2', orgId: 'b' }), offer({ id: '3', orgId: 'c' }), offer({ id: '4', orgId: 'd', priceCents: 126000 })], partners))[0]
+    // Same price and date for a, b, c: more reliable first, no history last; d is dearer, so last despite 100.
+    expect(r.candidates.map((c) => c.orgId)).toEqual(['b', 'a', 'c', 'd'])
+    expect(r.candidates[0].reason).toBe('Active partner. Delivers to Bole. Price checked 3 days ago. Cheapest delivered total. Replied to 5 of 6 requests; 4 of 4 deliveries on time.')
+    expect(r.candidates[2].reason).toContain('No delivery history yet.')
+    expect(r.candidates[0].reliability).toBe(95)
+  })
+
   it('leaves out withdrawn, replaced, expired, far-away and too-small orders, with reasons', () => {
     const partners = ['a', 'b', 'c', 'd', 'e', 'f'].map((id) => partner(id, `Partner ${id.toUpperCase()}`))
     const r = shortlist(
