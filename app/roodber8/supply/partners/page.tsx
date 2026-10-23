@@ -39,6 +39,12 @@ export default async function SupplyPartnersPage(props: { searchParams: Promise<
             <ButtonLink href="/roodber8/supply/partners/expiring" size="sm" variant="secondary" prefetch={false}>
               Prices expiring this week
             </ButtonLink>
+            <ButtonLink href="/roodber8/supply/partners/prices" size="sm" variant="secondary" prefetch={false}>
+              Price trends
+            </ButtonLink>
+            <ButtonLink href="/roodber8/demand/supplies" size="sm" variant="secondary" prefetch={false}>
+              Demand
+            </ButtonLink>
             <ButtonLink href="/roodber8/organisations/new?supplier=1" size="sm" prefetch={false}>
               Add new supplier
             </ButtonLink>

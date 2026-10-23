@@ -22,4 +22,4 @@ for order in 5eed0d00-0000-4000-8000-000000000008 5eed0d00-0000-4000-8000-000000
     -H "Authorization: Bearer $KEY" -H "apikey: $KEY" -H "Content-Type: application/pdf" -H "x-upsert: true" --data-binary "@$PDF"
 done
 rm -f "$PNG" "$PDF"
-echo "Local supply seed ready: 6 partners with contacts, prices and agreements; quote HLQ-SEED-BOLE (delivery to Bole); quote HLQ-SEED-ORDERS with 18 orders in every status."
+echo "Local supply seed ready: 6 partners with contacts, prices and agreements; quote HLQ-SEED-BOLE (delivery to Bole); quote HLQ-SEED-ORDERS with 18 orders in every status; price history, quotes in five sub-cities, partner performance history and a contractor with jobs and a building project."

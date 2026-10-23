@@ -154,3 +154,30 @@ Do all of this in the admin (https://www.hagerland.com/roodber8).
 ---
 
 **All boxes ticked?** The main journeys work on the live site: sign-up, listing, approval, enquiries, quotes, service requests, interest registrations, the contact form, password reset and clean-up. Send me any step that looked different, with what you saw.
+
+## Supply A–Z test (Phases 1–5, on the local test copy)
+
+For the next job: run on the local copy after `bash scripts/seed-supply-local.sh` (never on live). Tick each line.
+
+| ✓ | Step | What to check |
+|---|---|---|
+| ☐ | Supply partners → **Add new supplier** (private) | Created privately with its supply record (“Discovered”); duplicates warned by phone and name |
+| ☐ | Partner panel: roles, contact with phone `0911 23 45 67`, verification dates, evidence photo | Contact searchable as `+251911234567`; re-verify date filled in |
+| ☐ | **Open price list** → **Add price** (cement, bag) and **Paste a price list** (3 lines) | Valid until 7 days for cement; history kept when a new price replaces an old one |
+| ☐ | **Agreement** (owner): model A, active, signed PDF | Only one active agreement; Operations cannot see it |
+| ☐ | Customer: send a materials list for delivery to Bole | Quote appears in Quotes |
+| ☐ | Quote: **Add item**, Suppliers panel suggestions with reasons and reliability | Cheapest delivered first; “Not suggested” reasons; do-not-contact blocked |
+| ☐ | **Mark as asked**, **Enter reply** (saved as price), **Choose** | Comparison and basket; suggested total |
+| ☐ | **Create order** (model A) → customer prices → **Send to customer for payment** | Mark as paid stays off until paid in full |
+| ☐ | **Record customer payment** twice (one in GBP with a rate) → **Mark as paid** → **Place with supplier** | Golden rule: cannot place before full payment |
+| ☐ | Set the **Promised delivery date**, then confirmed → out for delivery → delivered | Timeline shows each step and the date |
+| ☐ | **Add delivery proof** on a phone → **Complete** | Cannot complete without proof |
+| ☐ | Model B order: delivered → **Record commission due** → **Record commission received** | Ledger shows both |
+| ☐ | **Supply ledger**: reverse a wrong entry; download CSV | Nothing edited or deleted; CSV audited |
+| ☐ | **Demand → Supplies** | Funnel, areas and “Nobody can supply yet” with **Add a supplier for this** |
+| ☐ | **Price trends**, **Partner performance** | Changes vs 30/90 days; figures say “Not enough history yet” under 3 data points |
+| ☐ | **Supply orders → Needs action** | Overdue delivery, agreement past its end date (**Mark expired**), contacts to re-confirm |
+| ☐ | **Supply report** for this month | “Reconciles with ledger: yes”; commission ageing; print |
+| ☐ | Sign in as Operations, then Agent | Operations: no money, agreements or report; Agent: no supply pages at all |
+| ☐ | Customer account and emails | No supplier names, prices, margins or orders |
+

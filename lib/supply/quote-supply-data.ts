@@ -5,6 +5,7 @@ import { getAdminSupabase } from '@/lib/supabase/admin'
 import type { Database } from '@/lib/database.types'
 import { itemKey } from './offers'
 import { shortlist, todayInAddis, type ItemShortlist, type ShortlistOffer, type ShortlistPartner } from './shortlist'
+import { reliabilityByPartner } from './insights-data'
 
 export type QuoteLineRow = Database['public']['Tables']['supply_quote_lines']['Row']
 
@@ -63,7 +64,7 @@ async function placeChain(locationId: string | null): Promise<{ ids: string[]; n
 
 export async function quoteSupplyData(quote: { id: string; delivery_location_id: string | null; needed_by: string | null }): Promise<QuoteSupplyData> {
   const db = getAdminSupabase()
-  const [{ data: rawItems }, { data: lines }, { data: partnerRows }, { data: offers }, { data: contacts }, { data: cats }, chain] = await Promise.all([
+  const [{ data: rawItems }, { data: lines }, { data: partnerRows }, { data: offers }, { data: contacts }, { data: cats }, chain, reliabilities] = await Promise.all([
     db.from('quote_request_items').select('id, free_text_item, quantity, unit, notes, category_id, added_by_admin, removed_at, product:products(id, name, sku, unit, price_type, price_etb_cents, category_id)').eq('quote_request_id', quote.id).order('created_at'),
     db.from('supply_quote_lines').select('*').eq('quote_request_id', quote.id).order('created_at'),
     db.from('supply_partners').select('org_id, relationship_status, org:organisations(name)').limit(5000),
@@ -71,6 +72,7 @@ export async function quoteSupplyData(quote: { id: string; delivery_location_id:
     db.from('supply_contacts').select('org_id, name, phone, phone_normalised, whatsapp, telegram, do_not_contact, preferred_channel, created_at').order('created_at').limit(20000),
     db.from('product_categories').select('id, name, parent_id, sort').order('sort').limit(500),
     placeChain(quote.delivery_location_id),
+    reliabilityByPartner(),
   ])
   const all = (rawItems ?? []).map((r) => {
     const product = r.product as { id: string; name: string; sku: string | null; unit: string; price_type: string; price_etb_cents: number | null; category_id: string } | null
@@ -129,7 +131,7 @@ export async function quoteSupplyData(quote: { id: string; delivery_location_id:
     fxLinked: o.fx_linked,
     status: o.status,
   }))
-  const shortlistPartners: ShortlistPartner[] = partners.map((p) => ({ orgId: p.orgId, name: p.name, status: p.status, doNotContact: p.doNotContact }))
+  const shortlistPartners: ShortlistPartner[] = partners.map((p) => ({ orgId: p.orgId, name: p.name, status: p.status, doNotContact: p.doNotContact, reliability: reliabilities.get(p.orgId) ?? null }))
   const shortlists = shortlist({
     items: items.map((i) => ({ id: i.id, name: i.name, itemKey: itemKey(i.name), productId: i.productId, categoryId: i.categoryId, quantity: i.quantity, unit: i.unit })),
     partners: shortlistPartners,

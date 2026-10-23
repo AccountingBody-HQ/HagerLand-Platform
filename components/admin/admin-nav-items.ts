@@ -1,6 +1,6 @@
 /** The admin menu (spec 18.2, 26), in groups. Staff see the items their role may open (lib/admin/roles.ts). */
 import {
-  type LucideIcon, BadgePercent, BarChart3, MailWarning, BookOpen, Calculator, Briefcase, Building2, LayoutGrid, Handshake, UserPlus, Coins, Wrench, ListChecks, Receipt, KeyRound, ClipboardCheck, ClipboardList, FileClock, FolderTree, Gauge, Import, Inbox, MapPin, Megaphone, Package, Settings, Store, Users, HandCoins, House, Layers, HardHat, Mail, Star, TrendingUp, Activity, UserCog, Truck, PackageCheck, BookText,
+  type LucideIcon, BadgePercent, BarChart3, MailWarning, BookOpen, Calculator, Briefcase, Building2, LayoutGrid, Handshake, UserPlus, Coins, Wrench, ListChecks, Receipt, KeyRound, ClipboardCheck, ClipboardList, FileClock, FolderTree, Gauge, Import, Inbox, MapPin, Megaphone, Package, Settings, Store, Users, HandCoins, House, Layers, HardHat, Mail, Star, TrendingUp, Activity, UserCog, Truck, PackageCheck, BookText, FileBarChart,
 } from 'lucide-react'
 import { roleCanAccess, type StaffRole } from '@/lib/admin/roles'
 
@@ -40,6 +40,7 @@ export const ADMIN_NAV_GROUPS: readonly AdminNavGroup[] = [
     items: [
       { href: '/roodber8/supply/partners', label: 'Supply partners', icon: Truck },
       { href: '/roodber8/supply/orders', label: 'Supply orders', icon: PackageCheck },
+      { href: '/roodber8/supply/performance', label: 'Partner performance', icon: Gauge },
       { href: '/roodber8/products', label: 'Products', icon: Package },
       { href: '/roodber8/categories', label: 'Categories', icon: FolderTree },
       { href: '/roodber8/trade-accounts', label: 'Trade accounts', icon: BadgePercent, badgeKey: 'trade' },
@@ -91,6 +92,7 @@ export const ADMIN_NAV_GROUPS: readonly AdminNavGroup[] = [
       { href: '/roodber8/demand', label: 'Demand', icon: TrendingUp },
       { href: '/roodber8/performance', label: 'Performance', icon: Activity },
       { href: '/roodber8/reports', label: 'Reports', icon: BarChart3 },
+      { href: '/roodber8/reports/supply', label: 'Supply report', icon: FileBarChart },
     ],
   },
   {
@@ -123,6 +125,13 @@ export const NAV_SYNONYMS: Record<string, string[]> = {
   money: ['/roodber8/deals', '/roodber8/supply/ledger'],
   commission: ['/roodber8/deals', '/roodber8/supply/ledger'],
   orders: ['/roodber8/supply/orders'],
+  performance: ['/roodber8/performance', '/roodber8/supply/performance'],
+  reliability: ['/roodber8/supply/performance'],
+  trends: ['/roodber8/supply/partners'],
+  report: ['/roodber8/reports', '/roodber8/reports/supply'],
+  ageing: ['/roodber8/reports/supply'],
+  debtors: ['/roodber8/reports/supply'],
+  'commission owed': ['/roodber8/reports/supply'],
   delivery: ['/roodber8/supply/orders'],
   proof: ['/roodber8/supply/orders'],
   ledger: ['/roodber8/supply/ledger'],

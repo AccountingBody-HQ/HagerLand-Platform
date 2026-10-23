@@ -5,6 +5,7 @@ import { Fragment, useRef, useState, useTransition } from 'react'
 import { FileText } from 'lucide-react'
 import { confirmPasteAction, createOfferAction, previewPasteAction, withdrawOfferAction, type PastePreviewRow } from '@/app/roodber8/actions/supplier-offers'
 import { addDays, defaultValidityDays, FRESHNESS_LABEL, OFFER_SOURCES, VAT_OPTIONS, type Freshness } from '@/lib/supply/offers'
+import { todayInAddis } from '@/lib/supply/shortlist'
 import { CONFIDENCE_LEVELS } from '@/lib/supply/partners'
 import { UNITS, unitLabel } from '@/lib/units'
 import { formatDate, formatETBCents } from '@/lib/format'
@@ -73,7 +74,7 @@ function SharedFields({ orgId, prefix, branches, validHint, onDateChange, onFxCh
     <>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Price date" htmlFor={id('date')} required>
-          <Input id={id('date')} name="price_date" type="date" defaultValue={new Date().toISOString().slice(0, 10)} onChange={(e) => onDateChange(e.target.value)} />
+          <Input id={id('date')} name="price_date" type="date" defaultValue={todayInAddis()} onChange={(e) => onDateChange(e.target.value)} />
         </Field>
         <Field label="Valid until" htmlFor={id('valid')} hint={validHint}>
           <Input id={id('valid')} name="valid_until" type="date" value={validUntil} onChange={(e) => setValidUntil(e.target.value)} />
@@ -167,7 +168,7 @@ export function AddOfferForm({ orgId, categories, products, branches, onDone }: 
   const [product, setProduct] = useState<ComboOption | null>(null)
   const [categoryId, setCategoryId] = useState('')
   const [itemName, setItemName] = useState('')
-  const [priceDate, setPriceDate] = useState(new Date().toISOString().slice(0, 10))
+  const [priceDate, setPriceDate] = useState(todayInAddis())
   const [fx, setFx] = useState(false)
   const [validEdited, setValidEdited] = useState<string | null>(null)
   const { pending, error, save } = useSave()
@@ -238,7 +239,7 @@ export function PastePriceList({ orgId, categories, branches, onDone }: { orgId:
   const [text, setText] = useState('')
   const [rows, setRows] = useState<PastePreviewRow[] | null>(null)
   const [chosen, setChosen] = useState<Record<string, string>>({})
-  const [priceDate, setPriceDate] = useState(new Date().toISOString().slice(0, 10))
+  const [priceDate, setPriceDate] = useState(todayInAddis())
   const [fx, setFx] = useState(false)
   const [validUntil, setValidUntil] = useState('')
   const { pending, error, save } = useSave()

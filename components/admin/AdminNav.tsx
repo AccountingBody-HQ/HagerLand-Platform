@@ -56,6 +56,8 @@ function Links({ badges, onNavigate, role, shortcut }: { badges: Record<string, 
   }, [shortcut])
 
   const groups = filterNav(navForRole(role), query)
+  // Only the most specific match is current (Supply report, not also Reports).
+  const activeHref = navForRole(role).flatMap((g) => g.items).filter((i) => isNavActive(path, i.href)).sort((a, b) => b.href.length - a.href.length)[0]?.href
   const searching = query.trim().length > 0
   const toggle = (label: string) => {
     const next = collapsed.includes(label) ? collapsed.filter((l) => l !== label) : [...collapsed, label]
@@ -97,7 +99,7 @@ function Links({ badges, onNavigate, role, shortcut }: { badges: Record<string, 
       </div>
       {groups.length === 0 && <p className="px-3 text-small text-white/60">No section matches</p>}
       {groups.map((group) => {
-        const hasActive = group.items.some((i) => isNavActive(path, i.href))
+        const hasActive = group.items.some((i) => i.href === activeHref)
         const open = searching || hasActive || !collapsed.includes(group.label)
         const listId = `${searchId}-${group.label.replace(/[^a-z]/gi, '')}`
         return (
@@ -116,7 +118,7 @@ function Links({ badges, onNavigate, role, shortcut }: { badges: Record<string, 
             {open && (
               <ul id={listId} className="mt-0.5 space-y-0.5">
                 {group.items.map((item) => {
-                  const active = isNavActive(path, item.href)
+                  const active = item.href === activeHref
                   const badge = item.badgeKey ? (badges[item.badgeKey] ?? 0) : 0
                   return (
                     <li key={item.href}>
