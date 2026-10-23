@@ -476,7 +476,7 @@ Each phase is sized for one focused Claude Code job. Each passes the standard ch
 
 ### Phase 3: link offers to the Quote screen (one additive migration)
 
-**Status (23 Oct 2026):** built on branch `supply/phase-3-quote-suppliers` with migration 0036, waiting for AB to apply 0036 and release. Recorded in `docs/RELAUNCH_PROGRESS.md`.
+**Status (23 Oct 2026):** released (merge `1bf9648`, migration 0036 applied to live by AB). Recorded in `docs/RELAUNCH_PROGRESS.md`.
 
 - **Scope:**
   - The "Add item" row (two new columns on `quote_request_items`).
