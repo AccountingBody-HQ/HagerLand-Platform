@@ -19,6 +19,8 @@ export interface DuplicateOrg {
   location_display: string | null
   verification_level: string
   has_members: boolean
+  /** Admin duplicate check: why it may be the same business. */
+  reason?: string
 }
 
 export type OrgFormState = ActionResult<{ id: string }> | { ok: false; error: string; duplicates: DuplicateOrg[]; fieldErrors?: Record<string, string> }

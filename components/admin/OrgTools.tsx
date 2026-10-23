@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
-import { addMemberAction, mergeOrganisationsAction, removeMemberAction, saveOrgAdminFieldsAction } from '@/app/roodber8/actions/organisations'
+import { addMemberAction, mergeOrganisationsAction, removeMemberAction, saveOrgAdminFieldsAction, setOrganisationVisibilityAction } from '@/app/roodber8/actions/organisations'
 import { Button } from '@/components/ui/Button'
 import { Field, Input, Select } from '@/components/ui/Field'
 import { useToast } from '@/components/ui/Toast'
@@ -110,6 +110,37 @@ export function MergeTool({ orgId, candidates }: { orgId: string; candidates: { 
       <Button size="sm" variant="danger" disabled={pending || !target || !confirm} onClick={() => run(() => mergeOrganisationsAction(orgId, target))}>
         Merge
       </Button>
+    </div>
+  )
+}
+
+/**
+ * Banner at the top of an organisation's admin page: is it on the public site? Private ("draft") organisations can be
+ * published, published ones made private; other statuses (review, archived…) keep their own controls.
+ */
+export function VisibilityBanner({ orgId, status, version, isHagerland }: { orgId: string; status: string; version: string; isHagerland: boolean }) {
+  const { pending, run } = useRun()
+  const published = status === 'published'
+  const publish = () => window.confirm('Publish only after confirming the details with the business.\n\nPublish it now with the Listed badge?') && run(() => setOrganisationVisibilityAction(orgId, 'publish', version))
+  const hide = () => window.confirm('Make it private? It disappears from the public site, search and sitemaps.') && run(() => setOrganisationVisibilityAction(orgId, 'private', version))
+  return (
+    <div role="status" className={`flex flex-col gap-3 rounded-lg border px-4 py-3 sm:flex-row sm:items-center sm:justify-between ${published ? 'border-green/30 bg-green-soft' : 'border-gold/40 bg-gold-soft'}`}>
+      <div className="text-small text-ink">
+        <p className="font-semibold">{published ? 'Published: visible on the public site.' : 'Private: not shown on the public site.'}</p>
+        {status === 'draft' && <p>Publish only after confirming the details with the business.</p>}
+        {published && isHagerland && <p>HagerLand’s own organisations always stay published.</p>}
+        {!published && status !== 'draft' && <p>Status: {status.replace(/_/g, ' ')}. Use the Status panel to change it.</p>}
+      </div>
+      {status === 'draft' && (
+        <Button size="sm" disabled={pending} onClick={publish}>
+          Publish
+        </Button>
+      )}
+      {published && !isHagerland && (
+        <Button size="sm" variant="secondary" disabled={pending} onClick={hide}>
+          Make private
+        </Button>
+      )}
     </div>
   )
 }

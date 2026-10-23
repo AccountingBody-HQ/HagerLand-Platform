@@ -4,6 +4,7 @@ import { formatDate, formatPhone } from '@/lib/format'
 import { ORG_KIND_LABEL } from '@/lib/org-labels'
 import { listSupplyPartners } from '@/lib/supply/data'
 import { labelFor, RELATIONSHIP_STATUSES, SUPPLY_ROLES } from '@/lib/supply/partners'
+import { ButtonLink } from '@/components/ui/Button'
 import { AdminHeader, DataTable, FilterBar, FilterField, Panel, SimplePager, StatusBadge, filterInput } from '@/components/admin/AdminUi'
 
 export const metadata = { title: 'Supply partners' }
@@ -26,7 +27,15 @@ export default async function SupplyPartnersPage(props: { searchParams: Promise<
 
   return (
     <div>
-      <AdminHeader title="Supply partners" description="HagerLand’s private record of the businesses we buy materials from. Never shown on the site." />
+      <AdminHeader
+        title="Supply partners"
+        description="HagerLand’s private record of the businesses we buy materials from. Never shown on the site."
+        actions={
+          <ButtonLink href="/roodber8/organisations/new?supplier=1" size="sm" prefetch={false}>
+            Add new supplier
+          </ButtonLink>
+        }
+      />
       <FilterBar action="/roodber8/supply/partners">
         <FilterField label="Search">
           <input name="q" type="search" defaultValue={q} placeholder="Name, other name or phone" className={`${filterInput} w-56`} />
@@ -68,10 +77,10 @@ export default async function SupplyPartnersPage(props: { searchParams: Promise<
                 <Link href="/roodber8/organisations" prefetch={false} className="font-semibold text-green underline">
                   Organisations
                 </Link>{' '}
-                and find the business (or add it with “New organisation”).
+                and open the business if it is already there: its “Supply partner” panel lists possible duplicates, then click “Create supply partner record”.
               </li>
-              <li>On its page, go to the “Supply partner” panel. Check the possible duplicates it lists, and merge them first if they are the same business.</li>
-              <li>Tick its roles, say where the information came from, and click “Create supply partner record”. Then add the people you speak to.</li>
+              <li>If it is not there, click “Add new supplier” above. It is created privately, with its supply record, and stays off the public site until you publish it.</li>
+              <li>Then tick its roles, say where the information came from, and add the people you speak to.</li>
             </ol>
           </div>
         </Panel>

@@ -107,3 +107,18 @@ describe('migration 0034', () => {
     expect(migration).not.toMatch(/\bgrant\b|create policy|create view|security definer|\bdrop\b|\btruncate\b|alter table public\.(?!supply_)/i)
   })
 })
+
+describe('private suppliers: who may add, publish and make private', () => {
+  it('owner and operations only (the actions check the organisations area on the server)', () => {
+    for (const path of ['/roodber8/organisations/new', '/roodber8/organisations/abc', '/roodber8/supply/partners']) {
+      expect(roleCanAccess('owner', path)).toBe(true)
+      expect(roleCanAccess('operations', path)).toBe(true)
+      expect(roleCanAccess('agent', path)).toBe(false)
+      expect(roleCanAccess('content', path)).toBe(false)
+    }
+    const actions = readFileSync('app/roodber8/actions/organisations.ts', 'utf8')
+    expect(actions).toContain("const AREA = '/roodber8/organisations'")
+    const visibility = actions.slice(actions.indexOf('export async function setOrganisationVisibilityAction'))
+    expect(visibility.slice(0, visibility.indexOf('\n}'))).toMatch(/assertAdmin\(AREA\)[\s\S]*isStaleEdit[\s\S]*organisation\.(publish|unpublish)/)
+  })
+})

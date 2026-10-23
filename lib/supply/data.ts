@@ -28,8 +28,11 @@ export interface PossibleDuplicate {
   reason: string
 }
 
-/** Organisations that may be the same business: the same phone (any normalised form) or a very similar name. */
-export async function findPossibleDuplicates(org: { id: string; name: string; phone: string | null; whatsapp: string | null; telegram: string | null }): Promise<PossibleDuplicate[]> {
+/**
+ * Organisations that may be the same business: the same phone (any normalised form) or a very similar name.
+ * `id` is left out when checking a business that is not created yet.
+ */
+export async function findPossibleDuplicates(org: { id?: string; name: string; phone: string | null; whatsapp: string | null; telegram: string | null }): Promise<PossibleDuplicate[]> {
   const db = getAdminSupabase()
   const phones = Array.from(new Set([org.phone, org.whatsapp, org.telegram].map((p) => (p ? normaliseSupplyPhone(p) : null)).filter((p): p is string => Boolean(p))))
   const found = new Map<string, PossibleDuplicate>()
@@ -55,7 +58,7 @@ export async function findPossibleDuplicates(org: { id: string; name: string; ph
   // The longest distinctive word narrows the candidates; trigram similarity on the cleaned names decides.
   const word = businessNameKey(org.name).split(' ').sort((a, b) => b.length - a.length)[0]
   if (word && word.length >= 3) {
-    const { data } = await db.from('organisations').select('id, name, status').ilike('name', `%${escapeLikePattern(word)}%`).neq('id', org.id).limit(200)
+    const { data } = await db.from('organisations').select('id, name, status').ilike('name', `%${escapeLikePattern(word)}%`).limit(200)
     for (const o of data ?? []) if (nameSimilarity(org.name, o.name) >= NAME_MATCH_THRESHOLD) add(o, 'Similar name')
   }
   return Array.from(found.values()).slice(0, 20)

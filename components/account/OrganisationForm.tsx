@@ -2,7 +2,7 @@
 
 import { PROVIDER_PILLAR_KEYS, PROVIDER_PILLAR_LABEL, defaultPillarsForKind } from '@/lib/provider-pillars'
 import Link from 'next/link'
-import { useActionState, useState } from 'react'
+import { useActionState, useState, type ReactNode } from 'react'
 import type { ComboOption } from '@/components/ui/Combobox'
 import { Combobox } from '@/components/ui/Combobox'
 import { Checkbox, Field, Input, Select, Textarea, describedBy } from '@/components/ui/Field'
@@ -55,6 +55,8 @@ export function OrganisationForm({
   defaults = {},
   submitLabel,
   pendingNote,
+  extra,
+  duplicateMode = 'claim',
 }: {
   action: (prev: OrgFormState | null, formData: FormData) => Promise<OrgFormState>
   kinds: string[]
@@ -63,6 +65,10 @@ export function OrganisationForm({
   defaults?: OrgFormDefaults
   submitLabel: string
   pendingNote?: string
+  /** Admin only: extra fields shown before the submit button. */
+  extra?: ReactNode
+  /** "admin": possible duplicates link to their admin pages instead of offering a claim. */
+  duplicateMode?: 'claim' | 'admin'
 }) {
   const [state, formAction] = useActionState(action, null)
   const [kind, setKind] = useState(defaults.kind ?? kinds[0])
@@ -81,7 +87,25 @@ export function OrganisationForm({
       {state && !state.ok && duplicates.length === 0 && <FormAlert>{state.error}</FormAlert>}
       {state?.ok && state.message && <FormAlert tone="success">{state.message}</FormAlert>}
 
-      {duplicates.length > 0 && !confirmNew && (
+      {duplicates.length > 0 && !confirmNew && duplicateMode === 'admin' && (
+        <div className="rounded-lg border border-gold/40 bg-gold-soft p-5">
+          <h2 className="font-display text-h3 font-bold">Possible duplicates</h2>
+          <p className="mt-1 text-small text-muted">These businesses have the same phone number or a similar name. Open one to check it. If it is the same business, do not create a new one: add the supply record there, or use “Merge duplicate”.</p>
+          <ul className="mt-4 space-y-2">
+            {duplicates.map((d) => (
+              <li key={d.id} className="rounded-md bg-white p-3 text-small">
+                <Link href={`/roodber8/organisations/${d.id}`} prefetch={false} target="_blank" className="font-semibold text-green underline">
+                  {d.name}
+                </Link>
+                {d.reason && <span className="text-muted"> · {d.reason}</span>}
+              </li>
+            ))}
+          </ul>
+          <ConfirmNewButton onConfirm={() => setConfirmNew(true)} label="None of these is the same business. Create it." />
+        </div>
+      )}
+
+      {duplicates.length > 0 && !confirmNew && duplicateMode === 'claim' && (
         <div className="rounded-lg border border-gold/40 bg-gold-soft p-5">
           <h2 className="font-display text-h3 font-bold">Is this your business?</h2>
           <p className="mt-1 text-small text-muted">We found businesses with a similar name. If one is yours, claim it instead of creating a duplicate.</p>
@@ -102,20 +126,7 @@ export function OrganisationForm({
               </li>
             ))}
           </ul>
-          <button
-            type="button"
-            onClick={(e) => {
-              // Submit before re-rendering: hiding this panel first would remove the button and the browser
-              // would drop the submission. The hidden field must also be set now, not via state.
-              const form = e.currentTarget.form
-              const field = form?.elements.namedItem('confirm_new')
-              if (field instanceof HTMLInputElement) field.value = '1'
-              form?.requestSubmit()
-              setConfirmNew(true)
-            }}
-            className="mt-4 min-h-11 text-small font-semibold text-green underline">
-            No, none of these. Create my business.
-          </button>
+          <ConfirmNewButton onConfirm={() => setConfirmNew(true)} label="No, none of these. Create my business." />
         </div>
       )}
 
@@ -273,10 +284,30 @@ export function OrganisationForm({
         </div>
       </fieldset>
 
+      {extra}
       {pendingNote && <p className="text-small text-muted">{pendingNote}</p>}
       <SubmitButton size="lg" className="w-full sm:w-auto" pendingText="Saving…">
         {submitLabel}
       </SubmitButton>
     </NoResetForm>
+  )
+}
+
+function ConfirmNewButton({ onConfirm, label }: { onConfirm: () => void; label: string }) {
+  return (
+    <button
+      type="button"
+      onClick={(e) => {
+        // Submit before re-rendering: hiding this panel first would remove the button and the browser
+        // would drop the submission. The hidden field must also be set now, not via state.
+        const form = e.currentTarget.form
+        const field = form?.elements.namedItem('confirm_new')
+        if (field instanceof HTMLInputElement) field.value = '1'
+        form?.requestSubmit()
+        onConfirm()
+      }}
+      className="mt-4 min-h-11 text-small font-semibold text-green underline">
+      {label}
+    </button>
   )
 }

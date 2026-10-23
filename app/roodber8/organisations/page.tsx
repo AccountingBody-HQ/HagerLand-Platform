@@ -58,6 +58,7 @@ export default async function AdminOrgsPage(props: { searchParams: Promise<Recor
         <FilterField label="Status">
           <select name="status" defaultValue={searchParams.status ?? ''} className={filterInput}>
             <option value="">Any</option>
+            <option value="draft">private (not public)</option>
             {['pending_review', 'published', 'rejected', 'archived', 'removed'].map((s) => (
               <option key={s} value={s}>
                 {s.replace('_', ' ')}
@@ -88,7 +89,7 @@ export default async function AdminOrgsPage(props: { searchParams: Promise<Recor
         columns={[
           { key: 'name', label: 'Name', render: (r) => <Link href={`/roodber8/organisations/${r.id}`} className="font-semibold hover:underline">{r.name}</Link> },
           { key: 'kind', label: 'Kind', render: (r) => ORG_KIND_LABEL[r.kind] },
-          { key: 'status', label: 'Status', render: (r) => <StatusBadge status={r.status} /> },
+          { key: 'status', label: 'Status', render: (r) => <StatusBadge status={r.status === 'draft' ? 'private' : r.status} /> },
           { key: 'ver', label: 'Verification', render: (r) => <StatusBadge status={r.verification_level} /> },
           { key: 'src', label: 'Source', render: (r) => r.source },
           { key: 'members', label: 'Members', render: (r) => String((r.members as { count: number }[] | null)?.[0]?.count ?? 0) },

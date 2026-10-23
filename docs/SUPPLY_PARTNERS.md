@@ -2,15 +2,31 @@
 
 Admin → **Supply partners** (`/roodber8/supply/partners`). This is HagerLand's private notebook about the businesses we buy materials from. Nothing here is ever shown on the website, to customers, or to the business itself. Owner and Operations staff can use it; Agent and Content staff cannot.
 
-## Add a partner
+## The rule
 
-1. Go to **Organisations** and find the business. If it is not there, add it with **New organisation**.
-2. On its page, open the **Supply partner** panel.
-3. Look at **“Check these first”**. It lists businesses with the same phone number or a very similar name. If one is really the same business, merge them first with **Merge duplicate** (it moves everything, including supply records, into the one you keep).
-4. Tick its **roles** (importer, distributor, manufacturer, wholesaler, retail shop, contractor: a business can have several).
-5. Add **other names**, one per line: the Amharic name, other English spellings, trading names. They make the business easy to find and help spot duplicates.
-6. Say **where the information came from** (a call, a visit, a price list photo…), how **confident** you are, and when and by whom it was recorded.
-7. Click **Create supply partner record**.
+**Publish a business only after confirming its details with the business itself.** Until then it stays private: it is not on the public site, in search, in the sitemaps, or reachable by its address, and its products and branches are hidden too.
+
+## Add a new supplier (private)
+
+1. Admin → **Supply partners** → **Add new supplier**.
+2. Type of business is already “Supplier” (change it if it is a manufacturer), “Building and construction supplies” is ticked, and Visibility is **Keep private**. Fill in the business name, where it is, and its phone (type it however you like: `0911 23 45 67`, `011 551 2345`, `+251…`). WhatsApp, Telegram and a short tagline are optional.
+3. Click **Create supplier**. If another business has the same phone number or a similar name, you see **Possible duplicates** with links. Open them to check. If one is the same business, do not create a new one: go to it and use its Supply partner panel (or **Merge duplicate**). If none is, click **None of these is the same business. Create it.**
+4. You land on its page at the **Supply partner** panel, with the record already created (status “Discovered”). The banner at the top says **Private: not shown on the public site.**
+
+The general **Organisations → New organisation** form has the same Visibility choice. “Keep private” is the default; “Publish now with the Listed badge” works as before.
+
+## Add a partner record to a business that is already on HagerLand
+
+1. Go to **Organisations** and open the business.
+2. In the **Supply partner** panel, look at **“Check these first”** (businesses with the same phone or a similar name) and merge real duplicates first with **Merge duplicate**.
+3. Tick its **roles** (importer, distributor, manufacturer, wholesaler, retail shop, contractor: a business can have several), add **other names** (Amharic name, other spellings, trading names, one per line), say **where the information came from** and how **confident** you are, then click **Create supply partner record**.
+
+## Publish, or make private again
+
+- **Publish**: on the business's page, the banner at the top has a **Publish** button. It asks you to confirm: “Publish only after confirming the details with the business.” Once published it shows on the site with the Listed badge within a few minutes.
+- **Make private**: on a published business, the banner has **Make private**. It disappears from the public site, search and sitemaps.
+- Both are recorded in the audit log. HagerLand's own organisations always stay published.
+- **Organisations** list: private businesses show the badge “private”; filter them with Status → “private (not public)”.
 
 ## Contacts and consent
 
