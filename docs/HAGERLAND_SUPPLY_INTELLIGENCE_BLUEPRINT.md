@@ -515,7 +515,7 @@ Each phase is sized for one focused Claude Code job. Each passes the standard ch
 
 ### Phase 5: demand insights and reports; links to Jobs and contractors
 
-**Status (23 Oct 2026):** built on branch `supply/phase-5-insights` with migration 0038, waiting for AB to apply 0038 and release. Recorded in `docs/RELAUNCH_PROGRESS.md`.
+**Status (23 Oct 2026):** released 23 Oct 2026 (merge `f01817e`, migration 0038 applied to live by AB). Recorded in `docs/RELAUNCH_PROGRESS.md`.
 
 - **Scope:**
   - Add quote items to `lib/admin/demand.ts`: top items, categories and delivery areas, and quotes without a partner.
