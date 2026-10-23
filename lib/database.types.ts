@@ -3922,6 +3922,8 @@ export type Database = {
       }
       quote_request_items: {
         Row: {
+          added_by_admin: boolean
+          category_id: string | null
           created_at: string
           free_text_item: string | null
           id: string
@@ -3929,10 +3931,14 @@ export type Database = {
           product_id: string | null
           quantity: number
           quote_request_id: string
+          removed_at: string | null
+          removed_by: string | null
           unit: string
         }
         ComputedFields: never
         Insert: {
+          added_by_admin?: boolean
+          category_id?: string | null
           created_at?: string
           free_text_item?: string | null
           id?: string
@@ -3940,9 +3946,13 @@ export type Database = {
           product_id?: string | null
           quantity: number
           quote_request_id: string
+          removed_at?: string | null
+          removed_by?: string | null
           unit: string
         }
         Update: {
+          added_by_admin?: boolean
+          category_id?: string | null
           created_at?: string
           free_text_item?: string | null
           id?: string
@@ -3950,9 +3960,25 @@ export type Database = {
           product_id?: string | null
           quantity?: number
           quote_request_id?: string
+          removed_at?: string | null
+          removed_by?: string | null
           unit?: string
         }
         Relationships: [
+          {
+            foreignKeyName: 'quote_request_items_category_id_fkey'
+            columns: ['category_id']
+            isOneToOne: false
+            referencedRelation: 'org_product_categories_public'
+            referencedColumns: ['product_category_id']
+          },
+          {
+            foreignKeyName: 'quote_request_items_category_id_fkey'
+            columns: ['category_id']
+            isOneToOne: false
+            referencedRelation: 'product_categories'
+            referencedColumns: ['id']
+          },
           {
             foreignKeyName: 'quote_request_items_product_id_fkey'
             columns: ['product_id']
@@ -5321,6 +5347,129 @@ export type Database = {
             columns: ['org_id']
             isOneToOne: true
             referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      supply_quote_lines: {
+        Row: {
+          added_manually: boolean
+          asked_at: string | null
+          branch_id: string | null
+          chosen_at: string | null
+          created_at: string
+          created_by: string | null
+          delivery_charge_cents: number | null
+          id: string
+          note: string | null
+          offer_id: string | null
+          org_id: string
+          quantity: number | null
+          quote_item_id: string | null
+          quote_request_id: string
+          reason: string | null
+          received_at: string | null
+          status: string
+          unit: string | null
+          unit_price_cents: number | null
+          updated_at: string
+          valid_until: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          added_manually?: boolean
+          asked_at?: string | null
+          branch_id?: string | null
+          chosen_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          delivery_charge_cents?: number | null
+          id?: string
+          note?: string | null
+          offer_id?: string | null
+          org_id: string
+          quantity?: number | null
+          quote_item_id?: string | null
+          quote_request_id: string
+          reason?: string | null
+          received_at?: string | null
+          status?: string
+          unit?: string | null
+          unit_price_cents?: number | null
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Update: {
+          added_manually?: boolean
+          asked_at?: string | null
+          branch_id?: string | null
+          chosen_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          delivery_charge_cents?: number | null
+          id?: string
+          note?: string | null
+          offer_id?: string | null
+          org_id?: string
+          quantity?: number | null
+          quote_item_id?: string | null
+          quote_request_id?: string
+          reason?: string | null
+          received_at?: string | null
+          status?: string
+          unit?: string | null
+          unit_price_cents?: number | null
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'supply_quote_lines_branch_id_fkey'
+            columns: ['branch_id']
+            isOneToOne: false
+            referencedRelation: 'org_branches'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'supply_quote_lines_branch_id_fkey'
+            columns: ['branch_id']
+            isOneToOne: false
+            referencedRelation: 'org_branches_public'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'supply_quote_lines_offer_id_fkey'
+            columns: ['offer_id']
+            isOneToOne: false
+            referencedRelation: 'supplier_offers'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'supply_quote_lines_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'supply_quote_lines_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'supply_quote_lines_quote_item_id_fkey'
+            columns: ['quote_item_id']
+            isOneToOne: false
+            referencedRelation: 'quote_request_items'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'supply_quote_lines_quote_request_id_fkey'
+            columns: ['quote_request_id']
+            isOneToOne: false
+            referencedRelation: 'quote_requests'
             referencedColumns: ['id']
           },
         ]

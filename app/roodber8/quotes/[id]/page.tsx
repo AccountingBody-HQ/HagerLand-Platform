@@ -1,18 +1,22 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Download } from 'lucide-react'
-import { requireAdminPage } from '@/lib/admin/guard'
+import { isOwnerSession, requireAdminPage } from '@/lib/admin/guard'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { auditFor } from '@/lib/admin/options'
 import { signedDocumentUrl } from '@/lib/storage'
 import { formatDate, formatETBCents, formatPhone } from '@/lib/format'
-import { unitLabel } from '@/lib/units'
-import { productPrice } from '@/lib/product-price'
+import { getAdminSession } from '@/lib/admin-auth'
+import { roleCanAccess } from '@/lib/admin/roles'
+import { CLOSED_QUOTE_STATUSES, quoteSupplyData } from '@/lib/supply/quote-supply-data'
+import { QuoteItemsPanel, QuoteSuppliersPanel } from '@/components/admin/QuoteSupply'
 import { AdminHeader, KeyValue, Panel, StatusBadge } from '@/components/admin/AdminUi'
 import { IssueQuoteTool, LeadStatusTool, QuoteInternalTool } from '@/components/admin/LeadTools'
 import { AuditTrail } from '@/components/admin/AuditTrail'
 
 export const metadata = { title: 'Quote' }
+
+const SUPPLY_AREA = '/roodber8/supply/partners'
 
 export default async function AdminQuotePage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params
@@ -20,10 +24,12 @@ export default async function AdminQuotePage(props: { params: Promise<{ id: stri
   const db = getAdminSupabase()
   const { data: q } = await db.from('quote_requests').select('*, location:locations(display_name)').eq('id', params.id).maybeSingle()
   if (!q) notFound()
-  const [{ data: items }, trail] = await Promise.all([
-    db.from('quote_request_items').select('id, quantity, unit, notes, free_text_item, product:products(id, name, sku, unit, price_type, price_etb_cents)').eq('quote_request_id', q.id).order('created_at'),
-    auditFor(q.id),
-  ])
+  const session = await getAdminSession()
+  // Suppliers and HagerLand-added items are for owner and operations (the supply area); margins for the owner only.
+  const canSupply = session?.kind === 'master' || (session?.kind === 'staff' && roleCanAccess(session.role, SUPPLY_AREA))
+  const [supply, trail, isOwner] = await Promise.all([quoteSupplyData(q), auditFor(q.id), isOwnerSession()])
+  const items = canSupply ? supply.items : supply.items.filter((i) => !i.addedByAdmin)
+  const readOnly = CLOSED_QUOTE_STATUSES.includes(q.status)
   const files = await Promise.all(
     (q.materials_file_paths.length ? q.materials_file_paths : q.materials_file_path ? [q.materials_file_path] : []).map(async (p, i) => ({ name: `Materials list ${i + 1}.${p.split('.').pop()}`, url: await signedDocumentUrl(p) })),
   )
@@ -56,41 +62,8 @@ export default async function AdminQuotePage(props: { params: Promise<{ id: stri
             />
             {q.notes && <p className="mt-4 whitespace-pre-line rounded-md bg-stone-50 p-3 text-small">{q.notes}</p>}
           </Panel>
-          <Panel title={`Items (${items?.length ?? 0})`}>
-            {items && items.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[560px] text-left text-small">
-                  <thead className="text-caption uppercase text-muted">
-                    <tr>
-                      <th scope="col" className="py-2 pr-3">Item</th>
-                      <th scope="col" className="py-2 pr-3">Quantity</th>
-                      <th scope="col" className="py-2 pr-3">Catalogue price</th>
-                      <th scope="col" className="py-2">Notes</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {items.map((it) => {
-                      const p = it.product as { id: string; name: string; sku: string | null; unit: string; price_type: string; price_etb_cents: number | null } | null
-                      return (
-                        <tr key={it.id}>
-                          <td className="py-2 pr-3">
-                            {p ? <Link href={`/roodber8/products/${p.id}`} className="font-semibold hover:underline">{p.name}</Link> : it.free_text_item}
-                            {p?.sku && <span className="block font-mono text-caption text-muted">{p.sku}</span>}
-                          </td>
-                          <td className="py-2 pr-3 tabular-nums">
-                            {Number(it.quantity)} {unitLabel(it.unit, Number(it.quantity))}
-                          </td>
-                          <td className="py-2 pr-3 tabular-nums">{p ? productPrice(p) : ''}</td>
-                          <td className="py-2">{it.notes}</td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <p className="text-small text-muted">No catalogue items: see the materials list.</p>
-            )}
+          <Panel title={`Items (${items.length})`}>
+            <QuoteItemsPanel quoteId={q.id} items={items} removedCount={canSupply ? supply.removedCount : 0} categories={supply.categories} readOnly={readOnly} canEdit={canSupply} />
           </Panel>
           {files.length > 0 && (
             <Panel title="Uploaded materials lists">
@@ -108,6 +81,11 @@ export default async function AdminQuotePage(props: { params: Promise<{ id: stri
                 ))}
               </ul>
               <p className="mt-2 text-caption text-muted">Links work for 10 minutes. Reload the page for fresh links.</p>
+            </Panel>
+          )}
+          {canSupply && (
+            <Panel title="Suppliers">
+              <QuoteSuppliersPanel quoteId={q.id} items={items} shortlists={supply.shortlists} lines={supply.lines} partners={supply.partners} offerPrices={supply.offerPrices} place={supply.place} readOnly={readOnly} isOwner={isOwner} />
             </Panel>
           )}
         </div>

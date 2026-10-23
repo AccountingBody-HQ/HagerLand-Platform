@@ -13,10 +13,10 @@ import { addDays, defaultValidityDays, itemKey, OFFER_SOURCES, parsePastedLines,
 import { CONFIDENCE_LEVELS } from '@/lib/supply/partners'
 import { UNITS } from '@/lib/units'
 import { today } from '@/lib/supply/offers-data'
+import { categorySlugs, OFFER_RACE, partnerName, saveOffer } from '@/lib/supply/offer-write'
 
 type Msg = ActionResult<{ message: string }>
 
-const RACE = 'Someone saved a price for the same item at the same moment. Reload the page to see it, then try again if needed.'
 const blank = (v: unknown) => (v === null || (typeof v === 'string' && v.trim() === '') ? undefined : v)
 const optionalText = (max: number) => z.preprocess(blank, z.string().trim().max(max).optional())
 const optionalNumber = (max: number) => z.preprocess((v) => (blank(v) === undefined ? undefined : Number(String(v).replace(/[,\s]/g, ''))), z.number().positive().max(max).optional())
@@ -35,7 +35,7 @@ function sharedSchema(orgId: string) {
     valid_until: z.preprocess(blank, z.iso.date().optional()),
     min_order_qty: optionalNumber(1_000_000),
     delivery_area_ids: z.array(z.uuid()).max(50),
-    delivery_charge_cents: priceCents('delivery charge', false),
+    delivery_charge_cents: z.preprocess((v) => (blank(v) === undefined ? undefined : /^0+(\.0+)?$/.test(String(v).trim()) ? 0 : parsePriceEtb(String(v)) ?? Number.NaN), z.number({ error: 'Enter the delivery charge in birr, like 150 (or 0 if free)' }).int().min(0).optional()),
     delivery_note: optionalText(500),
     lead_time_days: z.preprocess((v) => (blank(v) === undefined ? undefined : Number(v)), z.number().int().min(0).max(365).optional()),
     vat_included: z.enum(['yes', 'no', 'unknown']),
@@ -64,21 +64,6 @@ function sharedFrom(fd: FormData) {
     confidence: fd.get('confidence'),
     evidence_paths: fd.getAll('evidence_paths'),
   }
-}
-
-async function partnerName(orgId: string): Promise<string | null> {
-  const db = getAdminSupabase()
-  const [{ data: partner }, { data: org }] = await Promise.all([
-    db.from('supply_partners').select('org_id').eq('org_id', orgId).maybeSingle(),
-    db.from('organisations').select('name').eq('id', orgId).maybeSingle(),
-  ])
-  return partner && org ? org.name : null
-}
-
-async function categorySlugs(ids: string[]): Promise<Map<string, string>> {
-  if (!ids.length) return new Map()
-  const { data } = await getAdminSupabase().from('product_categories').select('id, slug').in('id', ids)
-  return new Map((data ?? []).map((c) => [c.id, c.slug]))
 }
 
 function refresh(orgId: string) {
@@ -115,65 +100,12 @@ export async function createOfferAction(orgId: string, formData: FormData): Prom
     price_cents: formData.get('price'),
   })
   if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? 'Check the fields.')
-  const name = await partnerName(orgId)
-  if (!name) return fail('Create the supply partner record first.')
   const d = parsed.data
   if (d.price_cents === undefined) return fail('Enter the price in birr, like 1250 or 1,250.50')
-  const price = d.price_cents
-  const db = getAdminSupabase()
-  let itemName = d.item_name ?? null
-  let categoryId = d.category_id ?? null
-  if (d.product_id) {
-    const { data: product } = await db.from('products').select('name, category_id').eq('id', d.product_id).maybeSingle()
-    if (!product) return fail('That catalogue product no longer exists.')
-    itemName = itemName ?? product.name
-    categoryId = categoryId ?? product.category_id
-  }
-  if (!itemName || (!d.product_id && !categoryId)) return fail('Pick a catalogue product, or choose a category and type the item name.')
-  const slug = categoryId ? (await categorySlugs([categoryId])).get(categoryId) : null
-  const validUntil = d.valid_until ?? addDays(d.price_date, defaultValidityDays({ categorySlug: slug, itemName, fxLinked: d.fx_linked }))
-  if (validUntil < d.price_date) return fail('“Valid until” cannot be before the price date.')
-  if (d.branch_id) {
-    const { data: branch } = await db.from('org_branches').select('id').eq('id', d.branch_id).eq('org_id', orgId).maybeSingle()
-    if (!branch) return fail('That branch does not belong to this partner.')
-  }
-  const key = itemKey(itemName)
-  const { data: previous } = await db.from('supplier_offers').select('id, price_etb_cents').eq('org_id', orgId).eq('status', 'current').eq('item_key', key).eq('unit', d.unit).filter('branch_id', d.branch_id ? 'eq' : 'is', d.branch_id ?? null).maybeSingle()
-  const { data: created, error } = await db
-    .from('supplier_offers')
-    .insert({
-      org_id: orgId,
-      branch_id: d.branch_id ?? null,
-      product_id: d.product_id ?? null,
-      category_id: categoryId,
-      item_name: itemName,
-      item_key: key,
-      unit: d.unit,
-      pack_size: d.pack_size ?? null,
-      price_etb_cents: price,
-      price_date: d.price_date,
-      valid_until: validUntil,
-      min_order_qty: d.min_order_qty ?? null,
-      delivery_area_ids: Array.from(new Set(d.delivery_area_ids)),
-      delivery_charge_etb_cents: d.delivery_charge_cents ?? null,
-      delivery_note: d.delivery_note ?? null,
-      lead_time_days: d.lead_time_days ?? null,
-      vat_included: d.vat_included,
-      fx_linked: d.fx_linked,
-      source: d.source,
-      source_note: d.source_note ?? null,
-      captured_by: (await adminActor()).slice(0, 120),
-      confidence: d.confidence ?? null,
-      evidence_paths: d.evidence_paths,
-    })
-    .select('id')
-    .single()
-  if (error?.code === '23505') return fail(RACE)
-  if (error || !created) return fail('Could not save the price.')
-  await audit('supply.offer.create', { type: 'organisation', id: orgId, label: name }, { offer: created.id, item: itemName, unit: d.unit, price_etb_cents: price, valid_until: validUntil })
-  if (previous) await audit('supply.offer.supersede', { type: 'organisation', id: orgId, label: name }, { offer: previous.id, superseded_by: created.id, from_cents: previous.price_etb_cents, to_cents: price })
+  const saved = await saveOffer(orgId, { ...d, price_cents: d.price_cents })
+  if (!saved.ok) return fail(saved.error)
   refresh(orgId)
-  return ok({ message: previous ? 'New price saved. The previous price is kept in the history.' : 'Price saved.' })
+  return ok({ message: saved.replaced ? 'New price saved. The previous price is kept in the history.' : 'Price saved.' })
 }
 
 /** A partner no longer sells an item: the current offer becomes "withdrawn" (kept in the history). */
@@ -287,7 +219,7 @@ export async function confirmPasteAction(orgId: string, text: string, categories
         evidence_paths: d.evidence_paths,
       })),
     )
-  if (error?.code === '23505') return fail(RACE)
+  if (error?.code === '23505') return fail(OFFER_RACE)
   if (error) return fail('Nothing was saved: the price list could not be stored. Please try again.')
   await audit('supply.offer.paste_import', { type: 'organisation', id: orgId, label: name }, { rows: rows.length, superseded })
   refresh(orgId)

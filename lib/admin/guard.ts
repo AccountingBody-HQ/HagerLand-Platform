@@ -26,6 +26,12 @@ export async function assertAdmin(area?: string): Promise<void> {
   }
 }
 
+/** The master login or a staff member with the owner role: the only people who see margins and commission. */
+export async function isOwnerSession(): Promise<boolean> {
+  const s = await getAdminSession()
+  return s?.kind === 'master' || (s?.kind === 'staff' && s.role === 'owner')
+}
+
 /** Who is acting in admin, for audit entries (spec 26.15): 'admin' for the master login, else the staff member. */
 export async function adminActor(): Promise<string> {
   const s = await getAdminSession()
