@@ -15,7 +15,7 @@ export const ROLE_LABEL: Record<StaffRole, string> = {
 /** Path prefixes under /roodber8 (and admin APIs) each non-owner role may open. The dashboard is open to all staff. */
 const AREAS: Record<Exclude<StaffRole, 'owner'>, string[]> = {
   agent: ['/roodber8/agency', '/roodber8/properties', '/roodber8/developments', '/roodber8/sales', '/roodber8/enquiries', '/roodber8/review'],
-  operations: ['/roodber8/service-requests', '/roodber8/request-questions', '/roodber8/projects', '/roodber8/property-care', '/roodber8/managed-properties', '/roodber8/quotes', '/roodber8/products', '/roodber8/trade-accounts', '/roodber8/reviews', '/roodber8/organisations'],
+  operations: ['/roodber8/service-requests', '/roodber8/request-questions', '/roodber8/projects', '/roodber8/property-care', '/roodber8/managed-properties', '/roodber8/quotes', '/roodber8/products', '/roodber8/trade-accounts', '/roodber8/reviews', '/roodber8/organisations', '/roodber8/supply/partners'],
   content: ['/roodber8/guides', '/roodber8/area-guides', '/roodber8/locations', '/roodber8/newsletter'],
 }
 

@@ -4985,6 +4985,178 @@ export type Database = {
         }
         Relationships: []
       }
+      supply_contacts: {
+        Row: {
+          branch_id: string | null
+          consent_basis: string | null
+          consent_note: string | null
+          created_at: string
+          do_not_contact: boolean
+          email: string | null
+          id: string
+          last_contacted_at: string | null
+          name: string
+          org_id: string
+          phone: string | null
+          phone_normalised: string | null
+          preferred_channel: string | null
+          role: string | null
+          telegram: string | null
+          updated_at: string
+          whatsapp: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          branch_id?: string | null
+          consent_basis?: string | null
+          consent_note?: string | null
+          created_at?: string
+          do_not_contact?: boolean
+          email?: string | null
+          id?: string
+          last_contacted_at?: string | null
+          name: string
+          org_id: string
+          phone?: string | null
+          phone_normalised?: string | null
+          preferred_channel?: string | null
+          role?: string | null
+          telegram?: string | null
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Update: {
+          branch_id?: string | null
+          consent_basis?: string | null
+          consent_note?: string | null
+          created_at?: string
+          do_not_contact?: boolean
+          email?: string | null
+          id?: string
+          last_contacted_at?: string | null
+          name?: string
+          org_id?: string
+          phone?: string | null
+          phone_normalised?: string | null
+          preferred_channel?: string | null
+          role?: string | null
+          telegram?: string | null
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'supply_contacts_branch_id_fkey'
+            columns: ['branch_id']
+            isOneToOne: false
+            referencedRelation: 'org_branches'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'supply_contacts_branch_id_fkey'
+            columns: ['branch_id']
+            isOneToOne: false
+            referencedRelation: 'org_branches_public'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'supply_contacts_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'supply_contacts_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      supply_partners: {
+        Row: {
+          aka: string[]
+          captured_at: string | null
+          captured_by: string | null
+          confidence: string | null
+          created_at: string
+          evidence_paths: string[]
+          licence_seen_at: string | null
+          notes: string | null
+          org_id: string
+          relationship_status: string
+          reverify_by: string | null
+          roles: string[]
+          site_visit_at: string | null
+          source: string | null
+          source_note: string | null
+          status_changed_at: string | null
+          tin_checked_at: string | null
+          updated_at: string
+          verified_by: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          aka?: string[]
+          captured_at?: string | null
+          captured_by?: string | null
+          confidence?: string | null
+          created_at?: string
+          evidence_paths?: string[]
+          licence_seen_at?: string | null
+          notes?: string | null
+          org_id: string
+          relationship_status?: string
+          reverify_by?: string | null
+          roles?: string[]
+          site_visit_at?: string | null
+          source?: string | null
+          source_note?: string | null
+          status_changed_at?: string | null
+          tin_checked_at?: string | null
+          updated_at?: string
+          verified_by?: string | null
+        }
+        Update: {
+          aka?: string[]
+          captured_at?: string | null
+          captured_by?: string | null
+          confidence?: string | null
+          created_at?: string
+          evidence_paths?: string[]
+          licence_seen_at?: string | null
+          notes?: string | null
+          org_id?: string
+          relationship_status?: string
+          reverify_by?: string | null
+          roles?: string[]
+          site_visit_at?: string | null
+          source?: string | null
+          source_note?: string | null
+          status_changed_at?: string | null
+          tin_checked_at?: string | null
+          updated_at?: string
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'supply_partners_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: true
+            referencedRelation: 'organisations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'supply_partners_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: true
+            referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       tenancies: {
         Row: {
           advance_months: number | null
