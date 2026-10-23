@@ -5179,6 +5179,76 @@ export type Database = {
           },
         ]
       }
+      supply_agreements: {
+        Row: {
+          commission_rate_bps: number | null
+          created_at: string
+          created_by: string | null
+          credit_days: number | null
+          document_path: string | null
+          end_date: string | null
+          id: string
+          money_model: string
+          notes: string | null
+          org_id: string
+          payment_terms: string | null
+          start_date: string
+          status: string
+          terminated_reason: string | null
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          commission_rate_bps?: number | null
+          created_at?: string
+          created_by?: string | null
+          credit_days?: number | null
+          document_path?: string | null
+          end_date?: string | null
+          id?: string
+          money_model: string
+          notes?: string | null
+          org_id: string
+          payment_terms?: string | null
+          start_date: string
+          status?: string
+          terminated_reason?: string | null
+          updated_at?: string
+        }
+        Update: {
+          commission_rate_bps?: number | null
+          created_at?: string
+          created_by?: string | null
+          credit_days?: number | null
+          document_path?: string | null
+          end_date?: string | null
+          id?: string
+          money_model?: string
+          notes?: string | null
+          org_id?: string
+          payment_terms?: string | null
+          start_date?: string
+          status?: string
+          terminated_reason?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'supply_agreements_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'supply_agreements_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       supply_contacts: {
         Row: {
           branch_id: string | null
@@ -5265,6 +5335,384 @@ export type Database = {
             columns: ['org_id']
             isOneToOne: false
             referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      supply_delivery_proofs: {
+        Row: {
+          created_at: string
+          file_path: string
+          file_size_bytes: number
+          file_type: string
+          id: string
+          note: string | null
+          order_id: string
+          received_by_name: string | null
+          received_by_phone: string | null
+          removed_at: string | null
+          removed_by: string | null
+          removed_reason: string | null
+          taken_at: string | null
+          updated_at: string
+          uploaded_by: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          file_path: string
+          file_size_bytes: number
+          file_type: string
+          id?: string
+          note?: string | null
+          order_id: string
+          received_by_name?: string | null
+          received_by_phone?: string | null
+          removed_at?: string | null
+          removed_by?: string | null
+          removed_reason?: string | null
+          taken_at?: string | null
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          file_path?: string
+          file_size_bytes?: number
+          file_type?: string
+          id?: string
+          note?: string | null
+          order_id?: string
+          received_by_name?: string | null
+          received_by_phone?: string | null
+          removed_at?: string | null
+          removed_by?: string | null
+          removed_reason?: string | null
+          taken_at?: string | null
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'supply_delivery_proofs_order_id_fkey'
+            columns: ['order_id']
+            isOneToOne: false
+            referencedRelation: 'supply_orders'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      supply_ledger_entries: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          created_by: string | null
+          direction: string
+          entry_type: string
+          fx_rate: number | null
+          id: string
+          method: string | null
+          note: string | null
+          occurred_on: string
+          order_id: string | null
+          org_id: string | null
+          original_amount_minor: number | null
+          original_currency: string | null
+          quote_request_id: string | null
+          reason: string | null
+          reference: string | null
+          reverses_entry_id: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          created_by?: string | null
+          direction: string
+          entry_type: string
+          fx_rate?: number | null
+          id?: string
+          method?: string | null
+          note?: string | null
+          occurred_on: string
+          order_id?: string | null
+          org_id?: string | null
+          original_amount_minor?: number | null
+          original_currency?: string | null
+          quote_request_id?: string | null
+          reason?: string | null
+          reference?: string | null
+          reverses_entry_id?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          created_by?: string | null
+          direction?: string
+          entry_type?: string
+          fx_rate?: number | null
+          id?: string
+          method?: string | null
+          note?: string | null
+          occurred_on?: string
+          order_id?: string | null
+          org_id?: string | null
+          original_amount_minor?: number | null
+          original_currency?: string | null
+          quote_request_id?: string | null
+          reason?: string | null
+          reference?: string | null
+          reverses_entry_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'supply_ledger_entries_order_id_fkey'
+            columns: ['order_id']
+            isOneToOne: false
+            referencedRelation: 'supply_orders'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'supply_ledger_entries_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'supply_ledger_entries_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'supply_ledger_entries_quote_request_id_fkey'
+            columns: ['quote_request_id']
+            isOneToOne: false
+            referencedRelation: 'quote_requests'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'supply_ledger_entries_reverses_entry_id_fkey'
+            columns: ['reverses_entry_id']
+            isOneToOne: true
+            referencedRelation: 'supply_ledger_entries'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      supply_order_events: {
+        Row: {
+          actor: string | null
+          created_at: string
+          detail: Json | null
+          event_type: string
+          from_status: string | null
+          id: string
+          order_id: string
+          reason: string | null
+          to_status: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          actor?: string | null
+          created_at?: string
+          detail?: Json | null
+          event_type: string
+          from_status?: string | null
+          id?: string
+          order_id: string
+          reason?: string | null
+          to_status?: string | null
+        }
+        Update: {
+          actor?: string | null
+          created_at?: string
+          detail?: Json | null
+          event_type?: string
+          from_status?: string | null
+          id?: string
+          order_id?: string
+          reason?: string | null
+          to_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'supply_order_events_order_id_fkey'
+            columns: ['order_id']
+            isOneToOne: false
+            referencedRelation: 'supply_orders'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      supply_order_lines: {
+        Row: {
+          created_at: string
+          customer_unit_price_cents: number | null
+          id: string
+          item_name: string
+          order_id: string
+          quantity: number
+          quote_item_id: string | null
+          supplier_unit_price_cents: number
+          supply_quote_line_id: string
+          unit: string
+          updated_at: string
+          vat_flag: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          customer_unit_price_cents?: number | null
+          id?: string
+          item_name: string
+          order_id: string
+          quantity: number
+          quote_item_id?: string | null
+          supplier_unit_price_cents: number
+          supply_quote_line_id: string
+          unit: string
+          updated_at?: string
+          vat_flag?: string
+        }
+        Update: {
+          created_at?: string
+          customer_unit_price_cents?: number | null
+          id?: string
+          item_name?: string
+          order_id?: string
+          quantity?: number
+          quote_item_id?: string | null
+          supplier_unit_price_cents?: number
+          supply_quote_line_id?: string
+          unit?: string
+          updated_at?: string
+          vat_flag?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'supply_order_lines_order_id_fkey'
+            columns: ['order_id']
+            isOneToOne: false
+            referencedRelation: 'supply_orders'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'supply_order_lines_quote_item_id_fkey'
+            columns: ['quote_item_id']
+            isOneToOne: false
+            referencedRelation: 'quote_request_items'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'supply_order_lines_supply_quote_line_id_fkey'
+            columns: ['supply_quote_line_id']
+            isOneToOne: false
+            referencedRelation: 'supply_quote_lines'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      supply_orders: {
+        Row: {
+          agreement_id: string | null
+          cancelled_at: string | null
+          commission_rate_bps: number | null
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          customer_delivery_charge_cents: number | null
+          delivered_at: string | null
+          id: string
+          money_model: string
+          org_id: string
+          placed_at: string | null
+          proceed_without_agreement: boolean
+          quote_request_id: string
+          reference: string
+          status: string
+          status_changed_at: string
+          status_reason: string | null
+          supplier_delivery_charge_cents: number | null
+          updated_at: string
+          updated_by: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          agreement_id?: string | null
+          cancelled_at?: string | null
+          commission_rate_bps?: number | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_delivery_charge_cents?: number | null
+          delivered_at?: string | null
+          id?: string
+          money_model: string
+          org_id: string
+          placed_at?: string | null
+          proceed_without_agreement?: boolean
+          quote_request_id: string
+          reference?: string
+          status?: string
+          status_changed_at?: string
+          status_reason?: string | null
+          supplier_delivery_charge_cents?: number | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          agreement_id?: string | null
+          cancelled_at?: string | null
+          commission_rate_bps?: number | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_delivery_charge_cents?: number | null
+          delivered_at?: string | null
+          id?: string
+          money_model?: string
+          org_id?: string
+          placed_at?: string | null
+          proceed_without_agreement?: boolean
+          quote_request_id?: string
+          reference?: string
+          status?: string
+          status_changed_at?: string
+          status_reason?: string | null
+          supplier_delivery_charge_cents?: number | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'supply_orders_agreement_id_fkey'
+            columns: ['agreement_id']
+            isOneToOne: false
+            referencedRelation: 'supply_agreements'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'supply_orders_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'supply_orders_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'supply_orders_quote_request_id_fkey'
+            columns: ['quote_request_id']
+            isOneToOne: false
+            referencedRelation: 'quote_requests'
             referencedColumns: ['id']
           },
         ]
@@ -6994,6 +7442,26 @@ export type Database = {
       }
       service_location_count: { Args: { p_location_id: string; p_service_id: string }; Returns: number }
       setting_int: { Args: { fallback: number; setting_key: string }; Returns: number }
+      supply_create_order: {
+        Args: {
+          p_actor: string
+          p_agreement: string
+          p_commission_bps: number
+          p_lines: Json
+          p_model: string
+          p_org: string
+          p_proceed: boolean
+          p_quote: string
+          p_supplier_delivery_cents: number
+        }
+        Returns: {
+          id: string
+          reference: string
+        }[]
+      }
+      supply_order_customer_total_cents: { Args: { p_order: string }; Returns: number }
+      supply_order_paid_cents: { Args: { p_order: string }; Returns: number }
+      supply_order_transition_allowed: { Args: { p_from: string; p_model: string; p_to: string }; Returns: boolean }
       sync_verticals_from_pillars: { Args: Record<PropertyKey, never>; Returns: undefined }
       tsquery_or_null: { Args: { q: string }; Returns: unknown }
       vertical_pillar: { Args: { p_vertical: string }; Returns: string }

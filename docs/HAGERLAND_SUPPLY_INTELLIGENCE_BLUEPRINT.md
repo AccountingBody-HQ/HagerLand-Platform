@@ -493,6 +493,8 @@ Each phase is sized for one focused Claude Code job. Each passes the standard ch
 
 ### Phase 4: agreements, orders, delivery proof, ledger (one additive migration)
 
+**Status (23 Oct 2026):** built on branch `supply/phase-4-orders-ledger` with migration 0037, waiting for AB to apply 0037 and release. Recorded in `docs/RELAUNCH_PROGRESS.md`.
+
 - **Scope:**
   - `supply_agreements`, `supply_orders` and `deal_ledger_entries`.
   - The orders panel and list.

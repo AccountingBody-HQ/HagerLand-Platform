@@ -273,46 +273,57 @@ export function shortlist(input: ShortlistInput): ItemShortlist[] {
 export interface BasketOption {
   orgId: string
   partnerName: string
+  /** Price × quantity plus this item's delivery charge. */
   totalCents: number
+  /** The delivery charge included in totalCents. */
+  deliveryCents: number
 }
 
 export interface Basket {
-  partners: { orgId: string; partnerName: string; itemsCovered: number; totalCents: number; coversAll: boolean }[]
+  /** totalCents counts one delivery per partner (their highest charge); separateTotalCents counts every item's delivery. */
+  partners: { orgId: string; partnerName: string; itemsCovered: number; totalCents: number; separateTotalCents: number; coversAll: boolean }[]
   split: { totalCents: number; picks: { itemId: string; orgId: string; partnerName: string }[]; itemsWithoutPrice: string[] }
   recommendation: { kind: 'single'; orgId: string; partnerName: string; totalCents: number } | { kind: 'split' } | { kind: 'none' }
   explanation: string
 }
 
 export const SINGLE_PARTNER_TOLERANCE_PERCENT = 3
+export const ONE_DELIVERY_NOTE = 'Estimated as one delivery — confirm with the supplier'
+
+/** Goods for every option plus one delivery: the highest charge among them (one truck per supplier). */
+function oneDelivery(options: BasketOption[]): number {
+  return options.reduce((sum, o) => sum + o.totalCents - o.deliveryCents, 0) + options.reduce((max, o) => Math.max(max, o.deliveryCents), 0)
+}
 
 /**
  * One partner for everything if it covers every item and costs at most 3% more than buying each item from whoever is
- * cheapest (one truck, one invoice); otherwise the cheapest split. Per-item delivery charges are added as given.
+ * cheapest (one truck, one invoice); otherwise the cheapest split. Each partner's delivery is counted once, at its
+ * highest charge, in both totals (estimated: confirm with the supplier).
  */
 export function basket(items: { itemId: string; options: BasketOption[] }[]): Basket {
-  const byPartner = new Map<string, { orgId: string; partnerName: string; itemsCovered: number; totalCents: number }>()
+  const byPartner = new Map<string, { orgId: string; partnerName: string; chosen: BasketOption[] }>()
   const picks: Basket['split']['picks'] = []
+  const pickedOptions = new Map<string, BasketOption[]>()
   const itemsWithoutPrice: string[] = []
-  let splitTotal = 0
   for (const item of items) {
     const sorted = [...item.options].sort((a, b) => a.totalCents - b.totalCents || a.partnerName.localeCompare(b.partnerName) || a.orgId.localeCompare(b.orgId))
     if (!sorted.length) itemsWithoutPrice.push(item.itemId)
     else {
       picks.push({ itemId: item.itemId, orgId: sorted[0].orgId, partnerName: sorted[0].partnerName })
-      splitTotal += sorted[0].totalCents
+      pickedOptions.set(sorted[0].orgId, [...(pickedOptions.get(sorted[0].orgId) ?? []), sorted[0]])
     }
     const seen = new Set<string>()
     for (const o of sorted) {
       if (seen.has(o.orgId)) continue
       seen.add(o.orgId)
-      const p = byPartner.get(o.orgId) ?? { orgId: o.orgId, partnerName: o.partnerName, itemsCovered: 0, totalCents: 0 }
-      p.itemsCovered++
-      p.totalCents += o.totalCents
+      const p = byPartner.get(o.orgId) ?? { orgId: o.orgId, partnerName: o.partnerName, chosen: [] }
+      p.chosen.push(o)
       byPartner.set(o.orgId, p)
     }
   }
+  const splitTotal = Array.from(pickedOptions.values()).reduce((sum, opts) => sum + oneDelivery(opts), 0)
   const partners = Array.from(byPartner.values())
-    .map((p) => ({ ...p, coversAll: items.length > 0 && p.itemsCovered === items.length }))
+    .map((p) => ({ orgId: p.orgId, partnerName: p.partnerName, itemsCovered: p.chosen.length, totalCents: oneDelivery(p.chosen), separateTotalCents: p.chosen.reduce((sum, o) => sum + o.totalCents, 0), coversAll: items.length > 0 && p.chosen.length === items.length }))
     .sort((a, b) => b.itemsCovered - a.itemsCovered || a.totalCents - b.totalCents || a.partnerName.localeCompare(b.partnerName) || a.orgId.localeCompare(b.orgId))
   const split = { totalCents: splitTotal, picks, itemsWithoutPrice }
   if (!picks.length) return { partners, split, recommendation: { kind: 'none' }, explanation: 'No prices yet for these items.' }
@@ -324,19 +335,19 @@ export function basket(items: { itemId: string; options: BasketOption[] }[]): Ba
       split,
       recommendation: { kind: 'single', orgId: single.orgId, partnerName: single.partnerName, totalCents: single.totalCents },
       explanation:
-        extra === 0
+        extra <= 0
           ? `${single.partnerName} can supply every item and is also the cheapest overall (${formatEtbExact(single.totalCents)}). One supplier means one delivery and one invoice.`
           : `${single.partnerName} can supply every item for ${formatEtbExact(single.totalCents)}, only ${formatEtbExact(extra)} more than splitting the order (${formatEtbExact(splitTotal)}). Within ${SINGLE_PARTNER_TOLERANCE_PERCENT}%, one supplier is simpler: one delivery and one invoice.`,
     }
   }
-  const coverAll = partners.filter((p) => p.coversAll)
+  const coverAll = partners.filter((p) => p.coversAll).sort((a, b) => a.totalCents - b.totalCents)
   return {
     partners,
     split,
     recommendation: { kind: 'split' },
     explanation: [
       `Buying each item from the cheapest supplier costs ${formatEtbExact(splitTotal)}.`,
-      coverAll.length ? `No single supplier is within ${SINGLE_PARTNER_TOLERANCE_PERCENT}% of that (the closest, ${coverAll.sort((a, b) => a.totalCents - b.totalCents)[0].partnerName}, costs ${formatEtbExact(coverAll[0].totalCents)}).` : 'No single supplier has a price for every item.',
+      coverAll.length ? `No single supplier is within ${SINGLE_PARTNER_TOLERANCE_PERCENT}% of that (the closest, ${coverAll[0].partnerName}, costs ${formatEtbExact(coverAll[0].totalCents)}).` : 'No single supplier has a price for every item.',
       itemsWithoutPrice.length ? `${itemsWithoutPrice.length === 1 ? '1 item has' : `${itemsWithoutPrice.length} items have`} no price yet.` : null,
     ]
       .filter(Boolean)

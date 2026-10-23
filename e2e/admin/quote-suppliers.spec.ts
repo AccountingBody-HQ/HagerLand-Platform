@@ -189,8 +189,8 @@ test('AB’s journey J0–J10 and J12: items, suggestions, asking, replies, comp
     await expect(cement.getByRole('row', { name: /Merkato Steel House/ })).toContainText('Same as their price list')
     await expect(cement.getByRole('row', { name: /Abebe Building Materials/ })).toContainText('−ETB 10.00 vs their price list')
     await expect(admin.getByText('Basket: one supplier or several?')).toBeVisible()
-    // Abebe covers all three items within 3% of the cheapest split, so one supplier is recommended.
-    await expect(admin.getByText('Abebe Building Materials (seed) can supply every item for ETB 169,925.00, only ETB 1,225.00 more than splitting the order (ETB 168,700.00). Within 3%, one supplier is simpler: one delivery and one invoice.')).toBeVisible()
+    // Abebe covers all three items within 3% of the cheapest split (one delivery each), so one supplier is recommended.
+    await expect(admin.getByText('Abebe Building Materials (seed) can supply every item for ETB 169,625.00, only ETB 925.00 more than splitting the order (ETB 168,700.00). Within 3%, one supplier is simpler: one delivery and one invoice.')).toBeVisible()
 
     // J8: choose one per item; a second choice is refused; reject with a reason.
     await cement.getByRole('row', { name: /Merkato Steel House/ }).getByRole('button', { name: 'Choose' }).click()

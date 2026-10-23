@@ -10,6 +10,8 @@ import { getAdminSession } from '@/lib/admin-auth'
 import { roleCanAccess } from '@/lib/admin/roles'
 import { CLOSED_QUOTE_STATUSES, quoteSupplyData } from '@/lib/supply/quote-supply-data'
 import { QuoteItemsPanel, QuoteSuppliersPanel } from '@/components/admin/QuoteSupply'
+import { CreateOrders } from '@/components/admin/SupplyOrders'
+import { listOrders, orderableGroups } from '@/lib/supply/orders-data'
 import { AdminHeader, KeyValue, Panel, StatusBadge } from '@/components/admin/AdminUi'
 import { IssueQuoteTool, LeadStatusTool, QuoteInternalTool } from '@/components/admin/LeadTools'
 import { AuditTrail } from '@/components/admin/AuditTrail'
@@ -29,6 +31,7 @@ export default async function AdminQuotePage(props: { params: Promise<{ id: stri
   const canSupply = session?.kind === 'master' || (session?.kind === 'staff' && roleCanAccess(session.role, SUPPLY_AREA))
   const [supply, trail, isOwner] = await Promise.all([quoteSupplyData(q), auditFor(q.id), isOwnerSession()])
   const items = canSupply ? supply.items : supply.items.filter((i) => !i.addedByAdmin)
+  const [orders, groups] = await Promise.all([canSupply ? listOrders({ quoteId: q.id }) : Promise.resolve([]), isOwner ? orderableGroups(q.id) : Promise.resolve([])])
   const readOnly = CLOSED_QUOTE_STATUSES.includes(q.status)
   const files = await Promise.all(
     (q.materials_file_paths.length ? q.materials_file_paths : q.materials_file_path ? [q.materials_file_path] : []).map(async (p, i) => ({ name: `Materials list ${i + 1}.${p.split('.').pop()}`, url: await signedDocumentUrl(p) })),
@@ -86,6 +89,28 @@ export default async function AdminQuotePage(props: { params: Promise<{ id: stri
           {canSupply && (
             <Panel title="Suppliers">
               <QuoteSuppliersPanel quoteId={q.id} items={items} shortlists={supply.shortlists} lines={supply.lines} partners={supply.partners} offerPrices={supply.offerPrices} place={supply.place} readOnly={readOnly} isOwner={isOwner} />
+            </Panel>
+          )}
+          {canSupply && (orders.length > 0 || (isOwner && groups.length > 0 && !readOnly)) && (
+            <Panel title={`Orders (${orders.length})`}>
+              <div className="space-y-3">
+                {orders.length > 0 && (
+                  <ul className="space-y-1 text-small">
+                    {orders.map((o) => (
+                      <li key={o.id} className="flex flex-wrap items-center gap-2">
+                        <Link href={`/roodber8/supply/orders/${o.id}`} prefetch={false} className="font-mono font-semibold text-green underline">
+                          {o.reference}
+                        </Link>
+                        <StatusBadge status={o.status} />
+                        <span className="text-muted">
+                          {o.supplier} · model {o.model}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {isOwner && !readOnly && <CreateOrders key={groups.map((g) => g.orgId).join()} quoteId={q.id} groups={groups} />}
+              </div>
             </Panel>
           )}
         </div>

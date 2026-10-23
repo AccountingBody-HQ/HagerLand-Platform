@@ -1,6 +1,6 @@
 /** The admin menu (spec 18.2, 26), in groups. Staff see the items their role may open (lib/admin/roles.ts). */
 import {
-  type LucideIcon, BadgePercent, BarChart3, MailWarning, BookOpen, Calculator, Briefcase, Building2, LayoutGrid, Handshake, UserPlus, Coins, Wrench, ListChecks, Receipt, KeyRound, ClipboardCheck, ClipboardList, FileClock, FolderTree, Gauge, Import, Inbox, MapPin, Megaphone, Package, Settings, Store, Users, HandCoins, House, Layers, HardHat, Mail, Star, TrendingUp, Activity, UserCog, Truck,
+  type LucideIcon, BadgePercent, BarChart3, MailWarning, BookOpen, Calculator, Briefcase, Building2, LayoutGrid, Handshake, UserPlus, Coins, Wrench, ListChecks, Receipt, KeyRound, ClipboardCheck, ClipboardList, FileClock, FolderTree, Gauge, Import, Inbox, MapPin, Megaphone, Package, Settings, Store, Users, HandCoins, House, Layers, HardHat, Mail, Star, TrendingUp, Activity, UserCog, Truck, PackageCheck, BookText,
 } from 'lucide-react'
 import { roleCanAccess, type StaffRole } from '@/lib/admin/roles'
 
@@ -39,6 +39,7 @@ export const ADMIN_NAV_GROUPS: readonly AdminNavGroup[] = [
     label: 'Supplies',
     items: [
       { href: '/roodber8/supply/partners', label: 'Supply partners', icon: Truck },
+      { href: '/roodber8/supply/orders', label: 'Supply orders', icon: PackageCheck },
       { href: '/roodber8/products', label: 'Products', icon: Package },
       { href: '/roodber8/categories', label: 'Categories', icon: FolderTree },
       { href: '/roodber8/trade-accounts', label: 'Trade accounts', icon: BadgePercent, badgeKey: 'trade' },
@@ -70,7 +71,10 @@ export const ADMIN_NAV_GROUPS: readonly AdminNavGroup[] = [
   },
   {
     label: 'Money',
-    items: [{ href: '/roodber8/deals', label: 'Deals and commissions', icon: Receipt }],
+    items: [
+      { href: '/roodber8/deals', label: 'Deals and commissions', icon: Receipt },
+      { href: '/roodber8/supply/ledger', label: 'Supply ledger', icon: BookText },
+    ],
   },
   {
     label: 'Content',
@@ -116,8 +120,15 @@ export const ADMIN_NAV: readonly AdminNavItem[] = ADMIN_NAV_GROUPS.flatMap((g) =
 
 /** Other words people use for a section, for "Find a section". */
 export const NAV_SYNONYMS: Record<string, string[]> = {
-  money: ['/roodber8/deals'],
-  commission: ['/roodber8/deals'],
+  money: ['/roodber8/deals', '/roodber8/supply/ledger'],
+  commission: ['/roodber8/deals', '/roodber8/supply/ledger'],
+  orders: ['/roodber8/supply/orders'],
+  delivery: ['/roodber8/supply/orders'],
+  proof: ['/roodber8/supply/orders'],
+  ledger: ['/roodber8/supply/ledger'],
+  payments: ['/roodber8/supply/ledger'],
+  agreement: ['/roodber8/supply/partners'],
+  agreements: ['/roodber8/supply/partners'],
   invoice: ['/roodber8/deals'],
   suppliers: ['/roodber8/supply/partners'],
   supplier: ['/roodber8/supply/partners'],

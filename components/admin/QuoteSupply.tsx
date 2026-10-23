@@ -15,7 +15,7 @@ import {
   undoChooseAction,
   type AskEntry,
 } from '@/app/roodber8/actions/quote-suppliers'
-import { basket, formatEtbExact, type Candidate, type ItemShortlist } from '@/lib/supply/shortlist'
+import { basket, formatEtbExact, ONE_DELIVERY_NOTE, type BasketOption, type Candidate, type ItemShortlist } from '@/lib/supply/shortlist'
 import { UNITS, unitLabel } from '@/lib/units'
 import { formatDate, formatPhone } from '@/lib/format'
 import { productPrice } from '@/lib/product-price'
@@ -497,11 +497,11 @@ export function QuoteSuppliersPanel({ quoteId, items, shortlists, lines, partner
 
   // Best known price per partner and item: their reply if they sent one, else their price list.
   const basketItems = items.map((item) => {
-    const options = new Map<string, { orgId: string; partnerName: string; totalCents: number }>()
-    for (const c of shortlists.find((s) => s.itemId === item.id)?.candidates ?? []) options.set(c.orgId, { orgId: c.orgId, partnerName: c.partnerName, totalCents: c.deliveredTotalCents })
+    const options = new Map<string, BasketOption>()
+    for (const c of shortlists.find((s) => s.itemId === item.id)?.candidates ?? []) options.set(c.orgId, { orgId: c.orgId, partnerName: c.partnerName, totalCents: c.deliveredTotalCents, deliveryCents: c.deliveryChargeCents })
     for (const l of lines.filter((x) => x.quote_item_id === item.id && ['received', 'chosen'].includes(x.status))) {
       const total = lineTotal(l)
-      if (total !== null) options.set(l.org_id, { orgId: l.org_id, partnerName: partnerMap.get(l.org_id)?.name ?? '', totalCents: total })
+      if (total !== null) options.set(l.org_id, { orgId: l.org_id, partnerName: partnerMap.get(l.org_id)?.name ?? '', totalCents: total, deliveryCents: l.delivery_charge_cents ?? 0 })
     }
     return { itemId: item.id, options: Array.from(options.values()) }
   })
@@ -560,12 +560,16 @@ export function QuoteSuppliersPanel({ quoteId, items, shortlists, lines, partner
                   <td className="py-1 pr-3">
                     {p.itemsCovered} of {items.length}
                   </td>
-                  <td className="py-1 tabular-nums">{formatEtbExact(p.totalCents)}</td>
+                  <td className="py-1 tabular-nums">
+                    {formatEtbExact(p.totalCents)}
+                    {p.separateTotalCents !== p.totalCents && <span className="block text-caption text-muted">If delivered separately: {formatEtbExact(p.separateTotalCents)}</span>}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         )}
+        {b.partners.length > 0 && <p className="mt-1 text-caption text-muted">Totals count each supplier’s delivery once, at their highest charge. {ONE_DELIVERY_NOTE}.</p>}
         {b.recommendation.kind === 'split' && b.split.picks.length > 0 && (
           <ul className="mt-2 list-disc pl-6 text-small text-muted">
             {b.split.picks.map((pick) => (

@@ -41,8 +41,9 @@ test('owner sees every group; collapse persists; Find a section filters, opens, 
   await search(page).fill('zzzz')
   await expect(nav(page).getByText('No section matches')).toBeVisible()
   await search(page).fill('money')
-  await expect(nav(page).getByRole('link')).toHaveCount(1)
+  await expect(nav(page).getByRole('link')).toHaveCount(2)
   await expect(nav(page).getByRole('link', { name: 'Deals and commissions' })).toBeVisible()
+  await expect(nav(page).getByRole('link', { name: 'Supply ledger' })).toBeVisible()
 
   // Enter opens the first match.
   await search(page).fill('quo')

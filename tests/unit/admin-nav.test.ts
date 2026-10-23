@@ -49,22 +49,22 @@ const BEFORE: [string, string][] = [
 const labels = (groups: { label: string; items: readonly { label: string }[] }[]) => groups.map((g) => [g.label, g.items.map((i) => i.label)])
 
 describe('admin menu', () => {
-  it('keeps every earlier item exactly once, with the same label and address', () => {
+  it('keeps every earlier item exactly once, with the same label and address (plus the Phase 4 supply items)', () => {
     const now = ADMIN_NAV.map((i) => [i.href, i.label])
-    expect(now).toHaveLength(BEFORE.length)
+    const added = [['/roodber8/supply/orders', 'Supply orders'], ['/roodber8/supply/ledger', 'Supply ledger']]
     expect(new Set(now.map((x) => x.join('|'))).size).toBe(now.length)
-    expect([...now].sort()).toEqual([...BEFORE].sort())
+    expect([...now].sort()).toEqual([...BEFORE, ...added].sort())
   })
 
   it('has the agreed groups, in order', () => {
     expect(labels([...ADMIN_NAV_GROUPS])).toEqual([
       ['Overview', ['Dashboard', 'Review queue']],
       ['Customer requests', ['Enquiries', 'Quotes', 'Service requests', 'Building projects', 'Interest registrations']],
-      ['Supplies', ['Supply partners', 'Products', 'Categories', 'Trade accounts']],
+      ['Supplies', ['Supply partners', 'Supply orders', 'Products', 'Categories', 'Trade accounts']],
       ['Jobs', ['Jobs and applications']],
       ['Property', ['Properties', 'Developments', 'Agency', 'Property Care', 'HagerLand sales']],
       ['Businesses & people', ['Organisations', 'Users', 'Partner applications', 'Imports', 'Reviews']],
-      ['Money', ['Deals and commissions']],
+      ['Money', ['Deals and commissions', 'Supply ledger']],
       ['Content', ['Guides', 'Area guides', 'Newsletter', 'Promotions']],
       ['Insights', ['Demand', 'Performance', 'Reports']],
       ['Setup', ['Settings', 'Pillars and modes', 'Verticals', 'Locations', 'Exchange rates', 'Build-cost rates', 'Request questions', 'Staff']],
@@ -87,7 +87,12 @@ describe('Find a section', () => {
     expect(found('  ')).toHaveLength(ADMIN_NAV.length)
   })
   it('understands other words for a section', () => {
-    expect(found('money')).toEqual(['Deals and commissions'])
+    expect(found('money')).toEqual(['Deals and commissions', 'Supply ledger'])
+    expect(found('orders')).toEqual(['Supply orders'])
+    expect(found('delivery')).toEqual(['Supply orders'])
+    expect(found('ledger')).toEqual(['Supply ledger'])
+    expect(found('payments')).toEqual(['Supply ledger'])
+    expect(found('agreement')).toEqual(['Supply partners'])
     expect(found('suppliers')).toEqual(['Supply partners'])
     expect(found('prices')).toEqual(['Supply partners'])
     expect(found('staff')).toEqual(['Staff'])

@@ -83,3 +83,137 @@ values
   ('5eed9100-0000-4000-8000-000000000001', '5eed9000-0000-4000-8000-000000000001', 'Dangote cement 50kg', 50, 'bag'),
   ('5eed9100-0000-4000-8000-000000000002', '5eed9000-0000-4000-8000-000000000001', 'Rebar 12mm', 100, 'piece')
 on conflict (id) do nothing;
+
+-- ---------------------------------------------------------------------------
+-- Phase 4: agreements (A, B, both, expired, terminated; none for the others), and one quote with 18 orders covering
+-- every status of both money models, with payments, refunds, a reversal, fees, commission and delivery proof.
+-- ---------------------------------------------------------------------------
+insert into public.supply_agreements (id, org_id, money_model, commission_rate_bps, payment_terms, credit_days, start_date, end_date, status, terminated_reason, created_by)
+values
+  ('5eeda000-0000-4000-8000-000000000001', '5eed0000-0000-4000-8000-000000000001', 'A', null, 'Bank transfer within 7 days of delivery', 7, current_date - 60, null, 'active', null, 'seed'),
+  ('5eeda000-0000-4000-8000-000000000002', '5eed0000-0000-4000-8000-000000000002', 'B', 500, 'Commission invoiced monthly', 30, current_date - 30, null, 'active', null, 'seed'),
+  ('5eeda000-0000-4000-8000-000000000003', '5eed0000-0000-4000-8000-000000000002', 'A', null, null, null, current_date - 400, current_date - 31, 'terminated', 'Replaced by the commission agreement', 'seed'),
+  ('5eeda000-0000-4000-8000-000000000004', '5eed0000-0000-4000-8000-000000000003', 'both', 400, 'Cash on delivery', 0, current_date - 10, current_date + 355, 'active', null, 'seed'),
+  ('5eeda000-0000-4000-8000-000000000005', '5eed0000-0000-4000-8000-000000000003', 'A', null, null, null, current_date - 500, current_date - 135, 'expired', null, 'seed')
+on conflict (id) do nothing;
+
+create or replace function pg_temp.seed_pay(p_order uuid, p_type text, p_dir text, p_amount bigint, p_extra jsonb default '{}')
+returns uuid language plpgsql as $$
+declare
+  o public.supply_orders;
+  new_id uuid;
+begin
+  select * into o from public.supply_orders where id = p_order;
+  insert into public.supply_ledger_entries (entry_type, direction, amount_cents, occurred_on, method, reference, original_currency, original_amount_minor, fx_rate, order_id, org_id, quote_request_id, reverses_entry_id, reason, created_by)
+  values (p_type, p_dir, p_amount, current_date, coalesce(p_extra->>'method', 'bank_transfer'), p_extra->>'reference', p_extra->>'currency', (p_extra->>'original')::bigint, (p_extra->>'rate')::numeric,
+          p_order, o.org_id, o.quote_request_id, (p_extra->>'reverses')::uuid, p_extra->>'reason', 'seed')
+  returning id into new_id;
+  return new_id;
+end
+$$;
+
+create or replace function pg_temp.seed_step(p_order uuid, p_to text, p_reason text default null)
+returns void language sql as $$
+  update public.supply_orders set status = p_to, status_reason = p_reason, updated_by = 'seed' where id = p_order
+$$;
+
+create or replace function pg_temp.seed_proof(p_order uuid, p_n int)
+returns void language sql as $$
+  insert into public.supply_delivery_proofs (order_id, file_path, file_type, file_size_bytes, taken_at, received_by_name, received_by_phone, note, uploaded_by)
+  values (p_order, 'proofs/' || p_order || '/5eedf000-0000-4000-8000-00000000000' || p_n || case when p_n = 1 then '.png' else '.pdf' end,
+          case when p_n = 1 then 'image/png' else 'application/pdf' end, 400, now() - interval '1 hour', 'Site foreman', '+251911505050', 'Seed delivery proof', 'seed')
+$$;
+
+do $$
+declare
+  q constant uuid := '5eed9000-0000-4000-8000-000000000002';
+  oid uuid;
+  wrong uuid;
+  fee uuid;
+  total bigint;
+  -- Model A orders 1–10 and model B orders 11–18, each walked to its target status through the real rules.
+  targets constant text[] := array['draft', 'awaiting_payment', 'paid', 'placed', 'confirmed', 'out_for_delivery', 'delivered', 'completed', 'cancelled', 'disputed',
+                                    'draft', 'placed', 'confirmed', 'out_for_delivery', 'delivered', 'completed', 'cancelled', 'disputed'];
+  a_path constant text[] := array['awaiting_payment', 'paid', 'placed', 'confirmed', 'out_for_delivery', 'delivered', 'completed'];
+  b_path constant text[] := array['placed', 'confirmed', 'out_for_delivery', 'delivered', 'completed'];
+  model text;
+  target text;
+  stop_at text;
+  step text;
+begin
+  if exists (select 1 from public.supply_orders where quote_request_id = q) then
+    return;
+  end if;
+  insert into public.quote_requests (id, reference, name, phone, email, delivery_location_id, needed_by, notes, source, status)
+  select q, 'HLQ-SEED-ORDERS', 'Seed Diaspora Customer', '+447700900123', 'seed-orders@test.hagerland.invalid', id, current_date + 21, 'House build in Bole, paying from London.', 'materials_list', 'accepted'
+  from public.locations where path = 'addis-ababa/bole';
+  for i in 1..18 loop
+    model := case when i <= 10 then 'A' else 'B' end;
+    target := targets[i];
+    oid := ('5eed0d00-0000-4000-8000-' || lpad(i::text, 12, '0'))::uuid;
+    insert into public.quote_request_items (id, quote_request_id, free_text_item, quantity, unit, added_by_admin)
+    values (('5eed9200-0000-4000-8000-' || lpad(i::text, 12, '0'))::uuid, q, 'Seed item ' || i || ' (cement 50kg)', 10, 'bag', false);
+    insert into public.supply_quote_lines (id, quote_request_id, quote_item_id, org_id, status, unit, unit_price_cents, quantity, delivery_charge_cents, asked_at, received_at, chosen_at, reason, created_by)
+    values (('5eed9300-0000-4000-8000-' || lpad(i::text, 12, '0'))::uuid, q, ('5eed9200-0000-4000-8000-' || lpad(i::text, 12, '0'))::uuid,
+            case when model = 'A' then '5eed0000-0000-4000-8000-000000000001' else '5eed0000-0000-4000-8000-000000000002' end::uuid,
+            'chosen', 'bag', 120000 + i * 1000, 10, 20000, now(), now(), now(), 'Seed', 'seed');
+    insert into public.supply_orders (id, quote_request_id, org_id, agreement_id, money_model, commission_rate_bps, supplier_delivery_charge_cents, customer_delivery_charge_cents, created_by, updated_by)
+    values (oid, q, case when model = 'A' then '5eed0000-0000-4000-8000-000000000001' else '5eed0000-0000-4000-8000-000000000002' end::uuid,
+            case when model = 'A' then '5eeda000-0000-4000-8000-000000000001' else '5eeda000-0000-4000-8000-000000000002' end::uuid,
+            model, case when model = 'B' then 500 end, 20000, case when model = 'A' then 30000 end, 'seed', 'seed');
+    insert into public.supply_order_lines (order_id, supply_quote_line_id, quote_item_id, item_name, quantity, unit, supplier_unit_price_cents, customer_unit_price_cents, vat_flag)
+    values (oid, ('5eed9300-0000-4000-8000-' || lpad(i::text, 12, '0'))::uuid, ('5eed9200-0000-4000-8000-' || lpad(i::text, 12, '0'))::uuid,
+            'Seed item ' || i || ' (cement 50kg)', 10, 'bag', 120000 + i * 1000, case when model = 'A' then round((120000 + i * 1000) * 1.1) end, 'yes');
+
+    -- How far along the path to go before the final step.
+    stop_at := case target when 'cancelled' then (case when model = 'A' then 'paid' else 'placed' end) when 'disputed' then (case when model = 'A' then 'out_for_delivery' else 'delivered' end) else target end;
+    if stop_at <> 'draft' then
+      foreach step in array (case when model = 'A' then a_path else b_path end) loop
+        if model = 'A' and step = 'awaiting_payment' then
+          perform pg_temp.seed_step(oid, step);
+          total := public.supply_order_customer_total_cents(oid);
+          if stop_at = 'awaiting_payment' then
+            perform pg_temp.seed_pay(oid, 'customer_payment', 'in', total / 2, '{"method": "telebirr", "reference": "SEED-PART"}');
+          elsif i = 8 then
+            -- The completed order was paid from London in pounds.
+            perform pg_temp.seed_pay(oid, 'customer_payment', 'in', total, jsonb_build_object('method', 'bank_transfer', 'reference', 'SEED-GBP', 'currency', 'GBP', 'original', round(total / 72.5), 'rate', 72.5));
+          else
+            perform pg_temp.seed_pay(oid, 'customer_payment', 'in', total, '{"method": "cbe_birr", "reference": "SEED-FULL"}');
+          end if;
+        else
+          if step = 'completed' then
+            perform pg_temp.seed_proof(oid, 1);
+          end if;
+          perform pg_temp.seed_step(oid, step);
+        end if;
+        exit when step = stop_at;
+      end loop;
+    end if;
+    if target = 'cancelled' then
+      perform pg_temp.seed_step(oid, 'cancelled', 'Customer changed the order');
+      if model = 'A' then
+        perform pg_temp.seed_pay(oid, 'refund', 'out', public.supply_order_paid_cents(oid), '{"reference": "SEED-REFUND"}');
+      end if;
+    elsif target = 'disputed' then
+      perform pg_temp.seed_step(oid, 'disputed', 'Five bags arrived damaged');
+    end if;
+
+    if model = 'A' and target = 'completed' then
+      perform pg_temp.seed_pay(oid, 'supplier_payment', 'out', 1300000, '{"reference": "SEED-SUPPLIER"}');
+      fee := pg_temp.seed_pay(oid, 'service_fee', 'in', 50000, '{"reference": "SEED-FEE"}');
+      -- A payment typed twice by mistake, then reversed.
+      wrong := pg_temp.seed_pay(oid, 'supplier_payment', 'out', 1300000, '{"reference": "SEED-DUPLICATE"}');
+      perform pg_temp.seed_pay(oid, 'reversal', 'in', 1300000, jsonb_build_object('reverses', wrong, 'reason', 'Entered twice by mistake'));
+      -- A second proof added by mistake and removed.
+      perform pg_temp.seed_proof(oid, 2);
+      update public.supply_delivery_proofs set removed_at = now(), removed_by = 'seed', removed_reason = 'Wrong photo (another site)' where order_id = oid and file_path like '%2.pdf';
+    end if;
+    if model = 'B' and target in ('delivered', 'completed') then
+      perform pg_temp.seed_pay(oid, 'commission_due', 'receivable', round((120000 + i * 1000) * 10 * 0.05 + 1000)::bigint, '{"method": null}');
+      if target = 'completed' then
+        perform pg_temp.seed_pay(oid, 'commission_received', 'in', round((120000 + i * 1000) * 10 * 0.05 + 1000)::bigint, '{"method": "bank_transfer", "reference": "SEED-COMMISSION"}');
+      end if;
+    end if;
+  end loop;
+end
+$$;
