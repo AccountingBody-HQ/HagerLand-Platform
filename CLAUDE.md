@@ -7,6 +7,50 @@ HagerLand is being relaunched as **Ethiopia's construction and property platform
 - Progress, decisions and deviations: `docs/RELAUNCH_PROGRESS.md`. Update it at the end of every work package.
 - Live database structure before the relaunch: `docs/legacy-schema-snapshot.md` (query: `docs/sql/wp0_legacy_schema_snapshot.sql`).
 
+## Standards for every job (AB's rules)
+Every job follows these, even when the prompt does not repeat them. Where a rule below overlaps one elsewhere in this file, the stricter one applies; the existing safety rules always win.
+
+**A. Understand before changing**
+1. Run `git status` first. Never discard, stash, reset or overwrite uncommitted work: report it and leave it.
+2. Read the relevant docs (`docs/LAUNCH_REPORT.md` "Releases", the relevant blueprint and how-to docs) and the actual code and migrations before changing anything. Code and migrations are the source of truth: never assume a feature works because a file or table exists.
+
+**B. The owner's journey**
+3. For any feature AB will use, write AB's exact click-by-click journey from start to finish, including how the data first gets into the system (creating the record, not just using it), and test that whole journey end to end on the local copy.
+4. Check what every save button involved actually does (publishes, emails, notifies, charges, deletes) and read the notes under page titles. Nothing becomes public, sends an email or contacts anyone outside admin unless the job explicitly requires it.
+
+**C. Hunt for side effects.** For every change, check and report on:
+5. Public visibility: every public read path (`*_public` views, search functions and RPCs, directory and listing pages, direct URLs and slugs, related records such as branches, products and reviews, sitemaps, homepage counts, OG images, `/api` routes, claim flows).
+6. Admin flows: review queues, imports, daily digest counts, cron jobs, reports and CSV exports (exports never gain confidential fields).
+7. Emails, notifications and webhooks triggered; cache and revalidation (changes must appear and disappear correctly).
+8. Staff roles (owner, operations, agent, content): enforced on the server (`assertAdmin(AREA)`, `lib/admin/roles.ts`), not just hidden buttons.
+9. Existing data: no existing record changes status, visibility or content unless the job requires it; assert before and after in tests.
+10. Silent failures: fields shown but not saved, swallowed errors, half-finished states.
+
+**D. Stop rules.** Stop, change nothing further, and explain in plain English when:
+11. a migration would be needed but the job does not authorise one;
+12. confidential or personal data could leak to the public, customers or suppliers;
+13. a change would alter public design, wording, URLs, the brand, `/roodber8` or its login model, the quote flow, emails or the ten services without explicit authorisation;
+14. existing live data would change;
+15. instructions conflict, the production boundary is unclear, or the spec marks the point as "Needs AB" (Section 23: ask, never invent).
+
+**E. Safety** (the rules under "Working rules" and "Gotchas" still apply in full)
+16. Never write to the live database and never run SQL against it; on live and preview be a read-only visitor (no form submissions). Migrations are handed to AB with a read-only PASS/FAIL verify query (kept in `docs/sql/`, not `supabase/migrations/`), never applied to live by Claude Code.
+17. Never touch legacy tables. Never print or commit secrets or `.env` files. Never change Vercel, Supabase, Resend, Cloudflare, GitHub or DNS settings.
+18. New branch from current `main` for every job. Build before every commit. Never force-push. Merge into `main` only when the prompt authorises release (an exact release phrase, or "AB authorises release in this session").
+19. Release procedure: normal merge commit → wait for production Ready → read-only live checks (`/api/health` shows the merge SHA) → on any failure `git revert -m 1 <sha>`, push and explain → one line under "Releases" in `docs/LAUNCH_REPORT.md`.
+
+**F. Tests**
+20. Unit tests for logic; tests proving security (grants, RLS via `supabase/tests/rls_test.sql`, roles); e2e for AB's journey on the local copy only; regression tests for anything touched; the plain-language test must pass. Lint, typecheck and build always run (see "Commands"); otherwise run the relevant tests, not the full suite, unless the job says so (AB's credits are limited).
+21. Never claim a test passed if it was not run; state what could not be tested and why.
+
+**G. Prove it: the final report**, in plain English for a non-technical owner, with short headings:
+22. what changed, in AB's words; answers to any discovery questions; a side-effect table (area → checked → result); test results with numbers; decisions and assumptions; what was not done and why; merge SHA; confirmation of no migration, no live-data change and no settings change (or exactly what did change); the exact click path for AB to try it.
+
+**H. Working style**
+23. Do not ask AB questions during a job: decide, record, continue, unless a stop rule applies.
+24. Keep jobs small and focused; prefer the smallest safe change; reuse existing components, tables and patterns; never build duplicate systems.
+25. HagerLand serves Ethiopia and the Ethiopian diaspora: ETB, phone-first contacts (+251), Amharic and English names, city/sub-city/woreda locations. Never design for the UK or another country by mistake.
+
 ## Working rules (spec Section 0)
 - The owner (AB) is a solo founder learning as we build: explain in plain English at every stop.
 - One work package (spec Section 21) at a time. Never start the next until AB replies "continue". Stop and wait for "go" at every [STOP-GATE].
