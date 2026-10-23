@@ -15,16 +15,17 @@ import { ModerationControls } from '@/components/admin/ModerationControls'
 import { FeatureTool, NotesTool, StatusTool } from '@/components/admin/RecordTools'
 import { ChangesDiff } from '@/components/admin/ChangesDiff'
 import { AuditTrail } from '@/components/admin/AuditTrail'
-import { MembersTool, MergeTool, OrgAdminFields } from '@/components/admin/OrgTools'
+import { MembersTool, MergeTool, OrgAdminFields, VisibilityBanner } from '@/components/admin/OrgTools'
 import { SingleImageUpload } from '@/components/media/SingleImageUpload'
 import { FormAlert } from '@/components/forms/FormParts'
 import { SupplyPartnerPanel } from '@/components/admin/SupplyPartnerPanel'
+import { ScrollToSection } from '@/components/admin/ScrollToSection'
 import { findPossibleDuplicates, getSupplyPartner } from '@/lib/supply/data'
 
 export const metadata = { title: 'Organisation' }
 
 export default async function AdminOrgPage(
-  props: { params: Promise<{ id: string }>; searchParams: Promise<{ created?: string }> }
+  props: { params: Promise<{ id: string }>; searchParams: Promise<{ created?: string; supply?: string; focus?: string }> }
 ) {
   const searchParams = await props.searchParams
   const params = await props.params
@@ -78,7 +79,10 @@ export default async function AdminOrgPage(
           ) : undefined
         }
       />
-      {searchParams.created && <FormAlert tone="success">Organisation created and published.</FormAlert>}
+      {searchParams.created && <FormAlert tone="success">{o.status === 'published' ? 'Organisation created and published.' : 'Organisation created. It is private until you publish it.'}</FormAlert>}
+      {searchParams.supply === 'failed' && <FormAlert>The organisation was created, but its supply partner record was not. Click “Create supply partner record” in the Supply partner panel below.</FormAlert>}
+      {searchParams.focus === 'supply-partner' && <ScrollToSection id="supply-partner" />}
+      <VisibilityBanner orgId={o.id} status={o.status} version={o.updated_at} isHagerland={isHl || o.is_hagerland} />
       <div className="grid gap-5 xl:grid-cols-[1fr_360px]">
         <div className="min-w-0 space-y-5">
           {o.status === 'pending_review' && (
@@ -118,9 +122,11 @@ export default async function AdminOrgPage(
               submitLabel="Save changes"
             />
           </Panel>
+          <div id="supply-partner" className="scroll-mt-24">
           <Panel title="Supply partner">
             <SupplyPartnerPanel orgId={o.id} partner={supply.partner} contacts={supply.contacts} evidence={supply.evidence} duplicates={duplicates} />
           </Panel>
+          </div>
           <Panel title="Verification documents">
             {docs.length === 0 ? (
               <p className="text-small text-muted">No documents submitted.</p>

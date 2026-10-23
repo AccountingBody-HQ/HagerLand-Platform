@@ -4,16 +4,19 @@
 const AREA = '/roodber8/organisations'
 
 import { redirect } from 'next/navigation'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { z } from 'zod'
 import { getAdminSupabase } from '@/lib/supabase/admin'
-import { assertAdmin, audit, changedFields } from '@/lib/admin/guard'
+import { adminActor, assertAdmin, audit, changedFields } from '@/lib/admin/guard'
+import { findPossibleDuplicates } from '@/lib/supply/data'
 import { organisationFormValues, organisationSchema, USER_ORG_KINDS } from '@/lib/validation/organisation'
 import { fail, invalid, ok, type ActionResult } from '@/lib/action-result'
 import { shortId, slugify } from '@/lib/slug'
-import { revalidateEntity } from '@/lib/revalidate'
+import { listTag, revalidateEntity } from '@/lib/revalidate'
 import type { OrgFormState } from '@/app/(account)/account/company/org-actions'
 import { STALE_EDIT, isStaleEdit } from '@/lib/concurrency'
+
+const createSchema = z.object({ visibility: z.enum(['private', 'publish']), supply_partner: z.enum(['1']).optional(), confirm_new: z.enum(['0', '1']).optional() })
 
 // Admin can also add finance and insurance partners (spec 24.8).
 const adminOrgSchema = organisationSchema.extend({ kind: z.enum([...USER_ORG_KINDS, 'lender', 'insurer', 'broker', 'hagerland']) })
@@ -55,15 +58,35 @@ export async function saveAdminOrgAction(_prev: OrgFormState | null, formData: F
     qualifications: d.qualifications ?? null,
   }
   if (!d.existing_id) {
+    const create = createSchema.safeParse({ visibility: formData.get('visibility'), supply_partner: formData.get('supply_partner') ?? undefined, confirm_new: formData.get('confirm_new') ?? undefined })
+    if (!create.success) return fail('Choose whether to keep it private or publish it now.', { visibility: 'Choose one' })
+    const asSupplier = create.data.supply_partner === '1'
+    if (asSupplier) await assertAdmin('/roodber8/supply/partners')
+    // Warns, never blocks: "None of these is the same business" sends confirm_new=1.
+    if (create.data.confirm_new !== '1') {
+      const similar = await findPossibleDuplicates({ name: d.name, phone: d.phone, whatsapp: d.whatsapp ?? null, telegram: d.telegram ?? null })
+      if (similar.length) return { ok: false, error: 'possible_duplicate', duplicates: similar.map((s) => ({ id: s.id, name: s.name, slug: '', location_display: null, verification_level: '', has_members: false, reason: s.reason })) }
+    }
+    // Private (draft) organisations are hidden from every public page, search and sitemap until published.
+    const status = create.data.visibility === 'publish' ? 'published' : 'draft'
     const { data, error } = await db
       .from('organisations')
-      .insert({ ...columns, slug: `${slugify(d.name, 60) || 'business'}-${shortId(4)}`, status: 'published', verification_level: 'listed', source: 'admin', is_hagerland: d.kind === 'hagerland' })
+      .insert({ ...columns, slug: `${slugify(d.name, 60) || 'business'}-${shortId(4)}`, status, verification_level: 'listed', source: 'admin', is_hagerland: d.kind === 'hagerland' })
       .select('id')
       .single()
     if (error || !data) return fail('Could not create the organisation.')
     await syncLinks(data.id, d.service_ids, d.product_category_ids)
-    await audit('organisation.create', { type: 'organisation', id: data.id, label: d.name })
-    redirect(`/roodber8/organisations/${data.id}?created=1`)
+    if (d.pillar_keys.length) await db.from('organisation_pillars').insert(Array.from(new Set(d.pillar_keys)).map((pillar_key) => ({ org_id: data.id, pillar_key })))
+    await audit('organisation.create', { type: 'organisation', id: data.id, label: d.name }, { status })
+    let supplyFailed = false
+    if (asSupplier) {
+      // The organisation already exists; if this step fails the page says so and offers "Create supply partner record".
+      const now = new Date().toISOString()
+      const { error: supplyError } = await db.from('supply_partners').insert({ org_id: data.id, relationship_status: 'discovered', status_changed_at: now, captured_at: now, captured_by: (await adminActor()).slice(0, 120) })
+      if (supplyError) supplyFailed = true
+      else await audit('supply.partner.create', { type: 'organisation', id: data.id, label: d.name }, { relationship_status: 'discovered', via: 'add new supplier' })
+    }
+    redirect(`/roodber8/organisations/${data.id}?created=1${supplyFailed ? '&supply=failed' : ''}${asSupplier ? '&focus=supply-partner' : ''}`)
   }
   const { data: before } = await db.from('organisations').select('*').eq('id', d.existing_id).maybeSingle()
   if (!before) return fail('Not found.')
@@ -105,6 +128,31 @@ export async function saveOrgAdminFieldsAction(orgId: string, input: z.infer<typ
   revalidateEntity('organisation', orgId)
   revalidatePath(`/roodber8/organisations/${orgId}`)
   return ok({ message: 'Saved.' })
+}
+
+/**
+ * Publish a private organisation, or make a published one private again (status "draft": hidden from every public
+ * page, search, sitemap and share image). HagerLand's own organisations always stay published.
+ */
+export async function setOrganisationVisibilityAction(orgId: string, visibility: 'publish' | 'private', expectedUpdatedAt: string): Promise<ActionResult<{ message: string }>> {
+  await assertAdmin(AREA)
+  const parsed = z.object({ orgId: z.uuid(), visibility: z.enum(['publish', 'private']), expected: z.string().min(1).max(40) }).safeParse({ orgId, visibility, expected: expectedUpdatedAt })
+  if (!parsed.success) return fail('Invalid request.')
+  if (await isStaleEdit('organisations', orgId, parsed.data.expected)) return fail(STALE_EDIT)
+  const db = getAdminSupabase()
+  const { data: org } = await db.from('organisations').select('name, slug, status, kind, is_hagerland').eq('id', orgId).maybeSingle()
+  if (!org) return fail('Organisation not found.')
+  const publish = parsed.data.visibility === 'publish'
+  if (!publish && (org.kind === 'hagerland' || org.is_hagerland)) return fail('HagerLand’s own organisations always stay on the public site.')
+  if (publish ? org.status !== 'draft' : org.status !== 'published') return fail(publish ? 'Only a private organisation can be published here.' : 'Only a published organisation can be made private.')
+  const status = publish ? 'published' : 'draft'
+  const { error } = await db.from('organisations').update({ status }).eq('id', orgId)
+  if (error) return fail('Could not change the visibility.')
+  await audit(publish ? 'organisation.publish' : 'organisation.unpublish', { type: 'organisation', id: orgId, label: org.name }, { status: { from: org.status, to: status } })
+  // Its page, lists, search, products it sells and the homepage all read the public views.
+  revalidateEntity('organisation', orgId, [`/company/${org.slug}`, `/roodber8/organisations/${orgId}`, '/roodber8/organisations', '/roodber8/supply/partners'])
+  revalidateTag(listTag('product'))
+  return ok({ message: publish ? 'Published: it is now on the public site.' : 'Made private: it is no longer on the public site.' })
 }
 
 /** Adds an existing account as a member (owner/admin/member) by email. */
