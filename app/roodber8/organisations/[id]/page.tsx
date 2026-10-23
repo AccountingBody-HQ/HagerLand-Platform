@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ExternalLink, FileText } from 'lucide-react'
-import { requireAdminPage } from '@/lib/admin/guard'
+import { isOwnerSession, requireAdminPage } from '@/lib/admin/guard'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { auditFor, notesFor } from '@/lib/admin/options'
 import { getLocations, getProductCategories, getServiceCategories } from '@/lib/data/reference'
@@ -22,6 +22,8 @@ import { SupplyPartnerPanel } from '@/components/admin/SupplyPartnerPanel'
 import { ScrollToSection } from '@/components/admin/ScrollToSection'
 import { findPossibleDuplicates, getSupplyPartner } from '@/lib/supply/data'
 import { offerCounts } from '@/lib/supply/offers-data'
+import { partnerAgreements } from '@/lib/supply/agreements-data'
+import { AgreementsPanel } from '@/components/admin/SupplyAgreements'
 
 export const metadata = { title: 'Organisation' }
 
@@ -46,7 +48,9 @@ export default async function AdminOrgPage(
     notesFor('organisation', o.id),
     auditFor(o.id),
   ])
-  const [supply, prices] = await Promise.all([getSupplyPartner(o.id), offerCounts([o.id])])
+  const [supply, prices, owner] = await Promise.all([getSupplyPartner(o.id), offerCounts([o.id]), isOwnerSession()])
+  // Agreements are owner only: never loaded for staff (blueprint 13.3).
+  const agreements = owner && supply.partner ? await partnerAgreements(o.id) : []
   const duplicates = supply.partner ? [] : await findPossibleDuplicates(o)
   const { data: memberProfiles } = await db.from('profiles').select('id, full_name').in('id', (members ?? []).map((m) => m.user_id))
   const memberEmails = await Promise.all(
@@ -128,6 +132,11 @@ export default async function AdminOrgPage(
             <SupplyPartnerPanel orgId={o.id} partner={supply.partner} contacts={supply.contacts} evidence={supply.evidence} duplicates={duplicates} prices={prices.get(o.id) ?? { current: 0, expiringSoon: 0, expired: 0 }} />
           </Panel>
           </div>
+          {owner && supply.partner && (
+            <Panel title="Agreement">
+              <AgreementsPanel orgId={o.id} agreements={agreements} />
+            </Panel>
+          )}
           <Panel title="Verification documents">
             {docs.length === 0 ? (
               <p className="text-small text-muted">No documents submitted.</p>

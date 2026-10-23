@@ -32,6 +32,11 @@ export async function isOwnerSession(): Promise<boolean> {
   return s?.kind === 'master' || (s?.kind === 'staff' && s.role === 'owner')
 }
 
+/** For owner-only actions (agreements, money, the ledger): throws for anyone but the master login or an owner. */
+export async function assertOwner(): Promise<void> {
+  if (!(await isOwnerSession())) throw new Error('Unauthorized')
+}
+
 /** Who is acting in admin, for audit entries (spec 26.15): 'admin' for the master login, else the staff member. */
 export async function adminActor(): Promise<string> {
   const s = await getAdminSession()

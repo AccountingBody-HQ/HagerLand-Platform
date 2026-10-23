@@ -199,8 +199,8 @@ describe('shortlist ranking', () => {
 
 describe('basket', () => {
   const opts = (single: number) => [
-    { itemId: 'cement', options: [{ orgId: 'one', partnerName: 'One Stop', totalCents: single - 4000 }, { orgId: 'x', partnerName: 'Cheap Cement', totalCents: 6000 }] },
-    { itemId: 'steel', options: [{ orgId: 'one', partnerName: 'One Stop', totalCents: 4000 }, { orgId: 'y', partnerName: 'Cheap Steel', totalCents: 4000 }] },
+    { itemId: 'cement', options: [{ orgId: 'one', partnerName: 'One Stop', totalCents: single - 4000, deliveryCents: 0 }, { orgId: 'x', partnerName: 'Cheap Cement', totalCents: 6000, deliveryCents: 0 }] },
+    { itemId: 'steel', options: [{ orgId: 'one', partnerName: 'One Stop', totalCents: 4000, deliveryCents: 0 }, { orgId: 'y', partnerName: 'Cheap Steel', totalCents: 4000, deliveryCents: 0 }] },
   ]
   // The cheapest split is 6,000 + 4,000 = 10,000 cents.
   it('recommends one partner at 2.9% and 3.0% dearer, and the split at 3.1%', () => {
@@ -214,8 +214,30 @@ describe('basket', () => {
   it('explains a single-partner recommendation in plain English', () => {
     expect(basket(opts(10290)).explanation).toBe('One Stop can supply every item for ETB 102.90, only ETB 2.90 more than splitting the order (ETB 100.00). Within 3%, one supplier is simpler: one delivery and one invoice.')
   })
+  it('counts one delivery per supplier (their highest charge), and shows the separate-delivery total', () => {
+    const b = basket([
+      { itemId: 'cement', options: [{ orgId: 'one', partnerName: 'One Stop', totalCents: 10000 + 3000, deliveryCents: 3000 }] },
+      { itemId: 'steel', options: [{ orgId: 'one', partnerName: 'One Stop', totalCents: 8000 + 2000, deliveryCents: 2000 }] },
+    ])
+    expect(b.partners[0]).toMatchObject({ totalCents: 21000, separateTotalCents: 23000, coversAll: true })
+    expect(b.split.totalCents).toBe(21000)
+  })
+  it('uses the one-delivery totals for the 3% rule: 2.9% and 3.0% pick one supplier, 3.1% the split', () => {
+    // Split: Cheap Cement 5,000 + 1,000 delivery, Cheap Steel 3,000 + 1,000 delivery = 10,000 (different suppliers).
+    // One Stop: cement goods (c) + 600 delivery, steel 3,700 + 400 delivery; one delivery counted at 600: c + 4,300.
+    const opts = (c: number) => [
+      { itemId: 'cement', options: [{ orgId: 'one', partnerName: 'One Stop', totalCents: c + 600, deliveryCents: 600 }, { orgId: 'x', partnerName: 'Cheap Cement', totalCents: 6000, deliveryCents: 1000 }] },
+      { itemId: 'steel', options: [{ orgId: 'one', partnerName: 'One Stop', totalCents: 4100, deliveryCents: 400 }, { orgId: 'y', partnerName: 'Cheap Steel', totalCents: 4000, deliveryCents: 1000 }] },
+    ]
+    expect(basket(opts(5990)).split.totalCents).toBe(10000)
+    expect(basket(opts(5990)).recommendation).toMatchObject({ kind: 'single', totalCents: 10290 })
+    expect(basket(opts(6000)).recommendation).toMatchObject({ kind: 'single', totalCents: 10300 })
+    expect(basket(opts(6010)).recommendation).toEqual({ kind: 'split' })
+    // Counting every delivery would have made One Stop look 400 cents dearer.
+    expect(basket(opts(5990)).partners[0].separateTotalCents).toBe(10690)
+  })
   it('never recommends a partner that cannot cover every item, and reports items without a price', () => {
-    const b = basket([{ itemId: 'a', options: [{ orgId: 'p', partnerName: 'P', totalCents: 100 }] }, { itemId: 'b', options: [] }])
+    const b = basket([{ itemId: 'a', options: [{ orgId: 'p', partnerName: 'P', totalCents: 100, deliveryCents: 0 }] }, { itemId: 'b', options: [] }])
     expect(b.recommendation).toEqual({ kind: 'split' })
     expect(b.split.itemsWithoutPrice).toEqual(['b'])
     expect(b.explanation).toContain('No single supplier has a price for every item.')

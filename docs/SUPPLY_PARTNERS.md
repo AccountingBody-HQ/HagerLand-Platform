@@ -84,6 +84,32 @@ Open **Customer requests → Quotes** and the quote. Everything below is private
 
 A finished quote (declined, expired or cancelled) shows all of this but cannot be changed. Operations staff can do everything except see the margin and commission boxes.
 
+## Orders, delivery proof and the ledger
+
+Everything here is private to HagerLand. Nothing is sent to customers or suppliers automatically: you tell them yourself.
+
+**The golden rule (model A): never place an order with a supplier before the customer has paid in full.** The site will not let you: the button stays off and the database refuses it too.
+
+**Agreements (owner only).** Supplies → Supply partners → open a partner → **Agreement** → **Add agreement**: the money model (A: customer pays HagerLand and you keep a margin; B: customer pays the supplier and the supplier pays you commission; or Both), the commission rate for B, payment terms, credit days, start and end dates, the signed copy (photo or PDF) and notes. One agreement can be active at a time; old ones stay as history (**Mark expired** or **Terminate** with a reason).
+
+**Create orders.** On the quote, once suppliers are chosen, the **Orders** box has **Create order(s)**: one draft order per supplier. The money model follows the active agreement; with “Both” or no agreement you choose. Without a signed agreement you must tick **Proceed without an agreement** (it is recorded).
+
+**Model A (margin).** On the order: use the **Margin % helper** (or type each customer price) and the customer delivery charge, **Save order**, then **Send to customer for payment** (tell the customer the total). **Record customer payment** each time money arrives (bank transfer, telebirr, CBE Birr, cash; for payments from abroad also the currency, amount and rate). When the full amount is in, **Mark as paid**, then **Place with supplier** → **Supplier confirmed** → **Out for delivery** → **Delivered** → **Complete**. Record **Payment to supplier** when you pay them.
+
+**Model B (commission).** **Place with supplier** → **Supplier confirmed** → **Out for delivery** → **Delivered**. The order shows **Commission due ETB …**: click **Record commission due**, and later **Record commission received**.
+
+**Delivery proof** (owner and Operations): on the order, **Add delivery proof**: a photo or the signed delivery note (on a phone you can take the photo there and then), when it was taken, who received it and their phone. A wrong one can be **Removed** with a reason; it stays in the history. An order can only be completed with proof.
+
+**Problems.** **Report a problem** (owner or Operations) when a delivery is short or damaged; the owner then marks **Problem solved: delivered** or cancels. **Cancel order** (owner, with a reason) is possible until delivery; if the customer has paid, record a **Refund** in the ledger. Every step, payment and proof appears on the order’s **Timeline**.
+
+**Supply orders** (Supplies menu) lists every order; **Needs action** shows orders waiting too long for payment (3 days), supplier confirmation (2 days) or delivery (3 days), and deliveries without proof.
+
+**Supply ledger** (Money menu, owner only): every payment, fee, refund and commission, with totals, a summary per order (**HagerLand earned**) and **Download CSV**. Add a **Service fee** or an **Adjustment** (with a reason) at the bottom. **To correct a mistake, click Reverse entry** on the wrong line and give the reason: an opposite entry is added. Nothing is ever edited or deleted.
+
+**What Operations can and cannot see.** Operations sees Supply orders and order pages (supplier prices, status steps from placed to delivered, problems and delivery proof). It never sees agreements, customer prices, margins, commission, payments or the ledger, and cannot create, cancel or complete orders.
+
+**Deals and commissions** (Money menu) is separate and unchanged: it is your wider sales pipeline across all services. The Supply ledger records the actual money for supply orders.
+
 ## Find partners and duplicates
 
 On **Supply partners**, search by name, another name, or any phone number (the business's phone, WhatsApp or Telegram number, or a contact's phone) in any format. Filter by status, role, or **Re-verification: Due now** to see who needs checking again.

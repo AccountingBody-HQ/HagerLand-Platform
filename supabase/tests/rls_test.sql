@@ -665,6 +665,18 @@ select pg_temp.record_check('Signed-in user cannot add quote items (including Ha
   pg_temp.write_denied($q$insert into public.quote_request_items (quote_request_id, free_text_item, quantity, unit, added_by_admin) select id, 'RLS', 1, 'bag', true from public.quote_requests limit 1$q$));
 reset role;
 
+-- ---------- Agreements, orders, delivery proof and ledger (0037) ----------
+reset role;
+set role anon;
+select pg_temp.record_check('Anonymous cannot read ' || name, pg_temp.read_denied(name)) from unnest(array['supply_agreements', 'supply_orders', 'supply_order_lines', 'supply_order_events', 'supply_delivery_proofs', 'supply_ledger_entries']) as t(name);
+reset role;
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000002", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000002', false);
+select pg_temp.record_check('Signed-in user cannot read ' || name, pg_temp.read_denied(name)) from unnest(array['supply_agreements', 'supply_orders', 'supply_order_lines', 'supply_order_events', 'supply_delivery_proofs', 'supply_ledger_entries']) as t(name);
+select pg_temp.record_check('Signed-in user cannot add ledger entries',
+  pg_temp.write_denied($q$insert into public.supply_ledger_entries (entry_type, direction, amount_cents, occurred_on) values ('service_fee', 'in', 100, current_date)$q$));
+reset role;
+
 -- ---------- Clean up ----------
 reset role;
 select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);
