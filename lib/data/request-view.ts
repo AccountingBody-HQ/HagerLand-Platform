@@ -28,6 +28,7 @@ export interface RequestView {
   urgency: string
   budgetBand: string | null
   serviceName: string | null
+  serviceSlug: string | null
   place: string
   createdAt: string
   answers: [string, string][]
@@ -47,7 +48,7 @@ export async function loadRequestView(id: string): Promise<RequestView | null> {
   const { data: r } = await db.from('service_requests').select('id, reference, title, details, status, closed_reason, urgency, budget_band, service_category_id, location_id, location_text, country_code, answers, attachment_paths, created_at').eq('id', id).maybeSingle()
   if (!r) return null
   const [{ data: cat }, { data: loc }, { data: matches }] = await Promise.all([
-    r.service_category_id ? db.from('service_categories').select('name, question_schema').eq('id', r.service_category_id).maybeSingle() : Promise.resolve({ data: null }),
+    r.service_category_id ? db.from('service_categories').select('name, slug, question_schema').eq('id', r.service_category_id).maybeSingle() : Promise.resolve({ data: null }),
     r.location_id ? db.from('locations').select('display_name').eq('id', r.location_id).maybeSingle() : Promise.resolve({ data: null }),
     db.from('service_request_matches').select('id, org_id, status, quote_amount_minor, quote_currency, quote_message, quote_valid_until, quote_document_path, quoted_at').eq('request_id', id),
   ])
@@ -83,6 +84,7 @@ export async function loadRequestView(id: string): Promise<RequestView | null> {
     urgency: r.urgency,
     budgetBand: r.budget_band,
     serviceName: cat?.name ?? null,
+    serviceSlug: cat?.slug ?? null,
     place: loc?.display_name ?? r.location_text ?? '',
     createdAt: r.created_at,
     answers: answerLines(parseQuestions(cat?.question_schema), (r.answers as Record<string, string>) ?? {}),

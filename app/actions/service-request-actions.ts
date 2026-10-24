@@ -116,7 +116,7 @@ export async function submitServiceRequestAction(_prev: RequestState, formData: 
   }
 
   const viewUrl = link ? canonicalUrl(`/requests/${link.token}`) : canonicalUrl(`/account/service-requests/${row.id}`)
-  await sendEmail({ to: d.email, ...serviceRequestReceivedEmail({ name: d.name.split(' ')[0] || d.name, reference: row.reference, title: d.title, link: viewUrl, emergency: d.urgency === 'emergency', linkDays: link ? GUEST_LINK_DAYS : 0, nextStep: copy.nextStep }) })
+  await sendEmail({ to: d.email, ...serviceRequestReceivedEmail({ name: d.name.split(' ')[0] || d.name, reference: row.reference, title: d.title, link: viewUrl, emergency: d.urgency === 'emergency', linkDays: link ? GUEST_LINK_DAYS : 0, nextStep: copy.nextStep, preheader: copy.customer?.receivedPreheader }) })
   const inbox = await hagerlandInbox('general')
   const admins = Array.from(new Set([inbox, process.env.ADMIN_DIGEST_EMAIL].filter((x): x is string => Boolean(x))))
   if (admins.length) {
@@ -210,14 +210,16 @@ export async function resendRequestLinkAction(_prev: ActionResult<{ message: str
   if (!(await rateLimit(`srlink:${hashIp(ip)}`, 5, 3600)).allowed) return fail('Too many attempts. Please wait an hour and try again.')
   if (!(await verifyTurnstileToken(formData.get('cf-turnstile-response') as string | null, ip))) return fail('Please complete the security check and try again.')
   const db = getAdminSupabase()
-  const { data: r } = await db.from('service_requests').select('id, reference, name, email, requester_user_id').eq('reference', parsed.data.reference).maybeSingle()
+  const { data: r } = await db.from('service_requests').select('id, reference, name, email, requester_user_id, category:service_categories(slug)').eq('reference', parsed.data.reference).maybeSingle()
   if (r && r.email && r.email.toLowerCase() === parsed.data.email) {
+    const custom = requestFormCopy(r.category?.slug ?? '').customer
+    const wording = (days: number) => ({ preheader: custom?.linkPreheader, body: custom?.linkBody(r.reference, days) })
     if (r.requester_user_id) {
-      await sendEmail({ to: r.email, ...serviceRequestLinkEmail({ name: r.name.split(' ')[0] || r.name, reference: r.reference, link: canonicalUrl(`/account/service-requests/${r.id}`), linkDays: 0 }) })
+      await sendEmail({ to: r.email, ...serviceRequestLinkEmail({ name: r.name.split(' ')[0] || r.name, reference: r.reference, link: canonicalUrl(`/account/service-requests/${r.id}`), linkDays: 0, ...wording(0) }) })
     } else {
       const link = newRequestToken()
       await db.from('service_requests').update({ access_token_hash: link.hash, access_token_expires_at: link.expiresAt }).eq('id', r.id)
-      await sendEmail({ to: r.email, ...serviceRequestLinkEmail({ name: r.name.split(' ')[0] || r.name, reference: r.reference, link: canonicalUrl(`/requests/${link.token}`), linkDays: GUEST_LINK_DAYS }) })
+      await sendEmail({ to: r.email, ...serviceRequestLinkEmail({ name: r.name.split(' ')[0] || r.name, reference: r.reference, link: canonicalUrl(`/requests/${link.token}`), linkDays: GUEST_LINK_DAYS, ...wording(GUEST_LINK_DAYS) }) })
     }
   }
   return ok({ message: 'If the details match a request, we have emailed a new link. Check your inbox and spam folder.' })

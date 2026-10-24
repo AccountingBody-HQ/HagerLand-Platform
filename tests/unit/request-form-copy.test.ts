@@ -89,3 +89,42 @@ describe('what happens next, staffing only (Jobs Phase 1b)', () => {
     expect(serviceRequestReceivedEmail({ ...base, nextStep: null }).html).toBe(plain.html)
   })
 })
+
+describe('staffing-only customer wording (Jobs Phase 1c)', () => {
+  const NEXT = "HagerLand's recruitment team will contact you to talk about the roles and agree the fee in writing before we start."
+  it('uses the approved text for staffing and nothing new for any other service', async () => {
+    const { customerStatusLabel } = await import('@/lib/service-requests/form-copy')
+    const c = requestFormCopy('staffing').customer!
+    expect(c.sentSteps).toEqual({ second: 'We look for suitable candidates and introduce only people who have agreed to be introduced.', thirdSignedIn: 'You can follow your request in your account.', thirdGuest: 'We have emailed you a private link to follow your request.' })
+    expect(c.receivedPreheader).toBe("Your request is with HagerLand's recruitment team.")
+    expect(c.section).toEqual({ heading: 'Next steps', emptyOpen: 'With our recruitment team', emptyClosed: 'Closed', text: NEXT })
+    expect(c.linkPreheader).toBe('A new link to view your request.')
+    expect(c.linkBody('HLS-2026-000123', 30)).toBe('Use the button to see request HLS-2026-000123. The link works for 30 days. Older links no longer work.')
+    const staffing = ['submitted', 'triaged', 'matched', 'quoted', 'won', 'lost', 'cancelled'].map((s) => customerStatusLabel('staffing', s))
+    expect(staffing).toEqual(['Received', 'With our recruitment team', 'In progress', 'In progress', 'Completed', 'Closed', 'Cancelled'])
+    for (const slug of ['plumbers', 'renovation', 'house-builders', null]) {
+      expect(requestFormCopy(slug ?? '').customer).toBeNull()
+      expect(['submitted', 'triaged', 'matched', 'quoted', 'won', 'lost', 'cancelled'].map((s) => customerStatusLabel(slug, s))).toEqual(['Received', 'Being matched', 'Sent to providers', 'Quotes received', 'Provider chosen', 'Closed', 'Cancelled'])
+    }
+  })
+  it('emails: staffing swaps only the preview line and body; others are unchanged', async () => {
+    const T = await import('@/lib/email/templates')
+    const c = requestFormCopy('staffing').customer!
+    const base = { name: 'Tigist', reference: 'HLS-2026-000123', title: 'Ten masons', link: 'https://www.hagerland.com/requests/x', emergency: false, linkDays: 30 }
+    const plain = T.serviceRequestReceivedEmail(base)
+    expect(plain.html).toContain('We are finding the right providers for you.')
+    const staffing = T.serviceRequestReceivedEmail({ ...base, nextStep: NEXT, preheader: c.receivedPreheader })
+    expect(staffing.html).not.toContain('providers')
+    expect(staffing.subject).toBe(plain.subject)
+    expect(T.serviceRequestReceivedEmail({ ...base, preheader: null }).html).toBe(plain.html)
+    const linkBase = { name: 'Tigist', reference: 'HLS-2026-000123', link: 'https://www.hagerland.com/requests/x', linkDays: 30 }
+    const linkPlain = T.serviceRequestLinkEmail(linkBase)
+    expect(linkPlain.html).toContain('A new link to view your request and quotes.')
+    expect(linkPlain.html).toContain('Use the button to see request HLS-2026-000123 and any quotes. The link works for 30 days. Older links no longer work.')
+    const linkStaffing = T.serviceRequestLinkEmail({ ...linkBase, preheader: c.linkPreheader, body: c.linkBody('HLS-2026-000123', 30) })
+    expect(linkStaffing.html).not.toContain('quote')
+    expect(linkStaffing.html).toContain('Use the button to see request HLS-2026-000123. The link works for 30 days. Older links no longer work.')
+    expect(linkStaffing.subject).toBe(linkPlain.subject)
+    expect(T.serviceRequestLinkEmail({ ...linkBase, preheader: null, body: null }).html).toBe(linkPlain.html)
+  })
+})

@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import { Download, Hourglass, Paperclip } from 'lucide-react'
 import type { RequestView as View } from '@/lib/data/request-view'
-import { CLOSED_REASON_LABEL, REQUEST_STATUS_LABEL, URGENCY_LABEL } from '@/lib/service-requests/labels'
+import { CLOSED_REASON_LABEL, URGENCY_LABEL } from '@/lib/service-requests/labels'
+import { customerStatusLabel, requestFormCopy } from '@/lib/service-requests/form-copy'
 import { formatDate, formatMoney } from '@/lib/format'
 import { Badge } from '@/components/ui/Badge'
 import { EmptyState } from '@/components/ui/Layout'
@@ -12,6 +13,8 @@ import { ReviewBox } from './ReviewBox'
 export function RequestView({ r, token }: { r: View; token?: string }) {
   const open = ['submitted', 'triaged', 'matched', 'quoted'].includes(r.status)
   const canChoose = ['matched', 'quoted'].includes(r.status)
+  // Services HagerLand handles itself (the staffing requirement) talk about the recruitment team, not quotes.
+  const section = requestFormCopy(r.serviceSlug ?? '').customer?.section
   return (
     <div className="space-y-8">
       <header>
@@ -20,7 +23,7 @@ export function RequestView({ r, token }: { r: View; token?: string }) {
         </p>
         <h1 className="hl-h2 mt-1">{r.title}</h1>
         <div className="mt-3 flex flex-wrap gap-2">
-          <Badge tone={open ? 'info' : r.status === 'won' ? 'green' : 'neutral'}>{REQUEST_STATUS_LABEL[r.status] ?? r.status}</Badge>
+          <Badge tone={open ? 'info' : r.status === 'won' ? 'green' : 'neutral'}>{customerStatusLabel(r.serviceSlug, r.status)}</Badge>
           {r.urgency === 'emergency' && <Badge tone="danger">Emergency</Badge>}
         </div>
         {r.closedReason && <p className="mt-2 text-small text-muted">{CLOSED_REASON_LABEL[r.closedReason]}</p>}
@@ -38,16 +41,18 @@ export function RequestView({ r, token }: { r: View; token?: string }) {
 
       <section aria-labelledby="quotes-h">
         <h2 id="quotes-h" className="hl-h3">
-          Quotes
+          {section?.heading ?? 'Quotes'}
         </h2>
         {r.quotes.length === 0 ? (
           <EmptyState
             className="mt-4"
             icon={<Hourglass />}
-            title={open ? 'No quotes yet' : 'No quotes'}
+            title={section ? (open ? section.emptyOpen : section.emptyClosed) : open ? 'No quotes yet' : 'No quotes'}
             description={
               open
-                ? r.providersReviewing > 0
+                ? section
+                  ? section.text
+                  : r.providersReviewing > 0
                   ? `${r.providersReviewing} provider${r.providersReviewing === 1 ? ' is' : 's are'} looking at your request. Quotes appear here and we email you each one.`
                   : 'We are finding suitable providers. Quotes appear here and we email you each one.'
                 : undefined
