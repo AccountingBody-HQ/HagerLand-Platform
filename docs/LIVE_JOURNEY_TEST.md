@@ -157,7 +157,7 @@ Do all of this in the admin (https://www.hagerland.com/roodber8).
 
 ## Supply A–Z test (Phases 1–5, on the local test copy)
 
-For the next job: run on the local copy after `bash scripts/seed-supply-local.sh` (never on live). Tick each line.
+Run on the local copy after `bash scripts/seed-supply-local.sh` (never on live). Tick each line. The whole list runs automatically as `e2e/admin/supply-a-z.spec.ts` (first run 24 Oct 2026: all steps PASS; screenshots in the git-ignored `test-results/supply-a-z`).
 
 | ✓ | Step | What to check |
 |---|---|---|
