@@ -1,7 +1,9 @@
 import { readFileSync } from 'node:fs'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { askedQuestions, detailsWithPay, requestFormCopy } from '@/lib/service-requests/form-copy'
 import type { Question } from '@/lib/service-requests/questions'
+
+vi.mock('server-only', () => ({}))
 
 const STAFFING_QUESTIONS: Question[] = [
   { id: 'roles', label: 'Which roles do you need to fill?', type: 'textarea', required: true },
@@ -61,5 +63,29 @@ describe('request form wording (Jobs Phase 1)', () => {
     expect(src).toContain('validateAnswers(questions, raw)')
     expect(src).toContain('budget_band: copy.budget ? d.budget_band ?? null : null')
     expect(src).toContain("['Pay offered', pay]")
+  })
+})
+
+describe('what happens next, staffing only (Jobs Phase 1b)', () => {
+  const NEXT = "HagerLand's recruitment team will contact you to talk about the roles and agree the fee in writing before we start."
+  it('staffing gets the approved sentence and tab title; every other service keeps today’s', () => {
+    expect(requestFormCopy('staffing').nextStep).toBe(NEXT)
+    expect(requestFormCopy('staffing').tabTitle('Staffing requirement')).toBe('Submit a staffing requirement')
+    for (const slug of ['plumbers', 'roof-repair', 'electricians', '']) {
+      expect(requestFormCopy(slug).nextStep).toBeNull()
+      expect(requestFormCopy(slug).tabTitle('Plumbers')).toBe('Request plumbers')
+    }
+  })
+  it('the confirmation email swaps only the provider sentences', async () => {
+    const { serviceRequestReceivedEmail } = await import('@/lib/email/templates')
+    const base = { name: 'Tigist', reference: 'HLS-2026-000123', title: 'Ten masons', link: 'https://www.hagerland.com/requests/x', emergency: false, linkDays: 30 }
+    const plain = serviceRequestReceivedEmail(base)
+    const staffing = serviceRequestReceivedEmail({ ...base, nextStep: NEXT })
+    expect(plain.html).toContain('We will match it with up to three suitable providers. Each one contacts you directly, and their quotes appear on your request page.')
+    expect(staffing.html).not.toContain('up to three')
+    expect(staffing.html).toContain('recruitment team will contact you to talk about the roles and agree the fee in writing before we start.')
+    expect(staffing.subject).toBe(plain.subject)
+    expect(staffing.html.replace(/<p[^>]*>[^<]*recruitment team[^<]*<\/p>/, '')).toBe(plain.html.replace(/<p[^>]*>[^<]*up to three[^<]*<\/p>/, ''))
+    expect(serviceRequestReceivedEmail({ ...base, nextStep: null }).html).toBe(plain.html)
   })
 })

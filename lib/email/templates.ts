@@ -311,7 +311,8 @@ export function partnerApplicationEmail(p: { name: string; organisation: string;
 const REQUESTER_REASON = 'You are receiving this because you requested a service on HagerLand.'
 const PROVIDER_REASON = 'You are receiving this because your business is listed on HagerLand and a customer request was sent to you.'
 
-export function serviceRequestReceivedEmail(p: { name: string; reference: string; title: string; link: string; emergency: boolean; linkDays: number }): RenderedEmail {
+/** `nextStep` replaces the provider sentences for services HagerLand handles itself (the staffing requirement). */
+export function serviceRequestReceivedEmail(p: { name: string; reference: string; title: string; link: string; emergency: boolean; linkDays: number; nextStep?: string | null }): RenderedEmail {
   return renderEmail({
     subject: `We've received your request (${p.reference})`,
     preheader: p.emergency ? 'Marked as an emergency: we are looking at it now.' : 'We are finding the right providers for you.',
@@ -321,7 +322,7 @@ export function serviceRequestReceivedEmail(p: { name: string; reference: string
       `Thanks for your request: "${p.title}".`,
       p.emergency
         ? 'You marked it as an emergency, so we are looking at it first. If anyone is in danger, call the emergency services.'
-        : 'We will match it with up to three suitable providers. Each one contacts you directly, and their quotes appear on your request page.',
+        : (p.nextStep ?? 'We will match it with up to three suitable providers. Each one contacts you directly, and their quotes appear on your request page.'),
       `Keep this email: the button below opens your request${p.linkDays ? ` (the link works for ${p.linkDays} days; you can ask for a new one at any time)` : ''}.`,
     ],
     details: [['Reference', p.reference]],

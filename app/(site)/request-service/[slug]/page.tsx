@@ -15,7 +15,7 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
   const c = await getRequestableCategory(params.slug)
   if (!c) return {}
   return buildMetadata({
-    title: `Request ${c.name.toLowerCase()}`,
+    title: requestFormCopy(c.slug).tabTitle(c.name),
     description: requestFormCopy(c.slug).metaDescription(c.name),
     path: `/request-service/${c.slug}`,
   })
