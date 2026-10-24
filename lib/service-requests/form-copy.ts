@@ -12,6 +12,8 @@ export interface RequestStep {
 
 export interface RequestFormCopy {
   heading: (categoryName: string) => string
+  /** Browser-tab title (the site name is added by the layout). */
+  tabTitle: (categoryName: string) => string
   metaDescription: (categoryName: string) => string
   titleHint: (categoryName: string) => string
   detailsLabel: string
@@ -27,6 +29,8 @@ export interface RequestFormCopy {
   steps: RequestStep[]
   /** Stored questions this form does not ask; answers to them are dropped on the server. */
   hiddenQuestions: string[]
+  /** What happens next, on the thank-you page and in the confirmation email; null keeps the provider wording. */
+  nextStep: string | null
 }
 
 export const DEFAULT_REQUEST_STEPS: RequestStep[] = [
@@ -37,6 +41,7 @@ export const DEFAULT_REQUEST_STEPS: RequestStep[] = [
 
 const DEFAULT_COPY: RequestFormCopy = {
   heading: (name) => `Request ${name.toLowerCase()}`,
+  tabTitle: (name) => `Request ${name.toLowerCase()}`,
   metaDescription: (name) => `Describe what you need and get quotes from up to three ${name.toLowerCase()} on HagerLand. Free for customers; you choose who to hire.`,
   titleHint: (name) => `For example: “${name} for a G+1 house in Bole”.`,
   detailsLabel: 'Describe what you need',
@@ -48,10 +53,12 @@ const DEFAULT_COPY: RequestFormCopy = {
   footer: 'We share your request with up to three suitable providers. Your phone and email go only to providers who accept it.',
   steps: DEFAULT_REQUEST_STEPS,
   hiddenQuestions: [],
+  nextStep: null,
 }
 
 const STAFFING_COPY: RequestFormCopy = {
   heading: () => 'Submit a staffing requirement',
+  tabTitle: () => 'Submit a staffing requirement',
   metaDescription: () => 'Tell HagerLand which roles you need to fill. We find, check and introduce suitable candidates. Fees are agreed with you in writing before we start.',
   titleHint: () => 'For example: "10 masons and a foreman for a G+2 site in Bole".',
   detailsLabel: 'Describe the roles and the work',
@@ -68,6 +75,7 @@ const STAFFING_COPY: RequestFormCopy = {
   ],
   // Overseas placement is hidden until a lawyer confirms the rules (Jobs decision 3).
   hiddenQuestions: ['international'],
+  nextStep: "HagerLand's recruitment team will contact you to talk about the roles and agree the fee in writing before we start.",
 }
 
 export function requestFormCopy(categorySlug: string): RequestFormCopy {

@@ -116,7 +116,7 @@ export async function submitServiceRequestAction(_prev: RequestState, formData: 
   }
 
   const viewUrl = link ? canonicalUrl(`/requests/${link.token}`) : canonicalUrl(`/account/service-requests/${row.id}`)
-  await sendEmail({ to: d.email, ...serviceRequestReceivedEmail({ name: d.name.split(' ')[0] || d.name, reference: row.reference, title: d.title, link: viewUrl, emergency: d.urgency === 'emergency', linkDays: link ? GUEST_LINK_DAYS : 0 }) })
+  await sendEmail({ to: d.email, ...serviceRequestReceivedEmail({ name: d.name.split(' ')[0] || d.name, reference: row.reference, title: d.title, link: viewUrl, emergency: d.urgency === 'emergency', linkDays: link ? GUEST_LINK_DAYS : 0, nextStep: copy.nextStep }) })
   const inbox = await hagerlandInbox('general')
   const admins = Array.from(new Set([inbox, process.env.ADMIN_DIGEST_EMAIL].filter((x): x is string => Boolean(x))))
   if (admins.length) {

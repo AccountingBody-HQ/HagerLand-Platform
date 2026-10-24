@@ -115,9 +115,9 @@ export function ServiceRequestForm({
   useEffect(() => {
     if (state?.ok) {
       track('service_request_submitted', { category: categorySlug })
-      router.push(`/request-service/sent?ref=${encodeURIComponent(state.data.reference)}`)
+      router.push(`/request-service/sent?ref=${encodeURIComponent(state.data.reference)}${copy.nextStep ? `&for=${encodeURIComponent(categorySlug)}` : ''}`)
     }
-  }, [state, router, categorySlug])
+  }, [state, router, categorySlug, copy.nextStep])
 
   return (
     <NoResetForm action={action} className="space-y-8" noValidate>
