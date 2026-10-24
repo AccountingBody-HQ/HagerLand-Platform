@@ -1,6 +1,6 @@
 # HagerLand Jobs, Recruitment & Staffing: blueprint (Ethiopia)
 
-Status: **blueprint only**. Nothing in this document has been built. Written 24 Oct 2026 on branch `docs/jobs-blueprint`, from `main` at `90946c0`.
+Status: **Phase 1 released** on 24 Oct 2026 (branch `jobs/phase-1-fixes`, no migration; record in `docs/LAUNCH_REPORT.md` "Releases" and `docs/RELAUNCH_PROGRESS.md`). Phases 2–6 are not built. Written 24 Oct 2026 on branch `docs/jobs-blueprint`, from `main` at `90946c0`. AB accepted the 10 decisions (13.4) and the 13 assumptions (13.3) on 24 Oct 2026.
 
 How to read it:
 
@@ -236,7 +236,8 @@ Candidates are never charged (Terms, `app/(site)/terms/page.tsx`).
 
 Each phase is small, keeps the public look (navy hero with blueprint grid, white sections, brand green buttons, gold accents, Manrope and Inter, icon cards) and changes pages only incrementally.
 
-### Phase 1: fixes and tidy-up (no migration)
+### Phase 1: fixes and tidy-up (no migration) — released 24 Oct 2026
+- **Released as**: the test fix; staffing form wording for the staffing service only (no budget bands, "Pay offered" saved as the last line of the details, abroad question not asked); return to the same page after sign-in or sign-up (strict same-site check, never `/roodber8`); Operations may use Jobs admin (progress updates moved to their own owner-only area); "International placements" hidden everywhere and refused by the server (old records keep their label); the approved `/jobs`, job form and privacy wording; the licence line was already wired. Details: `docs/RELAUNCH_PROGRESS.md` row "Jobs 1".
 - **Scope**: fix the D6 test line; give the staffing request hiring words (category-specific labels for title and description, hide the budget bands for staffing or replace them with “Pay offered”); keep the return address on sign-in for `/account/...` links; add `/roodber8/jobs` to the Operations role; privacy wording corrected (application details retention, who sees visible profiles) — public wording, needs AB’s go-ahead; if AB decides, hide “International placements” and the abroad question; show the recruitment licence note on `/jobs` (it already appears on the Terms page once AB enters the number in admin → Settings).
 - **Public vs admin**: small public wording changes; admin role change.
 - **Risks**: wording changes on public pages (AB approves the text first).
@@ -244,6 +245,8 @@ Each phase is small, keeps the public look (navy hero with blueprint grid, white
 - **AB tests**: open `/request-service/staffing` (hiring words); sign out, click “Post a job”, sign in, land on the job form.
 
 ### Phase 2: phone-first applying and trades (migration 0040)
+- **AB's notes for Phase 2 (24 Oct 2026)**: add an "I am 18 or older" tick to phone applications; add the trades plasterer, aluminium & glass fitter, gypsum ceiling installer, scaffolder and "Other" to the trade list (assumption 8); when the stricter visibility rule (decision 2) is built, update the two privacy lines again (`/privacy` "Employers you apply to" and the candidate profile option "Businesses with a published profile on HagerLand").
+- **Deadline from Phase 1**: since 24 Oct 2026 the privacy page says application details (name, contact details, cover note) are deleted 12 months after the application, but only CVs are purged today. Applications exist on live only since the cutover (15 Oct 2026), so the purge of application details must be released **before 15 Oct 2027**.
 - **Scope**: trade list and “daily labour”; trade icons on `/jobs`; **Apply by phone** without an account (Turnstile, rate limit, consent, preferred contact, language); worker register by phone; employer sees phone applications with tap-to-call; candidate visibility limited to verified employers or organisations with an approved job; purge of old application details; scam/fairness warnings in admin review.
 - **Risks**: spam (Turnstile + limits); privacy (consent text — lawyer to confirm); changing the public apply flow (keep the email route for professionals).
 - **Tests**: RLS for phone applications; purge job; e2e phone apply at 375 px; employer view; visibility rule.
