@@ -123,6 +123,17 @@ Everything here is worked out from what is already recorded: quotes, supplier li
 - **Supply report** (Insights → Supply report, owner only): one month of quotes, orders by money model, order value (model A: customer totals; model B: supplier totals), HagerLand earned, refunds, fees, commission still owed by age (0–30, 31–60, 61–90, over 90 days), top items, areas and partners. **Reconciles with ledger: yes** means HagerLand earned matches money in minus money out in the Supply ledger for that month. **Print or save as PDF** prints it without the menu, filters and buttons; each table has a CSV.
 - **Daily digest**: a short “Supplies” section with counts only (no names or prices).
 
+## Finding shop leads with Imports (Google)
+
+Use **Imports** (Businesses & people) to find shops on Google, for example “cement supplier Bole Addis Ababa”. Google's terms let HagerLand keep only the place ID, so:
+
+1. **Search and import.** Tick the shops and click **Import**. Each becomes a private lead called “Unconfirmed lead — refetch from Google”, in the area you chose. Nothing else from Google is saved.
+2. **Call or visit.** Open the lead (Imports → **Leads to confirm**, or **Imports compliance**). In **Google data**, click **Show Google's details** to see Google's name, address and phone (shown live, not saved) and contact the business.
+3. **Confirm with the business.** Click **Confirm with the business**, choose how (phone, WhatsApp, Telegram, visit, email), and type what the business told you: name, phone, address, website, area and a short description in your words. Leave a box empty if they did not confirm it. Then add the supply partner record and prices as usual.
+4. **Publish** only when everything shown publicly is confirmed (the site refuses otherwise, with the reason).
+
+**The 30-day rule.** Businesses imported before 24 Oct 2026 still hold Google details. Each detail must be confirmed within 30 days of the import (“Confirm within N days”; red from 7 days). After that, **Imports compliance** lists what would be cleared. The daily job only reports until you switch **Imports clean-up mode** to **Live**. Read the dry-run list first, especially **Public — needs your decision**: public businesses are never changed without your button press (**Make private and clear**, or **Confirmed with business**). Details: `docs/RUNBOOK.md` section 9.
+
 ## Find partners and duplicates
 
 On **Supply partners**, search by name, another name, or any phone number (the business's phone, WhatsApp or Telegram number, or a contact's phone) in any format. Filter by status, role, or **Re-verification: Due now** to see who needs checking again.

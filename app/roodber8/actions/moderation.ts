@@ -15,6 +15,7 @@ import { claimDecisionEmail, listingApprovedEmail, listingRejectedEmail, orgDeci
 import { canonicalUrl } from '@/lib/site'
 import { log } from '@/lib/log'
 import { sendInstantAlerts } from '@/lib/alerts'
+import { importPublishBlock, recordFieldSources } from '@/lib/imports/compliance-data'
 
 type Entity = 'property' | 'development' | 'organisation' | 'portfolio' | 'product'
 const TABLE: Record<Entity, 'properties' | 'developments' | 'organisations' | 'portfolio_projects' | 'products'> = {
@@ -83,6 +84,10 @@ export async function moderateAction(input: { entity: string; id: string; op: st
   // Another admin may have decided it meanwhile: approving never republishes something removed or already live.
   if (op === 'approve' && !['pending_review', 'rejected', 'draft'].includes(String(record.status))) return fail('This is no longer waiting for review. Reload the page.')
   if (op === 'approve_changes' && !pending) return fail('These changes were already decided. Reload the page.')
+  if (op === 'approve' && entity === 'organisation') {
+    const block = (await importPublishBlock([id])).get(id)
+    if (block) return fail(block)
+  }
   let message = ''
 
   try {
@@ -92,6 +97,8 @@ export async function moderateAction(input: { entity: string; id: string; op: st
       if (op === 'approve') update.status = 'published'
       const { error } = await dyn.from(table).update(update).eq('id', id)
       if (error) throw error
+      // Details the business itself changed in its account are its own (for a business first imported from Google).
+      if (entity === 'organisation' && op === 'approve_changes' && pending) await recordFieldSources(id, (['name', 'phone', 'address_line', 'website', 'description'] as const).filter((f) => f in pending), { source: 'confirmed_with_business', actor: 'business (own account)', note: 'Changed by the business in its account, approved by HagerLand', onlyTracked: true })
       await approveMediaOf(entity, id)
       message = op === 'approve' ? 'Approved and published.' : 'Changes approved and applied.'
       if (entity === 'property' && op === 'approve') await sendInstantAlerts(id)

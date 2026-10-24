@@ -267,7 +267,7 @@ describe('failed reads are never shown as zeros (A–Z test)', () => {
     const good = { data: [{ id: 1 }], error: null }
     expect(must(good)).toBe(good)
     expect(must([good, { data: [] }, new Map(), 3])).toHaveLength(4)
-    expect(() => must({ data: null, error: { message: 'permission denied for table supply_orders' } })).toThrow('Supply data could not be read: permission denied for table supply_orders')
+    expect(() => must({ data: null, error: { message: 'permission denied for table supply_orders' } })).toThrow('Could not read from the database: permission denied for table supply_orders')
     expect(() => must([good, { data: null, error: { message: 'timeout' } }])).toThrow(/timeout/)
   })
 })

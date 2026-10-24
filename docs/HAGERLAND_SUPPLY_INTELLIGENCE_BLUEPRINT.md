@@ -402,6 +402,8 @@ The tool does **not** store reviews, ratings or photos, which matches the CLAUDE
 
 **Concern (needs professional and terms review).** Google Maps Platform terms are generally understood to allow storing **place IDs** indefinitely, but to restrict caching or storing other Places content: latitude/longitude only for a limited period, and other content not beyond what the terms permit. The tool keeps name, phone, address, website and coordinates in `organisations` **with no time limit**. The AI description is derived from Places content. As written, this may not fit the terms. Confirm against the current Google Maps Platform terms; this document makes no legal conclusion.
 
+**Status (24 Oct 2026):** a stricter version (AB's Option A: keep only the place ID) is built on branch `compliance/imports-google-data` with migration 0039, waiting for AB to apply it; see `docs/RUNBOOK.md` section 9.
+
 **Recommended compliant approach** (proposal; a separate, approved job):
 
 1. Treat an imported organisation as a **lead**, not a record. It stays `pending_review` (it already does) and gets `source = import_google` on its `supply_partners` row.

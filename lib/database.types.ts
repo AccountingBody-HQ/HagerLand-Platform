@@ -1629,6 +1629,37 @@ export type Database = {
         }
         Relationships: []
       }
+      import_cleanup_runs: {
+        Row: {
+          counts: NonNullable<Json>
+          details: NonNullable<Json>
+          finished_at: string
+          id: string
+          mode: string
+          run_by: string
+          started_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          counts?: NonNullable<Json>
+          details?: NonNullable<Json>
+          finished_at?: string
+          id?: string
+          mode: string
+          run_by: string
+          started_at: string
+        }
+        Update: {
+          counts?: NonNullable<Json>
+          details?: NonNullable<Json>
+          finished_at?: string
+          id?: string
+          mode?: string
+          run_by?: string
+          started_at?: string
+        }
+        Relationships: []
+      }
       import_log: {
         Row: {
           entity_type: string | null
@@ -2419,6 +2450,70 @@ export type Database = {
           },
           {
             foreignKeyName: 'org_branches_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      org_field_sources: {
+        Row: {
+          cleared_at: string | null
+          confirm_method: string | null
+          confirmed_at: string | null
+          confirmed_by: string | null
+          created_at: string
+          fetched_at: string | null
+          field: string
+          id: string
+          is_current: boolean
+          note: string | null
+          org_id: string
+          place_id: string | null
+          source: string
+        }
+        ComputedFields: never
+        Insert: {
+          cleared_at?: string | null
+          confirm_method?: string | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          fetched_at?: string | null
+          field: string
+          id?: string
+          is_current?: boolean
+          note?: string | null
+          org_id: string
+          place_id?: string | null
+          source: string
+        }
+        Update: {
+          cleared_at?: string | null
+          confirm_method?: string | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          fetched_at?: string | null
+          field?: string
+          id?: string
+          is_current?: boolean
+          note?: string | null
+          org_id?: string
+          place_id?: string | null
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'org_field_sources_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'org_field_sources_org_id_fkey'
             columns: ['org_id']
             isOneToOne: false
             referencedRelation: 'organisations_public'

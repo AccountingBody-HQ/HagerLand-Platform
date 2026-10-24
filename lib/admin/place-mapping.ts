@@ -1,4 +1,4 @@
-/** Pure helpers for turning Google Places (New) results into HagerLand organisations. Unit-tested. */
+/** Pure helpers for Google Places (New) results shown in the admin (never stored; see lib/imports/compliance.ts). Unit-tested. */
 
 export interface AddressComponent {
   longText?: string
@@ -6,65 +6,6 @@ export interface AddressComponent {
   types?: string[]
 }
 
-export interface LocationRef {
-  id: string
-  name: string
-  level: string
-  parent_id: string | null
-}
-
-function norm(s: string): string {
-  return s
-    .toLowerCase()
-    .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9]+/g, ' ')
-    .trim()
-}
-
-/** Common alternative spellings seen in Google addresses for Ethiopian places. */
-const ALIASES: Record<string, string> = {
-  'addis abeba': 'addis ababa',
-  'adis abeba': 'addis ababa',
-  'dire dawa city': 'dire dawa',
-  'bahir dar city': 'bahir dar',
-  bahirdar: 'bahir dar',
-  'nifas silk lafto': 'nifas silk lafto',
-  'nefas silk lafto': 'nifas silk lafto',
-  'kolfe keranio': 'kolfe keraniyo',
-  'akaki kality': 'akaki kaliti',
-  'addis ketema': 'addis ketema',
-  mekele: 'mekelle',
-  hawasa: 'hawassa',
-  awassa: 'hawassa',
-}
-
-function canonical(s: string): string {
-  const n = norm(s)
-  return ALIASES[n] ?? n
-}
-
-/**
- * Picks the most specific HagerLand location named in the address (area → sub-city → city → region).
- * Falls back to the given default when nothing matches.
- */
-export function matchLocation(components: AddressComponent[] | undefined, formattedAddress: string, locations: LocationRef[], fallbackId: string | null): string | null {
-  const candidates = new Set<string>()
-  for (const c of components ?? []) {
-    if (c.longText) candidates.add(canonical(c.longText))
-    if (c.shortText) candidates.add(canonical(c.shortText))
-  }
-  for (const part of formattedAddress.split(',')) candidates.add(canonical(part))
-  const rank: Record<string, number> = { area: 4, sub_city: 3, city: 2, region: 1 }
-  let best: LocationRef | null = null
-  for (const loc of locations) {
-    if (!candidates.has(canonical(loc.name))) continue
-    if (!best || (rank[loc.level] ?? 0) > (rank[best.level] ?? 0)) best = loc
-  }
-  return best?.id ?? fallbackId
-}
-
-/** Google gives "+251 11 123 4567" or "011 123 4567"; we store E.164 (+251…), or null if not Ethiopian/valid. */
 export function placePhone(international: string | undefined, national: string | undefined): string | null {
   const raw = (international || national || '').replace(/[^\d+]/g, '')
   if (!raw) return null

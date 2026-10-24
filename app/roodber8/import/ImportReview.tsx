@@ -18,6 +18,10 @@ interface Item {
   address: string | null
   location: string | null
   services: string[]
+  /** Where its details stand (confirmed with the business, Google data, or lead with the place ID only). */
+  state: string
+  /** Why it cannot be published yet. */
+  block: string | null
 }
 
 function DescriptionEditor({ item }: { item: Item }) {
@@ -64,7 +68,7 @@ export function ImportReview({ items }: { items: Item[] }) {
         router.refresh()
       }
     })
-  if (items.length === 0) return <p className="rounded-lg border border-dashed border-border-strong bg-white p-8 text-center text-small text-muted">Nothing waiting for review. Imported businesses appear here before they go live.</p>
+  if (items.length === 0) return <p className="rounded-lg border border-dashed border-border-strong bg-white p-8 text-center text-small text-muted">No leads waiting. Imported businesses appear here until they are confirmed with the business and published.</p>
   const all = selected.length === items.length
   return (
     <div className="rounded-lg border border-border bg-white">
@@ -94,6 +98,18 @@ export function ImportReview({ items }: { items: Item[] }) {
               </p>
               <p className="text-caption text-muted">{[i.location ?? 'No location', i.phone ?? 'no phone', i.website, i.services.join(', ')].filter(Boolean).join(' · ')}</p>
               {i.address && <p className="text-caption text-muted">{i.address}</p>}
+              <p className="mt-1 text-caption">
+                <span className="font-semibold">{i.state}</span>
+                {i.block && (
+                  <>
+                    {' · '}
+                    <Link href={`/roodber8/organisations/${i.id}#google-data`} prefetch={false} className="font-semibold text-green underline">
+                      Confirm with the business
+                    </Link>
+                  </>
+                )}
+              </p>
+              {i.block && <p className="text-caption text-muted">{i.block}</p>}
               <DescriptionEditor item={i} />
             </div>
           </li>

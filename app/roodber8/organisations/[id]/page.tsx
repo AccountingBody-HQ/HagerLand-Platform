@@ -28,6 +28,11 @@ import { partnerPerformanceRows } from '@/lib/supply/insights-data'
 import { organisationActivity } from '@/lib/supply/activity-data'
 import { PerformanceSummary } from '@/components/admin/PartnerPerformance'
 import { ActivityList } from '@/components/admin/OrganisationActivity'
+import { GoogleDataPanel } from '@/components/admin/GoogleDataPanel'
+import { getAdminSession } from '@/lib/admin-auth'
+import { orgFieldSources } from '@/lib/imports/compliance-data'
+import { compliance, deadlineText, FIELD_LABEL, SOURCE_LABEL, STATE_LABEL, WARN_DAYS } from '@/lib/imports/compliance'
+import { todayInAddis } from '@/lib/supply/shortlist'
 
 export const metadata = { title: 'Organisation' }
 
@@ -55,6 +60,12 @@ export default async function AdminOrgPage(
   const [supply, prices, owner] = await Promise.all([getSupplyPartner(o.id), offerCounts([o.id]), isOwnerSession()])
   // Agreements are owner only: never loaded for staff (blueprint 13.3).
   const agreements = owner && supply.partner ? await partnerAgreements(o.id) : []
+  // Imports compliance: where each detail came from, for businesses imported from Google.
+  const imported = o.source === 'import' || Boolean(o.google_place_id)
+  const googleRows = imported ? await orgFieldSources(o.id) : []
+  const today = todayInAddis()
+  const gc = imported ? compliance({ id: o.id, status: o.status, claimed: Boolean(o.claimed_at), sources: googleRows }, today) : null
+  const session = imported ? await getAdminSession() : null
   const [performance, activity] = await Promise.all([supply.partner ? partnerPerformanceRows({ orgIds: [o.id], owner }).then((r) => r[0] ?? null) : Promise.resolve(null), organisationActivity(o.id)])
   const duplicates = supply.partner ? [] : await findPossibleDuplicates(o)
   const { data: memberProfiles } = await db.from('profiles').select('id, full_name').in('id', (members ?? []).map((m) => m.user_id))
@@ -107,6 +118,26 @@ export default async function AdminOrgPage(
                 <ModerationControls entity="organisation" id={o.id} mode="changes" />
               </div>
             </Panel>
+          )}
+          {gc && (
+            <div id="google-data" className="scroll-mt-24">
+              <Panel title="Google data">
+                <GoogleDataPanel
+                  orgId={o.id}
+                  placeId={o.google_place_id}
+                  version={o.updated_at}
+                  stateLabel={STATE_LABEL[gc.state]}
+                  deadline={deadlineText(gc.daysLeft)}
+                  urgent={gc.daysLeft !== null && gc.daysLeft <= WARN_DAYS}
+                  fetchedOn={googleRows.filter((r) => r.source === 'google_places' && r.fetchedAt).map((r) => r.fetchedAt as string).sort()[0] ?? null}
+                  fields={googleRows.map((r) => ({ field: r.field, label: FIELD_LABEL[r.field], source: r.source, sourceLabel: SOURCE_LABEL[r.source], date: r.source === 'google_places' ? r.fetchedAt : r.confirmedAt, cleared: r.clearedAt, by: r.confirmedBy }))}
+                  publishBlock={o.status === 'published' ? null : gc.publishBlock}
+                  ownerDecision={owner && gc.googleFields.length > 0 && (gc.isPublic || Boolean(o.claimed_at))}
+                  defaultConfirmedBy={session?.kind === 'staff' ? session.name : 'AB'}
+                  today={today}
+                />
+              </Panel>
+            </div>
           )}
           <Panel title="Logo and cover">
             <div className="grid gap-6 sm:grid-cols-[180px_1fr]">

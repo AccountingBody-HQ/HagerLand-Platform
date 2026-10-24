@@ -1,6 +1,6 @@
 /** The admin menu (spec 18.2, 26), in groups. Staff see the items their role may open (lib/admin/roles.ts). */
 import {
-  type LucideIcon, BadgePercent, BarChart3, MailWarning, BookOpen, Calculator, Briefcase, Building2, LayoutGrid, Handshake, UserPlus, Coins, Wrench, ListChecks, Receipt, KeyRound, ClipboardCheck, ClipboardList, FileClock, FolderTree, Gauge, Import, Inbox, MapPin, Megaphone, Package, Settings, Store, Users, HandCoins, House, Layers, HardHat, Mail, Star, TrendingUp, Activity, UserCog, Truck, PackageCheck, BookText, FileBarChart,
+  type LucideIcon, BadgePercent, BarChart3, MailWarning, BookOpen, Calculator, Briefcase, Building2, LayoutGrid, Handshake, UserPlus, Coins, Wrench, ListChecks, Receipt, KeyRound, ClipboardCheck, ClipboardList, FileClock, FolderTree, Gauge, Import, Inbox, ShieldCheck, MapPin, Megaphone, Package, Settings, Store, Users, HandCoins, House, Layers, HardHat, Mail, Star, TrendingUp, Activity, UserCog, Truck, PackageCheck, BookText, FileBarChart,
 } from 'lucide-react'
 import { roleCanAccess, type StaffRole } from '@/lib/admin/roles'
 
@@ -67,6 +67,7 @@ export const ADMIN_NAV_GROUPS: readonly AdminNavGroup[] = [
       { href: '/roodber8/users', label: 'Users', icon: Users },
       { href: '/roodber8/partners', label: 'Partner applications', icon: Handshake },
       { href: '/roodber8/import', label: 'Imports', icon: Import },
+      { href: '/roodber8/imports/compliance', label: 'Imports compliance', icon: ShieldCheck },
       { href: '/roodber8/reviews', label: 'Reviews', icon: Star, badgeKey: 'reviews' },
     ],
   },
@@ -157,7 +158,10 @@ export const NAV_SYNONYMS: Record<string, string[]> = {
   leads: ['/roodber8/enquiries'],
   messages: ['/roodber8/enquiries'],
   emails: ['/roodber8/email-problems'],
-  google: ['/roodber8/import'],
+  google: ['/roodber8/import', '/roodber8/imports/compliance'],
+  compliance: ['/roodber8/imports/compliance'],
+  places: ['/roodber8/import', '/roodber8/imports/compliance'],
+  imports: ['/roodber8/import', '/roodber8/imports/compliance'],
   currency: ['/roodber8/exchange-rates'],
   rates: ['/roodber8/exchange-rates', '/roodber8/build-costs'],
   log: ['/roodber8/audit'],

@@ -1,5 +1,6 @@
 import 'server-only'
 import { supplyDigestLines } from '@/lib/supply/digest'
+import { importsDigestCounts, runImportsCleanup, type CleanupSummary } from '@/lib/imports/compliance-data'
 import { supplyDigestCounts } from '@/lib/supply/insights-data'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { PRIVATE_BUCKET } from '@/lib/media'
@@ -40,6 +41,8 @@ export interface DailySummary {
   interestPurged: number
   viewingReminders: number
   tenancyReminders: number
+  /** Imports compliance clean-up (dry run unless the owner switched it to live); null if the step failed. */
+  importsCleanup: CleanupSummary | null
   digestSent: boolean
 }
 
@@ -313,6 +316,7 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
   const demand = await demandDigestLine(now)
   if (demand) lines.push(demand)
   lines.push(...(await supplyDigestLines(() => supplyDigestCounts(now))))
+  for (const [label, count] of importsDigestCounts(s.importsCleanup)) if (count > 0) lines.push([label, String(count)])
   for (const e of errors.data ?? []) lines.push([`Error ×${e.count}`, `${e.route}: ${e.message}`.slice(0, 160)])
   return lines
 }
@@ -346,7 +350,9 @@ export async function runDaily(now = Date.now()): Promise<DailySummary> {
   const emailsRetried = await step('email retries', async () => (await retryOutbox(now)).sent, 0)
   // rate_limits is a pre-existing (legacy) table: expired counters are only deleted when AB switches this on.
   const rateLimitsPurged = process.env.CRON_PURGE_RATE_LIMITS === 'true' ? await step('rate limit purge', async () => (await purgeExpiredRateLimits(7), true), false) : false
-  const summary = { expired, expiredEmailed: emailed, reminded, quotesExpired, verificationDocsPurged, revealsPurged, rateLimitsPurged, matchReminders, searchAlerts, jobsExpired, cvsPurged, emailsRetried, interestPurged, viewingReminders, tenancyReminders }
+  // Google data from the Imports tool: reports only, unless the owner switched the clean-up to live (lib/imports).
+  const importsCleanup = await step('imports clean-up', () => runImportsCleanup({ runBy: 'daily job', now }), null)
+  const summary = { expired, expiredEmailed: emailed, reminded, quotesExpired, verificationDocsPurged, revealsPurged, rateLimitsPurged, matchReminders, searchAlerts, jobsExpired, cvsPurged, emailsRetried, interestPurged, viewingReminders, tenancyReminders, importsCleanup }
   let digestSent = false
   const to = process.env.ADMIN_DIGEST_EMAIL
   if (to) {
