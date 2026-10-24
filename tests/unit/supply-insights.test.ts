@@ -260,3 +260,14 @@ describe('Ethiopian calendar dates (Africa/Addis_Ababa, UTC+3)', () => {
     expect(perf('2026-10-10T08:00:00Z', [{ lastContactedAt: '2026-04-23T21:01:00Z', createdAt: '2026-01-01', doNotContact: false }]).contactsDue).toBe(0)
   })
 })
+
+describe('failed reads are never shown as zeros (A–Z test)', () => {
+  it('passes results through and stops on any failed query', async () => {
+    const { must } = await import('@/lib/supply/insights-data')
+    const good = { data: [{ id: 1 }], error: null }
+    expect(must(good)).toBe(good)
+    expect(must([good, { data: [] }, new Map(), 3])).toHaveLength(4)
+    expect(() => must({ data: null, error: { message: 'permission denied for table supply_orders' } })).toThrow('Supply data could not be read: permission denied for table supply_orders')
+    expect(() => must([good, { data: null, error: { message: 'timeout' } }])).toThrow(/timeout/)
+  })
+})
