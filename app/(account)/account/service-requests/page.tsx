@@ -3,7 +3,7 @@ import { Wrench } from 'lucide-react'
 import { requireUser } from '@/lib/auth'
 import { getServerSupabase } from '@/lib/supabase/server'
 import { formatDate } from '@/lib/format'
-import { REQUEST_STATUS_LABEL } from '@/lib/service-requests/labels'
+import { customerStatusLabel } from '@/lib/service-requests/form-copy'
 import { AccountPageHeader } from '@/components/account/PageHeader'
 import { EmptyState } from '@/components/ui/Layout'
 import { ButtonLink } from '@/components/ui/Button'
@@ -13,7 +13,7 @@ export const metadata = { title: 'My service requests' }
 
 export default async function MyServiceRequestsPage() {
   const user = await requireUser('/account/service-requests')
-  const { data } = await getServerSupabase().from('service_requests').select('id, reference, title, status, urgency, created_at').eq('requester_user_id', user.id).order('created_at', { ascending: false }).limit(100)
+  const { data } = await getServerSupabase().from('service_requests').select('id, reference, title, status, urgency, created_at, category:service_categories(slug)').eq('requester_user_id', user.id).order('created_at', { ascending: false }).limit(100)
   const rows = data ?? []
   return (
     <div>
@@ -33,7 +33,7 @@ export default async function MyServiceRequestsPage() {
                 </span>
                 <span className="flex gap-2">
                   {r.urgency === 'emergency' && <Badge tone="danger">Emergency</Badge>}
-                  <Badge tone="info">{REQUEST_STATUS_LABEL[r.status] ?? r.status}</Badge>
+                  <Badge tone="info">{customerStatusLabel(r.category?.slug, r.status)}</Badge>
                 </span>
               </Link>
             </li>

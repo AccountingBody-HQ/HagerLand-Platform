@@ -312,10 +312,10 @@ const REQUESTER_REASON = 'You are receiving this because you requested a service
 const PROVIDER_REASON = 'You are receiving this because your business is listed on HagerLand and a customer request was sent to you.'
 
 /** `nextStep` replaces the provider sentences for services HagerLand handles itself (the staffing requirement). */
-export function serviceRequestReceivedEmail(p: { name: string; reference: string; title: string; link: string; emergency: boolean; linkDays: number; nextStep?: string | null }): RenderedEmail {
+export function serviceRequestReceivedEmail(p: { name: string; reference: string; title: string; link: string; emergency: boolean; linkDays: number; nextStep?: string | null; preheader?: string | null }): RenderedEmail {
   return renderEmail({
     subject: `We've received your request (${p.reference})`,
-    preheader: p.emergency ? 'Marked as an emergency: we are looking at it now.' : 'We are finding the right providers for you.',
+    preheader: p.emergency ? 'Marked as an emergency: we are looking at it now.' : (p.preheader ?? 'We are finding the right providers for you.'),
     heading: 'Your request is with us',
     paragraphs: [
       `Hello ${p.name},`,
@@ -331,12 +331,13 @@ export function serviceRequestReceivedEmail(p: { name: string; reference: string
   })
 }
 
-export function serviceRequestLinkEmail(p: { name: string; reference: string; link: string; linkDays: number }): RenderedEmail {
+/** `preheader` and `body` replace the quote wording for services HagerLand handles itself (the staffing requirement). */
+export function serviceRequestLinkEmail(p: { name: string; reference: string; link: string; linkDays: number; preheader?: string | null; body?: string | null }): RenderedEmail {
   return renderEmail({
     subject: `Your link to request ${p.reference}`,
-    preheader: 'A new link to view your request and quotes.',
+    preheader: p.preheader ?? 'A new link to view your request and quotes.',
     heading: 'Here is your new link',
-    paragraphs: [`Hello ${p.name},`, `Use the button to see request ${p.reference} and any quotes. The link works for ${p.linkDays} days. Older links no longer work.`],
+    paragraphs: [`Hello ${p.name},`, p.body ?? `Use the button to see request ${p.reference} and any quotes. The link works for ${p.linkDays} days. Older links no longer work.`],
     button: { label: 'View your request', href: p.link },
     reason: REQUESTER_REASON,
   })

@@ -1,4 +1,5 @@
 import type { Question } from '@/lib/service-requests/questions'
+import { REQUEST_STATUS_LABEL } from '@/lib/service-requests/labels'
 
 /**
  * Wording of the "Request a service" form. Every service uses the default text; the staffing requirement
@@ -31,6 +32,19 @@ export interface RequestFormCopy {
   hiddenQuestions: string[]
   /** What happens next, on the thank-you page and in the confirmation email; null keeps the provider wording. */
   nextStep: string | null
+  /** What the customer sees after sending, for services HagerLand handles itself; null keeps the provider and quote wording. */
+  customer: CustomerCopy | null
+}
+
+export interface CustomerCopy {
+  sentSteps: { second: string; thirdSignedIn: string; thirdGuest: string }
+  receivedPreheader: string
+  /** The request page: the section that otherwise lists quotes. */
+  section: { heading: string; emptyOpen: string; emptyClosed: string; text: string }
+  /** Customer-facing status labels that differ (admin keeps its own labels; stored values never change). */
+  statusLabels: Partial<Record<string, string>>
+  linkPreheader: string
+  linkBody: (reference: string, days: number) => string
 }
 
 export const DEFAULT_REQUEST_STEPS: RequestStep[] = [
@@ -54,6 +68,7 @@ const DEFAULT_COPY: RequestFormCopy = {
   steps: DEFAULT_REQUEST_STEPS,
   hiddenQuestions: [],
   nextStep: null,
+  customer: null,
 }
 
 const STAFFING_COPY: RequestFormCopy = {
@@ -76,6 +91,18 @@ const STAFFING_COPY: RequestFormCopy = {
   // Overseas placement is hidden until a lawyer confirms the rules (Jobs decision 3).
   hiddenQuestions: ['international'],
   nextStep: "HagerLand's recruitment team will contact you to talk about the roles and agree the fee in writing before we start.",
+  customer: {
+    sentSteps: {
+      second: 'We look for suitable candidates and introduce only people who have agreed to be introduced.',
+      thirdSignedIn: 'You can follow your request in your account.',
+      thirdGuest: 'We have emailed you a private link to follow your request.',
+    },
+    receivedPreheader: "Your request is with HagerLand's recruitment team.",
+    section: { heading: 'Next steps', emptyOpen: 'With our recruitment team', emptyClosed: 'Closed', text: "HagerLand's recruitment team will contact you to talk about the roles and agree the fee in writing before we start." },
+    statusLabels: { triaged: 'With our recruitment team', matched: 'In progress', quoted: 'In progress', won: 'Completed' },
+    linkPreheader: 'A new link to view your request.',
+    linkBody: (reference, days) => `Use the button to see request ${reference}. The link works for ${days} days. Older links no longer work.`,
+  },
 }
 
 export function requestFormCopy(categorySlug: string): RequestFormCopy {
@@ -93,4 +120,9 @@ export const PAY_OFFERED_MAX = 120
 /** The details as stored: "Pay offered: …" is added as a final line only when it was filled in. */
 export function detailsWithPay(details: string, pay: string | undefined): string {
   return pay ? `${details}\n\nPay offered: ${pay}` : details
+}
+
+/** The status label a customer sees for a request of this service (admin uses its own labels). */
+export function customerStatusLabel(categorySlug: string | null | undefined, status: string): string {
+  return requestFormCopy(categorySlug ?? '').customer?.statusLabels[status] ?? REQUEST_STATUS_LABEL[status] ?? status
 }

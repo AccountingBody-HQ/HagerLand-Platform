@@ -13,7 +13,9 @@ export default async function RequestSentPage(props: { searchParams: Promise<{ r
   const ref = /^HLS-\d{4}-\d{6}$/.test(searchParams.ref ?? '') ? searchParams.ref : null
   const user = await getUser()
   // Services HagerLand handles itself (the staffing requirement) say who contacts the customer instead of providers.
-  const nextStep = requestFormCopy(searchParams.for ?? '').nextStep
+  const copy = requestFormCopy(searchParams.for ?? '')
+  const nextStep = copy.nextStep
+  const steps = copy.customer?.sentSteps
   return (
     <Container className="max-w-2xl py-12 text-center lg:py-20">
       <CircleCheck className="mx-auto size-14 text-green" aria-hidden />
@@ -25,8 +27,8 @@ export default async function RequestSentPage(props: { searchParams: Promise<{ r
       )}
       <ol className="mx-auto mt-8 max-w-md space-y-3 text-left">
         <li>1. {nextStep ?? 'We check your request and match it with up to three suitable providers.'}</li>
-        <li>2. Providers who accept it contact you directly and send a quote.</li>
-        <li>3. {user ? 'Quotes appear in your account.' : 'We have emailed you a private link where your quotes will appear.'} Choose the one you want.</li>
+        <li>2. {steps?.second ?? 'Providers who accept it contact you directly and send a quote.'}</li>
+        <li>3. {steps ? (user ? steps.thirdSignedIn : steps.thirdGuest) : `${user ? 'Quotes appear in your account.' : 'We have emailed you a private link where your quotes will appear.'} Choose the one you want.`}</li>
       </ol>
       <p className="mt-6 text-small text-muted">Never pay a deposit before you have agreed the work, price and timing in writing.</p>
       <div className="mx-auto mt-8 flex max-w-md flex-col gap-3 sm:flex-row [&>*]:flex-1">
