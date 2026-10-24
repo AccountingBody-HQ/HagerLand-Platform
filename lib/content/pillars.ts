@@ -219,7 +219,7 @@ export const PILLAR_CONTENT: Record<PillarKey, PillarContent> = {
     actions: [],
     direct: [],
     aggregate: [],
-    abroad: { title: 'Hiring or job hunting from abroad?', text: 'Employers abroad can post roles in Ethiopia, and candidates can search jobs in Ethiopia and in the countries we serve.', links: [] },
+    abroad: { title: 'Hiring or job hunting from abroad?', text: 'Employers abroad can post roles in Ethiopia, and candidates anywhere can search jobs in Ethiopia.', links: [] },
     next: ['build', 'supplies', 'maintain', 'advice'],
     soon: { headline: 'Jobs & recruitment open soon.', points: [] },
   },

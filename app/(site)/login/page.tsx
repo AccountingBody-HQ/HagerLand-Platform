@@ -27,7 +27,7 @@ export default async function LoginPage(props: { searchParams: Promise<{ next?: 
       <LoginForms next={next} />
       <p className="mt-6 text-center text-small text-muted">
         New to HagerLand?{' '}
-        <Link href="/signup" className="font-semibold text-green hover:underline">
+        <Link href={next === '/account' ? '/signup' : `/signup?next=${encodeURIComponent(next)}`} className="font-semibold text-green hover:underline">
           Create an account
         </Link>
       </p>

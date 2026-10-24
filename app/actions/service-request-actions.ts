@@ -12,6 +12,7 @@ import { emailSchema, nameSchema, optionalText, optionalUuid, phoneSchema, prefe
 import { COUNTRY_CODES } from '@/lib/countries'
 import { getRequestableCategory } from '@/lib/data/service-requests'
 import { answerLines, validateAnswers } from '@/lib/service-requests/questions'
+import { PAY_OFFERED_MAX, askedQuestions, detailsWithPay, requestFormCopy } from '@/lib/service-requests/form-copy'
 import { GUEST_LINK_DAYS, URGENCY_LABEL, isQuoteExpired } from '@/lib/service-requests/labels'
 import { hashRequestToken, isWellFormedToken, newRequestToken } from '@/lib/service-requests/token'
 import { hagerlandInbox, orgManagerEmails } from '@/lib/enquiries'
@@ -31,6 +32,7 @@ const schema = z
     details: textSchema(4000, { min: 10, label: 'Details' }),
     urgency: z.enum(['emergency', 'within_week', 'flexible'], { error: 'Choose how soon you need it' }),
     budget_band: optionalText(60),
+    pay_offered: optionalText(PAY_OFFERED_MAX, 'Pay offered'),
     location_id: optionalUuid,
     location_text: optionalText(200, 'Place'),
     country_code: z.enum(COUNTRY_CODES).default('ET'),
@@ -53,13 +55,18 @@ export async function submitServiceRequestAction(_prev: RequestState, formData: 
   const parsed = schema.safeParse({ ...raw, files: formData.getAll('files') })
   const category = await getRequestableCategory(String(formData.get('category_slug') ?? ''))
   if (!category) return fail('This service is not available to request right now.')
-  const { answers, errors: answerErrors } = validateAnswers(category.questions, raw)
+  const copy = requestFormCopy(category.slug)
+  const questions = askedQuestions(category.slug, category.questions)
+  const { answers, errors: answerErrors } = validateAnswers(questions, raw)
   if (!parsed.success) {
     const bad = invalid(parsed.error)
     return { ...bad, fieldErrors: { ...bad.fieldErrors, ...answerErrors } }
   }
   if (Object.keys(answerErrors).length) return fail('Please answer the highlighted questions.', answerErrors)
   const d = parsed.data
+  const pay = copy.pay ? d.pay_offered : undefined
+  const details = detailsWithPay(d.details, pay)
+  if (details.length > 4000) return fail('Please shorten your description.', { details: 'Please shorten your description' })
   if (d.urgency === 'emergency' && !category.allowsEmergency) return fail('Emergency requests are not available for this service.', { urgency: 'Choose another option' })
   if (d.files.some((f) => !d.upload_id || !f.startsWith(`docs/request/${d.upload_id}/`))) return fail('Please upload your files again.')
 
@@ -82,10 +89,10 @@ export async function submitServiceRequestAction(_prev: RequestState, formData: 
       vertical_key: category.verticalKey,
       service_category_id: category.id,
       title: d.title,
-      details: d.details,
+      details,
       answers,
       urgency: d.urgency,
-      budget_band: d.budget_band ?? null,
+      budget_band: copy.budget ? d.budget_band ?? null : null,
       location_id: d.location_id ?? null,
       location_text: d.location_text ?? null,
       country_code: d.country_code,
@@ -119,7 +126,7 @@ export async function submitServiceRequestAction(_prev: RequestState, formData: 
       ...adminNoticeEmail({
         subject: `${d.urgency === 'emergency' ? 'EMERGENCY ' : ''}Service request ${row.reference}: ${category.name}`,
         heading: d.urgency === 'emergency' ? 'Emergency service request: please match it now' : 'New service request to match',
-        lines: [['Reference', row.reference], ['Service', category.name], ['How soon', URGENCY_LABEL[d.urgency] ?? d.urgency], ['Title', d.title], ['Name', d.name], ['Phone', formatPhone(d.phone)], ...answerLines(category.questions, answers)],
+        lines: [['Reference', row.reference], ['Service', category.name], ['How soon', URGENCY_LABEL[d.urgency] ?? d.urgency], ['Title', d.title], ['Name', d.name], ['Phone', formatPhone(d.phone)], ...answerLines(questions, answers), ...(pay ? [['Pay offered', pay] as [string, string]] : [])],
         adminUrl: canonicalUrl(`/roodber8/service-requests/${row.id}`),
       }),
     })

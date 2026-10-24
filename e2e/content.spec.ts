@@ -36,7 +36,7 @@ test('the legal pages cover requests, matching, commissions, partners, CVs and p
   await expect(page.getByText(/may receive a fee or commission from a provider/)).toBeVisible()
   await page.goto('/privacy')
   for (const h of ['People outside Ethiopia', 'How long we keep it']) await expect(page.getByRole('heading', { name: h })).toBeVisible()
-  for (const t of [/Providers matched to your request/, /CVs sent with job applications/, /UK GDPR/, /Download my data/]) await expect(page.getByText(t).first()).toBeVisible()
+  for (const t of [/Providers matched to your request/, /CVs and other details sent with job applications/, /UK GDPR/, /Download my data/]) await expect(page.getByText(t).first()).toBeVisible()
   await page.goto('/cookies')
   await expect(page.getByText(/the currency you chose for approximate prices/)).toBeVisible()
 })

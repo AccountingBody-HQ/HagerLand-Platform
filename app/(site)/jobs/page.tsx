@@ -4,7 +4,7 @@ import { buildMetadata } from '@/lib/seo'
 import { getVertical } from '@/lib/data/verticals'
 import { searchJobs } from '@/lib/data/jobs'
 import { getLocationByPath } from '@/lib/data/reference'
-import { EMPLOYMENT_TYPES, JOB_CATEGORIES, categoryLabel } from '@/lib/jobs'
+import { EMPLOYMENT_TYPES, OFFERED_JOB_CATEGORIES, categoryLabel } from '@/lib/jobs'
 import { pluralise } from '@/lib/format'
 import { verticalLandingMetadata } from '@/components/verticals/ComingSoonPage'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
@@ -26,7 +26,7 @@ type Params = { q?: string; category?: string; type?: string; loc?: string; page
 function clean(sp: Params) {
   return {
     q: sp.q?.trim().slice(0, 100) || undefined,
-    category: JOB_CATEGORIES.some((c) => c.value === sp.category) ? sp.category : undefined,
+    category: OFFERED_JOB_CATEGORIES.some((c) => c.value === sp.category) ? sp.category : undefined,
     type: EMPLOYMENT_TYPES.some((t) => t.value === sp.type) ? sp.type : undefined,
     loc: sp.loc && /^[a-z0-9/-]{1,200}$/.test(sp.loc) ? sp.loc : undefined,
     page: Math.min(500, Math.max(1, Number.parseInt(sp.page ?? '1', 10) || 1)),
@@ -100,7 +100,7 @@ export default async function JobsPage(props: { searchParams: Promise<Params> })
                 </label>
                 <Select id="j-cat" name="category" defaultValue={f.category ?? ''}>
                   <option value="">All categories</option>
-                  {JOB_CATEGORIES.map((c) => (
+                  {OFFERED_JOB_CATEGORIES.map((c) => (
                     <option key={c.value} value={c.value}>
                       {c.label}
                     </option>
@@ -167,7 +167,7 @@ export default async function JobsPage(props: { searchParams: Promise<Params> })
               <h2 id="recruitment" className="hl-h2 mt-1">
                 Recruitment and placement by HagerLand
               </h2>
-              <p className="mt-3 max-w-3xl text-muted">Tell us the roles you need to fill. HagerLand finds, checks and introduces suitable candidates, in Ethiopia or abroad. Fees are agreed with you in writing before we start.</p>
+              <p className="mt-3 max-w-3xl text-muted">Tell us the roles you need to fill. HagerLand finds, checks and introduces suitable candidates in Ethiopia. Fees are agreed with you in writing before we start.</p>
             </div>
             <ButtonLink href="/request-service/staffing" size="lg">
               Submit a staffing requirement

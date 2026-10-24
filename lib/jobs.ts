@@ -1,10 +1,10 @@
 // Jobs & Recruitment (spec 24.9): labels, validation and formatting shared by forms and pages.
 import { z } from 'zod'
-import { JOB_CATEGORIES } from '@/lib/content/verticals'
+import { HIDDEN_JOB_CATEGORIES, JOB_CATEGORIES, OFFERED_JOB_CATEGORIES } from '@/lib/content/verticals'
 import { formatMoney } from '@/lib/format'
 import { emailSchema, intFromForm, optionalPhoneSchema, optionalText, textSchema } from '@/lib/validation/common'
 
-export { JOB_CATEGORIES }
+export { JOB_CATEGORIES, OFFERED_JOB_CATEGORIES }
 
 export const EMPLOYMENT_TYPES = [
   { value: 'full_time', label: 'Full time' },
@@ -78,7 +78,9 @@ export const jobSchema = z
   .object({
     id: z.preprocess(blank, z.uuid().optional()),
     title: textSchema(120, { min: 3, label: 'Job title' }),
-    category: z.enum(JOB_CATEGORIES.map((c) => c.value) as [string, ...string[]], { error: 'Choose a category' }),
+    category: z.enum(OFFERED_JOB_CATEGORIES.map((c) => c.value) as [string, ...string[]], {
+      error: (issue) => (HIDDEN_JOB_CATEGORIES.includes(String(issue.input)) ? 'This category is not available at the moment. Choose another category.' : 'Choose a category'),
+    }),
     employment_type: z.enum(EMPLOYMENT_VALUES, { error: 'Choose the type of job' }),
     location_id: z.uuid({ error: 'Choose where the job is' }),
     salary_min: intFromForm({ min: 0, max: 1_000_000_000 }),

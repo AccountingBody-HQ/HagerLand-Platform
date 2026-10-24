@@ -1,3 +1,4 @@
+import { headers } from 'next/headers'
 import { getActiveMembership, getMemberships, getProfile, requireUser } from '@/lib/auth'
 import { getServerSupabase } from '@/lib/supabase/server'
 import { accountNavItems } from '@/lib/account-nav'
@@ -8,11 +9,12 @@ import { getAdminSupabase } from '@/lib/supabase/admin'
 import { AccountNav } from '@/components/account/AccountNav'
 import { OrgSwitcher } from '@/components/account/OrgSwitcher'
 import { Container } from '@/components/ui/Layout'
+import { RETURN_PATH_HEADER, safeNextPath } from '@/lib/return-path'
 
 export const dynamic = 'force-dynamic'
 
 export default async function AccountLayout({ children }: { children: React.ReactNode }) {
-  const user = await requireUser('/account')
+  const user = await requireUser(safeNextPath((await headers()).get(RETURN_PATH_HEADER)))
   const [profile, memberships, active] = await Promise.all([getProfile(), getMemberships(), getActiveMembership()])
   const { count } = await getServerSupabase().from('enquiries').select('id', { count: 'exact', head: true }).eq('status', 'new').or(`sender_user_id.is.null,sender_user_id.neq.${user.id}`)
   const { count: offered } = active

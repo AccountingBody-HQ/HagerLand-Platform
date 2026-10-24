@@ -90,6 +90,13 @@ export const JOB_CATEGORIES = opts([
   'International placements',
 ])
 
+/**
+ * Categories no form or filter offers: overseas placement is hidden until a lawyer confirms the rules (Jobs decision 3).
+ * They stay in JOB_CATEGORIES so jobs and registrations that already use them keep their label.
+ */
+export const HIDDEN_JOB_CATEGORIES: readonly string[] = ['international-placements']
+export const OFFERED_JOB_CATEGORIES = JOB_CATEGORIES.filter((c) => !HIDDEN_JOB_CATEGORIES.includes(c.value))
+
 const PARTNERS_STATEMENT = 'These services will be provided through approved, licensed partners. HagerLand does not give financial or insurance advice.'
 
 export const COMING_SOON: Record<VerticalKey, ComingSoonContent> = {
@@ -207,7 +214,7 @@ export const COMING_SOON: Record<VerticalKey, ComingSoonContent> = {
       { title: 'Candidates apply', text: 'With a CV, or register for placement.' },
       { title: 'We help match', text: 'For recruitment requests.' },
     ],
-    categories: JOB_CATEGORIES,
+    categories: OFFERED_JOB_CATEGORIES,
     categoryLabel: 'Which area of work?',
     audiences: [
       { value: 'employer', label: 'I am hiring' },

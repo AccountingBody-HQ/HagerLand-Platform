@@ -13,6 +13,7 @@ import { AM_PREFIX, LOCALE_HEADER, isAmharicPath, isPrefixable, stripLocale } fr
 import { amharicEnabledEdge } from '@/lib/i18n/edge'
 import { canonicalUrl } from '@/lib/site'
 import { isLegacyApi } from '@/lib/legacy-api'
+import { RETURN_PATH_HEADER } from '@/lib/return-path'
 
 const isDev = process.env.NODE_ENV !== 'production'
 
@@ -93,7 +94,10 @@ export async function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers)
   requestHeaders.delete(LOCALE_HEADER)
   requestHeaders.delete(ADMIN_PATH_HEADER)
+  requestHeaders.delete(RETURN_PATH_HEADER)
   if (amharic) requestHeaders.set(LOCALE_HEADER, 'am')
+  // Account pages send signed-out visitors to sign in and back to this address (checked again before use).
+  if (page === '/account' || page.startsWith('/account/')) requestHeaders.set(RETURN_PATH_HEADER, `${pathname}${request.nextUrl.search}`)
   const make = () => {
     if (!amharic) return NextResponse.next({ request: { headers: requestHeaders } })
     const url = request.nextUrl.clone()

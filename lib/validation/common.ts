@@ -98,8 +98,4 @@ export const decimalFromForm = (opts: { min?: number; max?: number } = {}) =>
 export const checkbox = z.preprocess((v) => v === 'on' || v === 'true' || v === true, z.boolean())
 
 /** Only same-site relative paths are allowed as post-login destinations. */
-export function safeNextPath(value: unknown, fallback = '/account'): string {
-  if (typeof value !== 'string') return fallback
-  if (!value.startsWith('/') || value.startsWith('//') || value.startsWith('/\\')) return fallback
-  return value
-}
+export { safeNextPath } from '@/lib/return-path'
