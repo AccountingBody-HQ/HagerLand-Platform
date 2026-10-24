@@ -54,7 +54,7 @@ In **Verification**, enter the date you saw the trade licence, checked the TIN, 
 | Do not contact | They asked us not to contact them |
 | Needs re-verification | Details or evidence are out of date: check again |
 
-Change it with **Change status**; the date of the change is kept and every change is in the audit log.
+Change it with **Change status**, or pick it and click **Save supply record** (the panel says “Unsaved status change” until one of them is clicked); the date of the change is kept and every change is in the audit log once. Contact cards show the phone as a tap-to-call link (+251 91 123 4567), WhatsApp and Telegram links, and a red **Do not contact** label.
 
 ## Prices (price lists)
 
@@ -74,7 +74,7 @@ Each partner has a private price list: on its page, the Supply partner panel sho
 Open **Customer requests → Quotes** and the quote. Everything below is private to HagerLand: the customer, their emails and their account never show it. **Nothing is sent to suppliers or customers automatically**: you phone or message suppliers yourself.
 
 1. **Items.** The customer's own items are listed as they sent them. If they uploaded a list, type its lines in with **Add item** (item, optional category, quantity, unit, note). Your items are labelled **Added by HagerLand**; you can **Edit** or **Remove** them (removal is kept in the history, and is refused once a supplier is chosen for the item). The customer's items cannot be changed here.
-2. **Suppliers.** For each item you see **Suggested suppliers**, cheapest delivered total first: price, delivered total, freshness, lead time and a reason in plain words (“Active partner. Delivers to Bole. Price checked 3 days ago. Cheapest delivered total.”). Trial partners (terms agreed) say **Trial**. Warnings such as “VAT not known” or “Similar name: check it is the same item” are shown under the reason. **Not suggested** lists partners left out and why (“Price expired 12 Oct”, “Does not deliver to Bole”, “Minimum order 200 bags; quote asks for 50 bags”).
+2. **Suppliers.** For each item you see **Suggested suppliers**, cheapest delivered total first: price, delivered total, freshness, lead time and a reason in plain words (“Active partner. Delivers to Bole. Price checked 3 days ago. Cheapest delivered total.”). Trial partners (terms agreed) say **Trial**. Warnings such as “VAT not known” or “Similar name: check it is the same item” are shown under the reason. The best 3 show first; **Show N more** opens the rest. **Show N not suggested, with reasons** lists partners left out and why (“Price expired 12 Oct”, “Does not deliver to Bole”, “Minimum order 200 bags; quote asks for 50 bags”).
 3. **Add supplier manually** adds any active or trial partner to an item (“Added by staff”).
 4. **Ask.** Tick the suppliers you are going to contact, contact them yourself (their phone, WhatsApp or Telegram is shown), then click **Mark as asked**. People marked **Do not contact** cannot be ticked.
 5. **Enter reply** when a supplier answers: unit price, quantity, delivery charge (0 if free), valid until, note. **Also save as this supplier’s current price** (ticked) updates their price list; the old price stays in the history.
@@ -100,7 +100,7 @@ Everything here is private to HagerLand. Nothing is sent to customers or supplie
 
 **Delivery proof** (owner and Operations): on the order, **Add delivery proof**: a photo or the signed delivery note (on a phone you can take the photo there and then), when it was taken, who received it and their phone. A wrong one can be **Removed** with a reason; it stays in the history. An order can only be completed with proof.
 
-**Problems.** **Report a problem** (owner or Operations) when a delivery is short or damaged; the owner then marks **Problem solved: delivered** or cancels. **Cancel order** (owner, with a reason) is possible until delivery; if the customer has paid, record a **Refund** in the ledger. Every step, payment and proof appears on the order’s **Timeline**.
+**Problems.** **Report a problem** (owner or Operations) when a delivery is short or damaged; the owner then marks **Problem solved: delivered** or cancels. **Cancel order** (owner, with a reason) is possible until delivery; if the customer has paid, click **Record a refund**: the amount starts at what the customer paid minus refunds already recorded (you can change it), and the order says when nothing is left to refund. Every step, payment and proof appears on the order’s **Timeline**. On a phone, **Supply orders** shows one card per order (reference, supplier, status, model, last update, Needs action).
 
 **Supply orders** (Supplies menu) lists every order; **Needs action** shows orders waiting too long for payment (3 days), supplier confirmation (2 days) or delivery (3 days), and deliveries without proof.
 
@@ -120,7 +120,7 @@ Everything here is worked out from what is already recorded: quotes, supplier li
 - **How the reliability score works**: 0 to 100, from the reply rate (40%), on-time delivery rate (40%) and the share of orders without a problem (20%), using only the parts that have data. It appears once a partner has at least 3 data points (requests asked plus deliveries with a promised date). In the quote shortlist it is used after price and freshness (never before price), and the reason says it in words, for example “Replied to 5 of 6 requests; 4 of 4 deliveries on time.”
 - **Promised delivery date**: on an order, set the date the supplier promised. Change it if the supplier says so (with a reason if you like); every change is on the timeline. It is fixed once the order is delivered.
 - **Needs action** (Supply orders → Needs action): stuck orders, plus contacts to re-confirm, partners to re-verify, expired prices used on open quotes, deliveries past the promised date, and for the owner agreements past their end date (with **Mark expired**), agreements ending within 30 days, and commission owed for over 30 days. Agreements do not expire by themselves: mark them here.
-- **Supply report** (Insights → Supply report, owner only): one month of quotes, orders by money model, order value (model A: customer totals; model B: supplier totals), HagerLand earned, refunds, fees, commission still owed by age (0–30, 31–60, 61–90, over 90 days), top items, areas and partners. **Reconciles with ledger: yes** means HagerLand earned matches money in minus money out in the Supply ledger for that month. Print it from the browser; each table has a CSV.
+- **Supply report** (Insights → Supply report, owner only): one month of quotes, orders by money model, order value (model A: customer totals; model B: supplier totals), HagerLand earned, refunds, fees, commission still owed by age (0–30, 31–60, 61–90, over 90 days), top items, areas and partners. **Reconciles with ledger: yes** means HagerLand earned matches money in minus money out in the Supply ledger for that month. **Print or save as PDF** prints it without the menu, filters and buttons; each table has a CSV.
 - **Daily digest**: a short “Supplies” section with counts only (no names or prices).
 
 ## Find partners and duplicates

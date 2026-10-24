@@ -13,11 +13,13 @@ import { Button } from '@/components/ui/Button'
 import { Checkbox, Field, Input, Select } from '@/components/ui/Field'
 import { useToast } from '@/components/ui/Toast'
 import { FormAlert } from '@/components/forms/FormParts'
+import { rememberVersion, useLatestVersion } from '@/lib/admin/latest-version'
 import { PrivateUpload } from './SupplyAgreements'
 
-type Result = { ok: true; data: { message: string } } | { ok: false; error: string }
+type Result = { ok: true; data: { message: string; updatedAt?: string } } | { ok: false; error: string }
 
-function useRun() {
+/** Runs a save; `versionKey` remembers the record's new updated_at for the page's other buttons (lib/admin/latest-version). */
+function useRun(versionKey?: string) {
   const [pending, start] = useTransition()
   const [error, setError] = useState('')
   const toast = useToast()
@@ -30,6 +32,7 @@ function useRun() {
         setError('')
         const res = await fn()
         if (res.ok) {
+          if (versionKey) rememberVersion(versionKey, res.data.updatedAt)
           toast(res.data.message, 'success')
           after?.()
           router.refresh()
@@ -130,7 +133,8 @@ const STEP_LABEL: Partial<Record<OrderStatus, string>> = {
 const OPERATIONS_STEPS: Partial<Record<OrderStatus, OrderStatus[]>> = { placed: ['confirmed'], confirmed: ['out_for_delivery'], out_for_delivery: ['delivered', 'disputed'], delivered: ['disputed'] }
 
 export function OrderStatusControls({ orderId, model, status, updatedAt, isOwner, hasProof, paidInFull, paymentsReceived }: { orderId: string; model: MoneyModel; status: OrderStatus; updatedAt: string; isOwner: boolean; hasProof: boolean; paidInFull: boolean; paymentsReceived: boolean }) {
-  const { pending, error, run } = useRun()
+  const { pending, error, run } = useRun(`order:${orderId}`)
+  const version = useLatestVersion(`order:${orderId}`, updatedAt)
   const next = (['awaiting_payment', 'paid', 'placed', 'confirmed', 'out_for_delivery', 'delivered', 'completed', 'disputed', 'cancelled'] as OrderStatus[]).filter((to) => canTransition(model, status, to) && (isOwner || (OPERATIONS_STEPS[status] ?? []).includes(to)))
   if (!next.length) return <p className="text-small text-muted">No further steps.</p>
   const blocked = (to: OrderStatus): string | null => {
@@ -145,7 +149,7 @@ export function OrderStatusControls({ orderId, model, status, updatedAt, isOwner
       if (!reason) return
       if (to === 'cancelled' && paymentsReceived) window.alert('The customer has paid for this order: record a refund in the ledger.')
     } else if (to === 'awaiting_payment' && !window.confirm('Nothing is sent automatically: tell the customer the total yourself. Continue?')) return
-    run(() => setOrderStatusAction(orderId, to, reason, updatedAt))
+    run(() => setOrderStatusAction(orderId, to, reason, version))
   }
   return (
     <div className="space-y-2">
@@ -187,7 +191,8 @@ export function DraftEditor({ orderId, model, lines, supplierDeliveryCents, cust
   const [supplierDelivery, setSupplierDelivery] = useState(supplierDeliveryCents === null ? '' : cents(supplierDeliveryCents))
   const [commission, setCommission] = useState(commissionBps === null ? '' : String(commissionBps / 100))
   const [margin, setMargin] = useState('')
-  const { pending, error, run } = useRun()
+  const { pending, error, run } = useRun(`order:${orderId}`)
+  const version = useLatestVersion(`order:${orderId}`, updatedAt)
   const applyMargin = () => {
     const m = Number(margin)
     if (!Number.isFinite(m) || m < 0) return
@@ -243,7 +248,7 @@ export function DraftEditor({ orderId, model, lines, supplierDeliveryCents, cust
           <Input id="de-comm" value={commission} onChange={(e) => setCommission(e.target.value)} inputMode="decimal" />
         </Field>
       )}
-      <Button disabled={pending} onClick={() => run(() => saveDraftOrderAction(orderId, { lines: lines.map((l) => ({ id: l.id, customerPrice: prices[l.id] ?? '' })), customerDelivery, supplierDelivery, commission, expectedUpdatedAt: updatedAt }))}>
+      <Button disabled={pending} onClick={() => run(() => saveDraftOrderAction(orderId, { lines: lines.map((l) => ({ id: l.id, customerPrice: prices[l.id] ?? '' })), customerDelivery, supplierDelivery, commission, expectedUpdatedAt: version }))}>
         Save order
       </Button>
     </div>

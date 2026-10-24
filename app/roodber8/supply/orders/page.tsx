@@ -82,46 +82,67 @@ export default async function SupplyOrdersPage(props: { searchParams: Promise<Re
           )}
         </Panel>
       )}
-      <DataTable
-        label="Supply orders"
-        rows={rows}
-        rowKey={(r) => r.id}
-        empty={status || model || orgId || action ? 'No orders match these filters.' : 'No orders yet. Open a quote, choose suppliers, then click “Create order”.'}
-        columns={[
-          {
-            key: 'ref',
-            label: 'Order',
-            render: (r) => (
-              <Link href={`/roodber8/supply/orders/${r.id}`} prefetch={false} className="font-mono font-semibold hover:underline">
+      {/* Phones: one card per order instead of a table that needs sideways swiping. */}
+      <ul aria-label="Supply orders" className="space-y-2 sm:hidden">
+        {rows.length === 0 && <li className="rounded-lg border border-border bg-white p-4 text-small text-muted">{status || model || orgId || action ? 'No orders match these filters.' : 'No orders yet. Open a quote, choose suppliers, then click “Create order”.'}</li>}
+        {rows.map((r) => (
+          <li key={r.id} className="rounded-lg border border-border bg-white p-4 text-small">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <Link href={`/roodber8/supply/orders/${r.id}`} prefetch={false} className="inline-flex min-h-11 items-center font-mono font-semibold text-green underline">
                 {r.reference}
               </Link>
-            ),
-          },
-          {
-            key: 'quote',
-            label: 'Quote',
-            render: (r) => (
-              <Link href={`/roodber8/quotes/${r.quoteId}`} prefetch={false} className="font-mono text-caption hover:underline">
-                {r.quoteReference}
-              </Link>
-            ),
-          },
-          { key: 'supplier', label: 'Supplier', render: (r) => r.supplier },
-          { key: 'model', label: 'Model', render: (r) => r.model },
-          {
-            key: 'status',
-            label: 'Status',
-            render: (r) => (
-              <div>
-                <StatusBadge status={r.status} />
-                {r.needsAction && <p className="text-caption font-semibold text-error">{r.needsAction}</p>}
-              </div>
-            ),
-          },
-          { key: 'created', label: 'Created', render: (r) => formatDate(r.createdAt) },
-          { key: 'updated', label: 'Last update', render: (r) => formatDate(r.updatedAt) },
-        ]}
-      />
+              <StatusBadge status={r.status} />
+            </div>
+            <p className="font-semibold">{r.supplier}</p>
+            <p className="text-muted">
+              Model {r.model} · last update {formatDate(r.updatedAt)}
+            </p>
+            {r.needsAction && <p className="mt-1 font-semibold text-error">Needs action: {r.needsAction}</p>}
+          </li>
+        ))}
+      </ul>
+      <div className="hidden sm:block">
+        <DataTable
+          label="Supply orders"
+          rows={rows}
+          rowKey={(r) => r.id}
+          empty={status || model || orgId || action ? 'No orders match these filters.' : 'No orders yet. Open a quote, choose suppliers, then click “Create order”.'}
+          columns={[
+            {
+              key: 'ref',
+              label: 'Order',
+              render: (r) => (
+                <Link href={`/roodber8/supply/orders/${r.id}`} prefetch={false} className="font-mono font-semibold hover:underline">
+                  {r.reference}
+                </Link>
+              ),
+            },
+            {
+              key: 'quote',
+              label: 'Quote',
+              render: (r) => (
+                <Link href={`/roodber8/quotes/${r.quoteId}`} prefetch={false} className="font-mono text-caption hover:underline">
+                  {r.quoteReference}
+                </Link>
+              ),
+            },
+            { key: 'supplier', label: 'Supplier', render: (r) => r.supplier },
+            { key: 'model', label: 'Model', render: (r) => r.model },
+            {
+              key: 'status',
+              label: 'Status',
+              render: (r) => (
+                <div>
+                  <StatusBadge status={r.status} />
+                  {r.needsAction && <p className="text-caption font-semibold text-error">{r.needsAction}</p>}
+                </div>
+              ),
+            },
+            { key: 'created', label: 'Created', render: (r) => formatDate(r.createdAt) },
+            { key: 'updated', label: 'Last update', render: (r) => formatDate(r.updatedAt) },
+          ]}
+        />
+      </div>
     </div>
   )
 }

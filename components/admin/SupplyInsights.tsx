@@ -8,10 +8,12 @@ import { Button } from '@/components/ui/Button'
 import { Field, Input } from '@/components/ui/Field'
 import { useToast } from '@/components/ui/Toast'
 import { FormAlert } from '@/components/forms/FormParts'
+import { rememberVersion, useLatestVersion } from '@/lib/admin/latest-version'
 
-type Result = { ok: true; data: { message: string } } | { ok: false; error: string }
+type Result = { ok: true; data: { message: string; updatedAt?: string } } | { ok: false; error: string }
 
-function useRun() {
+/** Runs a save; `versionKey` remembers the record's new updated_at for the page's other buttons (lib/admin/latest-version). */
+function useRun(versionKey?: string) {
   const [pending, start] = useTransition()
   const [error, setError] = useState('')
   const toast = useToast()
@@ -24,6 +26,7 @@ function useRun() {
         setError('')
         const res = await fn()
         if (res.ok) {
+          if (versionKey) rememberVersion(versionKey, res.data.updatedAt)
           toast(res.data.message, 'success')
           after?.()
           router.refresh()
@@ -36,7 +39,8 @@ function useRun() {
 export function PromisedDateControl({ orderId, value, updatedAt, editable }: { orderId: string; value: string | null; updatedAt: string; editable: boolean }) {
   const [date, setDate] = useState(value ?? '')
   const [reason, setReason] = useState('')
-  const { pending, error, run } = useRun()
+  const { pending, error, run } = useRun(`order:${orderId}`)
+  const version = useLatestVersion(`order:${orderId}`, updatedAt)
   if (!editable) return <p className="text-small">{value ? `Promised for ${value}` : 'No promised date was recorded.'}</p>
   return (
     <div role="group" aria-label="Promised delivery date" className="space-y-2">
@@ -49,7 +53,7 @@ export function PromisedDateControl({ orderId, value, updatedAt, editable }: { o
           <Input id="pd-reason" value={reason} onChange={(e) => setReason(e.target.value)} maxLength={500} />
         </Field>
       )}
-      <Button size="sm" variant="secondary" disabled={pending || date === (value ?? '')} onClick={() => run(() => setPromisedDateAction(orderId, date, reason, updatedAt), () => setReason(''))}>
+      <Button size="sm" variant="secondary" disabled={pending || date === (value ?? '')} onClick={() => run(() => setPromisedDateAction(orderId, date, reason, version), () => setReason(''))}>
         Save date
       </Button>
     </div>

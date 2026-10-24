@@ -17,6 +17,8 @@ import { CLOSED_QUOTE_STATUSES } from '@/lib/supply/quote-supply-data'
 import { todayInAddis } from '@/lib/supply/shortlist'
 
 type Msg = ActionResult<{ message: string }>
+/** A save that changed the order returns its new updated_at, so the page's next action is not taken for a stale edit. */
+type Saved = ActionResult<{ message: string; updatedAt?: string }>
 const blank = (v: unknown) => (v === null || (typeof v === 'string' && v.trim() === '') ? undefined : v)
 /** Birr text to cents; 0 allowed when `zero` (free delivery). */
 function birr(text: string | undefined, zero = false): number | null | undefined {
@@ -142,7 +144,7 @@ const draftSchema = z.object({
 export type DraftInput = z.input<typeof draftSchema>
 
 /** Customer prices (model A), delivery charges and the commission rate (model B), while the order is a draft. */
-export async function saveDraftOrderAction(orderId: string, input: DraftInput): Promise<Msg> {
+export async function saveDraftOrderAction(orderId: string, input: DraftInput): Promise<Saved> {
   await assertAdmin(AREA)
   await assertOwner()
   const order = await loadOrder(orderId)
@@ -171,11 +173,11 @@ export async function saveDraftOrderAction(orderId: string, input: DraftInput): 
     if (bps === null) return fail('Enter the commission rate as a percentage, like 5 or 2.5.')
     changes.commission_rate_bps = bps
   }
-  const { error } = await db.from('supply_orders').update(changes).eq('id', orderId)
-  if (error) return fail(error.code === '23514' ? error.message : 'Could not save the order.')
+  const { data: saved, error } = await db.from('supply_orders').update(changes).eq('id', orderId).select('updated_at').single()
+  if (error || !saved) return fail(error?.code === '23514' ? error.message : 'Could not save the order.')
   await audit('supply.order.draft_edit', { type: 'supply_order', id: orderId, label: order.reference }, { lines: d.lines.length, model: order.money_model })
   refresh(orderId, order.quote_request_id)
-  return ok({ message: 'Order saved.' })
+  return ok({ message: 'Order saved.', updatedAt: saved.updated_at })
 }
 
 /* ---------------------------------------------------------------- Status steps ---------------------------------------------------------------- */
@@ -188,7 +190,7 @@ const OPERATIONS_STEPS: Partial<Record<OrderStatus, OrderStatus[]>> = {
   delivered: ['disputed'],
 }
 
-export async function setOrderStatusAction(orderId: string, to: string, reason: string, expectedUpdatedAt: string): Promise<Msg> {
+export async function setOrderStatusAction(orderId: string, to: string, reason: string, expectedUpdatedAt: string): Promise<Saved> {
   await assertAdmin(AREA)
   const order = await loadOrder(orderId)
   if (!order) return fail('Order not found.')
@@ -207,16 +209,20 @@ export async function setOrderStatusAction(orderId: string, to: string, reason: 
     const total = customerTotalCents((lines ?? []).map((l) => ({ quantity: Number(l.quantity), supplierUnitPriceCents: l.supplier_unit_price_cents, customerUnitPriceCents: l.customer_unit_price_cents })), order.customer_delivery_charge_cents)
     if (!total) return fail('Enter the customer price for every line first.')
   }
-  const { error } = await db
+  const { data: saved, error } = await db
     .from('supply_orders')
     .update({ status: target.data, status_reason: ['cancelled', 'disputed'].includes(target.data) ? why : null, updated_by: (await adminActor()).slice(0, 120) })
     .eq('id', orderId)
     .eq('status', from)
+    .select('updated_at')
+    .maybeSingle()
   // The database refuses what the rules forbid (golden rule, proof before completion) with a plain message.
   if (error) return fail(error.code === '23514' ? error.message : 'Could not change the order.')
+  // Nothing updated: the status changed in between (another person or tab).
+  if (!saved) return fail(STALE_EDIT)
   await audit('supply.order.status', { type: 'supply_order', id: orderId, label: order.reference }, { from, to: target.data, reason: why || null })
   refresh(orderId, order.quote_request_id)
-  return ok({ message: `Order is now “${ORDER_STATUS_LABEL[target.data]}”.` })
+  return ok({ message: `Order is now “${ORDER_STATUS_LABEL[target.data]}”.`, updatedAt: saved.updated_at })
 }
 
 /* ------------------------------------------------------------------ Payments ------------------------------------------------------------------ */
@@ -350,7 +356,7 @@ export async function removeProofAction(orderId: string, proofId: string, reason
 const promisedSchema = z.object({ date: z.preprocess(blank, z.iso.date().optional()), reason: z.string().trim().max(500), expectedUpdatedAt: z.string().max(40) })
 
 /** The delivery date the supplier promised (owner and operations). Every change goes on the order's timeline. */
-export async function setPromisedDateAction(orderId: string, date: string, reason: string, expectedUpdatedAt: string): Promise<Msg> {
+export async function setPromisedDateAction(orderId: string, date: string, reason: string, expectedUpdatedAt: string): Promise<Saved> {
   await assertAdmin(AREA)
   const order = await loadOrder(orderId)
   if (!order) return fail('Order not found.')
@@ -360,12 +366,14 @@ export async function setPromisedDateAction(orderId: string, date: string, reaso
   if (parsed.data.expectedUpdatedAt && new Date(order.updated_at).getTime() !== new Date(parsed.data.expectedUpdatedAt).getTime()) return fail(STALE_EDIT)
   const next = parsed.data.date ?? null
   if (next === order.promised_delivery_on) return ok({ message: 'No change.' })
-  const { error } = await getAdminSupabase()
+  const { data: saved, error } = await getAdminSupabase()
     .from('supply_orders')
     .update({ promised_delivery_on: next, promised_change_reason: parsed.data.reason || null, updated_by: (await adminActor()).slice(0, 120) })
     .eq('id', orderId)
-  if (error) return fail(error.code === '23514' ? error.message : 'Could not save the date.')
+    .select('updated_at')
+    .single()
+  if (error || !saved) return fail(error?.code === '23514' ? error.message : 'Could not save the date.')
   await audit('supply.order.promised_date', { type: 'supply_order', id: orderId, label: order.reference }, { from: order.promised_delivery_on, to: next, reason: parsed.data.reason || null })
   refresh(orderId, order.quote_request_id)
-  return ok({ message: next ? `Promised delivery date set to ${next}.` : 'Promised delivery date cleared.' })
+  return ok({ message: next ? `Promised delivery date set to ${next}.` : 'Promised delivery date cleared.', updatedAt: saved.updated_at })
 }

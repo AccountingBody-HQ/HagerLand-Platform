@@ -30,7 +30,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const role = session?.kind === 'staff' ? session.role : null
   return (
     <div className="flex min-h-dvh flex-col bg-stone-100">
-      <header className="sticky top-0 z-40 flex h-14 items-center gap-3 border-b border-white/10 bg-ink px-3 text-white">
+      <header className="hl-admin-chrome sticky top-0 z-40 flex h-14 items-center gap-3 border-b border-white/10 bg-ink px-3 text-white">
         <AdminMobileMenu badges={badges} role={role} />
         <Link href="/roodber8" className="flex items-center gap-2 font-display font-extrabold">
           <LogoMark className="size-7" /> <span className="hidden sm:inline">HagerLand admin</span>
@@ -56,7 +56,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       </header>
       <div className="flex flex-1">
         <AdminSidebar badges={badges} role={role} />
-        <main id="main" className="min-w-0 flex-1 p-4 sm:p-6">
+        <main id="main" className="min-w-0 flex-1 p-4 sm:p-6 print:p-0">
           {children}
         </main>
       </div>

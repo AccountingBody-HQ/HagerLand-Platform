@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { isOwnerSession, requireAdminPage } from '@/lib/admin/guard'
 import { formatDate, formatPhone } from '@/lib/format'
-import { bpsToPercent, ENTRY_LABEL, MODEL_LABEL, ORDER_STATUS_LABEL } from '@/lib/supply/money'
+import { bpsToPercent, ENTRY_LABEL, MODEL_LABEL, ORDER_STATUS_LABEL, refundableCents } from '@/lib/supply/money'
 import { orderDetail } from '@/lib/supply/orders-data'
 import { formatEtbExact } from '@/lib/supply/shortlist'
 import { AdminHeader, KeyValue, Panel, StatusBadge } from '@/components/admin/AdminUi'
@@ -92,7 +92,11 @@ export default async function SupplyOrderPage(props: { params: Promise<{ id: str
                       <>
                         <OrderEntryForm orderId={o.id} model="A" initialType="customer_payment" initialAmountCents={m.customerTotalCents !== null ? Math.max(0, m.customerTotalCents - m.paidCents) || null : null} label="Record customer payment" />
                         <OrderEntryForm orderId={o.id} model="A" initialType="supplier_payment" initialAmountCents={o.supplierTotalCents} label="Record payment to supplier" />
-                        {m.paidCents > 0 && <OrderEntryForm orderId={o.id} model="A" initialType="refund" label="Record a refund" />}
+                        {refundableCents(m.ledger) > 0 ? (
+                          <OrderEntryForm orderId={o.id} model="A" initialType="refund" initialAmountCents={refundableCents(m.ledger)} label="Record a refund" />
+                        ) : (
+                          m.ledger.customerPaid > 0 && <p className="w-full text-muted">Nothing left to refund: the customer’s payments have all been refunded.</p>
+                        )}
                       </>
                     ) : (
                       <>

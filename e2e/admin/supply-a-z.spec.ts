@@ -90,7 +90,7 @@ async function reply(page: Page, item: string, supplier: string, price: string, 
   await expect(box.getByRole('button', { name: 'Save reply' })).toHaveCount(0)
 }
 
-/** Waits for the refresh that follows a save (a status click before it lands is refused as a stale edit). */
+/** Waits for the refresh that follows a save, so each check reads the updated page. */
 async function settle(page: Page) {
   await page.waitForLoadState('networkidle')
 }
@@ -102,7 +102,8 @@ async function ledgerCount(orderId: string, type?: string) {
 }
 
 async function phonePage(browser: Browser) {
-  const context = await browser.newContext({ viewport: { width: 375, height: 812 }, isMobile: true, hasTouch: true })
+  // A plain 375px window: phone emulation widens the page to fit overflow, hiding sideways scrolling.
+  const context = await browser.newContext({ viewport: { width: 375, height: 812 } })
   const page = await context.newPage()
   await adminSession(page)
   return page
@@ -279,6 +280,9 @@ test('T1 steps 5–13 with T2 (model A), T3 (model B) and T4 (unhappy paths)', a
   const rebar = section(page, 'Rebar 12mm')
   const blocks = section(page, 'Hollow block 20cm')
   const suggested = cement.getByRole('listitem')
+  // The best 3 show first; the rest behind "Show N more" (Supply polish P3).
+  await expect(suggested).toHaveCount(3)
+  await cement.getByRole('button', { name: /^Show \d+ more$/ }).click()
   await expect(suggested.filter({ hasText: S.name })).toContainText('Active partner. Delivers to Bole. Price checked today.')
   await expect(suggested.filter({ hasText: S.name })).toContainText('No delivery history yet.')
   await expect(suggested.filter({ hasText: 'Merkato Steel House (seed)' })).toContainText(/Replied to \d+ of \d+ requests/)
@@ -286,7 +290,7 @@ test('T1 steps 5–13 with T2 (model A), T3 (model B) and T4 (unhappy paths)', a
   expect(totals.length).toBeGreaterThanOrEqual(3)
   expect([...totals].sort((a, b) => a - b)).toEqual(totals)
   await expect(cement.getByRole('checkbox', { name: 'Select Bole Trading (seed)' })).toBeDisabled()
-  await rebar.getByRole('button', { name: /Not suggested/ }).click()
+  await rebar.getByRole('button', { name: /not suggested, with reasons/ }).click()
   await expect(rebar.getByRole('listitem').filter({ hasText: S.name })).toContainText('No delivery areas recorded')
   await expect(rebar.getByText(/Price expired/)).toBeVisible()
   await shot(page, 'step6-suggestions')
@@ -394,8 +398,7 @@ test('T1 steps 5–13 with T2 (model A), T3 (model B) and T4 (unhappy paths)', a
   await dates.getByLabel('Promised delivery date').fill(addisDay(2))
   await dates.getByRole('button', { name: 'Save date' }).click()
   await expect(page.getByText(`Promised delivery date set to ${addisDay(2)}.`)).toBeVisible()
-  // The page refreshes a moment after the save (the timeline gains the date); a status click before that is refused
-  // as "Someone else changed this" (reported as awkward, see the A–Z report).
+  // The timeline gains the date once the page refreshes (an immediate status click is covered by supply-polish.spec.ts).
   await expect(page.getByText(`Promised delivery date: none → ${addisDay(2)}`)).toBeVisible()
   await page.getByRole('button', { name: 'Supplier confirmed' }).click()
   await page.getByRole('button', { name: 'Out for delivery' }).click()
@@ -601,12 +604,12 @@ test('T1 steps 14–17 and T4 (agreement past its end date): demand, price trend
   await expect(page.getByText('Reconciles with ledger: yes')).toBeVisible()
   for (const b of ['0–30 days', '31–60 days', '61–90 days', 'Over 90 days']) await expect(page.getByRole('cell', { name: b })).toBeVisible()
   // This month's top partners list the most orders first; ours (one order) may fall outside the top 10 after reruns.
-  await expect(page.getByText(/Use your browser’s Print to save it as a PDF/)).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Print or save as PDF' })).toBeVisible()
   const month = addisToday().slice(0, 7)
   const money = await page.request.get(`/roodber8/reports/supply/export?month=${month}&table=money`)
   expect(await money.text()).toMatch(/reconciles_with_ledger.*\n.*yes|yes/)
   await shot(page, 'step17-report')
-  log('Step 17', 'Reconciles with ledger: yes; ageing buckets; print via the browser (no print button: the page says so); money CSV')
+  log('Step 17', 'Reconciles with ledger: yes; ageing buckets; “Print or save as PDF” button; money CSV')
 })
 
 /** Same encryption as lib/admin/staff-crypto.ts (see e2e/staff.spec.ts). */
@@ -751,7 +754,7 @@ test('T8 phone width: the quote Suppliers panel and the orders list at 375px', a
   await expect(phone.getByRole('region', { name: 'Suppliers for Dangote cement 50kg' })).toBeVisible()
   await noSidewaysScroll(phone, 'quote with Suppliers panel at 375px')
   await reachable(phone, 'Mark as asked')
-  await reachable(phone, /Not suggested/, phone.getByRole('region', { name: 'Suppliers for Dangote cement 50kg' }))
+  await reachable(phone, /not suggested, with reasons/, phone.getByRole('region', { name: 'Suppliers for Dangote cement 50kg' }))
   await shot(phone, 't8-quote-suppliers-phone')
   await phone.goto('/roodber8/supply/orders')
   await noSidewaysScroll(phone, 'orders list at 375px')

@@ -10,9 +10,11 @@ import { adminActor, assertAdmin, audit, changedFields } from '@/lib/admin/guard
 import { fail, ok, type ActionResult } from '@/lib/action-result'
 import { STALE_EDIT } from '@/lib/concurrency'
 import { normaliseSupplyPhone } from '@/lib/supply/phone'
-import { CONFIDENCE_LEVELS, CONSENT_BASES, CONTACT_CHANNELS, defaultReverifyBy, PARTNER_SOURCES, RELATIONSHIP_STATUSES, SUPPLY_ROLES, type SupplyContactInput, type SupplyProfileInput } from '@/lib/supply/partners'
+import { CONFIDENCE_LEVELS, CONSENT_BASES, CONTACT_CHANNELS, defaultReverifyBy, PARTNER_SOURCES, RELATIONSHIP_STATUSES, relationshipStatusChange, SUPPLY_ROLES, type SupplyContactInput, type SupplyProfileInput } from '@/lib/supply/partners'
 
 type Msg = ActionResult<{ message: string }>
+/** Saves of the partner record return its new updated_at, so the panel's next save is not taken for a stale edit. */
+type Saved = ActionResult<{ message: string; updatedAt?: string }>
 
 const values = <T extends readonly { value: string }[]>(list: T) => list.map((x) => x.value) as [T[number]['value'], ...T[number]['value'][]]
 const blank = (v: unknown) => (typeof v === 'string' && v.trim() === '' ? undefined : v)
@@ -61,13 +63,23 @@ function refresh(orgId: string) {
   revalidatePath('/roodber8/supply/partners')
 }
 
+const statusLabel = (status: string) => RELATIONSHIP_STATUSES.find((s) => s.value === status)?.label ?? status
+
+/** The one audit entry for a status change, from either button. */
+const statusAudit = (orgId: string, label: string | null, from: string, to: string) =>
+  ['supply.partner.status', { type: 'organisation', id: orgId, label }, { relationship_status: { from, to } }] as const
+
 async function orgName(orgId: string): Promise<string | null> {
   const { data } = await getAdminSupabase().from('organisations').select('name').eq('id', orgId).maybeSingle()
   return data?.name ?? null
 }
 
-/** Creates or updates the private supply partner record of an organisation (one per organisation). */
-export async function saveSupplyPartnerAction(orgId: string, input: SupplyProfileInput, expectedUpdatedAt: string | null): Promise<Msg> {
+/**
+ * Creates or updates the private supply partner record of an organisation (one per organisation). A changed
+ * relationship status (`status`) is saved in the same write, by the same rule and audit entry as "Change status";
+ * if the status change is refused, nothing is saved.
+ */
+export async function saveSupplyPartnerAction(orgId: string, input: SupplyProfileInput, expectedUpdatedAt: string | null, status?: string): Promise<Saved> {
   await assertAdmin(AREA)
   const parsed = profileSchema.safeParse(input)
   if (!z.uuid().safeParse(orgId).success) return fail('Organisation not found.')
@@ -77,6 +89,9 @@ export async function saveSupplyPartnerAction(orgId: string, input: SupplyProfil
   const db = getAdminSupabase()
   const { data: before } = await db.from('supply_partners').select('*').eq('org_id', orgId).maybeSingle()
   if (before && expectedUpdatedAt && new Date(before.updated_at).getTime() !== new Date(expectedUpdatedAt).getTime()) return fail(STALE_EDIT)
+  const statusStep = before && status !== undefined ? relationshipStatusChange(before.relationship_status, status) : null
+  if (statusStep && !statusStep.ok) return fail(`${statusStep.error} Nothing was saved.`)
+  const statusPatch = statusStep?.ok ? statusStep.patch : null
   const d = parsed.data
   const verification = [d.licence_seen_at, d.tin_checked_at, d.site_visit_at]
   const actor = await adminActor()
@@ -96,31 +111,35 @@ export async function saveSupplyPartnerAction(orgId: string, input: SupplyProfil
     notes: d.notes ?? null,
   }
   if (before) {
-    const { error } = await db.from('supply_partners').update(row).eq('org_id', orgId)
-    if (error) return fail('Could not save the supply partner record.')
-    await audit('supply.partner.update', { type: 'organisation', id: orgId, label: name }, changedFields(before as Record<string, unknown>, row))
-  } else {
-    const { error } = await db.from('supply_partners').insert({ org_id: orgId, ...row, status_changed_at: new Date().toISOString() })
-    if (error) return fail('Could not create the supply partner record.')
-    await audit('supply.partner.create', { type: 'organisation', id: orgId, label: name }, { roles: row.roles, source: row.source })
+    const { data: saved, error } = await db.from('supply_partners').update({ ...row, ...statusPatch }).eq('org_id', orgId).select('updated_at').single()
+    if (error || !saved) return fail('Could not save the supply partner record.')
+    const changed = changedFields(before as Record<string, unknown>, row)
+    if (!statusPatch || Object.keys(changed).length) await audit('supply.partner.update', { type: 'organisation', id: orgId, label: name }, changed)
+    if (statusPatch) await audit(...statusAudit(orgId, name, before.relationship_status, statusPatch.relationship_status))
+    refresh(orgId)
+    return ok({ message: statusPatch ? `Supply partner record saved. Status: ${statusLabel(statusPatch.relationship_status)}.` : 'Supply partner record saved.', updatedAt: saved.updated_at })
   }
+  const { error } = await db.from('supply_partners').insert({ org_id: orgId, ...row, status_changed_at: new Date().toISOString() })
+  if (error) return fail('Could not create the supply partner record.')
+  await audit('supply.partner.create', { type: 'organisation', id: orgId, label: name }, { roles: row.roles, source: row.source })
   refresh(orgId)
-  return ok({ message: before ? 'Supply partner record saved.' : 'Supply partner record created.' })
+  return ok({ message: 'Supply partner record created.' })
 }
 
-export async function setSupplyPartnerStatusAction(orgId: string, status: string): Promise<Msg> {
+export async function setSupplyPartnerStatusAction(orgId: string, status: string): Promise<Saved> {
   await assertAdmin(AREA)
-  const parsed = z.object({ orgId: z.uuid(), status: z.enum(values(RELATIONSHIP_STATUSES)) }).safeParse({ orgId, status })
-  if (!parsed.success) return fail('Choose a status.')
+  if (!z.uuid().safeParse(orgId).success) return fail('Organisation not found.')
   const db = getAdminSupabase()
   const { data: before } = await db.from('supply_partners').select('relationship_status').eq('org_id', orgId).maybeSingle()
   if (!before) return fail('Create the supply partner record first.')
-  if (before.relationship_status === parsed.data.status) return ok({ message: 'No change.' })
-  const { error } = await db.from('supply_partners').update({ relationship_status: parsed.data.status, status_changed_at: new Date().toISOString() }).eq('org_id', orgId)
-  if (error) return fail('Could not change the status.')
-  await audit('supply.partner.status', { type: 'organisation', id: orgId, label: await orgName(orgId) }, { relationship_status: { from: before.relationship_status, to: parsed.data.status } })
+  const step = relationshipStatusChange(before.relationship_status, status)
+  if (!step.ok) return fail(step.error)
+  if (!step.patch) return ok({ message: 'No change.' })
+  const { data: saved, error } = await db.from('supply_partners').update(step.patch).eq('org_id', orgId).select('updated_at').single()
+  if (error || !saved) return fail('Could not change the status.')
+  await audit(...statusAudit(orgId, await orgName(orgId), before.relationship_status, step.patch.relationship_status))
   refresh(orgId)
-  return ok({ message: `Status: ${RELATIONSHIP_STATUSES.find((s) => s.value === parsed.data.status)?.label}.` })
+  return ok({ message: `Status: ${statusLabel(step.patch.relationship_status)}.`, updatedAt: saved.updated_at })
 }
 
 /** Adds a photo or PDF already uploaded to the private documents area (FileDrop, area "supply"). */

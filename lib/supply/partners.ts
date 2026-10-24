@@ -24,6 +24,17 @@ export const RELATIONSHIP_STATUSES = [
 ] as const
 export type RelationshipStatus = (typeof RELATIONSHIP_STATUSES)[number]['value']
 
+/**
+ * One rule for changing a partner's relationship status, used by "Change status" and by "Save supply record": the
+ * columns to write (null when nothing changes), or why the change is refused (then nothing at all is saved).
+ */
+export function relationshipStatusChange(current: string, next: string, now: Date = new Date()): { ok: false; error: string } | { ok: true; patch: { relationship_status: RelationshipStatus; status_changed_at: string } | null } {
+  const status = RELATIONSHIP_STATUSES.find((s) => s.value === next)?.value
+  if (!status) return { ok: false, error: 'Choose a status from the list.' }
+  if (status === current) return { ok: true, patch: null }
+  return { ok: true, patch: { relationship_status: status, status_changed_at: now.toISOString() } }
+}
+
 export const PARTNER_SOURCES = [
   { value: 'direct_call', label: 'Phone call with the business' },
   { value: 'site_visit', label: 'Site visit' },
