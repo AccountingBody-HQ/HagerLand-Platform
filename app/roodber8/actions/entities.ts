@@ -11,6 +11,7 @@ import { getAdminSupabase, getAdminSupabaseDynamic } from '@/lib/supabase/admin'
 import { assertAdmin, audit } from '@/lib/admin/guard'
 import { fail, ok, type ActionResult } from '@/lib/action-result'
 import { revalidateEntity } from '@/lib/revalidate'
+import { importPublishBlock } from '@/lib/imports/compliance-data'
 
 const entitySchema = z.enum(['property', 'development', 'organisation', 'product'])
 type Entity = z.infer<typeof entitySchema>
@@ -57,6 +58,10 @@ export async function setStatusAction(entity: string, id: string, status: string
   await assertAdmin(entityArea(entity))
   const parsed = z.object({ entity: entitySchema, id: z.uuid(), status: z.enum(STATUSES) }).safeParse({ entity, id, status })
   if (!parsed.success) return fail('Invalid status.')
+  if (parsed.data.entity === 'organisation' && parsed.data.status === 'published') {
+    const block = (await importPublishBlock([id])).get(id)
+    if (block) return fail(block)
+  }
   const dyn = getAdminSupabaseDynamic()
   const { data: before } = await dyn.from(TABLE[parsed.data.entity]).select('status').eq('id', id).maybeSingle()
   const { error } = await dyn.from(TABLE[parsed.data.entity]).update({ status: parsed.data.status }).eq('id', id)

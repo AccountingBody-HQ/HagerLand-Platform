@@ -15,6 +15,7 @@ import { shortId, slugify } from '@/lib/slug'
 import { listTag, revalidateEntity } from '@/lib/revalidate'
 import type { OrgFormState } from '@/app/(account)/account/company/org-actions'
 import { STALE_EDIT, isStaleEdit } from '@/lib/concurrency'
+import { importPublishBlock, recordFieldSources } from '@/lib/imports/compliance-data'
 
 const createSchema = z.object({ visibility: z.enum(['private', 'publish']), supply_partner: z.enum(['1']).optional(), confirm_new: z.enum(['0', '1']).optional() })
 
@@ -93,7 +94,10 @@ export async function saveAdminOrgAction(_prev: OrgFormState | null, formData: F
   const { error } = await db.from('organisations').update({ ...columns, pending_changes: null }).eq('id', d.existing_id)
   if (error) return fail('Could not save.')
   await syncLinks(d.existing_id, d.service_ids, d.product_category_ids)
-  await audit('organisation.edit', { type: 'organisation', id: d.existing_id, label: d.name }, changedFields(before as Record<string, unknown>, columns))
+  const changed = changedFields(before as Record<string, unknown>, columns)
+  // A detail first imported from Google and now changed by staff is HagerLand's own (imported businesses only).
+  await recordFieldSources(d.existing_id, (['name', 'phone', 'address_line', 'website', 'description'] as const).filter((f) => f in changed), { source: 'edited_by_hagerland', actor: await adminActor(), note: 'Changed in the admin organisation form', onlyTracked: true })
+  await audit('organisation.edit', { type: 'organisation', id: d.existing_id, label: d.name }, changed)
   revalidateEntity('organisation', d.existing_id)
   revalidatePath(`/roodber8/organisations/${d.existing_id}`)
   return ok({ id: d.existing_id }, 'Saved. Changes are live now.')
@@ -145,6 +149,10 @@ export async function setOrganisationVisibilityAction(orgId: string, visibility:
   const publish = parsed.data.visibility === 'publish'
   if (!publish && (org.kind === 'hagerland' || org.is_hagerland)) return fail('HagerLand’s own organisations always stay on the public site.')
   if (publish ? org.status !== 'draft' : org.status !== 'published') return fail(publish ? 'Only a private organisation can be published here.' : 'Only a published organisation can be made private.')
+  if (publish) {
+    const block = (await importPublishBlock([orgId])).get(orgId)
+    if (block) return fail(block)
+  }
   const status = publish ? 'published' : 'draft'
   const { error } = await db.from('organisations').update({ status }).eq('id', orgId)
   if (error) return fail('Could not change the visibility.')

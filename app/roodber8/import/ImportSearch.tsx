@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import { CircleAlert, CircleCheck, LoaderCircle, Search } from 'lucide-react'
 import { importPlaceAction, type ImportOutcome } from '../actions/imports'
+import { GoogleMapsAttribution } from '@/components/admin/GoogleMapsAttribution'
 import { Button } from '@/components/ui/Button'
 import { Field, Input, Select } from '@/components/ui/Field'
 import { FormAlert } from '@/components/forms/FormParts'
@@ -21,7 +22,7 @@ type Progress = Record<string, { state: 'working' | ImportOutcome; note?: string
 
 const KINDS = ['supplier', 'manufacturer', 'contractor', 'professional_firm', 'sole_trader', 'agency', 'developer'] as const
 
-export function ImportSearch({ services, locations, configured, aiEnabled }: { services: { id: string; label: string }[]; locations: { id: string; label: string }[]; configured: boolean; aiEnabled: boolean }) {
+export function ImportSearch({ services, locations, configured }: { services: { id: string; label: string }[]; locations: { id: string; label: string }[]; configured: boolean }) {
   const [query, setQuery] = useState('')
   const [kind, setKind] = useState<(typeof KINDS)[number]>('supplier')
   const [serviceIds, setServiceIds] = useState<string[]>([])
@@ -86,7 +87,7 @@ export function ImportSearch({ services, locations, configured, aiEnabled }: { s
             ))}
           </Select>
         </Field>
-        <Field label="Location if the address doesn't say" htmlFor="im-loc" optional>
+        <Field label="Area for these leads" htmlFor="im-loc" optional hint="The sub-city you searched in. Google’s address is never stored.">
           <Select id="im-loc" value={fallback} onChange={(e) => setFallback(e.target.value)}>
             <option value="">Leave empty</option>
             {locations.map((l) => (
@@ -112,7 +113,6 @@ export function ImportSearch({ services, locations, configured, aiEnabled }: { s
           <Button type="submit" disabled={searching || running}>
             {searching ? <LoaderCircle className="animate-spin" /> : <Search />} Search
           </Button>
-          {!aiEnabled && <p className="mt-2 text-caption text-muted">AI drafting is off (no ANTHROPIC_API_KEY): write each description during review.</p>}
         </div>
       </form>
       {error && <FormAlert>{error}</FormAlert>}
@@ -127,6 +127,9 @@ export function ImportSearch({ services, locations, configured, aiEnabled }: { s
               {running ? 'Importing…' : `Import ${selected.length} selected`}
             </Button>
           </div>
+          <p className="border-b border-border px-3 py-2 text-caption text-muted">
+            Shown from Google, not saved. Importing keeps only Google’s place ID: you then confirm each business’s details with the business itself.
+          </p>
           <ul className="divide-y divide-border">
             {results.map((r) => {
               const p = progress[r.google_place_id]
@@ -158,6 +161,9 @@ export function ImportSearch({ services, locations, configured, aiEnabled }: { s
               )
             })}
           </ul>
+          <div className="border-t border-border px-3 py-2">
+            <GoogleMapsAttribution />
+          </div>
         </div>
       )}
     </div>

@@ -10,4 +10,6 @@ case "$NEXT_PUBLIC_SUPABASE_URL" in
   *) echo "Refusing to run: .env.test.local does not point at the local stack."; exit 1 ;;
 esac
 export HL_TEST_ENV=1 NEXT_DIST_DIR=.next-test
+# Google Places in tests: a local stand-in (started by the imports test) and a dummy key, never the real API.
+export PLACES_TEST_BASE_URL=http://localhost:3199 GOOGLE_PLACES_API_KEY=local-test-key
 exec "$@"

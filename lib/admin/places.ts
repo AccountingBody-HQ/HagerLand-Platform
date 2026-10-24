@@ -4,8 +4,8 @@ import type { AddressComponent } from './place-mapping'
 
 /**
  * Google Places API (New). Search uses POST places:searchText with pageToken in the POST body
- * (the legacy API refuses pagination for HagerLand's key). Only discovery data is stored:
- * never Google reviews, ratings or photos.
+ * (the legacy API refuses pagination for HagerLand's key). Results are shown to staff, never stored: only the place
+ * ID is kept (Google's terms; see lib/imports/compliance.ts). Never Google reviews, ratings or photos.
  */
 export interface PlaceSummary {
   google_place_id: string
@@ -22,6 +22,7 @@ export interface PlaceDetails extends PlaceSummary {
   lat?: number
   lng?: number
   businessStatus?: string
+  googleMapsUri?: string
 }
 
 interface NewPlace {
@@ -35,6 +36,7 @@ interface NewPlace {
   websiteUri?: string
   location?: { latitude?: number; longitude?: number }
   businessStatus?: string
+  googleMapsUri?: string
 }
 
 const MAX_PAGES = 3
@@ -47,6 +49,11 @@ function key(): string {
 
 export class PlacesError extends Error {}
 
+/** Google's address; in test runs only (HL_TEST_ENV), a local stand-in so tests never call Google. */
+function base(): string {
+  return process.env.HL_TEST_ENV === '1' && process.env.PLACES_TEST_BASE_URL ? process.env.PLACES_TEST_BASE_URL : 'https://places.googleapis.com'
+}
+
 function summary(p: NewPlace): PlaceSummary {
   return { google_place_id: p.id, name: p.displayName?.text ?? '', address: p.formattedAddress ?? '', types: p.types ?? [], addressComponents: p.addressComponents ?? [] }
 }
@@ -58,7 +65,7 @@ export async function searchPlaces(query: string): Promise<PlaceSummary[]> {
   for (let page = 0; page < MAX_PAGES; page++) {
     const body: Record<string, unknown> = { textQuery: query, pageSize: 20, regionCode: 'ET' }
     if (pageToken) body.pageToken = pageToken
-    const res = await fetch('https://places.googleapis.com/v1/places:searchText', {
+    const res = await fetch(`${base()}/v1/places:searchText`, {
       method: 'POST',
       cache: 'no-store',
       headers: {
@@ -84,11 +91,11 @@ export async function searchPlaces(query: string): Promise<PlaceSummary[]> {
 
 export async function placeDetails(placeId: string): Promise<PlaceDetails> {
   if (!/^[A-Za-z0-9_-]{10,300}$/.test(placeId)) throw new PlacesError('Invalid place id.')
-  const res = await fetch(`https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}`, {
+  const res = await fetch(`${base()}/v1/places/${encodeURIComponent(placeId)}`, {
     cache: 'no-store',
     headers: {
       'X-Goog-Api-Key': key(),
-      'X-Goog-FieldMask': 'id,displayName,formattedAddress,addressComponents,types,internationalPhoneNumber,nationalPhoneNumber,websiteUri,location,businessStatus',
+      'X-Goog-FieldMask': 'id,displayName,formattedAddress,addressComponents,types,internationalPhoneNumber,nationalPhoneNumber,websiteUri,location,businessStatus,googleMapsUri',
     },
     signal: AbortSignal.timeout(15_000),
   })
@@ -102,5 +109,19 @@ export async function placeDetails(placeId: string): Promise<PlaceDetails> {
     lat: data.location?.latitude,
     lng: data.location?.longitude,
     businessStatus: data.businessStatus,
+    googleMapsUri: data.googleMapsUri,
   }
+}
+
+/** Only whether the place still trades (for importing a lead: nothing from it is stored). */
+export async function placeBusinessStatus(placeId: string): Promise<string | null> {
+  if (!/^[A-Za-z0-9_-]{10,300}$/.test(placeId)) throw new PlacesError('Invalid place id.')
+  const res = await fetch(`${base()}/v1/places/${encodeURIComponent(placeId)}`, {
+    cache: 'no-store',
+    headers: { 'X-Goog-Api-Key': key(), 'X-Goog-FieldMask': 'id,businessStatus' },
+    signal: AbortSignal.timeout(15_000),
+  })
+  const data = (await res.json().catch(() => ({}))) as NewPlace & { error?: { status?: string } }
+  if (!res.ok || data.error) throw new PlacesError(`Google lookup failed (${data.error?.status ?? res.status}).`)
+  return data.businessStatus ?? null
 }

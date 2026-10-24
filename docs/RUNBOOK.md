@@ -101,3 +101,26 @@ npm run test:e2e:build && npm run test:e2e   # browser tests against the local c
 - Code: Vercel → **Deployments**, pick the previous good deployment → **⋯ → Promote to Production**. Takes seconds.
 - Before the relaunch: git tag `pre-construction-relaunch` marks the old live site.
 - Database: restore from your latest backup (Supabase support can help on Pro). This is a last resort: prefer fixing forward with a new migration.
+
+## 9. Imports and Google data
+
+**The rule (Google Maps Platform terms, read 24 Oct 2026).** HagerLand may keep a Google **place ID** for ever and Google's map position (latitude/longitude) for at most 30 consecutive calendar days. It may not store any other Google Places content (names, phones, addresses, websites) and may not create content from it (such as AI descriptions). Sources:
+- Terms of Service §3.2.3 (a) No scraping, (b) No caching, (c) No creating content from Google Maps Content, (d)(iii) not in a listings or directory service: https://cloud.google.com/maps-platform/terms (last modified 26 Aug 2026).
+- Service Specific Terms, General Terms §3 (Google ID caching: `place_id`) and §14.3 Places API caching (latitude/longitude, 30 days): https://cloud.google.com/maps-platform/terms/maps-service-terms (last modified 15 Oct 2026).
+- Places API policies (place IDs exempt from caching; attribution when shown without a Google map): https://developers.google.com/maps/documentation/places/web-service/policies (updated 21 Oct 2026).
+
+**What the app does since migration 0039.**
+- **Imports** (admin → Businesses & people → Imports) is a lead finder: search results are shown, never saved. Importing keeps only the place ID; the business becomes a private lead named “Unconfirmed lead — refetch from Google” in the area you chose. No AI descriptions.
+- Each lead's page has a **Google data** panel: where each detail came from, the deadline, **Show Google's details** (live, not saved, with the “Google Maps” attribution) and **Confirm with the business** (type what the business told you: method, date, who, note). Only confirmed details become HagerLand's data. Confirming removes Google's map position: the location is the area you choose.
+- An imported business cannot be published until its name and every displayed detail are confirmed or replaced (checked on every publish path and by the database).
+- `org_field_sources` records the source of each field; `import_cleanup_runs` logs every clean-up run (append-only).
+
+**Clean-up (daily job, step “imports clean-up”).** Mode is the setting `imports_cleanup_mode` on **Imports compliance** (`/roodber8/imports/compliance`):
+- **Dry run — report only** (default): records what would be cleared. Changes nothing.
+- **Live — clear expired Google data** (owner only; tick that the dry-run list was read): Google details older than 30 days are emptied on **private, unclaimed** businesses; the place ID is kept; a name from Google becomes “Unconfirmed lead — refetch from Google” and the web address (slug) loses Google's name; the business names copied into the import history (`import_log.listing_name`) are emptied. Rows are never deleted; each clearing is in the audit log with field names only.
+- **Public or claimed businesses are never cleared automatically.** They appear under **Public — needs your decision** with two owner buttons: **Make private and clear**, or **Confirmed with business** (opens the confirm form).
+- A failing clean-up is logged (“imports clean-up failed”) and never stops the rest of the daily job or the digest. The digest shows counts only.
+
+**Not cleared (by design, tell AB).** Older audit-log entries may contain business names or details copied at import or edit time (the audit trail is kept). The location (sub-city) of businesses imported before 0039 may have been matched from Google's address; it stays until confirmed.
+
+**Switching back.** Set the mode to Dry run at any time; cleared fields cannot be restored from HagerLand (use **Show Google's details** and confirm with the business again).

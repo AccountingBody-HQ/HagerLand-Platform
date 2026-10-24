@@ -51,7 +51,7 @@ const labels = (groups: { label: string; items: readonly { label: string }[] }[]
 describe('admin menu', () => {
   it('keeps every earlier item exactly once, with the same label and address (plus the Phase 4 and 5 supply items)', () => {
     const now = ADMIN_NAV.map((i) => [i.href, i.label])
-    const added = [['/roodber8/supply/orders', 'Supply orders'], ['/roodber8/supply/ledger', 'Supply ledger'], ['/roodber8/supply/performance', 'Partner performance'], ['/roodber8/reports/supply', 'Supply report']]
+    const added = [['/roodber8/supply/orders', 'Supply orders'], ['/roodber8/supply/ledger', 'Supply ledger'], ['/roodber8/supply/performance', 'Partner performance'], ['/roodber8/reports/supply', 'Supply report'], ['/roodber8/imports/compliance', 'Imports compliance']]
     expect(new Set(now.map((x) => x.join('|'))).size).toBe(now.length)
     expect([...now].sort()).toEqual([...BEFORE, ...added].sort())
   })
@@ -63,7 +63,7 @@ describe('admin menu', () => {
       ['Supplies', ['Supply partners', 'Supply orders', 'Partner performance', 'Products', 'Categories', 'Trade accounts']],
       ['Jobs', ['Jobs and applications']],
       ['Property', ['Properties', 'Developments', 'Agency', 'Property Care', 'HagerLand sales']],
-      ['Businesses & people', ['Organisations', 'Users', 'Partner applications', 'Imports', 'Reviews']],
+      ['Businesses & people', ['Organisations', 'Users', 'Partner applications', 'Imports', 'Imports compliance', 'Reviews']],
       ['Money', ['Deals and commissions', 'Supply ledger']],
       ['Content', ['Guides', 'Area guides', 'Newsletter', 'Promotions']],
       ['Insights', ['Demand', 'Performance', 'Reports', 'Supply report']],

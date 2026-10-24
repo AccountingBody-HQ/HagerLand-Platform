@@ -6,6 +6,8 @@ import { AdminHeader, DataTable, SimplePager, StatusBadge } from '@/components/a
 import { cn } from '@/lib/cn'
 import { ImportSearch } from './ImportSearch'
 import { ImportReview } from './ImportReview'
+import { loadImported } from '@/lib/imports/compliance-data'
+import { STATE_LABEL } from '@/lib/imports/compliance'
 
 export const metadata = { title: 'Imports' }
 const PAGE = 50
@@ -15,7 +17,7 @@ export default async function ImportPage(props: { searchParams: Promise<{ tab?: 
   await requireAdminPage()
   const tab = searchParams.tab === 'review' || searchParams.tab === 'history' ? searchParams.tab : 'search'
   const db = getAdminSupabase()
-  const { count: reviewCount } = await db.from('organisations').select('id', { count: 'exact', head: true }).eq('source', 'import').eq('status', 'pending_review')
+  const { count: reviewCount } = await db.from('organisations').select('id', { count: 'exact', head: true }).eq('source', 'import').in('status', ['draft', 'pending_review'])
   const tabLink = (key: string, label: string) => (
     <Link href={`/roodber8/import?tab=${key}`} aria-current={tab === key ? 'page' : undefined} className={cn('rounded-md px-3 py-2 text-small font-semibold', tab === key ? 'bg-ink text-white' : 'bg-white text-ink hover:bg-stone-100')}>
       {label}
@@ -31,7 +33,6 @@ export default async function ImportPage(props: { searchParams: Promise<{ tab?: 
     body = (
       <ImportSearch
         configured={Boolean(process.env.GOOGLE_PLACES_API_KEY)}
-        aiEnabled={Boolean(process.env.ANTHROPIC_API_KEY)}
         services={(services ?? []).map((s) => ({ id: s.id, label: s.parent_id ? `${byId.get(s.parent_id)} › ${s.name}` : s.name })).sort((a, b) => a.label.localeCompare(b.label))}
         locations={(locations ?? []).map((l) => ({ id: l.id, label: l.display_name }))}
       />
@@ -41,9 +42,10 @@ export default async function ImportPage(props: { searchParams: Promise<{ tab?: 
       .from('organisations')
       .select('id, name, kind, description, phone, website, address_line, location:locations(display_name), services:organisation_services(service:service_categories(name))')
       .eq('source', 'import')
-      .eq('status', 'pending_review')
+      .in('status', ['draft', 'pending_review'])
       .order('created_at')
       .limit(200)
+    const states = new Map((await loadImported()).map((r) => [r.id, r.c]))
     body = (
       <ImportReview
         items={(data ?? []).map((o) => ({
@@ -56,6 +58,8 @@ export default async function ImportPage(props: { searchParams: Promise<{ tab?: 
           address: o.address_line,
           location: (o.location as { display_name: string } | null)?.display_name ?? null,
           services: ((o.services ?? []) as { service: { name: string } | null }[]).map((s) => s.service?.name ?? '').filter(Boolean),
+          state: STATE_LABEL[states.get(o.id)?.state ?? 'lead'],
+          block: states.get(o.id)?.publishBlock ?? null,
         }))}
       />
     )
@@ -82,10 +86,18 @@ export default async function ImportPage(props: { searchParams: Promise<{ tab?: 
   }
   return (
     <div className="space-y-5">
-      <AdminHeader title="Imports" description="Find businesses on Google, import them as unclaimed profiles, then review each one before it goes live. Only the name, address, phone, website and location are kept." />
+      <AdminHeader
+        title="Imports"
+        description="Find businesses on Google as leads. Only Google’s place ID is kept: confirm each business’s details with the business itself (phone, WhatsApp, Telegram, visit or email) before it can be published."
+        actions={
+          <Link href="/roodber8/imports/compliance" prefetch={false} className="inline-flex min-h-10 items-center text-small font-semibold text-green underline">
+            Imports compliance
+          </Link>
+        }
+      />
       <nav aria-label="Import steps" className="flex flex-wrap gap-2">
         {tabLink('search', '1. Search and import')}
-        {tabLink('review', `2. Review (${reviewCount ?? 0})`)}
+        {tabLink('review', `2. Leads to confirm (${reviewCount ?? 0})`)}
         {tabLink('history', 'History')}
       </nav>
       {body}
