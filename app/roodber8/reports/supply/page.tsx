@@ -6,12 +6,13 @@ import { formatEtbExact, todayInAddis } from '@/lib/supply/shortlist'
 import { unitLabel } from '@/lib/units'
 import { AdminHeader, DataTable, KeyValue, Panel } from '@/components/admin/AdminUi'
 import { ButtonLink } from '@/components/ui/Button'
+import { PrintButton } from '@/components/admin/PrintButton'
 
 export const metadata = { title: 'Supply report' }
 
 function Csv({ month, table }: { month: string; table: string }) {
   return (
-    <ButtonLink href={`/roodber8/reports/supply/export?month=${month}&table=${table}`} variant="secondary" size="sm" prefetch={false} className="print:hidden">
+    <ButtonLink href={`/roodber8/reports/supply/export?month=${month}&table=${table}`} variant="secondary" size="sm" prefetch={false} className="hl-no-print">
       CSV
     </ButtonLink>
   )
@@ -26,9 +27,9 @@ export default async function SupplyReportPage(props: { searchParams: Promise<{ 
   const r = await supplyReport(month)
   const label = new Date(`${month}-01T00:00:00Z`).toLocaleDateString('en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' })
   return (
-    <div className="space-y-5">
-      <AdminHeader title={`Supply report: ${label}`} description="Quotes, orders and money for HagerLand Supply in one month. Owner only. Use your browser’s Print to save it as a PDF." />
-      <form action="/roodber8/reports/supply" method="get" className="flex flex-wrap items-end gap-2 print:hidden">
+    <div className="hl-print-page space-y-5">
+      <AdminHeader title={`Supply report: ${label}`} description="Quotes, orders and money for HagerLand Supply in one month. Owner only. “Print or save as PDF” prints this page without the menu and buttons." />
+      <form action="/roodber8/reports/supply" method="get" className="hl-no-print flex flex-wrap items-end gap-2">
         <label className="flex flex-col text-caption font-semibold text-muted">
           Month
           <input type="month" name="month" defaultValue={month} className="h-10 rounded-sm border border-border-strong px-2 text-small text-ink" />
@@ -39,6 +40,7 @@ export default async function SupplyReportPage(props: { searchParams: Promise<{ 
         <Link href="/roodber8/reports" prefetch={false} className="inline-flex min-h-10 items-center px-2 text-small font-semibold text-green underline">
           All reports
         </Link>
+        <PrintButton />
       </form>
       <p className={`rounded-md px-3 py-2 text-small font-semibold ${r.reconciliation.reconciles ? 'bg-green-soft text-ink' : 'bg-error/10 text-error'}`}>
         Reconciles with ledger: {r.reconciliation.reconciles ? 'yes' : 'no'} (HagerLand earned {formatEtbExact(r.reconciliation.earnedCents)}; money in minus out {formatEtbExact(r.reconciliation.ledgerNetCents)})

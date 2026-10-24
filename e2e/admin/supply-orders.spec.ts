@@ -316,7 +316,7 @@ test('J9, J11, J12: operations moves orders and adds proof but never sees money 
     await expect(page.getByRole('navigation', { name: 'Admin' }).getByRole('link', { name: 'Supply orders' })).toBeVisible()
     await expect(page.getByRole('navigation', { name: 'Admin' }).getByRole('link', { name: 'Supply ledger' })).toHaveCount(0)
     await page.goto('/roodber8/supply/orders?action=1')
-    await expect(page.getByText('Delivered without delivery proof').first()).toBeVisible()
+    await expect(page.getByRole('region', { name: 'Supply orders' }).getByText('Delivered without delivery proof').first()).toBeVisible()
     await page.goto(`/roodber8/supply/orders/${seedOrder}`)
     expect(await page.content()).not.toMatch(MONEY_WORDS)
     await expect(page.getByRole('button', { name: 'Supplier confirmed' })).toBeVisible()

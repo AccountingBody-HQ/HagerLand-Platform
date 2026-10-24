@@ -151,7 +151,7 @@ function Links({ badges, onNavigate, role, shortcut }: { badges: Record<string, 
 /** Desktop sidebar. */
 export function AdminSidebar({ badges, role }: { badges: Record<string, number>; role: StaffRole | null }) {
   return (
-    <div className="hidden w-60 shrink-0 border-r border-white/10 bg-ink lg:block">
+    <div className="hl-admin-chrome hidden w-60 shrink-0 border-r border-white/10 bg-ink lg:block">
       <nav aria-label="Admin" className="sticky top-14 h-[calc(100dvh-3.5rem)] overflow-y-auto p-3">
         <Links badges={badges} role={role} shortcut />
       </nav>

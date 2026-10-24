@@ -17,7 +17,7 @@ import {
 } from '@/app/roodber8/actions/quote-suppliers'
 import { basket, formatEtbExact, ONE_DELIVERY_NOTE, type BasketOption, type Candidate, type ItemShortlist } from '@/lib/supply/shortlist'
 import { UNITS, unitLabel } from '@/lib/units'
-import { formatDate, formatPhone } from '@/lib/format'
+import { formatDate } from '@/lib/format'
 import { productPrice } from '@/lib/product-price'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -26,6 +26,7 @@ import { useToast } from '@/components/ui/Toast'
 import { FormAlert } from '@/components/forms/FormParts'
 import { FreshnessBadge } from './SupplierOffers'
 import type { PartnerContact, QuoteItemView, QuoteLineRow } from '@/lib/supply/quote-supply-data'
+import { SupplyContactLinks } from './SupplyContactLinks'
 
 type Result = { ok: true; data: { message: string } } | { ok: false; error: string }
 interface PartnerView {
@@ -208,7 +209,7 @@ function ContactLine({ partner }: { partner: PartnerView | undefined }) {
   const c = partner.contact
   return (
     <span className="text-muted">
-      {[c.name, c.phone ? formatPhone(c.phone) : null, c.whatsapp ? `WhatsApp ${formatPhone(c.whatsapp)}` : null, c.telegram ? `Telegram ${c.telegram}` : null].filter(Boolean).join(' · ')}
+      <SupplyContactLinks name={c.name} phone={c.phone} whatsapp={c.whatsapp} telegram={c.telegram} />
     </span>
   )
 }
@@ -255,6 +256,9 @@ interface Selection {
   entry: AskEntry
 }
 
+/** Suggestions shown before "Show N more". */
+const TOP_SUGGESTIONS = 3
+
 function ItemSuppliers({ quoteId, item, list, lines, partners, offerPrices, readOnly, selected, toggle }: {
   quoteId: string
   item: QuoteItemView
@@ -269,6 +273,7 @@ function ItemSuppliers({ quoteId, item, list, lines, partners, offerPrices, read
   const [replying, setReplying] = useState<string | null>(null)
   const [manual, setManual] = useState('')
   const [showExcluded, setShowExcluded] = useState(false)
+  const [showAll, setShowAll] = useState(false)
   const { pending, error, run } = useRun()
   const listed = new Set(lines.map((l) => l.org_id))
   const suggestions = list.candidates.filter((c) => !listed.has(c.orgId))
@@ -277,6 +282,9 @@ function ItemSuppliers({ quoteId, item, list, lines, partners, offerPrices, read
   const cheapest = replies[0]?.id
   const manualChoices = Array.from(partners.values()).filter((p) => ['active', 'terms_agreed'].includes(p.status) && !p.doNotContact && !listed.has(p.orgId)).sort((a, b) => a.name.localeCompare(b.name))
   const candidateEntry = (c: Candidate): Selection => ({ key: `${item.id}|${c.orgId}`, entry: { itemId: item.id, orgId: c.orgId, offerId: c.offerId, unit: c.unit, quantity: c.quantity, reason: c.reason } })
+  // The best few first, so the panel stays short on a phone; a ticked supplier always stays in view.
+  const shown = showAll ? suggestions : suggestions.filter((c, i) => i < TOP_SUGGESTIONS || selected.has(candidateEntry(c).key))
+  const hidden = suggestions.length - shown.length
 
   return (
     <section aria-label={`Suppliers for ${item.name}`} className="space-y-3 rounded-lg border border-border p-3">
@@ -401,7 +409,7 @@ function ItemSuppliers({ quoteId, item, list, lines, partners, offerPrices, read
         <div>
           <p className="mb-1 text-caption font-semibold uppercase text-muted">Suggested suppliers</p>
           <ul className="space-y-2">
-            {suggestions.map((c) => {
+            {shown.map((c) => {
               const p = partners.get(c.orgId)
               const sel = candidateEntry(c)
               return (
@@ -425,14 +433,19 @@ function ItemSuppliers({ quoteId, item, list, lines, partners, offerPrices, read
               )
             })}
           </ul>
+          {hidden > 0 && (
+            <button type="button" className="min-h-11 text-small font-semibold text-green" onClick={() => setShowAll(true)}>
+              Show {hidden} more
+            </button>
+          )}
         </div>
       )}
       {suggestions.length === 0 && sortedLines.length === 0 && <p className="text-small text-muted">No supplier price matches this item yet. Add one by hand below, or add prices to a partner’s price list.</p>}
 
       {list.excluded.length > 0 && (
         <div>
-          <button type="button" className="min-h-9 text-small font-semibold text-green" aria-expanded={showExcluded} onClick={() => setShowExcluded(!showExcluded)}>
-            Not suggested ({list.excluded.length})
+          <button type="button" className="min-h-11 text-small font-semibold text-green" aria-expanded={showExcluded} onClick={() => setShowExcluded(!showExcluded)}>
+            {showExcluded ? 'Hide not suggested' : `Show ${list.excluded.length} not suggested, with reasons`}
           </button>
           {showExcluded && (
             <ul className="mt-1 space-y-1 text-small text-muted">

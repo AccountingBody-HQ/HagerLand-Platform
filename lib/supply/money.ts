@@ -161,6 +161,11 @@ export function customerNetPaid(s: LedgerSummary): number {
   return s.customerPaid - s.refunds
 }
 
+/** What can still be refunded to the customer on a model A order: payments minus refunds already recorded, never below 0. */
+export function refundableCents(s: LedgerSummary): number {
+  return Math.max(0, customerNetPaid(s))
+}
+
 /**
  * What HagerLand earned on an order. Model A: customer payments − refunds − supplier payments + service fees.
  * Model B: commission received + service fees. Adjustments add (in) or subtract (out) in both.

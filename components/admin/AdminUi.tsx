@@ -126,7 +126,8 @@ export function KeyValue({ items }: { items: [string, ReactNode][] }) {
       {items
         .filter(([, v]) => v !== null && v !== undefined && v !== '')
         .map(([k, v]) => (
-          <div key={k} className="flex gap-2">
+          // min-w-0: a long value (an email address) wraps instead of widening the page on a phone.
+          <div key={k} className="flex min-w-0 gap-2">
             <dt className="w-36 shrink-0 text-muted">{k}</dt>
             <dd className="min-w-0 break-words text-ink">{v}</dd>
           </div>

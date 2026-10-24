@@ -86,3 +86,13 @@
 .leaflet-container .leaflet-control-attribution a:hover {
   text-decoration: underline;
 }
+
+/* Admin pages printed from the browser (the Supply report): page content only, tables fitting the paper width. */
+@media print {
+  .hl-admin-chrome,
+  .hl-no-print { display: none !important; }
+  .hl-print-page { background: #fff; }
+  .hl-print-page [role='region'] { overflow: visible !important; border: 0; }
+  .hl-print-page table { min-width: 0 !important; width: 100%; font-size: 10pt; }
+  .hl-print-page section { break-inside: avoid; }
+}

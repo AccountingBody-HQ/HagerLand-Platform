@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState, useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import { FileText } from 'lucide-react'
 import {
   addSupplyEvidenceAction,
@@ -13,14 +13,16 @@ import {
   setSupplyPartnerStatusAction,
 } from '@/app/roodber8/actions/supply-partners'
 import { CONFIDENCE_LEVELS, CONSENT_BASES, CONTACT_CHANNELS, labelFor, PARTNER_SOURCES, RELATIONSHIP_STATUSES, REVERIFY_MONTHS, SUPPLY_ROLES, type SupplyContactInput, type SupplyProfileInput } from '@/lib/supply/partners'
-import { formatDate, formatPhone } from '@/lib/format'
+import { formatDate } from '@/lib/format'
 import { Button } from '@/components/ui/Button'
 import { Checkbox, Field, Input, Select, Textarea } from '@/components/ui/Field'
 import { useToast } from '@/components/ui/Toast'
 import { FileDrop } from '@/components/media/FileDrop'
+import { rememberVersion, useLatestVersion } from '@/lib/admin/latest-version'
 import { StatusBadge } from './AdminUi'
+import { SupplyContactLinks } from './SupplyContactLinks'
 
-type Result = { ok: true; data: { message: string } } | { ok: false; error: string }
+type Result = { ok: true; data: { message: string; updatedAt?: string } } | { ok: false; error: string }
 
 export interface SupplyPartnerView {
   roles: string[]
@@ -57,7 +59,8 @@ export interface SupplyContactView {
   last_contacted_at: string | null
 }
 
-function useRun() {
+/** Runs a save; `versionKey` remembers the record's new updated_at for the panel's other buttons (lib/admin/latest-version). */
+function useRun(versionKey?: string) {
   const [pending, start] = useTransition()
   const toast = useToast()
   const router = useRouter()
@@ -68,6 +71,7 @@ function useRun() {
         const res = await fn()
         toast(res.ok ? res.data.message : res.error, res.ok ? 'success' : 'error')
         if (res.ok) {
+          if (versionKey) rememberVersion(versionKey, res.data.updatedAt)
           after?.()
           router.refresh()
         }
@@ -111,6 +115,12 @@ export function SupplyPartnerPanel({
   duplicates: { id: string; name: string; status: string; reason: string }[]
   prices: { current: number; expiringSoon: number; expired: number }
 }) {
+  // The status picked but not saved yet (null: the saved one). "Change status" and "Save supply record" both save it.
+  const [chosen, setChosen] = useState<string | null>(null)
+  const saved = partner?.relationship_status ?? ''
+  const status = chosen ?? saved
+  // Once the page shows the saved status, the pick is no longer pending.
+  useEffect(() => setChosen((c) => (c === saved ? null : c)), [saved])
   return (
     <div className="space-y-6">
       <p className="text-small text-muted">Private to HagerLand: never shown on the site, to customers or to the business itself.</p>
@@ -125,8 +135,8 @@ export function SupplyPartnerPanel({
           </Link>
         </p>
       )}
-      {partner && <StatusControl orgId={orgId} status={partner.relationship_status} changedAt={partner.status_changed_at} />}
-      <ProfileForm orgId={orgId} partner={partner} />
+      {partner && <StatusControl orgId={orgId} status={partner.relationship_status} changedAt={partner.status_changed_at} value={status} setValue={setChosen} />}
+      <ProfileForm orgId={orgId} partner={partner} status={status} />
       {partner && (
         <>
           <Contacts orgId={orgId} contacts={contacts} />
@@ -159,9 +169,8 @@ function Duplicates({ duplicates }: { duplicates: { id: string; name: string; st
   )
 }
 
-function StatusControl({ orgId, status, changedAt }: { orgId: string; status: string; changedAt: string | null }) {
-  const [value, setValue] = useState(status)
-  const { pending, run } = useRun()
+function StatusControl({ orgId, status, changedAt, value, setValue }: { orgId: string; status: string; changedAt: string | null; value: string; setValue: (v: string) => void }) {
+  const { pending, run } = useRun(`partner:${orgId}`)
   const hint = RELATIONSHIP_STATUSES.find((s) => s.value === value)?.hint
   return (
     <div className="space-y-2">
@@ -182,21 +191,24 @@ function StatusControl({ orgId, status, changedAt }: { orgId: string; status: st
           Change status
         </Button>
       </div>
+      {value !== status && <p className="text-caption font-semibold text-gold">Unsaved status change: “Change status” or “Save supply record” saves it.</p>}
     </div>
   )
 }
 
-function ProfileForm({ orgId, partner }: { orgId: string; partner: SupplyPartnerView | null }) {
+function ProfileForm({ orgId, partner, status }: { orgId: string; partner: SupplyPartnerView | null; status: string }) {
   const [v, setV] = useState(profileFrom(partner))
   const [aka, setAka] = useState((partner?.aka ?? []).join('\n'))
-  const { pending, run } = useRun()
+  const { pending, run } = useRun(`partner:${orgId}`)
+  const version = useLatestVersion(`partner:${orgId}`, partner?.updated_at ?? '')
   const set = (k: keyof typeof v) => (e: { target: { value: string } }) => setV({ ...v, [k]: e.target.value })
   const save = () =>
     run(() =>
       saveSupplyPartnerAction(
         orgId,
         { ...v, aka: aka.split('\n').map((s) => s.trim()).filter(Boolean) },
-        partner?.updated_at ?? null,
+        version || null,
+        partner && status !== partner.relationship_status ? status : undefined,
       ),
     )
   return (
@@ -317,7 +329,7 @@ function Contacts({ orgId, contacts }: { orgId: string; contacts: SupplyContactV
               {c.role && <span className="font-normal text-muted"> · {c.role}</span>}
             </p>
             <p>
-              {[c.phone_normalised ? formatPhone(c.phone_normalised) : c.phone, c.whatsapp && `WhatsApp ${formatPhone(c.whatsapp)}`, c.telegram && `Telegram ${c.telegram}`, c.email].filter(Boolean).join(' · ')}
+              <SupplyContactLinks phone={c.phone_normalised ?? c.phone} whatsapp={c.whatsapp} telegram={c.telegram} email={c.email} />
             </p>
             <p className="text-muted">
               {[c.preferred_channel && `Prefers ${labelFor(CONTACT_CHANNELS, c.preferred_channel).toLowerCase()}`, c.consent_basis && labelFor(CONSENT_BASES, c.consent_basis), c.last_contacted_at && `last contacted ${formatDate(c.last_contacted_at)}`].filter(Boolean).join(' · ')}
