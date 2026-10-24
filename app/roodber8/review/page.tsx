@@ -14,7 +14,8 @@ import { BulkApprove } from '@/components/admin/BulkApprove'
 import { ChangesDiff } from '@/components/admin/ChangesDiff'
 import { MediaImage } from '@/components/media/MediaImage'
 import { claimDecisionAction, mediaDecisionAction, reportDecisionAction, verificationDecisionAction } from '../actions/moderation'
-import { developmentUpdateDecisionAction, jobDecisionAction } from '../actions/jobs'
+import { jobDecisionAction } from '../actions/jobs'
+import { developmentUpdateDecisionAction } from '../actions/development-updates'
 import { EMPLOYMENT_TYPES, categoryLabel, formatSalary, labelFor } from '@/lib/jobs'
 
 export const metadata = { title: 'Review queue' }

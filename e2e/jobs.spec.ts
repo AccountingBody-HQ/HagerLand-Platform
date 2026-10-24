@@ -57,7 +57,7 @@ test('switched live: an employer posts a job, HagerLand approves it, a candidate
   const emp = await browser.newPage()
   await signIn(emp, employer.user.email, employer.user.password)
   await emp.goto('/account/jobs')
-  await expect(emp.getByRole('link', { name: 'Jobs', exact: true })).toBeVisible()
+  await expect(emp.getByRole('navigation', { name: 'Account' }).getByRole('link', { name: 'Jobs', exact: true })).toBeVisible()
   await emp.goto('/account/jobs/new')
   await emp.getByLabel('Job title').fill(title)
   await emp.getByLabel('Category').selectOption('engineering')

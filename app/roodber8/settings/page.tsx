@@ -159,7 +159,7 @@ export default async function SettingsPage() {
       <Panel title="Legal pages “last updated” dates">
         <SettingsForm
           section="legal_dates"
-          fields={(['terms', 'privacy', 'cookies'] as const).map((k) => ({ name: k, label: k[0].toUpperCase() + k.slice(1), type: 'date' as const, value: v(dates[k]), hint: `Leave empty to show ${formatDate(LEGAL_WRITTEN)}.` }))}
+          fields={(['terms', 'privacy', 'cookies'] as const).map((k) => ({ name: k, label: k[0].toUpperCase() + k.slice(1), type: 'date' as const, value: v(dates[k]), hint: `Leave empty to show ${formatDate(LEGAL_WRITTEN[k])}.` }))}
         />
       </Panel>
     </div>

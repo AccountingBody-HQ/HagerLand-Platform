@@ -118,7 +118,7 @@ describe('menu by role', () => {
       expect(items.map((i) => i.href)).toEqual(ADMIN_NAV.filter((i) => roleCanAccess(role, i.href)).map((i) => i.href))
       expect(groups.every((g) => g.items.length > 0)).toBe(true)
     }
-    expect(navForRole('operations').map((g) => g.label)).toEqual(['Overview', 'Customer requests', 'Supplies', 'Property', 'Businesses & people', 'Setup'])
+    expect(navForRole('operations').map((g) => g.label)).toEqual(['Overview', 'Customer requests', 'Supplies', 'Jobs', 'Property', 'Businesses & people', 'Setup'])
     expect(navForRole('content').map((g) => g.label)).toEqual(['Overview', 'Content', 'Setup'])
     expect(navForRole('agent').map((g) => g.label)).toEqual(['Overview', 'Customer requests', 'Property'])
   })

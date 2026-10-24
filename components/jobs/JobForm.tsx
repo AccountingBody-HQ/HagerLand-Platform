@@ -7,7 +7,7 @@ import { Field, Input, Select, Textarea, describedBy } from '@/components/ui/Fie
 import { Combobox, type ComboOption } from '@/components/ui/Combobox'
 import { Button } from '@/components/ui/Button'
 import { FormAlert } from '@/components/forms/FormParts'
-import { EMPLOYMENT_TYPES, JOB_CATEGORIES, SALARY_PERIODS } from '@/lib/jobs'
+import { EMPLOYMENT_TYPES, OFFERED_JOB_CATEGORIES, SALARY_PERIODS } from '@/lib/jobs'
 
 export interface JobDefaults {
   id?: string
@@ -55,7 +55,7 @@ export function JobForm({ defaults }: { defaults: JobDefaults }) {
         <Field label="Category" htmlFor="job-category" required error={errors.category}>
           <Select id="job-category" name="category" defaultValue={defaults.category ?? ''} required invalid={Boolean(errors.category)}>
             <option value="">Choose…</option>
-            {JOB_CATEGORIES.map((c) => (
+            {OFFERED_JOB_CATEGORIES.map((c) => (
               <option key={c.value} value={c.value}>
                 {c.label}
               </option>
@@ -72,8 +72,8 @@ export function JobForm({ defaults }: { defaults: JobDefaults }) {
           </Select>
         </Field>
       </div>
-      <Field label="Where is the job?" htmlFor="job-location" required hint="A city or area in Ethiopia, or a city abroad." error={errors.location_id}>
-        <Combobox id="job-location" name="location_id" endpoint="/api/locations?scope=all" defaultValue={defaults.location} invalid={Boolean(errors.location_id)} describedById={describedBy('job-location', errors.location_id, 'hint')} />
+      <Field label="Where is the job?" htmlFor="job-location" required hint="A city or area in Ethiopia" error={errors.location_id}>
+        <Combobox id="job-location" name="location_id" endpoint="/api/locations?scope=ET" defaultValue={defaults.location} invalid={Boolean(errors.location_id)} describedById={describedBy('job-location', errors.location_id, 'hint')} />
       </Field>
       <fieldset className="space-y-3">
         <legend className="font-semibold">

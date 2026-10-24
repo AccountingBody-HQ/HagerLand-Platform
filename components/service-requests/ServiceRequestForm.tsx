@@ -14,6 +14,7 @@ import { Turnstile } from '@/components/forms/Turnstile'
 import { readUtm } from '@/components/enquiry/UtmCapture'
 import { COUNTRIES, OTHER_COUNTRY } from '@/lib/countries'
 import { BUDGET_BANDS, BUDGET_BANDS_ABROAD, URGENCY } from '@/lib/service-requests/labels'
+import { PAY_OFFERED_MAX, requestFormCopy } from '@/lib/service-requests/form-copy'
 import type { Question } from '@/lib/service-requests/questions'
 import { track } from '@/lib/analytics'
 import { NoResetForm } from '@/components/forms/NoResetForm'
@@ -104,6 +105,7 @@ export function ServiceRequestForm({
   const [notListed, setNotListed] = useState(abroad && !defaults.location)
   const [country, setCountry] = useState(abroad ? 'GB' : 'ET')
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
+  const copy = requestFormCopy(categorySlug)
   const urgencies = URGENCY.filter((u) => u.value !== 'emergency' || allowsEmergency)
 
   useEffect(() => {
@@ -131,13 +133,13 @@ export function ServiceRequestForm({
 
       <fieldset className="space-y-5">
         <legend className="hl-h3 mb-2">About the job</legend>
-        <Field label="Give your request a short title" htmlFor="sr-title" error={errors.title} required hint={`For example: “${categoryName} for a G+1 house in Bole”.`}>
+        <Field label="Give your request a short title" htmlFor="sr-title" error={errors.title} required hint={copy.titleHint(categoryName)}>
           <Input id="sr-title" name="title" maxLength={160} invalid={Boolean(errors.title)} aria-describedby={describedBy('sr-title', errors.title, true)} />
         </Field>
         {questions.map((q) => (
           <QuestionField key={q.id} q={q} error={errors[`q_${q.id}`]} />
         ))}
-        <Field label="Describe what you need" htmlFor="sr-details" error={errors.details} required hint="Size, materials, access, anything a provider should know before quoting.">
+        <Field label={copy.detailsLabel} htmlFor="sr-details" error={errors.details} required hint={copy.detailsHint}>
           <Textarea id="sr-details" name="details" rows={5} maxLength={4000} invalid={Boolean(errors.details)} aria-describedby={describedBy('sr-details', errors.details, true)} />
         </Field>
         <fieldset>
@@ -157,20 +159,27 @@ export function ServiceRequestForm({
           </div>
           {errors.urgency && <p role="alert" className="mt-1 text-small text-error">{errors.urgency}</p>}
         </fieldset>
-        <Field label="Budget" htmlFor="sr-budget" optional>
-          <Select id="sr-budget" name="budget_band" defaultValue="">
-            <option value="">Not sure / prefer not to say</option>
-            {(country === 'ET' ? BUDGET_BANDS : BUDGET_BANDS_ABROAD).map((b) => (
-              <option key={b}>{b}</option>
-            ))}
-          </Select>
-        </Field>
+        {copy.budget && (
+          <Field label="Budget" htmlFor="sr-budget" optional>
+            <Select id="sr-budget" name="budget_band" defaultValue="">
+              <option value="">Not sure / prefer not to say</option>
+              {(country === 'ET' ? BUDGET_BANDS : BUDGET_BANDS_ABROAD).map((b) => (
+                <option key={b}>{b}</option>
+              ))}
+            </Select>
+          </Field>
+        )}
+        {copy.pay && (
+          <Field label={copy.pay.label} htmlFor="sr-pay" error={errors.pay_offered} hint={copy.pay.hint}>
+            <Input id="sr-pay" name="pay_offered" maxLength={PAY_OFFERED_MAX} invalid={Boolean(errors.pay_offered)} aria-describedby={describedBy('sr-pay', errors.pay_offered, true)} />
+          </Field>
+        )}
       </fieldset>
 
       <fieldset className="space-y-4">
         <legend className="hl-h3 mb-2">Where</legend>
         {!notListed ? (
-          <Field label="Where is the work?" htmlFor="sr-location" error={errors.location_id} required hint="Start typing a city, sub-city or area. We also cover cities abroad.">
+          <Field label={copy.locationLabel} htmlFor="sr-location" error={errors.location_id} required hint={copy.locationHint}>
             <Combobox id="sr-location" name="location_id" endpoint="/api/locations?scope=all" defaultValue={defaults.location} invalid={Boolean(errors.location_id)} describedById={describedBy('sr-location', errors.location_id, 'hint')} />
           </Field>
         ) : (
@@ -249,7 +258,7 @@ export function ServiceRequestForm({
         Send my request
       </SubmitButton>
       <p className="text-caption text-muted">
-        We share your request with up to three suitable providers. Your phone and email go only to providers who accept it. See our{' '}
+        {copy.footer} See our{' '}
         <Link href="/terms" className="underline">
           Terms
         </Link>{' '}

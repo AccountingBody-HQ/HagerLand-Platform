@@ -54,3 +54,28 @@ describe('development progress updates (spec 25.2j)', () => {
     expect(developmentUpdateSchema.safeParse({ ...base, happened_on: '2999-01-01', photo_paths: '' }).success).toBe(false)
   })
 })
+
+describe('International placements is hidden (Jobs decision 3)', () => {
+  it('is offered by no form or filter, but old records keep their label', async () => {
+    const { OFFERED_JOB_CATEGORIES, categoryLabel } = await import('@/lib/jobs')
+    const { COMING_SOON } = await import('@/lib/content/verticals')
+    expect(OFFERED_JOB_CATEGORIES.map((c) => c.value)).not.toContain('international-placements')
+    expect(OFFERED_JOB_CATEGORIES).toHaveLength(JOB_CATEGORIES.length - 1)
+    expect(COMING_SOON.jobs.categories?.map((c) => c.value)).not.toContain('international-placements')
+    expect(categoryLabel('international-placements')).toBe('International placements')
+  })
+  it('a crafted job post with the category is refused with a plain message', () => {
+    const r = jobSchema.safeParse({ ...valid, category: 'international-placements' })
+    expect(r.success).toBe(false)
+    if (!r.success) expect(r.error.issues[0]?.message).toBe('This category is not available at the moment. Choose another category.')
+    expect(jobSchema.safeParse({ ...valid, category: 'engineering' }).success).toBe(true)
+  })
+  it('the /jobs filter, job form and register use the offered list only', async () => {
+    const { readFileSync } = await import('node:fs')
+    const page = readFileSync('app/(site)/jobs/page.tsx', 'utf8')
+    const form = readFileSync('components/jobs/JobForm.tsx', 'utf8')
+    expect(page).not.toMatch(/\bJOB_CATEGORIES\b/)
+    expect(form).not.toMatch(/\bJOB_CATEGORIES\b/)
+    expect(readFileSync('app/actions/interest-actions.ts', 'utf8')).toContain('content.categories.some((c) => c.value === d.category)')
+  })
+})

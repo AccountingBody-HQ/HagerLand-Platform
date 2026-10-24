@@ -20,7 +20,7 @@ import type { MediaItem } from '@/lib/media-actions'
 import { UpdateForm } from '@/components/development/UpdateForm'
 import { DecisionButtons } from '@/components/admin/ModerationControls'
 import { ActionButton } from '@/components/forms/ActionButton'
-import { adminPostDevelopmentUpdateAction, developmentUpdateDecisionAction, removeDevelopmentUpdateAction } from '../../actions/jobs'
+import { adminPostDevelopmentUpdateAction, developmentUpdateDecisionAction, removeDevelopmentUpdateAction } from '../../actions/development-updates'
 
 export const metadata = { title: 'Development' }
 

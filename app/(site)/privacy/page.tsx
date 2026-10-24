@@ -55,7 +55,7 @@ export default async function PrivacyPage() {
         <TextSection title="Who we share it with">
           <ul>
             <li><strong>The people you contact:</strong> when you send an enquiry, the lister or business receives your name, contact details and message.</li>
-            <li><strong>Employers you apply to:</strong> the employer receives your application and CV. CVs are never public. Your candidate profile is private unless you choose to make it visible to approved employers, and even then they see neither your contact details nor your CV.</li>
+            <li><strong>Employers you apply to:</strong> the employer receives your application and CV. CVs are never public. Your candidate profile is private unless you choose to make it visible to businesses with a published profile on HagerLand, and even then they see neither your contact details nor your CV.</li>
             <li><strong>Providers matched to your request:</strong> up to three providers receive your request and contact details so they can quote. We tell you who they are on your request page.</li>
             <li><strong>Finance and insurance partners:</strong> where these services are available and you ask for them, we pass your request to an approved, licensed partner. They handle your information under their own privacy policy.</li>
             <li><strong>Owners and landlords we act for:</strong> when you book a viewing, make an offer or apply to rent a property we market, we share your details, offer or application with the owner so they can decide. We do not share documents you upload beyond what is needed to consider the application.</li>
@@ -76,7 +76,7 @@ export default async function PrivacyPage() {
             <li>Verification documents: deleted 90 days after our decision, unless we need them to deal with a dispute or fraud.</li>
             <li>Contact reveal records: 12 months.</li>
             <li>Registrations of interest in services that are coming soon: 24 months.</li>
-            <li>CVs sent with job applications: deleted 12 months after the application. Your candidate profile and its CV: until you delete them.</li>
+            <li>CVs and other details sent with job applications (your name, contact details and cover note): deleted 12 months after the application. Your candidate profile and its CV: until you delete them.</li>
             <li>Viewings, offers and applications to rent: 24 months after the last activity, unless they lead to a sale or tenancy, which we keep for as long as the law requires for our records.</li>
             <li>Agency contact records and requirements: while we act for you or you want matching listings, and removed on request.</li>
             <li>Newsletter: until you unsubscribe (one click in every email).</li>
