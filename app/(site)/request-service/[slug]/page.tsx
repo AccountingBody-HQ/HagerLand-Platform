@@ -7,6 +7,9 @@ import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { ServiceRequestForm } from '@/components/service-requests/ServiceRequestForm'
 import { HowRequestsWork } from '@/components/service-requests/HowRequestsWork'
 import { askedQuestions, requestFormCopy } from '@/lib/service-requests/form-copy'
+import { ABROAD_COUNTRIES, EMPLOYER_ABROAD_TEXT } from '@/lib/service-requests/employer-abroad'
+import { getLocale } from '@/lib/i18n/server'
+import { translator } from '@/lib/i18n/translate'
 
 export const dynamic = 'force-dynamic'
 
@@ -30,6 +33,7 @@ export default async function RequestCategoryPage(
   if (!category) notFound()
   const [user, profile] = await Promise.all([getUser(), getProfile()])
   const copy = requestFormCopy(category.slug)
+  const t = translator(await getLocale())
   return (
     <Container className="py-8 lg:py-12">
       <Breadcrumbs items={[{ label: 'Request a service', href: '/request-service' }, { label: category.name }]} />
@@ -45,6 +49,11 @@ export default async function RequestCategoryPage(
               questions={askedQuestions(category.slug, category.questions)}
               allowsEmergency={category.allowsEmergency}
               abroad={searchParams.abroad === '1'}
+              employerAbroad={
+                copy.employerAbroad
+                  ? { question: t(EMPLOYER_ABROAD_TEXT.question), hint: t(EMPLOYER_ABROAD_TEXT.hint), countryQuestion: t(EMPLOYER_ABROAD_TEXT.countryQuestion), countries: ABROAD_COUNTRIES.map((c) => ({ code: c.code, name: c.name })) }
+                  : null
+              }
               defaults={{ name: profile?.full_name, phone: profile?.phone, email: user?.email }}
             />
           </div>

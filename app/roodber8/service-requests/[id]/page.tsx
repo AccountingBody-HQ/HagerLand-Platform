@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { requireAdminPage } from '@/lib/admin/guard'
+import { isOwnerSession, requireAdminPage } from '@/lib/admin/guard'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { signedDocumentUrl } from '@/lib/storage'
 import { getLocationChain } from '@/lib/data/reference'
@@ -21,6 +21,8 @@ import { getPillar } from '@/lib/data/pillars'
 import { VERTICAL_PILLAR } from '@/lib/pillars'
 import { CURRENCIES } from '@/lib/countries'
 import type { VerticalKey } from '@/lib/verticals'
+import { STAFFING_SLUG } from '@/lib/service-requests/form-copy'
+import { employerAbroadLines } from '@/lib/service-requests/employer-abroad'
 
 export const metadata = { title: 'Service request' }
 
@@ -44,7 +46,7 @@ export default async function ServiceRequestDetail(
   const { data: r } = await db.from('service_requests').select('*').eq('id', params.id).maybeSingle()
   if (!r) notFound()
   const [{ data: cat }, { data: matches }] = await Promise.all([
-    r.service_category_id ? db.from('service_categories').select('name, question_schema').eq('id', r.service_category_id).maybeSingle() : Promise.resolve({ data: null }),
+    r.service_category_id ? db.from('service_categories').select('name, slug, question_schema').eq('id', r.service_category_id).maybeSingle() : Promise.resolve({ data: null }),
     db.from('service_request_matches').select('*').eq('request_id', r.id).order('offered_at'),
   ])
   const { data: history } = await db.from('audit_log').select('id, action, created_at, diff').eq('entity_id', r.id).order('created_at', { ascending: false }).limit(50)
@@ -58,6 +60,10 @@ export default async function ServiceRequestDetail(
   const active = (matches ?? []).filter((m) => !['declined', 'withdrawn'].includes(m.status))
   const slots = Math.max(0, MAX_MATCHES - active.length)
   const open = ['submitted', 'triaged', 'matched', 'quoted'].includes(r.status)
+  // Staffing requests are HagerLand's own recruitment service (Jobs Phase 3): no providers, no quote, fees owner only.
+  const staffing = cat?.slug === STAFFING_SLUG
+  const owner = await isOwnerSession()
+  const { data: assignment } = staffing ? await db.from('recruitment_assignments').select('id, reference').eq('service_request_id', r.id).maybeSingle() : { data: null }
 
   // Suggestions: same service, nearest location first (the place, then each parent), verified first.
   const chain = r.location_id ? (await getLocationChain(r.location_id)).reverse() : []
@@ -66,7 +72,7 @@ export default async function ServiceRequestDetail(
     const { data } = await db.rpc('search_organisations', { p_sort: 'verified', p_page_size: 12, ...args })
     for (const o of ((data as unknown as { items?: OrgHit[] })?.items ?? [])) if (!found.has(o.id) && !orgIds.includes(o.id)) found.set(o.id, o)
   }
-  if (open && slots > 0) {
+  if (open && slots > 0 && !staffing) {
     if (searchParams.find) await search({ p_q: searchParams.find.slice(0, 80) })
     else {
       for (const loc of chain) {
@@ -82,7 +88,7 @@ export default async function ServiceRequestDetail(
     meta: [ORG_KIND_LABEL[o.kind] ?? o.kind, o.verification_level, o.location_display, o.serves_diaspora ? 'serves the community abroad' : null].filter(Boolean).join(' · '),
   }))
   const files = await Promise.all((r.attachment_paths ?? []).map(async (p, i) => ({ name: `Attachment ${i + 1}`, url: await signedDocumentUrl(p) })))
-  const answers = answerLines(parseQuestions(cat?.question_schema), (r.answers as Record<string, string>) ?? {})
+  const answers = [...answerLines(parseQuestions(cat?.question_schema), (r.answers as Record<string, string>) ?? {}), ...employerAbroadLines(r.answers)]
 
   return (
     <div className="space-y-5">
@@ -147,7 +153,7 @@ export default async function ServiceRequestDetail(
                         {m.quote_valid_until ? ` · valid until ${formatDate(m.quote_valid_until)}` : ''}
                       </p>
                     )}
-                    {team && m.org_id === team.id && ['accepted', 'quoted'].includes(m.status) && (
+                    {!staffing && team && m.org_id === team.id && ['accepted', 'quoted'].includes(m.status) && (
                       <div className="mt-3 border-t border-border pt-3">
                         <p className="mb-2 text-small font-semibold">HagerLand’s quote</p>
                         <ActionForm action={hagerlandQuoteAction.bind(null, m.id)} submitLabel="Send HagerLand’s quote" resetOnSuccess={false}>
@@ -172,6 +178,7 @@ export default async function ServiceRequestDetail(
                         </ActionForm>
                       </div>
                     )}
+                    {(!staffing || owner) && (
                     <div className="mt-3 border-t border-border pt-3">
                       <MatchCommercialTool
                         matchId={m.id}
@@ -182,18 +189,39 @@ export default async function ServiceRequestDetail(
                         invoiced={m.invoiced}
                       />
                     </div>
+                    )}
                   </li>
                 ))}
               </ul>
             )}
           </Panel>
-          {open && slots > 0 && directOn && team && !orgIds.includes(team.id) && (
+          {staffing && (
+            <Panel title="Recruitment desk">
+              {assignment ? (
+                <p className="text-small">
+                  This staffing request is on the recruitment desk as{' '}
+                  <Link href={`/roodber8/jobs/desk/${assignment.id}`} prefetch={false} className="font-semibold text-green underline">
+                    {assignment.reference}
+                  </Link>
+                  . Shortlists, consent, introductions and placements are handled there.
+                </p>
+              ) : open && directOn && team ? (
+                <>
+                  <p className="mb-3 text-small text-muted">Staffing requests are handled by HagerLand’s own recruitment team, never sent to providers. Assigning it opens a recruitment desk assignment.</p>
+                  <RunButton label="Assign HagerLand’s own team" fn={assignHagerlandTeamAction.bind(null, r.id)} variant="primary" />
+                </>
+              ) : (
+                <p className="text-small text-muted">Not on the recruitment desk.</p>
+              )}
+            </Panel>
+          )}
+          {!staffing && open && slots > 0 && directOn && team && !orgIds.includes(team.id) && (
             <Panel title="Provided by HagerLand">
               <p className="mb-3 text-small text-muted">HagerLand delivers this service directly. Assign it to HagerLand’s own team as well as, or instead of, the providers below.</p>
               <RunButton label="Assign HagerLand’s own team" fn={assignHagerlandTeamAction.bind(null, r.id)} variant="primary" />
             </Panel>
           )}
-          {open && slots > 0 && (
+          {!staffing && open && slots > 0 && (
             <Panel title="Send to providers">
               <form method="get" className="mb-4 flex flex-wrap items-end gap-2">
                 <label className="flex flex-col gap-1 text-caption font-semibold text-muted">
@@ -216,7 +244,7 @@ export default async function ServiceRequestDetail(
         <div className="space-y-5">
           <Panel title="Status">
             <RequestStatusTool id={r.id} status={r.status} />
-            {open && (
+            {open && !staffing && (
               <div className="mt-4">
                 <NoProviderTool id={r.id} />
               </div>

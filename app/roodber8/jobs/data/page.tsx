@@ -5,11 +5,14 @@ import { formatDate } from '@/lib/format'
 import { readJobsSwitches } from '@/lib/jobs-switches'
 import { cleanupRunText, type CleanupCounts } from '@/lib/jobs-cleanup'
 import { AdminHeader, DataTable, Panel } from '@/components/admin/AdminUi'
-import { JobsCleanupModeControl, JobsDryRunButton, JobsSwitchControl } from '@/components/admin/JobsPhase2Controls'
+import { JobsCleanupModeControl, JobsDryRunButton, JobsSwitchControl, RetentionMonthsControl } from '@/components/admin/JobsPhase2Controls'
 
 export const metadata = { title: 'Jobs: switches and data deletion' }
 
-/** Owner only: the two website switches (start off) and the 12-month deletion of personal details (starts on dry run). */
+/**
+ * Owner only: the website switches (all start off: Apply by phone, the worker register, the recruitment desk), the
+ * keeping period for hired people (empty until the lawyer confirms) and the 12-month deletion (starts on dry run).
+ */
 export default async function JobsDataPage() {
   await requireAdminPage()
   if (!(await isOwnerSession())) redirect('/roodber8?denied=1')
@@ -21,7 +24,7 @@ export default async function JobsDataPage() {
     <div className="space-y-5">
       <AdminHeader
         title="Jobs: switches and data deletion"
-        description="Only you (the owner) can change these. Keep both switches off until the lawyer has confirmed the points below. Personal details must be deleted 12 months after an application: switch deletion to Live before 15 October 2027."
+        description="Only you (the owner) can change these. Keep the switches off until the lawyer has confirmed the points below. Personal details must be deleted 12 months after an application: switch deletion to Live before 15 October 2027."
       />
       <Panel title="Website switches">
         <div className="grid gap-3 md:grid-cols-2">
@@ -30,9 +33,25 @@ export default async function JobsDataPage() {
         </div>
         <p className="mt-3 text-small text-muted">Off means: no button or form on the website, the form address shows “not found”, and the server refuses anything sent to it.</p>
       </Panel>
+      <Panel title="Recruitment desk">
+        <div className="grid gap-3 md:grid-cols-2">
+          <JobsSwitchControl which="recruitment_desk" on={switches.recruitmentDesk} label="Recruitment desk" />
+          <div className="space-y-2 text-small">
+            <p>
+              <strong>Off</strong> (the start): you and Operations can use the desk inside admin (shortlists, consent, introductions, placements, fees), but nothing reaches employers: no “People introduced to you” on their request page, no introduction or placement emails, and the fee line in the Terms is not shown.
+            </p>
+            <p>
+              <strong>On</strong>: introduced people appear on the employer’s request page (only with their recorded consent and 18+), employers get the introduction and placement emails, and the Terms show the fee line. People already introduced while it was off then appear on the employer’s page, without an email.
+            </p>
+          </div>
+        </div>
+        <div className="mt-4 border-t border-border pt-4">
+          <RetentionMonthsControl months={switches.retentionMonths} />
+        </div>
+      </Panel>
       <Panel title="Deleting personal details after 12 months" actions={<JobsDryRunButton />}>
         <p className="mb-3 text-small">
-          Mode: <strong>{switches.cleanupMode === 'live' ? 'Live — deletes personal details' : 'Dry run — report only'}</strong>. Every day the job looks at job applications (by phone and by email), worker register entries and old queued emails. It keeps each row, its reference, status and dates, and clears names, phone numbers, emails, cover notes, notes and CV files. Candidate profiles are never touched.
+          Mode: <strong>{switches.cleanupMode === 'live' ? 'Live — deletes personal details' : 'Dry run — report only'}</strong>. Every day the job looks at job applications (by phone and by email), worker register entries and old queued emails. It keeps each row, its reference, status and dates, and clears names, phone numbers, emails, cover notes, notes and CV files. Recruitment desk shortlist rows are cleared 12 months after their last activity (never later than 12 months after the assignment closes). People hired through HagerLand keep their name, contact details and consent record while the fee records need them; their notes, cover notes and CVs still go. Candidate profiles are never touched.
         </p>
         <JobsCleanupModeControl mode={switches.cleanupMode} />
         <div className="mt-4">

@@ -50,6 +50,7 @@ export const ADMIN_NAV_GROUPS: readonly AdminNavGroup[] = [
     label: 'Jobs',
     items: [
       { href: '/roodber8/jobs', label: 'Jobs and applications', icon: Briefcase },
+      { href: '/roodber8/jobs/desk', label: 'Recruitment desk', icon: Handshake },
       { href: '/roodber8/jobs/register', label: 'Worker register', icon: Users },
     ],
   },
@@ -150,7 +151,9 @@ export const NAV_SYNONYMS: Record<string, string[]> = {
   staff: ['/roodber8/staff'],
   team: ['/roodber8/staff'],
   jobs: ['/roodber8/jobs'],
-  recruitment: ['/roodber8/jobs'],
+  recruitment: ['/roodber8/jobs/desk', '/roodber8/jobs'],
+  placements: ['/roodber8/jobs/desk'],
+  shortlist: ['/roodber8/jobs/desk'],
   blog: ['/roodber8/guides'],
   articles: ['/roodber8/guides'],
   advice: ['/roodber8/guides'],

@@ -42,6 +42,9 @@ export default async function AdminJobsPage(props: { searchParams: Promise<Recor
         description="Jobs are reviewed in the review queue. Applications are between candidates and employers; personal details are deleted 12 months after an application."
         actions={
           <span className="flex flex-wrap gap-2">
+            <ButtonLink href="/roodber8/jobs/desk" variant="secondary" size="sm" prefetch={false}>
+              Recruitment desk
+            </ButtonLink>
             <ButtonLink href="/roodber8/jobs/register" variant="secondary" size="sm" prefetch={false}>
               Worker register
             </ButtonLink>

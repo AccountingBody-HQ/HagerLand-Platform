@@ -7,12 +7,13 @@ import { Container } from '@/components/ui/Layout'
 import { PageHero, TextSection } from '@/components/content/PageHero'
 import { LegalEntity } from '@/components/content/LegalEntity'
 import { licenceText } from '@/components/content/LicenceNote'
+import { readJobsSwitches } from '@/lib/jobs-switches'
 
 export const revalidate = 3600
 export const metadata = buildMetadata({ title: 'Terms of use', description: 'The terms for using HagerLand: listings, enquiries, quotes, estate agency, service requests, reviews, our role as a marketplace and a participant.', path: '/terms' })
 
 export default async function TermsPage() {
-  const [business, updated] = await Promise.all([getBusinessDetails(), legalUpdated('terms')])
+  const [business, updated, jobsSwitches] = await Promise.all([getBusinessDetails(), legalUpdated('terms'), readJobsSwitches()])
   const { legal } = business
   // Sections are numbered in order of appearance, so optional sections never leave a gap.
   let section = 0
@@ -83,6 +84,10 @@ export default async function TermsPage() {
         </TextSection>
         <TextSection title={n('Jobs')}>
           <p>Employers are responsible for their job adverts and for treating applicants fairly and lawfully. Employers must never ask candidates for money. Applicants’ details and CVs may only be used to recruit for the job applied for. When {brand.name} recruits for an employer (a staffing requirement), the service and its fees are agreed with the employer in writing; candidates are never charged.</p>
+          {/* Jobs Phase 3 (W row 19): shown only while the owner's recruitment desk switch is on. */}
+          {jobsSwitches.recruitmentDesk && (
+            <p>The fee is either a fixed amount or a percentage of pay, as agreed in writing before work starts. If a person we place leaves within the replacement period in that agreement, we look for a replacement at no extra cost. Employers may use the details of people we introduce only for that requirement.</p>
+          )}
           {business.licences.recruitment && <p>{licenceText('recruitment', business.licences.recruitment)}.</p>}
         </TextSection>
         <TextSection title={n('People outside Ethiopia')}>

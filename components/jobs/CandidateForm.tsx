@@ -112,7 +112,7 @@ export function CandidateForm({ userId, defaults }: { userId: string; defaults: 
           description="They see your first name, headline, skills, qualifications and experience. Never your contact details or CV: HagerLand asks you before any introduction."
         />
       </fieldset>
-      <Checkbox id="cp-placement" name="placement_wanted" label="Register me for placement help" description="HagerLand may contact you about suitable roles from our recruitment requests." defaultChecked={defaults.placement_wanted} />
+      <Checkbox id="cp-placement" name="placement_wanted" label="Register me for placement help" description="HagerLand may contact you about suitable roles from our recruitment requests. We introduce you to an employer only after you agree." defaultChecked={defaults.placement_wanted} />
       <SubmitButton pendingText="Saving…">Save profile</SubmitButton>
     </NoResetForm>
   )

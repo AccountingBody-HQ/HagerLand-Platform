@@ -22,6 +22,8 @@ import { tenancyReminderEmail, viewingConfirmedEmail } from '@/lib/email/agency'
 import { hagerlandInbox } from '@/lib/enquiries'
 import { demandDigestLine } from '@/lib/admin/demand'
 import { formatDate } from '@/lib/format'
+import { isStaffingRequest } from '@/lib/jobs-desk-data'
+import { deskDigestCounts, runDeskDaily } from '@/lib/jobs-desk-cron'
 
 const DAY = 86_400_000
 const BATCH = 500
@@ -47,6 +49,8 @@ export interface DailySummary {
   importsCleanup: CleanupSummary | null
   /** Jobs personal details older than 12 months (dry run unless the owner switched it to live); null if the step failed. */
   jobsDataCleanup: CleanupResult | null
+  /** Recruitment desk placements moved to "guarantee running" or "completed" (Jobs Phase 3). */
+  placementsMoved: number
   digestSent: boolean
 }
 
@@ -101,7 +105,8 @@ async function remindUnansweredMatches(now: number): Promise<number> {
       db.from('service_requests').select('reference, title, status').eq('id', m.request_id).maybeSingle(),
       db.from('organisations').select('name').eq('id', m.org_id).maybeSingle(),
     ])
-    if (r && !['won', 'lost', 'cancelled'].includes(r.status)) {
+    // Staffing requests are never handled by providers (Jobs Phase 3): no reminder.
+    if (r && !['won', 'lost', 'cancelled'].includes(r.status) && !(await isStaffingRequest(m.request_id))) {
       const to = await orgManagerEmails(m.org_id)
       if (to.length && (await sendEmail({ to, ...providerReminderEmail({ orgName: org?.name ?? 'your business', reference: r.reference, title: r.title, url: canonicalUrl(`/account/requests/${m.id}`) }) }))) sent++
     }
@@ -326,6 +331,11 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
   lines.push(...(await supplyDigestLines(() => supplyDigestCounts(now))))
   for (const [label, count] of importsDigestCounts(s.importsCleanup)) if (count > 0) lines.push([label, String(count)])
   for (const [label, count] of cleanupDigestCounts(s.jobsDataCleanup)) if (count > 0) lines.push([label, String(count)])
+  try {
+    for (const [label, count] of await deskDigestCounts(now)) if (count > 0) lines.push([label, String(count)])
+  } catch (err) {
+    log.error('cron', 'recruitment desk digest failed', err)
+  }
   for (const e of errors.data ?? []) lines.push([`Error ×${e.count}`, `${e.route}: ${e.message}`.slice(0, 160)])
   return lines
 }
@@ -363,7 +373,9 @@ export async function runDaily(now = Date.now()): Promise<DailySummary> {
   const importsCleanup = await step('imports clean-up', () => runImportsCleanup({ runBy: 'daily job', now }), null)
   // Jobs personal details after 12 months (lib/jobs-cleanup): reports only, unless the owner switched it to live.
   const jobsDataCleanup = await step('jobs data clean-up', () => runJobsDataCleanup({ runBy: 'daily job', now }), null)
-  const summary = { expired, expiredEmailed: emailed, reminded, quotesExpired, verificationDocsPurged, revealsPurged, rateLimitsPurged, matchReminders, searchAlerts, jobsExpired, cvsPurged, emailsRetried, interestPurged, viewingReminders, tenancyReminders, importsCleanup, jobsDataCleanup }
+  // Recruitment desk: placement statuses follow the start date and the replacement guarantee (Addis Ababa dates).
+  const placementsMoved = await step('recruitment desk', async () => (await runDeskDaily(now)).moved, 0)
+  const summary = { expired, expiredEmailed: emailed, reminded, quotesExpired, verificationDocsPurged, revealsPurged, rateLimitsPurged, matchReminders, searchAlerts, jobsExpired, cvsPurged, emailsRetried, interestPurged, viewingReminders, tenancyReminders, importsCleanup, jobsDataCleanup, placementsMoved }
   let digestSent = false
   const to = process.env.ADMIN_DIGEST_EMAIL
   if (to) {

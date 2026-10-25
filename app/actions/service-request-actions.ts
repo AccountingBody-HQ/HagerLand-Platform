@@ -15,6 +15,7 @@ import { answerLines, validateAnswers } from '@/lib/service-requests/questions'
 import { PAY_OFFERED_MAX, askedQuestions, detailsWithPay, requestFormCopy } from '@/lib/service-requests/form-copy'
 import { GUEST_LINK_DAYS, URGENCY_LABEL, isQuoteExpired } from '@/lib/service-requests/labels'
 import { hashRequestToken, isWellFormedToken, linkDaysLeft, newRequestToken } from '@/lib/service-requests/token'
+import { EMPLOYER_ABROAD_TEXT, employerAbroadAnswers, employerAbroadLines, parseEmployerAbroad } from '@/lib/service-requests/employer-abroad'
 import { hagerlandInbox, orgManagerEmails } from '@/lib/enquiries'
 import { sendEmail } from '@/lib/email/send'
 import { adminNoticeEmail, providerChosenEmail, serviceRequestLinkEmail, serviceRequestReceivedEmail } from '@/lib/email/templates'
@@ -57,7 +58,11 @@ export async function submitServiceRequestAction(_prev: RequestState, formData: 
   if (!category) return fail('This service is not available to request right now.')
   const copy = requestFormCopy(category.slug)
   const questions = askedQuestions(category.slug, category.questions)
-  const { answers, errors: answerErrors } = validateAnswers(questions, raw)
+  const { answers: asked, errors: questionErrors } = validateAnswers(questions, raw)
+  // Staffing only: "Are you based outside Ethiopia?" (saved with the answers; Jobs Phase 3).
+  const abroad = copy.employerAbroad ? parseEmployerAbroad(raw) : { value: null, errors: {} }
+  const answers = abroad.value ? { ...asked, ...employerAbroadAnswers(abroad.value) } : asked
+  const answerErrors = { ...questionErrors, ...abroad.errors }
   if (!parsed.success) {
     const bad = invalid(parsed.error)
     return { ...bad, fieldErrors: { ...bad.fieldErrors, ...answerErrors } }
@@ -116,7 +121,7 @@ export async function submitServiceRequestAction(_prev: RequestState, formData: 
   }
 
   const viewUrl = link ? canonicalUrl(`/requests/${link.token}`) : canonicalUrl(`/account/service-requests/${row.id}`)
-  await sendEmail({ to: d.email, ...serviceRequestReceivedEmail({ name: d.name.split(' ')[0] || d.name, reference: row.reference, title: d.title, link: viewUrl, emergency: d.urgency === 'emergency', linkDays: link ? GUEST_LINK_DAYS : 0, nextStep: copy.nextStep, preheader: copy.customer?.receivedPreheader }) })
+  await sendEmail({ to: d.email, ...serviceRequestReceivedEmail({ name: d.name.split(' ')[0] || d.name, reference: row.reference, title: d.title, link: viewUrl, emergency: d.urgency === 'emergency', linkDays: link ? GUEST_LINK_DAYS : 0, nextStep: copy.nextStep, preheader: copy.customer?.receivedPreheader, extraLine: abroad.value?.abroad ? EMPLOYER_ABROAD_TEXT.confirmation : null }) })
   const inbox = await hagerlandInbox('general')
   const admins = Array.from(new Set([inbox, process.env.ADMIN_DIGEST_EMAIL].filter((x): x is string => Boolean(x))))
   if (admins.length) {
@@ -126,7 +131,7 @@ export async function submitServiceRequestAction(_prev: RequestState, formData: 
       ...adminNoticeEmail({
         subject: `${d.urgency === 'emergency' ? 'EMERGENCY ' : ''}Service request ${row.reference}: ${category.name}`,
         heading: d.urgency === 'emergency' ? 'Emergency service request: please match it now' : 'New service request to match',
-        lines: [['Reference', row.reference], ['Service', category.name], ['How soon', URGENCY_LABEL[d.urgency] ?? d.urgency], ['Title', d.title], ['Name', d.name], ['Phone', formatPhone(d.phone)], ...answerLines(questions, answers), ...(pay ? [['Pay offered', pay] as [string, string]] : [])],
+        lines: [['Reference', row.reference], ['Service', category.name], ['How soon', URGENCY_LABEL[d.urgency] ?? d.urgency], ['Title', d.title], ['Name', d.name], ['Phone', formatPhone(d.phone)], ...answerLines(questions, answers), ...employerAbroadLines(answers), ...(pay ? [['Pay offered', pay] as [string, string]] : [])],
         adminUrl: canonicalUrl(`/roodber8/service-requests/${row.id}`),
       }),
     })
