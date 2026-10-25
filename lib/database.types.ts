@@ -4281,6 +4281,539 @@ export type Database = {
         }
         Relationships: []
       }
+      recruitment_assignments: {
+        Row: {
+          close_reason: string | null
+          closed_at: string | null
+          created_at: string
+          created_by: string
+          employer_based_abroad: boolean | null
+          employer_country: string | null
+          employer_org_id: string | null
+          headcount: number | null
+          id: string
+          notes: string | null
+          pay_text: string | null
+          private_client: boolean
+          reference: string
+          roles: string | null
+          service_request_id: string
+          start_date: string | null
+          status: string
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          close_reason?: string | null
+          closed_at?: string | null
+          created_at?: string
+          created_by: string
+          employer_based_abroad?: boolean | null
+          employer_country?: string | null
+          employer_org_id?: string | null
+          headcount?: number | null
+          id?: string
+          notes?: string | null
+          pay_text?: string | null
+          private_client?: boolean
+          reference?: string
+          roles?: string | null
+          service_request_id: string
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          close_reason?: string | null
+          closed_at?: string | null
+          created_at?: string
+          created_by?: string
+          employer_based_abroad?: boolean | null
+          employer_country?: string | null
+          employer_org_id?: string | null
+          headcount?: number | null
+          id?: string
+          notes?: string | null
+          pay_text?: string | null
+          private_client?: boolean
+          reference?: string
+          roles?: string | null
+          service_request_id?: string
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'recruitment_assignments_employer_org_id_fkey'
+            columns: ['employer_org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'recruitment_assignments_employer_org_id_fkey'
+            columns: ['employer_org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'recruitment_assignments_service_request_id_fkey'
+            columns: ['service_request_id']
+            isOneToOne: true
+            referencedRelation: 'service_requests'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'recruitment_assignments_service_request_id_fkey'
+            columns: ['service_request_id']
+            isOneToOne: true
+            referencedRelation: 'service_requests_for_provider'
+            referencedColumns: ['request_id']
+          },
+        ]
+      }
+      recruitment_candidates: {
+        Row: {
+          adult_confirmed_at: string | null
+          adult_confirmed_by: string | null
+          adult_confirmed_method: string | null
+          application_id: string | null
+          area_text: string | null
+          asked_at: string | null
+          assignment_id: string
+          candidate_user_id: string | null
+          consent_at: string | null
+          consent_method: string | null
+          consent_note: string | null
+          consent_recorded_by: string | null
+          consent_withdrawn_at: string | null
+          consent_withdrawn_by: string | null
+          created_at: string
+          created_by: string
+          declined_at: string | null
+          email: string | null
+          id: string
+          introduced_at: string | null
+          introduced_by: string | null
+          last_activity_at: string
+          name: string | null
+          notes: string | null
+          other_employer: boolean
+          outcome_at: string | null
+          personal_data_deleted_at: string | null
+          phone: string | null
+          reference: string
+          register_id: string | null
+          role_text: string | null
+          share_email: boolean
+          share_phone: boolean
+          share_sms: boolean
+          share_telegram: boolean
+          share_whatsapp: boolean
+          source: string
+          status: string
+          trade: string | null
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          adult_confirmed_at?: string | null
+          adult_confirmed_by?: string | null
+          adult_confirmed_method?: string | null
+          application_id?: string | null
+          area_text?: string | null
+          asked_at?: string | null
+          assignment_id: string
+          candidate_user_id?: string | null
+          consent_at?: string | null
+          consent_method?: string | null
+          consent_note?: string | null
+          consent_recorded_by?: string | null
+          consent_withdrawn_at?: string | null
+          consent_withdrawn_by?: string | null
+          created_at?: string
+          created_by: string
+          declined_at?: string | null
+          email?: string | null
+          id?: string
+          introduced_at?: string | null
+          introduced_by?: string | null
+          last_activity_at?: string
+          name?: string | null
+          notes?: string | null
+          other_employer?: boolean
+          outcome_at?: string | null
+          personal_data_deleted_at?: string | null
+          phone?: string | null
+          reference?: string
+          register_id?: string | null
+          role_text?: string | null
+          share_email?: boolean
+          share_phone?: boolean
+          share_sms?: boolean
+          share_telegram?: boolean
+          share_whatsapp?: boolean
+          source: string
+          status?: string
+          trade?: string | null
+          updated_at?: string
+        }
+        Update: {
+          adult_confirmed_at?: string | null
+          adult_confirmed_by?: string | null
+          adult_confirmed_method?: string | null
+          application_id?: string | null
+          area_text?: string | null
+          asked_at?: string | null
+          assignment_id?: string
+          candidate_user_id?: string | null
+          consent_at?: string | null
+          consent_method?: string | null
+          consent_note?: string | null
+          consent_recorded_by?: string | null
+          consent_withdrawn_at?: string | null
+          consent_withdrawn_by?: string | null
+          created_at?: string
+          created_by?: string
+          declined_at?: string | null
+          email?: string | null
+          id?: string
+          introduced_at?: string | null
+          introduced_by?: string | null
+          last_activity_at?: string
+          name?: string | null
+          notes?: string | null
+          other_employer?: boolean
+          outcome_at?: string | null
+          personal_data_deleted_at?: string | null
+          phone?: string | null
+          reference?: string
+          register_id?: string | null
+          role_text?: string | null
+          share_email?: boolean
+          share_phone?: boolean
+          share_sms?: boolean
+          share_telegram?: boolean
+          share_whatsapp?: boolean
+          source?: string
+          status?: string
+          trade?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'recruitment_candidates_application_id_fkey'
+            columns: ['application_id']
+            isOneToOne: false
+            referencedRelation: 'job_applications'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'recruitment_candidates_assignment_id_fkey'
+            columns: ['assignment_id']
+            isOneToOne: false
+            referencedRelation: 'recruitment_assignments'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'recruitment_candidates_candidate_user_id_fkey'
+            columns: ['candidate_user_id']
+            isOneToOne: false
+            referencedRelation: 'candidate_profiles'
+            referencedColumns: ['user_id']
+          },
+          {
+            foreignKeyName: 'recruitment_candidates_candidate_user_id_fkey'
+            columns: ['candidate_user_id']
+            isOneToOne: false
+            referencedRelation: 'candidates_for_employers'
+            referencedColumns: ['candidate_id']
+          },
+          {
+            foreignKeyName: 'recruitment_candidates_register_id_fkey'
+            columns: ['register_id']
+            isOneToOne: false
+            referencedRelation: 'worker_register'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      recruitment_events: {
+        Row: {
+          actor: string
+          assignment_id: string
+          candidate_id: string | null
+          created_at: string
+          detail: NonNullable<Json>
+          id: string
+          placement_id: string | null
+          step: string
+        }
+        ComputedFields: never
+        Insert: {
+          actor: string
+          assignment_id: string
+          candidate_id?: string | null
+          created_at?: string
+          detail?: NonNullable<Json>
+          id?: string
+          placement_id?: string | null
+          step: string
+        }
+        Update: {
+          actor?: string
+          assignment_id?: string
+          candidate_id?: string | null
+          created_at?: string
+          detail?: NonNullable<Json>
+          id?: string
+          placement_id?: string | null
+          step?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'recruitment_events_assignment_id_fkey'
+            columns: ['assignment_id']
+            isOneToOne: false
+            referencedRelation: 'recruitment_assignments'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'recruitment_events_candidate_id_fkey'
+            columns: ['candidate_id']
+            isOneToOne: false
+            referencedRelation: 'recruitment_candidates'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      recruitment_fee_entries: {
+        Row: {
+          amount_minor: number
+          created_at: string
+          created_by: string
+          currency: string
+          entry_type: string
+          fee_terms_id: string
+          id: string
+          method: string | null
+          note: string | null
+          occurred_on: string
+          reason: string | null
+          reference: string | null
+          reverses_entry_id: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          amount_minor: number
+          created_at?: string
+          created_by: string
+          currency: string
+          entry_type: string
+          fee_terms_id: string
+          id?: string
+          method?: string | null
+          note?: string | null
+          occurred_on: string
+          reason?: string | null
+          reference?: string | null
+          reverses_entry_id?: string | null
+        }
+        Update: {
+          amount_minor?: number
+          created_at?: string
+          created_by?: string
+          currency?: string
+          entry_type?: string
+          fee_terms_id?: string
+          id?: string
+          method?: string | null
+          note?: string | null
+          occurred_on?: string
+          reason?: string | null
+          reference?: string | null
+          reverses_entry_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'recruitment_fee_entries_fee_terms_id_fkey'
+            columns: ['fee_terms_id']
+            isOneToOne: false
+            referencedRelation: 'recruitment_fee_terms'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'recruitment_fee_entries_reverses_entry_id_fkey'
+            columns: ['reverses_entry_id']
+            isOneToOne: true
+            referencedRelation: 'recruitment_fee_entries'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      recruitment_fee_terms: {
+        Row: {
+          agreed_in_writing_on: string | null
+          amount_minor: number | null
+          basis: string | null
+          basis_amount_minor: number | null
+          basis_note: string | null
+          created_at: string
+          created_by: string
+          currency: string
+          document_path: string | null
+          fee_type: string
+          id: string
+          notes: string | null
+          percent_bps: number | null
+          placement_id: string
+          status: string
+          updated_at: string
+          waived_reason: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          agreed_in_writing_on?: string | null
+          amount_minor?: number | null
+          basis?: string | null
+          basis_amount_minor?: number | null
+          basis_note?: string | null
+          created_at?: string
+          created_by: string
+          currency?: string
+          document_path?: string | null
+          fee_type: string
+          id?: string
+          notes?: string | null
+          percent_bps?: number | null
+          placement_id: string
+          status?: string
+          updated_at?: string
+          waived_reason?: string | null
+        }
+        Update: {
+          agreed_in_writing_on?: string | null
+          amount_minor?: number | null
+          basis?: string | null
+          basis_amount_minor?: number | null
+          basis_note?: string | null
+          created_at?: string
+          created_by?: string
+          currency?: string
+          document_path?: string | null
+          fee_type?: string
+          id?: string
+          notes?: string | null
+          percent_bps?: number | null
+          placement_id?: string
+          status?: string
+          updated_at?: string
+          waived_reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'recruitment_fee_terms_placement_id_fkey'
+            columns: ['placement_id']
+            isOneToOne: true
+            referencedRelation: 'recruitment_placements'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      recruitment_placements: {
+        Row: {
+          assignment_id: string
+          candidate_id: string
+          created_at: string
+          created_by: string
+          end_note: string | null
+          end_reason: string | null
+          ended_on: string | null
+          guarantee_days: number
+          guarantee_ends_on: string | null
+          id: string
+          is_free_replacement: boolean
+          reference: string
+          replaces_placement_id: string | null
+          retain_until: string | null
+          role_text: string | null
+          role_type: string
+          start_date: string
+          status: string
+          trade: string | null
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          assignment_id: string
+          candidate_id: string
+          created_at?: string
+          created_by: string
+          end_note?: string | null
+          end_reason?: string | null
+          ended_on?: string | null
+          guarantee_days: number
+          guarantee_ends_on?: never
+          id?: string
+          is_free_replacement?: boolean
+          reference?: string
+          replaces_placement_id?: string | null
+          retain_until?: string | null
+          role_text?: string | null
+          role_type: string
+          start_date: string
+          status?: string
+          trade?: string | null
+          updated_at?: string
+        }
+        Update: {
+          assignment_id?: string
+          candidate_id?: string
+          created_at?: string
+          created_by?: string
+          end_note?: string | null
+          end_reason?: string | null
+          ended_on?: string | null
+          guarantee_days?: number
+          guarantee_ends_on?: never
+          id?: string
+          is_free_replacement?: boolean
+          reference?: string
+          replaces_placement_id?: string | null
+          retain_until?: string | null
+          role_text?: string | null
+          role_type?: string
+          start_date?: string
+          status?: string
+          trade?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'recruitment_placements_assignment_id_fkey'
+            columns: ['assignment_id']
+            isOneToOne: false
+            referencedRelation: 'recruitment_assignments'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'recruitment_placements_candidate_id_fkey'
+            columns: ['candidate_id']
+            isOneToOne: false
+            referencedRelation: 'recruitment_candidates'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'recruitment_placements_replaces_placement_id_fkey'
+            columns: ['replaces_placement_id']
+            isOneToOne: true
+            referencedRelation: 'recruitment_placements'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       reference_counters: {
         Row: {
           prefix: string

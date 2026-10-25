@@ -72,6 +72,52 @@ function QuestionField({ q, error }: { q: Question; error?: string }) {
   )
 }
 
+/** "Are you based outside Ethiopia?" (staffing only): the page passes the approved text through t(). */
+export interface EmployerAbroadText {
+  question: string
+  hint: string
+  countryQuestion: string
+  countries: { code: string; name: string }[]
+}
+
+function EmployerAbroadField({ text, errors }: { text: EmployerAbroadText; errors: Record<string, string> }) {
+  const [answer, setAnswer] = useState('')
+  const error = errors.employer_abroad
+  return (
+    <div className="space-y-4 sm:col-span-2">
+      <fieldset aria-describedby={error ? 'sr-abroad-error' : 'sr-abroad-hint'}>
+        <legend className="text-small font-semibold text-ink">{text.question}</legend>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {[
+            { v: 'yes', l: 'Yes' },
+            { v: 'no', l: 'No' },
+          ].map((o) => (
+            <label key={o.v} className="cursor-pointer">
+              <input type="radio" name="employer_abroad" value={o.v} checked={answer === o.v} onChange={() => setAnswer(o.v)} className="peer sr-only" />
+              <span className="inline-flex min-h-11 items-center rounded-full border border-border-strong px-4 text-small font-medium peer-checked:border-ink peer-checked:bg-ink peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-green">{o.l}</span>
+            </label>
+          ))}
+        </div>
+        {error ? <p id="sr-abroad-error" role="alert" className="mt-1 text-small text-error">{error}</p> : <p id="sr-abroad-hint" className="mt-1 text-small text-muted">{text.hint}</p>}
+      </fieldset>
+      {answer === 'yes' && (
+        <Field label={text.countryQuestion} htmlFor="sr-abroad-country" error={errors.employer_country} required>
+          <Select id="sr-abroad-country" name="employer_country" defaultValue="" invalid={Boolean(errors.employer_country)}>
+            <option value="" disabled>
+              —
+            </option>
+            {text.countries.map((c) => (
+              <option key={c.code} value={c.code}>
+                {c.name}
+              </option>
+            ))}
+          </Select>
+        </Field>
+      )}
+    </div>
+  )
+}
+
 export interface RequestFormDefaults {
   name?: string | null
   phone?: string | null
@@ -87,6 +133,7 @@ export function ServiceRequestForm({
   allowsEmergency,
   defaults = {},
   abroad = false,
+  employerAbroad = null,
 }: {
   categorySlug: string
   categoryName: string
@@ -95,6 +142,7 @@ export function ServiceRequestForm({
   defaults?: RequestFormDefaults
   /** Start with "another country" selected (diaspora services abroad). */
   abroad?: boolean
+  employerAbroad?: EmployerAbroadText | null
 }) {
   const [state, action] = useActionState(submitServiceRequestAction, null)
   const router = useRouter()
@@ -250,6 +298,7 @@ export function ServiceRequestForm({
               <option value="email">Email</option>
             </Select>
           </Field>
+          {employerAbroad && <EmployerAbroadField text={employerAbroad} errors={errors} />}
         </div>
       </fieldset>
 

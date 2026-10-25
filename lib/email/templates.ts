@@ -312,7 +312,7 @@ const REQUESTER_REASON = 'You are receiving this because you requested a service
 const PROVIDER_REASON = 'You are receiving this because your business is listed on HagerLand and a customer request was sent to you.'
 
 /** `nextStep` replaces the provider sentences for services HagerLand handles itself (the staffing requirement). */
-export function serviceRequestReceivedEmail(p: { name: string; reference: string; title: string; link: string; emergency: boolean; linkDays: number; nextStep?: string | null; preheader?: string | null }): RenderedEmail {
+export function serviceRequestReceivedEmail(p: { name: string; reference: string; title: string; link: string; emergency: boolean; linkDays: number; nextStep?: string | null; preheader?: string | null; extraLine?: string | null }): RenderedEmail {
   return renderEmail({
     subject: `We've received your request (${p.reference})`,
     preheader: p.emergency ? 'Marked as an emergency: we are looking at it now.' : (p.preheader ?? 'We are finding the right providers for you.'),
@@ -323,12 +323,34 @@ export function serviceRequestReceivedEmail(p: { name: string; reference: string
       p.emergency
         ? 'You marked it as an emergency, so we are looking at it first. If anyone is in danger, call the emergency services.'
         : (p.nextStep ?? 'We will match it with up to three suitable providers. Each one contacts you directly, and their quotes appear on your request page.'),
+      ...(p.extraLine ? [p.extraLine] : []),
       `Keep this email: the button below opens your request${p.linkDays ? ` (the link works for ${p.linkDays} days; you can ask for a new one at any time)` : ''}.`,
     ],
     details: [['Reference', p.reference]],
     button: { label: 'View your request', href: p.link },
     reason: REQUESTER_REASON,
   })
+}
+
+/** Jobs Phase 3 (AB's approved wording, W row 9): no phone numbers or email addresses of candidates, ever. */
+export function recruitmentIntroductionEmail(p: { reference: string; count: number; link: string }): RenderedEmail {
+  const subject = `Candidates introduced for request ${p.reference}`
+  const body = `We have introduced ${p.count} candidate(s) for your request ${p.reference}. Each of them agreed to be introduced to you. See their details on your request page.`
+  return renderEmail({
+    subject,
+    preheader: body,
+    heading: subject,
+    paragraphs: [body],
+    button: { label: 'See the candidates', href: p.link },
+    reason: `Please use their details only for this request. Candidates must never be asked for money. ${REQUESTER_REASON}`,
+  })
+}
+
+/** Jobs Phase 3 (AB's approved wording, W row 10). */
+export function placementConfirmedEmail(p: { name: string; role: string; date: string }): RenderedEmail {
+  const subject = `Placement confirmed: ${p.name}, starting ${p.date}`
+  const body = `Thank you for confirming that ${p.name} starts work as ${p.role} on ${p.date}. If they leave within the replacement period in your written agreement, we will look for a replacement at no extra cost.`
+  return renderEmail({ subject, preheader: body, heading: subject, paragraphs: [body], reason: REQUESTER_REASON })
 }
 
 /** `preheader` and `body` replace the quote wording for services HagerLand handles itself (the staffing requirement). */

@@ -8,9 +8,16 @@ import { Badge } from '@/components/ui/Badge'
 import { EmptyState } from '@/components/ui/Layout'
 import { CancelRequestButton, ChooseQuoteButton } from './RequestActions'
 import { ReviewBox } from './ReviewBox'
+import { IntroducedPeople } from './IntroducedPeople'
+import type { IntroducedPerson } from '@/lib/jobs-desk-data'
+import type { Translate } from '@/lib/i18n/translate'
+import { EMPLOYER_ABROAD_TEXT } from '@/lib/service-requests/employer-abroad'
 
-/** The customer's page for one request: status, what they asked for, and quotes to compare (spec 24.5). */
-export function RequestView({ r, token }: { r: View; token?: string }) {
+/**
+ * The customer's page for one request: status, what they asked for, and quotes to compare (spec 24.5). For staffing
+ * requests with the recruitment desk switch on, `desk` lists the people introduced (Jobs Phase 3).
+ */
+export function RequestView({ r, token, desk = null, t = (s) => s }: { r: View; token?: string; desk?: { count: number; people: IntroducedPerson[] } | null; t?: Translate }) {
   const open = ['submitted', 'triaged', 'matched', 'quoted'].includes(r.status)
   const canChoose = ['matched', 'quoted'].includes(r.status)
   // Services HagerLand handles itself (the staffing requirement) talk about the recruitment team, not quotes.
@@ -27,7 +34,11 @@ export function RequestView({ r, token }: { r: View; token?: string }) {
           {r.urgency === 'emergency' && <Badge tone="danger">Emergency</Badge>}
         </div>
         {r.closedReason && <p className="mt-2 text-small text-muted">{CLOSED_REASON_LABEL[r.closedReason]}</p>}
+        {desk && <p className="mt-2 text-small">{t('Candidates introduced: {n}').replace('{n}', String(desk.count))}</p>}
+        {r.employerAbroad && <p className="mt-2 text-small text-muted">{t(EMPLOYER_ABROAD_TEXT.confirmation)}</p>}
       </header>
+
+      {desk && <IntroducedPeople people={desk.people} t={t} />}
 
       {r.chosen && (
         <section aria-labelledby="review-h" className="rounded-lg border border-border bg-white p-5">

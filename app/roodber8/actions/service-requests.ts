@@ -10,7 +10,7 @@ import { notifyCustomerOfQuote } from '@/lib/service-requests/notify'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { getAdminSupabase } from '@/lib/supabase/admin'
-import { assertAdmin, audit, changedFields } from '@/lib/admin/guard'
+import { adminActor, assertAdmin, audit, changedFields, isOwnerSession } from '@/lib/admin/guard'
 import { fail, invalid, ok, type ActionResult } from '@/lib/action-result'
 import { CURRENCIES } from '@/lib/countries'
 import { MAX_MATCHES, URGENCY_LABEL } from '@/lib/service-requests/labels'
@@ -22,8 +22,12 @@ import { canonicalUrl } from '@/lib/site'
 import { revalidateReference } from '@/lib/revalidate'
 import { VERTICAL_KEYS } from '@/lib/verticals'
 import type { Json } from '@/lib/database.types'
+import { isStaffingRequest, openAssignmentForRequest } from '@/lib/jobs-desk-data'
 
 type Msg = ActionResult<{ message: string }>
+
+/** Staffing requests go to HagerLand's recruitment desk only: never to providers, never a quote (Jobs Phase 3). */
+const STAFFING_REFUSED = 'Staffing requests are handled by HagerLand’s own recruitment team on the recruitment desk, never sent to providers or quoted.'
 
 const STATUSES = ['submitted', 'triaged', 'matched', 'quoted', 'won', 'lost', 'cancelled'] as const
 const REASONS = ['customer_cancelled', 'no_provider', 'all_declined', 'chose_other', 'duplicate', 'spam', 'completed', 'other'] as const
@@ -76,6 +80,7 @@ export async function matchProvidersAction(id: string, orgIds: string[]): Promis
   await assertAdmin(AREA)
   const parsed = z.object({ id: z.uuid(), orgIds: z.array(z.uuid()).min(1, 'Choose at least one provider.').max(MAX_MATCHES) }).safeParse({ id, orgIds })
   if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? 'Choose providers.')
+  if (await isStaffingRequest(parsed.data.id)) return fail(STAFFING_REFUSED)
   const db = getAdminSupabase()
   const { data: r } = await db.from('service_requests').select('id, reference, title, status, urgency, service_category_id, location_id, location_text').eq('id', id).maybeSingle()
   if (!r) return fail('Not found.')
@@ -135,6 +140,8 @@ export async function saveMatchCommercialAction(matchId: string, input: { lead_f
   const db = getAdminSupabase()
   const { data: before } = await db.from('service_request_matches').select('request_id, lead_fee_minor, commission_rate, commission_minor, invoiced, quote_amount_minor').eq('id', matchId).maybeSingle()
   if (!before) return fail('Not found.')
+  // Fees on staffing requests are the owner's only (Jobs decision 10); other services are unchanged.
+  if ((await isStaffingRequest(before.request_id)) && !(await isOwnerSession())) return fail('Only the owner can see or change fees on staffing requests.')
   const commission = d.commission ?? (d.commission_rate !== null && before.quote_amount_minor !== null ? (before.quote_amount_minor / 100) * (d.commission_rate / 100) : null)
   const update = {
     lead_fee_minor: d.lead_fee === null ? null : Math.round(d.lead_fee * 100),
@@ -154,6 +161,8 @@ export async function saveMatchCommercialAction(matchId: string, input: { lead_f
 export async function noProviderAction(id: string): Promise<Msg> {
   await assertAdmin(AREA)
   if (!z.uuid().safeParse(id).success) return fail('Invalid.')
+  // The "no provider" email talks about providers: staffing requests are closed with the status instead.
+  if (await isStaffingRequest(id)) return fail('Staffing requests are not sent to providers. Close it with the status instead.')
   const db = getAdminSupabase()
   const { data: r } = await db.from('service_requests').update({ status: 'cancelled', closed_reason: 'no_provider', closed_at: new Date().toISOString() }).eq('id', id).in('status', ['submitted', 'triaged', 'matched']).select('reference, title, name, email').maybeSingle()
   if (!r) return fail('This request is already closed or has quotes.')
@@ -191,20 +200,38 @@ export async function assignHagerlandTeamAction(id: string): Promise<Msg> {
   await assertAdmin(AREA)
   if (!z.uuid().safeParse(id).success) return fail('Not found.')
   const db = getAdminSupabase()
-  const { data: r } = await db.from('service_requests').select('id, reference, status, vertical_key').eq('id', id).maybeSingle()
+  const { data: r } = await db.from('service_requests').select('id, reference, status, vertical_key, country_code').eq('id', id).maybeSingle()
   if (!r) return fail('Not found.')
   if (['won', 'lost', 'cancelled'].includes(r.status)) return fail('This request is closed.')
   const pillar = VERTICAL_PILLAR[r.vertical_key as VerticalKey]
   if (!pillar || !(await getPillar(pillar))?.direct) return fail('HagerLand does not provide this service directly. Switch Direct on in Pillars and modes first.')
+  const staffing = await isStaffingRequest(id)
+  // Placements abroad are not offered (Jobs decision 3): the desk takes work in Ethiopia only.
+  if (staffing && r.country_code !== 'ET') return fail('The recruitment desk only handles work in Ethiopia. Placements abroad are not offered.')
   const { data: team } = await db.from('organisations').select('id').eq('slug', 'hagerland-services').maybeSingle()
   if (!team) return fail('The HagerLand Services organisation is missing (migration 0029).')
   const { data: existing } = await db.from('service_request_matches').select('org_id, status').eq('request_id', id)
-  if ((existing ?? []).some((m) => m.org_id === team.id)) return fail('HagerLand’s team already has this request.')
+  if ((existing ?? []).some((m) => m.org_id === team.id)) {
+    if (!staffing) return fail('HagerLand’s team already has this request.')
+    // Staffing: make sure the desk assignment exists (one per request; clicking again never opens a second).
+    const opened = await openAssignmentForRequest(id, await adminActor())
+    if (!opened.ok) return fail(opened.error)
+    if (opened.created) await audit('jobs.desk.assignment_open', { type: 'service_request', id, label: r.reference }, { assignment: opened.reference })
+    refresh(id)
+    return opened.created ? ok({ message: `Recruitment desk assignment ${opened.reference} opened.` }) : fail(`HagerLand’s team already has this request (assignment ${opened.reference}).`)
+  }
   if ((existing ?? []).filter((m) => !['declined', 'withdrawn'].includes(m.status)).length >= MAX_MATCHES) return fail(`A request can go to at most ${MAX_MATCHES} providers at a time.`)
   const { error } = await db.from('service_request_matches').insert({ request_id: id, org_id: team.id, status: 'accepted', responded_at: new Date().toISOString() })
   if (error) return fail('Could not assign the request.')
   await db.from('service_requests').update({ status: 'matched', matched_at: new Date().toISOString() }).eq('id', id).in('status', ['submitted', 'triaged'])
   await audit('service_request.assign_hagerland', { type: 'service_request', id, label: r.reference })
+  if (staffing) {
+    const opened = await openAssignmentForRequest(id, await adminActor())
+    if (!opened.ok) return fail(`Assigned to HagerLand’s own team, but the desk assignment could not be opened: ${opened.error} Press the button again to retry.`)
+    await audit('jobs.desk.assignment_open', { type: 'service_request', id, label: r.reference }, { assignment: opened.reference })
+    refresh(id)
+    return ok({ message: `Assigned to HagerLand’s own team. Recruitment desk assignment ${opened.reference} is open.` })
+  }
   refresh(id)
   return ok({ message: 'Assigned to HagerLand’s own team. Add HagerLand’s quote below when it is ready.' })
 }
@@ -220,10 +247,13 @@ const hagerlandQuoteSchema = z.object({
 export async function hagerlandQuoteAction(matchId: string, _prev: Msg | null, formData: FormData): Promise<Msg> {
   await assertAdmin(AREA)
   if (!z.uuid().safeParse(matchId).success) return fail('Not found.')
+  const db = getAdminSupabase()
+  // Staffing requests are never quoted: refused before anything else is looked at.
+  const { data: target } = await db.from('service_request_matches').select('request_id').eq('id', matchId).maybeSingle()
+  if (target && (await isStaffingRequest(target.request_id))) return fail(STAFFING_REFUSED)
   const p = hagerlandQuoteSchema.safeParse(Object.fromEntries(formData))
   if (!p.success) return invalid(p.error)
   const d = p.data
-  const db = getAdminSupabase()
   const { data: team } = await db.from('organisations').select('id').eq('slug', 'hagerland-services').maybeSingle()
   const { data: m } = await db
     .from('service_request_matches')

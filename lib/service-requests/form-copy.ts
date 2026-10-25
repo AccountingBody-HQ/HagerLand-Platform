@@ -34,6 +34,8 @@ export interface RequestFormCopy {
   nextStep: string | null
   /** What the customer sees after sending, for services HagerLand handles itself; null keeps the provider and quote wording. */
   customer: CustomerCopy | null
+  /** Ask "Are you based outside Ethiopia?" (staffing only, Jobs Phase 3; lib/service-requests/employer-abroad.ts). */
+  employerAbroad: boolean
 }
 
 export interface CustomerCopy {
@@ -69,6 +71,7 @@ const DEFAULT_COPY: RequestFormCopy = {
   hiddenQuestions: [],
   nextStep: null,
   customer: null,
+  employerAbroad: false,
 }
 
 const STAFFING_COPY: RequestFormCopy = {
@@ -103,10 +106,14 @@ const STAFFING_COPY: RequestFormCopy = {
     linkPreheader: 'A new link to view your request.',
     linkBody: (reference, days) => `Use the button to see request ${reference}. The link works for ${days} days. Older links no longer work.`,
   },
+  employerAbroad: true,
 }
 
+/** The staffing requirement: HagerLand's own recruitment service (never sent to providers, never quoted). */
+export const STAFFING_SLUG = 'staffing'
+
 export function requestFormCopy(categorySlug: string): RequestFormCopy {
-  return categorySlug === 'staffing' ? STAFFING_COPY : DEFAULT_COPY
+  return categorySlug === STAFFING_SLUG ? STAFFING_COPY : DEFAULT_COPY
 }
 
 /** The questions a service's form asks (stored questions minus the hidden ones). */

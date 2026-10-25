@@ -727,6 +727,183 @@ select pg_temp.record_check('Signed-in user cannot add ledger entries',
   pg_temp.write_denied($q$insert into public.supply_ledger_entries (entry_type, direction, amount_cents, occurred_on) values ('service_fee', 'in', 100, current_date)$q$));
 reset role;
 
+-- ---------- Recruitment desk (0041): no access for visitors or signed-in users; consent and 18+ before introduction ----------
+reset role;
+set role anon;
+select pg_temp.record_check('Anonymous cannot read ' || name, pg_temp.read_denied(name)) from unnest(array['recruitment_assignments', 'recruitment_candidates', 'recruitment_events', 'recruitment_placements', 'recruitment_fee_terms', 'recruitment_fee_entries']) as t(name);
+reset role;
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000001", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', false);
+select pg_temp.record_check('Signed-in employer cannot read ' || name, pg_temp.read_denied(name)) from unnest(array['recruitment_assignments', 'recruitment_candidates', 'recruitment_events', 'recruitment_placements', 'recruitment_fee_terms', 'recruitment_fee_entries']) as t(name);
+select pg_temp.record_check('Signed-in user cannot add a shortlist row',
+  pg_temp.write_denied($q$insert into public.recruitment_candidates (assignment_id, source, created_by) select id, 'manual', 'rls' from public.recruitment_assignments limit 1$q$));
+reset role;
+select pg_temp.record_check('Recruitment agreements bucket is private', exists (select 1 from storage.buckets where id = 'recruitment-private' and public = false));
+
+-- The rules below run as the server would, inside a block that is rolled back at the end: nothing is left behind.
+do $$
+declare
+  res text := '';
+  v_staffing uuid;
+  v_plumbers uuid;
+  v_req uuid;
+  v_req2 uuid;
+  v_req_abroad uuid;
+  v_a uuid;
+  v_c uuid;
+  v_c2 uuid;
+  v_p uuid;
+  v_p2 uuid;
+  v_t uuid;
+  v_t2 uuid;
+  v_e uuid;
+begin
+  begin
+    select id into v_staffing from public.service_categories where slug = 'staffing';
+    select id into v_plumbers from public.service_categories where slug = 'plumbers';
+    insert into public.service_requests (vertical_key, service_category_id, title, name, phone) values ('jobs', v_staffing, 'RLS TEST staffing', 'RLS', '+251911000096') returning id into v_req;
+    insert into public.service_requests (vertical_key, service_category_id, title, name, phone) values ('contractors', v_plumbers, 'RLS TEST plumbing', 'RLS', '+251911000095') returning id into v_req2;
+    insert into public.service_requests (vertical_key, service_category_id, title, name, phone, country_code) values ('jobs', v_staffing, 'RLS TEST staffing abroad', 'RLS', '+251911000094', 'GB') returning id into v_req_abroad;
+
+    begin
+      insert into public.recruitment_assignments (service_request_id, private_client, created_by) values (v_req2, true, 'rls');
+      res := res || E'FAIL · An assignment is only for a staffing request\n';
+    exception when check_violation then res := res || E'PASS · An assignment is only for a staffing request\n';
+    end;
+    begin
+      insert into public.recruitment_assignments (service_request_id, private_client, created_by) values (v_req_abroad, true, 'rls');
+      res := res || E'FAIL · The desk refuses work outside Ethiopia\n';
+    exception when check_violation then res := res || E'PASS · The desk refuses work outside Ethiopia\n';
+    end;
+    insert into public.recruitment_assignments (service_request_id, private_client, created_by) values (v_req, true, 'rls') returning id into v_a;
+    begin
+      insert into public.recruitment_assignments (service_request_id, private_client, created_by) values (v_req, true, 'rls');
+      res := res || E'FAIL · One assignment per staffing request\n';
+    exception when unique_violation then res := res || E'PASS · One assignment per staffing request\n';
+    end;
+
+    insert into public.recruitment_candidates (assignment_id, source, name, phone, trade, created_by) values (v_a, 'manual', 'RLS Worker', '+251911000093', 'mason', 'rls') returning id into v_c;
+    begin
+      update public.recruitment_candidates set introduced_at = now(), introduced_by = 'rls' where id = v_c;
+      res := res || E'FAIL · No introduction without consent\n';
+    exception when check_violation then res := res || E'PASS · No introduction without consent\n';
+    end;
+    begin
+      update public.recruitment_candidates set consent_at = now(), consent_method = 'phone_call', consent_recorded_by = 'rls' where id = v_c;
+      res := res || E'FAIL · Consent needs at least one shared contact method\n';
+    exception when check_violation then res := res || E'PASS · Consent needs at least one shared contact method\n';
+    end;
+    update public.recruitment_candidates set consent_at = now() - interval '1 minute', consent_method = 'phone_call', consent_recorded_by = 'rls', share_phone = true where id = v_c;
+    begin
+      update public.recruitment_candidates set introduced_at = now(), introduced_by = 'rls' where id = v_c;
+      res := res || E'FAIL · No introduction without a confirmed 18+\n';
+    exception when check_violation then res := res || E'PASS · No introduction without a confirmed 18+\n';
+    end;
+    begin
+      update public.recruitment_candidates set share_email = true where id = v_c;
+      res := res || E'FAIL · Shared contact methods are fixed once consent is recorded\n';
+    exception when check_violation then res := res || E'PASS · Shared contact methods are fixed once consent is recorded\n';
+    end;
+    update public.recruitment_candidates set adult_confirmed_at = now(), adult_confirmed_by = 'rls', adult_confirmed_method = 'phone_call' where id = v_c;
+    update public.recruitment_candidates set introduced_at = now(), introduced_by = 'rls', status = 'introduced' where id = v_c;
+    res := res || case when exists (select 1 from public.recruitment_candidates where id = v_c and introduced_at is not null) then 'PASS' else 'FAIL' end || E' · Introduction allowed with consent and 18+\n';
+    begin
+      update public.recruitment_candidates set introduced_at = null where id = v_c;
+      res := res || E'FAIL · An introduction cannot be undone\n';
+    exception when check_violation then res := res || E'PASS · An introduction cannot be undone\n';
+    end;
+
+    -- Withdrawal: allowed after an introduction, never undone; nobody is introduced after a withdrawal.
+    insert into public.recruitment_candidates (assignment_id, source, name, phone, trade, created_by, consent_at, consent_method, consent_recorded_by, share_phone, adult_confirmed_at, adult_confirmed_by, adult_confirmed_method)
+      values (v_a, 'manual', 'RLS Second', '+251911000092', 'mason', 'rls', now() - interval '1 minute', 'phone_call', 'rls', true, now(), 'rls', 'phone_call') returning id into v_c2;
+    update public.recruitment_candidates set consent_withdrawn_at = now(), consent_withdrawn_by = 'rls', status = 'withdrawn' where id = v_c2;
+    begin
+      update public.recruitment_candidates set consent_withdrawn_at = null, consent_withdrawn_by = null where id = v_c2;
+      res := res || E'FAIL · A withdrawal of consent cannot be undone\n';
+    exception when check_violation then res := res || E'PASS · A withdrawal of consent cannot be undone\n';
+    end;
+    begin
+      update public.recruitment_candidates set introduced_at = now(), introduced_by = 'rls' where id = v_c2;
+      res := res || E'FAIL · Nobody is introduced after withdrawing consent\n';
+    exception when check_violation then res := res || E'PASS · Nobody is introduced after withdrawing consent\n';
+    end;
+    begin
+      update public.recruitment_candidates set declined_at = now() where id = v_c2;
+      res := res || E'FAIL · Consent and a refusal cannot both be recorded\n';
+    exception when check_violation then res := res || E'PASS · Consent and a refusal cannot both be recorded\n';
+    end;
+
+    -- Placements, free replacements and fees.
+    begin
+      insert into public.recruitment_placements (candidate_id, assignment_id, role_type, start_date, guarantee_days, created_by) values (v_c2, v_a, 'trade', current_date, 30, 'rls');
+      res := res || E'FAIL · Only an introduced person can be placed\n';
+    exception when check_violation then res := res || E'PASS · Only an introduced person can be placed\n';
+    end;
+    insert into public.recruitment_placements (candidate_id, assignment_id, role_type, start_date, guarantee_days, created_by) values (v_c, v_a, 'trade', date '2026-11-01', 30, 'rls') returning id into v_p;
+    res := res || case when (select guarantee_ends_on from public.recruitment_placements where id = v_p) = date '2026-12-01' then 'PASS' else 'FAIL' end || E' · The database works out the guarantee end date\n';
+    begin
+      insert into public.recruitment_fee_terms (placement_id, fee_type, amount_minor, percent_bps, basis, created_by) values (v_p, 'fixed', 300000, 1000, 'first_month_pay', 'rls');
+      res := res || E'FAIL · A fee is a fixed amount or a percentage, not both\n';
+    exception when check_violation then res := res || E'PASS · A fee is a fixed amount or a percentage, not both\n';
+    end;
+    begin
+      insert into public.recruitment_fee_terms (placement_id, fee_type, amount_minor, status, created_by) values (v_p, 'fixed', 300000, 'agreed', 'rls');
+      res := res || E'FAIL · Agreed fee terms need the date agreed in writing\n';
+    exception when check_violation then res := res || E'PASS · Agreed fee terms need the date agreed in writing\n';
+    end;
+    insert into public.recruitment_fee_terms (placement_id, fee_type, amount_minor, created_by) values (v_p, 'fixed', 300000, 'rls') returning id into v_t;
+    insert into public.recruitment_fee_entries (fee_terms_id, entry_type, amount_minor, currency, occurred_on, created_by) values (v_t, 'fee_due', 300000, 'ETB', current_date, 'rls') returning id into v_e;
+    begin
+      update public.recruitment_fee_entries set amount_minor = 1 where id = v_e;
+      res := res || E'FAIL · Fee entries cannot be changed\n';
+    exception when insufficient_privilege then res := res || E'PASS · Fee entries cannot be changed\n';
+    end;
+    begin
+      delete from public.recruitment_fee_entries where id = v_e;
+      res := res || E'FAIL · Fee entries cannot be deleted\n';
+    exception when insufficient_privilege then res := res || E'PASS · Fee entries cannot be deleted\n';
+    end;
+    insert into public.recruitment_fee_entries (fee_terms_id, entry_type, amount_minor, currency, occurred_on, reverses_entry_id, reason, created_by) values (v_t, 'reversal', 300000, 'ETB', current_date, v_e, 'RLS test', 'rls');
+    begin
+      insert into public.recruitment_fee_entries (fee_terms_id, entry_type, amount_minor, currency, occurred_on, reverses_entry_id, reason, created_by) values (v_t, 'reversal', 300000, 'ETB', current_date, v_e, 'RLS test', 'rls');
+      res := res || E'FAIL · An entry is reversed only once\n';
+    exception when unique_violation then res := res || E'PASS · An entry is reversed only once\n';
+    end;
+    insert into public.recruitment_events (assignment_id, step, actor) values (v_a, 'probe', 'rls');
+    begin
+      update public.recruitment_events set step = 'changed' where assignment_id = v_a;
+      res := res || E'FAIL · The desk timeline cannot be changed\n';
+    exception when insufficient_privilege then res := res || E'PASS · The desk timeline cannot be changed\n';
+    end;
+    begin
+      delete from public.recruitment_events where assignment_id = v_a;
+      res := res || E'FAIL · The desk timeline cannot be deleted\n';
+    exception when insufficient_privilege then res := res || E'PASS · The desk timeline cannot be deleted\n';
+    end;
+    -- Left inside the guarantee, then a free replacement: no fee may be recorded on it.
+    update public.recruitment_placements set status = 'replaced', ended_on = date '2026-11-20', end_reason = 'left_by_worker' where id = v_p;
+    insert into public.recruitment_candidates (assignment_id, source, name, phone, trade, created_by, consent_at, consent_method, consent_recorded_by, share_phone, adult_confirmed_at, adult_confirmed_by, adult_confirmed_method, introduced_at, introduced_by)
+      values (v_a, 'manual', 'RLS Third', '+251911000091', 'mason', 'rls', now() - interval '2 minutes', 'phone_call', 'rls', true, now() - interval '2 minutes', 'rls', 'phone_call', now(), 'rls') returning id into v_c2;
+    insert into public.recruitment_placements (candidate_id, assignment_id, role_type, start_date, guarantee_days, replaces_placement_id, is_free_replacement, created_by) values (v_c2, v_a, 'trade', date '2026-11-25', 30, v_p, false, 'rls') returning id into v_p2;
+    res := res || case when (select is_free_replacement from public.recruitment_placements where id = v_p2) then 'PASS' else 'FAIL' end || E' · The database marks a replacement inside the guarantee as free\n';
+    begin
+      insert into public.recruitment_fee_terms (placement_id, fee_type, amount_minor, created_by) values (v_p2, 'fixed', 300000, 'rls') returning id into v_t2;
+      res := res || E'FAIL · A free replacement has no fee\n';
+    exception when check_violation then res := res || E'PASS · A free replacement has no fee\n';
+    end;
+    begin
+      update public.recruitment_placements set is_free_replacement = false where id = v_p2;
+      res := res || E'FAIL · The free-replacement flag cannot be changed\n';
+    exception when check_violation then res := res || E'PASS · The free-replacement flag cannot be changed\n';
+    end;
+    raise exception 'hl_rollback';
+  exception when raise_exception then
+    if sqlerrm <> 'hl_rollback' then res := res || 'FAIL · Recruitment desk checks stopped early: ' || sqlerrm || E'\n'; end if;
+  end;
+  perform set_config('hl.results', current_setting('hl.results') || res, false);
+end $$;
+select pg_temp.record_check('Recruitment desk checks left nothing behind', not exists (select 1 from public.service_requests where title like 'RLS TEST staffing%' or title = 'RLS TEST plumbing'));
+
 -- ---------- Clean up ----------
 reset role;
 select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);

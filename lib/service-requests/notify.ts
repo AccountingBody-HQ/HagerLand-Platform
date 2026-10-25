@@ -5,12 +5,15 @@ import { sendEmail } from '@/lib/email/send'
 import { serviceQuoteReceivedEmail } from '@/lib/email/templates'
 import { canonicalUrl } from '@/lib/site'
 import { formatMoney } from '@/lib/format'
+import { isStaffingRequest } from '@/lib/jobs-desk-data'
 
 /**
  * After a quote is saved on a match: the request becomes "quoted" and the customer is emailed, the same way whoever
  * quoted (a provider, or HagerLand's own team, spec 26.8). Returns whether the customer is a guest.
  */
 export async function notifyCustomerOfQuote(match: { request_id: string; org_id: string }, amount: number, currency: string): Promise<{ guest: boolean }> {
+  // Staffing requests are never quoted (Jobs Phase 3): no status change and no "quote" email, whoever calls this.
+  if (await isStaffingRequest(match.request_id)) return { guest: false }
   const db = getAdminSupabase()
   const { data: r } = await db.from('service_requests').update({ status: 'quoted' }).eq('id', match.request_id).in('status', ['submitted', 'triaged', 'matched', 'quoted']).select('id, reference, name, email, requester_user_id').maybeSingle()
   const { data: org } = await db.from('organisations').select('name').eq('id', match.org_id).maybeSingle()

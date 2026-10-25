@@ -15,6 +15,7 @@ import { sendEmail } from '@/lib/email/send'
 import { adminNoticeEmail } from '@/lib/email/templates'
 import { canonicalUrl } from '@/lib/site'
 import { log } from '@/lib/log'
+import { isStaffingRequest } from '@/lib/jobs-desk-data'
 
 type Msg = ActionResult<{ message: string }>
 
@@ -38,6 +39,12 @@ export async function respondToMatchAction(matchId: string, decision: 'accept' |
   const parsed = z.object({ id: z.uuid(), decision: z.enum(['accept', 'decline']), reason: z.string().trim().max(300).optional() }).safeParse({ id: matchId, decision, reason })
   if (!parsed.success) return fail('Something went wrong. Please refresh the page.')
   const supabase = getServerSupabase()
+  // Staffing requests are HagerLand's own recruitment service: a provider may decline one but never accept it (Jobs
+  // Phase 3). RLS lets a provider read only matches sent to their business.
+  if (parsed.data.decision === 'accept') {
+    const { data: own } = await supabase.from('service_request_matches').select('request_id').eq('id', parsed.data.id).maybeSingle()
+    if (own && (await isStaffingRequest(own.request_id))) return fail('This request is no longer waiting for an answer.')
+  }
   const { data: m, error } = await supabase
     .from('service_request_matches')
     .update({ status: parsed.data.decision === 'accept' ? 'accepted' : 'declined', responded_at: new Date().toISOString(), declined_reason: parsed.data.decision === 'decline' ? parsed.data.reason || null : null })
@@ -63,6 +70,13 @@ const quoteSchema = z.object({
 /** Send (or update) your quote. The customer sees it on their request page and gets an email. */
 export async function submitMatchQuoteAction(_prev: Msg | null, formData: FormData): Promise<Msg> {
   await requireUser('/account/requests')
+  // Staffing requests are never quoted (Jobs Phase 3): refused before anything else. RLS lets a provider read only
+  // matches sent to their business.
+  const matchId = z.uuid().safeParse(formData.get('match_id'))
+  if (matchId.success) {
+    const { data: own } = await getServerSupabase().from('service_request_matches').select('request_id').eq('id', matchId.data).maybeSingle()
+    if (own && (await isStaffingRequest(own.request_id))) return fail('You can send a quote once you have accepted the request.')
+  }
   const parsed = quoteSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   const d = parsed.data

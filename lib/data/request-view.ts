@@ -3,6 +3,7 @@ import { getAdminSupabase } from '@/lib/supabase/admin'
 import { signedDocumentUrl } from '@/lib/storage'
 import { answerLines, parseQuestions } from '@/lib/service-requests/questions'
 import { isQuoteExpired } from '@/lib/service-requests/labels'
+import { employerAbroadLines, readEmployerAbroad } from '@/lib/service-requests/employer-abroad'
 
 export interface RequestQuote {
   matchId: string
@@ -32,6 +33,8 @@ export interface RequestView {
   place: string
   createdAt: string
   answers: [string, string][]
+  /** Staffing: the employer said they are based outside Ethiopia (Jobs Phase 3, W row 3). */
+  employerAbroad: boolean
   attachmentCount: number
   providersReviewing: number
   quotes: RequestQuote[]
@@ -87,7 +90,8 @@ export async function loadRequestView(id: string): Promise<RequestView | null> {
     serviceSlug: cat?.slug ?? null,
     place: loc?.display_name ?? r.location_text ?? '',
     createdAt: r.created_at,
-    answers: answerLines(parseQuestions(cat?.question_schema), (r.answers as Record<string, string>) ?? {}),
+    answers: [...answerLines(parseQuestions(cat?.question_schema), (r.answers as Record<string, string>) ?? {}), ...employerAbroadLines(r.answers)],
+    employerAbroad: readEmployerAbroad(r.answers)?.abroad === true,
     attachmentCount: (r.attachment_paths ?? []).length,
     providersReviewing: (matches ?? []).filter((m) => ['offered', 'accepted'].includes(m.status)).length,
     quotes: quotes.sort((a, b) => a.amountMinor - b.amountMinor),
