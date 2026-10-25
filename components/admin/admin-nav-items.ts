@@ -48,7 +48,10 @@ export const ADMIN_NAV_GROUPS: readonly AdminNavGroup[] = [
   },
   {
     label: 'Jobs',
-    items: [{ href: '/roodber8/jobs', label: 'Jobs and applications', icon: Briefcase }],
+    items: [
+      { href: '/roodber8/jobs', label: 'Jobs and applications', icon: Briefcase },
+      { href: '/roodber8/jobs/register', label: 'Worker register', icon: Users },
+    ],
   },
   {
     label: 'Property',

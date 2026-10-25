@@ -1,6 +1,8 @@
 import 'server-only'
 import { supplyDigestLines } from '@/lib/supply/digest'
 import { importsDigestCounts, runImportsCleanup, type CleanupSummary } from '@/lib/imports/compliance-data'
+import { runJobsDataCleanup } from '@/lib/jobs-cleanup-data'
+import { cleanupDigestCounts, type CleanupResult } from '@/lib/jobs-cleanup'
 import { supplyDigestCounts } from '@/lib/supply/insights-data'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { PRIVATE_BUCKET } from '@/lib/media'
@@ -43,6 +45,8 @@ export interface DailySummary {
   tenancyReminders: number
   /** Imports compliance clean-up (dry run unless the owner switched it to live); null if the step failed. */
   importsCleanup: CleanupSummary | null
+  /** Jobs personal details older than 12 months (dry run unless the owner switched it to live); null if the step failed. */
+  jobsDataCleanup: CleanupResult | null
   digestSent: boolean
 }
 
@@ -238,7 +242,7 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
   const db = getAdminSupabase()
   const head = { count: 'exact' as const, head: true }
   const since = iso(now - DAY)
-  const [pProps, pDevs, pOrgs, pPortfolio, claims, verifs, reports, enq, enqUnanswered, quotes, quotesOpen, signups, expiring, errors, interest, partners, srNew, srEmergency, srToMatch, srUnanswered, srAllDeclined, careNew, pJobs, pUpdates, applications, tradePending, emailProblems] = await Promise.all([
+  const [pProps, pDevs, pOrgs, pPortfolio, claims, verifs, reports, enq, enqUnanswered, quotes, quotesOpen, signups, expiring, errors, interest, partners, srNew, srEmergency, srToMatch, srUnanswered, srAllDeclined, careNew, pJobs, pUpdates, applications, phoneApplications, registerJoins, tradePending, emailProblems] = await Promise.all([
     db.from('properties').select('id', head).eq('status', 'pending_review'),
     db.from('developments').select('id', head).eq('status', 'pending_review'),
     db.from('organisations').select('id', head).eq('status', 'pending_review'),
@@ -264,6 +268,8 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
     db.from('job_posts').select('id', head).eq('status', 'pending_review'),
     db.from('development_updates').select('id', head).eq('status', 'pending_review'),
     db.from('job_applications').select('id', head).gte('created_at', since),
+    db.from('job_applications').select('id', head).eq('channel', 'phone').gte('created_at', since),
+    db.from('worker_register').select('id', head).gte('last_updated_at', since),
     db.from('trade_accounts').select('id', head).eq('status', 'pending'),
     db.from('email_outbox').select('id', head).in('status', ['failed', 'gave_up']),
   ])
@@ -307,6 +313,8 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
   add('New interest registrations (24 h)', n(interest))
   add('Partner applications to review', n(partners))
   add('New job applications (24 h)', n(applications))
+  add('Of which by phone (24 h)', n(phoneApplications))
+  add('Worker register: joined or updated (24 h)', n(registerJoins))
   add('Trade account applications to decide', n(tradePending))
   add('Emails not yet delivered (see admin → Email problems)', n(emailProblems))
   add('Listings expiring within 7 days', n(expiring))
@@ -317,6 +325,7 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
   if (demand) lines.push(demand)
   lines.push(...(await supplyDigestLines(() => supplyDigestCounts(now))))
   for (const [label, count] of importsDigestCounts(s.importsCleanup)) if (count > 0) lines.push([label, String(count)])
+  for (const [label, count] of cleanupDigestCounts(s.jobsDataCleanup)) if (count > 0) lines.push([label, String(count)])
   for (const e of errors.data ?? []) lines.push([`Error ×${e.count}`, `${e.route}: ${e.message}`.slice(0, 160)])
   return lines
 }
@@ -352,7 +361,9 @@ export async function runDaily(now = Date.now()): Promise<DailySummary> {
   const rateLimitsPurged = process.env.CRON_PURGE_RATE_LIMITS === 'true' ? await step('rate limit purge', async () => (await purgeExpiredRateLimits(7), true), false) : false
   // Google data from the Imports tool: reports only, unless the owner switched the clean-up to live (lib/imports).
   const importsCleanup = await step('imports clean-up', () => runImportsCleanup({ runBy: 'daily job', now }), null)
-  const summary = { expired, expiredEmailed: emailed, reminded, quotesExpired, verificationDocsPurged, revealsPurged, rateLimitsPurged, matchReminders, searchAlerts, jobsExpired, cvsPurged, emailsRetried, interestPurged, viewingReminders, tenancyReminders, importsCleanup }
+  // Jobs personal details after 12 months (lib/jobs-cleanup): reports only, unless the owner switched it to live.
+  const jobsDataCleanup = await step('jobs data clean-up', () => runJobsDataCleanup({ runBy: 'daily job', now }), null)
+  const summary = { expired, expiredEmailed: emailed, reminded, quotesExpired, verificationDocsPurged, revealsPurged, rateLimitsPurged, matchReminders, searchAlerts, jobsExpired, cvsPurged, emailsRetried, interestPurged, viewingReminders, tenancyReminders, importsCleanup, jobsDataCleanup }
   let digestSent = false
   const to = process.env.ADMIN_DIGEST_EMAIL
   if (to) {

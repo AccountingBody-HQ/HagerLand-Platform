@@ -5,7 +5,10 @@ import { getServerSupabase } from '@/lib/supabase/server'
 import { getVertical } from '@/lib/data/verticals'
 import { getLocationById } from '@/lib/data/reference'
 import { setJobStatusAction, updateApplicationAction } from '@/app/actions/job-actions'
-import { APPLICATION_STATUSES, EMPLOYER_APPLICATION_STATUSES, labelFor } from '@/lib/jobs'
+import { APPLICATION_STATUSES, EMPLOYER_APPLICATION_STATUSES, labelFor, tradeLabel } from '@/lib/jobs'
+import { LANGUAGES, contactLinks } from '@/lib/jobs-phone'
+import { getLocale } from '@/lib/i18n/server'
+import { translator } from '@/lib/i18n/translate'
 import { LISTING_STATUS_LABELS } from '@/lib/labels'
 import { formatDate, formatPhone } from '@/lib/format'
 import { AccountPageHeader } from '@/components/account/PageHeader'
@@ -33,10 +36,11 @@ export default async function EmployerJobPage(
   const { data: job } = await supabase.from('job_posts').select('*').eq('id', params.id).maybeSingle()
   if (!job) notFound()
   const [{ data: apps }, loc] = await Promise.all([
-    supabase.from('job_applications').select('id, reference, name, email, phone, cover_note, cv_path, status, employer_notes, created_at').eq('job_id', job.id).order('created_at', { ascending: false }),
+    supabase.from('job_applications').select('id, reference, name, email, phone, cover_note, cv_path, status, employer_notes, created_at, channel, trade, area_text, preferred_contact, language').eq('job_id', job.id).order('created_at', { ascending: false }),
     getLocationById(job.location_id),
   ])
   const s = LISTING_STATUS_LABELS[job.status]
+  const t = translator(await getLocale())
   const editable = !['published', 'removed'].includes(job.status)
   return (
     <div className="space-y-6">
@@ -80,21 +84,45 @@ export default async function EmployerJobPage(
                 <Card className="space-y-3 p-5">
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div>
-                      <p className="font-semibold">{a.name}</p>
+                      <p className="flex flex-wrap items-center gap-2 font-semibold">
+                        {a.name}
+                        {a.channel === 'phone' && <Badge tone="gold">{t('By phone')}</Badge>}
+                      </p>
                       <p className="text-small text-muted">
                         {a.reference} · applied {formatDate(a.created_at)}
                       </p>
                     </div>
                     <Badge tone={a.status === 'withdrawn' || a.status === 'rejected' ? 'neutral' : a.status === 'hired' ? 'green' : 'info'}>{labelFor(APPLICATION_STATUSES, a.status)}</Badge>
                   </div>
-                  <p className="text-small">
-                    <a href={`mailto:${a.email}`} className="text-green underline">
-                      {a.email}
-                    </a>
-                    {a.phone && <> · {formatPhone(a.phone)}</>}
-                  </p>
+                  {a.channel === 'phone' ? (
+                    <>
+                      <p className="text-small">
+                        {[a.phone && formatPhone(a.phone), a.trade && t(tradeLabel(a.trade)), a.area_text, a.language && t(labelFor(LANGUAGES, a.language))].filter(Boolean).join(' · ')}
+                      </p>
+                      {a.phone && (
+                        <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                          {contactLinks(a.phone, a.preferred_contact).map((l) => (
+                            <li key={l.method}>
+                              <a href={l.href} className="inline-flex min-h-11 w-full items-center justify-center rounded-md border border-border-strong px-3 text-small font-semibold hover:bg-stone-50" {...(l.href.startsWith('https:') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
+                                {t(l.label)}
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </>
+                  ) : (
+                    <p className="text-small">
+                      {a.email && (
+                        <a href={`mailto:${a.email}`} className="text-green underline">
+                          {a.email}
+                        </a>
+                      )}
+                      {a.phone && <> · {formatPhone(a.phone)}</>}
+                    </p>
+                  )}
                   {a.cover_note && <p className="whitespace-pre-line rounded-md bg-stone-50 p-3 text-small">{a.cover_note}</p>}
-                  {a.cv_path ? (
+                  {a.channel === 'phone' ? null : a.cv_path ? (
                     <a href={`/account/cv/${a.id}`} className="inline-flex min-h-11 items-center gap-2 rounded-md border border-border-strong px-3 text-small font-semibold hover:bg-stone-50">
                       <FileText className="size-4" aria-hidden /> Download CV
                     </a>
@@ -141,6 +169,7 @@ export default async function EmployerJobPage(
               title: job.title,
               category: job.category,
               employment_type: job.employment_type,
+              trade: job.trade,
               location: loc ? { value: loc.id, label: loc.name, description: loc.display_name } : null,
               salary_min: job.salary_min_minor === null ? null : job.salary_min_minor / 100,
               salary_max: job.salary_max_minor === null ? null : job.salary_max_minor / 100,

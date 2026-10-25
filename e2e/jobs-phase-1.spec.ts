@@ -440,8 +440,8 @@ test('J7: /jobs wording, and the recruitment licence line only once a number is 
 
 test('J8: privacy and candidate profile wording', async ({ page }) => {
   await page.goto('/privacy')
-  await expect(page.getByText('Last updated 24 Oct 2026')).toBeVisible()
-  await expect(page.getByText('the employer receives your application and CV. CVs are never public. Your candidate profile is private unless you choose to make it visible to businesses with a published profile on HagerLand, and even then they see neither your contact details nor your CV.')).toBeVisible()
+  await expect(page.getByText('Last updated 25 Oct 2026')).toBeVisible()
+  await expect(page.getByText('the employer receives your application and CV. CVs are never public. Your candidate profile is private unless you choose to make it visible to verified businesses and businesses that have had a job approved by HagerLand, and even then they see neither your contact details nor your CV.')).toBeVisible()
   await expect(page.getByText('CVs and other details sent with job applications (your name, contact details and cover note): deleted 12 months after the application. Your candidate profile and its CV: until you delete them.')).toBeVisible()
   expect(await page.content()).not.toContain('visible to approved employers')
   await page.goto('/terms')
@@ -456,7 +456,7 @@ test('J8: privacy and candidate profile wording', async ({ page }) => {
   await page.fill('#login-password', user.password)
   await page.getByRole('button', { name: 'Sign in', exact: true }).click()
   await page.waitForURL('**/account/candidate')
-  await expect(page.getByRole('radio', { name: /^Businesses with a published profile on HagerLand/ })).toBeVisible()
+  await expect(page.getByRole('radio', { name: /^Verified businesses and employers with an approved job/ })).toBeVisible()
   await expect(page.getByText('They see your first name, headline, skills, qualifications and experience. Never your contact details or CV: HagerLand asks you before any introduction.')).toBeVisible()
   await expect(page.getByRole('radio', { name: /Approved employers/ })).toHaveCount(0)
 })

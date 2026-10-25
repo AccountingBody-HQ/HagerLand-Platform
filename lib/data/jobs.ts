@@ -10,18 +10,19 @@ import type { SearchResult } from './properties'
 export type PublicJob = Omit<Database['public']['Views']['jobs_public']['Row'], 'search_tsv'>
 
 const LIST_COLUMNS =
-  'id, slug, short_id, title, category, employment_type, employer_name, employer_slug, employer_logo_path, employer_verification, location_display, country_code, currency, salary_min_minor, salary_max_minor, salary_period, closing_date, published_at'
+  'id, slug, short_id, title, category, employment_type, trade, employer_name, employer_slug, employer_logo_path, employer_verification, location_display, country_code, currency, salary_min_minor, salary_max_minor, salary_period, closing_date, published_at'
 const DETAIL_COLUMNS = `${LIST_COLUMNS}, employer_org_id, location_id, description, requirements, expires_at, updated_at`
 
 export type JobListItem = Pick<
   PublicJob,
-  'id' | 'slug' | 'short_id' | 'title' | 'category' | 'employment_type' | 'employer_name' | 'employer_slug' | 'employer_logo_path' | 'employer_verification' | 'location_display' | 'country_code' | 'currency' | 'salary_min_minor' | 'salary_max_minor' | 'salary_period' | 'closing_date' | 'published_at'
+  'id' | 'slug' | 'short_id' | 'title' | 'category' | 'employment_type' | 'trade' | 'employer_name' | 'employer_slug' | 'employer_logo_path' | 'employer_verification' | 'location_display' | 'country_code' | 'currency' | 'salary_min_minor' | 'salary_max_minor' | 'salary_period' | 'closing_date' | 'published_at'
 >
 
 export interface JobQuery {
   q?: string
   category?: string
   type?: string
+  trade?: string
   /** A location path (country, region or city); jobs in it and in the places below it. */
   location?: string
   employerOrgId?: string
@@ -40,6 +41,7 @@ export async function searchJobs(query: JobQuery): Promise<SearchResult<JobListI
     if (query.q) req = req.textSearch('search_tsv', query.q, { type: 'websearch', config: 'simple' })
     if (query.category) req = req.eq('category', query.category)
     if (query.type) req = req.eq('employment_type', query.type)
+    if (query.trade) req = req.eq('trade', query.trade)
     if (query.employerOrgId) req = req.eq('employer_org_id', query.employerOrgId)
     if (query.location) {
       const all = await getLocations()

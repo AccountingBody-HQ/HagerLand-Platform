@@ -1,5 +1,8 @@
 import { Search, Users } from 'lucide-react'
-import { getActiveMembership, requireUser } from '@/lib/auth'
+import { getActiveMembership, getMemberships, requireUser } from '@/lib/auth'
+import { canSeeCandidates } from '@/lib/jobs-privacy'
+import { getLocale } from '@/lib/i18n/server'
+import { translator } from '@/lib/i18n/translate'
 import { getServerSupabase } from '@/lib/supabase/server'
 import { getVertical } from '@/lib/data/verticals'
 import { AVAILABILITY, labelFor } from '@/lib/jobs'
@@ -30,6 +33,13 @@ export default async function CandidatesPage(props: { searchParams: Promise<{ q?
   const active = await getActiveMembership()
   if (!active || active.org.status !== 'published')
     return <EmptyState icon={<Users />} title="For approved employers" description="Once your business profile is approved, you can search candidates who chose to be visible to employers." />
+  // Decision 2 (also enforced by the database view): a verified business, or one with a job HagerLand approved and has not removed.
+  const memberships = (await getMemberships()).filter((m) => m.org.status === 'published')
+  const { data: jobs } = await getServerSupabase().from('job_posts').select('employer_org_id, published_at, status').in('employer_org_id', memberships.map((m) => m.org.id)).not('published_at', 'is', null)
+  if (!memberships.some((m) => canSeeCandidates(m.org, (jobs ?? []).filter((j) => j.employer_org_id === m.org.id)))) {
+    const t = translator(await getLocale())
+    return <EmptyState icon={<Users />} title="For approved employers" description={t('Candidate profiles are open to verified businesses and businesses that have had a job approved by HagerLand. Post a job or ask us to verify your business.')} />
+  }
   const q = searchParams.q?.trim().toLowerCase().slice(0, 80) ?? ''
   const { data } = await getServerSupabase().from('candidates_for_employers').select('*').order('updated_at', { ascending: false }).limit(300)
   const rows = (data ?? []).filter((c) => !q || [c.headline, c.qualifications, c.experience, ...(c.skills ?? [])].some((t) => t?.toLowerCase().includes(q)))

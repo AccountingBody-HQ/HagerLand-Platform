@@ -1,10 +1,14 @@
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Search } from 'lucide-react'
 import { buildMetadata } from '@/lib/seo'
 import { getVertical } from '@/lib/data/verticals'
 import { searchJobs } from '@/lib/data/jobs'
 import { getLocationByPath } from '@/lib/data/reference'
-import { EMPLOYMENT_TYPES, OFFERED_JOB_CATEGORIES, categoryLabel } from '@/lib/jobs'
+import { EMPLOYMENT_TYPES, OFFERED_JOB_CATEGORIES, TRADES, categoryLabel } from '@/lib/jobs'
+import { readJobsSwitches } from '@/lib/jobs-switches'
+import { getLocale } from '@/lib/i18n/server'
+import { translator } from '@/lib/i18n/translate'
 import { pluralise } from '@/lib/format'
 import { verticalLandingMetadata } from '@/components/verticals/ComingSoonPage'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
@@ -18,16 +22,18 @@ import { getPillar } from '@/lib/data/pillars'
 import { COMING_SOON } from '@/lib/content/verticals'
 import { PillarExtras } from '@/components/pillars/PillarHub'
 import { InterestForm } from '@/components/verticals/InterestForm'
+import { WorkerRegisterForm } from '@/components/jobs/WorkerRegisterForm'
 
 export const revalidate = 300
 
-type Params = { q?: string; category?: string; type?: string; loc?: string; page?: string }
+type Params = { q?: string; category?: string; type?: string; trade?: string; loc?: string; page?: string }
 
 function clean(sp: Params) {
   return {
     q: sp.q?.trim().slice(0, 100) || undefined,
     category: OFFERED_JOB_CATEGORIES.some((c) => c.value === sp.category) ? sp.category : undefined,
     type: EMPLOYMENT_TYPES.some((t) => t.value === sp.type) ? sp.type : undefined,
+    trade: TRADES.some((t) => t.value === sp.trade) ? sp.trade : undefined,
     loc: sp.loc && /^[a-z0-9/-]{1,200}$/.test(sp.loc) ? sp.loc : undefined,
     page: Math.min(500, Math.max(1, Number.parseInt(sp.page ?? '1', 10) || 1)),
   }
@@ -36,7 +42,7 @@ function clean(sp: Params) {
 export async function generateMetadata(props: { searchParams: Promise<Params> }) {
   const searchParams = await props.searchParams
   const f = clean(searchParams)
-  const filtered = Boolean(f.q || f.category || f.type || f.loc || f.page > 1)
+  const filtered = Boolean(f.q || f.category || f.type || f.trade || f.loc || f.page > 1)
   return verticalLandingMetadata('jobs', () =>
     buildMetadata({
       title: f.category ? `${categoryLabel(f.category)} jobs` : 'Jobs in construction, engineering and property',
@@ -53,14 +59,15 @@ export default async function JobsPage(props: { searchParams: Promise<Params> })
   const v = await getVertical('jobs')
   if (!v || v.status !== 'live') notFound()
   const f = clean(searchParams)
-  const [{ items, total }, loc, pillar] = await Promise.all([searchJobs({ q: f.q, category: f.category, type: f.type, location: f.loc, page: f.page }), f.loc ? getLocationByPath(f.loc) : Promise.resolve(null), getPillar('jobs')])
+  const [{ items, total }, loc, pillar, switches, locale] = await Promise.all([searchJobs({ q: f.q, category: f.category, type: f.type, trade: f.trade, location: f.loc, page: f.page }), f.loc ? getLocationByPath(f.loc) : Promise.resolve(null), getPillar('jobs'), readJobsSwitches(), getLocale()])
+  const t = translator(locale)
   const totalPages = Math.ceil(total / 20)
   const hrefFor = (page: number) => {
-    const qs = new URLSearchParams(Object.entries({ q: f.q, category: f.category, type: f.type, loc: f.loc, page: page > 1 ? String(page) : undefined }).filter((e): e is [string, string] => Boolean(e[1])))
+    const qs = new URLSearchParams(Object.entries({ q: f.q, category: f.category, type: f.type, trade: f.trade, loc: f.loc, page: page > 1 ? String(page) : undefined }).filter((e): e is [string, string] => Boolean(e[1])))
     const s = qs.toString()
     return s ? `/jobs?${s}` : '/jobs'
   }
-  const filtered = Boolean(f.q || f.category || f.type || f.loc)
+  const filtered = Boolean(f.q || f.category || f.type || f.trade || f.loc)
   return (
     <>
       <section className="hl-blueprint bg-ink text-white">
@@ -78,6 +85,24 @@ export default async function JobsPage(props: { searchParams: Promise<Params> })
           </div>
         </Container>
       </section>
+      <Section compact labelledBy="by-trade">
+        <h2 id="by-trade" className="hl-h3">
+          {t('Find work by trade')}
+        </h2>
+        <ul className="mt-4 flex flex-wrap gap-2">
+          {TRADES.map((tr) => (
+            <li key={tr.value}>
+              <Link
+                href={`/jobs?trade=${tr.value}`}
+                aria-current={f.trade === tr.value ? 'true' : undefined}
+                className="inline-flex min-h-11 items-center rounded-full border border-border-strong bg-white px-4 text-small font-medium hover:border-green aria-[current=true]:border-ink aria-[current=true]:bg-ink aria-[current=true]:text-white"
+              >
+                {t(tr.label)}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </Section>
       <Section>
         <div className="lg:grid lg:grid-cols-[300px_1fr] lg:gap-10">
           <aside>
@@ -113,9 +138,22 @@ export default async function JobsPage(props: { searchParams: Promise<Params> })
                 </label>
                 <Select id="j-type" name="type" defaultValue={f.type ?? ''}>
                   <option value="">Any type</option>
-                  {EMPLOYMENT_TYPES.map((t) => (
-                    <option key={t.value} value={t.value}>
-                      {t.label}
+                  {EMPLOYMENT_TYPES.map((et) => (
+                    <option key={et.value} value={et.value}>
+                      {t(et.label)}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+              <div>
+                <label htmlFor="j-trade" className="mb-2 block text-small font-semibold">
+                  {t('Trade')}
+                </label>
+                <Select id="j-trade" name="trade" defaultValue={f.trade ?? ''}>
+                  <option value="">{t('Any trade')}</option>
+                  {TRADES.map((tr) => (
+                    <option key={tr.value} value={tr.value}>
+                      {t(tr.label)}
                     </option>
                   ))}
                 </Select>
@@ -172,6 +210,21 @@ export default async function JobsPage(props: { searchParams: Promise<Params> })
             <ButtonLink href="/request-service/staffing" size="lg">
               Submit a staffing requirement
             </ButtonLink>
+          </div>
+        </Section>
+      )}
+      {switches.workerRegister && (
+        <Section id="worker-register" labelledBy="worker-register-h">
+          <div className="grid gap-10 lg:grid-cols-[1fr_440px]">
+            <div>
+              <h2 id="worker-register-h" className="hl-h2">
+                {t("Looking for work? Tell us you're available")}
+              </h2>
+              <p className="mt-3 text-muted">{t('Leave your phone number and trade. HagerLand may call you about suitable work. No account or email needed.')}</p>
+            </div>
+            <div className="rounded-xl border border-border bg-white p-5 sm:p-6">
+              <WorkerRegisterForm />
+            </div>
           </div>
         </Section>
       )}

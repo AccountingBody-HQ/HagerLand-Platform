@@ -1,13 +1,16 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
-import { Briefcase, CalendarClock, MapPin, ShieldCheck } from 'lucide-react'
+import { Briefcase, CalendarClock, Hammer, MapPin, ShieldCheck } from 'lucide-react'
 import { getJobBySlug } from '@/lib/data/jobs'
 import { getVertical } from '@/lib/data/verticals'
+import { readJobsSwitches } from '@/lib/jobs-switches'
+import { getLocale } from '@/lib/i18n/server'
+import { translator } from '@/lib/i18n/translate'
 import { buildMetadata, truncateDescription } from '@/lib/seo'
 import { canonicalUrl } from '@/lib/site'
 import { publicMediaUrl } from '@/lib/media'
-import { EMPLOYMENT_TYPES, SCHEMA_EMPLOYMENT, categoryLabel, formatSalary, labelFor, type EmploymentType } from '@/lib/jobs'
+import { EMPLOYMENT_TYPES, SCHEMA_EMPLOYMENT, categoryLabel, formatSalary, labelFor, tradeLabel, type EmploymentType } from '@/lib/jobs'
 import { formatDate } from '@/lib/format'
 import { verticalLandingMetadata } from '@/components/verticals/ComingSoonPage'
 import { Container } from '@/components/ui/Layout'
@@ -41,6 +44,8 @@ export default async function JobPage(props: { params: Promise<{ slug: string }>
   if (!v || v.status !== 'live') notFound()
   const job = await getJobBySlug(params.slug)
   if (!job || !job.id) notFound()
+  const [switches, locale] = await Promise.all([readJobsSwitches(), getLocale()])
+  const t = translator(locale)
   const salary = formatSalary(job.salary_min_minor, job.salary_max_minor, job.currency ?? 'ETB', job.salary_period)
   const place = job.location_display?.split(', ') ?? []
   return (
@@ -66,8 +71,13 @@ export default async function JobPage(props: { params: Promise<{ slug: string }>
                 <MapPin className="size-5" aria-hidden /> {job.location_display}
               </li>
               <li className="inline-flex items-center gap-1.5">
-                <Briefcase className="size-5" aria-hidden /> {labelFor(EMPLOYMENT_TYPES, job.employment_type)}
+                <Briefcase className="size-5" aria-hidden /> {t(labelFor(EMPLOYMENT_TYPES, job.employment_type))}
               </li>
+              {job.trade && (
+                <li className="inline-flex items-center gap-1.5">
+                  <Hammer className="size-5" aria-hidden /> {t('Trade')}: {t(tradeLabel(job.trade))}
+                </li>
+              )}
               {job.closing_date && (
                 <li className="inline-flex items-center gap-1.5">
                   <CalendarClock className="size-5" aria-hidden /> Closes {formatDate(job.closing_date)}
@@ -98,6 +108,11 @@ export default async function JobPage(props: { params: Promise<{ slug: string }>
             <ButtonLink href={`/jobs/${job.slug}/apply`} size="lg" className="mt-4 w-full">
               Apply now
             </ButtonLink>
+            {switches.phoneApply && (
+              <ButtonLink href={`/jobs/${job.slug}/apply-by-phone`} variant="secondary" size="lg" className="mt-3 w-full">
+                {t('Apply by phone')}
+              </ButtonLink>
+            )}
             <p className="mt-4 flex gap-2 text-small text-muted">
               <ShieldCheck className="size-5 shrink-0 text-green" aria-hidden /> Never pay an employer or agent to get a job. Report anything suspicious to HagerLand.
             </p>

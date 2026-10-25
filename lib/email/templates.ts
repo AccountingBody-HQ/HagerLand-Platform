@@ -466,12 +466,13 @@ export function jobDecisionEmail(p: { name: string; title: string; approved: boo
       })
 }
 
-export function newApplicationEmail(p: { orgName: string; title: string; reference: string; applicantName: string; url: string }): RenderedEmail {
+/** `byPhone`: the application came by phone (no cover note or CV), Jobs Phase 2. */
+export function newApplicationEmail(p: { orgName: string; title: string; reference: string; applicantName: string; url: string; byPhone?: boolean }): RenderedEmail {
   return renderEmail({
     subject: `New application for ${p.title} (${p.reference})`,
     preheader: `${p.applicantName} applied for ${p.title}.`,
     heading: 'You have a new application',
-    paragraphs: [`Hello ${p.orgName},`, `${p.applicantName} applied for "${p.title}". Open the application to read the cover note and download the CV.`],
+    paragraphs: [`Hello ${p.orgName},`, p.byPhone ? `${p.applicantName} applied for "${p.title}" by phone. Open the application to see how to contact them.` : `${p.applicantName} applied for "${p.title}". Open the application to read the cover note and download the CV.`],
     details: [['Reference', p.reference]],
     button: { label: 'View the application', href: p.url },
     reason: EMPLOYER_REASON,

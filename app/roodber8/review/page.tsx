@@ -16,7 +16,9 @@ import { MediaImage } from '@/components/media/MediaImage'
 import { claimDecisionAction, mediaDecisionAction, reportDecisionAction, verificationDecisionAction } from '../actions/moderation'
 import { jobDecisionAction } from '../actions/jobs'
 import { developmentUpdateDecisionAction } from '../actions/development-updates'
-import { EMPLOYMENT_TYPES, categoryLabel, formatSalary, labelFor } from '@/lib/jobs'
+import { EMPLOYMENT_TYPES, categoryLabel, formatSalary, labelFor, tradeLabel } from '@/lib/jobs'
+import { advertWarnings } from '@/lib/jobs-privacy'
+import { AdvertWarnings } from '@/components/admin/AdvertWarnings'
 
 export const metadata = { title: 'Review queue' }
 
@@ -375,7 +377,7 @@ export default async function ReviewPage(route: { searchParams: Promise<{ tab?: 
   }
 
   if (tab === 'jobs') {
-    const { data } = await db.from('job_posts').select('id, title, category, employment_type, description, requirements, salary_min_minor, salary_max_minor, salary_period, currency, closing_date, employer_org_id, location_id, updated_at').eq('status', 'pending_review').order('updated_at').limit(100)
+    const { data } = await db.from('job_posts').select('id, title, category, employment_type, trade, description, requirements, salary_min_minor, salary_max_minor, salary_period, currency, closing_date, employer_org_id, location_id, updated_at').eq('status', 'pending_review').order('updated_at').limit(100)
     const rows = data ?? []
     const [{ data: orgs }, { data: locs }] = await Promise.all([
       db.from('organisations').select('id, name, status, verification_level').in('id', rows.map((r) => r.employer_org_id)),
@@ -396,12 +398,18 @@ export default async function ReviewPage(route: { searchParams: Promise<{ tab?: 
                       ['Employer', `${org?.name ?? ''}${org && org.status !== 'published' ? ' (profile not live yet)' : ''}`],
                       ['Category', categoryLabel(r.category)],
                       ['Type', labelFor(EMPLOYMENT_TYPES, r.employment_type)],
+                      ['Trade', r.trade ? tradeLabel(r.trade) : 'None'],
                       ['Location', (locs ?? []).find((l) => l.id === r.location_id)?.display_name ?? ''],
                       ['Salary', formatSalary(r.salary_min_minor, r.salary_max_minor, r.currency, r.salary_period) ?? 'Not given'],
                       ['Closes', r.closing_date ? formatDate(r.closing_date) : '60 days after approval'],
                     ]}
                   />
                   <p className="mt-3 line-clamp-6 whitespace-pre-line text-small">{r.description}</p>
+                  {advertWarnings(r.title, r.description, r.requirements).length > 0 && (
+                    <div className="mt-3">
+                      <AdvertWarnings warnings={advertWarnings(r.title, r.description, r.requirements)} />
+                    </div>
+                  )}
                   <div className="mt-3">
                     <DecisionButtons askNote onApprove={jobDecisionAction.bind(null, r.id, true)} onReject={jobDecisionAction.bind(null, r.id, false)} />
                   </div>

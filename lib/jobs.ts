@@ -6,6 +6,8 @@ import { emailSchema, intFromForm, optionalPhoneSchema, optionalText, textSchema
 
 export { JOB_CATEGORIES, OFFERED_JOB_CATEGORIES }
 
+export const JOBS_NOT_LIVE = 'Jobs on HagerLand open soon. Register your interest on the jobs page and we will tell you when they do.'
+
 export const EMPLOYMENT_TYPES = [
   { value: 'full_time', label: 'Full time' },
   { value: 'part_time', label: 'Part time' },
@@ -13,6 +15,7 @@ export const EMPLOYMENT_TYPES = [
   { value: 'temporary', label: 'Temporary' },
   { value: 'internship', label: 'Internship' },
   { value: 'apprenticeship', label: 'Apprenticeship' },
+  { value: 'daily_labour', label: 'Daily labour' },
 ] as const
 export type EmploymentType = (typeof EMPLOYMENT_TYPES)[number]['value']
 const EMPLOYMENT_VALUES = EMPLOYMENT_TYPES.map((t) => t.value) as [EmploymentType, ...EmploymentType[]]
@@ -25,6 +28,19 @@ export const SCHEMA_EMPLOYMENT: Record<EmploymentType, string> = {
   temporary: 'TEMPORARY',
   internship: 'INTERN',
   apprenticeship: 'OTHER',
+  daily_labour: 'PER_DIEM',
+}
+
+/** Trades (Jobs Phase 2), in the order AB approved. The values are the database check list in migration 0040. */
+export const TRADES = [
+  'Mason', 'Carpenter', 'Steel fixer', 'Electrician', 'Plumber', 'Painter', 'Tiler', 'Welder', 'Plasterer', 'Aluminium & glass fitter',
+  'Gypsum ceiling installer', 'Scaffolder', 'Labourer', 'Foreman', 'Site engineer', 'Quantity surveyor', 'Architect', 'Surveyor', 'Driver',
+  'Machine operator', 'Security guard', 'Cleaner', 'Store keeper', 'Office / admin', 'Sales', 'Other',
+].map((label) => ({ value: label.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''), label }))
+export const TRADE_VALUES = TRADES.map((t) => t.value) as [string, ...string[]]
+
+export function tradeLabel(value: string | null | undefined): string {
+  return labelFor(TRADES, value)
 }
 
 export const SALARY_PERIODS = [
@@ -82,6 +98,7 @@ export const jobSchema = z
       error: (issue) => (HIDDEN_JOB_CATEGORIES.includes(String(issue.input)) ? 'This category is not available at the moment. Choose another category.' : 'Choose a category'),
     }),
     employment_type: z.enum(EMPLOYMENT_VALUES, { error: 'Choose the type of job' }),
+    trade: z.preprocess(blank, z.enum(TRADE_VALUES).optional()),
     location_id: z.uuid({ error: 'Choose where the job is' }),
     salary_min: intFromForm({ min: 0, max: 1_000_000_000 }),
     salary_max: intFromForm({ min: 0, max: 1_000_000_000 }),
@@ -100,6 +117,7 @@ export function jobColumns(d: JobInput) {
     title: d.title,
     category: d.category,
     employment_type: d.employment_type,
+    trade: d.trade ?? null,
     location_id: d.location_id,
     salary_min_minor: majorToMinor(d.salary_min),
     salary_max_minor: majorToMinor(d.salary_max),
