@@ -14,7 +14,7 @@ import { getRequestableCategory } from '@/lib/data/service-requests'
 import { answerLines, validateAnswers } from '@/lib/service-requests/questions'
 import { PAY_OFFERED_MAX, askedQuestions, detailsWithPay, requestFormCopy } from '@/lib/service-requests/form-copy'
 import { GUEST_LINK_DAYS, URGENCY_LABEL, isQuoteExpired } from '@/lib/service-requests/labels'
-import { hashRequestToken, isWellFormedToken, newRequestToken } from '@/lib/service-requests/token'
+import { hashRequestToken, isWellFormedToken, linkDaysLeft, newRequestToken } from '@/lib/service-requests/token'
 import { hagerlandInbox, orgManagerEmails } from '@/lib/enquiries'
 import { sendEmail } from '@/lib/email/send'
 import { adminNoticeEmail, providerChosenEmail, serviceRequestLinkEmail, serviceRequestReceivedEmail } from '@/lib/email/templates'
@@ -214,13 +214,12 @@ export async function resendRequestLinkAction(_prev: ActionResult<{ message: str
   if (r && r.email && r.email.toLowerCase() === parsed.data.email) {
     const custom = requestFormCopy(r.category?.slug ?? '').customer
     const wording = (days: number) => ({ preheader: custom?.linkPreheader, body: custom?.linkBody(r.reference, days) })
-    if (r.requester_user_id) {
-      await sendEmail({ to: r.email, ...serviceRequestLinkEmail({ name: r.name.split(' ')[0] || r.name, reference: r.reference, link: canonicalUrl(`/account/service-requests/${r.id}`), linkDays: 0, ...wording(0) }) })
-    } else {
-      const link = newRequestToken()
-      await db.from('service_requests').update({ access_token_hash: link.hash, access_token_expires_at: link.expiresAt }).eq('id', r.id)
-      await sendEmail({ to: r.email, ...serviceRequestLinkEmail({ name: r.name.split(' ')[0] || r.name, reference: r.reference, link: canonicalUrl(`/requests/${link.token}`), linkDays: GUEST_LINK_DAYS, ...wording(GUEST_LINK_DAYS) }) })
-    }
+    // Guests and signed-in customers both get a fresh private link; the email states its real lifetime (it used to say
+    // "0 days" to signed-in customers, whose account page link had no expiry at all).
+    const link = newRequestToken()
+    await db.from('service_requests').update({ access_token_hash: link.hash, access_token_expires_at: link.expiresAt }).eq('id', r.id)
+    const days = linkDaysLeft(link.expiresAt)
+    await sendEmail({ to: r.email, ...serviceRequestLinkEmail({ name: r.name.split(' ')[0] || r.name, reference: r.reference, link: canonicalUrl(`/requests/${link.token}`), linkDays: days, ...wording(days) }) })
   }
   return ok({ message: 'If the details match a request, we have emailed a new link. Check your inbox and spam folder.' })
 }

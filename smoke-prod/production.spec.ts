@@ -144,6 +144,8 @@ test('/api/health/full: every check is true', async ({ request }) => {
   const body = (await (await request.get('/api/health/full', { headers: { authorization: `Bearer ${secret}` } })).json()) as Record<string, unknown>
   const flat = (o: Record<string, unknown>, p = ''): [string, unknown][] =>
     Object.entries(o).flatMap(([k, v]) => (v && typeof v === 'object' ? flat(v as Record<string, unknown>, `${p}${k}.`) : [[`${p}${k}`, v] as [string, unknown]]))
-  const notTrue = flat(body).filter(([k, v]) => k !== 'version' && k !== 'ok' && v !== true).map(([k]) => k)
+  // latestMigration and notChecked describe the report; they are not checks.
+  const info = (k: string) => k === 'version' || k === 'ok' || k === 'latestMigration' || k.startsWith('notChecked.')
+  const notTrue = flat(body).filter(([k, v]) => !info(k) && v !== true).map(([k]) => k)
   expect(notTrue).toEqual([])
 })

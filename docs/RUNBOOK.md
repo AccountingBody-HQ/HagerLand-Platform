@@ -69,7 +69,7 @@ To check it ran: Vercel → Project → **Logs**, filter by `/api/cron/daily`, o
 
 The pre-existing `rate_limits` table is not cleaned unless you set `CRON_PURGE_RATE_LIMITS=true` in Vercel. It only holds short-lived counters, so switching it on after launch is safe.
 
-Health checks: `/api/health` answers `ok` for anyone (use it for an uptime monitor). `/api/health/full` with the header `Authorization: Bearer <CRON_SECRET>` answers true/false for each setting, the database, every migration, the storage buckets and the email domain.
+Health checks: `/api/health` answers `ok` for anyone when the website is up (use it for an uptime monitor; it checks nothing else). `/api/health/full` with the header `Authorization: Bearer <CRON_SECRET>` answers true/false for each setting being present, the database, every migration, the storage buckets and the email domain. Details, and what neither checks: section 11.
 
 ## 5. Errors
 
@@ -144,3 +144,18 @@ npm run test:e2e:build && npm run test:e2e   # browser tests against the local c
 - Results: the run list shows, per run, how many would be / were cleared and how many failed. A failed row is logged (“could not clear …”), counted, and tried again the next day; it never stops the rest. The daily digest shows the same counts.
 
 **Read-only check after AB applies 0040 on live:** `docs/sql/0040_jobs_phase_2_verify.sql` (every row PASS). The migration replaces the job-type check to add “daily labour”, so the Supabase editor shows its warning about a “destructive” statement; no data is removed.
+
+## 11. Health checks: what each address checks
+
+**`https://www.hagerland.com/api/health`** (public, anyone can open it).
+- Checks: only that the website answered, and which version is live (`version` is the first 7 characters of the commit).
+- Does **not** check: the database, migrations, storage, email or the daily job. The answer says so itself (`"checks": ["website"]`, `"notChecked": [...]`).
+- `"ok": true` therefore means "the site is up on this version", nothing more. Use it after a release to see the new version is live.
+- Not ok, or no answer: the site is down or still deploying. Wait two minutes and try again; if it stays down, check Vercel → Deployments for a failed build and roll back (section 8).
+
+**`https://www.hagerland.com/api/health/full`** (protected: only answers with `Authorization: Bearer <CRON_SECRET>`; without it, 401).
+- Checks (true/false): every required setting is **present** (`env`, never the values and not whether they are right); the database answers (`database`); every migration the code expects is recorded in `schema_migrations` (`migrations`); both storage buckets exist with the right privacy (`storage`); Resend reports the sending domain as verified (`emailDomain`). `ok` is true only when all of these are.
+- Also shows `latestMigration`: the newest migration recorded in the database (read only), for example `"0040"`.
+- Does **not** check (listed in `notChecked`): whether the daily job ran (see the daily digest email and the run lists in admin), whether emails were actually delivered (admin → Email problems), whether the Turnstile keys or secrets are correct, and whether the live data matches the verify files. **The proof for a migration is its read-only verify file in `docs/sql/`** (every row PASS), not this address.
+- If a value is false: `env.<NAME>` — the variable is missing in Vercel (tell your developer; never paste the value in chat). `database` — Supabase is down or paused (Supabase dashboard). `migrations` — a migration the code needs has not been applied on live: apply it with its verify file (section 2) or roll back the release. `storage` — a bucket is missing or has the wrong privacy (Supabase → Storage). `emailDomain` — the domain is not verified in Resend (Resend → Domains).
+- `scripts/preflight.sh` reads this address and lists any check that is not true (names only).

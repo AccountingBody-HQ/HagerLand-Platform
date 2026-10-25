@@ -25,7 +25,9 @@ else
     # Every leaf value must be true; list any that are not (names only, never values).
     bad="$(node -e '
       const flat = (o, p = "") => Object.entries(o).flatMap(([k, v]) => (v && typeof v === "object" ? flat(v, p + k + ".") : [[p + k, v]]))
-      const out = flat(JSON.parse(process.argv[1])).filter(([k, v]) => v !== true && k !== "version" && k !== "ok").map(([k]) => k)
+      // latestMigration and notChecked describe the report; they are not checks.
+      const info = (k) => k === "version" || k === "ok" || k === "latestMigration" || k.startsWith("notChecked.")
+      const out = flat(JSON.parse(process.argv[1])).filter(([k, v]) => v !== true && !info(k)).map(([k]) => k)
       console.log(out.join(", "))' "$full" 2>/dev/null || echo "unreadable answer")"
     if [ -z "$bad" ]; then pass "/api/health/full: every check true (env vars, database, migrations, storage, Resend domain verified)"
     else fail "/api/health/full not true: $bad"; fi

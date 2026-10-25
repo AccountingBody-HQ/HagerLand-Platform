@@ -8,6 +8,11 @@ export function newRequestToken(now = Date.now()): { token: string; hash: string
   return { token, hash: hashRequestToken(token), expiresAt: new Date(now + GUEST_LINK_DAYS * 86_400_000).toISOString() }
 }
 
+/** Whole days a link works, read from its real expiry (for the email: never a separately typed number, never 0). */
+export function linkDaysLeft(expiresAt: string, now = Date.now()): number {
+  return Math.max(1, Math.round((new Date(expiresAt).getTime() - now) / 86_400_000))
+}
+
 export function hashRequestToken(token: string): string {
   return crypto.createHash('sha256').update(token).digest('hex')
 }

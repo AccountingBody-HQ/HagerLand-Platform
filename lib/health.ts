@@ -28,12 +28,31 @@ export const REQUIRED_ENV = [
 
 export interface HealthReport {
   ok: boolean
+  /** Each variable is set (presence only: values are never read out or tested). */
   env: Record<(typeof REQUIRED_ENV)[number], boolean>
+  /** The database answered a read. */
   database: boolean
+  /** Every migration this code expects is recorded in schema_migrations. */
   migrations: boolean
+  /** The latest migration recorded in schema_migrations (read only), or null if it could not be read. */
+  latestMigration: string | null
+  /** Both storage buckets exist, the public one public and the private one private. */
   storage: boolean
+  /** Resend reports the sending domain of EMAIL_FROM as verified. */
   emailDomain: boolean
+  /** Things this report does not check (so "ok" is never read as more). */
+  notChecked: string[]
 }
+
+/** What the public /api/health checks, and what it does not (it says so in its answer, so "ok" is never read as more). */
+export const PUBLIC_HEALTH_SCOPE = {
+  checks: ['website'],
+  notChecked: ['database', 'migrations', 'storage', 'email', 'daily job'],
+  fullCheck: '/api/health/full',
+}
+
+/** What /api/health/full does not check: the daily job has its own record (digest, run lists), the rest needs a person. */
+export const NOT_CHECKED = ['daily job runs', 'emails actually delivered', 'Turnstile keys valid', 'secret values correct (only that they are set)', 'live data matches the verify files (docs/sql)']
 
 const present = (name: string) => Boolean(process.env[name]?.trim())
 
@@ -77,6 +96,15 @@ export async function healthReport(): Promise<HealthReport> {
     }),
     check('email domain', emailDomainVerified),
   ])
+  const latestMigration = supabaseReady
+    ? await getAdminSupabase()
+        .from('schema_migrations')
+        .select('version')
+        .order('version', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+        .then(({ data, error }) => (error ? null : data?.version ?? null), () => null)
+    : null
   const ok = Object.values(env).every(Boolean) && database && migrations && storage && emailDomain
-  return { ok, env, database, migrations, storage, emailDomain }
+  return { ok, env, database, migrations, latestMigration, storage, emailDomain, notChecked: NOT_CHECKED }
 }
