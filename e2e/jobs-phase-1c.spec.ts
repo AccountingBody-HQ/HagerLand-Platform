@@ -108,7 +108,7 @@ test('staffing signed in: thank-you step 3, account request page and request lis
   // The account version of the "new link" email.
   const fresh = await resendLink(page, user.email, r.reference)
   expect(fresh.html).toContain('A new link to view your request.')
-  expect(fresh.html).toContain(`Use the button to see request ${r.reference}. The link works for 0 days. Older links no longer work.`)
+  expect(fresh.html).toContain(`Use the button to see request ${r.reference}. The link works for 30 days. Older links no longer work.`)
 
   // Admin keeps its own labels.
   await adminSession(page)
