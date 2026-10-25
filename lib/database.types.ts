@@ -1804,52 +1804,76 @@ export type Database = {
       }
       job_applications: {
         Row: {
-          applicant_user_id: string
+          adult_confirmed_at: string | null
+          applicant_user_id: string | null
+          area_text: string | null
+          channel: string
+          consent_at: string | null
           cover_note: string | null
           created_at: string
           cv_path: string | null
           cv_purged_at: string | null
-          email: string
+          email: string | null
           employer_notes: string | null
           id: string
           job_id: string
+          language: string | null
           name: string
+          personal_data_deleted_at: string | null
           phone: string | null
+          preferred_contact: string | null
           reference: string
           status: string
+          trade: string | null
           updated_at: string
         }
         ComputedFields: never
         Insert: {
-          applicant_user_id: string
+          adult_confirmed_at?: string | null
+          applicant_user_id?: string | null
+          area_text?: string | null
+          channel?: string
+          consent_at?: string | null
           cover_note?: string | null
           created_at?: string
           cv_path?: string | null
           cv_purged_at?: string | null
-          email: string
+          email?: string | null
           employer_notes?: string | null
           id?: string
           job_id: string
+          language?: string | null
           name: string
+          personal_data_deleted_at?: string | null
           phone?: string | null
+          preferred_contact?: string | null
           reference?: string
           status?: string
+          trade?: string | null
           updated_at?: string
         }
         Update: {
-          applicant_user_id?: string
+          adult_confirmed_at?: string | null
+          applicant_user_id?: string | null
+          area_text?: string | null
+          channel?: string
+          consent_at?: string | null
           cover_note?: string | null
           created_at?: string
           cv_path?: string | null
           cv_purged_at?: string | null
-          email?: string
+          email?: string | null
           employer_notes?: string | null
           id?: string
           job_id?: string
+          language?: string | null
           name?: string
+          personal_data_deleted_at?: string | null
           phone?: string | null
+          preferred_contact?: string | null
           reference?: string
           status?: string
+          trade?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -1868,6 +1892,37 @@ export type Database = {
             referencedColumns: ['id']
           },
         ]
+      }
+      job_data_cleanup_runs: {
+        Row: {
+          counts: NonNullable<Json>
+          failures: NonNullable<Json>
+          finished_at: string
+          id: string
+          mode: string
+          run_by: string
+          started_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          counts?: NonNullable<Json>
+          failures?: NonNullable<Json>
+          finished_at?: string
+          id?: string
+          mode: string
+          run_by: string
+          started_at: string
+        }
+        Update: {
+          counts?: NonNullable<Json>
+          failures?: NonNullable<Json>
+          finished_at?: string
+          id?: string
+          mode?: string
+          run_by?: string
+          started_at?: string
+        }
+        Relationships: []
       }
       job_posts: {
         Row: {
@@ -1895,6 +1950,7 @@ export type Database = {
           slug: string
           status: Database['public']['Enums']['listing_status']
           title: string
+          trade: string | null
           updated_at: string
           views_count: number
         }
@@ -1924,6 +1980,7 @@ export type Database = {
           slug: string
           status?: Database['public']['Enums']['listing_status']
           title: string
+          trade?: string | null
           updated_at?: string
           views_count?: number
         }
@@ -1952,6 +2009,7 @@ export type Database = {
           slug?: string
           status?: Database['public']['Enums']['listing_status']
           title?: string
+          trade?: string | null
           updated_at?: string
           views_count?: number
         }
@@ -6366,6 +6424,67 @@ export type Database = {
           },
         ]
       }
+      worker_register: {
+        Row: {
+          admin_notes: string | null
+          adult_confirmed_at: string | null
+          area_text: string | null
+          availability: string | null
+          consent_at: string | null
+          created_at: string
+          id: string
+          language: string | null
+          last_updated_at: string
+          name: string | null
+          personal_data_deleted_at: string | null
+          phone: string | null
+          preferred_contact: string | null
+          reference: string
+          status: string
+          trades: string[]
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          admin_notes?: string | null
+          adult_confirmed_at?: string | null
+          area_text?: string | null
+          availability?: string | null
+          consent_at?: string | null
+          created_at?: string
+          id?: string
+          language?: string | null
+          last_updated_at?: string
+          name?: string | null
+          personal_data_deleted_at?: string | null
+          phone?: string | null
+          preferred_contact?: string | null
+          reference?: string
+          status?: string
+          trades?: string[]
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          adult_confirmed_at?: string | null
+          area_text?: string | null
+          availability?: string | null
+          consent_at?: string | null
+          created_at?: string
+          id?: string
+          language?: string | null
+          last_updated_at?: string
+          name?: string | null
+          personal_data_deleted_at?: string | null
+          phone?: string | null
+          preferred_contact?: string | null
+          reference?: string
+          status?: string
+          trades?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       area_guides_public: {
@@ -6622,6 +6741,7 @@ export type Database = {
           short_id: string | null
           slug: string | null
           title: string | null
+          trade: string | null
           updated_at: string | null
         }
         ComputedFields: never

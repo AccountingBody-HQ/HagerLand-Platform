@@ -7,13 +7,15 @@ import { Field, Input, Select, Textarea, describedBy } from '@/components/ui/Fie
 import { Combobox, type ComboOption } from '@/components/ui/Combobox'
 import { Button } from '@/components/ui/Button'
 import { FormAlert } from '@/components/forms/FormParts'
-import { EMPLOYMENT_TYPES, OFFERED_JOB_CATEGORIES, SALARY_PERIODS } from '@/lib/jobs'
+import { EMPLOYMENT_TYPES, OFFERED_JOB_CATEGORIES, SALARY_PERIODS, TRADES } from '@/lib/jobs'
+import { useI18n } from '@/lib/i18n/client'
 
 export interface JobDefaults {
   id?: string
   title?: string
   category?: string
   employment_type?: string
+  trade?: string | null
   location?: ComboOption | null
   salary_min?: number | null
   salary_max?: number | null
@@ -43,6 +45,7 @@ export function JobForm({ defaults }: { defaults: JobDefaults }) {
   const [state, action] = useActionState<JobState, FormData>(saveJobAction, null)
   const intentRef = useRef<HTMLInputElement>(null)
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
+  const { t } = useI18n()
   return (
     <NoResetForm action={action} className="space-y-5" noValidate>
       {state && !state.ok && <FormAlert>{state.error}</FormAlert>}
@@ -64,14 +67,24 @@ export function JobForm({ defaults }: { defaults: JobDefaults }) {
         </Field>
         <Field label="Type of job" htmlFor="job-type" required error={errors.employment_type}>
           <Select id="job-type" name="employment_type" defaultValue={defaults.employment_type ?? 'full_time'} required invalid={Boolean(errors.employment_type)}>
-            {EMPLOYMENT_TYPES.map((t) => (
-              <option key={t.value} value={t.value}>
-                {t.label}
+            {EMPLOYMENT_TYPES.map((et) => (
+              <option key={et.value} value={et.value}>
+                {t(et.label)}
               </option>
             ))}
           </Select>
         </Field>
       </div>
+      <Field label={t('Trade')} htmlFor="job-trade" optional error={errors.trade}>
+        <Select id="job-trade" name="trade" defaultValue={defaults.trade ?? ''} invalid={Boolean(errors.trade)}>
+          <option value="">{t('Choose…')}</option>
+          {TRADES.map((tr) => (
+            <option key={tr.value} value={tr.value}>
+              {t(tr.label)}
+            </option>
+          ))}
+        </Select>
+      </Field>
       <Field label="Where is the job?" htmlFor="job-location" required hint="A city or area in Ethiopia" error={errors.location_id}>
         <Combobox id="job-location" name="location_id" endpoint="/api/locations?scope=ET" defaultValue={defaults.location} invalid={Boolean(errors.location_id)} describedById={describedBy('job-location', errors.location_id, 'hint')} />
       </Field>

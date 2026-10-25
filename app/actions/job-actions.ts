@@ -7,7 +7,7 @@ import { getServerSupabase } from '@/lib/supabase/server'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { getActiveMembership, requireUser } from '@/lib/auth'
 import { fail, invalid, ok, type ActionResult } from '@/lib/action-result'
-import { applicationSchema, candidateSchema, EMPLOYER_APPLICATION_STATUSES, isOwnCvPath, jobColumns, jobSchema } from '@/lib/jobs'
+import { applicationSchema, candidateSchema, EMPLOYER_APPLICATION_STATUSES, isOwnCvPath, jobColumns, jobSchema, JOBS_NOT_LIVE as NOT_LIVE } from '@/lib/jobs'
 import { getVertical } from '@/lib/data/verticals'
 import { getLocationById } from '@/lib/data/reference'
 import { orgManagerEmails } from '@/lib/enquiries'
@@ -21,8 +21,6 @@ import { shortId, slugify } from '@/lib/slug'
 import { log } from '@/lib/log'
 import { withUniqueRetry } from '@/lib/unique-retry'
 import { trackServer } from '@/lib/analytics-server'
-
-const NOT_LIVE = 'Jobs on HagerLand open soon. Register your interest on the jobs page and we will tell you when they do.'
 
 async function jobsLive(): Promise<boolean> {
   return (await getVertical('jobs'))?.status === 'live'

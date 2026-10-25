@@ -338,6 +338,56 @@ reset role;
 update public.job_posts set status = 'paused' where id = '00000000-0000-4000-8000-0000000000d1';
 set role anon;
 select pg_temp.record_check('Paused jobs leave the public view', not exists (select 1 from public.jobs_public where id = '00000000-0000-4000-8000-0000000000d1'));
+-- ---------- Jobs Phase 2 (0040): phone applications, worker register, deletion log, stricter visibility ----------
+reset role;
+insert into public.job_applications (id, job_id, applicant_user_id, channel, name, phone, email, trade, area_text, preferred_contact, language, adult_confirmed_at, consent_at)
+values ('00000000-0000-4000-8000-0000000000d3', '00000000-0000-4000-8000-0000000000d1', null, 'phone', 'RLS Phone Applicant', '+251911000099', null, 'mason', 'Bole', 'call', 'am', now(), now());
+do $$ begin
+  insert into public.job_applications (job_id, applicant_user_id, channel, name, phone, trade) values ('00000000-0000-4000-8000-0000000000d1', null, 'phone', 'No Ticks', '+251911000098', 'mason');
+  perform pg_temp.record_check('A phone application needs the 18+ and consent ticks', false);
+exception when check_violation then
+  perform pg_temp.record_check('A phone application needs the 18+ and consent ticks', true);
+end $$;
+do $$ begin
+  insert into public.job_applications (job_id, applicant_user_id, channel, name, phone, adult_confirmed_at, consent_at) values ('00000000-0000-4000-8000-0000000000d1', null, 'phone', 'Twice', '+251911000099', now(), now());
+  perform pg_temp.record_check('One phone application per job per phone number', false);
+exception when unique_violation then
+  perform pg_temp.record_check('One phone application per job per phone number', true);
+end $$;
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000001", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', false);
+select pg_temp.record_check('Employer reads the phone application to their job', exists (select 1 from public.job_applications where id = '00000000-0000-4000-8000-0000000000d3'));
+do $$ begin
+  update public.job_applications set phone = '+251900000000' where id = '00000000-0000-4000-8000-0000000000d3';
+  perform pg_temp.record_check('Employer cannot change a phone applicant''s number', false);
+exception when insufficient_privilege then
+  perform pg_temp.record_check('Employer cannot change a phone applicant''s number', true);
+end $$;
+select pg_temp.record_check('Employer cannot read or add to ' || name, pg_temp.read_denied(name)) from unnest(array['worker_register', 'job_data_cleanup_runs']) as t(name);
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000002", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000002', false);
+select pg_temp.record_check('Another signed-in user cannot read phone applications (no account on them)', not exists (select 1 from public.job_applications where applicant_user_id is null));
+select pg_temp.record_check('Signed-in user cannot read ' || name, pg_temp.read_denied(name)) from unnest(array['worker_register', 'job_data_cleanup_runs']) as t(name);
+do $$ begin
+  insert into public.worker_register (name, phone, trades, area_text, availability, preferred_contact, language, adult_confirmed_at, consent_at) values ('RLS', '+251911000097', '{mason}', 'Bole', 'now', 'call', 'am', now(), now());
+  perform pg_temp.record_check('Signed-in user cannot join the register directly (server only)', false);
+exception when insufficient_privilege then
+  perform pg_temp.record_check('Signed-in user cannot join the register directly (server only)', true);
+end $$;
+reset role;
+set role anon;
+select pg_temp.record_check('Anonymous cannot read ' || name, pg_temp.read_denied(name)) from unnest(array['worker_register', 'job_data_cleanup_runs']) as t(name);
+reset role;
+-- Decision 2: an employer whose only approved job HagerLand removed no longer sees candidates; a verified one does.
+update public.job_posts set status = 'removed' where id = '00000000-0000-4000-8000-0000000000d1';
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000001", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', false);
+select pg_temp.record_check('Employer whose only approved job was removed sees no candidates', not exists (select 1 from public.candidates_for_employers));
+reset role;
+update public.organisations set verification_level = 'verified' where id = '00000000-0000-4000-8000-0000000000b1';
+set role authenticated;
+select pg_temp.record_check('A verified employer sees opted-in candidates', exists (select 1 from public.candidates_for_employers where candidate_id = '00000000-0000-4000-8000-000000000002'));
+reset role;
+
 reset role;
 delete from public.candidate_profiles where user_id = '00000000-0000-4000-8000-000000000002';
 delete from public.job_posts where id = '00000000-0000-4000-8000-0000000000d1';

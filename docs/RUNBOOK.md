@@ -124,3 +124,23 @@ npm run test:e2e:build && npm run test:e2e   # browser tests against the local c
 **Not cleared (by design, tell AB).** Older audit-log entries may contain business names or details copied at import or edit time (the audit trail is kept). The location (sub-city) of businesses imported before 0039 may have been matched from Google's address; it stays until confirmed.
 
 **Switching back.** Set the mode to Dry run at any time; cleared fields cannot be restored from HagerLand (use **Show Google's details** and confirm with the business again).
+
+## 10. Jobs: apply by phone, worker register and deleting personal details (Jobs Phase 2, migration 0040)
+
+**Where.** Admin → Jobs → Jobs and applications → **Switches and data deletion** (`/roodber8/jobs/data`, owner only; staff are sent back to the dashboard). The worker register is admin → Jobs → **Worker register** (`/roodber8/jobs/register`, Owner and Operations).
+
+**The two website switches (both start Off).**
+- **Apply by phone**: adds an “Apply by phone” button to every open job; workers apply with name, phone, trade, area, how to contact them and language, and tick “I am 18 or older” and the consent. No account or email. The employer sees “By phone” with Call, WhatsApp, Telegram and SMS buttons (the worker's choice first) and gets the usual email.
+- **Worker register**: adds “Looking for work? Tell us you're available” to `/jobs`. Only HagerLand staff see the list; ask the worker before giving their number to an employer.
+- **Keep both Off until the lawyer has confirmed**: the consent wording, the 18+ rule, sharing phone numbers with employers, keeping data outside Ethiopia (Supabase, Resend) and calling workers on the register. Switching on asks you to tick that this is done.
+- **Off closes every door**: no button or section, the form address answers “not found”, and the server refuses anything sent to it. Switching takes effect on the next page load. Each change is in the audit log (`jobs.switch`).
+
+**Deleting personal details after 12 months (daily job, step “jobs data clean-up”).**
+- **Dry run — report only** (the default): each day counts what would be cleared and records it in the run list on the same page. Nothing changes. “Run a dry run now” does the same at once.
+- **Live — delete personal details after 12 months** (owner only; tick that you read the latest dry run). **Must be Live before 15 October 2027** (the privacy page promises it; applications exist on live since 15 October 2026).
+- What is cleared, 12 months after the application (Addis Ababa date; due on the first day on or after the same date a year later): the applicant's name becomes “Removed”; email, phone, cover note, employer notes, area, contact method and language are emptied; the CV file is deleted unless it is still on the candidate's profile or on a newer application. Worker register entries: the same, 12 months after the worker last updated the entry. Queued emails older than 12 months are emptied and never retried.
+- What stays: every row, its reference, job, status, channel, trade and dates, the link to the candidate's own account, the audit log (which never holds applicants' details), and candidate profiles (they stay until the candidate deletes them).
+- No exception yet for people hired through HagerLand (it comes with the recruitment desk, Phase 3).
+- Results: the run list shows, per run, how many would be / were cleared and how many failed. A failed row is logged (“could not clear …”), counted, and tried again the next day; it never stops the rest. The daily digest shows the same counts.
+
+**Read-only check after AB applies 0040 on live:** `docs/sql/0040_jobs_phase_2_verify.sql` (every row PASS). The migration replaces the job-type check to add “daily labour”, so the Supabase editor shows its warning about a “destructive” statement; no data is removed.

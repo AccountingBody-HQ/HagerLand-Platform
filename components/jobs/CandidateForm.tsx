@@ -108,7 +108,7 @@ export function CandidateForm({ userId, defaults }: { userId: string; defaults: 
           name="visibility"
           value="employers"
           defaultChecked={defaults.visibility === 'employers'}
-          label="Businesses with a published profile on HagerLand"
+          label="Verified businesses and employers with an approved job"
           description="They see your first name, headline, skills, qualifications and experience. Never your contact details or CV: HagerLand asks you before any introduction."
         />
       </fieldset>
