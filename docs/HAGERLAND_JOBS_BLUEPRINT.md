@@ -245,7 +245,7 @@ Each phase is small, keeps the public look (navy hero with blueprint grid, white
 - **AB tests**: open `/request-service/staffing` (hiring words); sign out, click “Post a job”, sign in, land on the job form.
 
 ### Phase 2: phone-first applying and trades (migration 0040)
-- **Status (25 Oct 2026): built on branch `jobs/phase-2-phone-trades`, awaiting migration 0040 on live** (AB applies it; read-only check `docs/sql/0040_jobs_phase_2_verify.sql`). Full report: `docs/qa/JOBS_PHASE_2_REPORT.md`; how-to: `docs/RUNBOOK.md` section 10.
+- **Status (25 Oct 2026): released** (merge `bb27cbb`; migration 0040 applied to live by AB, verify 26/26 PASS). Switches Off, deletion on Dry run. Full report: `docs/qa/JOBS_PHASE_2_REPORT.md`; how-to: `docs/RUNBOOK.md` section 10.
 - **Built**: trades (26, including the five AB added) and “Daily labour”; “Find work by trade”; Apply by phone; employer view with Call, WhatsApp, Telegram and SMS; the worker register (Owner and Operations only); decision 2 in the database view; the 12-month deletion (applications by phone and email, register, old queued emails); scam and fairness warnings in job review (warnings only); the approved `/privacy` and candidate wording.
 - **The two switches start Off** (“Apply by phone”, “Worker register”) until the lawyer confirms consent, 18+, sharing phones with employers, data held outside Ethiopia and re-contacting register workers (Part C3 rows 1, 2, 5, 7, 9).
 - **Deletion starts on Dry run** and must be switched to Live before 15 October 2027. **No hired-through-HagerLand exception** until Phase 3 (the recruitment desk records it).
