@@ -1436,6 +1436,88 @@ export type Database = {
         }
         Relationships: []
       }
+      employer_verifications: {
+        Row: {
+          created_at: string
+          id: string
+          licence_check_method: string
+          licence_checked_at: string
+          licence_expires_on: string | null
+          licence_number: string
+          needs_recheck_since: string | null
+          organisation_id: string
+          phone_check_note: string | null
+          phone_checked_at: string
+          revoked_at: string | null
+          revoked_by: string | null
+          revoked_reason: string | null
+          site_visit_at: string | null
+          status: string
+          tin_checked_at: string
+          valid_until: string
+          verified_at: string
+          verified_by: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          id?: string
+          licence_check_method: string
+          licence_checked_at: string
+          licence_expires_on?: string | null
+          licence_number: string
+          needs_recheck_since?: string | null
+          organisation_id: string
+          phone_check_note?: string | null
+          phone_checked_at: string
+          revoked_at?: string | null
+          revoked_by?: string | null
+          revoked_reason?: string | null
+          site_visit_at?: string | null
+          status?: string
+          tin_checked_at: string
+          valid_until: string
+          verified_at?: string
+          verified_by: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          licence_check_method?: string
+          licence_checked_at?: string
+          licence_expires_on?: string | null
+          licence_number?: string
+          needs_recheck_since?: string | null
+          organisation_id?: string
+          phone_check_note?: string | null
+          phone_checked_at?: string
+          revoked_at?: string | null
+          revoked_by?: string | null
+          revoked_reason?: string | null
+          site_visit_at?: string | null
+          status?: string
+          tin_checked_at?: string
+          valid_until?: string
+          verified_at?: string
+          verified_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'employer_verifications_organisation_id_fkey'
+            columns: ['organisation_id']
+            isOneToOne: false
+            referencedRelation: 'organisations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'employer_verifications_organisation_id_fkey'
+            columns: ['organisation_id']
+            isOneToOne: false
+            referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       enquiries: {
         Row: {
           created_at: string
@@ -1927,11 +2009,13 @@ export type Database = {
       job_posts: {
         Row: {
           applications_count: number
+          approved_by: string | null
           category: string
           closing_date: string | null
           country_code: string
           created_at: string
           created_by: string | null
+          created_by_staff: string | null
           currency: string
           description: string
           employer_org_id: string
@@ -1939,13 +2023,16 @@ export type Database = {
           expires_at: string | null
           id: string
           location_id: string | null
+          posted_for: string
           published_at: string | null
+          recruitment_assignment_id: string | null
           rejection_reason: string | null
           requirements: string | null
           salary_max_minor: number | null
           salary_min_minor: number | null
           salary_period: string | null
           search_tsv: unknown
+          self_approval_reason: string | null
           short_id: string
           slug: string
           status: Database['public']['Enums']['listing_status']
@@ -1957,11 +2044,13 @@ export type Database = {
         ComputedFields: never
         Insert: {
           applications_count?: number
+          approved_by?: string | null
           category: string
           closing_date?: string | null
           country_code?: string
           created_at?: string
           created_by?: string | null
+          created_by_staff?: string | null
           currency?: string
           description: string
           employer_org_id: string
@@ -1969,13 +2058,16 @@ export type Database = {
           expires_at?: string | null
           id?: string
           location_id?: string | null
+          posted_for?: string
           published_at?: string | null
+          recruitment_assignment_id?: string | null
           rejection_reason?: string | null
           requirements?: string | null
           salary_max_minor?: number | null
           salary_min_minor?: number | null
           salary_period?: string | null
           search_tsv?: never
+          self_approval_reason?: string | null
           short_id?: string
           slug: string
           status?: Database['public']['Enums']['listing_status']
@@ -1986,11 +2078,13 @@ export type Database = {
         }
         Update: {
           applications_count?: number
+          approved_by?: string | null
           category?: string
           closing_date?: string | null
           country_code?: string
           created_at?: string
           created_by?: string | null
+          created_by_staff?: string | null
           currency?: string
           description?: string
           employer_org_id?: string
@@ -1998,13 +2092,16 @@ export type Database = {
           expires_at?: string | null
           id?: string
           location_id?: string | null
+          posted_for?: string
           published_at?: string | null
+          recruitment_assignment_id?: string | null
           rejection_reason?: string | null
           requirements?: string | null
           salary_max_minor?: number | null
           salary_min_minor?: number | null
           salary_period?: string | null
           search_tsv?: never
+          self_approval_reason?: string | null
           short_id?: string
           slug?: string
           status?: Database['public']['Enums']['listing_status']
@@ -2033,6 +2130,80 @@ export type Database = {
             columns: ['location_id']
             isOneToOne: false
             referencedRelation: 'locations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'job_posts_recruitment_assignment_id_fkey'
+            columns: ['recruitment_assignment_id']
+            isOneToOne: false
+            referencedRelation: 'recruitment_assignments'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      job_reports: {
+        Row: {
+          contact: string | null
+          created_at: string
+          details: string | null
+          handled_at: string | null
+          handled_by: string | null
+          id: string
+          ip_hash: string | null
+          job_post_id: string
+          outcome: string | null
+          personal_data_deleted_at: string | null
+          reason: string
+          reporter_user_id: string | null
+          staff_note: string | null
+          status: string
+        }
+        ComputedFields: never
+        Insert: {
+          contact?: string | null
+          created_at?: string
+          details?: string | null
+          handled_at?: string | null
+          handled_by?: string | null
+          id?: string
+          ip_hash?: string | null
+          job_post_id: string
+          outcome?: string | null
+          personal_data_deleted_at?: string | null
+          reason: string
+          reporter_user_id?: string | null
+          staff_note?: string | null
+          status?: string
+        }
+        Update: {
+          contact?: string | null
+          created_at?: string
+          details?: string | null
+          handled_at?: string | null
+          handled_by?: string | null
+          id?: string
+          ip_hash?: string | null
+          job_post_id?: string
+          outcome?: string | null
+          personal_data_deleted_at?: string | null
+          reason?: string
+          reporter_user_id?: string | null
+          staff_note?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'job_reports_job_post_id_fkey'
+            columns: ['job_post_id']
+            isOneToOne: false
+            referencedRelation: 'job_posts'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'job_reports_job_post_id_fkey'
+            columns: ['job_post_id']
+            isOneToOne: false
+            referencedRelation: 'jobs_public'
             referencedColumns: ['id']
           },
         ]
@@ -2678,6 +2849,56 @@ export type Database = {
             columns: ['product_category_id']
             isOneToOne: false
             referencedRelation: 'product_categories'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      org_verification_notices: {
+        Row: {
+          for_date: string
+          id: string
+          kind: string
+          organisation_id: string
+          sent_at: string
+          verification_id: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          for_date: string
+          id?: string
+          kind: string
+          organisation_id: string
+          sent_at?: string
+          verification_id?: string | null
+        }
+        Update: {
+          for_date?: string
+          id?: string
+          kind?: string
+          organisation_id?: string
+          sent_at?: string
+          verification_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'org_verification_notices_organisation_id_fkey'
+            columns: ['organisation_id']
+            isOneToOne: false
+            referencedRelation: 'organisations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'org_verification_notices_organisation_id_fkey'
+            columns: ['organisation_id']
+            isOneToOne: false
+            referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'org_verification_notices_verification_id_fkey'
+            columns: ['verification_id']
+            isOneToOne: false
+            referencedRelation: 'employer_verifications'
             referencedColumns: ['id']
           },
         ]
@@ -7265,6 +7486,7 @@ export type Database = {
           id: string | null
           location_display: string | null
           location_id: string | null
+          posted_for: string | null
           published_at: string | null
           requirements: string | null
           salary_max_minor: number | null

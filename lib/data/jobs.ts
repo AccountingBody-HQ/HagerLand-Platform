@@ -10,12 +10,12 @@ import type { SearchResult } from './properties'
 export type PublicJob = Omit<Database['public']['Views']['jobs_public']['Row'], 'search_tsv'>
 
 const LIST_COLUMNS =
-  'id, slug, short_id, title, category, employment_type, trade, employer_name, employer_slug, employer_logo_path, employer_verification, location_display, country_code, currency, salary_min_minor, salary_max_minor, salary_period, closing_date, published_at'
+  'id, slug, short_id, title, category, employment_type, trade, employer_name, employer_slug, employer_logo_path, employer_verification, location_display, country_code, currency, salary_min_minor, salary_max_minor, salary_period, closing_date, published_at, posted_for'
 const DETAIL_COLUMNS = `${LIST_COLUMNS}, employer_org_id, location_id, description, requirements, expires_at, updated_at`
 
 export type JobListItem = Pick<
   PublicJob,
-  'id' | 'slug' | 'short_id' | 'title' | 'category' | 'employment_type' | 'trade' | 'employer_name' | 'employer_slug' | 'employer_logo_path' | 'employer_verification' | 'location_display' | 'country_code' | 'currency' | 'salary_min_minor' | 'salary_max_minor' | 'salary_period' | 'closing_date' | 'published_at'
+  'id' | 'slug' | 'short_id' | 'title' | 'category' | 'employment_type' | 'trade' | 'employer_name' | 'employer_slug' | 'employer_logo_path' | 'employer_verification' | 'location_display' | 'country_code' | 'currency' | 'salary_min_minor' | 'salary_max_minor' | 'salary_period' | 'closing_date' | 'published_at' | 'posted_for'
 >
 
 export interface JobQuery {

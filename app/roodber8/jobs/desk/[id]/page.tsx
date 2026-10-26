@@ -4,7 +4,7 @@ import { isOwnerSession, requireAdminPage } from '@/lib/admin/guard'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { countryName } from '@/lib/countries'
 import { formatDate, formatMoney, formatPhone } from '@/lib/format'
-import { TRADES, tradeLabel } from '@/lib/jobs'
+import { EMPLOYMENT_TYPES, OFFERED_JOB_CATEGORIES, TRADES, tradeLabel } from '@/lib/jobs'
 import { readJobsSwitches } from '@/lib/jobs-switches'
 import { agreementLink } from '@/lib/jobs-desk-files'
 import {
@@ -28,6 +28,7 @@ import { bpsToPercent } from '@/lib/supply/money'
 import {
   addFreeReplacementAction,
   addToShortlistAction,
+  createPrivateClientJobAction,
   endPlacementAction,
   markAskedAction,
   recordConsentAction,
@@ -87,8 +88,16 @@ export default async function RecruitmentAssignmentPage(props: { params: Promise
     db.from('recruitment_placements').select('*').eq('assignment_id', a.id).order('created_at'),
     db.from('recruitment_events').select('id, step, candidate_id, placement_id, actor, created_at').eq('assignment_id', a.id).order('created_at', { ascending: false }).limit(200),
   ])
+  // Jobs Phase 4: jobs HagerLand posted for this private-client assignment, and their applications.
+  const [{ data: clientJobs }, { data: placeOptions }] = await Promise.all([
+    db.from('job_posts').select('id, title, status, approved_by').eq('recruitment_assignment_id', a.id).order('created_at'),
+    a.private_client ? db.from('locations').select('id, display_name').eq('country_code', 'ET').in('level', ['city', 'sub_city']).eq('is_active', true).order('display_name').limit(500) : Promise.resolve({ data: [] }),
+  ])
+  const clientJobIds = (clientJobs ?? []).map((j) => j.id)
+  const { data: clientApps } = clientJobIds.length ? await db.from('job_applications').select('id, reference, job_id, name, channel, trade, status, created_at, personal_data_deleted_at').in('job_id', clientJobIds).order('created_at', { ascending: false }) : { data: [] }
   const rows = candidates ?? []
   const byId = new Map(rows.map((c) => [c.id, c]))
+  const shortlisted = new Set(rows.map((c) => c.application_id).filter(Boolean))
   const places = placements ?? []
   const placementIds = places.map((p) => p.id)
   // Operations: only whether the fee is agreed in writing. Owner: the terms and the fee record.
@@ -382,6 +391,122 @@ export default async function RecruitmentAssignmentPage(props: { params: Promise
           </ul>
         )}
       </Panel>
+
+      {a.private_client && (
+        <Panel title="Jobs posted by HagerLand for this private client">
+          {(clientJobs ?? []).length > 0 && (
+            <ul className="mb-4 space-y-1 text-small">
+              {(clientJobs ?? []).map((j) => (
+                <li key={j.id}>
+                  <Link href={`/roodber8/jobs/${j.id}`} prefetch={false} className="font-semibold text-green underline">
+                    {j.title}
+                  </Link>{' '}
+                  · <StatusBadge status={j.status} />
+                </li>
+              ))}
+            </ul>
+          )}
+          {(clientApps ?? []).length > 0 && (
+            <div className="mb-4">
+              <p className="mb-2 text-small font-semibold">Applications to this job ({(clientApps ?? []).length})</p>
+              <ul className="space-y-2 text-small">
+                {(clientApps ?? []).map((ap) => (
+                  <li key={ap.id} className="flex flex-col gap-2 rounded-md border border-border p-2 sm:flex-row sm:items-center sm:justify-between">
+                    <span>
+                      {ap.personal_data_deleted_at ? 'Details deleted' : ap.name} · {ap.reference} · {ap.channel === 'phone' ? 'by phone' : 'by email'} · {formatDate(ap.created_at)}
+                    </span>
+                    {shortlisted.has(ap.id) ? (
+                      <span className="text-muted">On the shortlist</span>
+                    ) : !closed && !ap.personal_data_deleted_at ? (
+                      <ActionForm action={addToShortlistAction.bind(null, a.id)} submitLabel="Add to shortlist" className="flex">
+                        <input type="hidden" name="source" value="application" />
+                        <input type="hidden" name="reference" value={ap.reference} />
+                      </ActionForm>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {closed ? null : !switches.privateClientPosts ? (
+            <p className="text-small text-muted">Private-client jobs are switched off (owner switch on Switches and data deletion).</p>
+          ) : (
+            <>
+              <p className="mb-2 text-small font-semibold">Post a job for this assignment</p>
+              <p className="mb-3 text-small text-muted">The job shows “Posted by HagerLand for a private client”, never the client’s name, and applications come to HagerLand only. It waits for review: another person must approve it.</p>
+              <ActionForm action={createPrivateClientJobAction.bind(null, a.id)} submitLabel="Create the job for review">
+                <Field label="Job title" htmlFor="pc-title">
+                  <Input id="pc-title" name="title" maxLength={120} />
+                </Field>
+                <Field label="Category" htmlFor="pc-cat">
+                  <Select id="pc-cat" name="category" defaultValue="">
+                    <option value="">Choose</option>
+                    {OFFERED_JOB_CATEGORIES.map((c) => (
+                      <option key={c.value} value={c.value}>
+                        {c.label}
+                      </option>
+                    ))}
+                  </Select>
+                </Field>
+                <Field label="Type of job" htmlFor="pc-type">
+                  <Select id="pc-type" name="employment_type" defaultValue="">
+                    <option value="">Choose</option>
+                    {EMPLOYMENT_TYPES.map((e) => (
+                      <option key={e.value} value={e.value}>
+                        {e.label}
+                      </option>
+                    ))}
+                  </Select>
+                </Field>
+                <Field label="Trade" htmlFor="pc-trade" optional>
+                  <Select id="pc-trade" name="trade" defaultValue="">
+                    <option value="">None</option>
+                    {TRADES.map((t) => (
+                      <option key={t.value} value={t.value}>
+                        {t.label}
+                      </option>
+                    ))}
+                  </Select>
+                </Field>
+                <Field label="Where (city or sub-city only)" htmlFor="pc-loc">
+                  <Select id="pc-loc" name="location_id" defaultValue="">
+                    <option value="">Choose</option>
+                    {(placeOptions ?? []).map((l) => (
+                      <option key={l.id} value={l.id}>
+                        {l.display_name}
+                      </option>
+                    ))}
+                  </Select>
+                </Field>
+                <Field label="Closing date" htmlFor="pc-close" optional>
+                  <Input id="pc-close" name="closing_date" type="date" />
+                </Field>
+                <Field label="Pay from" htmlFor="pc-min" optional>
+                  <Input id="pc-min" name="salary_min" inputMode="numeric" />
+                </Field>
+                <Field label="Pay up to" htmlFor="pc-max" optional>
+                  <Input id="pc-max" name="salary_max" inputMode="numeric" />
+                </Field>
+                <Field label="Pay per" htmlFor="pc-per" optional>
+                  <Select id="pc-per" name="salary_period" defaultValue="">
+                    <option value="">Not given</option>
+                    <option value="hour">Hour</option>
+                    <option value="day">Day</option>
+                    <option value="month">Month</option>
+                    <option value="year">Year</option>
+                  </Select>
+                </Field>
+                <Field label="Description (no client names, phone numbers or house numbers)" htmlFor="pc-desc" className="sm:col-span-2">
+                  <Textarea id="pc-desc" name="description" rows={5} maxLength={8000} />
+                </Field>
+                <Field label="Requirements" htmlFor="pc-req" optional className="sm:col-span-2">
+                  <Textarea id="pc-req" name="requirements" rows={3} maxLength={4000} />
+                </Field>
+              </ActionForm>
+            </>
+          )}
+        </Panel>
+      )}
 
       {!closed && (
         <Panel title="Introduce">

@@ -5,7 +5,7 @@ import { formatDate } from '@/lib/format'
 export type LegalPage = 'terms' | 'privacy' | 'cookies'
 
 /** Date each text was last changed; AB can override per page in admin → Settings (legal_last_updated). */
-export const LEGAL_WRITTEN: Record<LegalPage, string> = { terms: '2026-10-14', privacy: '2026-10-25', cookies: '2026-10-14' }
+export const LEGAL_WRITTEN: Record<LegalPage, string> = { terms: '2026-10-26', privacy: '2026-10-26', cookies: '2026-10-14' }
 
 export async function legalUpdated(page: LegalPage): Promise<string> {
   const s = await getSiteSettings()

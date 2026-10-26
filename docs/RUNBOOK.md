@@ -184,3 +184,30 @@ npm run test:e2e:build && npm run test:e2e   # browser tests against the local c
 **Deletion (the daily job, still Dry run until you switch it).** Shortlist rows of people not hired are cleared 12 months after their last activity (never later than 12 months after the assignment closes). People hired through HagerLand keep their name, contact details and consent record on the shortlist row, and their name and contact on the application, while the fee records need them; their notes and cover note are cleared, and the CV is still deleted after 12 months. The keeping period is **empty until the lawyer confirms it**: until then those records are kept and counted as **"kept: period not set"**; once you enter it (months after the guarantee end or the last fee entry, whichever is later), they are counted as **"kept: hired through HagerLand"** until the period ends, then cleared. Both counts appear in the run list and the digest.
 
 **Read-only check after AB applies 0041 on live:** `docs/sql/0041_jobs_phase_3_verify.sql` (every row PASS). 0041 only adds tables and settings, so the Supabase editor should show no "destructive" warning.
+
+## 13. Trust: verification, job reports, private-client jobs (Jobs Phase 4, migration 0042)
+
+**Verified badge (all businesses).**
+- **Record a check** (Owner or Operations): admin → Organisations → the business → **Verified badge** → *Record verification check*. Enter the trade licence number (and its expiry date if shown), the day you checked the licence and how (from the document; the Ministry of Trade online register if it works — optional; in person), the day you checked the tax number (TIN), and the day you phoned the business on a number you found yourself (not only the one they typed). Save: the badge is given for 12 months, or until the licence expires if sooner. A waiting verification request is marked approved and the business is emailed.
+- The review queue's Verification tab only declines requests now; to give the badge, open the business and record the check. Agent and Content no longer see this tab.
+- **Revoke**: same panel → *Revoke badge* with a reason (audited). The business keeps "Claimed" if someone manages it, else "Listed".
+- **Re-check**: if a business changes its name or trade licence number, its check becomes "needs re-check". The badge stays for up to 30 days; record a new check, or it ends on its own.
+- **Ending**: the daily job sends one email 30 days before a badge ends ("Your HagerLand Verified badge ends on …") and ends it on time. Digest: "Verified badges ending within 30 days", "Verified badges ended today".
+- **Legacy badges** (verified before 0042, no recorded check) keep their old wording and are left alone while **Legacy badge clean-up** is Off (Switches and data deletion). Switching it on gives every legacy badge 90 days from that day (one reminder 30 days before), then it ends unless you record a check. HagerLand's own organisations are not included.
+
+**"Report this job".**
+- Anyone can report a job from its page (security check; at most 5 an hour and 20 a day from one connection; a second report on the same job from the same person is not stored, they see the same thanks).
+- **Handle reports** (Owner or Operations): admin → Jobs → **Job reports** (or the review queue's Job reports tab). Each job shows its reports, how many different people reported it, any contact details (never share them with the employer) and a warning if a reporter manages a business (could be a competitor). Actions: *Pause while we check* (the job leaves the board and the employer gets a neutral email, never who reported), *Restore* (on the job's admin page: back with its original closing date), *Dismiss*, *Employer contacted*, *Remove the job*, and a staff note. **Jobs are never paused automatically.** Reporters get no reply unless you contact them yourself.
+- Digest: "Job reports to review", "Jobs with 3 or more reports this week". A job reported for asking candidates for money is highlighted.
+- **Switch**: "Report this job" (On by default). Off removes the button and the server refuses reports.
+- Report details, contact and the coded internet address are cleared 12 months after the report (or its handling, if later) by the 12-month deletion job (same Dry run / Live switch; counted as "job reports").
+
+**Private-client jobs (switch Off until the lawyer confirms).**
+- Switch **Private-client jobs** on (owner, with the lawyer tick) only after the lawyer confirms: anonymous postings under the recruitment licence; HagerLand named as the hiring organisation (employer-of-record risk); data held outside Ethiopia.
+- On a **private-client** desk assignment: *Post a job for this assignment* → title, category, type, trade, **city or sub-city only**, pay, description (no client names, phone numbers or house numbers — admin shows warnings). The job belongs to HagerLand Services and waits for review.
+- **Four-eyes**: whoever created the job cannot approve it. The owner may approve their own only by writing the reason in the note (stored and audited).
+- The public sees "Posted by HagerLand for a private client" (no name, link, logo or badge); applications go to HagerLand's inbox and appear on the assignment under *Applications to this job* → *Add to shortlist*. The client sees people only through the recruitment desk introductions (consent and 18+).
+- Switched off: no desk button, creating and approving are refused, and every private-client job disappears from the website, search and the sitemap.
+
+**Read-only check after AB applies 0042 on live:** `docs/sql/0042_jobs_phase_4_trust_verify.sql` (every row PASS). 0042 only adds tables, columns with defaults, checks and triggers beside the existing ones and replaces the job list view with every column kept, so the Supabase editor should show no "destructive" warning.
+

@@ -11,12 +11,30 @@ import { fail, ok, type ActionResult } from '@/lib/action-result'
 import { CLEANUP_MODE_KEY, PHONE_APPLY_KEY, WORKER_REGISTER_KEY } from '@/lib/jobs-switches'
 import { runJobsDataCleanup } from '@/lib/jobs-cleanup-data'
 import { cleanupRunText } from '@/lib/jobs-cleanup'
-import { DESK_SWITCH_KEY, RETENTION_MONTHS_KEY } from '@/lib/jobs-desk'
+import { DESK_SWITCH_KEY, RETENTION_MONTHS_KEY, todayAddis } from '@/lib/jobs-desk'
+import { PRIVATE_CLIENT_SWITCH_KEY, REPORTS_SWITCH_KEY } from '@/lib/job-reports'
+import { VERIFICATION_EXPIRY_KEY, VERIFICATION_EXPIRY_STARTED_KEY } from '@/lib/verification'
 
 type Msg = ActionResult<{ message: string }>
 
-const SWITCH_KEYS = { phone_apply: PHONE_APPLY_KEY, worker_register: WORKER_REGISTER_KEY, recruitment_desk: DESK_SWITCH_KEY } as const
-const SWITCH_NAMES = { phone_apply: 'Apply by phone', worker_register: 'The worker register', recruitment_desk: 'The recruitment desk' } as const
+const SWITCH_KEYS = {
+  phone_apply: PHONE_APPLY_KEY,
+  worker_register: WORKER_REGISTER_KEY,
+  recruitment_desk: DESK_SWITCH_KEY,
+  reports: REPORTS_SWITCH_KEY,
+  private_client: PRIVATE_CLIENT_SWITCH_KEY,
+  verification_expiry: VERIFICATION_EXPIRY_KEY,
+} as const
+const SWITCH_NAMES = {
+  phone_apply: 'Apply by phone',
+  worker_register: 'The worker register',
+  recruitment_desk: 'The recruitment desk',
+  reports: '“Report this job”',
+  private_client: 'Private-client jobs',
+  verification_expiry: 'The legacy badge clean-up',
+} as const
+/** "Report this job" is not lawyer-gated (AB's fix F8); every other switch needs its confirmation tick to go on. */
+const NO_TICK = new Set(['reports'])
 
 /**
  * Owner only: "Apply by phone", the worker register or the recruitment desk (Jobs Phase 3) on or off. All start off
@@ -25,17 +43,23 @@ const SWITCH_NAMES = { phone_apply: 'Apply by phone', worker_register: 'The work
 export async function setJobsSwitchAction(which: string, on: boolean, lawyerConfirmed: boolean): Promise<Msg> {
   await assertAdmin(AREA)
   await assertOwner()
-  const parsed = z.object({ which: z.enum(['phone_apply', 'worker_register', 'recruitment_desk']), on: z.boolean() }).safeParse({ which, on })
+  const parsed = z.object({ which: z.enum(['phone_apply', 'worker_register', 'recruitment_desk', 'reports', 'private_client', 'verification_expiry']), on: z.boolean() }).safeParse({ which, on })
   if (!parsed.success) return fail('Choose a switch.')
-  if (parsed.data.on && !lawyerConfirmed) return fail('Tick that the lawyer has confirmed the points listed before switching this on.')
+  if (parsed.data.on && !lawyerConfirmed && !NO_TICK.has(parsed.data.which)) return fail(parsed.data.which === 'verification_expiry' ? 'Tick that you understand what happens before switching this on.' : 'Tick that the lawyer has confirmed the points listed before switching this on.')
   const key = SWITCH_KEYS[parsed.data.which]
   const db = getAdminSupabase()
   const { data: before } = await db.from('site_settings').select('value').eq('key', key).maybeSingle()
   const { error } = await db.from('site_settings').upsert({ key, value: parsed.data.on, updated_at: new Date().toISOString() })
   if (error) return fail('Could not save the setting.')
+  // Legacy badges get 90 days from the day the clean-up is switched on (F3); switching it on again starts a new 90 days.
+  if (parsed.data.which === 'verification_expiry') await db.from('site_settings').upsert({ key: VERIFICATION_EXPIRY_STARTED_KEY, value: parsed.data.on ? todayAddis() : 'off', updated_at: new Date().toISOString() })
   await audit('jobs.switch', { type: 'setting', label: key }, { from: before?.value ?? false, to: parsed.data.on })
   revalidatePath('/jobs', 'layout')
   revalidatePath('/roodber8/jobs', 'layout')
+  if (parsed.data.which === 'private_client') {
+    revalidatePath('/terms')
+    revalidatePath('/sitemap/jobs.xml')
+  }
   if (parsed.data.which === 'recruitment_desk') {
     revalidatePath('/terms')
     revalidatePath('/account/service-requests', 'layout')

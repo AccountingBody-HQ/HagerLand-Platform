@@ -4,6 +4,8 @@ import { getAdminSupabase } from '@/lib/supabase/admin'
 import { formatDate } from '@/lib/format'
 import { readJobsSwitches } from '@/lib/jobs-switches'
 import { cleanupRunText, type CleanupCounts } from '@/lib/jobs-cleanup'
+import { legacyCleanupStartedOn } from '@/lib/verification-data'
+import { legacyEndsOn } from '@/lib/verification'
 import { AdminHeader, DataTable, Panel } from '@/components/admin/AdminUi'
 import { JobsCleanupModeControl, JobsDryRunButton, JobsSwitchControl, RetentionMonthsControl } from '@/components/admin/JobsPhase2Controls'
 
@@ -16,10 +18,12 @@ export const metadata = { title: 'Jobs: switches and data deletion' }
 export default async function JobsDataPage() {
   await requireAdminPage()
   if (!(await isOwnerSession())) redirect('/roodber8?denied=1')
-  const [switches, { data: runs }] = await Promise.all([
+  const [switches, { data: runs }, startedOn] = await Promise.all([
     readJobsSwitches(),
     getAdminSupabase().from('job_data_cleanup_runs').select('id, mode, started_at, finished_at, counts, failures, run_by').order('started_at', { ascending: false }).limit(20),
+    legacyCleanupStartedOn(),
   ])
+  const verificationExpiry = { on: startedOn !== null, startedOn }
   return (
     <div className="space-y-5">
       <AdminHeader
@@ -32,6 +36,20 @@ export default async function JobsDataPage() {
           <JobsSwitchControl which="worker_register" on={switches.workerRegister} label="Worker register" />
         </div>
         <p className="mt-3 text-small text-muted">Off means: no button or form on the website, the form address shows “not found”, and the server refuses anything sent to it.</p>
+      </Panel>
+      <Panel title="Trust: reports, private-client jobs, Verified badges">
+        <div className="grid gap-3 md:grid-cols-3">
+          <JobsSwitchControl which="reports" on={switches.reportsEnabled} label="Report this job" />
+          <JobsSwitchControl which="private_client" on={switches.privateClientPosts} label="Private-client jobs" />
+          <JobsSwitchControl which="verification_expiry" on={verificationExpiry.on} label="Legacy badge clean-up" />
+        </div>
+        <ul className="mt-3 list-disc space-y-1 pl-5 text-small text-muted">
+          <li>“Report this job” is on by default: off removes the button and the server refuses reports.</li>
+          <li>Private-client jobs start off: off hides the desk button, refuses creating and approving them, hides any such job from every public page, search and the sitemap, and hides the Terms sentence about them.</li>
+          <li>
+            Badges with a recorded check end on their own date whatever this says. The clean-up only affects legacy badges (verified before the recorded check existed){verificationExpiry.startedOn ? `: switched on ${formatDate(verificationExpiry.startedOn)}, they end on ${formatDate(legacyEndsOn(verificationExpiry.startedOn))} unless a check is recorded.` : ': while off, they are left as they are.'}
+          </li>
+        </ul>
       </Panel>
       <Panel title="Recruitment desk">
         <div className="grid gap-3 md:grid-cols-2">

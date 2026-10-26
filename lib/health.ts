@@ -4,7 +4,7 @@ import { PRIVATE_BUCKET, PUBLIC_BUCKET } from '@/lib/media'
 import { log } from '@/lib/log'
 
 /** Every migration the code expects to be applied (kept in step with supabase/migrations by a unit test). */
-export const EXPECTED_MIGRATIONS = ['0001', '0002', '0003', '0004', '0005', '0006', '0007', '0008', '0009', '0010', '0011', '0012', '0013', '0014', '0015', '0016', '0017', '0018', '0019', '0020', '0021', '0022', '0023', '0024', '0025', '0026', '0027', '0028', '0029', '0030', '0031', '0032', '0033', '0034', '0035', '0036', '0037', '0038', '0039', '0040', '0041'] as const
+export const EXPECTED_MIGRATIONS = ['0001', '0002', '0003', '0004', '0005', '0006', '0007', '0008', '0009', '0010', '0011', '0012', '0013', '0014', '0015', '0016', '0017', '0018', '0019', '0020', '0021', '0022', '0023', '0024', '0025', '0026', '0027', '0028', '0029', '0030', '0031', '0032', '0033', '0034', '0035', '0036', '0037', '0038', '0039', '0040', '0041', '0042'] as const
 
 /** Variables production needs. Only their presence is reported, never their values. */
 export const REQUIRED_ENV = [

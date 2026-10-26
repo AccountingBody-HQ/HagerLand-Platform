@@ -5,6 +5,7 @@
 
 -- Clean up any leftovers from an interrupted earlier run.
 delete from public.properties where title like 'RLS TEST%';
+delete from public.employer_verifications where organisation_id in (select id from public.organisations where name like 'RLS TEST%');
 delete from public.organisations where name like 'RLS TEST%';
 delete from auth.users where email in ('rls-owner@test.hagerland.invalid', 'rls-other@test.hagerland.invalid');
 
@@ -317,7 +318,7 @@ insert into public.candidate_profiles (user_id, full_name, skills, cv_path) valu
 select pg_temp.record_check('Candidate profile is private by default', (select visibility from public.candidate_profiles where user_id = '00000000-0000-4000-8000-000000000002') = 'private');
 select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000001", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', false);
 select pg_temp.record_check('Employer cannot read candidate profiles directly', not exists (select 1 from public.candidate_profiles));
-select pg_temp.record_check('Private candidates are not shown to employers', not exists (select 1 from public.candidates_for_employers));
+select pg_temp.record_check('Private candidates are not shown to employers', not exists (select 1 from public.candidates_for_employers where candidate_id = '00000000-0000-4000-8000-000000000002'));
 reset role;
 update public.candidate_profiles set visibility = 'employers' where user_id = '00000000-0000-4000-8000-000000000002';
 set role authenticated;
@@ -383,9 +384,17 @@ set role authenticated;
 select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000001", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', false);
 select pg_temp.record_check('Employer whose only approved job was removed sees no candidates', not exists (select 1 from public.candidates_for_employers));
 reset role;
+-- Jobs Phase 4 (0042): the badge needs a recorded check first.
+insert into public.employer_verifications (organisation_id, licence_number, licence_checked_at, licence_check_method, tin_checked_at, phone_checked_at, verified_by, valid_until)
+values ('00000000-0000-4000-8000-0000000000b1', 'RLS-1', now(), 'document', now(), now(), 'rls', (now() at time zone 'Africa/Addis_Ababa')::date + 30);
 update public.organisations set verification_level = 'verified' where id = '00000000-0000-4000-8000-0000000000b1';
 set role authenticated;
 select pg_temp.record_check('A verified employer sees opted-in candidates', exists (select 1 from public.candidates_for_employers where candidate_id = '00000000-0000-4000-8000-000000000002'));
+reset role;
+-- Jobs Phase 4: decision #2 follows the badge. When the badge ends (level lowered), candidate access ends with it.
+update public.organisations set verification_level = 'claimed' where id = '00000000-0000-4000-8000-0000000000b1';
+set role authenticated;
+select pg_temp.record_check('When the Verified badge ends, candidate access ends with it (decision #2 follows the level)', not exists (select 1 from public.candidates_for_employers));
 reset role;
 
 reset role;
@@ -904,10 +913,139 @@ begin
 end $$;
 select pg_temp.record_check('Recruitment desk checks left nothing behind', not exists (select 1 from public.service_requests where title like 'RLS TEST staffing%' or title = 'RLS TEST plumbing'));
 
+-- ---------- Jobs Phase 4 (0042): verification evidence, private-client jobs, reports ----------
+reset role;
+set role anon;
+select pg_temp.record_check('Anonymous cannot read ' || name, pg_temp.read_denied(name)) from unnest(array['employer_verifications', 'org_verification_notices', 'job_reports']) as t(name);
+reset role;
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000001", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', false);
+select pg_temp.record_check('Signed-in user cannot read ' || name, pg_temp.read_denied(name)) from unnest(array['employer_verifications', 'org_verification_notices', 'job_reports']) as t(name);
+select pg_temp.record_check('Signed-in user cannot file a report directly (server only)',
+  pg_temp.write_denied($q$insert into public.job_reports (job_post_id, reason) select id, 'fake_or_scam' from public.job_posts limit 1$q$));
+do $$ begin
+  insert into public.job_posts (slug, employer_org_id, title, category, employment_type, description, posted_for, created_by_staff)
+  values ('rls-p4-crafted', '00000000-0000-4000-8000-0000000000b1', 'RLS crafted private', 'construction', 'full_time', 'A crafted private-client job that must be refused by the database.', 'private_client', 'crafted');
+  perform pg_temp.record_check('An employer cannot post as a private client', false);
+exception when insufficient_privilege or check_violation then
+  perform pg_temp.record_check('An employer cannot post as a private client', true);
+end $$;
+reset role;
+
+do $$
+declare
+  res text := '';
+  v_org uuid;
+  v_legacy uuid;
+  v_hs uuid;
+  v_req uuid;
+  v_a uuid;
+  v_city uuid;
+  v_area uuid;
+  v_job uuid;
+  v_user uuid := '00000000-0000-4000-8000-000000000002';
+begin
+  begin
+    insert into public.organisations (kind, name, slug, status, verification_level) values ('contractor', 'RLS P4 Org', 'rls-p4-org', 'published', 'listed') returning id into v_org;
+    begin
+      insert into public.organisations (kind, name, slug, status, verification_level) values ('contractor', 'RLS P4 Direct', 'rls-p4-direct', 'published', 'verified');
+      res := res || E'FAIL · A business cannot be created as Verified without a recorded check\n';
+    exception when check_violation then res := res || E'PASS · A business cannot be created as Verified without a recorded check\n';
+    end;
+    begin
+      update public.organisations set verification_level = 'verified' where id = v_org;
+      res := res || E'FAIL · The badge cannot be given without a recorded check\n';
+    exception when check_violation then res := res || E'PASS · The badge cannot be given without a recorded check\n';
+    end;
+    insert into public.employer_verifications (organisation_id, licence_number, licence_checked_at, licence_check_method, tin_checked_at, phone_checked_at, verified_by, verified_at, valid_until)
+      values (v_org, 'RLS-EXP', now() - interval '13 months', 'document', now() - interval '13 months', now() - interval '13 months', 'rls', now() - interval '13 months', ((now() - interval '13 months') at time zone 'Africa/Addis_Ababa')::date + 30);
+    begin
+      update public.organisations set verification_level = 'verified' where id = v_org;
+      res := res || E'FAIL · An ended check does not give the badge\n';
+    exception when check_violation then res := res || E'PASS · An ended check does not give the badge\n';
+    end;
+    update public.employer_verifications set status = 'expired' where organisation_id = v_org;
+    insert into public.employer_verifications (organisation_id, licence_number, licence_checked_at, licence_check_method, tin_checked_at, phone_checked_at, verified_by, valid_until)
+      values (v_org, 'RLS-OK', now(), 'online_register', now(), now(), 'rls', (now() at time zone 'Africa/Addis_Ababa')::date + 300);
+    update public.organisations set verification_level = 'verified' where id = v_org;
+    res := res || case when (select verification_level from public.organisations where id = v_org) = 'verified' then 'PASS' else 'FAIL' end || E' · A live recorded check gives the badge\n';
+    begin
+      insert into public.employer_verifications (organisation_id, licence_number, licence_checked_at, licence_check_method, tin_checked_at, phone_checked_at, verified_by, valid_until)
+        values (v_org, 'RLS-LONG', now(), 'document', now(), now(), 'rls', (now() at time zone 'Africa/Addis_Ababa')::date + 400);
+      res := res || E'FAIL · A check lasts at most 12 months\n';
+    exception when check_violation or unique_violation then res := res || E'PASS · A check lasts at most 12 months\n';
+    end;
+    update public.organisations set name = 'RLS P4 Org Renamed' where id = v_org;
+    res := res || case when (select status from public.employer_verifications where organisation_id = v_org and licence_number = 'RLS-OK') = 'needs_recheck' then 'PASS' else 'FAIL' end || E' · A new business name puts the check into "needs re-check"\n';
+    -- Legacy: verified with no recorded check (made here by removing the record inside this rolled-back block).
+    insert into public.organisations (kind, name, slug, status, verification_level) values ('contractor', 'RLS P4 Legacy', 'rls-p4-legacy', 'published', 'listed') returning id into v_legacy;
+    insert into public.employer_verifications (organisation_id, licence_number, licence_checked_at, licence_check_method, tin_checked_at, phone_checked_at, verified_by, valid_until)
+      values (v_legacy, 'RLS-L', now(), 'document', now(), now(), 'rls', (now() at time zone 'Africa/Addis_Ababa')::date + 10);
+    update public.organisations set verification_level = 'verified' where id = v_legacy;
+    delete from public.employer_verifications where organisation_id = v_legacy;
+    update public.organisations set description = 'Edited description of a legacy verified business.', name = 'RLS P4 Legacy Edited' where id = v_legacy;
+    res := res || case when (select verification_level from public.organisations where id = v_legacy) = 'verified' then 'PASS' else 'FAIL' end || E' · Ordinary edits to a legacy verified business are never refused\n';
+
+    -- HagerLand Services has no members.
+    select id into v_hs from public.organisations where slug = 'hagerland-services';
+    begin
+      insert into public.organisation_members (org_id, user_id, role) values (v_hs, v_user, 'member');
+      res := res || E'FAIL · Nobody can become a member of HagerLand Services\n';
+    exception when insufficient_privilege then res := res || E'PASS · Nobody can become a member of HagerLand Services\n';
+    end;
+
+    -- Private-client jobs.
+    select id into v_city from public.locations where path = 'addis-ababa/bole';
+    select id into v_area from public.locations where level = 'area' and country_code = 'ET' limit 1;
+    insert into public.service_requests (vertical_key, service_category_id, title, name, phone) select 'jobs', id, 'RLS TEST P4 staffing', 'RLS', '+251911000090' from public.service_categories where slug = 'staffing' returning id into v_req;
+    insert into public.recruitment_assignments (service_request_id, private_client, created_by) values (v_req, true, 'rls') returning id into v_a;
+    begin
+      insert into public.job_posts (slug, employer_org_id, title, category, employment_type, description, location_id, posted_for, recruitment_assignment_id)
+      values ('rls-p4-notours', v_org, 'RLS private', 'construction', 'full_time', 'A private-client job on a business that is not HagerLand.', v_city, 'private_client', v_a);
+      res := res || E'FAIL · A private-client job belongs to HagerLand\n';
+    exception when check_violation then res := res || E'PASS · A private-client job belongs to HagerLand\n';
+    end;
+    begin
+      insert into public.job_posts (slug, employer_org_id, title, category, employment_type, description, location_id, posted_for)
+      values ('rls-p4-noassign', v_hs, 'RLS private', 'construction', 'full_time', 'A private-client job without a desk assignment.', v_city, 'private_client');
+      res := res || E'FAIL · A private-client job needs a desk assignment\n';
+    exception when check_violation then res := res || E'PASS · A private-client job needs a desk assignment\n';
+    end;
+    if v_area is not null then
+      begin
+        insert into public.job_posts (slug, employer_org_id, title, category, employment_type, description, location_id, posted_for, recruitment_assignment_id)
+        values ('rls-p4-area', v_hs, 'RLS private', 'construction', 'full_time', 'A private-client job showing a precise area.', v_area, 'private_client', v_a);
+        res := res || E'FAIL · A private-client job shows city or sub-city only\n';
+      exception when check_violation then res := res || E'PASS · A private-client job shows city or sub-city only\n';
+      end;
+    end if;
+    insert into public.job_posts (slug, employer_org_id, title, category, employment_type, description, location_id, posted_for, recruitment_assignment_id, created_by_staff, status)
+      values ('rls-p4-ok', v_hs, 'RLS private ok', 'construction', 'full_time', 'A private-client job created by a staff member for review.', v_city, 'private_client', v_a, 'staff:ops@test', 'pending_review') returning id into v_job;
+    begin
+      update public.job_posts set status = 'published', approved_by = 'staff:ops@test' where id = v_job;
+      res := res || E'FAIL · The creator cannot approve their own private-client job\n';
+    exception when check_violation then res := res || E'PASS · The creator cannot approve their own private-client job\n';
+    end;
+    update public.job_posts set status = 'published', approved_by = 'staff:ops@test', self_approval_reason = 'Owner approved own post: urgent client' where id = v_job;
+    res := res || E'PASS · With a recorded reason the creator''s approval is accepted (owner only, on the server)\n';
+    res := res || case when not exists (select 1 from public.jobs_public where id = v_job) then 'PASS' else 'FAIL' end || E' · A private-client job is hidden while the private-client switch is off\n';
+    update public.site_settings set value = 'true'::jsonb where key = 'jobs_private_client_posts';
+    res := res || case when (select employer_name = 'Posted by HagerLand for a private client' and employer_slug is null and employer_logo_path is null and employer_verification is null and posted_for = 'private_client' from public.jobs_public where id = v_job) then 'PASS' else 'FAIL' end || E' · The public job list never shows the client: label only, no link, logo or badge\n';
+    raise exception 'hl_rollback';
+  exception when raise_exception then
+    if sqlerrm <> 'hl_rollback' then res := res || 'FAIL · Phase 4 checks stopped early: ' || sqlerrm || E'\n'; end if;
+  end;
+  perform set_config('hl.results', current_setting('hl.results') || res, false);
+end $$;
+select pg_temp.record_check('Phase 4 checks left nothing behind', not exists (select 1 from public.organisations where slug like 'rls-p4-%') and (select value from public.site_settings where key = 'jobs_private_client_posts') = 'false'::jsonb);
+
 -- ---------- Clean up ----------
 reset role;
 select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);
 delete from public.properties where title like 'RLS TEST%';
+-- Jobs Phase 4: this script's own verification records go before its test organisations.
+delete from public.org_verification_notices where organisation_id in (select id from public.organisations where name like 'RLS TEST%');
+delete from public.employer_verifications where organisation_id in (select id from public.organisations where name like 'RLS TEST%');
 delete from public.organisations where name like 'RLS TEST%';
 delete from auth.users where email in ('rls-owner@test.hagerland.invalid', 'rls-other@test.hagerland.invalid');
 

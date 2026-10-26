@@ -33,6 +33,11 @@ import { getAdminSession } from '@/lib/admin-auth'
 import { orgFieldSources } from '@/lib/imports/compliance-data'
 import { compliance, deadlineText, FIELD_LABEL, SOURCE_LABEL, STATE_LABEL, WARN_DAYS } from '@/lib/imports/compliance'
 import { todayInAddis } from '@/lib/supply/shortlist'
+import { ActionForm } from '@/components/forms/ActionForm'
+import { Field, Input, Select } from '@/components/ui/Field'
+import { RevokeBadge } from '@/components/admin/VerificationTools'
+import { recordVerificationCheckAction } from '@/app/roodber8/actions/verification'
+import { CHECK_METHODS, RECORD_STATUS_LABEL, recordEndsOn } from '@/lib/verification'
 
 export const metadata = { title: 'Organisation' }
 
@@ -58,6 +63,10 @@ export default async function AdminOrgPage(
     auditFor(o.id),
   ])
   const [supply, prices, owner] = await Promise.all([getSupplyPartner(o.id), offerCounts([o.id]), isOwnerSession()])
+  // Jobs Phase 4: the recorded checks behind the Verified badge (newest first).
+  const { data: checks } = await db.from('employer_verifications').select('id, status, licence_number, licence_expires_on, licence_check_method, licence_checked_at, tin_checked_at, phone_checked_at, phone_check_note, site_visit_at, verified_by, verified_at, valid_until, needs_recheck_since, revoked_at, revoked_by, revoked_reason').eq('organisation_id', o.id).order('created_at', { ascending: false })
+  const liveCheck = (checks ?? []).find((c) => ['active', 'needs_recheck'].includes(c.status)) ?? null
+  const legacyBadge = o.verification_level === 'verified' && (checks ?? []).length === 0
   // Agreements are owner only: never loaded for staff (blueprint 13.3).
   const agreements = owner && supply.partner ? await partnerAgreements(o.id) : []
   // Imports compliance: where each detail came from, for businesses imported from Google.
@@ -210,6 +219,72 @@ export default async function AdminOrgPage(
                   </li>
                 ))}
               </ul>
+            )}
+          </Panel>
+          <Panel title="Verified badge">
+            <p className="text-small">
+              {o.verification_level !== 'verified'
+                ? 'Not verified.'
+                : legacyBadge
+                  ? 'Verified before the recorded check existed (legacy badge). Record a check to move it to the new standard.'
+                  : liveCheck
+                    ? `Verified until ${formatDate(liveCheck.status === 'needs_recheck' && liveCheck.needs_recheck_since ? recordEndsOn(liveCheck) : liveCheck.valid_until)}${liveCheck.status === 'needs_recheck' ? ' — needs re-check: the name or licence number changed. Record a new check, or the badge ends on that date.' : '.'}`
+                    : 'Verified.'}
+            </p>
+            {(checks ?? []).length > 0 && (
+              <ul className="mt-3 space-y-2 text-small">
+                {(checks ?? []).map((c) => (
+                  <li key={c.id} className="rounded-md border border-border p-2 [overflow-wrap:anywhere]">
+                    <strong>{RECORD_STATUS_LABEL[c.status] ?? c.status}</strong> · checked {formatDate(c.verified_at)} by {c.verified_by} · valid until {formatDate(c.valid_until)}
+                    <br />
+                    Licence {c.licence_number} ({CHECK_METHODS.find((m) => m.value === c.licence_check_method)?.label.toLowerCase()}, {formatDate(c.licence_checked_at)}
+                    {c.licence_expires_on ? `, expires ${formatDate(c.licence_expires_on)}` : ''}) · TIN {formatDate(c.tin_checked_at)} · phone {formatDate(c.phone_checked_at)}
+                    {c.site_visit_at ? ` · site visit ${formatDate(c.site_visit_at)}` : ''}
+                    {c.phone_check_note ? ` · “${c.phone_check_note}”` : ''}
+                    {c.revoked_reason ? ` · revoked by ${c.revoked_by}: “${c.revoked_reason}”` : ''}
+                  </li>
+                ))}
+              </ul>
+            )}
+            <div className="mt-4 border-t border-border pt-4">
+              <p className="mb-2 text-small font-semibold">Record verification check</p>
+              <ActionForm action={recordVerificationCheckAction.bind(null, o.id)} submitLabel="Record check and give the badge">
+                <Field label="Trade licence number" htmlFor="vc-lic">
+                  <Input id="vc-lic" name="licence_number" maxLength={80} defaultValue={o.trade_licence_number ?? ''} />
+                </Field>
+                <Field label="Licence expires on" htmlFor="vc-exp" optional hint="The badge never lasts past this date.">
+                  <Input id="vc-exp" name="licence_expires_on" type="date" />
+                </Field>
+                <Field label="Licence checked on" htmlFor="vc-lc">
+                  <Input id="vc-lc" name="licence_checked_on" type="date" />
+                </Field>
+                <Field label="How the licence was checked" htmlFor="vc-lm" hint="The online register is optional: use it if it works.">
+                  <Select id="vc-lm" name="licence_check_method" defaultValue="document">
+                    {CHECK_METHODS.map((m) => (
+                      <option key={m.value} value={m.value}>
+                        {m.label}
+                      </option>
+                    ))}
+                  </Select>
+                </Field>
+                <Field label="Tax number (TIN) checked on" htmlFor="vc-tin">
+                  <Input id="vc-tin" name="tin_checked_on" type="date" />
+                </Field>
+                <Field label="Phoned the business on" htmlFor="vc-ph" hint="On a number found independently (licence, a known contact), not only the one they typed.">
+                  <Input id="vc-ph" name="phone_checked_on" type="date" />
+                </Field>
+                <Field label="Phone call note" htmlFor="vc-pn" optional>
+                  <Input id="vc-pn" name="phone_check_note" maxLength={500} />
+                </Field>
+                <Field label="Site visit on" htmlFor="vc-sv" optional>
+                  <Input id="vc-sv" name="site_visit_on" type="date" />
+                </Field>
+              </ActionForm>
+            </div>
+            {o.verification_level === 'verified' && (
+              <div className="mt-4 border-t border-border pt-4">
+                <RevokeBadge orgId={o.id} />
+              </div>
             )}
           </Panel>
         </div>

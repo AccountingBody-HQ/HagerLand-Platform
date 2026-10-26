@@ -28,10 +28,13 @@ const LAWYER_POINTS = {
   phone_apply: 'The lawyer has confirmed the consent wording, the 18+ rule, sharing phone numbers with employers, keeping data outside Ethiopia and calling workers on the register',
   worker_register: 'The lawyer has confirmed the consent wording, the 18+ rule, sharing phone numbers with employers, keeping data outside Ethiopia and calling workers on the register',
   recruitment_desk: 'The lawyer has confirmed the points listed: consent recorded by staff after a call, sharing workers’ contact details with employers, the fee terms (VAT and licence conditions) and keeping data outside Ethiopia',
+  reports: null,
+  private_client: 'The lawyer has confirmed the points listed: anonymous job postings under the recruitment licence, HagerLand named as the hiring organisation (employer-of-record risk), and keeping data outside Ethiopia',
+  verification_expiry: 'I understand: every Verified badge without a recorded check (legacy) ends 90 days from today, with a reminder email 30 days before',
 } as const
 
 /** Owner: one website switch ("Apply by phone", the worker register or the recruitment desk). Switching on needs the lawyer tick. */
-export function JobsSwitchControl({ which, on, label }: { which: 'phone_apply' | 'worker_register' | 'recruitment_desk'; on: boolean; label: string }) {
+export function JobsSwitchControl({ which, on, label }: { which: keyof typeof LAWYER_POINTS; on: boolean; label: string }) {
   const [confirmed, setConfirmed] = useState(false)
   const { pending, run } = useRun()
   const id = `js-${which}`
@@ -40,10 +43,10 @@ export function JobsSwitchControl({ which, on, label }: { which: 'phone_apply' |
       <p className="font-semibold">
         {label}: <span className={on ? 'text-green' : 'text-muted'}>{on ? 'On' : 'Off'}</span>
       </p>
-      {!on && (
+      {!on && LAWYER_POINTS[which] && (
         <Checkbox
           id={`${id}-lawyer`}
-          label={LAWYER_POINTS[which]}
+          label={LAWYER_POINTS[which] ?? ''}
           checked={confirmed}
           onChange={(e) => setConfirmed(e.target.checked)}
         />

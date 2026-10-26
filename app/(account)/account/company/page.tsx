@@ -13,6 +13,7 @@ import { Card, EmptyState } from '@/components/ui/Layout'
 import { FormAlert } from '@/components/forms/FormParts'
 import { LISTING_STATUS_LABELS } from '@/lib/labels'
 import { VerificationBadge } from '@/components/company/VerificationBadge'
+import { liveRecord } from '@/lib/verification-data'
 
 export const metadata = { title: 'Company profile' }
 
@@ -34,7 +35,7 @@ export default async function CompanyEditorPage() {
   }
   const { membership, org, defaults } = loaded
   const canEdit = membership.role === 'owner' || membership.role === 'admin'
-  const [services, products] = await Promise.all([getServiceCategories(), getProductCategories()])
+  const [services, products, badgeRecord] = await Promise.all([getServiceCategories(), getProductCategories(), org.verification_level === 'verified' ? liveRecord(org.id) : Promise.resolve(null)])
   const status = LISTING_STATUS_LABELS[org.status]
 
   return (
@@ -44,7 +45,7 @@ export default async function CompanyEditorPage() {
         description={
           <span className="flex flex-wrap items-center gap-2">
             <Badge tone={status.tone}>{status.label}</Badge>
-            <VerificationBadge level={org.verification_level} verifiedAt={org.verified_at} />
+            <VerificationBadge level={org.verification_level} verifiedAt={org.verified_at} record={badgeRecord} />
           </span>
         }
         action={

@@ -19,6 +19,7 @@ import { Badge } from '@/components/ui/Badge'
 import { ButtonLink } from '@/components/ui/Button'
 import { ChipLink } from '@/components/ui/Chip'
 import { VerificationBadge } from '@/components/company/VerificationBadge'
+import { liveRecord } from '@/lib/verification-data'
 import { OrgAvatar } from '@/components/company/CompanyCard'
 import { PortfolioGrid } from '@/components/company/PortfolioGrid'
 import { PropertyCard } from '@/components/property/PropertyCard'
@@ -59,6 +60,8 @@ export default async function CompanyPage(props: { params: Promise<{ slug: strin
   if (!o || !o.id) notFound()
   const isLister = o.kind === 'agency' || o.kind === 'developer' || o.kind === 'hagerland'
   const isSeller = o.kind === 'supplier' || o.kind === 'manufacturer'
+  // Jobs Phase 4: the live recorded check, so the badge shows the new wording only when there is one (F5).
+  const badgeRecord = o.id && o.verification_level === 'verified' ? await liveRecord(o.id) : null
   const [chain, services, productCats, portfolio, areaNames, forSale, toRent, developments, products, branches, reviews] = await Promise.all([
     o.location_id ? getLocationChain(o.location_id) : Promise.resolve([] as Location[]),
     getOrganisationServices(o.id),
@@ -119,7 +122,7 @@ export default async function CompanyPage(props: { params: Promise<{ slug: strin
                 <h1 className="hl-h1">{o.name}</h1>
                 <p className="mt-1 text-muted">{kindLabel}</p>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <VerificationBadge level={o.verification_level} verifiedAt={o.verified_at} />
+                  <VerificationBadge level={o.verification_level} verifiedAt={o.verified_at} record={badgeRecord} />
                   {o.is_hagerland && <Badge tone="gold">HagerLand</Badge>}
                   {o.serves_diaspora && <Badge tone="info">Serves the Ethiopian community abroad</Badge>}
                 </div>

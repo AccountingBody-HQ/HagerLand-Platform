@@ -11,6 +11,7 @@ import { log } from '@/lib/log'
 import { readJobsSwitches } from '@/lib/jobs-switches'
 import { CLEARED_EMAIL, clearedApplication, clearedRegisterEntry, deletionCutoff } from '@/lib/jobs-privacy'
 import { runCleanupCore, type CleanupAdapter, type CleanupKind, type CleanupResult } from '@/lib/jobs-cleanup'
+import { clearedReport, reportClockFrom } from '@/lib/job-reports'
 import { HIRED_APPLICATION_CLEAR, HIRED_SHORTLIST_CLEAR, clearedShortlistRow, placementHold, retainUntil, shortlistDueForDeletion, todayAddis, type HoldState } from '@/lib/jobs-desk'
 
 interface Holds {
@@ -76,13 +77,22 @@ function adapter(cutoff: string, now: string, holds: Holds, at: Date): CleanupAd
   const db = getAdminSupabase()
   // Held applications never appear in the due lists (ids are database uuids, never user input).
   const heldApps = Array.from(holds.applications.keys())
-  const due = (kind: Exclude<CleanupKind, 'shortlist'>) => {
+  const due = (kind: Exclude<CleanupKind, 'shortlist' | 'reports'>) => {
     if (kind === 'applications') {
       const q = db.from('job_applications').select('id', { count: 'exact' }).is('personal_data_deleted_at', null).lt('created_at', cutoff)
       return heldApps.length ? q.not('id', 'in', `(${heldApps.join(',')})`) : q
     }
     if (kind === 'register') return db.from('worker_register').select('id', { count: 'exact' }).is('personal_data_deleted_at', null).lt('last_updated_at', cutoff)
     return db.from('email_outbox').select('id', { count: 'exact' }).lt('created_at', cutoff).neq('subject', CLEARED_EMAIL.subject)
+  }
+  // Job reports (Jobs Phase 4): 12 months after the later of the report and its handling.
+  let reports: string[] | null = null
+  const dueReports = async () => {
+    if (reports) return reports
+    const { data, error } = await db.from('job_reports').select('id, created_at, handled_at').is('personal_data_deleted_at', null).lt('created_at', cutoff).order('id').limit(5000)
+    if (error) throw new Error(error.message)
+    reports = (data ?? []).filter((r) => reportClockFrom(r.created_at, r.handled_at) < cutoff).map((r) => r.id)
+    return reports
   }
   let shortlist: string[] | null = null
   const dueShortlist = async () => (shortlist ??= (await dueShortlistIds(at, cutoff)).filter((id) => !holds.candidates.has(id)))
@@ -103,8 +113,8 @@ function adapter(cutoff: string, now: string, holds: Holds, at: Date): CleanupAd
     return r
   }
   return {
-    countDue: async (kind) => (kind === 'shortlist' ? (await dueShortlist()).length : (must(await due(kind).limit(1)).count ?? 0)),
-    listDue: async (kind, limit) => (kind === 'shortlist' ? (await dueShortlist()).slice(0, limit) : (must(await due(kind).order('id').limit(limit)).data ?? []).map((r) => r.id)),
+    countDue: async (kind) => (kind === 'shortlist' ? (await dueShortlist()).length : kind === 'reports' ? (await dueReports()).length : (must(await due(kind).limit(1)).count ?? 0)),
+    listDue: async (kind, limit) => (kind === 'shortlist' ? (await dueShortlist()).slice(0, limit) : kind === 'reports' ? (await dueReports()).slice(0, limit) : (must(await due(kind).order('id').limit(limit)).data ?? []).map((r) => r.id)),
     countKept: async () => {
       const kept = { hired: 0, periodNotSet: 0 }
       for (const id of await heldAppsAged()) kept[holds.applications.get(id) === 'hired' ? 'hired' : 'periodNotSet']++
@@ -124,6 +134,10 @@ function adapter(cutoff: string, now: string, holds: Holds, at: Date): CleanupAd
       return trimmed
     },
     clear: async (kind, id) => {
+      if (kind === 'reports') {
+        must(await db.from('job_reports').update(clearedReport(now)).eq('id', id).is('personal_data_deleted_at', null))
+        return {}
+      }
       if (kind === 'shortlist') {
         must(await db.from('recruitment_candidates').update(clearedShortlistRow(now)).eq('id', id).is('personal_data_deleted_at', null))
         return {}

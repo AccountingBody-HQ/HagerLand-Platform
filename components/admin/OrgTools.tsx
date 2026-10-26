@@ -29,11 +29,13 @@ export function OrgAdminFields({ orgId, initial }: { orgId: string; initial: { v
   const { pending, run } = useRun()
   return (
     <div className="space-y-3">
-      <Field label="Verification level" htmlFor="oa-ver">
-        <Select id="oa-ver" value={v.verification_level} onChange={(e) => setV({ ...v, verification_level: e.target.value as typeof v.verification_level })}>
+      <Field label="Verification level" htmlFor="oa-ver" hint="The Verified badge is given with “Record verification check” and removed with “Revoke badge”.">
+        <Select id="oa-ver" value={v.verification_level} disabled={initial.verification_level === 'verified'} onChange={(e) => setV({ ...v, verification_level: e.target.value as typeof v.verification_level })}>
           <option value="listed">Listed</option>
           <option value="claimed">Claimed</option>
-          <option value="verified">Verified</option>
+          <option value="verified" disabled={initial.verification_level !== 'verified'}>
+            Verified
+          </option>
         </Select>
       </Field>
       <Field label="Trade licence number" htmlFor="oa-tl">

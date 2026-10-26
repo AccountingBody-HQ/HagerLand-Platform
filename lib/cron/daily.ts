@@ -24,6 +24,8 @@ import { demandDigestLine } from '@/lib/admin/demand'
 import { formatDate } from '@/lib/format'
 import { isStaffingRequest } from '@/lib/jobs-desk-data'
 import { deskDigestCounts, runDeskDaily } from '@/lib/jobs-desk-cron'
+import { runVerificationDaily, verificationDigestCounts, type VerificationDailyCounts } from '@/lib/verification-data'
+import { jobReportDigestCounts } from '@/lib/job-reports-data'
 
 const DAY = 86_400_000
 const BATCH = 500
@@ -51,6 +53,8 @@ export interface DailySummary {
   jobsDataCleanup: CleanupResult | null
   /** Recruitment desk placements moved to "guarantee running" or "completed" (Jobs Phase 3). */
   placementsMoved: number
+  /** Verified badges: reminders sent and badges ended (Jobs Phase 4); null if the step failed. */
+  verification: VerificationDailyCounts | null
   digestSent: boolean
 }
 
@@ -336,6 +340,17 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
   } catch (err) {
     log.error('cron', 'recruitment desk digest failed', err)
   }
+  // Jobs Phase 4 (W22): job reports and Verified badges, each failure-isolated.
+  try {
+    for (const [label, count] of await jobReportDigestCounts(now)) if (count > 0) lines.push([label, String(count)])
+  } catch (err) {
+    log.error('cron', 'job reports digest failed', err)
+  }
+  try {
+    for (const [label, count] of await verificationDigestCounts(now)) if (count > 0) lines.push([label, String(count)])
+  } catch (err) {
+    log.error('cron', 'verification digest failed', err)
+  }
   for (const e of errors.data ?? []) lines.push([`Error ×${e.count}`, `${e.route}: ${e.message}`.slice(0, 160)])
   return lines
 }
@@ -375,7 +390,9 @@ export async function runDaily(now = Date.now()): Promise<DailySummary> {
   const jobsDataCleanup = await step('jobs data clean-up', () => runJobsDataCleanup({ runBy: 'daily job', now }), null)
   // Recruitment desk: placement statuses follow the start date and the replacement guarantee (Addis Ababa dates).
   const placementsMoved = await step('recruitment desk', async () => (await runDeskDaily(now)).moved, 0)
-  const summary = { expired, expiredEmailed: emailed, reminded, quotesExpired, verificationDocsPurged, revealsPurged, rateLimitsPurged, matchReminders, searchAlerts, jobsExpired, cvsPurged, emailsRetried, interestPurged, viewingReminders, tenancyReminders, importsCleanup, jobsDataCleanup, placementsMoved }
+  // Verified badges: one reminder 30 days before, endings on time; legacy badges only if the owner switched it on.
+  const verification = await step('verified badges', () => runVerificationDaily(now), null)
+  const summary = { expired, expiredEmailed: emailed, reminded, quotesExpired, verificationDocsPurged, revealsPurged, rateLimitsPurged, matchReminders, searchAlerts, jobsExpired, cvsPurged, emailsRetried, interestPurged, viewingReminders, tenancyReminders, importsCleanup, jobsDataCleanup, placementsMoved, verification }
   let digestSent = false
   const to = process.env.ADMIN_DIGEST_EMAIL
   if (to) {

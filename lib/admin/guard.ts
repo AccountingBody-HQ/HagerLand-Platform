@@ -32,6 +32,17 @@ export async function isOwnerSession(): Promise<boolean> {
   return s?.kind === 'master' || (s?.kind === 'staff' && s.role === 'owner')
 }
 
+/** The master login, an owner or Operations: who may give or take away the Verified badge (Jobs Phase 4). */
+export async function isOwnerOrOperationsSession(): Promise<boolean> {
+  const s = await getAdminSession()
+  return s?.kind === 'master' || (s?.kind === 'staff' && (s.role === 'owner' || s.role === 'operations'))
+}
+
+/** Throws for anyone but the master login, an owner or Operations (Agent and Content are refused). */
+export async function assertOwnerOrOperations(): Promise<void> {
+  if (!(await isOwnerOrOperationsSession())) throw new Error('Unauthorized')
+}
+
 /** For owner-only actions (agreements, money, the ledger): throws for anyone but the master login or an owner. */
 export async function assertOwner(): Promise<void> {
   if (!(await isOwnerSession())) throw new Error('Unauthorized')
