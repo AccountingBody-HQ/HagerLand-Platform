@@ -1,12 +1,15 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ExternalLink, FileText } from 'lucide-react'
-import { requireAdminPage } from '@/lib/admin/guard'
+import { adminActor, isOwnerSession, requireAdminPage } from '@/lib/admin/guard'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { auditFor } from '@/lib/admin/options'
 import { signedDocumentUrl } from '@/lib/storage'
 import { APPLICATION_STATUSES, EMPLOYMENT_TYPES, categoryLabel, formatSalary, labelFor, tradeLabel } from '@/lib/jobs'
-import { advertWarnings } from '@/lib/jobs-privacy'
+import { advertWarnings, privateClientWarnings } from '@/lib/jobs-privacy'
+import { FormAlert } from '@/components/forms/FormParts'
+import { RunButton } from '@/components/admin/AgencyTools'
+import { restoreJobAction } from '../../actions/job-reports'
 import { formatDate, formatPhone } from '@/lib/format'
 import { adminJobStatusAction, jobDecisionAction } from '../../actions/jobs'
 import { AdminHeader, DataTable, KeyValue, Panel, StatusBadge } from '@/components/admin/AdminUi'
@@ -31,6 +34,11 @@ export default async function AdminJobPage(props: { params: Promise<{ id: string
     auditFor(job.id),
   ])
   const rows = await Promise.all((apps ?? []).map(async (a) => ({ ...a, cvUrl: a.cv_path ? await signedDocumentUrl(a.cv_path) : null })))
+  // Jobs Phase 4: private-client details, the four-eyes rule and open reports.
+  const privateClient = job.posted_for === 'private_client'
+  const [actor, owner, { data: openReports }] = await Promise.all([adminActor(), isOwnerSession(), db.from('job_reports').select('id, reason').eq('job_post_id', job.id).eq('status', 'open')])
+  const createdByMe = privateClient && job.created_by_staff === actor.slice(0, 120)
+  const warnings = [...advertWarnings(job.title, job.description, job.requirements), ...(privateClient ? privateClientWarnings(job.title, job.description, job.requirements) : [])]
   return (
     <div className="space-y-5">
       <AdminHeader
@@ -50,9 +58,18 @@ export default async function AdminJobPage(props: { params: Promise<{ id: string
       />
       <div className="grid gap-5 xl:grid-cols-[1fr_360px]">
         <div className="min-w-0 space-y-5">
-          {advertWarnings(job.title, job.description, job.requirements).length > 0 && <AdvertWarnings warnings={advertWarnings(job.title, job.description, job.requirements)} />}
+          {warnings.length > 0 && <AdvertWarnings warnings={warnings} />}
+          {(openReports ?? []).length > 0 && (
+            <FormAlert tone={(openReports ?? []).some((r) => r.reason === 'asks_for_money') ? 'error' : 'info'}>
+              {(openReports ?? []).length} open report{(openReports ?? []).length === 1 ? '' : 's'} on this job{(openReports ?? []).some((r) => r.reason === 'asks_for_money') ? ', including “asks candidates for money”' : ''}.{' '}
+              <Link href="/roodber8/jobs/reports" prefetch={false} className="font-semibold underline">
+                Open job reports
+              </Link>
+            </FormAlert>
+          )}
           {job.status === 'pending_review' && (
             <Panel title="Waiting for review">
+              {createdByMe && <p className="mb-3 text-small font-semibold">Created by you: another person must approve.{owner ? ' As the owner you may approve it yourself only by writing the reason in the note.' : ''}</p>}
               <DecisionButtons askNote onApprove={jobDecisionAction.bind(null, job.id, true)} onReject={jobDecisionAction.bind(null, job.id, false)} />
             </Panel>
           )}
@@ -60,6 +77,13 @@ export default async function AdminJobPage(props: { params: Promise<{ id: string
             <KeyValue
               items={[
                 ['Employer', org ? <Link href={`/roodber8/organisations/${org.id}`} className="text-green underline">{org.name}</Link> : ''],
+                ...(privateClient
+                  ? ([
+                      ['Posted for', job.recruitment_assignment_id ? <Link href={`/roodber8/jobs/desk/${job.recruitment_assignment_id}`} className="text-green underline">a private client (desk assignment)</Link> : 'a private client'],
+                      ['Created by', job.created_by_staff ?? ''],
+                      ['Approved by', job.approved_by ? `${job.approved_by}${job.self_approval_reason ? ` (own job: “${job.self_approval_reason}”)` : ''}` : 'Not yet'],
+                    ] as [string, React.ReactNode][])
+                  : []),
                 ['Category', categoryLabel(job.category)],
                 ['Type', labelFor(EMPLOYMENT_TYPES, job.employment_type)],
                 ['Trade', job.trade ? tradeLabel(job.trade) : 'None'],
@@ -121,6 +145,7 @@ export default async function AdminJobPage(props: { params: Promise<{ id: string
                   Pause
                 </ActionButton>
               )}
+              {job.status === 'paused' && <RunButton label="Restore" fn={restoreJobAction.bind(null, job.id)} />}
               {!['archived', 'removed'].includes(job.status) && (
                 <ActionButton size="sm" variant="secondary" action={adminJobStatusAction.bind(null, job.id, 'archived')}>
                   Close

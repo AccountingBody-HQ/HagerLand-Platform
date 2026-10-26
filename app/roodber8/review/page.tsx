@@ -19,6 +19,10 @@ import { developmentUpdateDecisionAction } from '../actions/development-updates'
 import { EMPLOYMENT_TYPES, categoryLabel, formatSalary, labelFor, tradeLabel } from '@/lib/jobs'
 import { advertWarnings } from '@/lib/jobs-privacy'
 import { AdvertWarnings } from '@/components/admin/AdvertWarnings'
+import { JobReports } from '@/components/admin/JobReports'
+import { openReportGroups } from '@/lib/job-reports-data'
+import { getAdminSession } from '@/lib/admin-auth'
+import { roleCanAccess } from '@/lib/admin/roles'
 
 export const metadata = { title: 'Review queue' }
 
@@ -34,6 +38,7 @@ const TABS = [
   ['verification', 'Verification'],
   ['reports', 'Reports'],
   ['jobs', 'Jobs'],
+  ['job-reports', 'Job reports'],
   ['updates', 'Progress updates'],
 ] as const
 type Tab = (typeof TABS)[number][0]
@@ -64,10 +69,16 @@ function DocList({ docs }: { docs: { label: string; url: string | null }[] }) {
 export default async function ReviewPage(route: { searchParams: Promise<{ tab?: string }> }) {
   const searchParams = await route.searchParams
   await requireAdminPage()
-  const tab: Tab = (TABS.find(([k]) => k === searchParams.tab)?.[0] ?? 'properties') as Tab
+  // Job reports belong to the Jobs area (Owner and Operations): the tab is shown and filled only for them.
+  const session = await getAdminSession()
+  const canJobs = !session || session.kind !== 'staff' || roleCanAccess(session.role, '/roodber8/jobs')
+  // Verification decisions are Owner and Operations only (Jobs Phase 4): Agent and Content do not see the tab.
+  const canVerify = !session || session.kind !== 'staff' || session.role === 'owner' || session.role === 'operations'
+  const tabs = TABS.filter(([k]) => (k !== 'job-reports' || canJobs) && (k !== 'verification' || canVerify))
+  const tab: Tab = (tabs.find(([k]) => k === searchParams.tab)?.[0] ?? 'properties') as Tab
   const counts = await queueCounts()
   const db = getAdminSupabase()
-  const countFor: Record<Tab, number> = { properties: counts.properties, developments: counts.developments, organisations: counts.organisations, portfolio: counts.portfolio, products: counts.products, media: counts.media, changes: counts.changes, claims: counts.claims, verification: counts.verification, reports: counts.reports, jobs: counts.jobs, updates: counts.updates }
+  const countFor: Record<Tab, number> = { properties: counts.properties, developments: counts.developments, organisations: counts.organisations, portfolio: counts.portfolio, products: counts.products, media: counts.media, changes: counts.changes, claims: counts.claims, verification: counts.verification, reports: counts.reports, jobs: counts.jobs, 'job-reports': counts.jobReports, updates: counts.updates }
 
   let body: React.ReactNode = null
 
@@ -275,7 +286,9 @@ export default async function ReviewPage(route: { searchParams: Promise<{ tab?: 
       )
   }
 
-  if (tab === 'verification') {
+  if (tab === 'job-reports' && canJobs) body = <JobReports groups={await openReportGroups()} />
+
+  if (tab === 'verification' && canVerify) {
     const { data } = await db.from('verification_requests').select('*, org:organisations(id, name, kind, licence_category, licence_grade, trade_licence_number, tin)').eq('status', 'pending').order('created_at')
     const rows = data ?? []
     body =
@@ -294,6 +307,15 @@ export default async function ReviewPage(route: { searchParams: Promise<{ tab?: 
                     <div className="my-3">
                       <DocList docs={links} />
                     </div>
+                    {v.org && (
+                      <p className="mb-2 text-small">
+                        To give the badge, check the licence, tax number and phone, then{' '}
+                        <Link href={`/roodber8/organisations/${v.org.id}#verified`} prefetch={false} className="font-semibold text-green underline">
+                          record the check on the profile
+                        </Link>
+                        .
+                      </p>
+                    )}
                     <DecisionButtons askNote approveLabel="Mark Verified" rejectLabel="Decline" onApprove={verificationDecisionAction.bind(null, v.id, true)} onReject={verificationDecisionAction.bind(null, v.id, false)} />
                   </Panel>
                 </li>
@@ -457,7 +479,7 @@ export default async function ReviewPage(route: { searchParams: Promise<{ tab?: 
     <div>
       <AdminHeader title="Review queue" description="Everything waiting for a decision. Owners are emailed automatically." />
       <nav aria-label="Queue" className="-mx-1 mb-5 flex flex-wrap gap-1">
-        {TABS.map(([key, label]) => (
+        {tabs.map(([key, label]) => (
           <Link key={key} href={`/roodber8/review?tab=${key}`} aria-current={tab === key ? 'page' : undefined} className={cn('inline-flex min-h-10 items-center gap-1.5 rounded-md px-3 text-small font-semibold', tab === key ? 'bg-ink text-white' : 'bg-white text-ink hover:bg-stone-50')}>
             {label}
             {countFor[key] > 0 && <span className={cn('rounded-full px-1.5 text-caption', tab === key ? 'bg-gold text-ink' : 'bg-stone-200')}>{countFor[key]}</span>}

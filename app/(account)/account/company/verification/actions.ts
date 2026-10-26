@@ -31,5 +31,5 @@ export async function submitVerificationAction(_prev: ActionResult | null, formD
     await sendEmail({ to: process.env.ADMIN_DIGEST_EMAIL, ...adminNoticeEmail({ subject: `Verification request: ${active.org.name}`, heading: 'Documents submitted for verification', lines: [['Business', active.org.name]], adminUrl: canonicalUrl('/roodber8/review?tab=verification') }) })
   }
   revalidatePath('/account/company/verification')
-  return ok(undefined, "Thanks. We'll check your documents within 1–2 business days.")
+  return ok(undefined, "Thanks. We'll check your documents and may call you to confirm.")
 }

@@ -6,7 +6,7 @@ const AREA = '/roodber8/review'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { getAdminSupabase, getAdminSupabaseDynamic } from '@/lib/supabase/admin'
-import { assertAdmin, audit } from '@/lib/admin/guard'
+import { assertAdmin, audit, assertOwnerOrOperations } from '@/lib/admin/guard'
 import { ownerEmails, firstName } from '@/lib/admin/notify'
 import { fail, ok, type ActionResult } from '@/lib/action-result'
 import { revalidateEntity } from '@/lib/revalidate'
@@ -191,20 +191,23 @@ export async function claimDecisionAction(claimId: string, approve: boolean, not
 
 export async function verificationDecisionAction(requestId: string, approve: boolean, note?: string): Promise<ActionResult<{ message: string }>> {
   await assertAdmin(AREA)
+  // Jobs Phase 4: only Owner and Operations decide verification (Agent and Content are refused).
+  await assertOwnerOrOperations()
   if (!z.uuid().safeParse(requestId).success) return fail('Invalid.')
+  // The badge is given only by recording the check (licence, tax number, phone) on the business's page.
+  if (approve) return fail('Record the verification check on the business’s page to give the Verified badge.')
   const db = getAdminSupabase()
   const { data: req } = await db.from('verification_requests').select('*').eq('id', requestId).maybeSingle()
   if (!req || req.status !== 'pending') return fail('This request has already been decided.')
   const { data: org } = await db.from('organisations').select('id, name').eq('id', req.org_id).maybeSingle()
   if (!org) return fail('Organisation not found.')
-  if (approve) await db.from('organisations').update({ verification_level: 'verified', verified_at: new Date().toISOString() }).eq('id', org.id)
-  await db.from('verification_requests').update({ status: approve ? 'approved' : 'rejected', admin_notes: note ?? null, decided_at: new Date().toISOString() }).eq('id', requestId)
+  await db.from('verification_requests').update({ status: 'rejected', admin_notes: note ?? null, decided_at: new Date().toISOString() }).eq('id', requestId)
   const to = await ownerEmails(org.id, req.submitted_by)
-  if (to.length) await sendEmail({ to, ...verificationDecisionEmail({ name: await firstName(req.submitted_by), orgName: org.name, approved: approve, note }) })
-  await audit(approve ? 'verification.approve' : 'verification.reject', { type: 'organisation', id: org.id, label: org.name }, note ? { note } : null)
+  if (to.length) await sendEmail({ to, ...verificationDecisionEmail({ name: await firstName(req.submitted_by), orgName: org.name, approved: false, note }) })
+  await audit('verification.reject', { type: 'organisation', id: org.id, label: org.name }, note ? { note } : null)
   revalidateEntity('organisation', org.id)
   revalidatePath('/roodber8', 'layout')
-  return ok({ message: approve ? `${org.name} is now Verified.` : 'Verification declined.' })
+  return ok({ message: 'Verification declined.' })
 }
 
 export async function reportDecisionAction(reportId: string, status: 'actioned' | 'dismissed'): Promise<ActionResult<{ message: string }>> {

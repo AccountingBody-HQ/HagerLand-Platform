@@ -10,7 +10,9 @@ import { adminActor, assertAdmin, assertOwner, audit } from '@/lib/admin/guard'
 import { fail, ok, type ActionResult } from '@/lib/action-result'
 import { phoneSchema } from '@/lib/validation/common'
 import { CURRENCIES } from '@/lib/countries'
-import { TRADE_VALUES, tradeLabel } from '@/lib/jobs'
+import { TRADE_VALUES, jobColumns, jobSchema, tradeLabel } from '@/lib/jobs'
+import { shortId, slugify } from '@/lib/slug'
+import { log } from '@/lib/log'
 import { formatDate } from '@/lib/format'
 import { parsePriceEtb } from '@/lib/supply/offers'
 import { percentToBps } from '@/lib/supply/money'
@@ -146,11 +148,13 @@ export async function addToShortlistAction(assignmentId: string, _prev: Msg | nu
   type Row = { source: string; application_id?: string; candidate_user_id?: string; register_id?: string; other_employer?: boolean; name?: string | null; phone?: string | null; email?: string | null; trade?: string | null; area_text?: string | null; role_text?: string | null; adult_confirmed_at?: string | null; adult_confirmed_by?: string | null; adult_confirmed_method?: string | null }
   let row: Row
   if (d.source === 'application') {
-    const { data: app } = await db.from('job_applications').select('id, name, email, phone, trade, area_text, adult_confirmed_at, personal_data_deleted_at, job:job_posts(employer_org_id, title, trade)').eq('reference', d.reference).maybeSingle()
+    const { data: app } = await db.from('job_applications').select('id, name, email, phone, trade, area_text, adult_confirmed_at, personal_data_deleted_at, job:job_posts(employer_org_id, title, trade, recruitment_assignment_id)').eq('reference', d.reference).maybeSingle()
     if (!app) return fail(`No application ${d.reference}.`)
     if (app.personal_data_deleted_at) return fail('This application’s personal details were deleted after 12 months.')
-    const job = app.job as { employer_org_id: string; title: string; trade: string | null } | null
-    const otherEmployer = !a.employer_org_id || job?.employer_org_id !== a.employer_org_id
+    const job = app.job as { employer_org_id: string; title: string; trade: string | null; recruitment_assignment_id: string | null } | null
+    // An application to this assignment's own private-client job (Jobs Phase 4) belongs to HagerLand: contact shown.
+    const ownJob = job?.recruitment_assignment_id === a.id || (Boolean(a.employer_org_id) && job?.employer_org_id === a.employer_org_id)
+    const otherEmployer = !ownJob
     row = {
       source: 'application',
       application_id: app.id,
@@ -717,4 +721,49 @@ export async function reverseFeeEntryAction(entryId: string, reason: string): Pr
   await audit('jobs.desk.fee_reversal', { type: 'recruitment_placement', id: placement?.id ?? null, label: placement?.reference ?? null }, { reverses: e.id })
   if (placement) refresh(placement.assignment_id)
   return ok({ message: 'Reversed.' })
+}
+
+// ---------------------------------------------------------------------------
+// Private-client jobs (Jobs Phase 4; switch "Private-client jobs" starts off)
+// ---------------------------------------------------------------------------
+
+/**
+ * Owner and Operations: posts a job for a private-client assignment. The job belongs to HagerLand Services, never
+ * names the client, and waits for the normal review; whoever created it cannot approve it (F1).
+ */
+export async function createPrivateClientJobAction(assignmentId: string, _prev: Msg | null, formData: FormData): Promise<Msg> {
+  await assertAdmin(AREA)
+  if (!(await readJobsSwitches()).privateClientPosts) return fail('Private-client jobs are switched off.')
+  const a = await loadAssignment(assignmentId)
+  if (!a) return fail('Not found.')
+  if (CLOSED_ASSIGNMENT.includes(a.status as (typeof CLOSED_ASSIGNMENT)[number])) return fail('This assignment is closed.')
+  const db = getAdminSupabase()
+  const { data: full } = await db.from('recruitment_assignments').select('private_client').eq('id', a.id).single()
+  if (!full?.private_client) return fail('Only private-client assignments get a job posted by HagerLand.')
+  const parsed = jobSchema.safeParse(Object.fromEntries(formData))
+  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? 'Check the job.')
+  const d = parsed.data
+  const [{ data: team }, { data: loc }] = await Promise.all([
+    db.from('organisations').select('id').eq('slug', 'hagerland-services').eq('is_hagerland', true).maybeSingle(),
+    db.from('locations').select('level, country_code').eq('id', d.location_id).maybeSingle(),
+  ])
+  if (!team) return fail('The HagerLand Services organisation is missing (migration 0029).')
+  if (!loc) return fail('Choose where the job is.')
+  if (loc.country_code !== 'ET') return fail('Only work in Ethiopia. Placements abroad are not offered.')
+  if (loc.level === 'area') return fail('Choose the city or sub-city only, so the client cannot be identified.')
+  const actor = await adminActor()
+  const { data, error } = await db
+    .from('job_posts')
+    .insert({ ...jobColumns(d), slug: `${slugify(d.title, 60)}-${shortId(4)}`, employer_org_id: team.id, status: 'pending_review', posted_for: 'private_client', recruitment_assignment_id: a.id, created_by_staff: actor.slice(0, 120) })
+    .select('id, title')
+    .single()
+  if (error || !data) {
+    log.error('jobs-desk', 'private-client job insert failed', error)
+    return fail('Could not create the job.')
+  }
+  await deskEvent(a.id, 'job_posted', actor, { detail: { job: data.id } })
+  await audit('jobs.desk.private_client_job', { type: 'job', id: data.id, label: data.title }, { assignment: a.reference })
+  refresh(a.id)
+  revalidatePath('/roodber8/review')
+  return ok({ message: 'Job created and waiting for review. Another person must approve it.' })
 }

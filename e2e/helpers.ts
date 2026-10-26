@@ -151,7 +151,8 @@ export async function seedShowcase(): Promise<Showcase> {
       return p
     }),
   )
-  const { data: org } = await d.from('organisations').insert({ kind: 'contractor', name: `E2E Abebe Construction ${stamp}`, slug: `e2e-abebe-${stamp}`, description: 'Grade 3 building contractor working on residential and commercial projects across Addis Ababa.', source: 'admin', status: 'published', verification_level: 'verified' }).select('id, slug').single()
+  const { data: org } = await d.from('organisations').insert({ kind: 'contractor', name: `E2E Abebe Construction ${stamp}`, slug: `e2e-abebe-${stamp}`, description: 'Grade 3 building contractor working on residential and commercial projects across Addis Ababa.', source: 'admin', status: 'published', verification_level: 'listed' }).select('id, slug').single()
+  if (org) await giveVerifiedBadge(org.id)
   await seedPhoto('organisation', org!.id, 200)
   const { data: services } = await d.from('service_categories').select('id').not('parent_id', 'is', null).limit(2)
   await d.from('organisation_services').insert((services ?? []).map((s) => ({ org_id: org!.id, service_id: s.id })))
@@ -209,10 +210,11 @@ export async function createProvider(opts: { name: string; serviceSlug: string; 
   const slug = `e2e-${opts.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now()}`
   const { data: org, error } = await d
     .from('organisations')
-    .insert({ kind: 'sole_trader', name: opts.name, slug, location_id: loc!.id, phone: '+251911000111', source: 'admin', status: 'published', verification_level: opts.verified ? 'verified' : 'listed' })
+    .insert({ kind: 'sole_trader', name: opts.name, slug, location_id: loc!.id, phone: '+251911000111', source: 'admin', status: 'published', verification_level: 'listed' })
     .select('id, slug')
     .single()
   if (error || !org) throw new Error(`provider org failed: ${error?.message}`)
+  if (opts.verified) await giveVerifiedBadge(org.id)
   await d.from('organisation_members').insert({ org_id: org.id, user_id: user.id, role: 'owner' })
   await d.from('organisation_services').insert({ org_id: org.id, service_id: svc!.id })
   return { orgId: org.id, orgSlug: org.slug, user }
@@ -297,4 +299,18 @@ export async function adminSetPillarModes(page: Page, key: string, name: string,
   await page.goto('/roodber8/pillars')
   await page.getByRole('switch', { name: `Interest capture for ${name}` }).click()
   await expect(page.getByText(`Interest capture is now ${interest ? 'on' : 'off'} for ${name}.`)).toBeVisible()
+}
+
+/**
+ * Jobs Phase 4: the Verified badge needs a recorded check (migration 0042). Records one for a test business (valid for
+ * 11 months) and gives the badge, as admin's "Record verification check" does.
+ */
+export async function giveVerifiedBadge(orgId: string): Promise<void> {
+  const d = db()
+  const now = new Date()
+  const until = new Date(now.getTime() + 330 * 86_400_000).toISOString().slice(0, 10)
+  const { error } = await d.from('employer_verifications').insert({ organisation_id: orgId, licence_number: `E2E-${orgId.slice(0, 8)}`, licence_checked_at: now.toISOString(), licence_check_method: 'document', tin_checked_at: now.toISOString(), phone_checked_at: now.toISOString(), verified_by: 'e2e', verified_at: now.toISOString(), valid_until: until })
+  if (error) throw new Error(`verification record failed: ${error.message}`)
+  const { error: e2 } = await d.from('organisations').update({ verification_level: 'verified', verified_at: now.toISOString() }).eq('id', orgId)
+  if (e2) throw new Error(`verified badge failed: ${e2.message}`)
 }

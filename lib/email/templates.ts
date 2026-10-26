@@ -558,3 +558,23 @@ export function teamInvitationEmail(p: { orgName: string; inviterName: string; r
     reason: 'You are receiving this because a HagerLand business invited this email address to its team. If you were not expecting it, you can ignore this email.',
   })
 }
+
+/** Jobs Phase 4 (AB's approved wording W21): one email 30 days before a Verified badge ends. */
+export function badgeEndingEmail(p: { date: string; link: string }): RenderedEmail {
+  const body = `To keep the Verified badge, upload your current trade licence in your account. If we don't hear from you, the badge will end on ${p.date}.`
+  return renderEmail({
+    subject: `Your HagerLand Verified badge ends on ${p.date}`,
+    preheader: body,
+    heading: `Your HagerLand Verified badge ends on ${p.date}`,
+    paragraphs: [body],
+    button: { label: 'Keep my badge', href: p.link },
+    reason: LISTER_REASON,
+  })
+}
+
+/** Jobs Phase 4 (AB's approved wording W20): a job paused after a report. Never names the reporter. */
+export function jobPausedEmail(p: { title: string }): RenderedEmail {
+  const subject = 'Your job advert is paused while we check it'
+  const body = `We have paused your job "${p.title}" while we check it. We will be in touch if we need anything from you.`
+  return renderEmail({ subject, preheader: body, heading: subject, paragraphs: [body], reason: EMPLOYER_REASON })
+}

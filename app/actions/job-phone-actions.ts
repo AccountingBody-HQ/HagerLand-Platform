@@ -10,7 +10,8 @@ import { getVertical } from '@/lib/data/verticals'
 import { readJobsSwitches } from '@/lib/jobs-switches'
 import { JOBS_NOT_LIVE } from '@/lib/jobs'
 import { PHONE_MESSAGES, highlightedFields, phoneApplicationSchema, workerRegisterSchema } from '@/lib/jobs-phone'
-import { orgManagerEmails } from '@/lib/enquiries'
+import { hagerlandInbox, orgManagerEmails } from '@/lib/enquiries'
+import { brand } from '@/lib/brand'
 import { sendEmail } from '@/lib/email/send'
 import { newApplicationEmail } from '@/lib/email/templates'
 import { canonicalUrl } from '@/lib/site'
@@ -48,7 +49,7 @@ export async function applyByPhoneAction(_prev: PhoneFormState, formData: FormDa
   if (!(await verifyTurnstileToken(formData.get('cf-turnstile-response') as string | null, ip))) return fail(PHONE_MESSAGES.security)
 
   const db = getAdminSupabase()
-  const { data: job } = await db.from('jobs_public').select('id, title, employer_org_id, employer_name').eq('id', d.job_id).maybeSingle()
+  const { data: job } = await db.from('jobs_public').select('id, title, employer_org_id, employer_name, posted_for').eq('id', d.job_id).maybeSingle()
   if (!job?.id || !job.employer_org_id) return fail(PHONE_MESSAGES.closed)
   const now = new Date().toISOString()
   const { data: row, error } = await db
@@ -63,8 +64,11 @@ export async function applyByPhoneAction(_prev: PhoneFormState, formData: FormDa
   }
   const { count } = await db.from('job_applications').select('id', { count: 'exact', head: true }).eq('job_id', job.id)
   await db.from('job_posts').update({ applications_count: count ?? 0 }).eq('id', job.id)
-  const managers = await orgManagerEmails(job.employer_org_id)
-  if (managers.length) await sendEmail({ to: managers, ...newApplicationEmail({ orgName: job.employer_name ?? 'there', title: job.title ?? '', reference: row.reference, applicantName: d.name, url: canonicalUrl(`/account/jobs/${job.id}`), byPhone: true }) })
+  // Private-client jobs (Jobs Phase 4): the application goes to HagerLand's inbox only, never to the client.
+  const privateClient = job.posted_for === 'private_client'
+  const inbox = privateClient ? await hagerlandInbox('general') : null
+  const managers = privateClient ? (inbox ? [inbox] : []) : await orgManagerEmails(job.employer_org_id)
+  if (managers.length) await sendEmail({ to: managers, ...newApplicationEmail({ orgName: privateClient ? brand.name : (job.employer_name ?? 'there'), title: job.title ?? '', reference: row.reference, applicantName: d.name, url: canonicalUrl(privateClient ? `/roodber8/jobs/${job.id}` : `/account/jobs/${job.id}`), byPhone: true }) })
   return ok({ reference: row.reference })
 }
 

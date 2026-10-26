@@ -60,7 +60,25 @@ const WARNINGS: { pattern: RegExp; text: string }[] = [
   { pattern: /\b(age|aged)\s*(between|under|below|over|above|\d)|\bunder\s+\d{2}\b|\bbelow\s+\d{2}\b|\byears?\s+old\b|እድሜ/i, text: 'Sets an age limit. Check it is lawful (no one under 18; other limits need a reason).' },
   { pattern: /\b(single|unmarried|married)\b|\b(religion|christian|muslim|orthodox|protestant)\b|\b(ethnic|ethnicity|tribe)\b|ብሔር|ሃይማኖት/i, text: 'Mentions marital status, religion or ethnic group. These are not lawful requirements for most jobs.' },
   { pattern: /\b(send|attach)\s+(a\s+)?(photo|picture)\b|\bphoto\s+required\b/i, text: 'Asks for a photo. Check this is needed for the job.' },
+  // Jobs Phase 4: contact details inside the advert pull candidates away from HagerLand (and its safety checks).
+  {
+    pattern: /(\+?251[\s-]?|\b0)[79]\d([\s-]?\d){7}\b|[\w.+-]+@[\w-]+\.[\w.-]+|\b(t\.me|wa\.me|telegram\.me)\/|(^|\s)@[A-Za-z][\w]{3,}|\b(telegram|whatsapp|viber|imo)\b|ቴሌግራም|ዋትስአፕ/i,
+    text: 'Contact details in the advert (phone number, email, Telegram or WhatsApp). Candidates should apply through HagerLand.',
+  },
 ]
+
+/**
+ * Private-client jobs (Jobs Phase 4): signs the text could identify the client. Warnings only: a person decides.
+ */
+const CLIENT_IDENTITY: { pattern: RegExp; text: string }[] = [
+  { pattern: /\b(?:[Mm]rs?|[Mm]s|[Mm]iss|[Dd]r|[Aa]to|[Ww]\/ro|[Ww]e[iy]zero|[Ww]oizero|[Ee]ng(?:ineer)?)\.?\s+[A-Z][a-z]+|አቶ\s|ወ\/ሮ|ዶ\/ር/, text: 'May name a person (a title followed by a name). A private-client job must not identify the client.' },
+  { pattern: /\b(plot|house|villa|block|kebele|woreda|h\.?\s?no)\.?\s*(no\.?|number|#)?\s*\d+|\bቤት\s*ቁጥር|\bቀበሌ\s*\d+/i, text: 'Gives a plot, house or kebele number. Show the city or sub-city only.' },
+]
+
+export function privateClientWarnings(...texts: (string | null | undefined)[]): string[] {
+  const all = texts.filter(Boolean).join('\n')
+  return CLIENT_IDENTITY.filter((w) => w.pattern.test(all)).map((w) => w.text)
+}
 
 export function advertWarnings(...texts: (string | null | undefined)[]): string[] {
   const all = texts.filter(Boolean).join('\n')

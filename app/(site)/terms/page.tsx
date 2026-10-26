@@ -58,6 +58,7 @@ export default async function TermsPage() {
         </TextSection>
         <TextSection title={n('Verification badges')}>
           <p>“Listed”, “Claimed” and “Verified” describe the checks we have made, explained on our <Link href="/how-it-works">How it works</Link> page. A Verified badge means we checked documents on the date shown. It is not a guarantee of the quality of a business’s work.</p>
+          <p>A Verified badge means HagerLand checked the business&apos;s trade licence and tax number on the date shown. Verified badges are checked again every 12 months and can be removed at any time. It is not a guarantee of the business&apos;s work.</p>
         </TextSection>
         <TextSection title={n(`Quotes from ${brand.divisions.supply}`)}>
           <ul>
@@ -85,6 +86,9 @@ export default async function TermsPage() {
         <TextSection title={n('Jobs')}>
           <p>Employers are responsible for their job adverts and for treating applicants fairly and lawfully. Employers must never ask candidates for money. Applicants’ details and CVs may only be used to recruit for the job applied for. When {brand.name} recruits for an employer (a staffing requirement), the service and its fees are agreed with the employer in writing; candidates are never charged.</p>
           {/* Jobs Phase 3 (W row 19): shown only while the owner's recruitment desk switch is on. */}
+          <p>Anyone can report a job; HagerLand reviews reports and may pause or remove a job.</p>
+          {/* Jobs Phase 4 (W27): shown only while the owner's private-client switch is on. */}
+          {jobsSwitches.privateClientPosts && <p>HagerLand may post jobs for private clients, labelled &quot;Posted by HagerLand for a private client&quot;. HagerLand checks these jobs and handles the applications.</p>}
           {jobsSwitches.recruitmentDesk && (
             <p>The fee is either a fixed amount or a percentage of pay, as agreed in writing before work starts. If a person we place leaves within the replacement period in that agreement, we look for a replacement at no extra cost. Employers may use the details of people we introduce only for that requirement.</p>
           )}

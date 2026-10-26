@@ -3,6 +3,7 @@ import { cache } from 'react'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { log } from '@/lib/log'
 import { DESK_SWITCH_KEY, RETENTION_MONTHS_KEY } from '@/lib/jobs-desk'
+import { PRIVATE_CLIENT_SWITCH_KEY, REPORTS_SWITCH_KEY } from '@/lib/job-reports'
 
 /**
  * Jobs Phase 2 owner switches (site_settings, never public; migration 0040 adds them off / dry run). "Apply by phone"
@@ -24,10 +25,14 @@ export interface JobsSwitches {
   recruitmentDesk: boolean
   /** Months hired people's details are kept after the guarantee or last fee entry; null until the lawyer confirms. */
   retentionMonths: number | null
+  /** Jobs Phase 4 (0042): "Report this job" (on by default; off if the setting cannot be read). */
+  reportsEnabled: boolean
+  /** Jobs Phase 4 (0042): jobs HagerLand posts for a private client (starts off until the lawyer confirms). */
+  privateClientPosts: boolean
 }
 
 export const readJobsSwitches = cache(async (): Promise<JobsSwitches> => {
-  const { data, error } = await getAdminSupabase().from('site_settings').select('key, value').in('key', [PHONE_APPLY_KEY, WORKER_REGISTER_KEY, CLEANUP_MODE_KEY, DESK_SWITCH_KEY, RETENTION_MONTHS_KEY])
+  const { data, error } = await getAdminSupabase().from('site_settings').select('key, value').in('key', [PHONE_APPLY_KEY, WORKER_REGISTER_KEY, CLEANUP_MODE_KEY, DESK_SWITCH_KEY, RETENTION_MONTHS_KEY, REPORTS_SWITCH_KEY, PRIVATE_CLIENT_SWITCH_KEY])
   if (error) log.error('jobs', 'switches could not be read', error)
   const value = (key: string) => (error ? undefined : (data ?? []).find((r) => r.key === key)?.value)
   const months = value(RETENTION_MONTHS_KEY)
@@ -37,5 +42,7 @@ export const readJobsSwitches = cache(async (): Promise<JobsSwitches> => {
     cleanupMode: value(CLEANUP_MODE_KEY) === 'live' ? 'live' : 'dry_run',
     recruitmentDesk: value(DESK_SWITCH_KEY) === true,
     retentionMonths: typeof months === 'number' && Number.isInteger(months) && months > 0 ? months : null,
+    reportsEnabled: value(REPORTS_SWITCH_KEY) === true,
+    privateClientPosts: value(PRIVATE_CLIENT_SWITCH_KEY) === true,
   }
 })

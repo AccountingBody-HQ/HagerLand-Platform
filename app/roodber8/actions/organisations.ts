@@ -119,6 +119,10 @@ export async function saveOrgAdminFieldsAction(orgId: string, input: z.infer<typ
   const { data: before } = await db.from('organisations').select('verification_level, trade_licence_number, tin, plan, verified_at, name').eq('id', orgId).maybeSingle()
   if (!before) return fail('Not found.')
   const v = parsed.data
+  // Jobs Phase 4: the badge is given only by recording a check, and taken away with "Revoke badge" (the database also
+  // refuses "verified" without a live record).
+  if (v.verification_level === 'verified' && before.verification_level !== 'verified') return fail('To give the Verified badge, use “Record verification check”.')
+  if (before.verification_level === 'verified' && v.verification_level !== 'verified') return fail('To remove the Verified badge, use “Revoke badge”.')
   const update = {
     verification_level: v.verification_level,
     verified_at: v.verification_level === 'verified' ? before.verified_at ?? new Date().toISOString() : null,
@@ -278,6 +282,9 @@ export async function mergeOrganisationsAction(sourceId: string, targetId: strin
   ])
   if (!source || !target) return fail('Organisation not found.')
   if (source.is_hagerland) return fail('HagerLand organisations cannot be merged.')
+  // Nothing is merged into a HagerLand organisation (its members could read HagerLand's applications).
+  const { data: targetFlags } = await db.from('organisations').select('is_hagerland').eq('id', targetId).maybeSingle()
+  if (targetFlags?.is_hagerland) return fail('Nothing can be merged into a HagerLand organisation.')
   const { data: members } = await db.from('organisation_members').select('user_id, role').eq('org_id', sourceId)
   if (members?.length) await db.from('organisation_members').upsert(members.map((m) => ({ org_id: targetId, user_id: m.user_id, role: m.role })), { onConflict: 'org_id,user_id', ignoreDuplicates: true })
   // Archived first: an archived duplicate may lose its last owner (every live organisation keeps one).

@@ -46,6 +46,8 @@ const ALL: Record<string, () => RenderedEmail> = {
   teamInvitation: () => T.teamInvitationEmail({ orgName: X, inviterName: X, role: 'admin', link: url }),
   recruitmentIntroduction: () => T.recruitmentIntroductionEmail({ reference: X, count: 2, link: url }),
   placementConfirmed: () => T.placementConfirmedEmail({ name: X, role: X, date: '1 November 2026' }),
+  badgeEnding: () => T.badgeEndingEmail({ date: X, link: url }),
+  jobPaused: () => T.jobPausedEmail({ title: X }),
 }
 
 describe('email templates', () => {

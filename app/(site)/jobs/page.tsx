@@ -178,7 +178,7 @@ export default async function JobsPage(props: { searchParams: Promise<Params> })
               <ul className="space-y-3">
                 {items.map((j) => (
                   <li key={j.id}>
-                    <JobCard job={j} />
+                    <JobCard job={j} t={t} />
                   </li>
                 ))}
               </ul>
