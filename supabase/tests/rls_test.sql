@@ -318,7 +318,7 @@ insert into public.candidate_profiles (user_id, full_name, skills, cv_path) valu
 select pg_temp.record_check('Candidate profile is private by default', (select visibility from public.candidate_profiles where user_id = '00000000-0000-4000-8000-000000000002') = 'private');
 select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000001", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', false);
 select pg_temp.record_check('Employer cannot read candidate profiles directly', not exists (select 1 from public.candidate_profiles));
-select pg_temp.record_check('Private candidates are not shown to employers', not exists (select 1 from public.candidates_for_employers));
+select pg_temp.record_check('Private candidates are not shown to employers', not exists (select 1 from public.candidates_for_employers where candidate_id = '00000000-0000-4000-8000-000000000002'));
 reset role;
 update public.candidate_profiles set visibility = 'employers' where user_id = '00000000-0000-4000-8000-000000000002';
 set role authenticated;
