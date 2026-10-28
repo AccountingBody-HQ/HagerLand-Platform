@@ -31,6 +31,8 @@ const LAWYER_POINTS = {
   reports: null,
   private_client: 'The lawyer has confirmed the points listed: anonymous job postings under the recruitment licence, HagerLand named as the hiring organisation (employer-of-record risk), and keeping data outside Ethiopia',
   verification_expiry: 'I understand: every Verified badge without a recorded check (legacy) ends 90 days from today, with a reminder email 30 days before',
+  jobs_amharic: 'Native-speaker review done: Jobs pages, header and footer, and the Ethiopian date format.',
+  callbacks: 'Lawyer has confirmed: calling people who leave their number, the consent wording, data held outside Ethiopia, and the keeping period.',
 } as const
 
 /** Owner: one website switch ("Apply by phone", the worker register or the recruitment desk). Switching on needs the lawyer tick. */

@@ -6,7 +6,7 @@ const AREA = '/roodber8/jobs'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { getAdminSupabase } from '@/lib/supabase/admin'
-import { adminActor, assertAdmin, audit, isOwnerSession } from '@/lib/admin/guard'
+import { adminActor, assertAdmin, assertOwnerOrOperations, audit, isOwnerSession } from '@/lib/admin/guard'
 import { readJobsSwitches } from '@/lib/jobs-switches'
 import { privateClientApproval } from '@/lib/verification'
 import { fail, ok, type ActionResult } from '@/lib/action-result'
@@ -15,6 +15,8 @@ import { sendEmail } from '@/lib/email/send'
 import { jobDecisionEmail } from '@/lib/email/templates'
 import { revalidateEntity } from '@/lib/revalidate'
 import { canonicalUrl } from '@/lib/site'
+import { formatSalary } from '@/lib/jobs'
+import { telegramPostText } from '@/lib/jobs-share'
 
 type Done = ActionResult<{ message: string }>
 
@@ -66,4 +68,25 @@ export async function adminJobStatusAction(id: string, status: 'paused' | 'archi
   revalidateEntity('job', parsed.data.id, ['/jobs'])
   revalidatePath('/roodber8', 'layout')
   return ok({ message: parsed.data.status === 'removed' ? 'Job removed.' : parsed.data.status === 'paused' ? 'Job paused.' : 'Job closed.' })
+}
+
+/**
+ * "Copy for Telegram" (Jobs Phase 5, W16): the text for HagerLand's own Telegram channel for a live job, in English.
+ * Owner and Operations only (Agent and Content are refused here as well as by the role map). Changes nothing.
+ */
+export async function telegramTextAction(id: string): Promise<ActionResult<{ text: string }>> {
+  await assertAdmin(AREA)
+  await assertOwnerOrOperations()
+  if (!z.uuid().safeParse(id).success) return fail('Not found.')
+  const { data: job } = await getAdminSupabase().from('jobs_public').select('slug, title, location_display, posted_for, salary_min_minor, salary_max_minor, currency, salary_period').eq('id', id).maybeSingle()
+  if (!job?.slug) return fail('Only a live job can be shared.')
+  const privateClient = job.posted_for === 'private_client'
+  const text = telegramPostText({
+    title: job.title ?? '',
+    place: job.location_display?.split(', ')[0] ?? '',
+    link: canonicalUrl(`/jobs/${job.slug}`),
+    privateClient,
+    pay: formatSalary(job.salary_min_minor, job.salary_max_minor, job.currency ?? 'ETB', job.salary_period),
+  })
+  return ok({ text })
 }

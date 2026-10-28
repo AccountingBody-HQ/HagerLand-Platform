@@ -26,6 +26,7 @@ import { isStaffingRequest } from '@/lib/jobs-desk-data'
 import { deskDigestCounts, runDeskDaily } from '@/lib/jobs-desk-cron'
 import { runVerificationDaily, verificationDigestCounts, type VerificationDailyCounts } from '@/lib/verification-data'
 import { jobReportDigestCounts } from '@/lib/job-reports-data'
+import { purgeExpiredCallbackBlocks, waitingCallbacks } from '@/lib/callbacks-data'
 
 const DAY = 86_400_000
 const BATCH = 500
@@ -55,6 +56,8 @@ export interface DailySummary {
   placementsMoved: number
   /** Verified badges: reminders sent and badges ended (Jobs Phase 4); null if the step failed. */
   verification: VerificationDailyCounts | null
+  /** Expired wrong-number blocks removed (Jobs Phase 5, always, whatever the deletion mode); null if the step failed. */
+  callbackBlocksRemoved: number | null
   digestSent: boolean
 }
 
@@ -351,6 +354,13 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
   } catch (err) {
     log.error('cron', 'verification digest failed', err)
   }
+  // Jobs Phase 5: call-back requests waiting for a call (failure-isolated).
+  try {
+    const waiting = await waitingCallbacks()
+    if (waiting > 0) lines.push(['Call-back requests waiting', String(waiting)])
+  } catch (err) {
+    log.error('cron', 'call-back digest failed', err)
+  }
   for (const e of errors.data ?? []) lines.push([`Error ×${e.count}`, `${e.route}: ${e.message}`.slice(0, 160)])
   return lines
 }
@@ -392,7 +402,9 @@ export async function runDaily(now = Date.now()): Promise<DailySummary> {
   const placementsMoved = await step('recruitment desk', async () => (await runDeskDaily(now)).moved, 0)
   // Verified badges: one reminder 30 days before, endings on time; legacy badges only if the owner switched it on.
   const verification = await step('verified badges', () => runVerificationDaily(now), null)
-  const summary = { expired, expiredEmailed: emailed, reminded, quotesExpired, verificationDocsPurged, revealsPurged, rateLimitsPurged, matchReminders, searchAlerts, jobsExpired, cvsPurged, emailsRetried, interestPurged, viewingReminders, tenancyReminders, importsCleanup, jobsDataCleanup, placementsMoved, verification }
+  // Call-back requests (F3): expired wrong-number blocks are always removed, in dry run and live alike.
+  const callbackBlocksRemoved = await step('call-back blocks', () => purgeExpiredCallbackBlocks(new Date(now)), null)
+  const summary = { expired, expiredEmailed: emailed, reminded, quotesExpired, verificationDocsPurged, revealsPurged, rateLimitsPurged, matchReminders, searchAlerts, jobsExpired, cvsPurged, emailsRetried, interestPurged, viewingReminders, tenancyReminders, importsCleanup, jobsDataCleanup, placementsMoved, verification, callbackBlocksRemoved }
   let digestSent = false
   const to = process.env.ADMIN_DIGEST_EMAIL
   if (to) {

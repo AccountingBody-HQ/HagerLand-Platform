@@ -9,7 +9,7 @@ import { PhoneInput } from '@/components/ui/PhoneInput'
 import { FormAlert, Honeypot, SubmitButton } from '@/components/forms/FormParts'
 import { Turnstile } from '@/components/forms/Turnstile'
 import { NoResetForm } from '@/components/forms/NoResetForm'
-import { useI18n } from '@/lib/i18n/client'
+import { useJobsI18n } from '@/lib/i18n/client'
 import { TRADES } from '@/lib/jobs'
 import { CONTACT_METHODS, LANGUAGES } from '@/lib/jobs-phone'
 import { ChoiceChips } from './ChoiceChips'
@@ -17,7 +17,7 @@ import { ChoiceChips } from './ChoiceChips'
 /** Apply by phone (Jobs Phase 2): no account or email; both ticks are required (W-A). */
 export function PhoneApplyForm({ jobId }: { jobId: string }) {
   const [state, action] = useActionState<PhoneFormState, FormData>(applyByPhoneAction, null)
-  const { t } = useI18n()
+  const { t } = useJobsI18n()
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
   const bad = (k: string) => k in errors
 

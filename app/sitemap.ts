@@ -133,8 +133,12 @@ async function build(id: SitemapId): Promise<MetadataRoute.Sitemap> {
       const [guides, rates] = await Promise.all([listGuides(), getBuildRates()])
       return [...(guides.length ? [entry('/guides'), ...guides.map((g) => entry(`/guides/${g.slug}`, g.updated_at))] : []), ...(rates.length ? [entry('/build-cost-estimator')] : [])]
     }
-    case 'jobs':
-      return (await jobSitemapEntries()).map((j) => entry(`/jobs/${j.slug}`, j.updated_at))
+    case 'jobs': {
+      const jobs = await jobSitemapEntries()
+      // Jobs Phase 5: the Amharic Jobs pages, only while Amharic for Jobs is on.
+      const amharic = (await getSiteSettings()).jobs_amharic === true ? [entry('/am/jobs', null, 0.5), ...jobs.map((j) => entry(`/am/jobs/${j.slug}`, j.updated_at))] : []
+      return [...jobs.map((j) => entry(`/jobs/${j.slug}`, j.updated_at)), ...amharic]
+    }
     case 'categories': {
       const [{ data }, tree] = await Promise.all([db.from('products_public').select('category_id, category_parent_id').limit(LIMIT), getProductCategories()])
       const used = new Set((data ?? []).flatMap((r) => [r.category_id, r.category_parent_id]).filter(Boolean))

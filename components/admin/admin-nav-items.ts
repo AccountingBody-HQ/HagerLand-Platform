@@ -1,6 +1,6 @@
 /** The admin menu (spec 18.2, 26), in groups. Staff see the items their role may open (lib/admin/roles.ts). */
 import {
-  type LucideIcon, BadgePercent, BarChart3, MailWarning, BookOpen, Calculator, Briefcase, Building2, LayoutGrid, Handshake, UserPlus, Coins, Wrench, ListChecks, Receipt, KeyRound, ClipboardCheck, ClipboardList, FileClock, FolderTree, Gauge, Import, Inbox, ShieldCheck, MapPin, Megaphone, Package, Settings, Store, Users, HandCoins, House, Layers, HardHat, Mail, Star, TrendingUp, Activity, UserCog, Truck, PackageCheck, BookText, FileBarChart,
+  type LucideIcon, BadgePercent, BarChart3, MailWarning, BookOpen, Calculator, Briefcase, Building2, LayoutGrid, Handshake, UserPlus, Coins, Wrench, ListChecks, Receipt, KeyRound, ClipboardCheck, ClipboardList, FileClock, FolderTree, Gauge, Import, Inbox, ShieldCheck, MapPin, Megaphone, Package, Settings, Store, Users, HandCoins, House, Layers, HardHat, Mail, Star, TrendingUp, Activity, UserCog, Truck, PackageCheck, BookText, FileBarChart, PhoneCall,
 } from 'lucide-react'
 import { roleCanAccess, type StaffRole } from '@/lib/admin/roles'
 
@@ -52,6 +52,7 @@ export const ADMIN_NAV_GROUPS: readonly AdminNavGroup[] = [
       { href: '/roodber8/jobs', label: 'Jobs and applications', icon: Briefcase },
       { href: '/roodber8/jobs/desk', label: 'Recruitment desk', icon: Handshake },
       { href: '/roodber8/jobs/register', label: 'Worker register', icon: Users },
+      { href: '/roodber8/jobs/callbacks', label: 'Call-back requests', icon: PhoneCall },
     ],
   },
   {

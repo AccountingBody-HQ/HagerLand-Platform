@@ -211,3 +211,38 @@ npm run test:e2e:build && npm run test:e2e   # browser tests against the local c
 
 **Read-only check after AB applies 0042 on live:** `docs/sql/0042_jobs_phase_4_trust_verify.sql` (every row PASS). 0042 only adds tables, columns with defaults, checks and triggers beside the existing ones and replaces the job list view with every column kept, so the Supabase editor should show no "destructive" warning.
 
+
+## 14. Amharic for Jobs, share links, call-backs (Jobs Phase 5, migration 0043)
+
+**Two new switches** (admin → Jobs → Switches and data deletion, owner only). Both start **Off**. The website notices a change within about a minute.
+- **Amharic for Jobs**, with the tick "Native-speaker review done: Jobs pages, header and footer, and the Ethiopian date format." On: the Jobs pages, the staffing request pages (form, thank-you page, request page) and the Jobs account pages have an Amharic version at `/am/…`, the language switch shows on them, and the jobs sitemap lists `/am/jobs/…`. Only text a native speaker has marked OK shows in Amharic; everything else stays English with the note "Some text on this page is shown in English while we finish the translation." Links to other sections stay English. Dates show the Ethiopian date first with the usual date in brackets. Off: `/am/jobs` answers "page not found", as today. The site-wide setting "Show the Amharic version" (admin → Settings) is separate and works exactly as before.
+- **Call-back requests**, with the tick "Lawyer has confirmed: calling people who leave their number, the consent wording, data held outside Ethiopia, and the keeping period." On: the box "Prefer to talk? Ask us to call you" appears on `/jobs` and on the staffing request page, with the form at `/jobs/call-back`. Off: no box, the form address shows "not found", and the server refuses anything sent.
+- While either Amharic switch is on, /privacy and /terms show one extra line saying the English version applies.
+
+**Getting the Amharic reviewed (step by step).**
+1. On the computer with the project, run `node scripts/i18n-export-review.mjs`. It writes `reports/amharic_review_sheet.csv` (not part of the website code).
+2. Open it in a spreadsheet and send it to the native speaker. Columns: *key* (the English text), *where* (the page or file), *draft (machine-assisted)* (an old machine translation, if there is one; just a starting point), *reviewer text*, *OK*, *notes*. Words in curly brackets, such as `{date}`, must stay exactly as they are in the translation.
+3. The reviewer writes the Amharic in *reviewer text* and puts **yes** in *OK* for each row they are happy with (leave it empty or write no otherwise).
+4. Save the returned sheet as CSV and first run `node scripts/i18n-import-review.mjs <file.csv> --dry-run`: it shows how many rows would be imported and lists any refused rows (unknown text, or the curly-bracket words changed).
+5. Run it again without `--dry-run`. It writes `lib/i18n/messages/am-reviewed.json` (only the rows marked yes). Then run the unit tests and build, and release it on a branch like any other change.
+6. Run the unit tests again: the test "lists the Jobs keys without a reviewed entry" shows how many are still missing. Switch **Amharic for Jobs** on only when that number is 0 and the reviewer has checked the pages, header, footer and the date format. To see the English fallbacks on a page locally: `node scripts/i18n-am-check.mjs http://localhost:3000` (local copy only).
+Emails stay in English for now (their text is on the sheet, ready for later).
+
+**Share links (no switch).** Every live job page has "Share this job" with WhatsApp, Telegram, the phone's own share menu (where the phone has one) and Copy link. The message is "{Job title} in {place}. See the job and apply on HagerLand: {link}" (private-client jobs: "…, posted by HagerLand for a private client. …"). No tracking tags, nothing loaded from other websites.
+
+**Copy for Telegram (Owner and Operations).** On a live job's admin page, *Copy for Telegram* copies "New job: {title} in {place}, {pay}. Apply on HagerLand: {link}" (private-client jobs are masked) for pasting into HagerLand's Telegram channel by hand. The text also appears under the button.
+
+**The call queue** (admin → Jobs → **Call-back requests**, Owner and Operations; Agent and Content are refused). Call people at the time they chose (Addis Ababa time). What to say:
+> Hello, this is HagerLand. Did you ask us to call you about hiring staff? [If no: 'Sorry for the call. We will delete your number.'] We can find and introduce suitable people. Our fee is agreed with you in writing before we start, and candidates never pay anything.
+
+Then record what happened:
+- **Called — turned into a staffing request**: opens the normal staffing request form in a new tab, filled in with the caller's name, phone and what they need. Ask them for their email and the details, send it, and the call-back is closed and linked. The request then goes through the recruitment desk as usual ("Assign to HagerLand's own team").
+- **Called — no further action**.
+- **No answer**: counts a try; the third "No answer" closes the request.
+- **Wrong number / did not ask**: deletes the caller's details at once and blocks the number (kept only in coded form) for 30 days; a new request from that number gets the usual thank-you and is not stored.
+- **Spam**.
+Callers get nothing by email or text, ever. Limits: 3 requests an hour and 10 a day from one connection; one open request per phone number and at most 2 a week (a repeat sees the usual thank-you, nothing new is stored).
+
+**Counts.** The daily digest shows "Call-back requests waiting". The 12-month deletion job (same Dry run / Live switch) counts and later clears "call-back requests": 12 months after the request or the last call, whichever is later (the reference, outcome and dates stay). Expired wrong-number blocks are removed every day whatever the deletion mode (`callbackBlocksRemoved` in the daily job's result).
+
+**Read-only check after AB applies 0043 on live:** `docs/sql/0043_jobs_phase_5_verify.sql` (every row PASS). 0043 only adds two tables, two settings and one key to the public settings list (same two columns), so the Supabase editor should show no "destructive" warning.

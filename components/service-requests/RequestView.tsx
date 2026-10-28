@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { Download, Hourglass, Paperclip } from 'lucide-react'
 import type { RequestView as View } from '@/lib/data/request-view'
 import { CLOSED_REASON_LABEL, URGENCY_LABEL } from '@/lib/service-requests/labels'
-import { customerStatusLabel, requestFormCopy } from '@/lib/service-requests/form-copy'
+import { STAFFING_SLUG, customerStatusLabel, requestFormCopy } from '@/lib/service-requests/form-copy'
 import { formatDate, formatMoney } from '@/lib/format'
 import { Badge } from '@/components/ui/Badge'
 import { EmptyState } from '@/components/ui/Layout'
@@ -10,14 +10,21 @@ import { CancelRequestButton, ChooseQuoteButton } from './RequestActions'
 import { ReviewBox } from './ReviewBox'
 import { IntroducedPeople } from './IntroducedPeople'
 import type { IntroducedPerson } from '@/lib/jobs-desk-data'
-import type { Translate } from '@/lib/i18n/translate'
+import { fill, type Translate } from '@/lib/i18n/translate'
+import type { Locale } from '@/lib/i18n/config'
+import { formatDateFor } from '@/lib/i18n/dates'
 import { EMPLOYER_ABROAD_TEXT } from '@/lib/service-requests/employer-abroad'
 
 /**
  * The customer's page for one request: status, what they asked for, and quotes to compare (spec 24.5). For staffing
  * requests with the recruitment desk switch on, `desk` lists the people introduced (Jobs Phase 3).
  */
-export function RequestView({ r, token, desk = null, t = (s) => s }: { r: View; token?: string; desk?: { count: number; people: IntroducedPerson[] } | null; t?: Translate }) {
+export function RequestView({ r, token, desk = null, t = (s) => s, locale = 'en' }: { r: View; token?: string; desk?: { count: number; people: IntroducedPerson[] } | null; t?: Translate; locale?: Locale }) {
+  // Staffing requests are Jobs pages (Jobs Phase 5): the page passes the Jobs translator and all their text goes through
+  // it. Every other service keeps its text exactly as before.
+  const staffing = r.serviceSlug === STAFFING_SLUG
+  const st: Translate = staffing ? t : (s) => s
+  const dateFor = (d: string) => (staffing ? formatDateFor(d, locale) : formatDate(d))
   const open = ['submitted', 'triaged', 'matched', 'quoted'].includes(r.status)
   const canChoose = ['matched', 'quoted'].includes(r.status)
   // Services HagerLand handles itself (the staffing requirement) talk about the recruitment team, not quotes.
@@ -26,19 +33,19 @@ export function RequestView({ r, token, desk = null, t = (s) => s }: { r: View; 
     <div className="space-y-8">
       <header>
         <p className="text-small text-muted">
-          {r.reference} · sent {formatDate(r.createdAt)}
+          {r.reference} · {fill(st('sent {date}'), { date: dateFor(r.createdAt) })}
         </p>
         <h1 className="hl-h2 mt-1">{r.title}</h1>
         <div className="mt-3 flex flex-wrap gap-2">
-          <Badge tone={open ? 'info' : r.status === 'won' ? 'green' : 'neutral'}>{customerStatusLabel(r.serviceSlug, r.status)}</Badge>
-          {r.urgency === 'emergency' && <Badge tone="danger">Emergency</Badge>}
+          <Badge tone={open ? 'info' : r.status === 'won' ? 'green' : 'neutral'}>{st(customerStatusLabel(r.serviceSlug, r.status))}</Badge>
+          {r.urgency === 'emergency' && <Badge tone="danger">{st('Emergency')}</Badge>}
         </div>
-        {r.closedReason && <p className="mt-2 text-small text-muted">{CLOSED_REASON_LABEL[r.closedReason]}</p>}
+        {r.closedReason && <p className="mt-2 text-small text-muted">{st(CLOSED_REASON_LABEL[r.closedReason])}</p>}
         {desk && <p className="mt-2 text-small">{t('Candidates introduced: {n}').replace('{n}', String(desk.count))}</p>}
         {r.employerAbroad && <p className="mt-2 text-small text-muted">{t(EMPLOYER_ABROAD_TEXT.confirmation)}</p>}
       </header>
 
-      {desk && <IntroducedPeople people={desk.people} t={t} />}
+      {desk && <IntroducedPeople people={desk.people} t={t} locale={locale} />}
 
       {r.chosen && (
         <section aria-labelledby="review-h" className="rounded-lg border border-border bg-white p-5">
@@ -52,17 +59,17 @@ export function RequestView({ r, token, desk = null, t = (s) => s }: { r: View; 
 
       <section aria-labelledby="quotes-h">
         <h2 id="quotes-h" className="hl-h3">
-          {section?.heading ?? 'Quotes'}
+          {section ? st(section.heading) : 'Quotes'}
         </h2>
         {r.quotes.length === 0 ? (
           <EmptyState
             className="mt-4"
             icon={<Hourglass />}
-            title={section ? (open ? section.emptyOpen : section.emptyClosed) : open ? 'No quotes yet' : 'No quotes'}
+            title={section ? st(open ? section.emptyOpen : section.emptyClosed) : open ? 'No quotes yet' : 'No quotes'}
             description={
               open
                 ? section
-                  ? section.text
+                  ? st(section.text)
                   : r.providersReviewing > 0
                   ? `${r.providersReviewing} provider${r.providersReviewing === 1 ? ' is' : 's are'} looking at your request. Quotes appear here and we email you each one.`
                   : 'We are finding suitable providers. Quotes appear here and we email you each one.'
@@ -105,20 +112,20 @@ export function RequestView({ r, token, desk = null, t = (s) => s }: { r: View; 
             ))}
           </ul>
         )}
-        <p className="mt-3 text-small text-muted">Agree the work, price and timing in writing before you pay anything.</p>
+        <p className="mt-3 text-small text-muted">{st('Agree the work, price and timing in writing before you pay anything.')}</p>
       </section>
 
       <section aria-labelledby="ask-h" className="rounded-lg border border-border bg-stone-50 p-4">
         <h2 id="ask-h" className="hl-h3">
-          What you asked for
+          {st('What you asked for')}
         </h2>
         <dl className="mt-3 grid gap-x-6 gap-y-2 text-small sm:grid-cols-2">
           {[
-            ['Service', r.serviceName],
-            ['Where', r.place],
-            ['How soon', URGENCY_LABEL[r.urgency]],
-            ['Budget', r.budgetBand],
-            ...r.answers,
+            [st('Service'), r.serviceName && st(r.serviceName)],
+            [st('Where'), r.place],
+            [st('How soon'), URGENCY_LABEL[r.urgency] && st(URGENCY_LABEL[r.urgency])],
+            [st('Budget'), r.budgetBand],
+            ...r.answers.map(([k, v]): [string, string] => [st(k), st(v)]),
           ]
             .filter((x): x is [string, string] => Boolean(x[1]))
             .map(([k, v]) => (
@@ -131,12 +138,12 @@ export function RequestView({ r, token, desk = null, t = (s) => s }: { r: View; 
         <p className="mt-3 whitespace-pre-line">{r.details}</p>
         {r.attachmentCount > 0 && (
           <p className="mt-3 inline-flex items-center gap-2 text-small text-muted">
-            <Paperclip className="size-4" aria-hidden /> {r.attachmentCount} file{r.attachmentCount === 1 ? '' : 's'} attached
+            <Paperclip className="size-4" aria-hidden /> {staffing ? (r.attachmentCount === 1 ? st('1 file attached') : fill(st('{n} files attached'), { n: r.attachmentCount })) : `${r.attachmentCount} file${r.attachmentCount === 1 ? '' : 's'} attached`}
           </p>
         )}
       </section>
 
-      {open && <CancelRequestButton requestId={r.id} token={token} />}
+      {open && <CancelRequestButton requestId={r.id} token={token} staffing={staffing} />}
     </div>
   )
 }

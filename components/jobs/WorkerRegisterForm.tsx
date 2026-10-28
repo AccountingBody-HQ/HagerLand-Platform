@@ -8,7 +8,7 @@ import { PhoneInput } from '@/components/ui/PhoneInput'
 import { FormAlert, Honeypot, SubmitButton } from '@/components/forms/FormParts'
 import { Turnstile } from '@/components/forms/Turnstile'
 import { NoResetForm } from '@/components/forms/NoResetForm'
-import { useI18n } from '@/lib/i18n/client'
+import { useJobsI18n } from '@/lib/i18n/client'
 import { TRADES } from '@/lib/jobs'
 import { CONTACT_METHODS, LANGUAGES, REGISTER_AVAILABILITY } from '@/lib/jobs-phone'
 import { cn } from '@/lib/cn'
@@ -17,7 +17,7 @@ import { ChoiceChips } from './ChoiceChips'
 /** "Looking for work? Tell us you're available" (Jobs Phase 2, W-B): staff-only register, no account or email. */
 export function WorkerRegisterForm() {
   const [state, action] = useActionState<PhoneFormState, FormData>(joinWorkerRegisterAction, null)
-  const { t } = useI18n()
+  const { t } = useJobsI18n()
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
   const bad = (k: string) => k in errors
 

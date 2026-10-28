@@ -1,27 +1,12 @@
 import { expect, test } from '@playwright/test'
 import { PUBLIC_ROUTES } from './public-routes'
+import { BANNED } from './plain-language-words'
 
 /**
  * Plain customer language on every public page (polish round 1, AB's direction 2.2): the internal strategy words
  * of the operating model never reach visitors, in the visible text, the page title, the search description or the
  * structured data. The admin keeps them (admin → Pillars and modes).
  */
-const BANNED: [string, RegExp][] = [
-  ['ecosystem', /ecosystem/i],
-  ['nucleus', /nucleus/i],
-  ['pillar', /pillar/i],
-  ['vertical', /\bverticals?\b/i],
-  ['cross-cutting', /cross-cutting/i],
-  ['customer/supply layer', /\b(customer|supply) layer\b/i],
-  ['enablers', /\benablers?\b/i],
-  ['property lifecycle', /lifecycle/i],
-  ['mode name: Direct', /\bDirect (mode|provision)\b/i],
-  ['mode name: Aggregate', /\baggregat(e|ion)\b/i],
-  ['mode name: Interest capture', /interest capture/i],
-  ['mode chip: Provided by HagerLand', /provided by hagerland/i],
-  ['mode chip: Trusted partners', /trusted partners/i],
-  ['old support line', /Find it\. Buy it\./],
-]
 
 const EXTRA = ['/finance', '/insurance', '/supplies/special-buys', '/advice/market-insight', '/advice/checklists', '/advice/glossary', '/agency/valuation', '/agency/landlords', '/agency/tenants', '/build/project']
 const ROUTES = Array.from(new Set([...PUBLIC_ROUTES.filter((r) => !r.startsWith('/dev/')), ...EXTRA]))

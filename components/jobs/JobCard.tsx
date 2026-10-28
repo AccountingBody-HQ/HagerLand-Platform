@@ -2,18 +2,20 @@ import Link from 'next/link'
 import { Briefcase, CalendarClock, MapPin } from 'lucide-react'
 import type { JobListItem } from '@/lib/data/jobs'
 import { EMPLOYMENT_TYPES, categoryLabel, formatSalary, labelFor } from '@/lib/jobs'
-import { formatDate, relativeTime } from '@/lib/format'
+import { formatDateFor, relativeTimeFor } from '@/lib/i18n/dates'
+import { fill } from '@/lib/i18n/translate'
+import type { Locale } from '@/lib/i18n/config'
 import { VerificationBadge } from '@/components/company/VerificationBadge'
 import type { Translate } from '@/lib/i18n/translate'
 
 /** One vacancy in the job board (spec 24.9). */
-export function JobCard({ job, t = (s) => s }: { job: JobListItem; t?: Translate }) {
-  const salary = formatSalary(job.salary_min_minor, job.salary_max_minor, job.currency ?? 'ETB', job.salary_period)
+export function JobCard({ job, t = (s) => s, locale = 'en', href = (h) => h }: { job: JobListItem; t?: Translate; locale?: Locale; href?: (h: string) => string }) {
+  const salary = formatSalary(job.salary_min_minor, job.salary_max_minor, job.currency ?? 'ETB', job.salary_period, t)
   return (
     <article className="relative rounded-lg border border-border bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
-      <p className="text-small font-semibold text-green">{categoryLabel(job.category)}</p>
+      <p className="text-small font-semibold text-green">{t(categoryLabel(job.category))}</p>
       <h3 className="mt-1 font-sans text-[1.0625rem] font-semibold text-ink">
-        <Link href={`/jobs/${job.slug}`} className="after:absolute after:inset-0">
+        <Link href={href(`/jobs/${job.slug}`)} className="after:absolute after:inset-0">
           {job.title}
         </Link>
       </h3>
@@ -26,16 +28,16 @@ export function JobCard({ job, t = (s) => s }: { job: JobListItem; t?: Translate
           <MapPin className="size-4" aria-hidden /> {job.location_display}
         </li>
         <li className="inline-flex items-center gap-1.5">
-          <Briefcase className="size-4" aria-hidden /> {labelFor(EMPLOYMENT_TYPES, job.employment_type)}
+          <Briefcase className="size-4" aria-hidden /> {t(labelFor(EMPLOYMENT_TYPES, job.employment_type))}
         </li>
         {job.closing_date && (
           <li className="inline-flex items-center gap-1.5">
-            <CalendarClock className="size-4" aria-hidden /> Closes {formatDate(job.closing_date)}
+            <CalendarClock className="size-4" aria-hidden /> {fill(t('Closes {date}'), { date: formatDateFor(job.closing_date, locale) })}
           </li>
         )}
       </ul>
       {salary && <p className="mt-3 font-semibold text-ink">{salary}</p>}
-      <p className="mt-2 text-caption text-muted">Posted {relativeTime(job.published_at)}</p>
+      <p className="mt-2 text-caption text-muted">{fill(t('Posted {when}'), { when: relativeTimeFor(job.published_at, locale, t) })}</p>
     </article>
   )
 }

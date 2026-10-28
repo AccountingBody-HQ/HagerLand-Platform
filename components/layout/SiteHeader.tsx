@@ -143,7 +143,7 @@ function MegaPanel({ group, onNavigate }: { group: NavGroup; onNavigate: () => v
 
 export function SiteHeader({ nav: siteNav, amharicOn = false }: { nav: SiteNav; amharicOn?: boolean }) {
   const pathname = usePathname()
-  const { t, locale, href } = useI18n()
+  const { t, locale, scope, href } = useI18n()
   const [openId, setOpenId] = useState<string | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
@@ -156,10 +156,10 @@ export function SiteHeader({ nav: siteNav, amharicOn = false }: { nav: SiteNav; 
   }, [drawerOpen, searchOpen])
   const closeTimer = useRef<number | null>(null)
   const headerRef = useRef<HTMLElement>(null)
-  const nav = localizeGroups(siteNav.main, t, locale)
-  const listWithUs = siteNav.listWithUs.map((l) => localizeLink(l, t, locale))
-  const all: AllServices = localizeAllServices(siteNav.all, t, locale)
-  const abroad = siteNav.abroad ? localizeLink(siteNav.abroad, t, locale) : null
+  const nav = localizeGroups(siteNav.main, t, locale, scope)
+  const listWithUs = siteNav.listWithUs.map((l) => localizeLink(l, t, locale, scope))
+  const all: AllServices = localizeAllServices(siteNav.all, t, locale, scope)
+  const abroad = siteNav.abroad ? localizeLink(siteNav.abroad, t, locale, scope) : null
 
   useEffect(() => {
     setOpenId(null)

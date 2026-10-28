@@ -9,8 +9,8 @@ import { verticalForPath } from '@/lib/verticals'
 import { mapTileOrigin } from '@/lib/map-config'
 import { isIndexableVertical, pillarStatusesEdge, verticalStatusesEdge } from '@/lib/vertical-status-edge'
 import { isPillarKey } from '@/lib/pillars'
-import { AM_PREFIX, LOCALE_HEADER, isAmharicPath, isPrefixable, stripLocale } from '@/lib/i18n/config'
-import { amharicEnabledEdge } from '@/lib/i18n/edge'
+import { AM_PREFIX, AM_SCOPE_HEADER, JOBS_AM_HEADER, LOCALE_HEADER, isAmharicPath, isJobsAmPath, isPrefixable, stripLocale } from '@/lib/i18n/config'
+import { amharicSwitchesEdge } from '@/lib/i18n/edge'
 import { canonicalUrl } from '@/lib/site'
 import { isLegacyApi } from '@/lib/legacy-api'
 import { RETURN_PATH_HEADER } from '@/lib/return-path'
@@ -86,13 +86,21 @@ export async function middleware(request: NextRequest) {
   // Language (spec 25.2m): "/am/…" serves the same page in Amharic, only while Amharic is switched on.
   // The language header can only come from here: anything a visitor sends is replaced.
   const amharic = isAmharicPath(pathname)
-  const amharicOn = await amharicEnabledEdge()
+  const switches = await amharicSwitchesEdge()
+  const amharicOn = switches.site
   const page = amharic ? stripLocale(pathname) : pathname
-  if (amharic && (!amharicOn || !isPrefixable(page) || page === '/roodber8-login')) {
+  // Jobs Phase 5: Amharic for Jobs serves the Jobs pages in Amharic (reviewed text only), even while the site-wide
+  // switch is off. It takes precedence on those pages; everything else keeps the site-wide behaviour.
+  const jobsAm = switches.jobs && isPrefixable(page) && isJobsAmPath(`${page}${request.nextUrl.search}`)
+  if (amharic && ((!amharicOn && !jobsAm) || !isPrefixable(page) || page === '/roodber8-login')) {
     return withSecurityHeaders(NextResponse.rewrite(new URL('/__language-not-available', request.url)))
   }
   const requestHeaders = new Headers(request.headers)
   requestHeaders.delete(LOCALE_HEADER)
+  requestHeaders.delete(AM_SCOPE_HEADER)
+  requestHeaders.delete(JOBS_AM_HEADER)
+  if (jobsAm) requestHeaders.set(JOBS_AM_HEADER, '1')
+  if (amharic) requestHeaders.set(AM_SCOPE_HEADER, jobsAm ? 'jobs' : 'site')
   requestHeaders.delete(ADMIN_PATH_HEADER)
   requestHeaders.delete(RETURN_PATH_HEADER)
   if (amharic) requestHeaders.set(LOCALE_HEADER, 'am')
@@ -107,7 +115,7 @@ export async function middleware(request: NextRequest) {
   const response = await refreshSession(request, make)
   if (amharic) response.headers.set('Content-Language', 'am')
   // hreflang alternates for public pages while both languages exist.
-  if (amharicOn && isPrefixable(page) && !page.startsWith('/account') && request.method === 'GET') {
+  if ((amharicOn || jobsAm) && isPrefixable(page) && !page.startsWith('/account') && request.method === 'GET') {
     const en = canonicalUrl(page)
     const am = canonicalUrl(page === '/' ? AM_PREFIX : `${AM_PREFIX}${page}`)
     response.headers.set('Link', `<${en}>; rel="alternate"; hreflang="en", <${am}>; rel="alternate"; hreflang="am", <${en}>; rel="alternate"; hreflang="x-default"`)

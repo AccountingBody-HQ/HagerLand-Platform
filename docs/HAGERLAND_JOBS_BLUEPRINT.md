@@ -277,9 +277,11 @@ Each phase is small, keeps the public look (navy hero with blueprint grid, white
 - **Risks**: labelling (integrity rule); payments (if chosen) need VAT advice.
 - **Tests**: labels; report flow; paid post labelling.
 
-### Phase 5: Amharic, Telegram and WhatsApp (no migration expected)
-- **Scope**: jobs pages, forms and job emails through `t()`; WhatsApp and Telegram share buttons on jobs; a HagerLand Telegram channel feed of new jobs (manual first; a bot only if AB approves a new integration); call-back requests.
-- **Risks**: translation quality (reviewed Amharic); any new integration needs AB.
+### Phase 5: Amharic for Jobs, share links, call-back requests (migration 0043)
+- **Status (28 Oct 2026): built, awaiting migration** (branch `jobs/phase-5-amharic-share-callbacks`; migration 0043 applied to the local copy only; AB applies it on live, verify `docs/sql/0043_jobs_phase_5_verify.sql`). Built from the J5-0 review with AB's fixes F1–F3, the C2 defaults and approved wording W1–W21. How-to: `docs/RUNBOOK.md` section 14.
+- **Built**: (1) every Jobs page, form, action message and the staffing request journey through `t()`, English unchanged (tested against a recording of the pages before the change); Jobs email texts are keys on the review sheet but still sent in English. (2) Native-reviewed Amharic only (F1): `lib/i18n/messages/am-reviewed.json`, written only by the import script; no Amharic was written in this phase; tests use a test-only fixture. (3) Owner switch **Amharic for Jobs** (Off): `/am` Jobs pages, own canonical and `og:locale am_ET`, hreflang, `/am` entries in the jobs sitemap, Ethiopian date first, the W2 note while anything falls back to English; the site-wide Amharic switch behaves as before. (4) Share buttons on live job pages (WhatsApp, Telegram, the phone's share menu, Copy link; no tracking). (5) Admin **Copy for Telegram** (Owner and Operations). (6) Owner switch **Call-back requests** (Off): box on `/jobs` and the staffing page, form at `/jobs/call-back`, staff queue with outcomes, the wrong-number block list (coded numbers, 30 days, removed daily whatever the deletion mode, F3), digest line, 12-month deletion kind "call-back requests". No email or SMS.
+- **Switches and who each waits for**: Amharic for Jobs waits for the native speaker's review of the Jobs pages, header and footer and the Ethiopian date format; Call-back requests waits for the lawyer (calling people who leave their number, the consent wording, data held outside Ethiopia, the keeping period).
+- **Later**: Afaan Oromo and Tigrinya (structure ready), Amharic emails, translating /privacy and /terms, a Telegram bot (needs AB: no paid services).
 
 ### Phase 6: insights and links (no migration expected)
 - **Scope**: jobs demand (trades asked for, areas, time to fill), recruitment report and CSV (owner, no personal data), company pages show open jobs, building projects suggest hiring help, links with Supplies (Section 10).

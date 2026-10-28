@@ -1,5 +1,6 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
 import { headers } from 'next/headers'
 import { z } from 'zod'
 import { getAdminSupabase } from '@/lib/supabase/admin'
@@ -12,7 +13,7 @@ import { emailSchema, nameSchema, optionalText, optionalUuid, phoneSchema, prefe
 import { COUNTRY_CODES } from '@/lib/countries'
 import { getRequestableCategory } from '@/lib/data/service-requests'
 import { answerLines, validateAnswers } from '@/lib/service-requests/questions'
-import { PAY_OFFERED_MAX, askedQuestions, detailsWithPay, requestFormCopy } from '@/lib/service-requests/form-copy'
+import { PAY_OFFERED_MAX, STAFFING_SLUG, askedQuestions, detailsWithPay, requestFormCopy } from '@/lib/service-requests/form-copy'
 import { GUEST_LINK_DAYS, URGENCY_LABEL, isQuoteExpired } from '@/lib/service-requests/labels'
 import { hashRequestToken, isWellFormedToken, linkDaysLeft, newRequestToken } from '@/lib/service-requests/token'
 import { EMPLOYER_ABROAD_TEXT, employerAbroadAnswers, employerAbroadLines, parseEmployerAbroad } from '@/lib/service-requests/employer-abroad'
@@ -23,6 +24,10 @@ import { canonicalUrl } from '@/lib/site'
 import { formatPhone } from '@/lib/format'
 import { parseUtm } from '@/lib/utm'
 import { log } from '@/lib/log'
+import { getJobsI18n } from '@/lib/i18n/server'
+import { adminActor, audit, isOwnerOrOperationsSession } from '@/lib/admin/guard'
+import { linkCallbackToRequest } from '@/lib/callbacks-data'
+import { translateResult } from '@/lib/i18n/translate'
 
 export type RequestState = ActionResult<{ reference: string }> | null
 
@@ -49,7 +54,7 @@ const schema = z
   .refine((d) => d.location_id || d.location_text, { message: 'Tell us where the work is', path: ['location_id'] })
 
 /** "Request a service" (spec 24.5): validates, stores, emails the customer a link, tells HagerLand. */
-export async function submitServiceRequestAction(_prev: RequestState, formData: FormData): Promise<RequestState> {
+async function submitServiceRequestActionImpl(_prev: RequestState, formData: FormData): Promise<RequestState> {
   if (isHoneypotFilled(formData)) return ok({ reference: 'HLS-0' })
   const raw: Record<string, unknown> = Object.fromEntries(formData)
   for (const k of Array.from(new Set(Array.from(formData.keys())))) if (k.startsWith('q_')) raw[k] = formData.getAll(k)
@@ -253,4 +258,18 @@ export async function submitReviewAction(input: { request_id: string; token?: st
   const to = Array.from(new Set([await hagerlandInbox('general'), process.env.ADMIN_DIGEST_EMAIL].filter((x): x is string => Boolean(x))))
   if (to.length) await sendEmail({ to, ...adminNoticeEmail({ subject: `Review to moderate (${r.reference})`, heading: 'A customer reviewed a provider', lines: [['Request', r.reference], ['Rating', `${parsed.data.rating} of 5`]], adminUrl: canonicalUrl('/roodber8/reviews') }) })
   return ok({ message: 'Thank you. Your review will appear once our team has checked it.' })
+}
+
+// Jobs Phase 5: the messages in the visitor's language (Amharic for Jobs: only native-reviewed text; English unchanged).
+export async function submitServiceRequestAction(_prev: RequestState, formData: FormData): Promise<RequestState> {
+  const result = await submitServiceRequestActionImpl(_prev, formData)
+  if (formData.get('category_slug') !== STAFFING_SLUG) return result
+  // A staffing request staff sent for a call-back (Jobs Phase 5): close the call-back and link the request.
+  const callbackId = String(formData.get('callback_id') ?? '')
+  if (result?.ok && /^[0-9a-f-]{36}$/.test(callbackId) && (await isOwnerOrOperationsSession())) {
+    const actor = await adminActor()
+    if (await linkCallbackToRequest(callbackId, result.data.reference, actor)) revalidatePath('/roodber8/jobs/callbacks')
+    await audit('callback.staffing_request', { type: 'callback', id: callbackId }, { reference: result.data.reference })
+  }
+  return translateResult(result, (await getJobsI18n()).t)
 }

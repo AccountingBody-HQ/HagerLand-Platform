@@ -22,6 +22,8 @@ import { shortId, slugify } from '@/lib/slug'
 import { log } from '@/lib/log'
 import { withUniqueRetry } from '@/lib/unique-retry'
 import { trackServer } from '@/lib/analytics-server'
+import { getJobsI18n } from '@/lib/i18n/server'
+import { translateResult } from '@/lib/i18n/translate'
 
 async function jobsLive(): Promise<boolean> {
   return (await getVertical('jobs'))?.status === 'live'
@@ -30,7 +32,7 @@ async function jobsLive(): Promise<boolean> {
 export type JobState = ActionResult<{ id: string }> | null
 
 /** Employers create or edit a job; "submit" sends it to HagerLand for review (spec 24.9). Live jobs are paused before editing. */
-export async function saveJobAction(_prev: JobState, formData: FormData): Promise<JobState> {
+async function saveJobActionImpl(_prev: JobState, formData: FormData): Promise<JobState> {
   await requireUser('/account/jobs')
   if (!(await jobsLive())) return fail(NOT_LIVE)
   const active = await getActiveMembership()
@@ -70,11 +72,11 @@ export async function saveJobAction(_prev: JobState, formData: FormData): Promis
     }
   }
   revalidatePath('/account/jobs')
-  redirect(`/account/jobs/${id}?${submit ? 'submitted' : 'saved'}=1`)
+  redirect((await getJobsI18n()).href(`/account/jobs/${id}?${submit ? 'submitted' : 'saved'}=1`))
 }
 
 /** Pause, close (archive) or resubmit a job. */
-export async function setJobStatusAction(id: string, status: 'paused' | 'archived' | 'pending_review'): Promise<ActionResult<{ message: string }>> {
+async function setJobStatusActionImpl(id: string, status: 'paused' | 'archived' | 'pending_review'): Promise<ActionResult<{ message: string }>> {
   await requireUser('/account/jobs')
   const parsed = z.object({ id: z.uuid(), status: z.enum(['paused', 'archived', 'pending_review']) }).safeParse({ id, status })
   if (!parsed.success) return fail('Invalid request.')
@@ -88,7 +90,7 @@ export async function setJobStatusAction(id: string, status: 'paused' | 'archive
 export type ApplyState = ActionResult<{ reference: string }> | null
 
 /** A signed-in candidate applies with a CV (PDF or Word) and a cover note (spec 24.9). */
-export async function applyForJobAction(_prev: ApplyState, formData: FormData): Promise<ApplyState> {
+async function applyForJobActionImpl(_prev: ApplyState, formData: FormData): Promise<ApplyState> {
   const user = await requireUser('/jobs')
   if (!(await jobsLive())) return fail(NOT_LIVE)
   const parsed = applicationSchema.safeParse(Object.fromEntries(formData))
@@ -122,11 +124,11 @@ export async function applyForJobAction(_prev: ApplyState, formData: FormData): 
     sendEmail({ to: d.email, ...applicationReceivedEmail({ name: d.name.split(' ')[0], title: job.title ?? '', employer: privateClient ? brand.name : (job.employer_name ?? ''), reference: row.reference }) }),
   ])
   await trackServer('job_application_submitted')
-  redirect(`/account/applications?applied=${row.reference}`)
+  redirect((await getJobsI18n()).href(`/account/applications?applied=${row.reference}`))
 }
 
 /** Candidates withdraw their own application. */
-export async function withdrawApplicationAction(id: string): Promise<ActionResult<{ message: string }>> {
+async function withdrawApplicationActionImpl(id: string): Promise<ActionResult<{ message: string }>> {
   const user = await requireUser('/account/applications')
   if (!z.uuid().safeParse(id).success) return fail('Invalid application.')
   const { data, error } = await getAdminSupabase()
@@ -143,7 +145,7 @@ export async function withdrawApplicationAction(id: string): Promise<ActionResul
 }
 
 /** Employers move an application on (viewed, shortlisted, not progressing, hired) and keep private notes. */
-export async function updateApplicationAction(_prev: ActionResult<{ message: string }> | null, formData: FormData): Promise<ActionResult<{ message: string }>> {
+async function updateApplicationActionImpl(_prev: ActionResult<{ message: string }> | null, formData: FormData): Promise<ActionResult<{ message: string }>> {
   await requireUser('/account/jobs')
   const parsed = z
     .object({ id: z.uuid(), status: z.enum(EMPLOYER_APPLICATION_STATUSES), employer_notes: z.string().max(2000).transform((v) => v.trim() || null) })
@@ -162,7 +164,7 @@ export async function updateApplicationAction(_prev: ActionResult<{ message: str
 }
 
 /** Candidate profile: private by default; the candidate chooses whether employers can find it (spec 24.9). */
-export async function saveCandidateProfileAction(_prev: ActionResult<{ message: string }> | null, formData: FormData): Promise<ActionResult<{ message: string }>> {
+async function saveCandidateProfileActionImpl(_prev: ActionResult<{ message: string }> | null, formData: FormData): Promise<ActionResult<{ message: string }>> {
   const user = await requireUser('/account/candidate')
   if (!(await jobsLive())) return fail(NOT_LIVE)
   const parsed = candidateSchema.safeParse(Object.fromEntries(formData))
@@ -197,7 +199,7 @@ export async function saveCandidateProfileAction(_prev: ActionResult<{ message: 
 }
 
 /** Deletes the profile and its CV (CVs sent with applications stay with those applications until they are purged). */
-export async function deleteCandidateProfileAction(): Promise<ActionResult<{ message: string }>> {
+async function deleteCandidateProfileActionImpl(): Promise<ActionResult<{ message: string }>> {
   const user = await requireUser('/account/candidate')
   const supabase = getServerSupabase()
   const { data } = await supabase.from('candidate_profiles').select('cv_path').eq('user_id', user.id).maybeSingle()
@@ -214,3 +216,31 @@ async function removeUnusedCv(path: string, userId: string): Promise<void> {
   if (!count) await deletePrivateFiles([path])
 }
 
+// Jobs Phase 5: the messages in the visitor's language (Amharic for Jobs: only native-reviewed text; English unchanged).
+export async function saveJobAction(_prev: JobState, formData: FormData): Promise<JobState> {
+  return translateResult(await saveJobActionImpl(_prev, formData), (await getJobsI18n()).t)
+}
+
+export async function setJobStatusAction(id: string, status: 'paused' | 'archived' | 'pending_review'): Promise<ActionResult<{ message: string }>> {
+  return translateResult(await setJobStatusActionImpl(id, status), (await getJobsI18n()).t)
+}
+
+export async function applyForJobAction(_prev: ApplyState, formData: FormData): Promise<ApplyState> {
+  return translateResult(await applyForJobActionImpl(_prev, formData), (await getJobsI18n()).t)
+}
+
+export async function withdrawApplicationAction(id: string): Promise<ActionResult<{ message: string }>> {
+  return translateResult(await withdrawApplicationActionImpl(id), (await getJobsI18n()).t)
+}
+
+export async function updateApplicationAction(_prev: ActionResult<{ message: string }> | null, formData: FormData): Promise<ActionResult<{ message: string }>> {
+  return translateResult(await updateApplicationActionImpl(_prev, formData), (await getJobsI18n()).t)
+}
+
+export async function saveCandidateProfileAction(_prev: ActionResult<{ message: string }> | null, formData: FormData): Promise<ActionResult<{ message: string }>> {
+  return translateResult(await saveCandidateProfileActionImpl(_prev, formData), (await getJobsI18n()).t)
+}
+
+export async function deleteCandidateProfileAction(): Promise<ActionResult<{ message: string }>> {
+  return translateResult(await deleteCandidateProfileActionImpl(), (await getJobsI18n()).t)
+}
