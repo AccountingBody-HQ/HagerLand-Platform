@@ -2,7 +2,7 @@ import 'server-only'
 // Supply Phase 4 (admin): reads for orders and the ledger. Owner-only figures (customer prices, margins, commission,
 // ledger, agreements) are only loaded when `owner` is true, so they never reach Operations, even in page data.
 import { getAdminSupabase } from '@/lib/supabase/admin'
-import { inChunks } from '@/lib/admin/in-chunks'
+import { readAll, readAllIn, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import { privateFileLink } from './private-files'
 import { commissionDueCents, customerNetPaid, customerTotalCents, hagerlandEarned, needsAction, summariseLedger, supplierTotalCents, type LedgerSummary, type MoneyModel, type OrderStatus } from './money'
 
@@ -22,19 +22,21 @@ export interface OrderListRow {
 
 export async function listOrders(f: { status?: string; model?: string; orgId?: string; action?: boolean; quoteId?: string }): Promise<OrderListRow[]> {
   const db = getAdminSupabase()
-  let q = db
-    .from('supply_orders')
-    .select('id, reference, quote_request_id, org_id, money_model, status, status_changed_at, created_at, updated_at, quote:quote_requests(reference), org:organisations(name)')
-    .order('created_at', { ascending: false })
-    .limit(1000)
-  if (f.status) q = q.eq('status', f.status)
-  if (f.model) q = q.eq('money_model', f.model)
-  if (f.orgId) q = q.eq('org_id', f.orgId)
-  if (f.quoteId) q = q.eq('quote_request_id', f.quoteId)
-  const { data } = await q
+  // Fix F-1: every order, page by page (the "needs action" filter below must see them all).
+  const { data } = await readAll(() => {
+    let q = db
+      .from('supply_orders')
+      .select('id, reference, quote_request_id, org_id, money_model, status, status_changed_at, created_at, updated_at, quote:quote_requests(reference), org:organisations(name)')
+      .order('created_at', { ascending: false })
+    if (f.status) q = q.eq('status', f.status)
+    if (f.model) q = q.eq('money_model', f.model)
+    if (f.orgId) q = q.eq('org_id', f.orgId)
+    if (f.quoteId) q = q.eq('quote_request_id', f.quoteId)
+    return q
+  }, { maxRows: REPORT_MAX_ROWS })
   const ids = (data ?? []).map((o) => o.id)
   // Tidy T-2 (T2-15): read in parts of 50, with the failure rule (an error, never a list without proofs).
-  const proofs = await inChunks(ids, (part) => db.from('supply_delivery_proofs').select('order_id').in('order_id', part).is('removed_at', null))
+  const { data: proofs } = await readAllIn(ids, (part) => db.from('supply_delivery_proofs').select('order_id').in('order_id', part).is('removed_at', null), { maxRows: REPORT_MAX_ROWS })
   const withProof = new Set(proofs.map((p) => p.order_id))
   const rows = (data ?? []).map((o) => ({
     id: o.id,
@@ -242,18 +244,19 @@ export function ledgerFilters(sp: Record<string, string | undefined>): LedgerFil
 /** Owner only: call this from owner-only pages and routes. */
 export async function ledgerEntries(f: LedgerFilters): Promise<LedgerEntryRow[]> {
   const db = getAdminSupabase()
-  let q = db
-    .from('supply_ledger_entries')
-    .select('*, order:supply_orders(reference), org:organisations(name)')
-    .order('occurred_on', { ascending: false })
-    .order('created_at', { ascending: false })
-    .limit(5000)
-  if (f.from) q = q.gte('occurred_on', f.from)
-  if (f.to) q = q.lte('occurred_on', f.to)
-  if (f.orgId) q = q.eq('org_id', f.orgId)
-  if (f.type) q = q.eq('entry_type', f.type)
-  const { data } = await q
-  const { data: reversals } = await db.from('supply_ledger_entries').select('reverses_entry_id').not('reverses_entry_id', 'is', null).limit(10000)
+  const { data } = await readAll(() => {
+    let q = db
+      .from('supply_ledger_entries')
+      .select('*, order:supply_orders(reference), org:organisations(name)')
+      .order('occurred_on', { ascending: false })
+      .order('created_at', { ascending: false })
+    if (f.from) q = q.gte('occurred_on', f.from)
+    if (f.to) q = q.lte('occurred_on', f.to)
+    if (f.orgId) q = q.eq('org_id', f.orgId)
+    if (f.type) q = q.eq('entry_type', f.type)
+    return q
+  }, { maxRows: REPORT_MAX_ROWS })
+  const { data: reversals } = await readAll(() => db.from('supply_ledger_entries').select('reverses_entry_id').not('reverses_entry_id', 'is', null), { maxRows: REPORT_MAX_ROWS })
   const reversed = new Set((reversals ?? []).map((r) => r.reverses_entry_id))
   const rows = (data ?? []).map((e) => ({
     id: e.id,
@@ -284,9 +287,9 @@ export async function orderSummaries(orderIds: string[]): Promise<{ id: string; 
   if (!orderIds.length) return []
   const db = getAdminSupabase()
   // Tidy T-2 (T2-15): read in parts of 50, with the failure rule (an error, never an empty ledger).
-  const [orders, entries] = await Promise.all([
-    inChunks(orderIds, (part) => db.from('supply_orders').select('id, reference, money_model, status, org:organisations(name)').in('id', part)),
-    inChunks(orderIds, (part) => db.from('supply_ledger_entries').select('id, entry_type, direction, amount_cents, reverses_entry_id, order_id').in('order_id', part)),
+  const [{ data: orders }, { data: entries }] = await Promise.all([
+    readAllIn(orderIds, (part) => db.from('supply_orders').select('id, reference, money_model, status, org:organisations(name)').in('id', part), { maxRows: REPORT_MAX_ROWS }),
+    readAllIn(orderIds, (part) => db.from('supply_ledger_entries').select('id, entry_type, direction, amount_cents, reverses_entry_id, order_id').in('order_id', part), { maxRows: REPORT_MAX_ROWS }),
   ])
   return orders
     .map((o) => {

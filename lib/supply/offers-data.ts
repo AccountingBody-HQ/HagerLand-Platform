@@ -2,8 +2,7 @@ import 'server-only'
 // Supplier offers (admin): reads for the Offers page, partner counts and the expiring list. Service role only: the
 // table has no grants, so nothing here is reachable by visitors, customers or suppliers.
 import { getAdminSupabase } from '@/lib/supabase/admin'
-import { inChunks } from '@/lib/admin/in-chunks'
-import { must } from '@/lib/admin/must'
+import { readAll, readAllIn, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import type { Database } from '@/lib/database.types'
 import { addDays } from './offers'
 
@@ -23,9 +22,9 @@ export function today(): string {
 
 /** Current prices per partner: total, expiring within 7 days (not yet expired) and already expired. */
 export async function offerCounts(orgIds?: string[]): Promise<Map<string, OfferCounts>> {
-  const base = () => getAdminSupabase().from('supplier_offers').select('org_id, valid_until').eq('status', 'current').limit(50_000)
-  // Tidy T-2 (T2-15): a long list of partners is read in parts of 50, with the failure rule.
-  const data = orgIds ? await inChunks(orgIds, (part) => base().in('org_id', part)) : must(await base()).data
+  const base = () => getAdminSupabase().from('supplier_offers').select('org_id, valid_until').eq('status', 'current')
+  // Tidy T-2 (T2-15): a long list of partners is read in parts of 50, with the failure rule (Fix F-1: page by page).
+  const { data } = orgIds ? await readAllIn(orgIds, (part) => base().in('org_id', part), { maxRows: REPORT_MAX_ROWS }) : await readAll(base, { maxRows: REPORT_MAX_ROWS })
   const now = today()
   const soon = addDays(now, EXPIRING_DAYS)
   const out = new Map<string, OfferCounts>()
@@ -41,13 +40,16 @@ export async function offerCounts(orgIds?: string[]): Promise<Map<string, OfferC
 
 /** Every offer of a partner (current first), with category and product names, for the Offers page and history. */
 export async function partnerOffers(orgId: string): Promise<(OfferRow & { category_name: string | null; product_name: string | null })[]> {
-  const { data } = await getAdminSupabase()
-    .from('supplier_offers')
-    .select('*, category:product_categories(name), product:products(name)')
-    .eq('org_id', orgId)
-    .order('price_date', { ascending: false })
-    .order('captured_at', { ascending: false })
-    .limit(2000)
+  const { data } = await readAll(
+    () =>
+      getAdminSupabase()
+        .from('supplier_offers')
+        .select('*, category:product_categories(name), product:products(name)')
+        .eq('org_id', orgId)
+        .order('price_date', { ascending: false })
+        .order('captured_at', { ascending: false }),
+    { maxRows: REPORT_MAX_ROWS },
+  )
   return (data ?? []).map(({ category, product, ...r }) => ({
     ...r,
     category_name: (category as { name: string } | null)?.name ?? null,
@@ -69,18 +71,21 @@ export interface ExpiringRow {
 /** Current prices that expire within 7 days or have already expired, with whom to call (never a do-not-contact person). */
 export async function expiringOffers(): Promise<ExpiringRow[]> {
   const db = getAdminSupabase()
-  const { data } = await db
-    .from('supplier_offers')
-    .select('id, org_id, item_name, unit, price_etb_cents, valid_until, product:products(name), org:organisations(name)')
-    .eq('status', 'current')
-    .lte('valid_until', addDays(today(), EXPIRING_DAYS))
-    .order('valid_until')
-    .limit(2000)
+  const { data } = await readAll(
+    () =>
+      db
+        .from('supplier_offers')
+        .select('id, org_id, item_name, unit, price_etb_cents, valid_until, product:products(name), org:organisations(name)')
+        .eq('status', 'current')
+        .lte('valid_until', addDays(today(), EXPIRING_DAYS))
+        .order('valid_until'),
+    { maxRows: REPORT_MAX_ROWS },
+  )
   const orgIds = Array.from(new Set((data ?? []).map((r) => r.org_id)))
   // Tidy T-2 (T2-15): in parts of 50 (one partner's contacts stay together, in date order), with the failure rule.
-  const [contacts, partners] = await Promise.all([
-    inChunks(orgIds, (part) => db.from('supply_contacts').select('org_id, name, preferred_channel, phone, phone_normalised, whatsapp, do_not_contact, created_at').in('org_id', part).order('created_at')),
-    inChunks(orgIds, (part) => db.from('supply_partners').select('org_id, relationship_status').in('org_id', part)),
+  const [{ data: contacts }, { data: partners }] = await Promise.all([
+    readAllIn(orgIds, (part) => db.from('supply_contacts').select('org_id, name, preferred_channel, phone, phone_normalised, whatsapp, do_not_contact, created_at').in('org_id', part).order('created_at'), { maxRows: REPORT_MAX_ROWS }),
+    readAllIn(orgIds, (part) => db.from('supply_partners').select('org_id, relationship_status').in('org_id', part), { maxRows: REPORT_MAX_ROWS, key: 'org_id' }),
   ])
   const blocked = new Set(partners.filter((p) => p.relationship_status === 'do_not_contact').map((p) => p.org_id))
   return (data ?? []).map((r) => {

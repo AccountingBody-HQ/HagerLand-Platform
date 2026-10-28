@@ -3,6 +3,7 @@
 /** Admin area these actions belong to (staff roles are checked against it, spec 26.15). */
 const AREA = '/roodber8/organisations'
 
+import { readAll, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import { redirect } from 'next/navigation'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { z } from 'zod'
@@ -237,8 +238,8 @@ async function mergeSupplyRecords(sourceId: string, targetId: string, sourceName
 async function mergeSupplierOffers(sourceId: string, targetId: string, sourceName: string): Promise<{ moved: number; superseded: number }> {
   const db = getAdminSupabase()
   const [{ data: from }, { data: into }] = await Promise.all([
-    db.from('supplier_offers').select('id, item_key, unit, price_date, captured_at').eq('org_id', sourceId).eq('status', 'current'),
-    db.from('supplier_offers').select('id, item_key, unit, price_date, captured_at, branch_id').eq('org_id', targetId).eq('status', 'current'),
+    readAll(() => db.from('supplier_offers').select('id, item_key, unit, price_date, captured_at').eq('org_id', sourceId).eq('status', 'current'), { maxRows: REPORT_MAX_ROWS }),
+    readAll(() => db.from('supplier_offers').select('id, item_key, unit, price_date, captured_at, branch_id').eq('org_id', targetId).eq('status', 'current'), { maxRows: REPORT_MAX_ROWS }),
   ])
   const newer = (a: { price_date: string; captured_at: string }, b: { price_date: string; captured_at: string }) => a.price_date > b.price_date || (a.price_date === b.price_date && a.captured_at > b.captured_at)
   let superseded = 0

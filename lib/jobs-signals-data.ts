@@ -4,10 +4,10 @@ import 'server-only'
 // requests, and, for "no supply activity yet", only whether a business has any supply quote or order (ids, never a
 // price, margin, agreement or ledger row). It never reads candidates, applications or the worker register.
 import { getAdminSupabase } from '@/lib/supabase/admin'
+import { readAll, readAllIn, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import { must } from '@/lib/admin/must'
 import { STAFFING_SLUG } from '@/lib/service-requests/form-copy'
 import { countBy, tradeName, NO_TRADE, type Count } from '@/lib/jobs-insights'
-import { inChunks } from '@/lib/admin/in-chunks'
 
 const OPEN_REQUEST = ['submitted', 'triaged', 'matched', 'quoted']
 const OPEN_ASSIGNMENT = ['open', 'searching', 'introducing']
@@ -23,7 +23,7 @@ export async function hiringSignals(): Promise<{ trades: Count[]; openStaffingRe
   const category = await staffingCategoryId()
   const [{ data: jobs }, requests] = must(
     await Promise.all([
-      db.from('jobs_public').select('trade').limit(5000),
+      readAll(() => db.from('jobs_public').select('trade'), { maxRows: REPORT_MAX_ROWS }),
       category ? db.from('service_requests').select('id', { count: 'exact', head: true }).eq('service_category_id', category).in('status', OPEN_REQUEST) : Promise.resolve({ count: 0, error: null }),
     ]),
   )
@@ -45,8 +45,8 @@ export async function hiringWithoutSupplyActivity(): Promise<HiringBusiness[]> {
   const db = getAdminSupabase()
   const [{ data: jobs }, { data: assignments }] = must(
     await Promise.all([
-      db.from('jobs_public').select('employer_org_id').eq('posted_for', 'employer').limit(5000),
-      db.from('recruitment_assignments').select('employer_org_id').in('status', OPEN_ASSIGNMENT).eq('private_client', false).not('employer_org_id', 'is', null).limit(5000),
+      readAll(() => db.from('jobs_public').select('employer_org_id').eq('posted_for', 'employer'), { maxRows: REPORT_MAX_ROWS }),
+      readAll(() => db.from('recruitment_assignments').select('employer_org_id').in('status', OPEN_ASSIGNMENT).eq('private_client', false).not('employer_org_id', 'is', null), { maxRows: REPORT_MAX_ROWS }),
     ]),
   )
   const counts = new Map<string, { openJobs: number; activeAssignments: number }>()
@@ -60,13 +60,13 @@ export async function hiringWithoutSupplyActivity(): Promise<HiringBusiness[]> {
   for (const a of assignments ?? []) tally(a.employer_org_id, 'activeAssignments')
   const orgIds = Array.from(counts.keys())
   if (!orgIds.length) return []
-  const [orgs, orders, members] = await Promise.all([
-    inChunks(orgIds, (part) => db.from('organisations').select('id, name, is_hagerland').in('id', part)),
-    inChunks(orgIds, (part) => db.from('supply_orders').select('org_id').in('org_id', part).limit(20000)),
-    inChunks(orgIds, (part) => db.from('organisation_members').select('org_id, user_id').in('org_id', part).limit(20000)),
+  const [{ data: orgs }, { data: orders }, { data: members }] = await Promise.all([
+    readAllIn(orgIds, (part) => db.from('organisations').select('id, name, is_hagerland').in('id', part), { maxRows: REPORT_MAX_ROWS }),
+    readAllIn(orgIds, (part) => db.from('supply_orders').select('org_id').in('org_id', part), { maxRows: REPORT_MAX_ROWS }),
+    readAllIn(orgIds, (part) => db.from('organisation_members').select('org_id, user_id').in('org_id', part), { maxRows: REPORT_MAX_ROWS, key: ['org_id', 'user_id'] }),
   ])
   const userIds = Array.from(new Set(members.map((m) => m.user_id)))
-  const quotes = await inChunks(userIds, (part) => db.from('quote_requests').select('requester_user_id').in('requester_user_id', part).limit(20000))
+  const { data: quotes } = await readAllIn(userIds, (part) => db.from('quote_requests').select('requester_user_id').in('requester_user_id', part), { maxRows: REPORT_MAX_ROWS })
   const quoting = new Set(quotes.map((q) => q.requester_user_id))
   const withOrders = new Set(orders.map((o) => o.org_id))
   const withQuotes = new Set(members.filter((m) => quoting.has(m.user_id)).map((m) => m.org_id))
@@ -89,7 +89,7 @@ export async function organisationHiring(orgId: string): Promise<OrgHiring> {
   const category = await staffingCategoryId()
   const [{ data: jobs }, { data: assignment }, { data: members }] = must(
     await Promise.all([
-      db.from('jobs_public').select('trade').eq('employer_org_id', orgId).eq('posted_for', 'employer').limit(5000),
+      readAll(() => db.from('jobs_public').select('trade').eq('employer_org_id', orgId).eq('posted_for', 'employer'), { maxRows: REPORT_MAX_ROWS }),
       db.from('recruitment_assignments').select('id, reference').eq('employer_org_id', orgId).in('status', OPEN_ASSIGNMENT).order('created_at', { ascending: false }).limit(1).maybeSingle(),
       db.from('organisation_members').select('user_id').eq('org_id', orgId).limit(500),
     ]),

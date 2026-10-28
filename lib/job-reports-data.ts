@@ -1,6 +1,7 @@
 import 'server-only'
 // Jobs Phase 4: "Report this job" (database side). Reports are server only (migration 0042: no grants). A repeat
 // report on the same job by the same connection or account is not stored again (the reporter sees the same thanks).
+import { readAll, readAllIn, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { log } from '@/lib/log'
 import { MANY_REPORTS, distinctReporters, type ReportReason } from '@/lib/job-reports'
@@ -30,7 +31,7 @@ export async function jobReportDigestCounts(now: number): Promise<[string, numbe
   const db = getAdminSupabase()
   const [{ count: open }, { data: week }] = await Promise.all([
     db.from('job_reports').select('id', { count: 'exact', head: true }).eq('status', 'open'),
-    db.from('job_reports').select('id, job_post_id, reporter_user_id, ip_hash').gte('created_at', new Date(now - 7 * 86_400_000).toISOString()).limit(5000),
+    readAll(() => db.from('job_reports').select('id, job_post_id, reporter_user_id, ip_hash').gte('created_at', new Date(now - 7 * 86_400_000).toISOString()), { maxRows: REPORT_MAX_ROWS }),
   ])
   const byJob = new Map<string, { id: string; reporter_user_id: string | null; ip_hash: string | null }[]>()
   for (const r of week ?? []) byJob.set(r.job_post_id, [...(byJob.get(r.job_post_id) ?? []), r])
@@ -75,8 +76,8 @@ export async function openReportGroups(): Promise<ReportGroup[]> {
   const jobIds = Array.from(new Set(rows.map((r) => r.job_post_id)))
   const userIds = Array.from(new Set(rows.map((r) => r.reporter_user_id).filter((x): x is string => Boolean(x))))
   const [{ data: jobs }, { data: memberships }] = await Promise.all([
-    db.from('job_posts').select('id, title, status, posted_for, employer:organisations(name, verification_level)').in('id', jobIds),
-    userIds.length ? db.from('organisation_members').select('user_id, org:organisations(name)').in('user_id', userIds) : Promise.resolve({ data: [] }),
+    readAllIn(jobIds, (part) => db.from('job_posts').select('id, title, status, posted_for, employer:organisations(name, verification_level)').in('id', part), { maxRows: REPORT_MAX_ROWS }),
+    readAllIn(userIds, (part) => db.from('organisation_members').select('user_id, org:organisations(name)').in('user_id', part), { maxRows: REPORT_MAX_ROWS, key: ['org_id', 'user_id'] }),
   ])
   const businessOf = new Map<string, string>()
   for (const m of memberships ?? []) {

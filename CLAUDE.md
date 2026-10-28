@@ -24,7 +24,7 @@ Every job follows these, even when the prompt does not repeat them. Where a rule
 7. Emails, notifications and webhooks triggered; cache and revalidation (changes must appear and disappear correctly).
 8. Staff roles (owner, operations, agent, content): enforced on the server (`assertAdmin(AREA)`, `lib/admin/roles.ts`), not just hidden buttons.
 9. Existing data: no existing record changes status, visibility or content unless the job requires it; assert before and after in tests.
-10. Silent failures: fields shown but not saved, swallowed errors, half-finished states.
+10. Silent failures: fields shown but not saved, swallowed errors, half-finished states. Never read more than 1000 rows in one query; use readAll() for complete sets and inChunks() for long id lists (`lib/admin/read-all.ts`: `readAll`, and `readAllIn` for a long id list read in parts and pages; Supabase silently returns at most 1,000 rows per request, and a unit test refuses larger `.limit()`/`.range()`).
 
 **D. Stop rules.** Stop, change nothing further, and explain in plain English when:
 11. a migration would be needed but the job does not authorise one;

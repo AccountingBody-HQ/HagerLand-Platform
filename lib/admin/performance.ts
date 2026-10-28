@@ -1,4 +1,5 @@
 import 'server-only'
+import { readAll, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { must } from '@/lib/admin/must'
 import { PILLAR_KEYS, VERTICAL_PILLAR, type PillarKey } from '@/lib/pillars'
@@ -37,19 +38,19 @@ export async function pillarKpis(since: Date): Promise<PillarKpis[]> {
   const head = { count: 'exact' as const, head: true }
   // The failure rule (Jobs Phase 6, C2-10): a failed read stops the page with an error instead of showing zeros.
   const [requests, matches, enquiries, deals, valuations, viewings, applications, projects, care, quotes, interestFinance, interestInsurance, props, products, jobs] = must(await Promise.all([
-    db.from('service_requests').select('vertical_key, status').gte('created_at', from).limit(50000),
-    db.from('service_request_matches').select('offered_at, responded_at, request:service_requests!inner(vertical_key, created_at)').gte('offered_at', from).not('responded_at', 'is', null).limit(50000),
-    db.from('enquiries').select('target_type, status, created_at, first_viewed_at').gte('created_at', from).limit(50000),
-    db.from('deals').select('pillar_key, source_type, currency, commission_minor, lead_fee_minor, status, created_at').gte('created_at', from).in('status', ['won', 'invoiced', 'paid']).limit(50000),
-    db.from('agency_valuations').select('purpose').gte('created_at', from).limit(50000),
-    db.from('agency_viewings').select('id, property:properties(purpose)').gte('created_at', from).limit(50000),
+    readAll(() => db.from('service_requests').select('vertical_key, status').gte('created_at', from), { maxRows: REPORT_MAX_ROWS }),
+    readAll(() => db.from('service_request_matches').select('offered_at, responded_at, request:service_requests!inner(vertical_key, created_at)').gte('offered_at', from).not('responded_at', 'is', null), { maxRows: REPORT_MAX_ROWS }),
+    readAll(() => db.from('enquiries').select('target_type, status, created_at, first_viewed_at').gte('created_at', from), { maxRows: REPORT_MAX_ROWS }),
+    readAll(() => db.from('deals').select('pillar_key, source_type, currency, commission_minor, lead_fee_minor, status, created_at').gte('created_at', from).in('status', ['won', 'invoiced', 'paid']), { maxRows: REPORT_MAX_ROWS }),
+    readAll(() => db.from('agency_valuations').select('purpose').gte('created_at', from), { maxRows: REPORT_MAX_ROWS }),
+    readAll(() => db.from('agency_viewings').select('id, property:properties(purpose)').gte('created_at', from), { maxRows: REPORT_MAX_ROWS }),
     db.from('rental_applications').select('id', head).gte('created_at', from),
     db.from('build_projects').select('id', head).gte('created_at', from),
     db.from('property_care_requests').select('id', head).gte('created_at', from),
-    db.from('quote_requests').select('status').gte('created_at', from).limit(50000),
+    readAll(() => db.from('quote_requests').select('status').gte('created_at', from), { maxRows: REPORT_MAX_ROWS }),
     db.from('interest_registrations').select('id', head).eq('vertical_key', 'finance').gte('created_at', from),
     db.from('interest_registrations').select('id', head).eq('vertical_key', 'insurance').gte('created_at', from),
-    db.from('properties').select('purpose').eq('status', 'published').limit(100000),
+    readAll(() => db.from('properties').select('purpose').eq('status', 'published'), { maxRows: REPORT_MAX_ROWS }),
     db.from('products').select('id', head).eq('status', 'published'),
     // Jobs Phase 6 (fix 4): open jobs by the public board's rule (jobs_public leaves out jobs past their closing date that
     // the daily job has not closed yet, and private-client jobs hidden by their switch).

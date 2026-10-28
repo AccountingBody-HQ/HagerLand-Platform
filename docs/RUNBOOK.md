@@ -147,6 +147,8 @@ npm run test:e2e:build && npm run test:e2e   # browser tests against the local c
 
 ## 11. Health checks: what each address checks
 
+**Row limit (Fix F-1).** Supabase returns at most 1,000 rows per request (Settings → API → **Max rows**; leave it at 1,000) and gives no error when there are more. Every complete list (reports, CSV exports, insights, sitemaps, the daily job's counts, the imports compliance list) is therefore read page by page with `readAll()` in `lib/admin/read-all.ts`. If a report ever says "More than 200,000 rows: narrow the period or the filter", choose a shorter period. The local test copy has the same 1,000-row limit, so the tests see what live sees.
+
 **`https://www.hagerland.com/api/health`** (public, anyone can open it).
 - Checks: only that the website answered, and which version is live (`version` is the first 7 characters of the commit).
 - Does **not** check: the database, migrations, storage, email or the daily job. The answer says so itself (`"checks": ["website"]`, `"notChecked": [...]`).

@@ -2,9 +2,9 @@ import 'server-only'
 // Supply Phase 5 (admin): loads the data behind demand, price trends, partner performance, the supply report, the
 // "needs action" list and the digest counts, and hands it to the pure maths in lib/supply/insights.ts. Owner-only
 // money (commission, earned, customer totals) is loaded only when `owner` is true. Service role, server only.
+import { readAll, readAllIn, REPORT_MAX_ROWS, type Pageable } from '@/lib/admin/read-all'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { must } from '@/lib/admin/must'
-import { inChunks } from '@/lib/admin/in-chunks'
 import { addDays, itemKey } from './offers'
 import { customerTotalCents, hagerlandEarned, needsAction, summariseLedger, supplierTotalCents, type LedgerSummary, type MoneyModel, type OrderStatus } from './money'
 import { addisDate, inAddisMonth, todayInAddis } from './shortlist'
@@ -28,13 +28,13 @@ const OPEN_QUOTE = ['submitted', 'in_review', 'quoted', 'accepted']
 // The failure rule (shared with Jobs insights, Demand and Performance since Jobs Phase 6; same behaviour).
 export { must }
 
-type Rows<R> = PromiseLike<{ data: R[] | null; error: { message: string } | null }>
 /**
  * Tidy T-2 (T2-15): a long id list is read in parts of 50 (the gateway refuses very long addresses), with the failure
- * rule kept. Returns the same { data } shape as a single query, so the figures are worked out exactly as before.
+ * rule kept. Fix F-1: each part is also read page by page (lib/admin/read-all.ts). Returns the same { data } shape as a
+ * single query, so the figures are worked out exactly as before. `key` is the unique sort key when it is not `id`.
  */
-function chunked<R>(ids: string[], run: (part: string[]) => Rows<R>): Promise<{ data: R[]; error: null }> {
-  return inChunks(ids, run).then((data) => ({ data, error: null }))
+function chunked<R>(ids: string[], run: (part: string[]) => Pageable<R>, key?: string | readonly string[]): Promise<{ data: R[]; error: null }> {
+  return readAllIn(ids, run, { maxRows: REPORT_MAX_ROWS, key })
 }
 const LIVE_ORDER = ['placed', 'confirmed', 'out_for_delivery']
 
@@ -90,23 +90,24 @@ const lineTotal = (l: { unit_price_cents: number | null; quantity: number | stri
 export async function partnerPerformanceRows(opts: { orgIds?: string[]; owner: boolean }): Promise<PartnerPerformanceRow[]> {
   const db = getAdminSupabase()
   const today = todayInAddis()
-  let partnersQ = db.from('supply_partners').select('org_id, relationship_status, reverify_by, org:organisations(name)').limit(5000)
-  if (opts.orgIds) partnersQ = partnersQ.in('org_id', opts.orgIds.length ? opts.orgIds : ['00000000-0000-0000-0000-000000000000'])
-  const { data: partners } = must(await partnersQ)
+  const { data: partners } = await readAll(() => {
+    const q = db.from('supply_partners').select('org_id, relationship_status, reverify_by, org:organisations(name)')
+    return opts.orgIds ? q.in('org_id', opts.orgIds.length ? opts.orgIds : ['00000000-0000-0000-0000-000000000000']) : q
+  }, { maxRows: REPORT_MAX_ROWS, key: 'org_id' })
   const orgIds = (partners ?? []).map((p) => p.org_id)
   if (!orgIds.length) return []
   const [{ data: lines }, { data: orders }, { data: offers }, { data: contacts }] = must(await Promise.all([
-    chunked(orgIds, (part) => db.from('supply_quote_lines').select('org_id, quote_item_id, status, asked_at, received_at, unit_price_cents, quantity, delivery_charge_cents').in('org_id', part).limit(50000)),
-    chunked(orgIds, (part) => db.from('supply_orders').select('id, org_id, status, money_model, placed_at, delivered_at, promised_delivery_on').in('org_id', part).limit(20000)),
-    chunked(orgIds, (part) => db.from('supplier_offers').select('org_id, price_date, valid_until, status').in('org_id', part).eq('status', 'current').limit(50000)),
-    chunked(orgIds, (part) => db.from('supply_contacts').select('org_id, last_contacted_at, created_at, do_not_contact').in('org_id', part).limit(20000)),
+    chunked(orgIds, (part) => db.from('supply_quote_lines').select('org_id, quote_item_id, status, asked_at, received_at, unit_price_cents, quantity, delivery_charge_cents').in('org_id', part)),
+    chunked(orgIds, (part) => db.from('supply_orders').select('id, org_id, status, money_model, placed_at, delivered_at, promised_delivery_on').in('org_id', part)),
+    chunked(orgIds, (part) => db.from('supplier_offers').select('org_id, price_date, valid_until, status').in('org_id', part).eq('status', 'current')),
+    chunked(orgIds, (part) => db.from('supply_contacts').select('org_id, last_contacted_at, created_at, do_not_contact').in('org_id', part)),
   ]))
   const itemIds = Array.from(new Set((lines ?? []).map((l) => l.quote_item_id).filter((x): x is string => Boolean(x))))
   const orderIds = (orders ?? []).map((o) => o.id)
   const [{ data: replies }, { data: events }, { data: proofs }] = must(await Promise.all([
-    chunked(itemIds, (part) => db.from('supply_quote_lines').select('quote_item_id, unit_price_cents, quantity, delivery_charge_cents').in('quote_item_id', part).not('received_at', 'is', null).limit(50000)),
-    chunked(orderIds, (part) => db.from('supply_order_events').select('order_id, to_status, created_at').in('order_id', part).eq('event_type', 'status').limit(50000)),
-    chunked(orderIds, (part) => db.from('supply_delivery_proofs').select('order_id').in('order_id', part).is('removed_at', null).limit(50000)),
+    chunked(itemIds, (part) => db.from('supply_quote_lines').select('quote_item_id, unit_price_cents, quantity, delivery_charge_cents').in('quote_item_id', part).not('received_at', 'is', null)),
+    chunked(orderIds, (part) => db.from('supply_order_events').select('order_id, to_status, created_at').in('order_id', part).eq('event_type', 'status')),
+    chunked(orderIds, (part) => db.from('supply_delivery_proofs').select('order_id').in('order_id', part).is('removed_at', null)),
   ]))
   const cheapest = new Map<string, number[]>()
   for (const r of replies ?? []) {
@@ -124,7 +125,7 @@ export async function partnerPerformanceRows(opts: { orgIds?: string[]; owner: b
   let money: Map<string, PartnerMoney> | null = null
   if (opts.owner) {
     money = new Map()
-    const { data: entries } = await chunked(orderIds, (part) => db.from('supply_ledger_entries').select('id, entry_type, direction, amount_cents, reverses_entry_id, order_id, occurred_on').in('order_id', part).limit(50000))
+    const { data: entries } = await chunked(orderIds, (part) => db.from('supply_ledger_entries').select('id, entry_type, direction, amount_cents, reverses_entry_id, order_id, occurred_on').in('order_id', part))
     for (const orgId of orgIds) {
       const mine = (orders ?? []).filter((o) => o.org_id === orgId)
       let due = 0
@@ -185,14 +186,16 @@ export interface DemandData {
 
 async function demandItems(since: string, until: string | null, includeCancelled: boolean): Promise<{ items: DemandItem[]; quoteIds: string[] }> {
   const db = getAdminSupabase()
-  let q = db.from('quote_requests').select('id, status, delivery_location_id').gte('created_at', since).limit(20000)
-  if (until) q = q.lt('created_at', until)
-  if (!includeCancelled) q = q.neq('status', 'cancelled')
-  const { data: quotes } = must(await q)
+  const { data: quotes } = await readAll(() => {
+    let q = db.from('quote_requests').select('id, status, delivery_location_id').gte('created_at', since)
+    if (until) q = q.lt('created_at', until)
+    if (!includeCancelled) q = q.neq('status', 'cancelled')
+    return q
+  }, { maxRows: REPORT_MAX_ROWS })
   const quoteIds = (quotes ?? []).map((x) => x.id)
   if (!quoteIds.length) return { items: [], quoteIds }
   const [{ data: rows }, chains] = must(await Promise.all([
-    chunked(quoteIds, (part) => db.from('quote_request_items').select('id, quote_request_id, free_text_item, quantity, unit, category_id, removed_at, category:product_categories(name), product:products(name, category_id, category:product_categories(name))').in('quote_request_id', part).is('removed_at', null).limit(50000)),
+    chunked(quoteIds, (part) => db.from('quote_request_items').select('id, quote_request_id, free_text_item, quantity, unit, category_id, removed_at, category:product_categories(name), product:products(name, category_id, category:product_categories(name))').in('quote_request_id', part).is('removed_at', null)),
     placeChains((quotes ?? []).map((x) => x.delivery_location_id).filter((x): x is string => Boolean(x))),
   ]))
   const location = new Map((quotes ?? []).map((x) => [x.id, x.delivery_location_id]))
@@ -223,12 +226,12 @@ export async function demandData(days: number, includeCancelled: boolean): Promi
   const { items, quoteIds } = await demandItems(since, null, includeCancelled)
   const itemIds = items.map((i) => i.itemId)
   const [{ data: lines }, { data: offers }, { data: projects }] = must(await Promise.all([
-    chunked(quoteIds, (part) => db.from('supply_quote_lines').select('id, quote_item_id, status, asked_at, received_at').in('quote_request_id', part).limit(50000)),
-    db.from('supplier_offers').select('category_id, item_key, status, valid_until, delivery_area_ids').eq('status', 'current').limit(50000),
-    db.from('build_projects').select('location_id, location_text, services, status').in('status', ['submitted', 'in_progress']).gte('created_at', since).limit(5000),
+    chunked(quoteIds, (part) => db.from('supply_quote_lines').select('id, quote_item_id, status, asked_at, received_at').in('quote_request_id', part)),
+    readAll(() => db.from('supplier_offers').select('category_id, item_key, status, valid_until, delivery_area_ids').eq('status', 'current'), { maxRows: REPORT_MAX_ROWS }),
+    readAll(() => db.from('build_projects').select('location_id, location_text, services, status').in('status', ['submitted', 'in_progress']).gte('created_at', since), { maxRows: REPORT_MAX_ROWS }),
   ]))
   const lineIds = (lines ?? []).map((l) => l.id)
-  const { data: orderLines } = await chunked(lineIds, (part) => db.from('supply_order_lines').select('supply_quote_line_id, quote_item_id, order:supply_orders!inner(status)').in('supply_quote_line_id', part).neq('order.status', 'cancelled').limit(50000))
+  const { data: orderLines } = await chunked(lineIds, (part) => db.from('supply_order_lines').select('supply_quote_line_id, quote_item_id, order:supply_orders!inner(status)').in('supply_quote_line_id', part).neq('order.status', 'cancelled'))
   const ordered = new Set((orderLines ?? []).map((l) => l.quote_item_id).filter((x): x is string => Boolean(x)))
   const completed = new Set((orderLines ?? []).filter((l) => (l.order as { status: string } | null)?.status === 'completed').map((l) => l.quote_item_id).filter((x): x is string => Boolean(x)))
   const groups = groupDemand(items)
@@ -254,12 +257,13 @@ export async function demandData(days: number, includeCancelled: boolean): Promi
 /* ---------------------------------------------------------------- Price trends ---------------------------------------------------------------- */
 
 export async function priceTrendData(): Promise<PriceTrend[]> {
-  const { data } = must(
-    await getAdminSupabase()
-      .from('supplier_offers')
-      .select('org_id, item_name, item_key, unit, price_etb_cents, price_date, valid_until, status, captured_at, fx_linked, vat_included, category:product_categories(name), product:products(name)')
-      .neq('status', 'withdrawn')
-      .limit(50000),
+  const { data } = await readAll(
+    () =>
+      getAdminSupabase()
+        .from('supplier_offers')
+        .select('org_id, item_name, item_key, unit, price_etb_cents, price_date, valid_until, status, captured_at, fx_linked, vat_included, category:product_categories(name), product:products(name)')
+        .neq('status', 'withdrawn'),
+    { maxRows: REPORT_MAX_ROWS },
   )
   return priceTrends(
     (data ?? []).map((o) => ({
@@ -311,18 +315,18 @@ export async function supplyReport(month: string): Promise<SupplyReport> {
   const asOf = monthEnd < todayInAddis() ? monthEnd : todayInAddis()
   const [{ items, quoteIds }, { data: orders }, { data: entries }, { data: allDue }] = must(await Promise.all([
     demandItems(startTs, nextTs, true),
-    db.from('supply_orders').select('id, money_model, status, created_at, completed_at, cancelled_at, org_id, customer_delivery_charge_cents, supplier_delivery_charge_cents, org:organisations(name)').limit(20000),
-    db.from('supply_ledger_entries').select('id, entry_type, direction, amount_cents, reverses_entry_id, order_id, occurred_on').gte('occurred_on', start).lt('occurred_on', next).limit(50000),
-    db.from('supply_ledger_entries').select('id, entry_type, direction, amount_cents, reverses_entry_id, order_id, occurred_on').in('entry_type', ['commission_due', 'commission_received', 'reversal']).lte('occurred_on', asOf).limit(50000),
+    readAll(() => db.from('supply_orders').select('id, money_model, status, created_at, completed_at, cancelled_at, org_id, customer_delivery_charge_cents, supplier_delivery_charge_cents, org:organisations(name)'), { maxRows: REPORT_MAX_ROWS }),
+    readAll(() => db.from('supply_ledger_entries').select('id, entry_type, direction, amount_cents, reverses_entry_id, order_id, occurred_on').gte('occurred_on', start).lt('occurred_on', next), { maxRows: REPORT_MAX_ROWS }),
+    readAll(() => db.from('supply_ledger_entries').select('id, entry_type, direction, amount_cents, reverses_entry_id, order_id, occurred_on').in('entry_type', ['commission_due', 'commission_received', 'reversal']).lte('occurred_on', asOf), { maxRows: REPORT_MAX_ROWS }),
   ]))
-  const { data: withLines } = await chunked(quoteIds, (part) => db.from('supply_quote_lines').select('quote_request_id').in('quote_request_id', part).limit(50000))
+  const { data: withLines } = await chunked(quoteIds, (part) => db.from('supply_quote_lines').select('quote_request_id').in('quote_request_id', part))
   const all = orders ?? []
   const inMonth = (ts: string | null) => inAddisMonth(ts, month)
   const created = all.filter((o) => inMonth(o.created_at))
   const createdIds = created.map((o) => o.id)
   const [{ data: lines }, { data: disputes }] = must(await Promise.all([
-    chunked(createdIds, (part) => db.from('supply_order_lines').select('order_id, quantity, supplier_unit_price_cents, customer_unit_price_cents').in('order_id', part).limit(50000)),
-    db.from('supply_order_events').select('order_id, created_at').eq('event_type', 'status').eq('to_status', 'disputed').gte('created_at', startTs).lt('created_at', nextTs).limit(20000),
+    chunked(createdIds, (part) => db.from('supply_order_lines').select('order_id, quantity, supplier_unit_price_cents, customer_unit_price_cents').in('order_id', part)),
+    readAll(() => db.from('supply_order_events').select('order_id, created_at').eq('event_type', 'status').eq('to_status', 'disputed').gte('created_at', startTs).lt('created_at', nextTs), { maxRows: REPORT_MAX_ROWS }),
   ]))
   const moneyLines = (orderId: string) => (lines ?? []).filter((l) => l.order_id === orderId).map((l) => ({ quantity: Number(l.quantity), supplierUnitPriceCents: l.supplier_unit_price_cents, customerUnitPriceCents: l.customer_unit_price_cents }))
   const value = (o: (typeof created)[number]) => (o.money_model === 'A' ? (customerTotalCents(moneyLines(o.id), o.customer_delivery_charge_cents) ?? 0) : supplierTotalCents(moneyLines(o.id), o.supplier_delivery_charge_cents))
@@ -381,16 +385,16 @@ export async function supplyActionItems(owner: boolean): Promise<ActionItem[]> {
   const today = todayInAddis()
   const sixMonthsAgo = addDays(today, -182)
   const [{ data: contacts }, { data: partners }, { data: lateOrders }, { data: openLines }] = must(await Promise.all([
-    db.from('supply_contacts').select('org_id, name, last_contacted_at, created_at, do_not_contact, org:organisations(name)').eq('do_not_contact', false).limit(20000),
-    db.from('supply_partners').select('org_id, reverify_by, org:organisations(name)').lte('reverify_by', today).limit(5000),
-    db.from('supply_orders').select('id, reference, promised_delivery_on, status, org:organisations(name)').in('status', LIVE_ORDER).lt('promised_delivery_on', today).limit(5000),
-    db.from('supply_quote_lines').select('quote_request_id, org_id, status, offer:supplier_offers!inner(valid_until, item_name, status), quote:quote_requests!inner(reference, status)').in('status', ['shortlisted', 'asked', 'received', 'chosen']).in('quote.status', OPEN_QUOTE).lt('offer.valid_until', today).limit(5000),
+    readAll(() => db.from('supply_contacts').select('org_id, name, last_contacted_at, created_at, do_not_contact, org:organisations(name)').eq('do_not_contact', false), { maxRows: REPORT_MAX_ROWS }),
+    readAll(() => db.from('supply_partners').select('org_id, reverify_by, org:organisations(name)').lte('reverify_by', today), { maxRows: REPORT_MAX_ROWS, key: 'org_id' }),
+    readAll(() => db.from('supply_orders').select('id, reference, promised_delivery_on, status, org:organisations(name)').in('status', LIVE_ORDER).lt('promised_delivery_on', today), { maxRows: REPORT_MAX_ROWS }),
+    readAll(() => db.from('supply_quote_lines').select('quote_request_id, org_id, status, offer:supplier_offers!inner(valid_until, item_name, status), quote:quote_requests!inner(reference, status)').in('status', ['shortlisted', 'asked', 'received', 'chosen']).in('quote.status', OPEN_QUOTE).lt('offer.valid_until', today), { maxRows: REPORT_MAX_ROWS }),
   ]))
   const items: ActionItem[] = []
   if (owner) {
     const [{ data: agreements }, { data: dues }] = must(await Promise.all([
-      db.from('supply_agreements').select('id, org_id, end_date, org:organisations(name)').eq('status', 'active').not('end_date', 'is', null).lte('end_date', addDays(today, 30)).limit(5000),
-      db.from('supply_ledger_entries').select('id, entry_type, direction, amount_cents, reverses_entry_id, order_id, occurred_on').in('entry_type', ['commission_due', 'commission_received', 'reversal']).not('order_id', 'is', null).limit(50000),
+      readAll(() => db.from('supply_agreements').select('id, org_id, end_date, org:organisations(name)').eq('status', 'active').not('end_date', 'is', null).lte('end_date', addDays(today, 30)), { maxRows: REPORT_MAX_ROWS }),
+      readAll(() => db.from('supply_ledger_entries').select('id, entry_type, direction, amount_cents, reverses_entry_id, order_id, occurred_on').in('entry_type', ['commission_due', 'commission_received', 'reversal']).not('order_id', 'is', null), { maxRows: REPORT_MAX_ROWS }),
     ]))
     for (const a of agreements ?? []) {
       const name = (a.org as { name: string } | null)?.name ?? ''
@@ -429,14 +433,14 @@ export async function supplyDigestCounts(now = Date.now()): Promise<[string, num
   const today = todayInAddis(new Date(now))
   const head = { count: 'exact' as const, head: true }
   const [{ data: openQuotes }, { data: orders }, overdue, unmet, actions] = must(await Promise.all([
-    db.from('quote_requests').select('id').in('status', ['submitted', 'in_review']).limit(5000),
-    db.from('supply_orders').select('id, status, status_changed_at').not('status', 'in', '("completed","cancelled","draft")').limit(5000),
+    readAll(() => db.from('quote_requests').select('id').in('status', ['submitted', 'in_review']), { maxRows: REPORT_MAX_ROWS }),
+    readAll(() => db.from('supply_orders').select('id, status, status_changed_at').not('status', 'in', '("completed","cancelled","draft")'), { maxRows: REPORT_MAX_ROWS }),
     db.from('supply_orders').select('id', head).in('status', LIVE_ORDER).lt('promised_delivery_on', today),
     demandData(7, false).then((d) => d.unmet.length),
     supplyActionItems(true),
   ]))
   const openIds = (openQuotes ?? []).map((q) => q.id)
-  const { data: withLines } = await chunked(openIds, (part) => db.from('supply_quote_lines').select('quote_request_id').in('quote_request_id', part).limit(20000))
+  const { data: withLines } = await chunked(openIds, (part) => db.from('supply_quote_lines').select('quote_request_id').in('quote_request_id', part))
   const needingSuppliers = openIds.filter((id) => !(withLines ?? []).some((l) => l.quote_request_id === id)).length
   const ids = (orders ?? []).map((o) => o.id)
   const { data: proofs } = await chunked(ids, (part) => db.from('supply_delivery_proofs').select('order_id').in('order_id', part).is('removed_at', null))

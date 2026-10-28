@@ -1,14 +1,15 @@
 import 'server-only'
+import { readAll, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { ORG_KIND_LABEL } from '@/lib/org-labels'
 
 export async function listerOptions(): Promise<{ id: string; label: string }[]> {
-  const { data } = await getAdminSupabase().from('organisations').select('id, name, kind').in('kind', ['hagerland', 'agency', 'developer']).neq('status', 'removed').order('is_hagerland', { ascending: false }).order('name').limit(2000)
+  const { data } = await readAll(() => getAdminSupabase().from('organisations').select('id, name, kind').in('kind', ['hagerland', 'agency', 'developer']).neq('status', 'removed').order('is_hagerland', { ascending: false }).order('name'), { maxRows: REPORT_MAX_ROWS })
   return (data ?? []).map((o) => ({ id: o.id, label: `${o.name} · ${ORG_KIND_LABEL[o.kind]}` }))
 }
 
 export async function developmentOptions(): Promise<{ id: string; name: string }[]> {
-  const { data } = await getAdminSupabase().from('developments').select('id, name').neq('status', 'removed').order('name').limit(2000)
+  const { data } = await readAll(() => getAdminSupabase().from('developments').select('id, name').neq('status', 'removed').order('name'), { maxRows: REPORT_MAX_ROWS })
   return data ?? []
 }
 
@@ -28,7 +29,7 @@ export function isoDay(d: Date): string {
 }
 
 export async function developerOptions(): Promise<{ id: string; label: string }[]> {
-  const { data } = await getAdminSupabase().from('organisations').select('id, name, kind').in('kind', ['hagerland', 'developer']).neq('status', 'removed').order('is_hagerland', { ascending: false }).order('name').limit(2000)
+  const { data } = await readAll(() => getAdminSupabase().from('organisations').select('id, name, kind').in('kind', ['hagerland', 'developer']).neq('status', 'removed').order('is_hagerland', { ascending: false }).order('name'), { maxRows: REPORT_MAX_ROWS })
   return (data ?? []).map((o) => ({ id: o.id, label: o.kind === 'hagerland' ? `${o.name} (HagerLand)` : o.name }))
 }
 
@@ -36,8 +37,8 @@ export async function productFormOptions() {
   const db = getAdminSupabase()
   const [{ data: cats }, { data: brands }, { data: sellers }] = await Promise.all([
     db.from('product_categories').select('id, name, parent_id, sort').order('sort'),
-    db.from('brands').select('id, name').order('name'),
-    db.from('organisations').select('id, name, kind, is_hagerland').in('kind', ['hagerland', 'supplier', 'manufacturer']).neq('status', 'removed').order('is_hagerland', { ascending: false }).order('name'),
+    readAll(() => db.from('brands').select('id, name').order('name'), { maxRows: REPORT_MAX_ROWS }),
+    readAll(() => db.from('organisations').select('id, name, kind, is_hagerland').in('kind', ['hagerland', 'supplier', 'manufacturer']).neq('status', 'removed').order('is_hagerland', { ascending: false }).order('name'), { maxRows: REPORT_MAX_ROWS }),
   ])
   const all = cats ?? []
   const categories = all

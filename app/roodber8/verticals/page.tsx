@@ -1,3 +1,4 @@
+import { readAll, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import Link from 'next/link'
 import { requireAdminPage } from '@/lib/admin/guard'
 import { getAdminSupabase } from '@/lib/supabase/admin'
@@ -12,7 +13,7 @@ export default async function VerticalsPage() {
   const db = getAdminSupabase()
   const [{ data }, { data: interest }] = await Promise.all([
     db.from('verticals').select('*').order('sort'),
-    db.from('interest_registrations').select('vertical_key').limit(50000),
+    readAll(() => db.from('interest_registrations').select('vertical_key'), { maxRows: REPORT_MAX_ROWS }),
   ])
   const counts = new Map<string, number>()
   for (const r of interest ?? []) counts.set(r.vertical_key, (counts.get(r.vertical_key) ?? 0) + 1)

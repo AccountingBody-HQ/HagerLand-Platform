@@ -1,6 +1,7 @@
 import 'server-only'
 // Supply Phase 3 (admin): everything the quote page needs to find suppliers for a customer's quote. Service role
 // only; never used by a customer page, email or export.
+import { readAll, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import type { Database } from '@/lib/database.types'
 import { itemKey } from './offers'
@@ -67,9 +68,9 @@ export async function quoteSupplyData(quote: { id: string; delivery_location_id:
   const [{ data: rawItems }, { data: lines }, { data: partnerRows }, { data: offers }, { data: contacts }, { data: cats }, chain, reliabilities] = await Promise.all([
     db.from('quote_request_items').select('id, free_text_item, quantity, unit, notes, category_id, added_by_admin, removed_at, product:products(id, name, sku, unit, price_type, price_etb_cents, category_id)').eq('quote_request_id', quote.id).order('created_at'),
     db.from('supply_quote_lines').select('*').eq('quote_request_id', quote.id).order('created_at'),
-    db.from('supply_partners').select('org_id, relationship_status, org:organisations(name)').limit(5000),
-    db.from('supplier_offers').select('id, org_id, branch_id, product_id, category_id, item_key, unit, pack_size, price_etb_cents, price_date, valid_until, min_order_qty, delivery_area_ids, delivery_charge_etb_cents, lead_time_days, vat_included, fx_linked, status').neq('status', 'superseded').limit(20000),
-    db.from('supply_contacts').select('org_id, name, phone, phone_normalised, whatsapp, telegram, do_not_contact, preferred_channel, created_at').order('created_at').limit(20000),
+    readAll(() => db.from('supply_partners').select('org_id, relationship_status, org:organisations(name)'), { maxRows: REPORT_MAX_ROWS, key: 'org_id' }),
+    readAll(() => db.from('supplier_offers').select('id, org_id, branch_id, product_id, category_id, item_key, unit, pack_size, price_etb_cents, price_date, valid_until, min_order_qty, delivery_area_ids, delivery_charge_etb_cents, lead_time_days, vat_included, fx_linked, status').neq('status', 'superseded'), { maxRows: REPORT_MAX_ROWS }),
+    readAll(() => db.from('supply_contacts').select('org_id, name, phone, phone_normalised, whatsapp, telegram, do_not_contact, preferred_channel, created_at').order('created_at'), { maxRows: REPORT_MAX_ROWS }),
     db.from('product_categories').select('id, name, parent_id, sort').order('sort').limit(500),
     placeChain(quote.delivery_location_id),
     reliabilityByPartner(),

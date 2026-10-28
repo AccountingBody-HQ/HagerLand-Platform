@@ -3,6 +3,7 @@ import 'server-only'
 // revoking or the end date takes it away (the business keeps "Claimed" if someone manages it, else "Listed").
 // The daily job sends one reminder 30 days before a badge ends, ends badges on time, ends "needs re-check" records
 // after 30 days and, only while the owner's legacy clean-up switch is on, gives legacy badges 90 days (F3).
+import { readAll, readAllIn, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { log } from '@/lib/log'
 import { orgManagerEmails } from '@/lib/enquiries'
@@ -28,7 +29,7 @@ export async function liveRecords(orgIds: string[]): Promise<Map<string, LiveRec
   const out = new Map<string, LiveRecord>()
   const ids = Array.from(new Set(orgIds.filter(Boolean)))
   if (!ids.length) return out
-  const { data } = await getAdminSupabase().from('employer_verifications').select(RECORD_COLUMNS).in('organisation_id', ids).in('status', ['active', 'needs_recheck'])
+  const { data } = await readAllIn(ids, (part) => getAdminSupabase().from('employer_verifications').select(RECORD_COLUMNS).in('organisation_id', part).in('status', ['active', 'needs_recheck']), { maxRows: REPORT_MAX_ROWS })
   const today = todayAddis()
   for (const r of data ?? []) if (isLiveRecord(r, today)) out.set(r.organisation_id, { id: r.id, verified_at: r.verified_at, valid_until: r.valid_until, ends_on: recordEndsOn(r), status: r.status })
   return out
@@ -131,8 +132,7 @@ export async function runVerificationDaily(now: number): Promise<VerificationDai
   const db = getAdminSupabase()
   const today = todayAddis(new Date(now))
   const counts: VerificationDailyCounts = { reminders: 0, ended: 0, legacyReminders: 0, legacyEnded: 0 }
-  const { data: live, error } = await db.from('employer_verifications').select(RECORD_COLUMNS).in('status', ['active', 'needs_recheck']).limit(5000)
-  if (error) throw new Error(error.message)
+  const { data: live } = await readAll(() => db.from('employer_verifications').select(RECORD_COLUMNS).in('status', ['active', 'needs_recheck']), { maxRows: REPORT_MAX_ROWS })
   for (const r of live ?? []) {
     const ends = recordEndsOn(r)
     try {
@@ -152,9 +152,9 @@ export async function runVerificationDaily(now: number): Promise<VerificationDai
   const started = await legacyCleanupStartedOn()
   if (started) {
     const ends = legacyEndsOn(started)
-    const { data: verified } = await db.from('organisations').select('id').eq('verification_level', 'verified').eq('is_hagerland', false).limit(5000)
+    const { data: verified } = await readAll(() => db.from('organisations').select('id').eq('verification_level', 'verified').eq('is_hagerland', false), { maxRows: REPORT_MAX_ROWS })
     const ids = (verified ?? []).map((o) => o.id)
-    const { data: withRecord } = ids.length ? await db.from('employer_verifications').select('organisation_id').in('organisation_id', ids) : { data: [] }
+    const { data: withRecord } = await readAllIn(ids, (part) => db.from('employer_verifications').select('organisation_id').in('organisation_id', part), { maxRows: REPORT_MAX_ROWS })
     const hasRecord = new Set((withRecord ?? []).map((r) => r.organisation_id))
     for (const id of ids.filter((x) => !hasRecord.has(x))) {
       try {
@@ -177,13 +177,13 @@ export async function runVerificationDaily(now: number): Promise<VerificationDai
 export async function verificationDigestCounts(now: number): Promise<[string, number][]> {
   const db = getAdminSupabase()
   const today = todayAddis(new Date(now))
-  const { data: live } = await db.from('employer_verifications').select(RECORD_COLUMNS).in('status', ['active', 'needs_recheck']).limit(5000)
+  const { data: live } = await readAll(() => db.from('employer_verifications').select(RECORD_COLUMNS).in('status', ['active', 'needs_recheck']), { maxRows: REPORT_MAX_ROWS })
   let ending = (live ?? []).filter((r) => isLiveRecord(r, today) && inReminderWindow(recordEndsOn(r), today)).length
   const started = await legacyCleanupStartedOn()
   if (started && inReminderWindow(legacyEndsOn(started), today)) {
-    const { data: verified } = await db.from('organisations').select('id').eq('verification_level', 'verified').eq('is_hagerland', false).limit(5000)
+    const { data: verified } = await readAll(() => db.from('organisations').select('id').eq('verification_level', 'verified').eq('is_hagerland', false), { maxRows: REPORT_MAX_ROWS })
     const ids = (verified ?? []).map((o) => o.id)
-    const { data: withRecord } = ids.length ? await db.from('employer_verifications').select('organisation_id').in('organisation_id', ids) : { data: [] }
+    const { data: withRecord } = await readAllIn(ids, (part) => db.from('employer_verifications').select('organisation_id').in('organisation_id', part), { maxRows: REPORT_MAX_ROWS })
     const hasRecord = new Set((withRecord ?? []).map((r) => r.organisation_id))
     ending += ids.filter((x) => !hasRecord.has(x)).length
   }

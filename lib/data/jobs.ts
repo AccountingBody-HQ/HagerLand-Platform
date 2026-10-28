@@ -1,4 +1,5 @@
 import 'server-only'
+import { readAll } from '@/lib/admin/read-all'
 import { cache } from 'react'
 import type { Database } from '@/lib/database.types'
 import { getPublicSupabase } from '@/lib/supabase/public'
@@ -77,8 +78,9 @@ export const getJobBySlug = cache(async (slug: string): Promise<PublicJob | null
 /** Every open job's slug and update time, for the sitemap. */
 export async function jobSitemapEntries(): Promise<{ slug: string; updated_at: string }[]> {
   return safeQuery('job sitemap', [], async () => {
-    const { data, error } = await getPublicSupabase({ tags: [listTag('job')], revalidate: 3600 }).from('jobs_public').select('slug, updated_at').limit(5000)
-    if (error) throw error
+    const db = getPublicSupabase({ tags: [listTag('job')], revalidate: 3600 })
+    // Fix F-1: every open job, page by page (Supabase returns at most 1,000 rows per request); 50,000 is the sitemap limit.
+    const { data } = await readAll(() => db.from('jobs_public').select('slug, updated_at'), { maxRows: 50_000 })
     return (data ?? []).map((j) => ({ slug: j.slug ?? '', updated_at: j.updated_at ?? '' })).filter((j) => j.slug)
   })
 }

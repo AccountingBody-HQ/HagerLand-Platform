@@ -1,3 +1,4 @@
+import { readAll, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import { requireAdminPage } from '@/lib/admin/guard'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { formatDate } from '@/lib/format'
@@ -26,7 +27,7 @@ export default async function InterestPage(props: { searchParams: Promise<Record
   const [{ data }, { data: verticals }, { data: cats }] = await Promise.all([
     q,
     db.from('verticals').select('key, name').order('sort'),
-    db.from('interest_registrations').select('category').not('category', 'is', null).limit(5000),
+    readAll(() => db.from('interest_registrations').select('category').not('category', 'is', null), { maxRows: REPORT_MAX_ROWS }),
   ])
   const rows = (data ?? []).slice(0, PAGE)
   const names = new Map((verticals ?? []).map((v) => [v.key, v.name]))

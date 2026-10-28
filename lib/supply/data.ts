@@ -1,6 +1,7 @@
 import 'server-only'
 // Supply partners (admin): reads for the organisation panel and the partner list. Service role only: the tables
 // have no grants, so nothing here is reachable by visitors, customers or suppliers.
+import { readAll, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { escapeLikePattern } from '@/lib/security'
 import { signedDocumentUrl } from '@/lib/storage'
@@ -85,23 +86,23 @@ export interface PartnerListRow {
   reverifyBy: string | null
 }
 
-const LIST_CAP = 5000
-
 /**
  * Supply partners for the admin list. Status, role and re-verification filters run in the database; the search
  * (name, other names, or any phone in normalised form) runs here, which suits the expected hundreds of partners.
  */
 export async function listSupplyPartners(f: PartnerListFilters): Promise<PartnerListRow[]> {
   const db = getAdminSupabase()
-  let query = db
-    .from('supply_partners')
-    .select('org_id, roles, aka, relationship_status, status_changed_at, reverify_by, org:organisations!inner(name, kind, status, phone, whatsapp, telegram, location:locations(display_name))')
-    .order('status_changed_at', { ascending: false, nullsFirst: false })
-    .limit(LIST_CAP)
-  if (f.status) query = query.eq('relationship_status', f.status)
-  if (f.role) query = query.contains('roles', [f.role])
-  if (f.due) query = query.lte('reverify_by', new Date().toISOString().slice(0, 10))
-  const { data } = await query
+  // Fix F-1: every partner, page by page (the search below runs here and must see them all).
+  const { data } = await readAll(() => {
+    let query = db
+      .from('supply_partners')
+      .select('org_id, roles, aka, relationship_status, status_changed_at, reverify_by, org:organisations!inner(name, kind, status, phone, whatsapp, telegram, location:locations(display_name))')
+      .order('status_changed_at', { ascending: false, nullsFirst: false })
+    if (f.status) query = query.eq('relationship_status', f.status)
+    if (f.role) query = query.contains('roles', [f.role])
+    if (f.due) query = query.lte('reverify_by', new Date().toISOString().slice(0, 10))
+    return query
+  }, { maxRows: REPORT_MAX_ROWS, key: 'org_id' })
   const phonesByOrg = new Map<string, string[]>()
   const rows: PartnerListRow[] = (data ?? []).map((r) => {
     const org = r.org as unknown as { name: string; kind: string; status: string; phone: string | null; whatsapp: string | null; telegram: string | null; location: { display_name: string } | null }
@@ -125,7 +126,7 @@ export async function listSupplyPartners(f: PartnerListFilters): Promise<Partner
 
   const phone = /\d{6}/.test(q.replace(/\D/g, '')) ? normaliseSupplyPhone(q) : null
   if (phone) {
-    const { data: contacts } = await db.from('supply_contacts').select('org_id').eq('phone_normalised', phone).limit(LIST_CAP)
+    const { data: contacts } = await readAll(() => db.from('supply_contacts').select('org_id').eq('phone_normalised', phone), { maxRows: REPORT_MAX_ROWS })
     const viaContacts = new Set((contacts ?? []).map((c) => c.org_id))
     return rows.filter((r) => viaContacts.has(r.orgId) || (phonesByOrg.get(r.orgId) ?? []).includes(phone))
   }

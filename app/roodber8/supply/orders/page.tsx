@@ -1,3 +1,4 @@
+import { readAll, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import Link from 'next/link'
 import { isOwnerSession, requireAdminPage } from '@/lib/admin/guard'
 import { supplyActionItems } from '@/lib/supply/insights-data'
@@ -20,7 +21,7 @@ export default async function SupplyOrdersPage(props: { searchParams: Promise<Re
   const owner = await isOwnerSession()
   const [rows, { data: suppliers }, extra] = await Promise.all([
     listOrders({ status, model, orgId, action }),
-    getAdminSupabase().from('supply_orders').select('org_id, org:organisations(name)').limit(2000),
+    readAll(() => getAdminSupabase().from('supply_orders').select('org_id, org:organisations(name)'), { maxRows: REPORT_MAX_ROWS }),
     // Agreement and commission items only for the owner (decided here, on the server).
     action ? supplyActionItems(owner) : Promise.resolve([]),
   ])

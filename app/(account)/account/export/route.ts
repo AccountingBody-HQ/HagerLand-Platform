@@ -1,3 +1,4 @@
+import { readAll, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import { NextResponse, type NextRequest } from 'next/server'
 import { getUser } from '@/lib/auth'
 import { getAdminSupabase } from '@/lib/supabase/admin'
@@ -20,18 +21,18 @@ export async function GET(request: NextRequest) {
   try {
     const [profile, memberships, listings, enquiries, quotes, serviceRequests, saved, searches, quoteList, applications, candidate, trade, interest] = await Promise.all([
       db.from('profiles').select('*').eq('id', id).maybeSingle(),
-      db.from('organisation_members').select('role, created_at, organisations(name, slug, kind)').eq('user_id', id),
-      db.from('properties').select('id, title, slug, status, purpose, property_type, price_etb, created_at, updated_at').eq('lister_user_id', id),
-      db.from('enquiries').select('reference, target_type, name, phone, email, message, intent, created_at').eq('sender_user_id', id),
-      db.from('quote_requests').select('reference, status, name, phone, email, notes, created_at').eq('requester_user_id', id),
-      db.from('service_requests').select('reference, title, details, status, created_at').eq('requester_user_id', id),
-      db.from('saved_items').select('entity_type, entity_id, created_at').eq('user_id', id),
-      db.from('saved_searches').select('name, params, alert_frequency, created_at').eq('user_id', id),
+      readAll(() => db.from('organisation_members').select('role, created_at, organisations(name, slug, kind)').eq('user_id', id), { maxRows: REPORT_MAX_ROWS, key: ['org_id', 'user_id'] }),
+      readAll(() => db.from('properties').select('id, title, slug, status, purpose, property_type, price_etb, created_at, updated_at').eq('lister_user_id', id), { maxRows: REPORT_MAX_ROWS }),
+      readAll(() => db.from('enquiries').select('reference, target_type, name, phone, email, message, intent, created_at').eq('sender_user_id', id), { maxRows: REPORT_MAX_ROWS }),
+      readAll(() => db.from('quote_requests').select('reference, status, name, phone, email, notes, created_at').eq('requester_user_id', id), { maxRows: REPORT_MAX_ROWS }),
+      readAll(() => db.from('service_requests').select('reference, title, details, status, created_at').eq('requester_user_id', id), { maxRows: REPORT_MAX_ROWS }),
+      readAll(() => db.from('saved_items').select('entity_type, entity_id, created_at').eq('user_id', id), { maxRows: REPORT_MAX_ROWS, key: ['user_id', 'entity_type', 'entity_id'] }),
+      readAll(() => db.from('saved_searches').select('name, params, alert_frequency, created_at').eq('user_id', id), { maxRows: REPORT_MAX_ROWS }),
       db.from('quote_lists').select('items, updated_at').eq('user_id', id).maybeSingle(),
-      db.from('job_applications').select('reference, name, email, phone, cover_note, status, created_at').eq('applicant_user_id', id),
+      readAll(() => db.from('job_applications').select('reference, name, email, phone, cover_note, status, created_at').eq('applicant_user_id', id), { maxRows: REPORT_MAX_ROWS }),
       db.from('candidate_profiles').select('full_name, headline, skills, qualifications, experience_years, experience, availability, visibility, placement_wanted, created_at, updated_at').eq('user_id', id).maybeSingle(),
       db.from('trade_accounts').select('reference, business_name, trade_type, phone, tin, status, created_at').eq('user_id', id).maybeSingle(),
-      email ? db.from('interest_registrations').select('reference, vertical_key, category, name, email, phone, message, marketing_consent, created_at').eq('email', email) : Promise.resolve({ data: [] }),
+      email ? readAll(() => db.from('interest_registrations').select('reference, vertical_key, category, name, email, phone, message, marketing_consent, created_at').eq('email', email), { maxRows: REPORT_MAX_ROWS }) : Promise.resolve({ data: [] }),
     ])
     const body = {
       exported_at: new Date().toISOString(),

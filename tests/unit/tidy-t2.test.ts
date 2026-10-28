@@ -9,7 +9,7 @@ let failTable: string | null = null
 function builder(table: string) {
   const b: Record<string, unknown> = {}
   const self = () => b
-  for (const m of ['select', 'eq', 'neq', 'is', 'not', 'lt', 'lte', 'gt', 'gte', 'order', 'limit', 'maybeSingle', 'single']) b[m] = self
+  for (const m of ['select', 'eq', 'neq', 'is', 'not', 'lt', 'lte', 'gt', 'gte', 'order', 'limit', 'range', 'maybeSingle', 'single']) b[m] = self
   b.in = (column: string, ids: unknown[]) => {
     calls.push({ table, column, ids })
     return b

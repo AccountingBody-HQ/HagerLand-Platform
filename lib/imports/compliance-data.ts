@@ -2,6 +2,7 @@ import 'server-only'
 // Imports compliance (admin, service role): loads imported businesses with where each field came from, runs the
 // clean-up (dry run unless the owner switched it to live), and records confirmations with the business. Never deletes
 // a row; never touches a public or claimed business automatically. Rules: lib/imports/compliance.ts.
+import { readAll, readAllIn, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import type { TablesUpdate } from '@/lib/database.types'
 import { shortId } from '@/lib/slug'
@@ -57,16 +58,18 @@ export async function loadImported(today = todayInAddis()): Promise<ImportedRow[
   const db = getAdminSupabase()
   const [{ data: orgs }, { data: rows }] = must(
     await Promise.all([
-      db.from('organisations').select('id, name, kind, status, claimed_at, google_place_id, created_at, source').eq('source', 'import').limit(20000),
-      db.from('org_field_sources').select('org_id, field, source, fetched_at, confirmed_at, cleared_at').eq('is_current', true).limit(100000),
+      readAll(() => db.from('organisations').select('id, name, kind, status, claimed_at, google_place_id, created_at, source').eq('source', 'import'), { maxRows: REPORT_MAX_ROWS }),
+      readAll(() => db.from('org_field_sources').select('org_id, field, source, fetched_at, confirmed_at, cleared_at').eq('is_current', true), { maxRows: REPORT_MAX_ROWS }),
     ]),
   )
   const byOrg = new Map<string, FieldSourceRow[]>()
   for (const r of rows ?? []) byOrg.set(r.org_id, [...(byOrg.get(r.org_id) ?? []), { field: r.field as TrackedField, source: r.source as FieldSource, fetchedAt: r.fetched_at, confirmedAt: r.confirmed_at, clearedAt: r.cleared_at }])
-  const extraIds = Array.from(byOrg.keys()).filter((id) => !(orgs ?? []).some((o) => o.id === id))
-  const { data: extra } = extraIds.length ? must(await db.from('organisations').select('id, name, kind, status, claimed_at, google_place_id, created_at, source').in('id', extraIds)) : { data: [] }
+  const imported = new Set((orgs ?? []).map((o) => o.id))
+  const extraIds = Array.from(byOrg.keys()).filter((id) => !imported.has(id))
+  // Fix F-1: long id lists in parts of 50, each read page by page (never one request with every imported business).
+  const { data: extra } = await readAllIn(extraIds, (part) => db.from('organisations').select('id, name, kind, status, claimed_at, google_place_id, created_at, source').in('id', part), { maxRows: REPORT_MAX_ROWS })
   const all = [...(orgs ?? []), ...(extra ?? [])]
-  const { data: partners } = all.length ? must(await db.from('supply_partners').select('org_id').in('org_id', all.map((o) => o.id))) : { data: [] }
+  const { data: partners } = await readAllIn(all.map((o) => o.id), (part) => db.from('supply_partners').select('org_id').in('org_id', part), { maxRows: REPORT_MAX_ROWS, key: 'org_id' })
   const supply = new Set((partners ?? []).map((p) => p.org_id))
   return all.map((o) => {
     const sources = byOrg.get(o.id) ?? []
@@ -104,8 +107,8 @@ export async function importPublishBlock(orgIds: string[]): Promise<Map<string, 
   const db = getAdminSupabase()
   const [{ data: orgs }, { data: rows }] = must(
     await Promise.all([
-      db.from('organisations').select('id, status, claimed_at, source').in('id', orgIds).eq('source', 'import'),
-      db.from('org_field_sources').select('org_id, field, source, fetched_at, confirmed_at, cleared_at').in('org_id', orgIds).eq('is_current', true),
+      readAllIn(orgIds, (part) => db.from('organisations').select('id, status, claimed_at, source').in('id', part).eq('source', 'import'), { maxRows: REPORT_MAX_ROWS }),
+      readAllIn(orgIds, (part) => db.from('org_field_sources').select('org_id, field, source, fetched_at, confirmed_at, cleared_at').in('org_id', part).eq('is_current', true), { maxRows: REPORT_MAX_ROWS }),
     ]),
   )
   for (const o of orgs ?? []) {

@@ -1,3 +1,4 @@
+import { readAll, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import Link from 'next/link'
 import { requireAdminPage } from '@/lib/admin/guard'
 import { getAdminSupabase } from '@/lib/supabase/admin'
@@ -18,7 +19,7 @@ export default async function CarePipelinePage(props: { searchParams: Promise<{ 
   const db = getAdminSupabase()
   let q = db.from('property_care_requests').select('id, reference, created_at, name, country_code, city, property_type, services, status').order('created_at', { ascending: false }).limit(500)
   if (status) q = q.eq('status', status)
-  const [{ data }, { data: all }] = await Promise.all([q, db.from('property_care_requests').select('status').limit(10000)])
+  const [{ data }, { data: all }] = await Promise.all([q, readAll(() => db.from('property_care_requests').select('status'), { maxRows: REPORT_MAX_ROWS })])
   const counts = new Map<string, number>()
   for (const r of all ?? []) counts.set(r.status, (counts.get(r.status) ?? 0) + 1)
   return (

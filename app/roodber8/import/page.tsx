@@ -1,3 +1,4 @@
+import { readAll, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import Link from 'next/link'
 import { requireAdminPage } from '@/lib/admin/guard'
 import { getAdminSupabase } from '@/lib/supabase/admin'
@@ -27,7 +28,7 @@ export default async function ImportPage(props: { searchParams: Promise<{ tab?: 
   if (tab === 'search') {
     const [{ data: services }, { data: locations }] = await Promise.all([
       db.from('service_categories').select('id, name, parent_id').eq('is_active', true).order('sort'),
-      db.from('locations').select('id, display_name, level').eq('is_active', true).neq('level', 'area').order('display_name'),
+      readAll(() => db.from('locations').select('id, display_name, level').eq('is_active', true).neq('level', 'area').order('display_name'), { maxRows: REPORT_MAX_ROWS }),
     ])
     const byId = new Map((services ?? []).map((s) => [s.id, s.name]))
     body = (
