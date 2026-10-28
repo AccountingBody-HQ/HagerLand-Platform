@@ -18,6 +18,7 @@ import { revalidateEntity } from '@/lib/revalidate'
 import { QUOTE_VALID_DAYS } from '@/lib/listing-rules'
 import { canonicalUrl } from '@/lib/site'
 import { log } from '@/lib/log'
+import { backupReminderLine } from '@/lib/backup-reminder'
 import { tenancyReminderEmail, viewingConfirmedEmail } from '@/lib/email/agency'
 import { hagerlandInbox } from '@/lib/enquiries'
 import { demandDigestLine } from '@/lib/admin/demand'
@@ -383,6 +384,13 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
     log.error('cron', 'recruitment fees digest failed', err)
   }
   for (const e of errors.data ?? []) lines.push([`Error ×${e.count}`, `${e.route}: ${e.message}`.slice(0, 160)])
+  // Fix F-6: every Monday (Addis Ababa date) a reminder to run the backup; it also makes sure a Monday digest is sent.
+  try {
+    const reminder = backupReminderLine(new Date(now))
+    if (reminder) lines.push(reminder)
+  } catch (err) {
+    log.error('cron', 'backup reminder failed', err)
+  }
   return lines
 }
 
