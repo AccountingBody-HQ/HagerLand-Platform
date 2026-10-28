@@ -5,12 +5,13 @@ import { GUIDE_TOPICS } from '@/lib/guides'
 import { formatDate } from '@/lib/format'
 import { AdminHeader, DataTable, StatusBadge } from '@/components/admin/AdminUi'
 import { ButtonLink } from '@/components/ui/Button'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Guides' }
 
 export default async function AdminGuidesPage() {
   await requireAdminPage()
-  const { data } = await getAdminSupabase().from('guides').select('id, title, slug, topic, status, needs_review, updated_at').order('updated_at', { ascending: false })
+  const { data } = must(await getAdminSupabase().from('guides').select('id, title, slug, topic, status, needs_review, updated_at').order('updated_at', { ascending: false }))
   return (
     <div>
       <AdminHeader title="Guides" description="The /guides content hub. Drafts are not public. Starter drafts are marked “Needs AB review” and cannot be published until you tick “Content checked”." actions={

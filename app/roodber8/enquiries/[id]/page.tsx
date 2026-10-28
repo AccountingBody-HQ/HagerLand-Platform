@@ -10,6 +10,7 @@ import { ENQUIRY_TARGET_LABELS } from '@/components/admin/EnquiryList'
 import { LeadStatusTool } from '@/components/admin/LeadTools'
 import { NotesTool } from '@/components/admin/RecordTools'
 import { AuditTrail } from '@/components/admin/AuditTrail'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Enquiry' }
 
@@ -25,7 +26,7 @@ export default async function AdminEnquiryPage(props: { params: Promise<{ id: st
   const params = await props.params
   await requireAdminPage()
   const db = getAdminSupabase()
-  const { data: e } = await db.from('enquiries').select('*, org:organisations!enquiries_recipient_org_id_fkey(id, name)').eq('id', params.id).maybeSingle()
+  const { data: e } = must(await db.from('enquiries').select('*, org:organisations!enquiries_recipient_org_id_fkey(id, name)').eq('id', params.id).maybeSingle())
   if (!e) notFound()
   const [notes, trail] = await Promise.all([notesFor('enquiry', e.id), auditFor(e.id)])
   const details = (e.details as Record<string, string | number | boolean> | null) ?? {}

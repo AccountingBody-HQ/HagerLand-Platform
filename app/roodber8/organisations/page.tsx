@@ -7,6 +7,7 @@ import { formatDate } from '@/lib/format'
 import { ORG_KIND_LABEL } from '@/lib/org-labels'
 import { AdminHeader, DataTable, FilterBar, FilterField, filterInput, SimplePager, StatusBadge } from '@/components/admin/AdminUi'
 import { ButtonLink } from '@/components/ui/Button'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Organisations' }
 const PAGE = 50
@@ -24,7 +25,7 @@ export default async function AdminOrgsPage(props: { searchParams: Promise<Recor
   if (searchParams.status) q = q.eq('status', searchParams.status as 'published')
   if (searchParams.verification) q = q.eq('verification_level', searchParams.verification as 'listed')
   if (searchParams.source) q = q.eq('source', searchParams.source)
-  const { data, count } = await q.order('updated_at', { ascending: false }).range((page - 1) * PAGE, page * PAGE - 1)
+  const { data, count } = must(await q.order('updated_at', { ascending: false }).range((page - 1) * PAGE, page * PAGE - 1))
   return (
     <div>
       <AdminHeader

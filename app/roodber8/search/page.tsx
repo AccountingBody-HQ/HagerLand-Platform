@@ -5,6 +5,7 @@ import { getAdminSupabase } from '@/lib/supabase/admin'
 import { escapeLikePattern } from '@/lib/security'
 import { formatPhone, normalisePhone } from '@/lib/format'
 import { AdminHeader, Panel, StatusBadge } from '@/components/admin/AdminUi'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Search' }
 
@@ -31,15 +32,15 @@ export default async function AdminSearchPage(route: { searchParams: Promise<{ q
     const isEmail = term.includes('@')
     const looksLikeSku = /^[A-Z0-9-]{3,}$/i.test(term)
 
-    const [props, orgs, devs, prods, enqs, quotes, users] = await Promise.all([
+    const [props, orgs, devs, prods, enqs, quotes, users] = must(await Promise.all([
       isUuid ? db.from('properties').select('id, title, short_id, status').eq('id', term).limit(10) : isShort ? db.from('properties').select('id, title, short_id, status').eq('short_id', term.toLowerCase()).limit(10) : phone ? db.from('properties').select('id, title, short_id, status').eq('contact_phone', phone).limit(20) : db.from('properties').select('id, title, short_id, status').ilike('title', like).limit(20),
       isUuid ? db.from('organisations').select('id, name, kind, status').eq('id', term).limit(10) : phone ? db.from('organisations').select('id, name, kind, status').eq('phone', phone).limit(20) : isEmail ? db.from('organisations').select('id, name, kind, status').ilike('email', term).limit(20) : db.from('organisations').select('id, name, kind, status').ilike('name', like).limit(20),
       isUuid ? db.from('developments').select('id, name, status').eq('id', term).limit(10) : db.from('developments').select('id, name, status').ilike('name', like).limit(20),
-      isUuid ? db.from('products').select('id, name, sku, status').eq('id', term).limit(10) : Promise.all([db.from('products').select('id, name, sku, status').ilike('name', like).limit(20), looksLikeSku ? db.from('products').select('id, name, sku, status').ilike('sku', escapeLikePattern(term)).limit(5) : Promise.resolve({ data: [] })]).then(([byName, bySku]) => ({ data: [...(bySku.data ?? []), ...(byName.data ?? []).filter((n) => !(bySku.data ?? []).some((x) => x.id === n.id))] })),
+      isUuid ? db.from('products').select('id, name, sku, status').eq('id', term).limit(10) : Promise.all([db.from('products').select('id, name, sku, status').ilike('name', like).limit(20), looksLikeSku ? db.from('products').select('id, name, sku, status').ilike('sku', escapeLikePattern(term)).limit(5) : Promise.resolve({ data: [] })]).then(must).then(([byName, bySku]) => ({ data: [...(bySku.data ?? []), ...(byName.data ?? []).filter((n) => !(bySku.data ?? []).some((x) => x.id === n.id))] })),
       isRef && term.toUpperCase().startsWith('HLE') ? db.from('enquiries').select('id, reference, name, status').eq('reference', term.toUpperCase()) : phone ? db.from('enquiries').select('id, reference, name, status').eq('phone', phone).limit(20) : isEmail ? db.from('enquiries').select('id, reference, name, status').ilike('email', term).limit(20) : Promise.resolve({ data: [] as { id: string; reference: string; name: string; status: string }[] }),
       isRef && term.toUpperCase().startsWith('HLQ') ? db.from('quote_requests').select('id, reference, name, status').eq('reference', term.toUpperCase()) : phone ? db.from('quote_requests').select('id, reference, name, status').eq('phone', phone).limit(20) : isEmail ? db.from('quote_requests').select('id, reference, name, status').ilike('email', term).limit(20) : Promise.resolve({ data: [] as { id: string; reference: string; name: string; status: string }[] }),
       phone ? db.from('profiles').select('id, full_name, phone').eq('phone', phone).limit(20) : !isEmail && !isUuid && !isShort ? db.from('profiles').select('id, full_name, phone').ilike('full_name', like).limit(20) : isUuid ? db.from('profiles').select('id, full_name, phone').eq('id', term) : Promise.resolve({ data: [] as { id: string; full_name: string | null; phone: string | null }[] }),
-    ])
+    ]))
     groups.push(
       { title: 'Properties', hits: (props.data ?? []).map((r) => ({ href: `/roodber8/properties/${r.id}`, title: r.title, meta: r.short_id, status: r.status })) },
       { title: 'Organisations', hits: (orgs.data ?? []).map((r) => ({ href: `/roodber8/organisations/${r.id}`, title: r.name, meta: r.kind.replace('_', ' '), status: r.status })) },

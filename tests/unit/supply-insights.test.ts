@@ -222,9 +222,9 @@ describe('digest: supplies section', () => {
     const { supplyDigestLines } = await import('@/lib/supply/digest')
     expect(await supplyDigestLines(async () => [['Supplies: orders needing action', 2], ['Supplies: deliveries past the promised date', 0]])).toEqual([['Supplies: orders needing action', '2']])
   })
-  it('never stops the digest: a failure gives no lines', async () => {
+  it('never stops the digest: a failure gives one "Could not read" line (Fix F-2), never a 0 or a missing line', async () => {
     const { supplyDigestLines } = await import('@/lib/supply/digest')
-    expect(await supplyDigestLines(async () => Promise.reject(new Error('database down')))).toEqual([])
+    expect(await supplyDigestLines(async () => Promise.reject(new Error('database down')))).toEqual([['Could not read', 'Supplies figures']])
   })
 })
 

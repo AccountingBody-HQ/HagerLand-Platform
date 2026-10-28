@@ -2,6 +2,7 @@ import 'server-only'
 import { readAll, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { countBy, sumBy, weeklySeries } from './aggregate'
+import { must } from '@/lib/admin/must'
 
 export const REPORT_PERIODS = { '30': 30, '90': 90, '365': 365 } as const
 export type ReportPeriod = keyof typeof REPORT_PERIODS
@@ -63,6 +64,6 @@ export async function signupSeries(weeks: number) {
 }
 
 export async function searchMisses(limit = 50) {
-  const { data } = await getAdminSupabase().from('search_misses').select('q_normalised, vertical, count, last_seen_at').order('count', { ascending: false }).limit(limit)
+  const { data } = must(await getAdminSupabase().from('search_misses').select('q_normalised, vertical, count, last_seen_at').order('count', { ascending: false }).limit(limit))
   return data ?? []
 }

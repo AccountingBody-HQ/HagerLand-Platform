@@ -8,13 +8,14 @@ import { AdminHeader, KeyValue, Panel } from '@/components/admin/AdminUi'
 import { AgencyRecordSide } from '@/components/admin/AgencyRecordSide'
 import { TenancyFields } from '@/components/admin/TenancyFields'
 import { ActionForm } from '@/components/forms/ActionForm'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Tenancy' }
 
 export default async function TenancyPage(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound()
-  const { data: t } = await getAdminSupabase().from('tenancies').select('*, managed:managed_properties(id, reference, title), property:properties(title, slug), application:rental_applications(id, reference)').eq('id', id).maybeSingle()
+  const { data: t } = must(await getAdminSupabase().from('tenancies').select('*, managed:managed_properties(id, reference, title), property:properties(title, slug), application:rental_applications(id, reference)').eq('id', id).maybeSingle())
   if (!t) notFound()
   const one = <T,>(x: T | T[] | null): T | null => (Array.isArray(x) ? (x[0] ?? null) : x)
   const managed = one(t.managed)

@@ -10,6 +10,7 @@ import { AgencyRecordSide } from '@/components/admin/AgencyRecordSide'
 import { TenancyFields } from '@/components/admin/TenancyFields'
 import { ActionForm } from '@/components/forms/ActionForm'
 import { Field, Select, Textarea } from '@/components/ui/Field'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Application to rent' }
 
@@ -17,13 +18,13 @@ export default async function ApplicationPage(props: { params: Promise<{ id: str
   const { id } = await props.params
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound()
   const db = getAdminSupabase()
-  const { data: a } = await db.from('rental_applications').select('*, property:properties(title, slug, price_etb)').eq('id', id).maybeSingle()
+  const { data: a } = must(await db.from('rental_applications').select('*, property:properties(title, slug, price_etb)').eq('id', id).maybeSingle())
   if (!a) notFound()
   const p = Array.isArray(a.property) ? a.property[0] : a.property
-  const [{ data: tenancy }, files] = await Promise.all([
+  const [{ data: tenancy }, files] = must(await Promise.all([
     db.from('tenancies').select('id, reference').eq('application_id', a.id).maybeSingle(),
     Promise.all(a.document_paths.map(async (path, i) => ({ name: `Document ${i + 1}`, url: await signedDocumentUrl(path) }))),
-  ])
+  ]))
   return (
     <div className="space-y-5">
       <AdminHeader title={`Application ${a.reference} · ${a.name}`} description={`${STATUS_LABEL[a.status]} · received ${formatDate(a.created_at)}`} />

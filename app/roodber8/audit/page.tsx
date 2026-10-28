@@ -5,6 +5,7 @@ import { escapeLikePattern } from '@/lib/security'
 import { formatDate } from '@/lib/format'
 import { AdminHeader, DataTable, FilterBar, FilterField, filterInput, SimplePager } from '@/components/admin/AdminUi'
 import { ButtonLink } from '@/components/ui/Button'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Audit log' }
 const PAGE = 100
@@ -41,7 +42,7 @@ export default async function AuditPage(props: { searchParams: Promise<Record<st
   if (searchParams.type) q = q.eq('entity_type', searchParams.type.slice(0, 40))
   if (searchParams.from) q = q.gte('created_at', `${searchParams.from}T00:00:00Z`)
   if (searchParams.to) q = q.lte('created_at', `${searchParams.to}T23:59:59Z`)
-  const { data, count } = await q.order('created_at', { ascending: false }).range((page - 1) * PAGE, page * PAGE - 1)
+  const { data, count } = must(await q.order('created_at', { ascending: false }).range((page - 1) * PAGE, page * PAGE - 1))
   const params = new URLSearchParams(Object.entries(searchParams).filter((e): e is [string, string] => Boolean(e[1]) && e[0] !== 'page'))
   return (
     <div>

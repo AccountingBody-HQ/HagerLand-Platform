@@ -39,6 +39,7 @@ import { Field, Input, Select } from '@/components/ui/Field'
 import { RevokeBadge } from '@/components/admin/VerificationTools'
 import { recordVerificationCheckAction } from '@/app/roodber8/actions/verification'
 import { CHECK_METHODS, RECORD_STATUS_LABEL, recordEndsOn } from '@/lib/verification'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Organisation' }
 
@@ -49,9 +50,9 @@ export default async function AdminOrgPage(
   const params = await props.params
   await requireAdminPage()
   const db = getAdminSupabase()
-  const { data: o } = await db.from('organisations').select('*').eq('id', params.id).maybeSingle()
+  const { data: o } = must(await db.from('organisations').select('*').eq('id', params.id).maybeSingle())
   if (!o) notFound()
-  const [{ data: members }, { data: svc }, { data: cats }, { data: requests }, { data: candidates }, services, products, locations, notes, trail] = await Promise.all([
+  const [{ data: members }, { data: svc }, { data: cats }, { data: requests }, { data: candidates }, services, products, locations, notes, trail] = must(await Promise.all([
     db.from('organisation_members').select('user_id, role').eq('org_id', o.id),
     db.from('organisation_services').select('service_id').eq('org_id', o.id),
     db.from('org_product_categories').select('product_category_id').eq('org_id', o.id),
@@ -62,10 +63,10 @@ export default async function AdminOrgPage(
     getLocations(),
     notesFor('organisation', o.id),
     auditFor(o.id),
-  ])
+  ]))
   const [supply, prices, owner] = await Promise.all([getSupplyPartner(o.id), offerCounts([o.id]), isOwnerSession()])
   // Jobs Phase 4: the recorded checks behind the Verified badge (newest first).
-  const { data: checks } = await db.from('employer_verifications').select('id, status, licence_number, licence_expires_on, licence_check_method, licence_checked_at, tin_checked_at, phone_checked_at, phone_check_note, site_visit_at, verified_by, verified_at, valid_until, needs_recheck_since, revoked_at, revoked_by, revoked_reason').eq('organisation_id', o.id).order('created_at', { ascending: false })
+  const { data: checks } = must(await db.from('employer_verifications').select('id, status, licence_number, licence_expires_on, licence_check_method, licence_checked_at, tin_checked_at, phone_checked_at, phone_check_note, site_visit_at, verified_by, verified_at, valid_until, needs_recheck_since, revoked_at, revoked_by, revoked_reason').eq('organisation_id', o.id).order('created_at', { ascending: false }))
   const liveCheck = (checks ?? []).find((c) => ['active', 'needs_recheck'].includes(c.status)) ?? null
   const legacyBadge = o.verification_level === 'verified' && (checks ?? []).length === 0
   // Agreements are owner only: never loaded for staff (blueprint 13.3).
@@ -78,7 +79,7 @@ export default async function AdminOrgPage(
   const session = imported ? await getAdminSession() : null
   const [performance, activity, hiring] = await Promise.all([supply.partner ? partnerPerformanceRows({ orgIds: [o.id], owner }).then((r) => r[0] ?? null) : Promise.resolve(null), organisationActivity(o.id), organisationHiring(o.id)])
   const duplicates = supply.partner ? [] : await findPossibleDuplicates(o)
-  const { data: memberProfiles } = await db.from('profiles').select('id, full_name').in('id', (members ?? []).map((m) => m.user_id))
+  const { data: memberProfiles } = must(await db.from('profiles').select('id, full_name').in('id', (members ?? []).map((m) => m.user_id)))
   const memberEmails = await Promise.all(
     (members ?? []).map(async (m) => ({
       user_id: m.user_id,

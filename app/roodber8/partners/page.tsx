@@ -6,6 +6,7 @@ import { PARTNER_TYPE_LABELS, type PartnerType } from '@/lib/content/verticals'
 import { AdminHeader, DataTable, FilterBar, FilterField, StatusBadge, filterInput } from '@/components/admin/AdminUi'
 import { LeadTool } from '@/components/admin/VerticalTools'
 import { ButtonLink } from '@/components/ui/Button'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Partner applications' }
 
@@ -18,7 +19,7 @@ export default async function PartnersPage(props: { searchParams: Promise<Record
   const status = STATUSES.includes(searchParams.status ?? '') ? searchParams.status : undefined
   let q = db.from('partner_applications').select('*').order('created_at', { ascending: false }).limit(500)
   if (status) q = q.eq('status', status)
-  const [{ data }, { data: verticals }] = await Promise.all([q, db.from('verticals').select('key, name')])
+  const [{ data }, { data: verticals }] = must(await Promise.all([q, db.from('verticals').select('key, name')]))
   const names = new Map((verticals ?? []).map((v) => [v.key, v.name]))
   return (
     <div>

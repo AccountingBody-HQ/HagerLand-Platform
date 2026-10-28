@@ -8,7 +8,7 @@ export interface AdminNavItem {
   href: string
   label: string
   icon: LucideIcon
-  /** Key of the count shown next to the item (lib/admin/counts.ts). */
+  /** Key of the count shown next to the item (lib/admin/counts.ts BADGE_COUNTS); "!" when it could not be counted. */
   badgeKey?: string
 }
 
@@ -28,7 +28,7 @@ export const ADMIN_NAV_GROUPS: readonly AdminNavGroup[] = [
   {
     label: 'Customer requests',
     items: [
-      { href: '/roodber8/enquiries', label: 'Enquiries', icon: Inbox },
+      { href: '/roodber8/enquiries', label: 'Enquiries', icon: Inbox, badgeKey: 'enquiries' },
       { href: '/roodber8/quotes', label: 'Quotes', icon: ClipboardList, badgeKey: 'quotes' },
       { href: '/roodber8/service-requests', label: 'Service requests', icon: Wrench, badgeKey: 'requests' },
       { href: '/roodber8/projects', label: 'Building projects', icon: HardHat },
@@ -52,7 +52,7 @@ export const ADMIN_NAV_GROUPS: readonly AdminNavGroup[] = [
       { href: '/roodber8/jobs', label: 'Jobs and applications', icon: Briefcase },
       { href: '/roodber8/jobs/desk', label: 'Recruitment desk', icon: Handshake },
       { href: '/roodber8/jobs/register', label: 'Worker register', icon: Users },
-      { href: '/roodber8/jobs/callbacks', label: 'Call-back requests', icon: PhoneCall },
+      { href: '/roodber8/jobs/callbacks', label: 'Call-back requests', icon: PhoneCall, badgeKey: 'callbacks' },
       { href: '/roodber8/demand/jobs', label: 'Jobs insights', icon: TrendingUp },
     ],
   },
@@ -70,8 +70,8 @@ export const ADMIN_NAV_GROUPS: readonly AdminNavGroup[] = [
     label: 'Businesses & people',
     items: [
       { href: '/roodber8/organisations', label: 'Organisations', icon: Store },
-      { href: '/roodber8/users', label: 'Users', icon: Users },
-      { href: '/roodber8/partners', label: 'Partner applications', icon: Handshake },
+      { href: '/roodber8/users', label: 'Users', icon: Users, badgeKey: 'users' },
+      { href: '/roodber8/partners', label: 'Partner applications', icon: Handshake, badgeKey: 'partners' },
       { href: '/roodber8/import', label: 'Imports', icon: Import },
       { href: '/roodber8/imports/compliance', label: 'Imports compliance', icon: ShieldCheck },
       { href: '/roodber8/reviews', label: 'Reviews', icon: Star, badgeKey: 'reviews' },

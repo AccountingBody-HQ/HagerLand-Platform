@@ -44,6 +44,7 @@ import { RunButton } from '@/components/admin/AgencyTools'
 import { Checkbox, Field, Input, Select, Textarea } from '@/components/ui/Field'
 import { Badge } from '@/components/ui/Badge'
 import { AdultConfirm, CancelPlacement, FeeTools, IntroduceSelector, WithdrawConsent, type FeeEntryView, type FeeTermsView } from '@/components/admin/RecruitmentDeskTools'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Recruitment assignment' }
 
@@ -79,35 +80,35 @@ export default async function RecruitmentAssignmentPage(props: { params: Promise
   await requireAdminPage()
   if (!/^[0-9a-f-]{36}$/.test(params.id)) notFound()
   const db = getAdminSupabase()
-  const { data: a } = await db.from('recruitment_assignments').select('*, request:service_requests(id, reference, title), org:organisations(name, slug)').eq('id', params.id).maybeSingle()
+  const { data: a } = must(await db.from('recruitment_assignments').select('*, request:service_requests(id, reference, title), org:organisations(name, slug)').eq('id', params.id).maybeSingle())
   if (!a) notFound()
-  const [owner, switches, { data: candidates }, { data: placements }, { data: events }] = await Promise.all([
+  const [owner, switches, { data: candidates }, { data: placements }, { data: events }] = must(await Promise.all([
     isOwnerSession(),
     readJobsSwitches(),
     db.from('recruitment_candidates').select('*').eq('assignment_id', a.id).order('created_at'),
     db.from('recruitment_placements').select('*').eq('assignment_id', a.id).order('created_at'),
     db.from('recruitment_events').select('id, step, candidate_id, placement_id, actor, created_at').eq('assignment_id', a.id).order('created_at', { ascending: false }).limit(200),
-  ])
+  ]))
   // Jobs Phase 4: jobs HagerLand posted for this private-client assignment, and their applications.
-  const [{ data: clientJobs }, { data: placeOptions }] = await Promise.all([
+  const [{ data: clientJobs }, { data: placeOptions }] = must(await Promise.all([
     db.from('job_posts').select('id, title, status, approved_by').eq('recruitment_assignment_id', a.id).order('created_at'),
     a.private_client ? db.from('locations').select('id, display_name').eq('country_code', 'ET').in('level', ['city', 'sub_city']).eq('is_active', true).order('display_name').limit(500) : Promise.resolve({ data: [] }),
-  ])
+  ]))
   const clientJobIds = (clientJobs ?? []).map((j) => j.id)
-  const { data: clientApps } = clientJobIds.length ? await db.from('job_applications').select('id, reference, job_id, name, channel, trade, status, created_at, personal_data_deleted_at').in('job_id', clientJobIds).order('created_at', { ascending: false }) : { data: [] }
+  const { data: clientApps } = clientJobIds.length ? must(await db.from('job_applications').select('id, reference, job_id, name, channel, trade, status, created_at, personal_data_deleted_at').in('job_id', clientJobIds).order('created_at', { ascending: false })) : { data: [] }
   const rows = candidates ?? []
   const byId = new Map(rows.map((c) => [c.id, c]))
   const shortlisted = new Set(rows.map((c) => c.application_id).filter(Boolean))
   const places = placements ?? []
   const placementIds = places.map((p) => p.id)
   // Operations: only whether the fee is agreed in writing. Owner: the terms and the fee record.
-  const { data: feeStatus } = placementIds.length ? await db.from('recruitment_fee_terms').select('placement_id, status').in('placement_id', placementIds) : { data: [] }
+  const { data: feeStatus } = placementIds.length ? must(await db.from('recruitment_fee_terms').select('placement_id, status').in('placement_id', placementIds)) : { data: [] }
   const agreed = new Map((feeStatus ?? []).map((t) => [t.placement_id, ['agreed', 'invoiced', 'paid'].includes(t.status)]))
   const feeViews = new Map<string, { terms: FeeTermsView | null; entries: FeeEntryView[]; totals: { due: string; received: string; waived: string; outstanding: string } | null }>()
   if (owner && placementIds.length) {
-    const { data: terms } = await db.from('recruitment_fee_terms').select('*').in('placement_id', placementIds)
+    const { data: terms } = must(await db.from('recruitment_fee_terms').select('*').in('placement_id', placementIds))
     const termIds = (terms ?? []).map((t) => t.id)
-    const { data: entries } = termIds.length ? await db.from('recruitment_fee_entries').select('*').in('fee_terms_id', termIds).order('created_at') : { data: [] }
+    const { data: entries } = termIds.length ? must(await db.from('recruitment_fee_entries').select('*').in('fee_terms_id', termIds).order('created_at')) : { data: [] }
     for (const p of places) {
       const t = (terms ?? []).find((x) => x.placement_id === p.id)
       const mine = (entries ?? []).filter((e) => t && e.fee_terms_id === t.id)

@@ -6,6 +6,7 @@ import { AdminHeader, DataTable, Panel } from '@/components/admin/AdminUi'
 import { NewPromotion, PromotionEndTool } from '@/components/admin/PromotionTools'
 import { Badge } from '@/components/ui/Badge'
 import { cn } from '@/lib/cn'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Promotions' }
 
@@ -21,15 +22,15 @@ export default async function PromotionsPage(route: { searchParams: Promise<{ sh
   if (show === 'active') q = q.lte('starts_at', now).gt('ends_at', now).order('ends_at')
   if (show === 'upcoming') q = q.gt('starts_at', now).order('starts_at')
   if (show === 'ended') q = q.lte('ends_at', now).order('ends_at', { ascending: false }).limit(200)
-  const { data: promos } = await q
+  const { data: promos } = must(await q)
   const rows = promos ?? []
   const ids = (t: string) => rows.filter((r) => r.entity_type === t).map((r) => r.entity_id)
-  const [props, devs, orgs, prods] = await Promise.all([
+  const [props, devs, orgs, prods] = must(await Promise.all([
     ids('property').length ? db.from('properties').select('id, title').in('id', ids('property')) : { data: [] },
     ids('development').length ? db.from('developments').select('id, name').in('id', ids('development')) : { data: [] },
     ids('organisation').length ? db.from('organisations').select('id, name').in('id', ids('organisation')) : { data: [] },
     ids('product').length ? db.from('products').select('id, name').in('id', ids('product')) : { data: [] },
-  ])
+  ]))
   const names = new Map<string, string>([
     ...(props.data ?? []).map((r): [string, string] => [r.id, r.title]),
     ...[...(devs.data ?? []), ...(orgs.data ?? []), ...(prods.data ?? [])].map((r): [string, string] => [r.id, r.name]),

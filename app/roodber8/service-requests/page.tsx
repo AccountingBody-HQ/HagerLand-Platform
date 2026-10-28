@@ -8,6 +8,7 @@ import { isVerticalKey } from '@/lib/verticals'
 import { AdminHeader, DataTable, FilterBar, FilterField, SimplePager, StatusBadge, filterInput } from '@/components/admin/AdminUi'
 import { Badge } from '@/components/ui/Badge'
 import { ButtonLink } from '@/components/ui/Button'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Service requests' }
 
@@ -27,7 +28,7 @@ export default async function ServiceRequestsPage(props: { searchParams: Promise
   q = status === 'open' ? q.in('status', ['submitted', 'triaged', 'matched', 'quoted']) : q.eq('status', status)
   if (vertical) q = q.eq('vertical_key', vertical)
   if (urgency) q = q.eq('urgency', urgency)
-  const [{ data }, { data: verticals }, { data: cats }] = await Promise.all([q, db.from('verticals').select('key, name').order('sort'), db.from('service_categories').select('id, name')])
+  const [{ data }, { data: verticals }, { data: cats }] = must(await Promise.all([q, db.from('verticals').select('key, name').order('sort'), db.from('service_categories').select('id, name')]))
   const rows = (data ?? []).slice(0, PAGE).sort((a, b) => Number(b.urgency === 'emergency') - Number(a.urgency === 'emergency'))
   const catName = new Map((cats ?? []).map((c) => [c.id, c.name]))
   const vName = new Map((verticals ?? []).map((v) => [v.key, v.name]))

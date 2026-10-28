@@ -8,6 +8,7 @@ import { AdminHeader, Panel } from '@/components/admin/AdminUi'
 import { Stat } from '@/components/ui/Layout'
 import { ButtonLink } from '@/components/ui/Button'
 import { TaskDone } from '@/components/admin/AgencyTools'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Agency' }
 
@@ -17,11 +18,11 @@ const PERIODS = [30, 90, 365] as const
 export default async function AgencyOverview(props: { searchParams: Promise<{ days?: string }> }) {
   const sp = await props.searchParams
   const days = PERIODS.find((d) => String(d) === sp.days) ?? 90
-  const [k, agency, { data: tasks }] = await Promise.all([
+  const [k, agency, { data: tasks }] = must(await Promise.all([
     agencyKpis(new Date(Date.now() - days * 86_400_000)),
     getAgencyAvailability(),
     getAdminSupabase().from('agency_tasks').select('id, title, due_on, assigned_to, entity_type, entity_id').eq('done', false).order('due_on', { nullsFirst: false }).limit(20),
-  ])
+  ]))
   const typePath: Record<string, string> = { contact: 'contacts', instruction: 'instructions', valuation: 'valuations', viewing: 'viewings', offer: 'offers', application: 'applications', tenancy: 'tenancies' }
   return (
     <div className="space-y-5">

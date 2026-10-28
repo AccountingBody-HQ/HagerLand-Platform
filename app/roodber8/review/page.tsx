@@ -24,6 +24,7 @@ import { JobReports } from '@/components/admin/JobReports'
 import { openReportGroups } from '@/lib/job-reports-data'
 import { getAdminSession } from '@/lib/admin-auth'
 import { roleCanAccess } from '@/lib/admin/roles'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Review queue' }
 
@@ -84,22 +85,22 @@ export default async function ReviewPage(route: { searchParams: Promise<{ tab?: 
   let body: React.ReactNode = null
 
   if (tab === 'properties') {
-    const { data } = await db
+    const { data } = must(await db
       .from('properties')
       .select('id, short_id, slug, title, purpose, property_type, bedrooms, price_etb, price_on_request, lister_user_id, lister_org_id, lister_type, location_id, created_at, updated_at, description, contact_phone')
       .eq('status', 'pending_review')
       .order('updated_at')
-      .limit(100)
+      .limit(100))
     const rows = data ?? []
     const ids = rows.map((r) => r.id)
-    const [{ data: media }, { data: locs }, { data: orgs }, { data: profiles }, { data: notes }, { data: similar }] = await Promise.all([
+    const [{ data: media }, { data: locs }, { data: orgs }, { data: profiles }, { data: notes }, { data: similar }] = must(await Promise.all([
       readAllIn(ids, (part) => db.from('media').select('entity_id, storage_path, status').eq('entity_type', 'property').in('entity_id', part).eq('kind', 'image').order('sort'), { maxRows: REPORT_MAX_ROWS }),
       readAll(() => db.from('locations').select('id, display_name'), { maxRows: REPORT_MAX_ROWS }),
       db.from('organisations').select('id, name, verification_level').in('id', rows.map((r) => r.lister_org_id).filter((x): x is string => Boolean(x))),
       db.from('profiles').select('id, full_name, phone').in('id', rows.map((r) => r.lister_user_id).filter((x): x is string => Boolean(x))),
       ids.length ? db.from('admin_notes').select('entity_id, note, created_at').eq('entity_type', 'property').in('entity_id', ids) : Promise.resolve({ data: [] }),
       readAll(() => db.from('properties').select('id, title, lister_user_id, location_id, price_etb, status').in('status', ['published', 'pending_review', 'paused']), { maxRows: REPORT_MAX_ROWS }),
-    ])
+    ]))
     const dup = (r: (typeof rows)[number]) =>
       (similar ?? []).find(
         (s) =>
@@ -168,7 +169,7 @@ export default async function ReviewPage(route: { searchParams: Promise<{ tab?: 
 
   if (tab === 'developments' || tab === 'organisations' || tab === 'portfolio') {
     const table = tab === 'developments' ? 'developments' : tab === 'organisations' ? 'organisations' : 'portfolio_projects'
-    const { data } = await db.from(table).select('*').eq('status', 'pending_review').order('updated_at').limit(100)
+    const { data } = must(await db.from(table).select('*').eq('status', 'pending_review').order('updated_at').limit(100))
     const rows = (data ?? []) as Record<string, unknown>[]
     const entity = tab === 'developments' ? 'development' : tab === 'organisations' ? 'organisation' : 'portfolio'
     body =
@@ -206,7 +207,7 @@ export default async function ReviewPage(route: { searchParams: Promise<{ tab?: 
   }
 
   if (tab === 'media') {
-    const { data } = await db.from('media').select('id, entity_type, entity_id, storage_path, kind, created_at').eq('status', 'pending').order('created_at').limit(120)
+    const { data } = must(await db.from('media').select('id, entity_type, entity_id, storage_path, kind, created_at').eq('status', 'pending').order('created_at').limit(120))
     const rows = data ?? []
     body =
       rows.length === 0 ? (
@@ -231,12 +232,12 @@ export default async function ReviewPage(route: { searchParams: Promise<{ tab?: 
   }
 
   if (tab === 'changes') {
-    const [{ data: props }, { data: devs }, { data: orgs }, { data: prods }] = await Promise.all([
+    const [{ data: props }, { data: devs }, { data: orgs }, { data: prods }] = must(await Promise.all([
       db.from('properties').select('*').not('pending_changes', 'is', null).in('status', ['published', 'paused']).limit(50),
       db.from('developments').select('*').not('pending_changes', 'is', null).in('status', ['published', 'paused']).limit(50),
       db.from('organisations').select('*').not('pending_changes', 'is', null).eq('status', 'published').limit(50),
       db.from('products').select('*').not('pending_changes', 'is', null).in('status', ['published', 'paused']).limit(50),
-    ])
+    ]))
     const items: { entity: 'property' | 'development' | 'organisation' | 'product'; row: Record<string, unknown>; name: string; href: string }[] = [
       ...(props ?? []).map((r) => ({ entity: 'property' as const, row: r as Record<string, unknown>, name: r.title, href: `/roodber8/properties/${r.id}` })),
       ...(devs ?? []).map((r) => ({ entity: 'development' as const, row: r as Record<string, unknown>, name: r.name, href: `/roodber8/developments/${r.id}` })),
@@ -351,14 +352,14 @@ export default async function ReviewPage(route: { searchParams: Promise<{ tab?: 
   }
 
   if (tab === 'products') {
-    const { data } = await db.from('products').select('id, name, summary, description, price_type, price_etb_cents, seller_org_id, category_id').eq('status', 'pending_review').order('updated_at').limit(100)
+    const { data } = must(await db.from('products').select('id, name, summary, description, price_type, price_etb_cents, seller_org_id, category_id').eq('status', 'pending_review').order('updated_at').limit(100))
     const rows = data ?? []
     const ids = rows.map((r) => r.id)
-    const [{ data: orgs }, { data: cats }, { data: media }] = await Promise.all([
+    const [{ data: orgs }, { data: cats }, { data: media }] = must(await Promise.all([
       db.from('organisations').select('id, name, verification_level').in('id', rows.map((r) => r.seller_org_id)),
       db.from('product_categories').select('id, name').in('id', rows.map((r) => r.category_id)),
       readAllIn(ids, (part) => db.from('media').select('entity_id, storage_path').eq('entity_type', 'product').in('entity_id', part).eq('kind', 'image').order('sort'), { maxRows: REPORT_MAX_ROWS }),
-    ])
+    ]))
     body =
       rows.length === 0 ? (
         <Empty />
@@ -400,12 +401,12 @@ export default async function ReviewPage(route: { searchParams: Promise<{ tab?: 
   }
 
   if (tab === 'jobs') {
-    const { data } = await db.from('job_posts').select('id, title, category, employment_type, trade, description, requirements, salary_min_minor, salary_max_minor, salary_period, currency, closing_date, employer_org_id, location_id, updated_at').eq('status', 'pending_review').order('updated_at').limit(100)
+    const { data } = must(await db.from('job_posts').select('id, title, category, employment_type, trade, description, requirements, salary_min_minor, salary_max_minor, salary_period, currency, closing_date, employer_org_id, location_id, updated_at').eq('status', 'pending_review').order('updated_at').limit(100))
     const rows = data ?? []
-    const [{ data: orgs }, { data: locs }] = await Promise.all([
+    const [{ data: orgs }, { data: locs }] = must(await Promise.all([
       db.from('organisations').select('id, name, status, verification_level').in('id', rows.map((r) => r.employer_org_id)),
       db.from('locations').select('id, display_name').in('id', rows.map((r) => r.location_id).filter((x): x is string => Boolean(x))),
-    ])
+    ]))
     body =
       rows.length === 0 ? (
         <Empty />
@@ -445,9 +446,9 @@ export default async function ReviewPage(route: { searchParams: Promise<{ tab?: 
   }
 
   if (tab === 'updates') {
-    const { data } = await db.from('development_updates').select('id, development_id, title, body, happened_on, photo_paths').eq('status', 'pending_review').order('created_at').limit(100)
+    const { data } = must(await db.from('development_updates').select('id, development_id, title, body, happened_on, photo_paths').eq('status', 'pending_review').order('created_at').limit(100))
     const rows = data ?? []
-    const { data: devs } = await db.from('developments').select('id, name').in('id', rows.map((r) => r.development_id))
+    const { data: devs } = must(await db.from('developments').select('id, name').in('id', rows.map((r) => r.development_id)))
     body =
       rows.length === 0 ? (
         <Empty />

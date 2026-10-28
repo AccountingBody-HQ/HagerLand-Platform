@@ -2,8 +2,7 @@ import { getAdminSession } from '@/lib/admin-auth'
 import Link from 'next/link'
 import { Search } from 'lucide-react'
 import { requireAdminPage } from '@/lib/admin/guard'
-import { queueCounts, totalQueue } from '@/lib/admin/counts'
-import { getAdminSupabase } from '@/lib/supabase/admin'
+import { menuBadges } from '@/lib/admin/counts'
 import { AdminMobileMenu, AdminSidebar } from '@/components/admin/AdminNav'
 import { LogoMark } from '@/components/brand/Logo'
 import { adminLogoutAction } from './session-actions'
@@ -13,21 +12,10 @@ export const metadata = { title: { default: 'Admin', template: '%s · HagerLand 
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   await requireAdminPage()
-  const db = getAdminSupabase()
-  const [queue, quotes, interest, requests, care, trade, email, agency, reviews] = await Promise.all([
-    queueCounts(),
-    db.from('quote_requests').select('id', { count: 'exact', head: true }).eq('status', 'submitted'),
-    db.from('interest_registrations').select('id', { count: 'exact', head: true }).eq('status', 'new'),
-    db.from('service_requests').select('id', { count: 'exact', head: true }).in('status', ['submitted', 'triaged']),
-    db.from('property_care_requests').select('id', { count: 'exact', head: true }).eq('status', 'new'),
-    db.from('trade_accounts').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-    db.from('email_outbox').select('id', { count: 'exact', head: true }).eq('status', 'failed'),
-    db.from('agency_viewings').select('id', { count: 'exact', head: true }).eq('status', 'requested'),
-    db.from('reviews').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-  ])
-  const badges = { review: totalQueue(queue), quotes: quotes.count ?? 0, interest: interest.count ?? 0, requests: requests.count ?? 0, care: care.count ?? 0, trade: trade.count ?? 0, email: email.count ?? 0, agency: agency.count ?? 0, reviews: reviews.count ?? 0 }
   const session = await getAdminSession()
   const role = session?.kind === 'staff' ? session.role : null
+  // Only the areas this role may open are counted; a count that cannot be read shows "!" and the page still renders (Fix F-2).
+  const badges = await menuBadges(role)
   return (
     <div className="flex min-h-dvh flex-col bg-stone-100">
       <header className="hl-admin-chrome sticky top-0 z-40 flex h-14 items-center gap-3 border-b border-white/10 bg-ink px-3 text-white">

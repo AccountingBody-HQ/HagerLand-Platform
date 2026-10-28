@@ -121,9 +121,11 @@ Every day at 06:00 UTC Vercel calls `/api/cron/daily` (set in `vercel.json`, pro
 - closes jobs past their closing date;
 - retries emails that failed to send (up to five times; see admin → **Email problems**);
 - deletes verification documents 90 days after the decision, contact-reveal records older than 12 months, CVs sent with job applications after 12 months, and interest registrations after 24 months;
-- emails you a digest at `ADMIN_DIGEST_EMAIL`, only when there is something to look at (reviews waiting, new leads and requests, emergencies, unanswered enquiries, emails waiting to be resent, errors). Every Monday (Addis Ababa date) it also says "Weekly reminder: run the backup (RUNBOOK §1)."
+- emails you a digest at `ADMIN_DIGEST_EMAIL` **every day**, even when there is nothing to look at (Fix F-2). Its first line says when the job ran and how many steps worked and failed ("Daily job ran at 06:00 UTC (07:00 London time): 22 steps OK, 0 failed."), then names any failed step, then the usual lines (reviews waiting, new leads and requests, emergencies, unanswered enquiries, account deletion requests, emails waiting to be resent, errors). A figure that could not be read says "Could not read: …" instead of being left out. With nothing to report it says "Nothing needs your attention today." Every Monday (Addis Ababa date) it also says "Weekly reminder: run the backup (RUNBOOK §1)."
 
-To check it ran: Vercel → Project → **Logs**, filter by `/api/cron/daily`, or Vercel → **Settings → Cron Jobs**.
+**Silence means something is wrong.** If no digest arrives by 08:00 London time, follow section 11 ("If no digest arrives").
+
+To check it ran: the admin dashboard shows "Last daily run" (and a warning if there was none in the last 26 hours); or Vercel → Project → **Logs**, filter by `/api/cron/daily`, or Vercel → **Settings → Cron Jobs**.
 
 The pre-existing `rate_limits` table is not cleaned unless you set `CRON_PURGE_RATE_LIMITS=true` in Vercel. It only holds short-lived counters, so switching it on after launch is safe.
 
@@ -219,6 +221,15 @@ npm run test:e2e:build && npm run test:e2e   # browser tests against the local c
 - Does **not** check (listed in `notChecked`): whether the daily job ran (see the daily digest email and the run lists in admin), whether emails were actually delivered (admin → Email problems), whether the Turnstile keys or secrets are correct, and whether the live data matches the verify files. **The proof for a migration is its read-only verify file in `docs/sql/`** (every row PASS), not this address.
 - If a value is false: `env.<NAME>` — the variable is missing in Vercel (tell your developer; never paste the value in chat). `database` — Supabase is down or paused (Supabase dashboard). `migrations` — a migration the code needs has not been applied on live: apply it with its verify file (section 2) or roll back the release. `storage` — a bucket is missing or has the wrong privacy (Supabase → Storage). `emailDomain` — the domain is not verified in Resend (Resend → Domains).
 - `scripts/preflight.sh` reads this address and lists any check that is not true (names only).
+
+**If no digest arrives by 08:00 London (Fix F-2).** The digest is sent every day, so no email means a problem.
+1. Check your spam or junk folder for "HagerLand daily digest".
+2. Open admin → **Dashboard**. "Last daily run" shows when the job last ran. If it says "The daily job has not run in the last 26 hours", the job did not run: go to step 3. If it ran but says "digest not sent", the email could not be sent: check admin → **Email problems** and Resend → Logs.
+3. Vercel → Project → **Logs**, filter by `/api/cron/daily`, and Vercel → **Settings → Cron Jobs**: is the job listed, and did it run at 06:00 UTC? A 401 answer means `CRON_SECRET` is missing or wrong.
+4. Vercel → **Settings → Environment Variables**: `CRON_SECRET` and `ADMIN_DIGEST_EMAIL` must both be present for Production (ask your developer; never paste the values in chat).
+5. If the digest says "Daily job ran but the summary could not be built", the job itself ran; tell your developer the time and the reason shown.
+
+**Admin figures that could not be read (Fix F-2).** When the database cannot be read, an admin page shows "Something went wrong — This page didn't load properly" instead of zeros, and a menu count shows "!" ("Could not count") instead of a number. Try again in a minute; if it stays, check `/api/health/full` above.
 
 ## 12. The recruitment desk: from staffing request to placement (Jobs Phase 3, migration 0041)
 

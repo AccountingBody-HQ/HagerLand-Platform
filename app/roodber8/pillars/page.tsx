@@ -8,6 +8,7 @@ import { ModeSwitch, PillarEditor } from '@/components/admin/PillarTools'
 import { PillarMap } from '@/components/admin/PillarMap'
 import { getPillars } from '@/lib/data/pillars'
 import { getVerticals } from '@/lib/data/verticals'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Pillars and modes' }
 
@@ -17,18 +18,18 @@ const MODES: PillarMode[] = ['direct', 'aggregate', 'interest']
 export default async function PillarsPage() {
   await requireAdminPage()
   const db = getAdminSupabase()
-  const [{ data: pillars }, { data: services }, { data: checks }, { data: settings }, visiblePillars, verticals] = await Promise.all([
+  const [{ data: pillars }, { data: services }, { data: checks }, { data: settings }, visiblePillars, verticals] = must(await Promise.all([
     db.from('pillars').select('*').order('number'),
     db.from('pillar_services').select('*').order('sort'),
     db.from('pillar_gate_checks').select('id, pillar_key, service_key, mode, owner_name, providers_active, providers_required, regulatory_note, regulatory_date, terms_pricing_set, actor, created_at').order('created_at', { ascending: false }).limit(20),
     db.from('site_settings').select('key, value').in('key', ['stage_gate_min_providers', 'regulatory_clearance_note']),
     getPillars(),
     getVerticals(),
-  ])
+  ]))
   const setting = (k: string) => settings?.find((s) => s.key === k)?.value
   const required = Number(setting('stage_gate_min_providers') ?? 3)
   const regNote = typeof setting('regulatory_clearance_note') === 'string' ? String(setting('regulatory_clearance_note')) : ''
-  const counts = await Promise.all((pillars ?? []).map(async (p) => [p.key, (await db.rpc('pillar_active_providers', { p_pillar: p.key })).data ?? 0] as const))
+  const counts = await Promise.all((pillars ?? []).map(async (p) => [p.key, must(await db.rpc('pillar_active_providers', { p_pillar: p.key })).data ?? 0] as const))
   const active = new Map<string, number>(counts.map(([k, n]) => [k, typeof n === 'number' ? n : 0]))
   return (
     <div className="space-y-5">

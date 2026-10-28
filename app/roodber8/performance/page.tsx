@@ -7,6 +7,7 @@ import { formatETB } from '@/lib/format'
 import { AdminHeader, DataTable, Panel } from '@/components/admin/AdminUi'
 import { Stat } from '@/components/ui/Layout'
 import { ButtonLink } from '@/components/ui/Button'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Performance' }
 
@@ -18,7 +19,7 @@ export default async function PerformancePage(props: { searchParams: Promise<{ d
   const sp = await props.searchParams
   const days = PERIODS.find((d) => String(d) === sp.days) ?? 90
   const since = new Date(Date.now() - days * 86_400_000)
-  const [rows, agency, { data: pillars }] = await Promise.all([pillarKpis(since), agencyKpis(since), getAdminSupabase().from('pillars').select('key, name').order('number')])
+  const [rows, agency, { data: pillars }] = must(await Promise.all([pillarKpis(since), agencyKpis(since), getAdminSupabase().from('pillars').select('key, name').order('number')]))
   const name = (k: string) => pillars?.find((p) => p.key === k)?.name ?? k
   return (
     <div className="space-y-5">

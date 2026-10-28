@@ -12,6 +12,7 @@ import { ActionButton } from '@/components/forms/ActionButton'
 import { recordCallbackOutcomeAction } from '@/app/roodber8/actions/jobs-callbacks'
 import { FormAlert } from '@/components/forms/FormParts'
 import { getAdminSupabase } from '@/lib/supabase/admin'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Call-back requests' }
 
@@ -49,10 +50,10 @@ export default async function CallbackRequestsPage(props: { searchParams: Promis
   const { made } = await props.searchParams
   // Tidy T-2 (T2-4): after staff sent a staffing request for a phone-only caller (only a real one, without email).
   const madeRef = made && /^HLS-\d{4}-\d{6}$/.test(made) ? made : null
-  const [{ open, closed }, { data: madeRequest }] = await Promise.all([
+  const [{ open, closed }, { data: madeRequest }] = must(await Promise.all([
     callbackQueue(),
     madeRef ? getAdminSupabase().from('service_requests').select('reference').eq('reference', madeRef).is('email', null).maybeSingle() : Promise.resolve({ data: null }),
-  ])
+  ]))
   return (
     <div className="space-y-5">
       <AdminHeader title="Call-back requests" description="People hiring who asked HagerLand's recruitment team to call them. Call them at the time they chose (Addis Ababa time), then record what happened. Details are deleted 12 months after the request or the last call." />

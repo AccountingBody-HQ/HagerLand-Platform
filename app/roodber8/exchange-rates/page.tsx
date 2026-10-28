@@ -3,6 +3,7 @@ import { getAdminSupabase } from '@/lib/supabase/admin'
 import { formatDate } from '@/lib/format'
 import { AdminHeader, Panel } from '@/components/admin/AdminUi'
 import { RatesForm } from '@/components/admin/RatesForm'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Exchange rates' }
 
@@ -14,7 +15,7 @@ const NAMES: Record<string, string> = {
 /** Rates for approximate prices shown to visitors abroad (spec 25.2f). ETB stays the price of record. */
 export default async function RatesPage() {
   await requireAdminPage()
-  const { data } = await getAdminSupabase().from('exchange_rates').select('currency, etb_per_unit, updated_at')
+  const { data } = must(await getAdminSupabase().from('exchange_rates').select('currency, etb_per_unit, updated_at'))
   const byCode = new Map((data ?? []).map((r) => [r.currency, r]))
   const rows = Object.entries(NAMES).map(([currency, name]) => {
     const r = byCode.get(currency)

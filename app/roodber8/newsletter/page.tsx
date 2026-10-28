@@ -3,6 +3,7 @@ import { getAdminSupabase } from '@/lib/supabase/admin'
 import { formatDate } from '@/lib/format'
 import { AdminHeader, DataTable } from '@/components/admin/AdminUi'
 import { ButtonLink } from '@/components/ui/Button'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Newsletter' }
 
@@ -11,11 +12,10 @@ export default async function NewsletterPage() {
   await requireAdminPage()
   const db = getAdminSupabase()
   // The table shows the latest 1,000 sign-ups; the subscribed total is counted in the database (Fix F-1), not from the table.
-  const [{ data }, { count, error }] = await Promise.all([
+  const [{ data }, { count }] = must(await Promise.all([
     db.from('newsletter_subscriptions').select('id, email, name, status, consent_at, source, unsubscribed_at').order('created_at', { ascending: false }).limit(1000),
     db.from('newsletter_subscriptions').select('id', { count: 'exact', head: true }).eq('status', 'subscribed'),
-  ])
-  if (error) throw new Error(`Could not read from the database: ${error.message}`)
+  ]))
   const active = count ?? 0
   return (
     <div className="space-y-5">

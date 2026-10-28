@@ -5,6 +5,7 @@ import { formatDate, formatETBCents, formatPhone } from '@/lib/format'
 import { AdminHeader, DataTable, FilterBar, FilterField, filterInput, SimplePager, StatusBadge } from '@/components/admin/AdminUi'
 import { ButtonLink } from '@/components/ui/Button'
 import { cn } from '@/lib/cn'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Quotes' }
 const PAGE = 50
@@ -21,10 +22,10 @@ export default async function AdminQuotesPage(props: { searchParams: Promise<Rec
     const term = searchParams.q.trim().slice(0, 40).toUpperCase()
     if (/^HLQ-/.test(term)) q = q.eq('reference', term)
   }
-  const [{ data, count }, ...stageCounts] = await Promise.all([
+  const [{ data, count }, ...stageCounts] = must(await Promise.all([
     q.order('created_at', { ascending: false }).range((page - 1) * PAGE, page * PAGE - 1),
     ...STAGES.map((s) => db.from('quote_requests').select('id', { count: 'exact', head: true }).eq('status', s)),
-  ])
+  ]))
   return (
     <div>
       <AdminHeader

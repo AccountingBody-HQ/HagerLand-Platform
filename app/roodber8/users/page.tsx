@@ -6,6 +6,7 @@ import { formatDate, formatPhone, normalisePhone } from '@/lib/format'
 import { AdminHeader, DataTable, FilterBar, FilterField, filterInput, SimplePager } from '@/components/admin/AdminUi'
 import { Badge } from '@/components/ui/Badge'
 import { FormAlert } from '@/components/forms/FormParts'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Users' }
 const PAGE = 50
@@ -37,7 +38,7 @@ export default async function AdminUsersPage(props: { searchParams: Promise<Reco
     const needle = term.toLowerCase()
     const ids: string[] = []
     for (let p = 1; p <= 20 && ids.length < PAGE; p++) {
-      const { data } = await db.auth.admin.listUsers({ page: p, perPage: 1000 })
+      const { data } = must(await db.auth.admin.listUsers({ page: p, perPage: 1000 }))
       const users = data?.users ?? []
       for (const u of users) if (u.email?.toLowerCase().includes(needle)) ids.push(u.id)
       if (users.length < 1000) break
@@ -51,11 +52,11 @@ export default async function AdminUsersPage(props: { searchParams: Promise<Reco
     if (searchParams.filter === 'suspended') q = q.eq('is_suspended', true)
     if (searchParams.filter === 'deletion') q = q.not('deletion_requested_at', 'is', null)
     if (searchParams.filter === 'business') q = q.eq('account_type', 'business')
-    const { data, count } = await q.order('created_at', { ascending: false }).range((page - 1) * PAGE, page * PAGE - 1)
+    const { data, count } = must(await q.order('created_at', { ascending: false }).range((page - 1) * PAGE, page * PAGE - 1))
     rows = await load((data ?? []).map((p) => p.id))
     hasMore = (count ?? 0) > page * PAGE
   } else {
-    const { data } = await db.auth.admin.listUsers({ page, perPage: PAGE })
+    const { data } = must(await db.auth.admin.listUsers({ page, perPage: PAGE }))
     const users = data?.users ?? []
     rows = await load(users.map((u) => u.id))
     hasMore = users.length === PAGE
@@ -63,7 +64,7 @@ export default async function AdminUsersPage(props: { searchParams: Promise<Reco
 
   async function load(ids: string[]): Promise<Row[]> {
     if (!ids.length) return []
-    const [{ data: profiles }, users] = await Promise.all([db.from('profiles').select('id, full_name, phone, account_type, is_suspended, deletion_requested_at, created_at').in('id', ids), Promise.all(ids.map((id) => db.auth.admin.getUserById(id)))])
+    const [{ data: profiles }, users] = await Promise.all([db.from('profiles').select('id, full_name, phone, account_type, is_suspended, deletion_requested_at, created_at').in('id', ids).then(must), Promise.all(ids.map((id) => db.auth.admin.getUserById(id)))])
     const byId = new Map((profiles ?? []).map((p) => [p.id, p]))
     return users
       .map((u) => u.data.user)

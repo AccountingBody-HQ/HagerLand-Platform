@@ -3,6 +3,7 @@ import { brand } from '@/lib/brand'
 import { formatETBCents, formatDate } from '@/lib/format'
 import { canonicalUrl } from '@/lib/site'
 import { renderEmail, type RenderedEmail } from './layout'
+import { ATTENTION_TODAY, NOTHING_TODAY } from '@/lib/cron/digest-text'
 
 const LISTER_REASON = 'You are receiving this because you have a listing or business profile on HagerLand.'
 
@@ -227,13 +228,29 @@ export function orgDecisionEmail(p: { name: string; orgName: string; approved: b
   })
 }
 
-export function adminDigestEmail(p: { lines: [string, string][]; adminUrl: string }): RenderedEmail {
+/**
+ * The internal daily digest. Since Fix F-2 it is sent every day: `run` (first line) says the job ran and how many steps
+ * failed, `failed` names them, and with no lines it says that nothing needs attention, so no email means a problem.
+ */
+export function adminDigestEmail(p: { lines: [string, string][]; adminUrl: string; run?: string; failed?: string | null }): RenderedEmail {
   return renderEmail({
     subject: `HagerLand daily digest · ${formatDate(new Date())}`,
-    preheader: 'Pending reviews, new leads and anything that needs attention.',
+    preheader: p.run ?? 'Pending reviews, new leads and anything that needs attention.',
     heading: 'Daily digest',
-    paragraphs: ['Here is what needs attention today.'],
+    paragraphs: [...(p.run ? [p.run] : []), ...(p.failed ? [p.failed] : []), p.lines.length || !p.run ? ATTENTION_TODAY : NOTHING_TODAY],
     details: p.lines,
+    button: { label: 'Open admin', href: p.adminUrl },
+    reason: 'Internal daily digest for HagerLand administrators.',
+  })
+}
+
+/** Fix F-2: the minimal digest sent when the summary itself could not be built (only no email at all means a problem). */
+export function adminDigestFallbackEmail(p: { problem: string; run: string; adminUrl: string }): RenderedEmail {
+  return renderEmail({
+    subject: `HagerLand daily digest · ${formatDate(new Date())}`,
+    preheader: p.problem,
+    heading: 'Daily digest',
+    paragraphs: [p.problem, p.run],
     button: { label: 'Open admin', href: p.adminUrl },
     reason: 'Internal daily digest for HagerLand administrators.',
   })

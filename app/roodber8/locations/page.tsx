@@ -4,16 +4,17 @@ import { getAdminSupabase } from '@/lib/supabase/admin'
 import { AdminHeader, Panel } from '@/components/admin/AdminUi'
 import { TaxonomyEditor, type TreeNode } from '@/components/admin/TaxonomyEditor'
 import { AddCountryForm } from '@/components/admin/AddCountryForm'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Locations' }
 
 export default async function LocationsPage() {
   await requireAdminPage()
   const db = getAdminSupabase()
-  const [{ data: locs }, { data: props }] = await Promise.all([
+  const [{ data: locs }, { data: props }] = must(await Promise.all([
     readAll(() => db.from('locations').select('id, parent_id, name, name_am, slug, sort, is_active, level, display_name, country_code, seo_intro_sale, seo_intro_rent, seo_intro_professionals'), { maxRows: REPORT_MAX_ROWS }),
     readAll(() => db.from('properties').select('location_id').eq('status', 'published'), { maxRows: REPORT_MAX_ROWS }),
-  ])
+  ]))
   const counts = new Map<string, number>()
   for (const p of props ?? []) counts.set(p.location_id, (counts.get(p.location_id) ?? 0) + 1)
   const toNode = (l: NonNullable<typeof locs>[number]): TreeNode => ({

@@ -1,4 +1,5 @@
 import 'server-only'
+import { must } from '@/lib/admin/must'
 // Jobs Phase 3: the recruitment desk's part of the daily job. Placements move from "hired" to "guarantee running" on the
 // start date and to "completed" the day after the guarantee ends (Addis Ababa dates); the keeping date of each placement
 // is refreshed once the owner has set the keeping period; the digest gets three counts (no names, no money).
@@ -41,11 +42,11 @@ export async function deskDigestCounts(now: number): Promise<[string, number][]>
   const db = getAdminSupabase()
   const head = { count: 'exact' as const, head: true }
   const today = todayAddis(new Date(now))
-  const [open, waiting, ending] = await Promise.all([
+  const [open, waiting, ending] = must(await Promise.all([
     db.from('recruitment_assignments').select('id', head).in('status', ['open', 'searching', 'introducing']),
     db.from('recruitment_candidates').select('id', head).eq('status', 'asked').is('personal_data_deleted_at', null),
     db.from('recruitment_placements').select('id', head).in('status', ['hired', 'guarantee_running']).gte('guarantee_ends_on', today).lte('guarantee_ends_on', addDays(today, 7)),
-  ])
+  ]))
   return [
     ['Recruitment desk: open assignments', open.count ?? 0],
     ['Recruitment desk: people asked, answer not recorded yet', waiting.count ?? 0],

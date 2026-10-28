@@ -9,6 +9,7 @@ import { AdminHeader, DataTable, Panel } from '@/components/admin/AdminUi'
 import { StaffRow } from '@/components/admin/StaffTools'
 import { ActionForm } from '@/components/forms/ActionForm'
 import { Field, Input, Select } from '@/components/ui/Field'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Staff' }
 
@@ -17,7 +18,7 @@ export default async function StaffPage() {
   await requireAdminPage()
   const session = await getAdminSession()
   if (session?.kind === 'staff' && session.role !== 'owner') redirect('/roodber8?denied=1')
-  const { data } = await getAdminSupabase().from('staff_users').select('id, name, email, role, status, totp_enrolled_at, last_login_at, created_at').order('created_at')
+  const { data } = must(await getAdminSupabase().from('staff_users').select('id, name, email, role, status, totp_enrolled_at, last_login_at, created_at').order('created_at'))
   return (
     <div className="space-y-5">
       <AdminHeader title="Staff" description="Each staff member signs in with their own email, password and authenticator code, and sees only the areas of their role. Your master sign-in stays as your break-glass access. Staff accounts are separate from customer accounts." />

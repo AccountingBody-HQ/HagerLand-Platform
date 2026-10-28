@@ -15,6 +15,7 @@ import { AuditTrail } from '@/components/admin/AuditTrail'
 import { Field, Input, Select, Textarea } from '@/components/ui/Field'
 import { linkOwnerAccountAction, replyToOwnerAction } from '@/app/roodber8/actions/owner-portal'
 import { ManagedDocumentUpload } from '@/components/admin/OwnerPortalTools'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Managed property' }
 
@@ -25,19 +26,19 @@ export default async function ManagedPropertyPage(props: { params: Promise<{ id:
   await requireAdminPage()
   if (!/^[0-9a-f-]{36}$/.test(params.id)) notFound()
   const db = getAdminSupabase()
-  const { data: p } = await db.from('managed_properties').select('*').eq('id', params.id).maybeSingle()
+  const { data: p } = must(await db.from('managed_properties').select('*').eq('id', params.id).maybeSingle())
   if (!p) notFound()
-  const [{ data: inspections }, { data: statements }, { data: log }, { data: history }, locs] = await Promise.all([
+  const [{ data: inspections }, { data: statements }, { data: log }, { data: history }, locs] = must(await Promise.all([
     db.from('property_inspections').select('*').eq('managed_property_id', p.id).order('inspected_on', { ascending: false }),
     db.from('rent_statements').select('*').eq('managed_property_id', p.id).order('period_start', { ascending: false }),
     db.from('maintenance_log').select('*').eq('managed_property_id', p.id).order('logged_on', { ascending: false }),
     db.from('audit_log').select('id, action, created_at, diff').eq('entity_id', p.id).order('created_at', { ascending: false }).limit(50),
     getLocations(),
-  ])
-  const [{ data: docRows }, { data: messages }] = await Promise.all([
+  ]))
+  const [{ data: docRows }, { data: messages }] = must(await Promise.all([
     db.from('managed_property_documents').select('id, label, storage_path, visible_to_owner').eq('managed_property_id', p.id).order('created_at', { ascending: false }),
     db.from('owner_messages').select('id, sender, sender_name, body, created_at').eq('managed_property_id', p.id).order('created_at').limit(200),
-  ])
+  ]))
   const docs = await Promise.all((docRows ?? []).map(async (d) => ({ ...d, url: await signedDocumentUrl(d.storage_path, d.label) })))
   const ownerEmail = p.owner_user_id ? ((await db.auth.admin.getUserById(p.owner_user_id)).data.user?.email ?? null) : null
   const photos = await Promise.all((inspections ?? []).map(async (i) => Promise.all(i.photo_paths.map((path) => signedDocumentUrl(path)))))

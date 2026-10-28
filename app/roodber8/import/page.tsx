@@ -9,6 +9,7 @@ import { ImportSearch } from './ImportSearch'
 import { ImportReview } from './ImportReview'
 import { loadImported } from '@/lib/imports/compliance-data'
 import { STATE_LABEL } from '@/lib/imports/compliance'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Imports' }
 const PAGE = 50
@@ -18,7 +19,7 @@ export default async function ImportPage(props: { searchParams: Promise<{ tab?: 
   await requireAdminPage()
   const tab = searchParams.tab === 'review' || searchParams.tab === 'history' ? searchParams.tab : 'search'
   const db = getAdminSupabase()
-  const { count: reviewCount } = await db.from('organisations').select('id', { count: 'exact', head: true }).eq('source', 'import').in('status', ['draft', 'pending_review'])
+  const { count: reviewCount } = must(await db.from('organisations').select('id', { count: 'exact', head: true }).eq('source', 'import').in('status', ['draft', 'pending_review']))
   const tabLink = (key: string, label: string) => (
     <Link href={`/roodber8/import?tab=${key}`} aria-current={tab === key ? 'page' : undefined} className={cn('rounded-md px-3 py-2 text-small font-semibold', tab === key ? 'bg-ink text-white' : 'bg-white text-ink hover:bg-stone-100')}>
       {label}
@@ -26,10 +27,10 @@ export default async function ImportPage(props: { searchParams: Promise<{ tab?: 
   )
   let body: React.ReactNode
   if (tab === 'search') {
-    const [{ data: services }, { data: locations }] = await Promise.all([
+    const [{ data: services }, { data: locations }] = must(await Promise.all([
       db.from('service_categories').select('id, name, parent_id').eq('is_active', true).order('sort'),
       readAll(() => db.from('locations').select('id, display_name, level').eq('is_active', true).neq('level', 'area').order('display_name'), { maxRows: REPORT_MAX_ROWS }),
-    ])
+    ]))
     const byId = new Map((services ?? []).map((s) => [s.id, s.name]))
     body = (
       <ImportSearch
@@ -39,13 +40,13 @@ export default async function ImportPage(props: { searchParams: Promise<{ tab?: 
       />
     )
   } else if (tab === 'review') {
-    const { data } = await db
+    const { data } = must(await db
       .from('organisations')
       .select('id, name, kind, description, phone, website, address_line, location:locations(display_name), services:organisation_services(service:service_categories(name))')
       .eq('source', 'import')
       .in('status', ['draft', 'pending_review'])
       .order('created_at')
-      .limit(200)
+      .limit(200))
     const states = new Map((await loadImported()).map((r) => [r.id, r.c]))
     body = (
       <ImportReview
@@ -66,7 +67,7 @@ export default async function ImportPage(props: { searchParams: Promise<{ tab?: 
     )
   } else {
     const page = Math.max(1, Number(searchParams.page) || 1)
-    const { data, count } = await db.from('import_log').select('google_place_id, section, status, listing_id, listing_name, error, imported_at, entity_type', { count: 'exact' }).order('imported_at', { ascending: false }).range((page - 1) * PAGE, page * PAGE - 1)
+    const { data, count } = must(await db.from('import_log').select('google_place_id, section, status, listing_id, listing_name, error, imported_at, entity_type', { count: 'exact' }).order('imported_at', { ascending: false }).range((page - 1) * PAGE, page * PAGE - 1))
     body = (
       <>
         <DataTable

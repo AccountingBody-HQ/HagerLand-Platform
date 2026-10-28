@@ -2,6 +2,7 @@ import { getAdminSupabase } from '@/lib/supabase/admin'
 import { APPLICATION_STATUSES, STATUS_LABEL } from '@/lib/agency'
 import { formatDate } from '@/lib/format'
 import { AgencyList, RefLink } from '@/components/admin/AgencyList'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Applications to rent' }
 
@@ -10,7 +11,7 @@ export default async function ApplicationsPage(props: { searchParams: Promise<{ 
   const status = APPLICATION_STATUSES.find((s) => s === sp.status)
   let q = getAdminSupabase().from('rental_applications').select('id, reference, name, status, move_in_date, created_at, property:properties(title)').order('created_at', { ascending: false }).limit(300)
   if (status) q = q.eq('status', status)
-  const { data } = await q
+  const { data } = must(await q)
   return (
     <AgencyList
       title="Applications to rent"

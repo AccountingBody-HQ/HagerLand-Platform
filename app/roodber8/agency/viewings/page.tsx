@@ -2,6 +2,7 @@ import { getAdminSupabase } from '@/lib/supabase/admin'
 import { STATUS_LABEL, VIEWING_MODE_LABEL, VIEWING_STATUSES } from '@/lib/agency'
 import { formatAppointment, formatDate } from '@/lib/format'
 import { AgencyList, RefLink } from '@/components/admin/AgencyList'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Viewings' }
 
@@ -10,7 +11,7 @@ export default async function ViewingsPage(props: { searchParams: Promise<{ stat
   const status = VIEWING_STATUSES.find((s) => s === sp.status)
   let q = getAdminSupabase().from('agency_viewings').select('id, reference, name, mode, status, scheduled_at, assigned_agent, preferred_times, created_at, property:properties(title)').order('created_at', { ascending: false }).limit(300)
   if (status) q = q.eq('status', status)
-  const { data } = await q
+  const { data } = must(await q)
   return (
     <AgencyList
       title="Viewings"

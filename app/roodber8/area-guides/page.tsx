@@ -6,6 +6,7 @@ import { AdminHeader, DataTable, Panel } from '@/components/admin/AdminUi'
 import { ActionForm } from '@/components/forms/ActionForm'
 import { Combobox } from '@/components/ui/Combobox'
 import { Field, Textarea } from '@/components/ui/Field'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Area guides' }
 
@@ -13,10 +14,10 @@ export const metadata = { title: 'Area guides' }
 export default async function AreaGuidesPage() {
   await requireAdminPage()
   const db = getAdminSupabase()
-  const [{ data: guides }, { data: insight }] = await Promise.all([
+  const [{ data: guides }, { data: insight }] = must(await Promise.all([
     db.from('area_guides').select('location_id, notes, faqs, is_published, updated_at, location:locations(display_name)').order('updated_at', { ascending: false }),
     db.from('market_insight').select('refreshed_at').limit(1).maybeSingle(),
-  ])
+  ]))
   return (
     <div className="space-y-5">
       <AdminHeader title="Area guides" description={<>Market figures on place pages are worked out automatically from live asking prices every day (last refresh: {insight ? formatDate(insight.refreshed_at) : 'not yet'}), shown only where at least the minimum number of listings exists (Settings → Estate agency and market insight). Add your own local notes and FAQs here. Keep them factual; no legal statements.</>} />

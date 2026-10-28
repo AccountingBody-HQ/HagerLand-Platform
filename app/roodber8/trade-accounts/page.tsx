@@ -5,6 +5,7 @@ import { tradeDecisionAction } from '../actions/products'
 import { AdminHeader, DataTable, FilterBar, FilterField, StatusBadge, filterInput } from '@/components/admin/AdminUi'
 import { DecisionButtons } from '@/components/admin/ModerationControls'
 import { ActionButton } from '@/components/forms/ActionButton'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Trade accounts' }
 
@@ -15,7 +16,7 @@ export default async function TradeAccountsPage(props: { searchParams: Promise<{
   const searchParams = await props.searchParams
   await requireAdminPage()
   const status = STATUSES.find((s) => s === searchParams.status) ?? 'pending'
-  const { data } = await getAdminSupabase().from('trade_accounts').select('*').eq('status', status).order('created_at', { ascending: status === 'pending' }).limit(200)
+  const { data } = must(await getAdminSupabase().from('trade_accounts').select('*').eq('status', status).order('created_at', { ascending: status === 'pending' }).limit(200))
   return (
     <div>
       <AdminHeader title="Trade accounts" description="Businesses that applied to see trade prices. Approve only businesses you have checked." />

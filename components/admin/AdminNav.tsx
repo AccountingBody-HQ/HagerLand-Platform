@@ -35,7 +35,7 @@ function isTypingTarget(target: EventTarget | null): boolean {
  * Grouped admin menu with "Find a section". Staff see only the areas of their role (spec 26.15); groups with nothing
  * for the role are hidden. The group of the current page always stays open; other groups remember being collapsed.
  */
-function Links({ badges, onNavigate, role, shortcut }: { badges: Record<string, number>; onNavigate?: () => void; role: StaffRole | null; shortcut?: boolean }) {
+function Links({ badges, onNavigate, role, shortcut }: { badges: Record<string, number | null>; onNavigate?: () => void; role: StaffRole | null; shortcut?: boolean }) {
   const path = usePathname() ?? ''
   const router = useRouter()
   const searchId = useId()
@@ -119,7 +119,8 @@ function Links({ badges, onNavigate, role, shortcut }: { badges: Record<string, 
               <ul id={listId} className="mt-0.5 space-y-0.5">
                 {group.items.map((item) => {
                   const active = item.href === activeHref
-                  const badge = item.badgeKey ? (badges[item.badgeKey] ?? 0) : 0
+                  // null: the count could not be read (Fix F-2), shown as "!" rather than as nothing waiting.
+                  const badge = item.badgeKey ? badges[item.badgeKey] : undefined
                   return (
                     <li key={item.href}>
                       <Link
@@ -134,7 +135,14 @@ function Links({ badges, onNavigate, role, shortcut }: { badges: Record<string, 
                       >
                         <item.icon className={cn('size-4', active && 'text-gold')} aria-hidden />
                         <span className="flex-1">{item.label}</span>
-                        {badge > 0 && <span className="rounded-full bg-gold px-1.5 text-caption font-bold text-ink">{badge}</span>}
+                        {badge === null ? (
+                          <span className="rounded-full bg-danger px-1.5 text-caption font-bold text-white" data-testid="badge-failed">
+                            <span aria-hidden>!</span>
+                            <span className="sr-only">Could not count</span>
+                          </span>
+                        ) : (
+                          badge !== undefined && badge > 0 && <span className="rounded-full bg-gold px-1.5 text-caption font-bold text-ink">{badge}</span>
+                        )}
                       </Link>
                     </li>
                   )
@@ -149,7 +157,7 @@ function Links({ badges, onNavigate, role, shortcut }: { badges: Record<string, 
 }
 
 /** Desktop sidebar. */
-export function AdminSidebar({ badges, role }: { badges: Record<string, number>; role: StaffRole | null }) {
+export function AdminSidebar({ badges, role }: { badges: Record<string, number | null>; role: StaffRole | null }) {
   return (
     <div className="hl-admin-chrome hidden w-60 shrink-0 border-r border-white/10 bg-ink lg:block">
       <nav aria-label="Admin" className="sticky top-14 h-[calc(100dvh-3.5rem)] overflow-y-auto p-3">
@@ -160,7 +168,7 @@ export function AdminSidebar({ badges, role }: { badges: Record<string, number>;
 }
 
 /** Menu button and slide-out menu for small screens. */
-export function AdminMobileMenu({ badges, role }: { badges: Record<string, number>; role: StaffRole | null }) {
+export function AdminMobileMenu({ badges, role }: { badges: Record<string, number | null>; role: StaffRole | null }) {
   const [open, setOpen] = useState(false)
   return (
     <>

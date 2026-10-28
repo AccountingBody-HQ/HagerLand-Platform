@@ -7,6 +7,7 @@ import { CARE_OCCUPANCY, CARE_PROPERTY_TYPES, CARE_SERVICE_LABEL, CARE_STATUS_LA
 import { AdminHeader, KeyValue, Panel } from '@/components/admin/AdminUi'
 import { AuditTrail } from '@/components/admin/AuditTrail'
 import { CareRequestTool } from '@/components/admin/CareTools'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Property Care request' }
 
@@ -15,12 +16,12 @@ export default async function CareRequestPage(props: { params: Promise<{ id: str
   await requireAdminPage()
   if (!/^[0-9a-f-]{36}$/.test(params.id)) notFound()
   const db = getAdminSupabase()
-  const { data: r } = await db.from('property_care_requests').select('*').eq('id', params.id).maybeSingle()
+  const { data: r } = must(await db.from('property_care_requests').select('*').eq('id', params.id).maybeSingle())
   if (!r) notFound()
-  const [{ data: loc }, { data: history }] = await Promise.all([
+  const [{ data: loc }, { data: history }] = must(await Promise.all([
     r.property_location_id ? db.from('locations').select('display_name').eq('id', r.property_location_id).maybeSingle() : Promise.resolve({ data: null }),
     db.from('audit_log').select('id, action, created_at, diff').eq('entity_id', r.id).order('created_at', { ascending: false }).limit(50),
-  ])
+  ]))
   return (
     <div className="space-y-5">
       <AdminHeader title={`${r.name} · ${r.reference}`} description={`Received ${formatDate(r.created_at)} · ${CARE_STATUS_LABEL[r.status]}`} />

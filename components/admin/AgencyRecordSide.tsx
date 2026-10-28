@@ -3,15 +3,16 @@ import { signedDocumentUrl } from '@/lib/storage'
 import { formatDate } from '@/lib/format'
 import { Panel } from '@/components/admin/AdminUi'
 import { DocumentUpload, NoteForm, TaskDone, TaskForm } from '@/components/admin/AgencyTools'
+import { must } from '@/lib/admin/must'
 
 /** Tasks, private documents and the activity timeline of one agency record (spec 26.5). */
 export async function AgencyRecordSide({ entity, id }: { entity: 'contact' | 'instruction' | 'valuation' | 'viewing' | 'offer' | 'application' | 'tenancy'; id: string }) {
   const db = getAdminSupabase()
-  const [{ data: tasks }, { data: docs }, { data: activity }] = await Promise.all([
+  const [{ data: tasks }, { data: docs }, { data: activity }] = must(await Promise.all([
     db.from('agency_tasks').select('id, title, due_on, assigned_to, done, done_at').eq('entity_type', entity).eq('entity_id', id).order('done').order('due_on', { nullsFirst: false }).limit(100),
     db.from('agency_documents').select('id, label, storage_path, created_at').eq('entity_type', entity).eq('entity_id', id).order('created_at', { ascending: false }).limit(50),
     db.from('agency_activity').select('id, kind, text, actor, created_at').eq('entity_type', entity).eq('entity_id', id).order('created_at', { ascending: false }).limit(100),
-  ])
+  ]))
   const files = await Promise.all((docs ?? []).map(async (d) => ({ ...d, url: await signedDocumentUrl(d.storage_path, d.label) })))
   return (
     <div className="space-y-5">

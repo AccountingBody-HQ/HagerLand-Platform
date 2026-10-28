@@ -2,6 +2,7 @@ import { getAdminSupabase } from '@/lib/supabase/admin'
 import { STATUS_LABEL, VALUATION_STATUSES } from '@/lib/agency'
 import { formatAppointment, formatDate } from '@/lib/format'
 import { AgencyList, RefLink } from '@/components/admin/AgencyList'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Valuations' }
 
@@ -10,7 +11,7 @@ export default async function ValuationsPage(props: { searchParams: Promise<{ st
   const status = VALUATION_STATUSES.find((s) => s === sp.status)
   let q = getAdminSupabase().from('agency_valuations').select('id, reference, purpose, status, outcome, appointment_at, assigned_agent, created_at, contact:agency_contacts(name)').order('created_at', { ascending: false }).limit(300)
   if (status) q = q.eq('status', status)
-  const { data } = await q
+  const { data } = must(await q)
   return (
     <AgencyList
       title="Valuations"

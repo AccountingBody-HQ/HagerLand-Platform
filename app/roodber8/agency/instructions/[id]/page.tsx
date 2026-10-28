@@ -9,6 +9,7 @@ import { AgencyRecordSide } from '@/components/admin/AgencyRecordSide'
 import { ProgressItem } from '@/components/admin/AgencyTools'
 import { ActionForm } from '@/components/forms/ActionForm'
 import { Field, Input, Select, Textarea } from '@/components/ui/Field'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Instruction' }
 
@@ -17,15 +18,15 @@ export default async function InstructionPage(props: { params: Promise<{ id: str
   const { id } = await props.params
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound()
   const db = getAdminSupabase()
-  const { data: i } = await db.from('agency_instructions').select('*, contact:agency_contacts(id, name), property:properties(id, title, slug, short_id, status, lister_type), deal:deals(reference)').eq('id', id).maybeSingle()
+  const { data: i } = must(await db.from('agency_instructions').select('*, contact:agency_contacts(id, name), property:properties(id, title, slug, short_id, status, lister_type), deal:deals(reference)').eq('id', id).maybeSingle())
   if (!i) notFound()
-  const [{ data: vals }, { data: views }, { data: offers }, { data: apps }, { data: progress }] = await Promise.all([
+  const [{ data: vals }, { data: views }, { data: offers }, { data: apps }, { data: progress }] = must(await Promise.all([
     db.from('agency_valuations').select('id, reference, status, appointment_at').eq('instruction_id', id).order('created_at', { ascending: false }),
     db.from('agency_viewings').select('id, reference, name, status, scheduled_at').eq('instruction_id', id).order('created_at', { ascending: false }),
     db.from('agency_offers').select('id, reference, name, amount_etb, status').eq('instruction_id', id).order('created_at', { ascending: false }),
     db.from('rental_applications').select('id, reference, name, status').eq('instruction_id', id).order('created_at', { ascending: false }),
     db.from('sale_progress_items').select('id, label, done').eq('instruction_id', id).order('sort'),
-  ])
+  ]))
   const one = <T,>(x: T | T[] | null): T | null => (Array.isArray(x) ? (x[0] ?? null) : x)
   const contact = one(i.contact)
   const property = one(i.property)

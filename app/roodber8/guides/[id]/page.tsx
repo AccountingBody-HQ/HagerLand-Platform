@@ -9,6 +9,7 @@ import { AdminHeader, StatusBadge } from '@/components/admin/AdminUi'
 import { GuideForm } from '@/components/admin/GuideForm'
 import { ActionButton } from '@/components/forms/ActionButton'
 import { FormAlert } from '@/components/forms/FormParts'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Guide' }
 
@@ -19,7 +20,7 @@ export default async function AdminGuidePage(
   const params = await props.params
   await requireAdminPage()
   if (!/^[0-9a-f-]{36}$/.test(params.id)) notFound()
-  const { data: g } = await getAdminSupabase().from('guides').select('*').eq('id', params.id).maybeSingle()
+  const { data: g } = must(await getAdminSupabase().from('guides').select('*').eq('id', params.id).maybeSingle())
   if (!g) notFound()
   const markers = guideCheckMarkers(g)
   return (

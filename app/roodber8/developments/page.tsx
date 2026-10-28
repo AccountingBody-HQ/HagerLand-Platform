@@ -7,6 +7,7 @@ import { formatDate, formatETB } from '@/lib/format'
 import { COMPLETION_LABEL, DEVELOPMENT_KIND_LABEL } from '@/lib/development-labels'
 import { AdminHeader, DataTable, FilterBar, FilterField, filterInput, SimplePager, StatusBadge } from '@/components/admin/AdminUi'
 import { ButtonLink } from '@/components/ui/Button'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Developments' }
 const PAGE = 50
@@ -19,7 +20,7 @@ export default async function AdminDevelopmentsPage(props: { searchParams: Promi
   if (searchParams.q) q = q.ilike('name', `%${escapeLikePattern(searchParams.q.slice(0, 80))}%`)
   if (searchParams.status) q = q.eq('status', searchParams.status as 'published')
   if (searchParams.own === '1') q = q.eq('is_hagerland', true)
-  const { data, count } = await q.order('updated_at', { ascending: false }).range((page - 1) * PAGE, page * PAGE - 1)
+  const { data, count } = must(await q.order('updated_at', { ascending: false }).range((page - 1) * PAGE, page * PAGE - 1))
   return (
     <div>
       <AdminHeader

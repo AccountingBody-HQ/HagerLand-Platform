@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { requireAdminPage } from '@/lib/admin/guard'
-import { queueCounts } from '@/lib/admin/counts'
+import { queueCounts, unansweredEnquiriesCount } from '@/lib/admin/counts'
+import { must } from '@/lib/admin/must'
+import { DAILY_RUN_ACTION, NO_RECENT_RUN, lastRunStatus } from '@/lib/cron/digest-text'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { formatNumber, relativeTime } from '@/lib/format'
 import { AdminHeader, Panel } from '@/components/admin/AdminUi'
@@ -56,22 +58,29 @@ export default async function AdminDashboard(props: { searchParams: Promise<{ de
   const startOfDay = new Date()
   startOfDay.setUTCHours(0, 0, 0, 0)
   const head = { count: 'exact' as const, head: true }
-  const [q, enqToday, enq7, enqUnanswered, quotesOpen, signups7, expiring, live, audit] = await Promise.all([
+  // The failure rule (Fix F-2): a failed read shows the error page, never 0 or "No activity yet".
+  const [q, enqToday, enq7, enqUnanswered, quotesOpen, signups7, expiring, live, audit, lastRun] = must(await Promise.all([
     queueCounts(),
     db.from('enquiries').select('id', head).gte('created_at', startOfDay.toISOString()),
     db.from('enquiries').select('id', head).gte('created_at', iso(now - 7 * 86_400_000)),
-    db.from('enquiries').select('id', head).is('first_viewed_at', null).lt('created_at', iso(now - 48 * 3_600_000)).not('target_type', 'in', '("general","hagerland_development")'),
+    unansweredEnquiriesCount(now),
     db.from('quote_requests').select('id', head).in('status', ['submitted', 'in_review']),
     db.from('profiles').select('id', head).gte('created_at', iso(now - 7 * 86_400_000)),
     db.from('properties').select('id', head).eq('status', 'published').lt('expires_at', iso(now + 7 * 86_400_000)),
     db.from('properties').select('id', head).eq('status', 'published'),
     db.from('audit_log').select('id, action, entity_type, entity_label, created_at').order('created_at', { ascending: false }).limit(12),
-  ])
+    db.from('audit_log').select('created_at, diff').eq('action', DAILY_RUN_ACTION).order('created_at', { ascending: false }).limit(1).maybeSingle(),
+  ]))
   const n = (r: { count: number | null }) => r.count ?? 0
+  const run = lastRunStatus(lastRun.data, now)
 
   return (
     <div className="space-y-6">
       <AdminHeader title="Dashboard" description="What needs attention today." />
+      <div data-testid="last-daily-run" className="space-y-2">
+        {run.warning && <FormAlert>{NO_RECENT_RUN}</FormAlert>}
+        {run.line && <p className="text-small text-muted">{run.line}</p>}
+      </div>
       <section aria-label="Review queues">
         <h2 className="mb-3 text-small font-semibold uppercase tracking-wide text-muted">Waiting for review</h2>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">

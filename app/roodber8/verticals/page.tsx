@@ -4,6 +4,7 @@ import { requireAdminPage } from '@/lib/admin/guard'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { AdminHeader, Panel, StatusBadge } from '@/components/admin/AdminUi'
 import { VerticalEditor, VerticalStatusSwitch } from '@/components/admin/VerticalTools'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Verticals' }
 
@@ -11,10 +12,10 @@ export const metadata = { title: 'Verticals' }
 export default async function VerticalsPage() {
   await requireAdminPage()
   const db = getAdminSupabase()
-  const [{ data }, { data: interest }] = await Promise.all([
+  const [{ data }, { data: interest }] = must(await Promise.all([
     db.from('verticals').select('*').order('sort'),
     readAll(() => db.from('interest_registrations').select('vertical_key'), { maxRows: REPORT_MAX_ROWS }),
-  ])
+  ]))
   const counts = new Map<string, number>()
   for (const r of interest ?? []) counts.set(r.vertical_key, (counts.get(r.vertical_key) ?? 0) + 1)
   return (

@@ -8,6 +8,7 @@ import { updateWorkerRegisterAction } from '../../actions/jobs-phase-2'
 import { AdminHeader, FilterBar, FilterField, Panel, filterInput } from '@/components/admin/AdminUi'
 import { ActionForm } from '@/components/forms/ActionForm'
 import { Select, Textarea } from '@/components/ui/Field'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Worker register' }
 
@@ -34,7 +35,7 @@ export default async function WorkerRegisterPage(props: { searchParams: Promise<
     .limit(300)
   if (trade) q = q.contains('trades', [trade])
   if (status) q = q.eq('status', status)
-  const [{ data }, switches] = await Promise.all([q, readJobsSwitches()])
+  const [{ data }, switches] = must(await Promise.all([q, readJobsSwitches()]))
   const rows = data ?? []
   return (
     <div className="space-y-5">

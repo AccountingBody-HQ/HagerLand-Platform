@@ -46,6 +46,9 @@ Every job follows these, even when the prompt does not repeat them. Where a rule
 **G. Prove it: the final report**, in plain English for a non-technical owner, with short headings:
 22. what changed, in AB's words; answers to any discovery questions; a side-effect table (area → checked → result); test results with numbers; decisions and assumptions; what was not done and why; merge SHA; confirmation of no migration, no live-data change and no settings change (or exactly what did change); the exact click path for AB to try it.
 
+**G2. Monitoring**
+- The daily digest is sent every day; silence means something is wrong (Fix F-2: run line first, "Could not read: …" for a failed count, a fallback email if the summary fails, each run recorded in `audit_log` as `cron.daily` and shown on the admin home).
+
 **H. Working style**
 23. Do not ask AB questions during a job: decide, record, continue, unless a stop rule applies.
 24. Keep jobs small and focused; prefer the smallest safe change; reuse existing components, tables and patterns; never build duplicate systems.

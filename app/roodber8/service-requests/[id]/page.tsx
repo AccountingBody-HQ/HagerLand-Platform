@@ -23,6 +23,7 @@ import { CURRENCIES } from '@/lib/countries'
 import type { VerticalKey } from '@/lib/verticals'
 import { STAFFING_SLUG } from '@/lib/service-requests/form-copy'
 import { employerAbroadLines } from '@/lib/service-requests/employer-abroad'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Service request' }
 
@@ -43,18 +44,18 @@ export default async function ServiceRequestDetail(
   await requireAdminPage()
   if (!/^[0-9a-f-]{36}$/.test(params.id)) notFound()
   const db = getAdminSupabase()
-  const { data: r } = await db.from('service_requests').select('*').eq('id', params.id).maybeSingle()
+  const { data: r } = must(await db.from('service_requests').select('*').eq('id', params.id).maybeSingle())
   if (!r) notFound()
-  const [{ data: cat }, { data: matches }] = await Promise.all([
+  const [{ data: cat }, { data: matches }] = must(await Promise.all([
     r.service_category_id ? db.from('service_categories').select('name, slug, question_schema').eq('id', r.service_category_id).maybeSingle() : Promise.resolve({ data: null }),
     db.from('service_request_matches').select('*').eq('request_id', r.id).order('offered_at'),
-  ])
-  const { data: history } = await db.from('audit_log').select('id, action, created_at, diff').eq('entity_id', r.id).order('created_at', { ascending: false }).limit(50)
+  ]))
+  const { data: history } = must(await db.from('audit_log').select('id, action, created_at, diff').eq('entity_id', r.id).order('created_at', { ascending: false }).limit(50))
   const orgIds = (matches ?? []).map((m) => m.org_id)
-  const { data: orgs } = orgIds.length ? await db.from('organisations').select('id, name').in('id', orgIds) : { data: [] }
+  const { data: orgs } = orgIds.length ? must(await db.from('organisations').select('id, name').in('id', orgIds)) : { data: [] }
   const orgName = new Map((orgs ?? []).map((o) => [o.id, o.name]))
   // Direct mode (spec 26.8): HagerLand's own team can take the request when the pillar's Direct mode is on.
-  const { data: team } = await db.from('organisations').select('id').eq('slug', 'hagerland-services').maybeSingle()
+  const { data: team } = must(await db.from('organisations').select('id').eq('slug', 'hagerland-services').maybeSingle())
   const pillarKey = VERTICAL_PILLAR[r.vertical_key as VerticalKey]
   const directOn = Boolean(pillarKey && (await getPillar(pillarKey))?.direct)
   const active = (matches ?? []).filter((m) => !['declined', 'withdrawn'].includes(m.status))
@@ -63,13 +64,13 @@ export default async function ServiceRequestDetail(
   // Staffing requests are HagerLand's own recruitment service (Jobs Phase 3): no providers, no quote, fees owner only.
   const staffing = cat?.slug === STAFFING_SLUG
   const owner = await isOwnerSession()
-  const { data: assignment } = staffing ? await db.from('recruitment_assignments').select('id, reference').eq('service_request_id', r.id).maybeSingle() : { data: null }
+  const { data: assignment } = staffing ? must(await db.from('recruitment_assignments').select('id, reference').eq('service_request_id', r.id).maybeSingle()) : { data: null }
 
   // Suggestions: same service, nearest location first (the place, then each parent), verified first.
   const chain = r.location_id ? (await getLocationChain(r.location_id)).reverse() : []
   const found = new Map<string, OrgHit>()
   const search = async (args: Record<string, unknown>) => {
-    const { data } = await db.rpc('search_organisations', { p_sort: 'verified', p_page_size: 12, ...args })
+    const { data } = must(await db.rpc('search_organisations', { p_sort: 'verified', p_page_size: 12, ...args }))
     for (const o of ((data as unknown as { items?: OrgHit[] })?.items ?? [])) if (!found.has(o.id) && !orgIds.includes(o.id)) found.set(o.id, o)
   }
   if (open && slots > 0 && !staffing) {
