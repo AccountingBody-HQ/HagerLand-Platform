@@ -3,12 +3,12 @@
 /** Admin area these actions belong to (staff roles are checked against it, spec 26.15). */
 const AREA = '/roodber8/jobs'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { z } from 'zod'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { adminActor, assertAdmin, assertOwner, audit } from '@/lib/admin/guard'
 import { fail, ok, type ActionResult } from '@/lib/action-result'
-import { CLEANUP_MODE_KEY, PHONE_APPLY_KEY, WORKER_REGISTER_KEY } from '@/lib/jobs-switches'
+import { CALLBACKS_SWITCH_KEY, CLEANUP_MODE_KEY, JOBS_AMHARIC_KEY, PHONE_APPLY_KEY, WORKER_REGISTER_KEY } from '@/lib/jobs-switches'
 import { runJobsDataCleanup } from '@/lib/jobs-cleanup-data'
 import { cleanupRunText } from '@/lib/jobs-cleanup'
 import { DESK_SWITCH_KEY, RETENTION_MONTHS_KEY, todayAddis } from '@/lib/jobs-desk'
@@ -24,6 +24,8 @@ const SWITCH_KEYS = {
   reports: REPORTS_SWITCH_KEY,
   private_client: PRIVATE_CLIENT_SWITCH_KEY,
   verification_expiry: VERIFICATION_EXPIRY_KEY,
+  jobs_amharic: JOBS_AMHARIC_KEY,
+  callbacks: CALLBACKS_SWITCH_KEY,
 } as const
 const SWITCH_NAMES = {
   phone_apply: 'Apply by phone',
@@ -32,6 +34,8 @@ const SWITCH_NAMES = {
   reports: '“Report this job”',
   private_client: 'Private-client jobs',
   verification_expiry: 'The legacy badge clean-up',
+  jobs_amharic: 'Amharic for Jobs',
+  callbacks: 'Call-back requests',
 } as const
 /** "Report this job" is not lawyer-gated (AB's fix F8); every other switch needs its confirmation tick to go on. */
 const NO_TICK = new Set(['reports'])
@@ -43,9 +47,9 @@ const NO_TICK = new Set(['reports'])
 export async function setJobsSwitchAction(which: string, on: boolean, lawyerConfirmed: boolean): Promise<Msg> {
   await assertAdmin(AREA)
   await assertOwner()
-  const parsed = z.object({ which: z.enum(['phone_apply', 'worker_register', 'recruitment_desk', 'reports', 'private_client', 'verification_expiry']), on: z.boolean() }).safeParse({ which, on })
+  const parsed = z.object({ which: z.enum(['phone_apply', 'worker_register', 'recruitment_desk', 'reports', 'private_client', 'verification_expiry', 'jobs_amharic', 'callbacks']), on: z.boolean() }).safeParse({ which, on })
   if (!parsed.success) return fail('Choose a switch.')
-  if (parsed.data.on && !lawyerConfirmed && !NO_TICK.has(parsed.data.which)) return fail(parsed.data.which === 'verification_expiry' ? 'Tick that you understand what happens before switching this on.' : 'Tick that the lawyer has confirmed the points listed before switching this on.')
+  if (parsed.data.on && !lawyerConfirmed && !NO_TICK.has(parsed.data.which)) return fail(parsed.data.which === 'verification_expiry' ? 'Tick that you understand what happens before switching this on.' : parsed.data.which === 'jobs_amharic' ? 'Tick that the native-speaker review is done before switching this on.' : 'Tick that the lawyer has confirmed the points listed before switching this on.')
   const key = SWITCH_KEYS[parsed.data.which]
   const db = getAdminSupabase()
   const { data: before } = await db.from('site_settings').select('value').eq('key', key).maybeSingle()
@@ -57,6 +61,15 @@ export async function setJobsSwitchAction(which: string, on: boolean, lawyerConf
   revalidatePath('/jobs', 'layout')
   revalidatePath('/roodber8/jobs', 'layout')
   if (parsed.data.which === 'private_client') {
+    revalidatePath('/terms')
+    revalidatePath('/sitemap/jobs.xml')
+  }
+  // Jobs Phase 5: Amharic for Jobs changes the Amharic pages, the language switch, the jobs sitemap and the legal notes (W19,
+  // W20); call-backs add or remove the box on /jobs and the staffing page. The middleware re-reads the switch within a minute.
+  if (parsed.data.which === 'jobs_amharic' || parsed.data.which === 'callbacks') {
+    revalidateTag('settings')
+    revalidatePath('/request-service/staffing')
+    revalidatePath('/privacy')
     revalidatePath('/terms')
     revalidatePath('/sitemap/jobs.xml')
   }

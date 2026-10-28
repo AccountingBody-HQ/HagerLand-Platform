@@ -9,18 +9,15 @@ import { CurrencySwitcher } from '@/components/currency/CurrencySwitcher'
 import { Wordmark } from '@/components/brand/Logo'
 import { SocialIcon, socialLabel } from '@/components/brand/SocialIcon'
 import { Container } from '@/components/ui/Layout'
-import { getLocale } from '@/lib/i18n/server'
-import { translator } from '@/lib/i18n/translate'
-import { localizeHref } from '@/lib/i18n/config'
+import { getI18n } from '@/lib/i18n/server'
 import { localizeLink } from '@/lib/i18n/nav'
 import { LanguageSwitch } from './LanguageSwitch'
 import { licenceText } from '@/components/content/LicenceNote'
 
 export async function SiteFooter({ amharicOn = false }: { amharicOn?: boolean }) {
   const [business, verticals, pillars] = await Promise.all([getBusinessDetails(), getVerticals(), getPillars()])
-  const locale = await getLocale()
-  const t = translator(locale)
-  const columns = buildFooterColumns(pillars, verticals).map((c) => ({ title: t(c.title), links: c.links.map((l) => localizeLink(l, t, locale)) }))
+  const { locale, scope, t, href } = await getI18n()
+  const columns = buildFooterColumns(pillars, verticals).map((c) => ({ title: t(c.title), links: c.links.map((l) => localizeLink(l, t, locale, scope)) }))
   const socials = business.social
   const year = new Date().getFullYear()
   return (
@@ -76,9 +73,9 @@ export async function SiteFooter({ amharicOn = false }: { amharicOn?: boolean })
             {business.licences.estate_agency && <span data-testid="footer-licence"> · {licenceText('estate_agency', business.licences.estate_agency)}</span>}
           </p>
           <ul className="flex flex-wrap gap-x-5 gap-y-1">
-            <li><Link href={localizeHref('/terms', locale)} className="hover:text-white">{t('Terms')}</Link></li>
-            <li><Link href={localizeHref('/privacy', locale)} className="hover:text-white">{t('Privacy')}</Link></li>
-            <li><Link href={localizeHref('/cookies', locale)} className="hover:text-white">{t('Cookies')}</Link></li>
+            <li><Link href={href('/terms')} className="hover:text-white">{t('Terms')}</Link></li>
+            <li><Link href={href('/privacy')} className="hover:text-white">{t('Privacy')}</Link></li>
+            <li><Link href={href('/cookies')} className="hover:text-white">{t('Cookies')}</Link></li>
           </ul>
         </Container>
       </div>

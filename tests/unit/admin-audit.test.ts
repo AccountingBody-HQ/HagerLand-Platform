@@ -2,7 +2,7 @@ import { readFileSync, readdirSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 
 /** Every admin action that changes something writes to the audit log (spec 24.12, 25.4). Read-only actions are listed. */
-const READ_ONLY = new Set(['previewDevelopmentsCsvAction', 'previewPriceCsvAction', 'findPromotableAction', 'checkGuideJsonAction', 'previewPasteAction'])
+const READ_ONLY = new Set(['previewDevelopmentsCsvAction', 'previewPriceCsvAction', 'findPromotableAction', 'checkGuideJsonAction', 'previewPasteAction', 'telegramTextAction'])
 
 describe('admin actions', () => {
   it('check permission for their area and record an audit entry', () => {

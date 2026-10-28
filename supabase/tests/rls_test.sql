@@ -1039,6 +1039,49 @@ begin
 end $$;
 select pg_temp.record_check('Phase 4 checks left nothing behind', not exists (select 1 from public.organisations where slug like 'rls-p4-%') and (select value from public.site_settings where key = 'jobs_private_client_posts') = 'false'::jsonb);
 
+-- ---------- Jobs Phase 5 (0043): call-back requests and the wrong-number block list (server only) ----------
+reset role;
+set role anon;
+select pg_temp.record_check('Anonymous cannot read ' || name, pg_temp.read_denied(name)) from unnest(array['callback_requests', 'callback_blocked_phones']) as t(name);
+select pg_temp.record_check('Anonymous cannot add a call-back request directly (server only)',
+  pg_temp.write_denied($q$insert into public.callback_requests (name, phone, need, area_text, language, time_of_day, consent_at) values ('RLS', '+251911000000', 'x', 'y', 'am', 'any', now())$q$));
+select pg_temp.record_check('Anonymous sees jobs_amharic in the public settings, never jobs_callbacks',
+  exists (select 1 from public.site_settings_public where key = 'jobs_amharic') and not exists (select 1 from public.site_settings_public where key = 'jobs_callbacks'));
+reset role;
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000001", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', false);
+select pg_temp.record_check('Signed-in user cannot read ' || name, pg_temp.read_denied(name)) from unnest(array['callback_requests', 'callback_blocked_phones']) as t(name);
+select pg_temp.record_check('Signed-in user cannot add to the block list directly (server only)',
+  pg_temp.write_denied($q$insert into public.callback_blocked_phones (phone_hash, blocked_until) values (repeat('a', 64), now())$q$));
+reset role;
+do $$
+declare res text := '';
+begin
+  begin
+    insert into public.callback_requests (name, phone, need, area_text, language, time_of_day, consent_at) values ('RLS TEST caller', '+251911000099', 'Masons', 'Bole', 'am', 'any', now());
+    begin
+      insert into public.callback_requests (name, phone, need, area_text, language, time_of_day, consent_at) values ('RLS TEST caller', '+251911000099', 'Masons', 'Bole', 'am', 'any', now());
+      res := res || E'FAIL · One open call-back request per phone number\n';
+    exception when unique_violation then res := res || E'PASS · One open call-back request per phone number\n';
+    end;
+    begin
+      insert into public.callback_requests (phone, need, area_text, language, time_of_day, consent_at) values ('+251911000098', 'Masons', 'Bole', 'am', 'any', now());
+      res := res || E'FAIL · A call-back request needs its details until they are deleted\n';
+    exception when check_violation then res := res || E'PASS · A call-back request needs its details until they are deleted\n';
+    end;
+    begin
+      update public.callback_requests set status = 'closed' where phone = '+251911000099';
+      res := res || E'FAIL · A closed call-back request needs an outcome\n';
+    exception when check_violation then res := res || E'PASS · A closed call-back request needs an outcome\n';
+    end;
+    raise exception 'hl_rollback';
+  exception when raise_exception then
+    if sqlerrm <> 'hl_rollback' then res := res || 'FAIL · Phase 5 checks stopped early: ' || sqlerrm || E'\n'; end if;
+  end;
+  perform set_config('hl.results', current_setting('hl.results') || res, false);
+end $$;
+select pg_temp.record_check('Phase 5 checks left nothing behind', not exists (select 1 from public.callback_requests where name = 'RLS TEST caller') and (select value from public.site_settings where key = 'jobs_callbacks') = 'false'::jsonb);
+
 -- ---------- Clean up ----------
 reset role;
 select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);

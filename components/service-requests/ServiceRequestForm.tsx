@@ -14,20 +14,24 @@ import { Turnstile } from '@/components/forms/Turnstile'
 import { readUtm } from '@/components/enquiry/UtmCapture'
 import { COUNTRIES, OTHER_COUNTRY } from '@/lib/countries'
 import { BUDGET_BANDS, BUDGET_BANDS_ABROAD, URGENCY } from '@/lib/service-requests/labels'
-import { PAY_OFFERED_MAX, requestFormCopy } from '@/lib/service-requests/form-copy'
+import { PAY_OFFERED_MAX, STAFFING_SLUG, requestFormCopy } from '@/lib/service-requests/form-copy'
 import type { Question } from '@/lib/service-requests/questions'
 import { track } from '@/lib/analytics'
 import { NoResetForm } from '@/components/forms/NoResetForm'
+import { useJobsI18n } from '@/lib/i18n/client'
+import { fill, type Translate } from '@/lib/i18n/translate'
 
-function QuestionField({ q, error }: { q: Question; error?: string }) {
+const asIs: Translate = (s) => s
+
+function QuestionField({ q, error, t }: { q: Question; error?: string; t: Translate }) {
   const id = `sr-q-${q.id}`
   const name = `q_${q.id}`
   if (q.type === 'select' || q.type === 'yesno') {
-    const options = q.type === 'yesno' ? [{ v: 'yes', l: 'Yes' }, { v: 'no', l: 'No' }] : (q.options ?? []).map((o) => ({ v: o, l: o }))
+    const options = q.type === 'yesno' ? [{ v: 'yes', l: t('Yes') }, { v: 'no', l: t('No') }] : (q.options ?? []).map((o) => ({ v: o, l: t(o) }))
     return (
       <fieldset aria-describedby={error ? `${id}-error` : q.hint ? `${id}-hint` : undefined}>
         <legend className="text-small font-semibold text-ink">
-          {q.label}
+          {t(q.label)}
           {q.required && <span className="text-error" aria-hidden> *</span>}
         </legend>
         <div className="mt-2 flex flex-wrap gap-2">
@@ -38,7 +42,7 @@ function QuestionField({ q, error }: { q: Question; error?: string }) {
             </label>
           ))}
         </div>
-        {error ? <p id={`${id}-error`} role="alert" className="mt-1 text-small text-error">{error}</p> : q.hint ? <p id={`${id}-hint`} className="mt-1 text-small text-muted">{q.hint}</p> : null}
+        {error ? <p id={`${id}-error`} role="alert" className="mt-1 text-small text-error">{error}</p> : q.hint ? <p id={`${id}-hint`} className="mt-1 text-small text-muted">{t(q.hint)}</p> : null}
       </fieldset>
     )
   }
@@ -46,14 +50,14 @@ function QuestionField({ q, error }: { q: Question; error?: string }) {
     return (
       <fieldset>
         <legend className="text-small font-semibold text-ink">
-          {q.label}
+          {t(q.label)}
           {q.required && <span className="text-error" aria-hidden> *</span>}
         </legend>
         <div className="mt-2 grid gap-1 sm:grid-cols-2">
           {(q.options ?? []).map((o, i) => (
             <label key={o} htmlFor={`${id}-${i}`} className="flex min-h-11 items-center gap-3">
               <input id={`${id}-${i}`} type="checkbox" name={name} value={o} className="size-5 accent-green" />
-              {o}
+              {t(o)}
             </label>
           ))}
         </div>
@@ -62,7 +66,7 @@ function QuestionField({ q, error }: { q: Question; error?: string }) {
     )
   }
   return (
-    <Field label={q.label} htmlFor={id} error={error} hint={q.hint} required={q.required} optional={!q.required}>
+    <Field label={t(q.label)} htmlFor={id} error={error} hint={q.hint ? t(q.hint) : q.hint} required={q.required} optional={!q.required}>
       {q.type === 'textarea' ? (
         <Textarea id={id} name={name} rows={3} maxLength={2000} invalid={Boolean(error)} aria-describedby={describedBy(id, error, q.hint)} />
       ) : (
@@ -80,7 +84,7 @@ export interface EmployerAbroadText {
   countries: { code: string; name: string }[]
 }
 
-function EmployerAbroadField({ text, errors }: { text: EmployerAbroadText; errors: Record<string, string> }) {
+function EmployerAbroadField({ text, errors, t }: { text: EmployerAbroadText; errors: Record<string, string>; t: Translate }) {
   const [answer, setAnswer] = useState('')
   const error = errors.employer_abroad
   return (
@@ -89,8 +93,8 @@ function EmployerAbroadField({ text, errors }: { text: EmployerAbroadText; error
         <legend className="text-small font-semibold text-ink">{text.question}</legend>
         <div className="mt-2 flex flex-wrap gap-2">
           {[
-            { v: 'yes', l: 'Yes' },
-            { v: 'no', l: 'No' },
+            { v: 'yes', l: t('Yes') },
+            { v: 'no', l: t('No') },
           ].map((o) => (
             <label key={o.v} className="cursor-pointer">
               <input type="radio" name="employer_abroad" value={o.v} checked={answer === o.v} onChange={() => setAnswer(o.v)} className="peer sr-only" />
@@ -123,6 +127,8 @@ export interface RequestFormDefaults {
   phone?: string | null
   email?: string | null
   location?: ComboOption | null
+  /** Staff turning a call-back into a staffing request (Jobs Phase 5): what the caller said they need. */
+  details?: string | null
 }
 
 /** "Request a service" form (spec 24.5): category questions, details, urgency, place, contact, files. */
@@ -134,6 +140,7 @@ export function ServiceRequestForm({
   defaults = {},
   abroad = false,
   employerAbroad = null,
+  callbackId = null,
 }: {
   categorySlug: string
   categoryName: string
@@ -143,6 +150,8 @@ export function ServiceRequestForm({
   /** Start with "another country" selected (diaspora services abroad). */
   abroad?: boolean
   employerAbroad?: EmployerAbroadText | null
+  /** Staff only (Jobs Phase 5): the call-back this staffing request comes from; it is closed and linked when sent. */
+  callbackId?: string | null
 }) {
   const [state, action] = useActionState(submitServiceRequestAction, null)
   const router = useRouter()
@@ -154,6 +163,11 @@ export function ServiceRequestForm({
   const [country, setCountry] = useState(abroad ? 'GB' : 'ET')
   const errors = state && !state.ok ? state.fieldErrors ?? {} : {}
   const copy = requestFormCopy(categorySlug)
+  // Staffing is a Jobs page (Jobs Phase 5): its text goes through the Jobs translator; every other service stays as it is.
+  const jobsI18n = useJobsI18n()
+  const staffing = categorySlug === STAFFING_SLUG
+  const t = staffing ? jobsI18n.t : asIs
+  const jobsHref = staffing ? jobsI18n.href : asIs
   const urgencies = URGENCY.filter((u) => u.value !== 'emergency' || allowsEmergency)
 
   useEffect(() => {
@@ -163,9 +177,9 @@ export function ServiceRequestForm({
   useEffect(() => {
     if (state?.ok) {
       track('service_request_submitted', { category: categorySlug })
-      router.push(`/request-service/sent?ref=${encodeURIComponent(state.data.reference)}${copy.nextStep ? `&for=${encodeURIComponent(categorySlug)}` : ''}`)
+      router.push(jobsHref(`/request-service/sent?ref=${encodeURIComponent(state.data.reference)}${copy.nextStep ? `&for=${encodeURIComponent(categorySlug)}` : ''}`))
     }
-  }, [state, router, categorySlug, copy.nextStep])
+  }, [state, router, categorySlug, copy.nextStep, jobsHref])
 
   return (
     <NoResetForm action={action} className="space-y-8" noValidate>
@@ -173,6 +187,7 @@ export function ServiceRequestForm({
       <input type="hidden" name="upload_id" value={uploadId} />
       <input type="hidden" name="utm" value={utm} />
       <input type="hidden" name="source_url" value={sourceUrl} />
+      {callbackId && <input type="hidden" name="callback_id" value={callbackId} />}
       {files.map((f) => (
         <input key={f.path} type="hidden" name="files" value={f.path} />
       ))}
@@ -180,27 +195,27 @@ export function ServiceRequestForm({
       {state && !state.ok && <FormAlert>{state.error}</FormAlert>}
 
       <fieldset className="space-y-5">
-        <legend className="hl-h3 mb-2">About the job</legend>
-        <Field label="Give your request a short title" htmlFor="sr-title" error={errors.title} required hint={copy.titleHint(categoryName)}>
+        <legend className="hl-h3 mb-2">{t('About the job')}</legend>
+        <Field label={t('Give your request a short title')} htmlFor="sr-title" error={errors.title} required hint={t(copy.titleHint(categoryName))}>
           <Input id="sr-title" name="title" maxLength={160} invalid={Boolean(errors.title)} aria-describedby={describedBy('sr-title', errors.title, true)} />
         </Field>
         {questions.map((q) => (
-          <QuestionField key={q.id} q={q} error={errors[`q_${q.id}`]} />
+          <QuestionField key={q.id} q={q} error={errors[`q_${q.id}`]} t={t} />
         ))}
-        <Field label={copy.detailsLabel} htmlFor="sr-details" error={errors.details} required hint={copy.detailsHint}>
-          <Textarea id="sr-details" name="details" rows={5} maxLength={4000} invalid={Boolean(errors.details)} aria-describedby={describedBy('sr-details', errors.details, true)} />
+        <Field label={t(copy.detailsLabel)} htmlFor="sr-details" error={errors.details} required hint={t(copy.detailsHint)}>
+          <Textarea id="sr-details" name="details" rows={5} maxLength={4000} defaultValue={defaults.details ?? undefined} invalid={Boolean(errors.details)} aria-describedby={describedBy('sr-details', errors.details, true)} />
         </Field>
         <fieldset>
           <legend className="text-small font-semibold text-ink">
-            How soon? <span className="text-error" aria-hidden>*</span>
+            {t('How soon?')} <span className="text-error" aria-hidden>*</span>
           </legend>
           <div className="mt-2 grid gap-2 sm:grid-cols-3">
             {urgencies.map((u, i) => (
               <label key={u.value} className="cursor-pointer">
                 <input type="radio" name="urgency" value={u.value} defaultChecked={u.value === 'flexible' || (i === urgencies.length - 1 && !urgencies.some((x) => x.value === 'flexible'))} className="peer sr-only" />
                 <span className="flex min-h-14 flex-col justify-center rounded-lg border border-border-strong px-4 py-2 peer-checked:border-ink peer-checked:bg-ink peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-green">
-                  <span className="font-semibold">{u.label}</span>
-                  <span className="text-small opacity-80">{u.description}</span>
+                  <span className="font-semibold">{t(u.label)}</span>
+                  <span className="text-small opacity-80">{t(u.description)}</span>
                 </span>
               </label>
             ))}
@@ -218,21 +233,21 @@ export function ServiceRequestForm({
           </Field>
         )}
         {copy.pay && (
-          <Field label={copy.pay.label} htmlFor="sr-pay" error={errors.pay_offered} hint={copy.pay.hint}>
+          <Field label={t(copy.pay.label)} htmlFor="sr-pay" error={errors.pay_offered} hint={t(copy.pay.hint)}>
             <Input id="sr-pay" name="pay_offered" maxLength={PAY_OFFERED_MAX} invalid={Boolean(errors.pay_offered)} aria-describedby={describedBy('sr-pay', errors.pay_offered, true)} />
           </Field>
         )}
       </fieldset>
 
       <fieldset className="space-y-4">
-        <legend className="hl-h3 mb-2">Where</legend>
+        <legend className="hl-h3 mb-2">{t('Where')}</legend>
         {!notListed ? (
-          <Field label={copy.locationLabel} htmlFor="sr-location" error={errors.location_id} required hint={copy.locationHint}>
+          <Field label={t(copy.locationLabel)} htmlFor="sr-location" error={errors.location_id} required hint={t(copy.locationHint)}>
             <Combobox id="sr-location" name="location_id" endpoint="/api/locations?scope=all" defaultValue={defaults.location} invalid={Boolean(errors.location_id)} describedById={describedBy('sr-location', errors.location_id, 'hint')} />
           </Field>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Country" htmlFor="sr-country" required>
+            <Field label={t('Country')} htmlFor="sr-country" required>
               <Select id="sr-country" name="country_code" value={country} onChange={(e) => setCountry(e.target.value)}>
                 {[...COUNTRIES, OTHER_COUNTRY].map((c) => (
                   <option key={c.code} value={c.code}>
@@ -241,25 +256,25 @@ export function ServiceRequestForm({
                 ))}
               </Select>
             </Field>
-            <Field label="City or area" htmlFor="sr-place" error={errors.location_id ?? errors.location_text} required>
+            <Field label={t('City or area')} htmlFor="sr-place" error={errors.location_id ?? errors.location_text} required>
               <Input id="sr-place" name="location_text" maxLength={200} invalid={Boolean(errors.location_id ?? errors.location_text)} />
             </Field>
           </div>
         )}
         <button type="button" className="min-h-11 text-small font-semibold text-green underline" onClick={() => setNotListed(!notListed)}>
-          {notListed ? 'Choose from the list instead' : "Can't find your place? Type it instead"}
+          {notListed ? t('Choose from the list instead') : t("Can't find your place? Type it instead")}
         </button>
       </fieldset>
 
       <fieldset className="space-y-4">
-        <legend className="hl-h3 mb-2">Photos or documents</legend>
+        <legend className="hl-h3 mb-2">{t('Photos or documents')}</legend>
         {files.length < 5 && (
           <FileDrop
             target={{ purpose: 'private', area: 'request', id: uploadId }}
             accept="application/pdf,image/jpeg,image/png,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             maxFiles={5 - files.length}
-            label="Add photos or documents"
-            hint="Optional. Photos of the problem, plans or a bill of quantities. Up to 5 files, 15 MB each. Only HagerLand and providers who accept your request see them."
+            label={t('Add photos or documents')}
+            hint={t('Optional. Photos of the problem, plans or a bill of quantities. Up to 5 files, 15 MB each. Only HagerLand and providers who accept your request see them.')}
             onDocUploaded={(d) => setFiles((all) => [...all, d])}
           />
         )}
@@ -268,7 +283,7 @@ export function ServiceRequestForm({
             {files.map((f) => (
               <li key={f.path} className="flex min-h-11 items-center gap-2 rounded-md bg-green-tint px-3 text-small">
                 <FileCheck2 className="size-4 text-green" aria-hidden /> <span className="flex-1 truncate">{f.name}</span>
-                <button type="button" className="inline-flex size-10 items-center justify-center" aria-label={`Remove ${f.name}`} onClick={() => setFiles((all) => all.filter((x) => x.path !== f.path))}>
+                <button type="button" className="inline-flex size-10 items-center justify-center" aria-label={fill(t('Remove {name}'), { name: f.name })} onClick={() => setFiles((all) => all.filter((x) => x.path !== f.path))}>
                   <X className="size-4" />
                 </button>
               </li>
@@ -278,42 +293,42 @@ export function ServiceRequestForm({
       </fieldset>
 
       <fieldset className="space-y-4">
-        <legend className="hl-h3 mb-2">Your details</legend>
+        <legend className="hl-h3 mb-2">{t('Your details')}</legend>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Your name" htmlFor="sr-name" error={errors.name} required>
+          <Field label={t('Your name')} htmlFor="sr-name" error={errors.name} required>
             <Input id="sr-name" name="name" autoComplete="name" defaultValue={defaults.name ?? ''} invalid={Boolean(errors.name)} />
           </Field>
-          <Field label="Phone" htmlFor="sr-phone" error={errors.phone} required>
+          <Field label={t('Phone')} htmlFor="sr-phone" error={errors.phone} required>
             <PhoneInput id="sr-phone" name="phone" defaultValue={defaults.phone} invalid={Boolean(errors.phone)} describedById={describedBy('sr-phone', errors.phone)} />
           </Field>
-          <Field label="Email" htmlFor="sr-email" error={errors.email} required hint="We email you a link to follow your request and see quotes.">
+          <Field label={t('Email')} htmlFor="sr-email" error={errors.email} required hint={t('We email you a link to follow your request and see quotes.')}>
             <Input id="sr-email" name="email" type="email" autoComplete="email" defaultValue={defaults.email ?? ''} invalid={Boolean(errors.email)} aria-describedby={describedBy('sr-email', errors.email, true)} />
           </Field>
-          <Field label="Preferred way to reply" htmlFor="sr-pref">
+          <Field label={t('Preferred way to reply')} htmlFor="sr-pref">
             <Select id="sr-pref" name="preferred_contact" defaultValue="">
-              <option value="">No preference</option>
-              <option value="phone">Phone call</option>
-              <option value="whatsapp">WhatsApp</option>
-              <option value="telegram">Telegram</option>
-              <option value="email">Email</option>
+              <option value="">{t('No preference')}</option>
+              <option value="phone">{t('Phone call')}</option>
+              <option value="whatsapp">{t('WhatsApp')}</option>
+              <option value="telegram">{t('Telegram')}</option>
+              <option value="email">{t('Email')}</option>
             </Select>
           </Field>
-          {employerAbroad && <EmployerAbroadField text={employerAbroad} errors={errors} />}
+          {employerAbroad && <EmployerAbroadField text={employerAbroad} errors={errors} t={t} />}
         </div>
       </fieldset>
 
       <Turnstile action="service_request" />
-      <SubmitButton fullWidth size="lg" pendingText="Sending…">
-        Send my request
+      <SubmitButton fullWidth size="lg" pendingText={t('Sending…')}>
+        {t('Send my request')}
       </SubmitButton>
       <p className="text-caption text-muted">
-        {copy.footer} See our{' '}
+        {t(copy.footer)} {t('See our')}{' '}
         <Link href="/terms" className="underline">
-          Terms
+          {t('Terms')}
         </Link>{' '}
-        and{' '}
+        {t('and')}{' '}
         <Link href="/privacy" className="underline">
-          Privacy Policy
+          {t('Privacy Policy')}
         </Link>
         .
       </p>

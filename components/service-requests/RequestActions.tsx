@@ -6,6 +6,7 @@ import { cancelServiceRequestAction, chooseQuoteAction } from '@/app/actions/ser
 import { Button } from '@/components/ui/Button'
 import { useToast } from '@/components/ui/Toast'
 import { track } from '@/lib/analytics'
+import { useJobsI18n } from '@/lib/i18n/client'
 
 /** "Choose this quote" for one quote (spec 24.5). */
 export function ChooseQuoteButton({ requestId, matchId, token, orgName }: { requestId: string; matchId: string; token?: string; orgName: string }) {
@@ -47,20 +48,23 @@ export function ChooseQuoteButton({ requestId, matchId, token, orgName }: { requ
   )
 }
 
-export function CancelRequestButton({ requestId, token }: { requestId: string; token?: string }) {
+/** `staffing`: a staffing request, a Jobs page (Jobs Phase 5): its text goes through the Jobs translator. */
+export function CancelRequestButton({ requestId, token, staffing = false }: { requestId: string; token?: string; staffing?: boolean }) {
   const [pending, start] = useTransition()
   const [confirming, setConfirming] = useState(false)
   const toast = useToast()
   const router = useRouter()
+  const jobsT = useJobsI18n().t
+  const t = staffing ? jobsT : (s: string) => s
   if (!confirming)
     return (
       <Button variant="ghost" size="sm" onClick={() => setConfirming(true)}>
-        Cancel this request
+        {t('Cancel this request')}
       </Button>
     )
   return (
     <div className="flex flex-col gap-2 rounded-md bg-stone-100 p-3 sm:flex-row sm:items-center">
-      <p className="flex-1 text-small">Cancel the request? Providers will no longer see it.</p>
+      <p className="flex-1 text-small">{t('Cancel the request? Providers will no longer see it.')}</p>
       <div className="flex gap-2 [&>*]:flex-1">
         <Button
           size="sm"
@@ -69,15 +73,15 @@ export function CancelRequestButton({ requestId, token }: { requestId: string; t
           onClick={() =>
             start(async () => {
               const res = await cancelServiceRequestAction({ request_id: requestId, token })
-              toast(res.ok ? res.data.message : res.error, res.ok ? 'success' : 'error')
+              toast(t(res.ok ? res.data.message : res.error), res.ok ? 'success' : 'error')
               if (res.ok) router.refresh()
             })
           }
         >
-          Yes, cancel
+          {t('Yes, cancel')}
         </Button>
         <Button size="sm" variant="secondary" disabled={pending} onClick={() => setConfirming(false)}>
-          Keep it
+          {t('Keep it')}
         </Button>
       </div>
     </div>

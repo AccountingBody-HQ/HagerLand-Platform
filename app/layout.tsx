@@ -8,7 +8,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next'
 import { ToastProvider } from '@/components/ui/Toast'
 import { UtmCapture } from '@/components/enquiry/UtmCapture'
 import { InputModality } from '@/components/layout/InputModality'
-import { getLocale } from '@/lib/i18n/server'
+import { getAmScope, getLocale, reviewedMessages } from '@/lib/i18n/server'
 import { LocaleProvider } from '@/lib/i18n/client'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'optional' })
@@ -35,11 +35,13 @@ export const viewport: Viewport = {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const locale = await getLocale()
+  const [locale, scope] = await Promise.all([getLocale(), getAmScope()])
+  // Pages served by Amharic for Jobs (Jobs Phase 5) render only native-reviewed text; pass those entries to the client.
+  const jobsAmharic = locale === 'am' && scope === 'jobs'
   return (
     <html lang={locale} className={`${inter.variable} ${manrope.variable} ${ethiopic.variable}`}>
       <body className="min-h-dvh font-sans antialiased">
-        <LocaleProvider locale={locale}>
+        <LocaleProvider locale={locale} scope={jobsAmharic ? 'jobs' : 'site'} reviewed={jobsAmharic ? reviewedMessages() : undefined}>
           <ToastProvider>{children}</ToastProvider>
         </LocaleProvider>
         <UtmCapture />

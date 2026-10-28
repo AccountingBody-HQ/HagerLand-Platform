@@ -147,12 +147,12 @@ function fakeAdapter(due: Record<CleanupKind, string[]>, failing: string[] = [])
 }
 
 describe('the deletion run (dry run first, failures isolated)', () => {
-  const due = { applications: ['a1', 'a2-cv', 'a3'], register: ['w1'], emails: ['e1', 'e2'], shortlist: [], reports: [] }
+  const due = { applications: ['a1', 'a2-cv', 'a3'], register: ['w1'], emails: ['e1', 'e2'], shortlist: [], reports: [], callbacks: [] }
   it('dry run counts and changes nothing', async () => {
     const { adapter, cleared } = fakeAdapter(due)
     const r = await runCleanupCore(adapter, 'dry_run')
-    expect(r.counts.due).toEqual({ applications: 3, register: 1, emails: 2, shortlist: 0, reports: 0 })
-    expect(r.counts.cleared).toEqual({ applications: 0, register: 0, emails: 0, shortlist: 0, reports: 0 })
+    expect(r.counts.due).toEqual({ applications: 3, register: 1, emails: 2, shortlist: 0, reports: 0, callbacks: 0 })
+    expect(r.counts.cleared).toEqual({ applications: 0, register: 0, emails: 0, shortlist: 0, reports: 0, callbacks: 0 })
     expect(cleared).toEqual([])
     expect(cleanupDigestCounts(r).filter(([, n]) => n > 0).map(([l]) => l)).toEqual([
       'Jobs data (dry run): job applications whose personal details would be deleted',
@@ -165,13 +165,13 @@ describe('the deletion run (dry run first, failures isolated)', () => {
     const errors: string[] = []
     const r = await runCleanupCore(adapter, 'live', { onError: (_k, id) => errors.push(id) })
     expect(cleared).toEqual(['a1', 'a3', 'w1', 'e1', 'e2'])
-    expect(r.counts.failed).toEqual({ applications: 1, register: 0, emails: 0, shortlist: 0, reports: 0 })
+    expect(r.counts.failed).toEqual({ applications: 1, register: 0, emails: 0, shortlist: 0, reports: 0, callbacks: 0 })
     expect(r.failures).toEqual([{ kind: 'applications', id: 'a2-cv' }])
     expect(errors).toEqual(['a2-cv'])
     expect(cleanupDigestCounts(r)).toContainEqual(['Jobs data: job applications that could not be cleared (retried tomorrow)', 1])
   })
   it('live: batches are limited and the rest wait for the next day', async () => {
-    const { adapter, cleared } = fakeAdapter({ applications: ['a1', 'a2', 'a3'], register: [], emails: [], shortlist: [], reports: [] })
+    const { adapter, cleared } = fakeAdapter({ applications: ['a1', 'a2', 'a3'], register: [], emails: [], shortlist: [], reports: [], callbacks: [] })
     const r = await runCleanupCore(adapter, 'live', { batch: 2 })
     expect(cleared).toEqual(['a1', 'a2'])
     expect(r.counts.due.applications).toBe(3)

@@ -12,6 +12,7 @@ import { readJobsSwitches } from '@/lib/jobs-switches'
 import { CLEARED_EMAIL, clearedApplication, clearedRegisterEntry, deletionCutoff } from '@/lib/jobs-privacy'
 import { runCleanupCore, type CleanupAdapter, type CleanupKind, type CleanupResult } from '@/lib/jobs-cleanup'
 import { clearedReport, reportClockFrom } from '@/lib/job-reports'
+import { clearedCallback } from '@/lib/callbacks'
 import { HIRED_APPLICATION_CLEAR, HIRED_SHORTLIST_CLEAR, clearedShortlistRow, placementHold, retainUntil, shortlistDueForDeletion, todayAddis, type HoldState } from '@/lib/jobs-desk'
 
 interface Holds {
@@ -77,7 +78,7 @@ function adapter(cutoff: string, now: string, holds: Holds, at: Date): CleanupAd
   const db = getAdminSupabase()
   // Held applications never appear in the due lists (ids are database uuids, never user input).
   const heldApps = Array.from(holds.applications.keys())
-  const due = (kind: Exclude<CleanupKind, 'shortlist' | 'reports'>) => {
+  const due = (kind: Exclude<CleanupKind, 'shortlist' | 'reports' | 'callbacks'>) => {
     if (kind === 'applications') {
       const q = db.from('job_applications').select('id', { count: 'exact' }).is('personal_data_deleted_at', null).lt('created_at', cutoff)
       return heldApps.length ? q.not('id', 'in', `(${heldApps.join(',')})`) : q
@@ -93,6 +94,15 @@ function adapter(cutoff: string, now: string, holds: Holds, at: Date): CleanupAd
     if (error) throw new Error(error.message)
     reports = (data ?? []).filter((r) => reportClockFrom(r.created_at, r.handled_at) < cutoff).map((r) => r.id)
     return reports
+  }
+  // Call-back requests (Jobs Phase 5): 12 months after the later of the request and the last handling.
+  let callbacks: string[] | null = null
+  const dueCallbacks = async () => {
+    if (callbacks) return callbacks
+    const { data, error } = await db.from('callback_requests').select('id, created_at, handled_at').is('personal_data_deleted_at', null).lt('created_at', cutoff).order('id').limit(5000)
+    if (error) throw new Error(error.message)
+    callbacks = (data ?? []).filter((r) => reportClockFrom(r.created_at, r.handled_at) < cutoff).map((r) => r.id)
+    return callbacks
   }
   let shortlist: string[] | null = null
   const dueShortlist = async () => (shortlist ??= (await dueShortlistIds(at, cutoff)).filter((id) => !holds.candidates.has(id)))
@@ -113,8 +123,8 @@ function adapter(cutoff: string, now: string, holds: Holds, at: Date): CleanupAd
     return r
   }
   return {
-    countDue: async (kind) => (kind === 'shortlist' ? (await dueShortlist()).length : kind === 'reports' ? (await dueReports()).length : (must(await due(kind).limit(1)).count ?? 0)),
-    listDue: async (kind, limit) => (kind === 'shortlist' ? (await dueShortlist()).slice(0, limit) : kind === 'reports' ? (await dueReports()).slice(0, limit) : (must(await due(kind).order('id').limit(limit)).data ?? []).map((r) => r.id)),
+    countDue: async (kind) => (kind === 'shortlist' ? (await dueShortlist()).length : kind === 'reports' ? (await dueReports()).length : kind === 'callbacks' ? (await dueCallbacks()).length : (must(await due(kind).limit(1)).count ?? 0)),
+    listDue: async (kind, limit) => (kind === 'shortlist' ? (await dueShortlist()).slice(0, limit) : kind === 'reports' ? (await dueReports()).slice(0, limit) : kind === 'callbacks' ? (await dueCallbacks()).slice(0, limit) : (must(await due(kind).order('id').limit(limit)).data ?? []).map((r) => r.id)),
     countKept: async () => {
       const kept = { hired: 0, periodNotSet: 0 }
       for (const id of await heldAppsAged()) kept[holds.applications.get(id) === 'hired' ? 'hired' : 'periodNotSet']++
@@ -134,6 +144,10 @@ function adapter(cutoff: string, now: string, holds: Holds, at: Date): CleanupAd
       return trimmed
     },
     clear: async (kind, id) => {
+      if (kind === 'callbacks') {
+        must(await db.from('callback_requests').update(clearedCallback(now)).eq('id', id).is('personal_data_deleted_at', null))
+        return {}
+      }
       if (kind === 'reports') {
         must(await db.from('job_reports').update(clearedReport(now)).eq('id', id).is('personal_data_deleted_at', null))
         return {}

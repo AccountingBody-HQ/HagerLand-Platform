@@ -909,6 +909,113 @@ export type Database = {
           },
         ]
       }
+      callback_blocked_phones: {
+        Row: {
+          blocked_until: string
+          created_at: string
+          phone_hash: string
+        }
+        ComputedFields: never
+        Insert: {
+          blocked_until: string
+          created_at?: string
+          phone_hash: string
+        }
+        Update: {
+          blocked_until?: string
+          created_at?: string
+          phone_hash?: string
+        }
+        Relationships: []
+      }
+      callback_requests: {
+        Row: {
+          area_text: string | null
+          based_abroad: boolean
+          consent_at: string | null
+          country_code: string | null
+          created_at: string
+          handled_at: string | null
+          handled_by: string | null
+          id: string
+          ip_hash: string | null
+          language: string | null
+          name: string | null
+          need: string | null
+          outcome: string | null
+          personal_data_deleted_at: string | null
+          phone: string | null
+          reference: string
+          service_request_id: string | null
+          staff_note: string | null
+          status: string
+          time_of_day: string | null
+          tries: number
+        }
+        ComputedFields: never
+        Insert: {
+          area_text?: string | null
+          based_abroad?: boolean
+          consent_at?: string | null
+          country_code?: string | null
+          created_at?: string
+          handled_at?: string | null
+          handled_by?: string | null
+          id?: string
+          ip_hash?: string | null
+          language?: string | null
+          name?: string | null
+          need?: string | null
+          outcome?: string | null
+          personal_data_deleted_at?: string | null
+          phone?: string | null
+          reference?: string
+          service_request_id?: string | null
+          staff_note?: string | null
+          status?: string
+          time_of_day?: string | null
+          tries?: number
+        }
+        Update: {
+          area_text?: string | null
+          based_abroad?: boolean
+          consent_at?: string | null
+          country_code?: string | null
+          created_at?: string
+          handled_at?: string | null
+          handled_by?: string | null
+          id?: string
+          ip_hash?: string | null
+          language?: string | null
+          name?: string | null
+          need?: string | null
+          outcome?: string | null
+          personal_data_deleted_at?: string | null
+          phone?: string | null
+          reference?: string
+          service_request_id?: string | null
+          staff_note?: string | null
+          status?: string
+          time_of_day?: string | null
+          tries?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'callback_requests_service_request_id_fkey'
+            columns: ['service_request_id']
+            isOneToOne: false
+            referencedRelation: 'service_requests'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'callback_requests_service_request_id_fkey'
+            columns: ['service_request_id']
+            isOneToOne: false
+            referencedRelation: 'service_requests_for_provider'
+            referencedColumns: ['request_id']
+          },
+        ]
+      }
       candidate_profiles: {
         Row: {
           availability: string

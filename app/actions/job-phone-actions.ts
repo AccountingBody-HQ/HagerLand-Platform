@@ -16,6 +16,8 @@ import { sendEmail } from '@/lib/email/send'
 import { newApplicationEmail } from '@/lib/email/templates'
 import { canonicalUrl } from '@/lib/site'
 import { log } from '@/lib/log'
+import { getJobsI18n } from '@/lib/i18n/server'
+import { translateResult } from '@/lib/i18n/translate'
 
 export type PhoneFormState = ActionResult<{ reference: string }> | null
 
@@ -37,7 +39,7 @@ async function allowed(prefix: string, ip: string, phone: string, visitor: reado
  * jobs, once per phone per job (database rule). The employer gets the usual email; the applicant gets nothing but the
  * reference on screen (no SMS or email).
  */
-export async function applyByPhoneAction(_prev: PhoneFormState, formData: FormData): Promise<PhoneFormState> {
+async function applyByPhoneActionImpl(_prev: PhoneFormState, formData: FormData): Promise<PhoneFormState> {
   if (isHoneypotFilled(formData)) return ok({ reference: 'HLA-0' })
   if (!(await readJobsSwitches()).phoneApply) return fail(PHONE_MESSAGES.unavailable)
   if ((await getVertical('jobs'))?.status !== 'live') return fail(JOBS_NOT_LIVE)
@@ -77,7 +79,7 @@ export async function applyByPhoneAction(_prev: PhoneFormState, formData: FormDa
  * clock and gets a new reference, so the answer is the same as for a new join (it never shows that a number is known).
  * Only HagerLand staff (Owner and Operations) see the register.
  */
-export async function joinWorkerRegisterAction(_prev: PhoneFormState, formData: FormData): Promise<PhoneFormState> {
+async function joinWorkerRegisterActionImpl(_prev: PhoneFormState, formData: FormData): Promise<PhoneFormState> {
   if (isHoneypotFilled(formData)) return ok({ reference: 'HLW-0' })
   if (!(await readJobsSwitches()).workerRegister) return fail(PHONE_MESSAGES.unavailable)
   if ((await getVertical('jobs'))?.status !== 'live') return fail(JOBS_NOT_LIVE)
@@ -110,4 +112,13 @@ export async function joinWorkerRegisterAction(_prev: PhoneFormState, formData: 
   const result = first === 'retry' ? await save() : first
   if (!result || result === 'retry') return fail(PHONE_MESSAGES.unavailable)
   return ok(result)
+}
+
+// Jobs Phase 5: the messages in the visitor's language (Amharic for Jobs: only native-reviewed text; English unchanged).
+export async function applyByPhoneAction(_prev: PhoneFormState, formData: FormData): Promise<PhoneFormState> {
+  return translateResult(await applyByPhoneActionImpl(_prev, formData), (await getJobsI18n()).t)
+}
+
+export async function joinWorkerRegisterAction(_prev: PhoneFormState, formData: FormData): Promise<PhoneFormState> {
+  return translateResult(await joinWorkerRegisterActionImpl(_prev, formData), (await getJobsI18n()).t)
 }

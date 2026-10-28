@@ -19,6 +19,7 @@ export interface ReportJobText {
   contact: string
   contactHint: string
   send: string
+  sending: string
 }
 
 function ReportJobForm({ jobId, text }: { jobId: string; text: ReportJobText }) {
@@ -49,7 +50,7 @@ function ReportJobForm({ jobId, text }: { jobId: string; text: ReportJobText }) 
         <Input id="jrep-contact" name="contact" maxLength={254} />
       </Field>
       <Turnstile action="job_report" />
-      <SubmitButton fullWidth pendingText="Sending…">
+      <SubmitButton fullWidth pendingText={text.sending}>
         {text.send}
       </SubmitButton>
     </NoResetForm>

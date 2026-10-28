@@ -77,14 +77,17 @@ export function categoryLabel(value: string | null | undefined): string {
   return labelFor(JOB_CATEGORIES, value) || (value ?? '')
 }
 
-/** "ETB 25,000 – 35,000 per month", "From USD 3,000 per month", or null when no salary was given. */
-export function formatSalary(min: number | null, max: number | null, currency: string, period: string | null): string | null {
+/**
+ * "ETB 25,000 – 35,000 per month", "From USD 3,000 per month", or null when no salary was given. `t` translates the
+ * words (Jobs Phase 5); without it the text is English, exactly as before.
+ */
+export function formatSalary(min: number | null, max: number | null, currency: string, period: string | null, t: (s: string) => string = (x) => x): string | null {
   if (min === null && max === null) return null
-  const per = period ? ` ${labelFor(SALARY_PERIODS, period)}` : ''
+  const per = period ? ` ${t(labelFor(SALARY_PERIODS, period))}` : ''
   const money = (minor: number) => formatMoney(minor / 100, currency)
   if (min !== null && max !== null && max > min) return `${money(min)} – ${formatMoney(max / 100, currency).replace(/^[A-Z]{3}\s?/, '')}${per}`
-  if (min !== null) return `${max === min ? '' : 'From '}${money(min)}${per}`
-  return `Up to ${money(max as number)}${per}`
+  if (min !== null) return `${max === min ? money(min) : t('From {amount}').replace('{amount}', money(min))}${per}`
+  return `${t('Up to {amount}').replace('{amount}', money(max as number))}${per}`
 }
 
 const blank = (v: unknown) => (v === '' || v === null ? undefined : v)

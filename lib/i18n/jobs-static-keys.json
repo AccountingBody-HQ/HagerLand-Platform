@@ -1,0 +1,953 @@
+{
+  "(optional)": [
+    "components/jobs/CandidateForm.tsx",
+    "components/jobs/JobForm.tsx"
+  ],
+  "1 application": [
+    "app/(account)/account/jobs/page.tsx"
+  ],
+  "1 candidate": [
+    "app/(account)/account/jobs/candidates/page.tsx"
+  ],
+  "1 job": [
+    "app/(site)/jobs/page.tsx"
+  ],
+  "1 year of experience": [
+    "app/(account)/account/jobs/candidates/page.tsx"
+  ],
+  "A city in Ethiopia or abroad.": [
+    "components/jobs/CandidateForm.tsx"
+  ],
+  "A city or area in Ethiopia": [
+    "components/jobs/JobForm.tsx"
+  ],
+  "About the job": [
+    "app/(site)/jobs/[slug]/page.tsx",
+    "components/service-requests/ServiceRequestForm.tsx"
+  ],
+  "Add photos or documents": [
+    "components/service-requests/ServiceRequestForm.tsx"
+  ],
+  "All categories": [
+    "app/(site)/jobs/page.tsx"
+  ],
+  "All services": [
+    "components/layout/SiteHeader.tsx"
+  ],
+  "Any trade": [
+    "app/(site)/jobs/page.tsx"
+  ],
+  "Any type": [
+    "app/(site)/jobs/page.tsx"
+  ],
+  "Anywhere": [
+    "app/(site)/jobs/page.tsx"
+  ],
+  "Application sent": [
+    "components/jobs/PhoneApplyForm.tsx"
+  ],
+  "Application updated.": [
+    "app/actions/job-actions.ts"
+  ],
+  "Application withdrawn.": [
+    "app/actions/job-actions.ts"
+  ],
+  "Applications ({count})": [
+    "app/(account)/account/jobs/[id]/page.tsx"
+  ],
+  "Apply": [
+    "app/(site)/jobs/[slug]/apply/page.tsx"
+  ],
+  "Apply by phone": [
+    "app/(site)/jobs/[slug]/apply-by-phone/page.tsx",
+    "app/(site)/jobs/[slug]/page.tsx"
+  ],
+  "Apply for a job": [
+    "app/(site)/jobs/[slug]/apply/page.tsx"
+  ],
+  "Apply for a job on HagerLand.": [
+    "app/(site)/jobs/[slug]/apply-by-phone/page.tsx",
+    "app/(site)/jobs/[slug]/apply/page.tsx"
+  ],
+  "Apply for this job": [
+    "app/(site)/jobs/[slug]/page.tsx"
+  ],
+  "Apply now": [
+    "app/(site)/jobs/[slug]/page.tsx"
+  ],
+  "Apply: {title}": [
+    "app/(site)/jobs/[slug]/apply/page.tsx"
+  ],
+  "Availability": [
+    "components/jobs/CandidateForm.tsx"
+  ],
+  "Back to HagerLand": [
+    "app/(site)/request-service/sent/page.tsx"
+  ],
+  "By HagerLand": [
+    "app/(site)/jobs/page.tsx"
+  ],
+  "By phone": [
+    "app/(account)/account/jobs/[id]/page.tsx"
+  ],
+  "CV": [
+    "components/jobs/CandidateForm.tsx"
+  ],
+  "CV sent": [
+    "app/(account)/account/applications/page.tsx"
+  ],
+  "Can't find your place? Type it instead": [
+    "components/service-requests/ServiceRequestForm.tsx"
+  ],
+  "Cancel the request? Providers will no longer see it.": [
+    "components/service-requests/RequestActions.tsx"
+  ],
+  "Cancel this request": [
+    "components/service-requests/RequestActions.tsx"
+  ],
+  "Candidate and employer registers": [
+    "app/(site)/jobs/page.tsx"
+  ],
+  "Candidate profile": [
+    "app/(account)/account/candidate/page.tsx"
+  ],
+  "Candidate profiles are open to verified businesses and businesses that have had a job approved by HagerLand. Post a job or ask us to verify your business.": [
+    "app/(account)/account/jobs/candidates/page.tsx"
+  ],
+  "Candidates introduced: {n}": [
+    "components/service-requests/RequestView.tsx"
+  ],
+  "Category": [
+    "app/(site)/jobs/page.tsx",
+    "components/jobs/JobForm.tsx"
+  ],
+  "Change": [
+    "components/jobs/ApplyForm.tsx"
+  ],
+  "Choose from the list instead": [
+    "components/service-requests/ServiceRequestForm.tsx"
+  ],
+  "Choose where the job is.": [
+    "app/actions/job-actions.ts"
+  ],
+  "Choose…": [
+    "components/jobs/JobForm.tsx",
+    "components/jobs/PhoneApplyForm.tsx"
+  ],
+  "City or area": [
+    "components/service-requests/ServiceRequestForm.tsx"
+  ],
+  "City, sub-city or area": [
+    "components/jobs/PhoneApplyForm.tsx",
+    "components/jobs/WorkerRegisterForm.tsx"
+  ],
+  "Clear search": [
+    "app/(site)/jobs/page.tsx"
+  ],
+  "Close job": [
+    "app/(account)/account/jobs/[id]/page.tsx"
+  ],
+  "Close this job? It will be removed from the job board.": [
+    "app/(account)/account/jobs/[id]/page.tsx"
+  ],
+  "Closes {date}": [
+    "app/(site)/jobs/[slug]/page.tsx",
+    "components/jobs/JobCard.tsx"
+  ],
+  "Closing date": [
+    "components/jobs/JobForm.tsx"
+  ],
+  "Cookies": [
+    "components/layout/SiteFooter.tsx"
+  ],
+  "Copy link": [
+    "app/(site)/jobs/[slug]/page.tsx"
+  ],
+  "Country": [
+    "components/service-requests/ServiceRequestForm.tsx"
+  ],
+  "Cover note": [
+    "components/jobs/ApplyForm.tsx"
+  ],
+  "Create a business profile": [
+    "app/(account)/account/jobs/new/page.tsx",
+    "app/(account)/account/jobs/page.tsx"
+  ],
+  "Create a candidate profile": [
+    "app/(site)/jobs/page.tsx"
+  ],
+  "Create account": [
+    "components/layout/MobileDrawer.tsx"
+  ],
+  "Create your business profile first. Once it is approved, you can post jobs.": [
+    "app/(account)/account/jobs/new/page.tsx",
+    "app/(account)/account/jobs/page.tsx"
+  ],
+  "Degrees, diplomas, licences and certificates.": [
+    "components/jobs/CandidateForm.tsx"
+  ],
+  "Delete profile": [
+    "app/(account)/account/candidate/page.tsx"
+  ],
+  "Delete your candidate profile": [
+    "app/(account)/account/candidate/page.tsx"
+  ],
+  "Delete your candidate profile and CV?": [
+    "app/(account)/account/candidate/page.tsx"
+  ],
+  "Description": [
+    "components/jobs/JobForm.tsx"
+  ],
+  "Download CV": [
+    "app/(account)/account/jobs/[id]/page.tsx"
+  ],
+  "Edit job": [
+    "app/(account)/account/jobs/[id]/page.tsx"
+  ],
+  "Email": [
+    "components/jobs/ApplyForm.tsx",
+    "components/service-requests/ServiceRequestForm.tsx"
+  ],
+  "Experience": [
+    "components/jobs/CandidateForm.tsx"
+  ],
+  "Explore": [
+    "components/layout/MobileDrawer.tsx",
+    "components/layout/SiteHeader.tsx"
+  ],
+  "Find candidates": [
+    "app/(account)/account/jobs/candidates/page.tsx",
+    "app/(account)/account/jobs/page.tsx"
+  ],
+  "Find work by trade": [
+    "app/(site)/jobs/page.tsx"
+  ],
+  "For approved employers": [
+    "app/(account)/account/jobs/candidates/page.tsx"
+  ],
+  "For example 0911 234 567": [
+    "components/jobs/PhoneApplyForm.tsx",
+    "components/jobs/WorkerRegisterForm.tsx"
+  ],
+  "For {organisation}. Save a draft at any time; HagerLand reviews the job when you submit it.": [
+    "app/(account)/account/jobs/new/page.tsx"
+  ],
+  "From": [
+    "components/jobs/JobForm.tsx"
+  ],
+  "From {amount}": [
+    "lib/jobs.ts"
+  ],
+  "Full name": [
+    "components/jobs/ApplyForm.tsx",
+    "components/jobs/CandidateForm.tsx"
+  ],
+  "Give your request a short title": [
+    "components/service-requests/ServiceRequestForm.tsx"
+  ],
+  "HagerLand home": [
+    "components/layout/SiteHeader.tsx"
+  ],
+  "HagerLand is handling this job for a private client. Your application goes to HagerLand, and we introduce you to the employer only if you agree.": [
+    "app/(site)/jobs/[slug]/page.tsx"
+  ],
+  "HagerLand may contact you about suitable roles from our recruitment requests. We introduce you to an employer only after you agree.": [
+    "components/jobs/CandidateForm.tsx"
+  ],
+  "HagerLand removed this job. It cannot be changed.": [
+    "app/actions/job-actions.ts"
+  ],
+  "HagerLand reviews every job before it goes live. Do not ask candidates for money: adverts that do are removed.": [
+    "components/jobs/JobForm.tsx"
+  ],
+  "Headline": [
+    "components/jobs/CandidateForm.tsx"
+  ],
+  "Hear first": [
+    "app/(site)/jobs/page.tsx"
+  ],
+  "How should they contact you?": [
+    "components/jobs/PhoneApplyForm.tsx"
+  ],
+  "How should we contact you?": [
+    "components/jobs/WorkerRegisterForm.tsx"
+  ],
+  "How soon?": [
+    "components/service-requests/ServiceRequestForm.tsx"
+  ],
+  "I agree that HagerLand keeps my details to contact me about work. They are deleted 12 months after I last update them, and HagerLand will ask me before sharing my number with an employer.": [
+    "components/jobs/WorkerRegisterForm.tsx"
+  ],
+  "I agree that HagerLand shares my name, phone, trade and area with this employer so they can contact me about this job.": [
+    "components/jobs/PhoneApplyForm.tsx"
+  ],
+  "I am 18 or older": [
+    "components/jobs/PhoneApplyForm.tsx",
+    "components/jobs/WorkerRegisterForm.tsx"
+  ],
+  "If you leave it blank, the job stays open for 60 days after approval.": [
+    "components/jobs/JobForm.tsx"
+  ],
+  "In the currency of the country where the job is{currency}. Leave blank to discuss with candidates.": [
+    "components/jobs/JobForm.tsx"
+  ],
+  "Introduced": [
+    "components/service-requests/IntroducedPeople.tsx"
+  ],
+  "Invalid application.": [
+    "app/actions/job-actions.ts"
+  ],
+  "Invalid request.": [
+    "app/actions/job-actions.ts"
+  ],
+  "Job": [
+    "app/(account)/account/jobs/[id]/page.tsx"
+  ],
+  "Job not found": [
+    "app/(site)/jobs/[slug]/page.tsx"
+  ],
+  "Job not found.": [
+    "app/actions/job-actions.ts"
+  ],
+  "Job title": [
+    "components/jobs/JobForm.tsx"
+  ],
+  "Jobs": [
+    "app/(account)/account/jobs/page.tsx",
+    "app/(site)/jobs/[slug]/apply-by-phone/page.tsx",
+    "app/(site)/jobs/[slug]/apply/page.tsx",
+    "app/(site)/jobs/[slug]/page.tsx",
+    "app/(site)/jobs/call-back/page.tsx"
+  ],
+  "Jobs are posted by organisations": [
+    "app/(account)/account/jobs/new/page.tsx",
+    "app/(account)/account/jobs/page.tsx"
+  ],
+  "Jobs are posted by organisations. Create your business profile first.": [
+    "app/actions/job-actions.ts"
+  ],
+  "Jobs in construction, engineering and property": [
+    "app/(site)/jobs/page.tsx"
+  ],
+  "Jobs on HagerLand open soon": [
+    "components/jobs/JobsNotLive.tsx"
+  ],
+  "Join the register": [
+    "app/(site)/jobs/page.tsx",
+    "components/jobs/WorkerRegisterForm.tsx"
+  ],
+  "Keep it": [
+    "components/service-requests/RequestActions.tsx"
+  ],
+  "Keywords": [
+    "app/(site)/jobs/page.tsx"
+  ],
+  "Language": [
+    "components/jobs/PhoneApplyForm.tsx",
+    "components/jobs/WorkerRegisterForm.tsx"
+  ],
+  "Leave your phone number and trade. HagerLand may call you about suitable work. No account or email needed.": [
+    "app/(site)/jobs/page.tsx"
+  ],
+  "Link copied.": [
+    "app/(site)/jobs/[slug]/page.tsx"
+  ],
+  "List with us": [
+    "components/layout/MobileDrawer.tsx",
+    "components/layout/SiteHeader.tsx"
+  ],
+  "Location": [
+    "app/(site)/jobs/page.tsx"
+  ],
+  "Looking for work? Tell us you're available": [
+    "app/(site)/jobs/page.tsx"
+  ],
+  "Menu": [
+    "components/layout/MobileDrawer.tsx"
+  ],
+  "My job applications": [
+    "app/(account)/account/applications/page.tsx"
+  ],
+  "My service requests": [
+    "app/(site)/request-service/sent/page.tsx"
+  ],
+  "Need help hiring?": [
+    "app/(account)/account/jobs/page.tsx",
+    "app/(site)/jobs/page.tsx"
+  ],
+  "Never pay a deposit before you have agreed the work, price and timing in writing.": [
+    "app/(site)/request-service/sent/page.tsx"
+  ],
+  "Never pay an employer or agent to get a job. Report anything suspicious to HagerLand.": [
+    "app/(site)/jobs/[slug]/page.tsx"
+  ],
+  "Never pay anyone to get a job.": [
+    "components/jobs/PhoneApplyForm.tsx"
+  ],
+  "New vacancies appear here as soon as we have approved them. Create a candidate profile so employers can find you.": [
+    "app/(site)/jobs/page.tsx"
+  ],
+  "No": [
+    "components/service-requests/ServiceRequestForm.tsx"
+  ],
+  "No CV attached.": [
+    "app/(account)/account/jobs/[id]/page.tsx"
+  ],
+  "No account or email needed. If the employer wants to talk, they will contact you on this number.": [
+    "app/(site)/jobs/[slug]/apply-by-phone/page.tsx"
+  ],
+  "No applications yet": [
+    "app/(account)/account/applications/page.tsx"
+  ],
+  "No applications yet.": [
+    "app/(account)/account/jobs/[id]/page.tsx"
+  ],
+  "No candidates found": [
+    "app/(account)/account/jobs/candidates/page.tsx"
+  ],
+  "No candidates have made their profile visible yet.": [
+    "app/(account)/account/jobs/candidates/page.tsx"
+  ],
+  "No jobs are open right now": [
+    "app/(site)/jobs/page.tsx"
+  ],
+  "No jobs match your search": [
+    "app/(site)/jobs/page.tsx"
+  ],
+  "No jobs yet": [
+    "app/(account)/account/jobs/page.tsx"
+  ],
+  "No one has been introduced yet. We introduce only people who have agreed to be introduced to you.": [
+    "components/service-requests/IntroducedPeople.tsx"
+  ],
+  "No preference": [
+    "components/service-requests/ServiceRequestForm.tsx"
+  ],
+  "Not ready to apply or post a job? Join a register and we will contact you about suitable roles or candidates.": [
+    "app/(site)/jobs/page.tsx"
+  ],
+  "Once your business profile is approved, you can search candidates who chose to be visible to employers.": [
+    "app/(account)/account/jobs/candidates/page.tsx"
+  ],
+  "Only if you're happy for us to follow up. We don't share it with the employer.": [
+    "app/(site)/jobs/[slug]/page.tsx"
+  ],
+  "Only me": [
+    "components/jobs/CandidateForm.tsx"
+  ],
+  "Open": [
+    "components/jobs/CandidateForm.tsx"
+  ],
+  "Open menu": [
+    "components/layout/SiteHeader.tsx"
+  ],
+  "Open until {date}.": [
+    "app/(account)/account/jobs/[id]/page.tsx"
+  ],
+  "Optional. Photos of the problem, plans or a bill of quantities. Up to 5 files, 15 MB each. Only HagerLand and providers who accept your request see them.": [
+    "components/service-requests/ServiceRequestForm.tsx"
+  ],
+  "PDF or Word (.docx), up to 15 MB": [
+    "components/jobs/ApplyForm.tsx",
+    "components/jobs/CandidateForm.tsx"
+  ],
+  "Pause to edit": [
+    "app/(account)/account/jobs/[id]/page.tsx"
+  ],
+  "People introduced to you": [
+    "components/service-requests/IntroducedPeople.tsx"
+  ],
+  "People who chose to let employers find them. Ask HagerLand to introduce you: we pass on your details with their agreement.": [
+    "app/(account)/account/jobs/candidates/page.tsx"
+  ],
+  "Per": [
+    "components/jobs/JobForm.tsx"
+  ],
+  "Phone": [
+    "components/jobs/ApplyForm.tsx",
+    "components/service-requests/ServiceRequestForm.tsx"
+  ],
+  "Phone call": [
+    "components/service-requests/ServiceRequestForm.tsx"
+  ],
+  "Phone number": [
+    "components/jobs/PhoneApplyForm.tsx",
+    "components/jobs/WorkerRegisterForm.tsx"
+  ],
+  "Photos or documents": [
+    "components/service-requests/ServiceRequestForm.tsx"
+  ],
+  "Please check the status and notes.": [
+    "app/actions/job-actions.ts"
+  ],
+  "Please upload your CV again.": [
+    "app/actions/job-actions.ts"
+  ],
+  "Post a job": [
+    "app/(account)/account/jobs/new/page.tsx",
+    "app/(account)/account/jobs/page.tsx",
+    "app/(site)/jobs/page.tsx"
+  ],
+  "Post your first vacancy, or tell us which roles you need to fill.": [
+    "app/(account)/account/jobs/page.tsx"
+  ],
+  "Posted by HagerLand for a private client": [
+    "app/(site)/jobs/[slug]/page.tsx",
+    "components/jobs/JobCard.tsx"
+  ],
+  "Posted {when}": [
+    "components/jobs/JobCard.tsx"
+  ],
+  "Preferred way to reply": [
+    "components/service-requests/ServiceRequestForm.tsx"
+  ],
+  "Privacy": [
+    "components/layout/SiteFooter.tsx"
+  ],
+  "Privacy Policy": [
+    "components/service-requests/ServiceRequestForm.tsx"
+  ],
+  "Private notes": [
+    "app/(account)/account/jobs/[id]/page.tsx"
+  ],
+  "Qualifications": [
+    "components/jobs/CandidateForm.tsx"
+  ],
+  "Qualifications, licences, experience and skills.": [
+    "components/jobs/JobForm.tsx"
+  ],
+  "Recent roles and projects.": [
+    "components/jobs/CandidateForm.tsx"
+  ],
+  "Recruitment and placement by HagerLand": [
+    "app/(site)/jobs/page.tsx"
+  ],
+  "Register me for placement help": [
+    "components/jobs/CandidateForm.tsx"
+  ],
+  "Register your interest": [
+    "components/jobs/JobsNotLive.tsx"
+  ],
+  "Remove": [
+    "components/jobs/CandidateForm.tsx"
+  ],
+  "Remove {name}": [
+    "components/service-requests/ServiceRequestForm.tsx"
+  ],
+  "Report this job": [
+    "app/(site)/jobs/[slug]/page.tsx"
+  ],
+  "Request another service": [
+    "app/(site)/request-service/sent/page.tsx"
+  ],
+  "Request sent": [
+    "app/(site)/request-service/sent/page.tsx"
+  ],
+  "Requirements": [
+    "components/jobs/JobForm.tsx"
+  ],
+  "Salary": [
+    "components/jobs/JobForm.tsx"
+  ],
+  "Save draft": [
+    "components/jobs/JobForm.tsx"
+  ],
+  "Save profile": [
+    "components/jobs/CandidateForm.tsx"
+  ],
+  "Saved as a draft.": [
+    "app/(account)/account/jobs/[id]/page.tsx"
+  ],
+  "Saving…": [
+    "components/jobs/CandidateForm.tsx",
+    "components/jobs/JobForm.tsx"
+  ],
+  "Search": [
+    "app/(account)/account/jobs/candidates/page.tsx",
+    "components/layout/SiteHeader.tsx"
+  ],
+  "Search jobs": [
+    "app/(account)/account/applications/page.tsx",
+    "app/(site)/jobs/page.tsx"
+  ],
+  "See our": [
+    "components/service-requests/ServiceRequestForm.tsx"
+  ],
+  "See our Privacy Policy.": [
+    "components/jobs/PhoneApplyForm.tsx"
+  ],
+  "Send application": [
+    "components/jobs/ApplyForm.tsx"
+  ],
+  "Send for review again": [
+    "app/(account)/account/jobs/[id]/page.tsx"
+  ],
+  "Send my application": [
+    "components/jobs/PhoneApplyForm.tsx"
+  ],
+  "Send my request": [
+    "components/service-requests/ServiceRequestForm.tsx"
+  ],
+  "Send report": [
+    "app/(site)/jobs/[slug]/page.tsx"
+  ],
+  "Send the CV saved in my candidate profile": [
+    "components/jobs/ApplyForm.tsx"
+  ],
+  "Send your CV and a short note. Only HagerLand can see your application.": [
+    "app/(site)/jobs/[slug]/page.tsx"
+  ],
+  "Send your CV and a short note. Only {employer} and HagerLand can see your application.": [
+    "app/(site)/jobs/[slug]/page.tsx"
+  ],
+  "Sending…": [
+    "app/(site)/jobs/[slug]/page.tsx",
+    "components/jobs/ApplyForm.tsx",
+    "components/jobs/CallbackForm.tsx",
+    "components/jobs/PhoneApplyForm.tsx",
+    "components/jobs/WorkerRegisterForm.tsx",
+    "components/service-requests/ServiceRequestForm.tsx"
+  ],
+  "Sent to HagerLand for review. We will email you when it is live.": [
+    "app/(account)/account/jobs/[id]/page.tsx"
+  ],
+  "Separate with commas, e.g. AutoCAD, site supervision, formwork": [
+    "components/jobs/CandidateForm.tsx"
+  ],
+  "Set up your candidate profile": [
+    "app/(account)/account/applications/page.tsx"
+  ],
+  "Share": [
+    "app/(site)/jobs/[slug]/page.tsx"
+  ],
+  "Share this job": [
+    "app/(site)/jobs/[slug]/page.tsx"
+  ],
+  "Shop by category": [
+    "components/layout/SiteHeader.tsx"
+  ],
+  "Skill, trade or qualification": [
+    "app/(account)/account/jobs/candidates/page.tsx"
+  ],
+  "Skills and trades": [
+    "components/jobs/CandidateForm.tsx"
+  ],
+  "Skip to content": [
+    "components/layout/SiteHeader.tsx"
+  ],
+  "Some text on this page is shown in English while we finish the translation.": [
+    "components/layout/JobsAmharicNotice.tsx"
+  ],
+  "Status": [
+    "app/(account)/account/jobs/[id]/page.tsx"
+  ],
+  "Submit a staffing requirement": [
+    "app/(account)/account/jobs/candidates/page.tsx",
+    "app/(account)/account/jobs/page.tsx",
+    "app/(site)/jobs/page.tsx"
+  ],
+  "Submit a staffing requirement and include the candidate reference (for example C-1A2B3C4D). We will ask them and introduce you.": [
+    "app/(account)/account/jobs/candidates/page.tsx"
+  ],
+  "Submit for review": [
+    "components/jobs/JobForm.tsx"
+  ],
+  "Telegram": [
+    "app/(site)/jobs/[slug]/page.tsx",
+    "components/service-requests/ServiceRequestForm.tsx"
+  ],
+  "Tell us the roles you need to fill. HagerLand finds, checks and introduces suitable candidates in Ethiopia. Fees are agreed with you in writing before we start.": [
+    "app/(site)/jobs/page.tsx"
+  ],
+  "Tell us which roles you need to fill and we will help you find people.": [
+    "app/(site)/jobs/page.tsx"
+  ],
+  "Terms": [
+    "components/layout/SiteFooter.tsx",
+    "components/service-requests/ServiceRequestForm.tsx"
+  ],
+  "Thank you. You're on the register. Your reference is {reference}.": [
+    "components/jobs/WorkerRegisterForm.tsx"
+  ],
+  "The role, the projects, working hours and what you offer.": [
+    "components/jobs/JobForm.tsx"
+  ],
+  "These people agreed to be introduced to you for this request only. Please do not share their details with anyone else. Candidates must never be asked for money.": [
+    "components/service-requests/IntroducedPeople.tsx"
+  ],
+  "They see your first name, headline, skills, qualifications and experience. Never your contact details or CV: HagerLand asks you before any introduction.": [
+    "components/jobs/CandidateForm.tsx"
+  ],
+  "This application cannot be withdrawn.": [
+    "app/actions/job-actions.ts"
+  ],
+  "This deletes your profile and its CV. Applications you have already sent stay with those employers until they are deleted after 12 months.": [
+    "app/(account)/account/candidate/page.tsx"
+  ],
+  "This job has closed": [
+    "app/(account)/account/applications/page.tsx"
+  ],
+  "This job is live. Pause it first, then edit it and send it for review again.": [
+    "app/actions/job-actions.ts"
+  ],
+  "This job is no longer open.": [
+    "app/actions/job-actions.ts"
+  ],
+  "To": [
+    "components/jobs/JobForm.tsx"
+  ],
+  "Trade": [
+    "app/(site)/jobs/[slug]/page.tsx",
+    "app/(site)/jobs/page.tsx",
+    "components/jobs/JobForm.tsx"
+  ],
+  "Try another skill or trade.": [
+    "app/(account)/account/jobs/candidates/page.tsx"
+  ],
+  "Try fewer filters or a different place.": [
+    "app/(site)/jobs/page.tsx"
+  ],
+  "Type of job": [
+    "app/(site)/jobs/page.tsx",
+    "components/jobs/JobForm.tsx"
+  ],
+  "Up to {amount}": [
+    "lib/jobs.ts"
+  ],
+  "Update": [
+    "app/(account)/account/jobs/[id]/page.tsx"
+  ],
+  "Upload your CV": [
+    "components/jobs/ApplyForm.tsx",
+    "components/jobs/CandidateForm.tsx"
+  ],
+  "Use applicants' details only to recruit for this job. CVs are deleted 12 months after the application.": [
+    "app/(account)/account/jobs/[id]/page.tsx"
+  ],
+  "Use it to apply for jobs faster. Nobody else can see it.": [
+    "components/jobs/CandidateForm.tsx"
+  ],
+  "Vacancies from construction, engineering, architecture, property and trades employers in Ethiopia and abroad. Apply with your CV on HagerLand.": [
+    "app/(site)/jobs/page.tsx"
+  ],
+  "Vacancies from employers in Ethiopia and abroad. Apply with your CV, or create a profile and choose whether employers can find you.": [
+    "app/(site)/jobs/page.tsx"
+  ],
+  "Vacancies posted by {organisation}. HagerLand reviews each job before it goes live.": [
+    "app/(account)/account/jobs/page.tsx"
+  ],
+  "Verified businesses and employers with an approved job": [
+    "components/jobs/CandidateForm.tsx"
+  ],
+  "View on the job board": [
+    "app/(account)/account/jobs/[id]/page.tsx"
+  ],
+  "Want employers to find you?": [
+    "app/(account)/account/applications/page.tsx"
+  ],
+  "Want to meet a candidate?": [
+    "app/(account)/account/jobs/candidates/page.tsx"
+  ],
+  "Wants placement help": [
+    "app/(account)/account/jobs/candidates/page.tsx"
+  ],
+  "We are getting the job board ready. Register your interest and we will email you when you can post jobs and apply.": [
+    "components/jobs/JobsNotLive.tsx"
+  ],
+  "We could not change this job. Please try again.": [
+    "app/actions/job-actions.ts"
+  ],
+  "We could not delete your profile. Please try again.": [
+    "app/actions/job-actions.ts"
+  ],
+  "We could not save the job. Please try again.": [
+    "app/actions/job-actions.ts"
+  ],
+  "We could not save your changes.": [
+    "app/actions/job-actions.ts"
+  ],
+  "We could not save your profile. Please try again.": [
+    "app/actions/job-actions.ts"
+  ],
+  "We could not send your application. Please try again.": [
+    "app/actions/job-actions.ts"
+  ],
+  "We could not update this application.": [
+    "app/actions/job-actions.ts"
+  ],
+  "We email you a link to follow your request and see quotes.": [
+    "components/service-requests/ServiceRequestForm.tsx"
+  ],
+  "What did you notice?": [
+    "app/(site)/jobs/[slug]/page.tsx"
+  ],
+  "What is the problem?": [
+    "app/(site)/jobs/[slug]/page.tsx"
+  ],
+  "What you need": [
+    "app/(site)/jobs/[slug]/page.tsx"
+  ],
+  "WhatsApp": [
+    "app/(site)/jobs/[slug]/page.tsx",
+    "components/service-requests/ServiceRequestForm.tsx"
+  ],
+  "When can you start?": [
+    "components/jobs/WorkerRegisterForm.tsx"
+  ],
+  "When you apply for a job, you can follow it here.": [
+    "app/(account)/account/applications/page.tsx"
+  ],
+  "Where": [
+    "components/service-requests/ServiceRequestForm.tsx"
+  ],
+  "Where are you based?": [
+    "components/jobs/CandidateForm.tsx"
+  ],
+  "Where do you live or work?": [
+    "components/jobs/PhoneApplyForm.tsx",
+    "components/jobs/WorkerRegisterForm.tsx"
+  ],
+  "Where is the job?": [
+    "components/jobs/JobForm.tsx"
+  ],
+  "Who can see your profile?": [
+    "components/jobs/CandidateForm.tsx"
+  ],
+  "Why you are a good fit, in a few sentences.": [
+    "components/jobs/ApplyForm.tsx"
+  ],
+  "Withdraw": [
+    "app/(account)/account/applications/page.tsx"
+  ],
+  "Withdraw this application?": [
+    "app/(account)/account/applications/page.tsx"
+  ],
+  "Years of experience": [
+    "components/jobs/CandidateForm.tsx"
+  ],
+  "Yes": [
+    "components/service-requests/ServiceRequestForm.tsx"
+  ],
+  "Yes, cancel": [
+    "components/service-requests/RequestActions.tsx"
+  ],
+  "You cannot apply for a job your own organisation posted.": [
+    "app/actions/job-actions.ts"
+  ],
+  "You have already applied for this job. You can see it under My applications.": [
+    "app/actions/job-actions.ts"
+  ],
+  "You have sent a lot of applications today. Please try again tomorrow.": [
+    "app/actions/job-actions.ts"
+  ],
+  "Your CV (optional)": [
+    "components/jobs/ApplyForm.tsx"
+  ],
+  "Your CV is never public. Only this employer and HagerLand can open it.": [
+    "components/jobs/ApplyForm.tsx"
+  ],
+  "Your application has been sent (reference {reference}). We have emailed you a copy.": [
+    "app/(account)/account/applications/page.tsx"
+  ],
+  "Your candidate profile has been deleted.": [
+    "app/actions/job-actions.ts"
+  ],
+  "Your details": [
+    "components/service-requests/ServiceRequestForm.tsx"
+  ],
+  "Your jobs go live once your business profile has been approved.": [
+    "app/(account)/account/jobs/page.tsx"
+  ],
+  "Your name": [
+    "components/jobs/PhoneApplyForm.tsx",
+    "components/jobs/WorkerRegisterForm.tsx",
+    "components/service-requests/ServiceRequestForm.tsx"
+  ],
+  "Your phone or email": [
+    "app/(site)/jobs/[slug]/page.tsx"
+  ],
+  "Your reference is": [
+    "app/(site)/request-service/sent/page.tsx"
+  ],
+  "Your reference is {reference}. Keep it in case you need to contact HagerLand. The employer will contact you if they want to talk.": [
+    "components/jobs/PhoneApplyForm.tsx"
+  ],
+  "Your request is on its way": [
+    "app/(site)/request-service/sent/page.tsx"
+  ],
+  "Your saved CV": [
+    "components/jobs/CandidateForm.tsx"
+  ],
+  "Your service request has been sent to HagerLand.": [
+    "app/(site)/request-service/sent/page.tsx"
+  ],
+  "Your skills, experience and CV in one place. It is private unless you choose to let employers find you.": [
+    "app/(account)/account/candidate/page.tsx"
+  ],
+  "Your trade": [
+    "components/jobs/PhoneApplyForm.tsx"
+  ],
+  "Your trades": [
+    "components/jobs/WorkerRegisterForm.tsx"
+  ],
+  "and": [
+    "components/service-requests/ServiceRequestForm.tsx"
+  ],
+  "and we will help you find people.": [
+    "app/(account)/account/jobs/page.tsx"
+  ],
+  "applied {date}": [
+    "app/(account)/account/jobs/[id]/page.tsx"
+  ],
+  "e.g. Civil engineer, 8 years on high-rise projects": [
+    "components/jobs/CandidateForm.tsx"
+  ],
+  "e.g. Site engineer": [
+    "components/jobs/JobForm.tsx"
+  ],
+  "e.g. site engineer": [
+    "app/(site)/jobs/page.tsx"
+  ],
+  "on {date}": [
+    "lib/i18n/dates.ts"
+  ],
+  "open until {date}": [
+    "app/(account)/account/jobs/page.tsx"
+  ],
+  "sent {date}": [
+    "app/(account)/account/applications/page.tsx"
+  ],
+  "today": [
+    "lib/i18n/dates.ts"
+  ],
+  "yesterday": [
+    "lib/i18n/dates.ts"
+  ],
+  "{First name} is no longer available for this request.": [
+    "components/service-requests/IntroducedPeople.tsx"
+  ],
+  "{category} jobs": [
+    "app/(site)/jobs/page.tsx"
+  ],
+  "{n} applications": [
+    "app/(account)/account/jobs/page.tsx"
+  ],
+  "{n} candidates": [
+    "app/(account)/account/jobs/candidates/page.tsx"
+  ],
+  "{n} days ago": [
+    "lib/i18n/dates.ts"
+  ],
+  "{n} jobs": [
+    "app/(site)/jobs/page.tsx"
+  ],
+  "{n} weeks ago": [
+    "lib/i18n/dates.ts"
+  ],
+  "{n} years of experience": [
+    "app/(account)/account/jobs/candidates/page.tsx"
+  ],
+  "{title} at {employer}, {place}": [
+    "app/(site)/jobs/[slug]/page.tsx"
+  ]
+}

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { brand } from '@/lib/brand'
 import { CANONICAL_URL, IS_PRODUCTION, canonicalUrl } from '@/lib/site'
+import { localizeHref, type Locale } from '@/lib/i18n/config'
 
 export interface MetadataInput {
   title: string
@@ -11,11 +12,16 @@ export interface MetadataInput {
   image?: string
   absoluteTitle?: boolean
   type?: 'website' | 'article'
+  /**
+   * The page's language when it is known at request time (Jobs Phase 5): an Amharic page's canonical is its own "/am"
+   * address and its share data says am_ET. Omitted (or "en"): exactly as before.
+   */
+  locale?: Locale
 }
 
 /** Page metadata with an absolute canonical URL on www.hagerland.com. Previews are never indexed. */
-export function buildMetadata({ title, description, path, noindex, image, absoluteTitle, type = 'website' }: MetadataInput): Metadata {
-  const url = canonicalUrl(path)
+export function buildMetadata({ title, description, path, noindex, image, absoluteTitle, type = 'website', locale = 'en' }: MetadataInput): Metadata {
+  const url = canonicalUrl(locale === 'am' ? localizeHref(path, 'am') : path)
   const index = IS_PRODUCTION && !noindex
   return {
     title: absoluteTitle ? { absolute: title } : title,
@@ -28,7 +34,7 @@ export function buildMetadata({ title, description, path, noindex, image, absolu
       url,
       siteName: brand.name,
       type,
-      locale: 'en_US',
+      locale: locale === 'am' ? 'am_ET' : 'en_US',
       images: [{ url: image ?? '/og/default', width: 1200, height: 630, alt: title }],
     },
     twitter: { card: 'summary_large_image', title, description, images: [image ?? '/og/default'] },

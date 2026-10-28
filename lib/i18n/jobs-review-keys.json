@@ -1,0 +1,3552 @@
+[
+  {
+    "key": "\"{title}\" is now on the HagerLand job board.",
+    "where": [
+      "email (sent in English): jobDecisionEmail (job approved)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "(optional)",
+    "where": [
+      "components/jobs/CandidateForm.tsx",
+      "components/jobs/JobForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "1 application",
+    "where": [
+      "app/(account)/account/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "1 candidate",
+    "where": [
+      "app/(account)/account/jobs/candidates/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "1 job",
+    "where": [
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "1 year of experience",
+    "where": [
+      "app/(account)/account/jobs/candidates/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "A city in Ethiopia or abroad.",
+    "where": [
+      "components/jobs/CandidateForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "A city or area in Ethiopia",
+    "where": [
+      "components/jobs/JobForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "About the job",
+    "where": [
+      "app/(site)/jobs/[slug]/page.tsx",
+      "components/service-requests/ServiceRequestForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Add photos or documents",
+    "where": [
+      "components/service-requests/ServiceRequestForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Administration",
+    "where": [
+      "lib/content/verticals.ts (JOB_CATEGORIES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Afaan Oromo",
+    "where": [
+      "lib/jobs-phone.ts (LANGUAGES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Afternoon",
+    "where": [
+      "lib/callbacks.ts (best time to call)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "All categories",
+    "where": [
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "All services",
+    "where": [
+      "components/layout/SiteHeader.tsx"
+    ],
+    "draft": "ሁሉም አገልግሎቶች"
+  },
+  {
+    "key": "Aluminium & glass fitter",
+    "where": [
+      "lib/jobs.ts (TRADES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Amharic",
+    "where": [
+      "lib/jobs-phone.ts (LANGUAGES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Any time",
+    "where": [
+      "lib/callbacks.ts (best time to call)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Any trade",
+    "where": [
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Any type",
+    "where": [
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Anywhere",
+    "where": [
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Application sent",
+    "where": [
+      "components/jobs/PhoneApplyForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Application sent: {title} ({reference})",
+    "where": [
+      "email (sent in English): applicationReceivedEmail"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Application updated.",
+    "where": [
+      "app/actions/job-actions.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Application withdrawn.",
+    "where": [
+      "app/actions/job-actions.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Applications ({count})",
+    "where": [
+      "app/(account)/account/jobs/[id]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Apply",
+    "where": [
+      "app/(site)/jobs/[slug]/apply/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Apply by phone",
+    "where": [
+      "app/(site)/jobs/[slug]/apply-by-phone/page.tsx",
+      "app/(site)/jobs/[slug]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Apply for a job",
+    "where": [
+      "app/(site)/jobs/[slug]/apply/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Apply for a job on HagerLand.",
+    "where": [
+      "app/(site)/jobs/[slug]/apply-by-phone/page.tsx",
+      "app/(site)/jobs/[slug]/apply/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Apply for this job",
+    "where": [
+      "app/(site)/jobs/[slug]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Apply now",
+    "where": [
+      "app/(site)/jobs/[slug]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Apply: {title}",
+    "where": [
+      "app/(site)/jobs/[slug]/apply/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Apprenticeship",
+    "where": [
+      "lib/jobs.ts (EMPLOYMENT_TYPES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Architect",
+    "where": [
+      "lib/jobs.ts (TRADES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Architecture",
+    "where": [
+      "lib/content/verticals.ts (JOB_CATEGORIES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Archived",
+    "where": [
+      "lib/labels.ts (LISTING_STATUS_LABELS)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Are you based outside Ethiopia?",
+    "where": [
+      "lib/service-requests/employer-abroad.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Area",
+    "where": [
+      "lib/callbacks.ts (call-back box and form)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Ask for a call",
+    "where": [
+      "lib/callbacks.ts (call-back box and form)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Asks candidates for money",
+    "where": [
+      "lib/job-reports.ts (REPORT_REASONS)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Availability",
+    "where": [
+      "components/jobs/CandidateForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Available now",
+    "where": [
+      "lib/jobs.ts (AVAILABILITY)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Available within a month",
+    "where": [
+      "lib/jobs.ts (AVAILABILITY)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Back to HagerLand",
+    "where": [
+      "app/(site)/request-service/sent/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Being matched",
+    "where": [
+      "lib/service-requests/labels.ts (REQUEST_STATUS_LABEL)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Best time to call (Addis Ababa time)",
+    "where": [
+      "lib/callbacks.ts (call-back box and form)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "By HagerLand",
+    "where": [
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "By phone",
+    "where": [
+      "app/(account)/account/jobs/[id]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "CV",
+    "where": [
+      "components/jobs/CandidateForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "CV sent",
+    "where": [
+      "app/(account)/account/applications/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Call",
+    "where": [
+      "lib/jobs-phone.ts (contact buttons)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Can't find your place? Type it instead",
+    "where": [
+      "components/service-requests/ServiceRequestForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Cancel the request? Providers will no longer see it.",
+    "where": [
+      "components/service-requests/RequestActions.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Cancel this request",
+    "where": [
+      "components/service-requests/RequestActions.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Cancelled",
+    "where": [
+      "lib/service-requests/labels.ts (REQUEST_STATUS_LABEL)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Cancelled by the customer",
+    "where": [
+      "lib/service-requests/labels.ts (CLOSED_REASON_LABEL)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Candidate and employer registers",
+    "where": [
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Candidate profile",
+    "where": [
+      "app/(account)/account/candidate/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Candidate profiles are open to verified businesses and businesses that have had a job approved by HagerLand. Post a job or ask us to verify your business.",
+    "where": [
+      "app/(account)/account/jobs/candidates/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Candidates can now see and apply for your vacancy.",
+    "where": [
+      "email (sent in English): jobDecisionEmail (job approved)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Candidates introduced for request {reference}",
+    "where": [
+      "email (sent in English): recruitmentIntroductionEmail"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Candidates introduced: {n}",
+    "where": [
+      "components/service-requests/RequestView.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Carpenter",
+    "where": [
+      "lib/jobs.ts (TRADES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Category",
+    "where": [
+      "app/(site)/jobs/page.tsx",
+      "components/jobs/JobForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Change",
+    "where": [
+      "components/jobs/ApplyForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Changes needed",
+    "where": [
+      "lib/labels.ts (LISTING_STATUS_LABELS)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Changes needed: {title}",
+    "where": [
+      "email (sent in English): jobDecisionEmail (changes needed)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Choose a reason",
+    "where": [
+      "lib/job-reports.ts (REPORT_MESSAGES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Choose from the list instead",
+    "where": [
+      "components/service-requests/ServiceRequestForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Choose where the job is.",
+    "where": [
+      "app/actions/job-actions.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Choose…",
+    "where": [
+      "components/jobs/JobForm.tsx",
+      "components/jobs/PhoneApplyForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "City or area",
+    "where": [
+      "components/service-requests/ServiceRequestForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "City, sub-city or area",
+    "where": [
+      "components/jobs/PhoneApplyForm.tsx",
+      "components/jobs/WorkerRegisterForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Cleaner",
+    "where": [
+      "lib/jobs.ts (TRADES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Clear search",
+    "where": [
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Close job",
+    "where": [
+      "app/(account)/account/jobs/[id]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Close this job? It will be removed from the job board.",
+    "where": [
+      "app/(account)/account/jobs/[id]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Closed",
+    "where": [
+      "lib/service-requests/labels.ts (REQUEST_STATUS_LABEL)",
+      "lib/service-requests/form-copy.ts (staffing)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Closes {date}",
+    "where": [
+      "app/(site)/jobs/[slug]/page.tsx",
+      "components/jobs/JobCard.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Closing date",
+    "where": [
+      "components/jobs/JobForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Completed",
+    "where": [
+      "lib/service-requests/labels.ts (CLOSED_REASON_LABEL)",
+      "lib/service-requests/form-copy.ts (staffing)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Construction",
+    "where": [
+      "lib/content/verticals.ts (JOB_CATEGORIES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Contract",
+    "where": [
+      "lib/jobs.ts (EMPLOYMENT_TYPES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Cookies",
+    "where": [
+      "components/layout/SiteFooter.tsx"
+    ],
+    "draft": "ኩኪዎች"
+  },
+  {
+    "key": "Copy link",
+    "where": [
+      "app/(site)/jobs/[slug]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Country",
+    "where": [
+      "components/service-requests/ServiceRequestForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Cover note",
+    "where": [
+      "components/jobs/ApplyForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Create a business profile",
+    "where": [
+      "app/(account)/account/jobs/new/page.tsx",
+      "app/(account)/account/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Create a candidate profile",
+    "where": [
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Create account",
+    "where": [
+      "components/layout/MobileDrawer.tsx"
+    ],
+    "draft": "መለያ ይፍጠሩ"
+  },
+  {
+    "key": "Create your business profile first. Once it is approved, you can post jobs.",
+    "where": [
+      "app/(account)/account/jobs/new/page.tsx",
+      "app/(account)/account/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Daily labour",
+    "where": [
+      "lib/jobs.ts (EMPLOYMENT_TYPES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Degrees, diplomas, licences and certificates.",
+    "where": [
+      "components/jobs/CandidateForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Delete profile",
+    "where": [
+      "app/(account)/account/candidate/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Delete your candidate profile",
+    "where": [
+      "app/(account)/account/candidate/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Delete your candidate profile and CV?",
+    "where": [
+      "app/(account)/account/candidate/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Describe the roles and the work",
+    "where": [
+      "lib/service-requests/form-copy.ts (staffing)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Description",
+    "where": [
+      "components/jobs/JobForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Download CV",
+    "where": [
+      "app/(account)/account/jobs/[id]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Draft",
+    "where": [
+      "lib/labels.ts (LISTING_STATUS_LABELS)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Driver",
+    "where": [
+      "lib/jobs.ts (TRADES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Duplicate request",
+    "where": [
+      "lib/service-requests/labels.ts (CLOSED_REASON_LABEL)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Edit and resubmit",
+    "where": [
+      "email (sent in English): jobDecisionEmail (changes needed)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Edit job",
+    "where": [
+      "app/(account)/account/jobs/[id]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Electrician",
+    "where": [
+      "lib/jobs.ts (TRADES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Email",
+    "where": [
+      "components/jobs/ApplyForm.tsx",
+      "components/service-requests/ServiceRequestForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Emergency",
+    "where": [
+      "lib/service-requests/labels.ts (URGENCY)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Engineering",
+    "where": [
+      "lib/content/verticals.ts (JOB_CATEGORIES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "English",
+    "where": [
+      "lib/jobs-phone.ts (LANGUAGES)"
+    ],
+    "draft": "English"
+  },
+  {
+    "key": "Estate agency",
+    "where": [
+      "lib/content/verticals.ts (JOB_CATEGORIES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Evening",
+    "where": [
+      "lib/callbacks.ts (best time to call)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Executive recruitment",
+    "where": [
+      "lib/content/verticals.ts (JOB_CATEGORIES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Experience",
+    "where": [
+      "components/jobs/CandidateForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Expired",
+    "where": [
+      "lib/labels.ts (LISTING_STATUS_LABELS)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Explore",
+    "where": [
+      "components/layout/MobileDrawer.tsx",
+      "components/layout/SiteHeader.tsx"
+    ],
+    "draft": "ይመልከቱ"
+  },
+  {
+    "key": "Finance",
+    "where": [
+      "lib/content/verticals.ts (JOB_CATEGORIES)"
+    ],
+    "draft": "ፋይናንስ"
+  },
+  {
+    "key": "Find candidates",
+    "where": [
+      "app/(account)/account/jobs/candidates/page.tsx",
+      "app/(account)/account/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Find work by trade",
+    "where": [
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Flexible",
+    "where": [
+      "lib/service-requests/labels.ts (URGENCY)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "For approved employers",
+    "where": [
+      "app/(account)/account/jobs/candidates/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "For example 0911 234 567",
+    "where": [
+      "components/jobs/PhoneApplyForm.tsx",
+      "components/jobs/WorkerRegisterForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "For example: \"10 masons and a foreman for a G+2 site in Bole\".",
+    "where": [
+      "lib/service-requests/form-copy.ts (staffing)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "For example: 10 masons in Bole from next month.",
+    "where": [
+      "lib/callbacks.ts (call-back box and form)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "For example: ETB 800 per day, or ETB 30,000 per month.",
+    "where": [
+      "lib/service-requests/form-copy.ts (staffing)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "For {organisation}. Save a draft at any time; HagerLand reviews the job when you submit it.",
+    "where": [
+      "app/(account)/account/jobs/new/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Foreman",
+    "where": [
+      "lib/jobs.ts (TRADES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "From",
+    "where": [
+      "components/jobs/JobForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "From {amount}",
+    "where": [
+      "lib/jobs.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Full name",
+    "where": [
+      "components/jobs/ApplyForm.tsx",
+      "components/jobs/CandidateForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Full time",
+    "where": [
+      "lib/jobs.ts (EMPLOYMENT_TYPES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Give your request a short title",
+    "where": [
+      "components/service-requests/ServiceRequestForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Graduate opportunities",
+    "where": [
+      "lib/content/verticals.ts (JOB_CATEGORIES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Gypsum ceiling installer",
+    "where": [
+      "lib/jobs.ts (TRADES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "HagerLand confirms the fee with you in writing before we start.",
+    "where": [
+      "lib/service-requests/form-copy.ts (staffing)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "HagerLand home",
+    "where": [
+      "components/layout/SiteHeader.tsx"
+    ],
+    "draft": "የሀገርላንድ መነሻ ገጽ"
+  },
+  {
+    "key": "HagerLand is handling this job for a private client. Your application goes to HagerLand, and we introduce you to the employer only if you agree.",
+    "where": [
+      "app/(site)/jobs/[slug]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "HagerLand may call me on this number about my request.",
+    "where": [
+      "lib/callbacks.ts (call-back box and form)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "HagerLand may contact you about suitable roles from our recruitment requests. We introduce you to an employer only after you agree.",
+    "where": [
+      "components/jobs/CandidateForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "HagerLand removed this job. It cannot be changed.",
+    "where": [
+      "app/actions/job-actions.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "HagerLand reviews every job before it goes live. Do not ask candidates for money: adverts that do are removed.",
+    "where": [
+      "components/jobs/JobForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "HagerLand's recruitment team will contact you to talk about the roles and agree the fee in writing before we start.",
+    "where": [
+      "lib/service-requests/form-copy.ts (staffing)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Headline",
+    "where": [
+      "components/jobs/CandidateForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Hear first",
+    "where": [
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Hello {name},",
+    "where": [
+      "email (sent in English): jobDecisionEmail (job approved)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Hello {orgName},",
+    "where": [
+      "email (sent in English): newApplicationEmail"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Hired",
+    "where": [
+      "lib/jobs.ts (APPLICATION_STATUSES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "How should they contact you?",
+    "where": [
+      "components/jobs/PhoneApplyForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "How should we contact you?",
+    "where": [
+      "components/jobs/WorkerRegisterForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "How soon?",
+    "where": [
+      "components/service-requests/ServiceRequestForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "I agree that HagerLand keeps my details to contact me about work. They are deleted 12 months after I last update them, and HagerLand will ask me before sharing my number with an employer.",
+    "where": [
+      "components/jobs/WorkerRegisterForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "I agree that HagerLand shares my name, phone, trade and area with this employer so they can contact me about this job.",
+    "where": [
+      "components/jobs/PhoneApplyForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "I am 18 or older",
+    "where": [
+      "components/jobs/PhoneApplyForm.tsx",
+      "components/jobs/WorkerRegisterForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "I am based outside Ethiopia",
+    "where": [
+      "lib/callbacks.ts (call-back box and form)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "If you leave it blank, the job stays open for 60 days after approval.",
+    "where": [
+      "components/jobs/JobForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "In progress",
+    "where": [
+      "lib/service-requests/form-copy.ts (staffing)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "In review",
+    "where": [
+      "lib/labels.ts (LISTING_STATUS_LABELS)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "In the currency of the country where the job is{currency}. Leave blank to discuss with candidates.",
+    "where": [
+      "components/jobs/JobForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "International placements",
+    "where": [
+      "lib/content/verticals.ts (JOB_CATEGORIES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Internship",
+    "where": [
+      "lib/jobs.ts (EMPLOYMENT_TYPES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Introduced",
+    "where": [
+      "components/service-requests/IntroducedPeople.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Invalid application.",
+    "where": [
+      "app/actions/job-actions.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Invalid request.",
+    "where": [
+      "app/actions/job-actions.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "It stays open until {date}.",
+    "where": [
+      "email (sent in English): jobDecisionEmail (job approved)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Job",
+    "where": [
+      "app/(account)/account/jobs/[id]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Job not found",
+    "where": [
+      "app/(site)/jobs/[slug]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Job not found.",
+    "where": [
+      "app/actions/job-actions.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Job title",
+    "where": [
+      "components/jobs/JobForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Jobs",
+    "where": [
+      "app/(account)/account/jobs/page.tsx",
+      "app/(site)/jobs/[slug]/apply-by-phone/page.tsx",
+      "app/(site)/jobs/[slug]/apply/page.tsx",
+      "app/(site)/jobs/[slug]/page.tsx",
+      "app/(site)/jobs/call-back/page.tsx"
+    ],
+    "draft": "ስራዎች"
+  },
+  {
+    "key": "Jobs are posted by organisations",
+    "where": [
+      "app/(account)/account/jobs/new/page.tsx",
+      "app/(account)/account/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Jobs are posted by organisations. Create your business profile first.",
+    "where": [
+      "app/actions/job-actions.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Jobs in construction, engineering and property",
+    "where": [
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Jobs on HagerLand open soon",
+    "where": [
+      "components/jobs/JobsNotLive.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Jobs on HagerLand open soon. Register your interest on the jobs page and we will tell you when they do.",
+    "where": [
+      "lib/jobs.ts (JOBS_NOT_LIVE)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Join the register",
+    "where": [
+      "app/(site)/jobs/page.tsx",
+      "components/jobs/WorkerRegisterForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Keep it",
+    "where": [
+      "components/service-requests/RequestActions.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Keywords",
+    "where": [
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Labourer",
+    "where": [
+      "lib/jobs.ts (TRADES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Language",
+    "where": [
+      "components/jobs/PhoneApplyForm.tsx",
+      "components/jobs/WorkerRegisterForm.tsx"
+    ],
+    "draft": "ቋንቋ"
+  },
+  {
+    "key": "Language for the call",
+    "where": [
+      "lib/callbacks.ts (call-back box and form)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Leave your number and HagerLand's recruitment team will call you about the staff you need. There is no charge to ask.",
+    "where": [
+      "lib/callbacks.ts (call-back box and form)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Leave your phone number and trade. HagerLand may call you about suitable work. No account or email needed.",
+    "where": [
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Link copied.",
+    "where": [
+      "app/(site)/jobs/[slug]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "List with us",
+    "where": [
+      "components/layout/MobileDrawer.tsx",
+      "components/layout/SiteHeader.tsx"
+    ],
+    "draft": "ከእኛ ጋር ይመዝገቡ"
+  },
+  {
+    "key": "Live",
+    "where": [
+      "lib/labels.ts (LISTING_STATUS_LABELS)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Location",
+    "where": [
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Looking for work? Tell us you're available",
+    "where": [
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Looks fake or like a scam",
+    "where": [
+      "lib/job-reports.ts (REPORT_REASONS)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Machine operator",
+    "where": [
+      "lib/jobs.ts (TRADES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Mason",
+    "where": [
+      "lib/jobs.ts (TRADES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Menu",
+    "where": [
+      "components/layout/MobileDrawer.tsx"
+    ],
+    "draft": "ምናሌ"
+  },
+  {
+    "key": "Morning",
+    "where": [
+      "lib/callbacks.ts (best time to call)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "My applications",
+    "where": [
+      "email (sent in English): applicationReceivedEmail"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "My job applications",
+    "where": [
+      "app/(account)/account/applications/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "My service requests",
+    "where": [
+      "app/(site)/request-service/sent/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Need help hiring?",
+    "where": [
+      "app/(account)/account/jobs/page.tsx",
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Needs attention today",
+    "where": [
+      "lib/service-requests/labels.ts (URGENCY)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Never pay a deposit before you have agreed the work, price and timing in writing.",
+    "where": [
+      "app/(site)/request-service/sent/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Never pay an employer or agent to get a job. Report anything suspicious to HagerLand.",
+    "where": [
+      "app/(site)/jobs/[slug]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Never pay anyone to get a job.",
+    "where": [
+      "components/jobs/PhoneApplyForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "New",
+    "where": [
+      "lib/jobs.ts (APPLICATION_STATUSES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "New application for {title} ({reference})",
+    "where": [
+      "email (sent in English): newApplicationEmail"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "New vacancies appear here as soon as we have approved them. Create a candidate profile so employers can find you.",
+    "where": [
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Next steps",
+    "where": [
+      "lib/service-requests/form-copy.ts (staffing)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "No",
+    "where": [
+      "components/service-requests/ServiceRequestForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "No CV attached.",
+    "where": [
+      "app/(account)/account/jobs/[id]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "No account or email needed. If the employer wants to talk, they will contact you on this number.",
+    "where": [
+      "app/(site)/jobs/[slug]/apply-by-phone/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "No applications yet",
+    "where": [
+      "app/(account)/account/applications/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "No applications yet.",
+    "where": [
+      "app/(account)/account/jobs/[id]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "No candidates found",
+    "where": [
+      "app/(account)/account/jobs/candidates/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "No candidates have made their profile visible yet.",
+    "where": [
+      "app/(account)/account/jobs/candidates/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "No jobs are open right now",
+    "where": [
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "No jobs match your search",
+    "where": [
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "No jobs yet",
+    "where": [
+      "app/(account)/account/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "No one has been introduced yet. We introduce only people who have agreed to be introduced to you.",
+    "where": [
+      "components/service-requests/IntroducedPeople.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "No preference",
+    "where": [
+      "components/service-requests/ServiceRequestForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "No suitable provider available",
+    "where": [
+      "lib/service-requests/labels.ts (CLOSED_REASON_LABEL)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Not looking at the moment",
+    "where": [
+      "lib/jobs.ts (AVAILABILITY)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Not progressing",
+    "where": [
+      "lib/jobs.ts (APPLICATION_STATUSES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Not ready to apply or post a job? Join a register and we will contact you about suitable roles or candidates.",
+    "where": [
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Now",
+    "where": [
+      "lib/jobs-phone.ts (REGISTER_AVAILABILITY)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Office / admin",
+    "where": [
+      "lib/jobs.ts (TRADES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Once your business profile is approved, you can search candidates who chose to be visible to employers.",
+    "where": [
+      "app/(account)/account/jobs/candidates/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Only if you're happy for us to follow up. We don't share it with the employer.",
+    "where": [
+      "app/(site)/jobs/[slug]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Only me",
+    "where": [
+      "components/jobs/CandidateForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Only people who have agreed to be introduced.",
+    "where": [
+      "lib/service-requests/form-copy.ts (staffing)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Open",
+    "where": [
+      "components/jobs/CandidateForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Open menu",
+    "where": [
+      "components/layout/SiteHeader.tsx"
+    ],
+    "draft": "ምናሌ ክፈት"
+  },
+  {
+    "key": "Open until {date}.",
+    "where": [
+      "app/(account)/account/jobs/[id]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Optional. Photos of the problem, plans or a bill of quantities. Up to 5 files, 15 MB each. Only HagerLand and providers who accept your request see them.",
+    "where": [
+      "components/service-requests/ServiceRequestForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Other",
+    "where": [
+      "lib/jobs.ts (TRADES)",
+      "lib/service-requests/labels.ts (CLOSED_REASON_LABEL)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "PDF or Word (.docx), up to 15 MB",
+    "where": [
+      "components/jobs/ApplyForm.tsx",
+      "components/jobs/CandidateForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Painter",
+    "where": [
+      "lib/jobs.ts (TRADES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Part time",
+    "where": [
+      "lib/jobs.ts (EMPLOYMENT_TYPES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Pause to edit",
+    "where": [
+      "app/(account)/account/jobs/[id]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Paused",
+    "where": [
+      "lib/labels.ts (LISTING_STATUS_LABELS)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Pay offered (optional)",
+    "where": [
+      "lib/service-requests/form-copy.ts (staffing)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "People introduced to you",
+    "where": [
+      "components/service-requests/IntroducedPeople.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "People who chose to let employers find them. Ask HagerLand to introduce you: we pass on your details with their agreement.",
+    "where": [
+      "app/(account)/account/jobs/candidates/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Per",
+    "where": [
+      "components/jobs/JobForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Permanent recruitment",
+    "where": [
+      "lib/content/verticals.ts (JOB_CATEGORIES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Phone",
+    "where": [
+      "components/jobs/ApplyForm.tsx",
+      "components/service-requests/ServiceRequestForm.tsx",
+      "lib/callbacks.ts (call-back box and form)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Phone call",
+    "where": [
+      "components/service-requests/ServiceRequestForm.tsx",
+      "lib/jobs-phone.ts (CONTACT_METHODS)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Phone number",
+    "where": [
+      "components/jobs/PhoneApplyForm.tsx",
+      "components/jobs/WorkerRegisterForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Photos or documents",
+    "where": [
+      "components/service-requests/ServiceRequestForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Planning ahead or getting prices",
+    "where": [
+      "lib/service-requests/labels.ts (URGENCY)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Plasterer",
+    "where": [
+      "lib/jobs.ts (TRADES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Please check the highlighted fields.",
+    "where": [
+      "lib/jobs-phone.ts (PHONE_MESSAGES)",
+      "lib/callbacks.ts (call-back box and form)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Please check the status and notes.",
+    "where": [
+      "app/actions/job-actions.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Please complete the security check and try again.",
+    "where": [
+      "lib/jobs-phone.ts (PHONE_MESSAGES)",
+      "lib/job-reports.ts (REPORT_MESSAGES)",
+      "lib/callbacks.ts (call-back box and form)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Please upload your CV again.",
+    "where": [
+      "app/actions/job-actions.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Please use their details only for this request. Candidates must never be asked for money.",
+    "where": [
+      "email (sent in English): recruitmentIntroductionEmail"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Plumber",
+    "where": [
+      "lib/jobs.ts (TRADES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Post a job",
+    "where": [
+      "app/(account)/account/jobs/new/page.tsx",
+      "app/(account)/account/jobs/page.tsx",
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": "የስራ ማስታወቂያ ያውጡ"
+  },
+  {
+    "key": "Post your first vacancy, or tell us which roles you need to fill.",
+    "where": [
+      "app/(account)/account/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Posted by HagerLand for a private client",
+    "where": [
+      "app/(site)/jobs/[slug]/page.tsx",
+      "components/jobs/JobCard.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Posted {when}",
+    "where": [
+      "components/jobs/JobCard.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Prefer to talk? Ask us to call you",
+    "where": [
+      "lib/callbacks.ts (call-back box and form)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Preferred way to reply",
+    "where": [
+      "components/service-requests/ServiceRequestForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Privacy",
+    "where": [
+      "components/layout/SiteFooter.tsx"
+    ],
+    "draft": "ግላዊነት"
+  },
+  {
+    "key": "Privacy Policy",
+    "where": [
+      "components/service-requests/ServiceRequestForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Private notes",
+    "where": [
+      "app/(account)/account/jobs/[id]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Procurement",
+    "where": [
+      "lib/content/verticals.ts (JOB_CATEGORIES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Project management",
+    "where": [
+      "lib/content/verticals.ts (JOB_CATEGORIES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Property",
+    "where": [
+      "lib/content/verticals.ts (JOB_CATEGORIES)"
+    ],
+    "draft": "ንብረት"
+  },
+  {
+    "key": "Provider chosen",
+    "where": [
+      "lib/service-requests/labels.ts (REQUEST_STATUS_LABEL)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Providers could not take it on",
+    "where": [
+      "lib/service-requests/labels.ts (CLOSED_REASON_LABEL)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Qualifications",
+    "where": [
+      "components/jobs/CandidateForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Qualifications, licences, experience and skills.",
+    "where": [
+      "components/jobs/JobForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Quantity surveying",
+    "where": [
+      "lib/content/verticals.ts (JOB_CATEGORIES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Quantity surveyor",
+    "where": [
+      "lib/jobs.ts (TRADES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Quotes received",
+    "where": [
+      "lib/service-requests/labels.ts (REQUEST_STATUS_LABEL)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Received",
+    "where": [
+      "lib/service-requests/labels.ts (REQUEST_STATUS_LABEL)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Recent roles and projects.",
+    "where": [
+      "components/jobs/CandidateForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Recruitment and placement by HagerLand",
+    "where": [
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Reference",
+    "where": [
+      "email (sent in English): newApplicationEmail"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Register me for placement help",
+    "where": [
+      "components/jobs/CandidateForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Register your interest",
+    "where": [
+      "components/jobs/JobsNotLive.tsx"
+    ],
+    "draft": "ፍላጎትዎን ያስመዝግቡ"
+  },
+  {
+    "key": "Remove",
+    "where": [
+      "components/jobs/CandidateForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Remove {name}",
+    "where": [
+      "components/service-requests/ServiceRequestForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Removed",
+    "where": [
+      "lib/labels.ts (LISTING_STATUS_LABELS)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Report this job",
+    "where": [
+      "app/(site)/jobs/[slug]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Request another service",
+    "where": [
+      "app/(site)/request-service/sent/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Request sent",
+    "where": [
+      "app/(site)/request-service/sent/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Requirements",
+    "where": [
+      "components/jobs/JobForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "SMS",
+    "where": [
+      "lib/jobs-phone.ts (CONTACT_METHODS)",
+      "lib/jobs-phone.ts (contact buttons)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Salary",
+    "where": [
+      "components/jobs/JobForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Sales",
+    "where": [
+      "lib/jobs.ts (TRADES)",
+      "lib/content/verticals.ts (JOB_CATEGORIES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Save draft",
+    "where": [
+      "components/jobs/JobForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Save profile",
+    "where": [
+      "components/jobs/CandidateForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Saved as a draft.",
+    "where": [
+      "app/(account)/account/jobs/[id]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Saving…",
+    "where": [
+      "components/jobs/CandidateForm.tsx",
+      "components/jobs/JobForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Scaffolder",
+    "where": [
+      "lib/jobs.ts (TRADES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Search",
+    "where": [
+      "app/(account)/account/jobs/candidates/page.tsx",
+      "components/layout/SiteHeader.tsx"
+    ],
+    "draft": "ፈልግ"
+  },
+  {
+    "key": "Search jobs",
+    "where": [
+      "app/(account)/account/applications/page.tsx",
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Security guard",
+    "where": [
+      "lib/jobs.ts (TRADES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "See our",
+    "where": [
+      "components/service-requests/ServiceRequestForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "See our Privacy Policy.",
+    "where": [
+      "components/jobs/PhoneApplyForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "See the candidates",
+    "where": [
+      "email (sent in English): recruitmentIntroductionEmail"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "See your job",
+    "where": [
+      "email (sent in English): jobDecisionEmail (job approved)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Send application",
+    "where": [
+      "components/jobs/ApplyForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Send for review again",
+    "where": [
+      "app/(account)/account/jobs/[id]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Send my application",
+    "where": [
+      "components/jobs/PhoneApplyForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Send my request",
+    "where": [
+      "components/service-requests/ServiceRequestForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Send report",
+    "where": [
+      "app/(site)/jobs/[slug]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Send the CV saved in my candidate profile",
+    "where": [
+      "components/jobs/ApplyForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Send your CV and a short note. Only HagerLand can see your application.",
+    "where": [
+      "app/(site)/jobs/[slug]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Send your CV and a short note. Only {employer} and HagerLand can see your application.",
+    "where": [
+      "app/(site)/jobs/[slug]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Sending…",
+    "where": [
+      "app/(site)/jobs/[slug]/page.tsx",
+      "components/jobs/ApplyForm.tsx",
+      "components/jobs/CallbackForm.tsx",
+      "components/jobs/PhoneApplyForm.tsx",
+      "components/jobs/WorkerRegisterForm.tsx",
+      "components/service-requests/ServiceRequestForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Sent to HagerLand for review. We will email you when it is live.",
+    "where": [
+      "app/(account)/account/jobs/[id]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Sent to providers",
+    "where": [
+      "lib/service-requests/labels.ts (REQUEST_STATUS_LABEL)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Separate with commas, e.g. AutoCAD, site supervision, formwork",
+    "where": [
+      "components/jobs/CandidateForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Set up your candidate profile",
+    "where": [
+      "app/(account)/account/applications/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Share",
+    "where": [
+      "app/(site)/jobs/[slug]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Share this job",
+    "where": [
+      "app/(site)/jobs/[slug]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Shop by category",
+    "where": [
+      "components/layout/SiteHeader.tsx"
+    ],
+    "draft": "በምድብ ይግዙ"
+  },
+  {
+    "key": "Shortlisted",
+    "where": [
+      "lib/jobs.ts (APPLICATION_STATUSES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Site engineer",
+    "where": [
+      "lib/jobs.ts (TRADES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Site management",
+    "where": [
+      "lib/content/verticals.ts (JOB_CATEGORIES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Skill, trade or qualification",
+    "where": [
+      "app/(account)/account/jobs/candidates/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Skilled trades",
+    "where": [
+      "lib/content/verticals.ts (JOB_CATEGORIES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Skills and experience needed, working hours, where the site is, and anything else candidates should know.",
+    "where": [
+      "lib/service-requests/form-copy.ts (staffing)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Skills and trades",
+    "where": [
+      "components/jobs/CandidateForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Skip to content",
+    "where": [
+      "components/layout/SiteHeader.tsx"
+    ],
+    "draft": "ወደ ይዘቱ ይዝለሉ"
+  },
+  {
+    "key": "Some text on this page is shown in English while we finish the translation.",
+    "where": [
+      "components/layout/JobsAmharicNotice.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Something else",
+    "where": [
+      "lib/job-reports.ts (REPORT_REASONS)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Something went wrong. Please refresh the page.",
+    "where": [
+      "lib/jobs-phone.ts (PHONE_MESSAGES)",
+      "lib/callbacks.ts (call-back box and form)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Soon, but not an emergency",
+    "where": [
+      "lib/service-requests/labels.ts (URGENCY)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Spam",
+    "where": [
+      "lib/service-requests/labels.ts (CLOSED_REASON_LABEL)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Start typing a city, sub-city or area.",
+    "where": [
+      "lib/service-requests/form-copy.ts (staffing)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Status",
+    "where": [
+      "app/(account)/account/jobs/[id]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Steel fixer",
+    "where": [
+      "lib/jobs.ts (TRADES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Store keeper",
+    "where": [
+      "lib/jobs.ts (TRADES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Submit a staffing requirement",
+    "where": [
+      "app/(account)/account/jobs/candidates/page.tsx",
+      "app/(account)/account/jobs/page.tsx",
+      "app/(site)/jobs/page.tsx",
+      "lib/service-requests/form-copy.ts (staffing)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Submit a staffing requirement and include the candidate reference (for example C-1A2B3C4D). We will ask them and introduce you.",
+    "where": [
+      "app/(account)/account/jobs/candidates/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Submit for review",
+    "where": [
+      "components/jobs/JobForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Surveyor",
+    "where": [
+      "lib/jobs.ts (TRADES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Telegram",
+    "where": [
+      "app/(site)/jobs/[slug]/page.tsx",
+      "components/service-requests/ServiceRequestForm.tsx",
+      "lib/jobs-phone.ts (CONTACT_METHODS)",
+      "lib/jobs-phone.ts (contact buttons)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Tell HagerLand which roles you need to fill. We find, check and introduce suitable candidates. Fees are agreed with you in writing before we start.",
+    "where": [
+      "lib/service-requests/form-copy.ts (staffing)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Tell us the roles",
+    "where": [
+      "lib/service-requests/form-copy.ts (staffing)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Tell us the roles you need to fill. HagerLand finds, checks and introduces suitable candidates in Ethiopia. Fees are agreed with you in writing before we start.",
+    "where": [
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Tell us which roles you need to fill and we will help you find people.",
+    "where": [
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Temporary",
+    "where": [
+      "lib/jobs.ts (EMPLOYMENT_TYPES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Temporary labour",
+    "where": [
+      "lib/content/verticals.ts (JOB_CATEGORIES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Terms",
+    "where": [
+      "components/layout/SiteFooter.tsx",
+      "components/service-requests/ServiceRequestForm.tsx"
+    ],
+    "draft": "ውሎች"
+  },
+  {
+    "key": "Thank you. HagerLand will look into this job.",
+    "where": [
+      "lib/job-reports.ts (REPORT_MESSAGES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Thank you. HagerLand's recruitment team will call you. If you miss the call, you can ask again later.",
+    "where": [
+      "lib/callbacks.ts (call-back box and form)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Thank you. You're on the register. Your reference is {reference}.",
+    "where": [
+      "components/jobs/WorkerRegisterForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "The customer chose another option",
+    "where": [
+      "lib/service-requests/labels.ts (CLOSED_REASON_LABEL)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "The job is already filled or closed",
+    "where": [
+      "lib/job-reports.ts (REPORT_REASONS)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "The role, the projects, working hours and what you offer.",
+    "where": [
+      "components/jobs/JobForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "These people agreed to be introduced to you for this request only. Please do not share their details with anyone else. Candidates must never be asked for money.",
+    "where": [
+      "components/service-requests/IntroducedPeople.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "They see your first name, headline, skills, qualifications and experience. Never your contact details or CV: HagerLand asks you before any introduction.",
+    "where": [
+      "components/jobs/CandidateForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "This application cannot be withdrawn.",
+    "where": [
+      "app/actions/job-actions.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "This deletes your profile and its CV. Applications you have already sent stay with those employers until they are deleted after 12 months.",
+    "where": [
+      "app/(account)/account/candidate/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "This helps us arrange calls at a time that suits you.",
+    "where": [
+      "lib/service-requests/employer-abroad.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "This job has closed",
+    "where": [
+      "app/(account)/account/applications/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "This job is live. Pause it first, then edit it and send it for review again.",
+    "where": [
+      "app/actions/job-actions.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "This job is no longer open.",
+    "where": [
+      "app/actions/job-actions.ts",
+      "lib/jobs-phone.ts (PHONE_MESSAGES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Tigrinya",
+    "where": [
+      "lib/jobs-phone.ts (LANGUAGES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Tiler",
+    "where": [
+      "lib/jobs.ts (TRADES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "To",
+    "where": [
+      "components/jobs/JobForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Trade",
+    "where": [
+      "app/(site)/jobs/[slug]/page.tsx",
+      "app/(site)/jobs/page.tsx",
+      "components/jobs/JobForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Try another skill or trade.",
+    "where": [
+      "app/(account)/account/jobs/candidates/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Try fewer filters or a different place.",
+    "where": [
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Type of job",
+    "where": [
+      "app/(site)/jobs/page.tsx",
+      "components/jobs/JobForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Unfair or discriminatory requirements",
+    "where": [
+      "lib/job-reports.ts (REPORT_REASONS)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Up to {amount}",
+    "where": [
+      "lib/jobs.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Update",
+    "where": [
+      "app/(account)/account/jobs/[id]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Upload your CV",
+    "where": [
+      "components/jobs/ApplyForm.tsx",
+      "components/jobs/CandidateForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Use applicants' details only to recruit for this job. CVs are deleted 12 months after the application.",
+    "where": [
+      "app/(account)/account/jobs/[id]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Use it to apply for jobs faster. Nobody else can see it.",
+    "where": [
+      "components/jobs/CandidateForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Vacancies from construction, engineering, architecture, property and trades employers in Ethiopia and abroad. Apply with your CV on HagerLand.",
+    "where": [
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Vacancies from employers in Ethiopia and abroad. Apply with your CV, or create a profile and choose whether employers can find you.",
+    "where": [
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Vacancies posted by {organisation}. HagerLand reviews each job before it goes live.",
+    "where": [
+      "app/(account)/account/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Verified businesses and employers with an approved job",
+    "where": [
+      "components/jobs/CandidateForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "View on the job board",
+    "where": [
+      "app/(account)/account/jobs/[id]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "View the application",
+    "where": [
+      "email (sent in English): newApplicationEmail"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Viewed",
+    "where": [
+      "lib/jobs.ts (APPLICATION_STATUSES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Want employers to find you?",
+    "where": [
+      "app/(account)/account/applications/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Want to meet a candidate?",
+    "where": [
+      "app/(account)/account/jobs/candidates/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Wants placement help",
+    "where": [
+      "app/(account)/account/jobs/candidates/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "We agree terms",
+    "where": [
+      "lib/service-requests/form-copy.ts (staffing)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "We are getting the job board ready. Register your interest and we will email you when you can post jobs and apply.",
+    "where": [
+      "components/jobs/JobsNotLive.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "We could not change this job. Please try again.",
+    "where": [
+      "app/actions/job-actions.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "We could not delete your profile. Please try again.",
+    "where": [
+      "app/actions/job-actions.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "We could not save the job. Please try again.",
+    "where": [
+      "app/actions/job-actions.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "We could not save your changes.",
+    "where": [
+      "app/actions/job-actions.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "We could not save your profile. Please try again.",
+    "where": [
+      "app/actions/job-actions.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "We could not send your application. Please try again.",
+    "where": [
+      "app/actions/job-actions.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "We could not send your report. Please try again.",
+    "where": [
+      "lib/job-reports.ts (REPORT_MESSAGES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "We could not update this application.",
+    "where": [
+      "app/actions/job-actions.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "We couldn't publish \"{title}\" yet. Here's what needs to change:",
+    "where": [
+      "email (sent in English): jobDecisionEmail (changes needed)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "We couldn't send this application. If you've already applied for this job with this phone number, you don't need to apply again.",
+    "where": [
+      "lib/jobs-phone.ts (PHONE_MESSAGES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "We email you a link to follow your request and see quotes.",
+    "where": [
+      "components/service-requests/ServiceRequestForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "We have emailed you a private link to follow your request.",
+    "where": [
+      "lib/service-requests/form-copy.ts (staffing)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "We have introduced {count} candidate(s) for your request {reference}. Each of them agreed to be introduced to you. See their details on your request page.",
+    "where": [
+      "email (sent in English): recruitmentIntroductionEmail"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "We have paused your job \"{title}\" while we check it. We will be in touch if we need anything from you.",
+    "where": [
+      "email (sent in English): jobPausedEmail"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "We introduce candidates",
+    "where": [
+      "lib/service-requests/form-copy.ts (staffing)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "We look for suitable candidates and introduce only people who have agreed to be introduced.",
+    "where": [
+      "lib/service-requests/form-copy.ts (staffing)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "We've sent your application for \"{title}\" to {employer}. They will contact you directly if they want to take it further.",
+    "where": [
+      "email (sent in English): applicationReceivedEmail"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "We've sent your application to {employer}.",
+    "where": [
+      "email (sent in English): applicationReceivedEmail"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Welder",
+    "where": [
+      "lib/jobs.ts (TRADES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "What did you notice?",
+    "where": [
+      "app/(site)/jobs/[slug]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "What do you need?",
+    "where": [
+      "lib/callbacks.ts (call-back box and form)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "What is the problem?",
+    "where": [
+      "app/(site)/jobs/[slug]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "What you need",
+    "where": [
+      "app/(site)/jobs/[slug]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "WhatsApp",
+    "where": [
+      "app/(site)/jobs/[slug]/page.tsx",
+      "components/service-requests/ServiceRequestForm.tsx",
+      "lib/jobs-phone.ts (CONTACT_METHODS)",
+      "lib/jobs-phone.ts (contact buttons)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "When can you start?",
+    "where": [
+      "components/jobs/WorkerRegisterForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "When you apply for a job, you can follow it here.",
+    "where": [
+      "app/(account)/account/applications/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Where",
+    "where": [
+      "components/service-requests/ServiceRequestForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Where are you based?",
+    "where": [
+      "components/jobs/CandidateForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Where do you live or work?",
+    "where": [
+      "components/jobs/PhoneApplyForm.tsx",
+      "components/jobs/WorkerRegisterForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Where is the job?",
+    "where": [
+      "components/jobs/JobForm.tsx",
+      "lib/service-requests/form-copy.ts (staffing)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Which country are you in?",
+    "where": [
+      "lib/service-requests/employer-abroad.ts",
+      "lib/callbacks.ts (call-back box and form)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Who can see your profile?",
+    "where": [
+      "components/jobs/CandidateForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Who you need, how many and when.",
+    "where": [
+      "lib/service-requests/form-copy.ts (staffing)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Why you are a good fit, in a few sentences.",
+    "where": [
+      "components/jobs/ApplyForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "With our recruitment team",
+    "where": [
+      "lib/service-requests/form-copy.ts (staffing)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Withdraw",
+    "where": [
+      "app/(account)/account/applications/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Withdraw this application?",
+    "where": [
+      "app/(account)/account/applications/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Withdrawn",
+    "where": [
+      "lib/jobs.ts (APPLICATION_STATUSES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Within a month",
+    "where": [
+      "lib/jobs-phone.ts (REGISTER_AVAILABILITY)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Within a week",
+    "where": [
+      "lib/service-requests/labels.ts (URGENCY)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Work outside Ethiopia",
+    "where": [
+      "lib/job-reports.ts (REPORT_REASONS)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Wrong or misleading information",
+    "where": [
+      "lib/job-reports.ts (REPORT_REASONS)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Years of experience",
+    "where": [
+      "components/jobs/CandidateForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Yes",
+    "where": [
+      "components/service-requests/ServiceRequestForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Yes, cancel",
+    "where": [
+      "components/service-requests/RequestActions.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "You are receiving this because you applied for a job on HagerLand.",
+    "where": [
+      "email (sent in English): applicationReceivedEmail"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "You are receiving this because your organisation advertises jobs on HagerLand.",
+    "where": [
+      "email (sent in English): jobDecisionEmail (job approved)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "You can follow its progress, or withdraw it, from your account.",
+    "where": [
+      "email (sent in English): applicationReceivedEmail"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "You can follow your request in your account.",
+    "where": [
+      "lib/service-requests/form-copy.ts (staffing)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "You cannot apply for a job your own organisation posted.",
+    "where": [
+      "app/actions/job-actions.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "You have a new application",
+    "where": [
+      "email (sent in English): newApplicationEmail"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "You have already applied for this job. You can see it under My applications.",
+    "where": [
+      "app/actions/job-actions.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "You have sent a lot of applications today. Please try again tomorrow.",
+    "where": [
+      "app/actions/job-actions.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "You have sent several applications recently. Please try again later.",
+    "where": [
+      "lib/jobs-phone.ts (PHONE_MESSAGES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "You have sent several reports recently. Please try again later.",
+    "where": [
+      "lib/job-reports.ts (REPORT_MESSAGES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "You have sent several requests recently. Please try again later.",
+    "where": [
+      "lib/callbacks.ts (call-back box and form)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "You told us you are based outside Ethiopia. We will agree a good time to call you.",
+    "where": [
+      "lib/service-requests/employer-abroad.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Your CV (optional)",
+    "where": [
+      "components/jobs/ApplyForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Your CV is never public. Only this employer and HagerLand can open it.",
+    "where": [
+      "components/jobs/ApplyForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Your application has been sent",
+    "where": [
+      "email (sent in English): applicationReceivedEmail"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Your application has been sent (reference {reference}). We have emailed you a copy.",
+    "where": [
+      "app/(account)/account/applications/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Your candidate profile has been deleted.",
+    "where": [
+      "app/actions/job-actions.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Your details",
+    "where": [
+      "components/service-requests/ServiceRequestForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Your job advert is paused while we check it",
+    "where": [
+      "email (sent in English): jobPausedEmail"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Your job advert needs a few changes before it can go live.",
+    "where": [
+      "email (sent in English): jobDecisionEmail (changes needed)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Your job advert needs some changes",
+    "where": [
+      "email (sent in English): jobDecisionEmail (changes needed)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Your job is live",
+    "where": [
+      "email (sent in English): jobDecisionEmail (job approved)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Your job is live: {title}",
+    "where": [
+      "email (sent in English): jobDecisionEmail (job approved)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Your jobs go live once your business profile has been approved.",
+    "where": [
+      "app/(account)/account/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Your name",
+    "where": [
+      "components/jobs/PhoneApplyForm.tsx",
+      "components/jobs/WorkerRegisterForm.tsx",
+      "components/service-requests/ServiceRequestForm.tsx",
+      "lib/callbacks.ts (call-back box and form)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Your phone or email",
+    "where": [
+      "app/(site)/jobs/[slug]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Your reference is",
+    "where": [
+      "app/(site)/request-service/sent/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Your reference is {reference}. Keep it in case you need to contact HagerLand. The employer will contact you if they want to talk.",
+    "where": [
+      "components/jobs/PhoneApplyForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Your request goes to HagerLand's recruitment team. We share your phone or email with candidates only with your agreement.",
+    "where": [
+      "lib/service-requests/form-copy.ts (staffing)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Your request is on its way",
+    "where": [
+      "app/(site)/request-service/sent/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Your saved CV",
+    "where": [
+      "components/jobs/CandidateForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Your service request has been sent to HagerLand.",
+    "where": [
+      "app/(site)/request-service/sent/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Your skills, experience and CV in one place. It is private unless you choose to let employers find you.",
+    "where": [
+      "app/(account)/account/candidate/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Your trade",
+    "where": [
+      "components/jobs/PhoneApplyForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Your trades",
+    "where": [
+      "components/jobs/WorkerRegisterForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "and",
+    "where": [
+      "components/service-requests/ServiceRequestForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "and we will help you find people.",
+    "where": [
+      "app/(account)/account/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "applied {date}",
+    "where": [
+      "app/(account)/account/jobs/[id]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "day",
+    "where": [
+      "lib/jobs.ts (SALARY_PERIODS, job form)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "e.g. Civil engineer, 8 years on high-rise projects",
+    "where": [
+      "components/jobs/CandidateForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "e.g. Site engineer",
+    "where": [
+      "components/jobs/JobForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "e.g. site engineer",
+    "where": [
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "hour",
+    "where": [
+      "lib/jobs.ts (SALARY_PERIODS, job form)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "month",
+    "where": [
+      "lib/jobs.ts (SALARY_PERIODS, job form)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "on {date}",
+    "where": [
+      "lib/i18n/dates.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "open until {date}",
+    "where": [
+      "app/(account)/account/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "per day",
+    "where": [
+      "lib/jobs.ts (SALARY_PERIODS)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "per hour",
+    "where": [
+      "lib/jobs.ts (SALARY_PERIODS)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "per month",
+    "where": [
+      "lib/jobs.ts (SALARY_PERIODS)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "per year",
+    "where": [
+      "lib/jobs.ts (SALARY_PERIODS)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "sent {date}",
+    "where": [
+      "app/(account)/account/applications/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "today",
+    "where": [
+      "lib/i18n/dates.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "year",
+    "where": [
+      "lib/jobs.ts (SALARY_PERIODS, job form)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "yesterday",
+    "where": [
+      "lib/i18n/dates.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "{First name} is no longer available for this request.",
+    "where": [
+      "components/service-requests/IntroducedPeople.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "{applicantName} applied for \"{title}\" by phone. Open the application to see how to contact them.",
+    "where": [
+      "email (sent in English): newApplicationEmail"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "{applicantName} applied for \"{title}\". Open the application to read the cover note and download the CV.",
+    "where": [
+      "email (sent in English): newApplicationEmail"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "{applicantName} applied for {title}.",
+    "where": [
+      "email (sent in English): newApplicationEmail"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "{category} jobs",
+    "where": [
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "{n} applications",
+    "where": [
+      "app/(account)/account/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "{n} candidates",
+    "where": [
+      "app/(account)/account/jobs/candidates/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "{n} days ago",
+    "where": [
+      "lib/i18n/dates.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "{n} jobs",
+    "where": [
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "{n} weeks ago",
+    "where": [
+      "lib/i18n/dates.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "{n} years of experience",
+    "where": [
+      "app/(account)/account/jobs/candidates/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "{title} at {employer}, {place}",
+    "where": [
+      "app/(site)/jobs/[slug]/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "{title} in {place}, posted by HagerLand for a private client. See the job and apply on HagerLand: {link}",
+    "where": [
+      "lib/jobs-share.ts (share message)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "{title} in {place}. See the job and apply on HagerLand: {link}",
+    "where": [
+      "lib/jobs-share.ts (share message)"
+    ],
+    "draft": ""
+  }
+]

@@ -17,6 +17,7 @@ import { DecisionButtons } from '@/components/admin/ModerationControls'
 import { AuditTrail } from '@/components/admin/AuditTrail'
 import { ActionButton } from '@/components/forms/ActionButton'
 import { AdvertWarnings } from '@/components/admin/AdvertWarnings'
+import { CopyForTelegram } from '@/components/admin/CopyForTelegram'
 
 export const metadata = { title: 'Job' }
 
@@ -50,9 +51,12 @@ export default async function AdminJobPage(props: { params: Promise<{ id: string
         }
         actions={
           job.status === 'published' ? (
-            <Link href={`/jobs/${job.slug}`} target="_blank" className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border-strong bg-white px-3 text-small font-semibold">
-              View live <ExternalLink className="size-4" aria-hidden />
-            </Link>
+            <div className="flex flex-col items-end gap-2">
+              <Link href={`/jobs/${job.slug}`} target="_blank" className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border-strong bg-white px-3 text-small font-semibold">
+                View live <ExternalLink className="size-4" aria-hidden />
+              </Link>
+              <CopyForTelegram jobId={job.id} />
+            </div>
           ) : undefined
         }
       />

@@ -1,7 +1,8 @@
 import { UserCheck } from 'lucide-react'
 import type { IntroducedPerson } from '@/lib/jobs-desk-data'
 import type { Translate } from '@/lib/i18n/translate'
-import { formatDate } from '@/lib/format'
+import type { Locale } from '@/lib/i18n/config'
+import { formatDateFor } from '@/lib/i18n/dates'
 import { EmptyState } from '@/components/ui/Layout'
 
 /**
@@ -9,7 +10,7 @@ import { EmptyState } from '@/components/ui/Layout'
  * contact methods each person agreed to share. A person who withdrew consent shows only their first name and no
  * contact details. Rendered only when the recruitment desk switch is on (lib/jobs-desk-data.ts loadEmployerDesk).
  */
-export function IntroducedPeople({ people, t }: { people: IntroducedPerson[]; t: Translate }) {
+export function IntroducedPeople({ people, t, locale = 'en' }: { people: IntroducedPerson[]; t: Translate; locale?: Locale }) {
   return (
     <section aria-labelledby="introduced-h">
       <h2 id="introduced-h" className="hl-h3">
@@ -25,7 +26,7 @@ export function IntroducedPeople({ people, t }: { people: IntroducedPerson[]; t:
                 <li key={p.id} className="rounded-lg border border-border bg-white p-4">
                   <p className="font-semibold text-ink">
                     {p.name}
-                    {p.role ? ` · ${p.role}` : ''} · {t('Introduced')} {formatDate(p.introducedAt)}
+                    {p.role ? ` · ${p.role}` : ''} · {t('Introduced')} {formatDateFor(p.introducedAt, locale)}
                   </p>
                   {p.buttons.length > 0 && (
                     <div className="mt-3 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">

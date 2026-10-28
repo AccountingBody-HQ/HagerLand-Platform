@@ -14,10 +14,10 @@ import { localizeLink, localizeTile } from '@/lib/i18n/nav'
 
 /** Mobile menu: every visible pillar and both layers with their links, then shortcuts and "List with us" (spec 26.4). */
 export function MobileDrawer({ open, onClose, nav, amharicOn = false }: { open: boolean; onClose: () => void; nav: SiteNav; amharicOn?: boolean }) {
-  const { t, locale, href } = useI18n()
-  const listWithUs = nav.listWithUs.map((l) => localizeLink(l, t, locale))
-  const extras = nav.extras.map((l) => localizeLink(l, t, locale))
-  const abroad = nav.abroad ? localizeLink(nav.abroad, t, locale) : null
+  const { t, locale, scope, href } = useI18n()
+  const listWithUs = nav.listWithUs.map((l) => localizeLink(l, t, locale, scope))
+  const extras = nav.extras.map((l) => localizeLink(l, t, locale, scope))
+  const abroad = nav.abroad ? localizeLink(nav.abroad, t, locale, scope) : null
   return (
     <Dialog
       open={open}
@@ -42,8 +42,8 @@ export function MobileDrawer({ open, onClose, nav, amharicOn = false }: { open: 
         )}
         <ul className="-mx-2 divide-y divide-border">
           {nav.drawer.map(({ tile: raw, links: rawLinks }) => {
-            const tile = localizeTile(raw, t, locale)
-            const links = rawLinks.filter((l) => l.href !== raw.href).map((l) => localizeLink(l, t, locale))
+            const tile = localizeTile(raw, t, locale, scope)
+            const links = rawLinks.filter((l) => l.href !== raw.href).map((l) => localizeLink(l, t, locale, scope))
             const label = (
               <span className="flex items-center gap-3">
                 <DynamicIcon name={tile.icon} className="size-5 text-green" />

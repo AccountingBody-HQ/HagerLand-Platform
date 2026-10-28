@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { buildMetadata } from '@/lib/seo'
 import { brand } from '@/lib/brand'
 import { getBusinessDetails } from '@/lib/data/business'
-import { legalUpdated } from '@/lib/content/legal'
+import { amharicVersionOn, legalUpdated } from '@/lib/content/legal'
 import { Container } from '@/components/ui/Layout'
 import { PageHero, TextSection } from '@/components/content/PageHero'
 import { LegalEntity } from '@/components/content/LegalEntity'
@@ -11,7 +11,7 @@ export const revalidate = 3600
 export const metadata = buildMetadata({ title: 'Privacy policy', description: 'What personal information HagerLand collects, why we use it, who we share it with, how long we keep it, and your rights, including getting a copy of your data.', path: '/privacy' })
 
 export default async function PrivacyPage() {
-  const [business, updated] = await Promise.all([getBusinessDetails(), legalUpdated('privacy')])
+  const [business, updated, amharicOn] = await Promise.all([getBusinessDetails(), legalUpdated('privacy'), amharicVersionOn()])
   return (
     <>
       <PageHero crumb="Privacy" title="Privacy policy" intro={`Last updated ${updated}`} />
@@ -31,6 +31,7 @@ export default async function PrivacyPage() {
             <li><strong>Trade accounts:</strong> your business name, type, phone and tax number if you give it.</li>
             <li><strong>Verification documents:</strong> trade licences, TIN certificates and similar documents you upload to get Verified or to claim a business.</li>
             <li><strong>Jobs:</strong> when you apply for a job, your name, contact details, cover note and CV. If you create a candidate profile, your skills, qualifications, experience, availability and CV. If you apply by phone or join the worker register: your name, phone, trade, area, preferred language, how you want to be contacted, and that you confirmed you are 18 or older. If HagerLand&apos;s recruitment team introduces you to an employer: that you agreed, when and how, the employer, and whether you were hired.</li>
+            <li><strong>Call-back requests:</strong> your name, phone number, what you need, your area, the language and time of day you prefer, whether you are based outside Ethiopia, and that you agreed to be called.</li>
             <li><strong>Reports:</strong> if you report a job or listing, your reason and anything you write, your phone or email if you give them, and a coded version of your internet address so we can stop repeated reports.</li>
             <li><strong>Estate agency:</strong> when you ask us to value, sell or let a property, book a viewing, make an offer or apply to rent, your contact details, the property, your preferred times and time zone, your offer or application (work, income note, move-in date, number of people) and any documents you add. We keep a contact record for each person we deal with, including whether and when you agreed to receive property emails.</li>
             <li><strong>Buying and renting requirements:</strong> if you ask us to look for property for you, what you are looking for (budget, areas, type, bedrooms), so we can send you matching listings with your agreement.</li>
@@ -84,6 +85,7 @@ export default async function PrivacyPage() {
             <li>Records of people our recruitment team contacted for a role but who were not hired: deleted 12 months after the last contact.</li>
             <li>Job reports: your details, contact and the coded internet address are deleted 12 months after the report; the reason and what we did about it are kept.</li>
             <li>Worker register: deleted 12 months after you last updated it.</li>
+            <li>Call-back requests: deleted 12 months after the request or our last call, whichever is later. If you tell us you did not ask for the call, we delete your number straight away and keep only a coded version for 30 days to stop repeat calls.</li>
             <li>Viewings, offers and applications to rent: 24 months after the last activity, unless they lead to a sale or tenancy, which we keep for as long as the law requires for our records.</li>
             <li>Agency contact records and requirements: while we act for you or you want matching listings, and removed on request.</li>
             <li>Newsletter: until you unsubscribe (one click in every email).</li>
@@ -99,6 +101,7 @@ export default async function PrivacyPage() {
         </TextSection>
         <TextSection title="Changes">
           <p>We will update this policy when our practices change. The date at the top shows the latest version.</p>
+          {amharicOn && <p>This policy is written in English. If a translation differs, the English version applies.</p>}
         </TextSection>
       </Container>
     </>

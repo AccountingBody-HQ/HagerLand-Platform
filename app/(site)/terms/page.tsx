@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { buildMetadata } from '@/lib/seo'
 import { brand } from '@/lib/brand'
 import { getBusinessDetails } from '@/lib/data/business'
-import { legalUpdated } from '@/lib/content/legal'
+import { amharicVersionOn, legalUpdated } from '@/lib/content/legal'
 import { Container } from '@/components/ui/Layout'
 import { PageHero, TextSection } from '@/components/content/PageHero'
 import { LegalEntity } from '@/components/content/LegalEntity'
@@ -13,7 +13,7 @@ export const revalidate = 3600
 export const metadata = buildMetadata({ title: 'Terms of use', description: 'The terms for using HagerLand: listings, enquiries, quotes, estate agency, service requests, reviews, our role as a marketplace and a participant.', path: '/terms' })
 
 export default async function TermsPage() {
-  const [business, updated, jobsSwitches] = await Promise.all([getBusinessDetails(), legalUpdated('terms'), readJobsSwitches()])
+  const [business, updated, jobsSwitches, amharicOn] = await Promise.all([getBusinessDetails(), legalUpdated('terms'), readJobsSwitches(), amharicVersionOn()])
   const { legal } = business
   // Sections are numbered in order of appearance, so optional sections never leave a gap.
   let section = 0
@@ -134,6 +134,8 @@ export default async function TermsPage() {
         </TextSection>
         <TextSection title={n('Changes')}>
           <p>We may update these terms. The date at the top shows the latest version. If a change is significant we will tell registered users by email.</p>
+          {/* Jobs Phase 5 (W20): only while the Amharic version or Amharic for Jobs is on. */}
+          {amharicOn && <p>These terms are written in English. If a translation differs, the English version applies.</p>}
         </TextSection>
         {legal.governingLaw && (
           <TextSection title={n('Governing law')}>

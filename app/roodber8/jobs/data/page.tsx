@@ -51,6 +51,16 @@ export default async function JobsDataPage() {
           </li>
         </ul>
       </Panel>
+      <Panel title="Amharic for Jobs and call-back requests">
+        <div className="grid gap-3 md:grid-cols-2">
+          <JobsSwitchControl which="jobs_amharic" on={switches.jobsAmharic} label="Amharic for Jobs" />
+          <JobsSwitchControl which="callbacks" on={switches.callbacks} label="Call-back requests" />
+        </div>
+        <ul className="mt-3 list-disc space-y-1 pl-5 text-small text-muted">
+          <li>Amharic for Jobs starts off. On: the Jobs pages, the staffing request pages and the Jobs account pages have an Amharic version at /am/… with the language switch, and the jobs sitemap lists them. Only text marked as native-reviewed is shown in Amharic; everything else stays in English with a short note. Links to other sections stay English. Off: /am/jobs answers “page not found”, as it does today. The website takes up to a minute to notice a change.</li>
+          <li>Call-back requests start off. On: “Prefer to talk? Ask us to call you” appears on /jobs and the staffing request page, with the form at /jobs/call-back, and requests arrive under Jobs → Call-back requests. Off: no box, the form address shows “not found”, and the server refuses anything sent to it. No email or text message is ever sent.</li>
+        </ul>
+      </Panel>
       <Panel title="Recruitment desk">
         <div className="grid gap-3 md:grid-cols-2">
           <JobsSwitchControl which="recruitment_desk" on={switches.recruitmentDesk} label="Recruitment desk" />

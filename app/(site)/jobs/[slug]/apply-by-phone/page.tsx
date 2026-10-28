@@ -3,8 +3,7 @@ import { getJobBySlug } from '@/lib/data/jobs'
 import { getVertical } from '@/lib/data/verticals'
 import { readJobsSwitches } from '@/lib/jobs-switches'
 import { buildMetadata } from '@/lib/seo'
-import { getLocale } from '@/lib/i18n/server'
-import { translator } from '@/lib/i18n/translate'
+import { getJobsI18n } from '@/lib/i18n/server'
 import { Container } from '@/components/ui/Layout'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { PhoneApplyForm } from '@/components/jobs/PhoneApplyForm'
@@ -12,8 +11,8 @@ import { PhoneApplyForm } from '@/components/jobs/PhoneApplyForm'
 export const dynamic = 'force-dynamic'
 
 export async function generateMetadata(props: { params: Promise<{ slug: string }> }) {
-  const params = await props.params
-  return buildMetadata({ title: 'Apply by phone', description: 'Apply for a job on HagerLand.', path: `/jobs/${params.slug}/apply-by-phone`, noindex: true })
+  const [params, { locale, t }] = await Promise.all([props.params, getJobsI18n()])
+  return buildMetadata({ title: t('Apply by phone'), description: t('Apply for a job on HagerLand.'), path: `/jobs/${params.slug}/apply-by-phone`, noindex: true, locale })
 }
 
 /** Apply by phone without an account (Jobs Phase 2). Not found while the owner's switch is off. */
@@ -23,10 +22,10 @@ export default async function ApplyByPhonePage(props: { params: Promise<{ slug: 
   if (!v || v.status !== 'live' || !switches.phoneApply) notFound()
   const job = await getJobBySlug(params.slug)
   if (!job?.id) notFound()
-  const t = translator(await getLocale())
+  const { t, href } = await getJobsI18n()
   return (
     <Container className="max-w-2xl py-6 lg:py-10">
-      <Breadcrumbs items={[{ label: 'Jobs', href: '/jobs' }, { label: job.title ?? '', href: `/jobs/${job.slug}` }, { label: t('Apply by phone') }]} />
+      <Breadcrumbs items={[{ label: t('Jobs'), href: href('/jobs') }, { label: job.title ?? '', href: href(`/jobs/${job.slug}`) }, { label: t('Apply by phone') }]} />
       <h1 className="hl-h1 mt-6">{t('Apply by phone')}</h1>
       <p className="mt-2 text-muted">
         {job.title} · {job.employer_name} · {job.location_display}
