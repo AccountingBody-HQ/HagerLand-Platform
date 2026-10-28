@@ -1,3 +1,4 @@
+import { readAll, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { isOwnerSession, requireAdminPage } from '@/lib/admin/guard'
@@ -18,7 +19,7 @@ export default async function SupplyLedgerPage(props: { searchParams: Promise<Re
   await requireAdminPage()
   if (!(await isOwnerSession())) redirect('/roodber8?denied=1')
   const f = ledgerFilters(sp)
-  const [entries, { data: suppliers }] = await Promise.all([ledgerEntries(f), getAdminSupabase().from('supply_ledger_entries').select('org_id, org:organisations(name)').not('org_id', 'is', null).limit(5000)])
+  const [entries, { data: suppliers }] = await Promise.all([ledgerEntries(f), readAll(() => getAdminSupabase().from('supply_ledger_entries').select('org_id, org:organisations(name)').not('org_id', 'is', null), { maxRows: REPORT_MAX_ROWS })])
   const supplierOptions = Array.from(new Map((suppliers ?? []).map((s) => [s.org_id as string, (s.org as { name: string } | null)?.name ?? ''])).entries()).sort((a, b) => a[1].localeCompare(b[1]))
   const totals = entries.reduce(
     (t, e) => {

@@ -1,3 +1,4 @@
+import { readAll, readAllIn, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import Link from 'next/link'
 import { FileText } from 'lucide-react'
 import { requireAdminPage } from '@/lib/admin/guard'
@@ -92,12 +93,12 @@ export default async function ReviewPage(route: { searchParams: Promise<{ tab?: 
     const rows = data ?? []
     const ids = rows.map((r) => r.id)
     const [{ data: media }, { data: locs }, { data: orgs }, { data: profiles }, { data: notes }, { data: similar }] = await Promise.all([
-      ids.length ? db.from('media').select('entity_id, storage_path, status').eq('entity_type', 'property').in('entity_id', ids).eq('kind', 'image').order('sort') : Promise.resolve({ data: [] }),
-      db.from('locations').select('id, display_name'),
+      readAllIn(ids, (part) => db.from('media').select('entity_id, storage_path, status').eq('entity_type', 'property').in('entity_id', part).eq('kind', 'image').order('sort'), { maxRows: REPORT_MAX_ROWS }),
+      readAll(() => db.from('locations').select('id, display_name'), { maxRows: REPORT_MAX_ROWS }),
       db.from('organisations').select('id, name, verification_level').in('id', rows.map((r) => r.lister_org_id).filter((x): x is string => Boolean(x))),
       db.from('profiles').select('id, full_name, phone').in('id', rows.map((r) => r.lister_user_id).filter((x): x is string => Boolean(x))),
       ids.length ? db.from('admin_notes').select('entity_id, note, created_at').eq('entity_type', 'property').in('entity_id', ids) : Promise.resolve({ data: [] }),
-      db.from('properties').select('id, title, lister_user_id, location_id, price_etb, status').in('status', ['published', 'pending_review', 'paused']).limit(2000),
+      readAll(() => db.from('properties').select('id, title, lister_user_id, location_id, price_etb, status').in('status', ['published', 'pending_review', 'paused']), { maxRows: REPORT_MAX_ROWS }),
     ])
     const dup = (r: (typeof rows)[number]) =>
       (similar ?? []).find(
@@ -262,7 +263,7 @@ export default async function ReviewPage(route: { searchParams: Promise<{ tab?: 
   }
 
   if (tab === 'claims') {
-    const { data } = await db.from('claims').select('*, org:organisations(id, name, slug)').eq('status', 'pending').order('created_at')
+    const { data } = await readAll(() => db.from('claims').select('*, org:organisations(id, name, slug)').eq('status', 'pending').order('created_at'), { maxRows: REPORT_MAX_ROWS })
     const rows = data ?? []
     body =
       rows.length === 0 ? (
@@ -289,7 +290,7 @@ export default async function ReviewPage(route: { searchParams: Promise<{ tab?: 
   if (tab === 'job-reports' && canJobs) body = <JobReports groups={await openReportGroups()} />
 
   if (tab === 'verification' && canVerify) {
-    const { data } = await db.from('verification_requests').select('*, org:organisations(id, name, kind, licence_category, licence_grade, trade_licence_number, tin)').eq('status', 'pending').order('created_at')
+    const { data } = await readAll(() => db.from('verification_requests').select('*, org:organisations(id, name, kind, licence_category, licence_grade, trade_licence_number, tin)').eq('status', 'pending').order('created_at'), { maxRows: REPORT_MAX_ROWS })
     const rows = data ?? []
     body =
       rows.length === 0 ? (
@@ -327,7 +328,7 @@ export default async function ReviewPage(route: { searchParams: Promise<{ tab?: 
   }
 
   if (tab === 'reports') {
-    const { data } = await db.from('reports').select('*').eq('status', 'open').order('created_at')
+    const { data } = await readAll(() => db.from('reports').select('*').eq('status', 'open').order('created_at'), { maxRows: REPORT_MAX_ROWS })
     const rows = data ?? []
     const hrefFor = (t: string, id: string) => `/roodber8/${t === 'property' ? 'properties' : t === 'development' ? 'developments' : t === 'product' ? 'products' : 'organisations'}/${id}`
     body =
@@ -356,7 +357,7 @@ export default async function ReviewPage(route: { searchParams: Promise<{ tab?: 
     const [{ data: orgs }, { data: cats }, { data: media }] = await Promise.all([
       db.from('organisations').select('id, name, verification_level').in('id', rows.map((r) => r.seller_org_id)),
       db.from('product_categories').select('id, name').in('id', rows.map((r) => r.category_id)),
-      ids.length ? db.from('media').select('entity_id, storage_path').eq('entity_type', 'product').in('entity_id', ids).eq('kind', 'image').order('sort') : Promise.resolve({ data: [] }),
+      readAllIn(ids, (part) => db.from('media').select('entity_id, storage_path').eq('entity_type', 'product').in('entity_id', part).eq('kind', 'image').order('sort'), { maxRows: REPORT_MAX_ROWS }),
     ])
     body =
       rows.length === 0 ? (

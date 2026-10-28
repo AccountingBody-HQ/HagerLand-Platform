@@ -3,6 +3,7 @@
 /** Admin area these actions belong to (staff roles are checked against it, spec 26.15). */
 const AREA = '/roodber8/import'
 
+import { readAllIn, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { getAdminSupabase } from '@/lib/supabase/admin'
@@ -100,7 +101,8 @@ export async function publishImportsAction(ids: string[]): Promise<ActionResult<
   const parsed = z.array(z.uuid()).min(1).max(200).safeParse(ids)
   if (!parsed.success) return fail('Select at least one business.')
   const db = getAdminSupabase()
-  const { data: rows } = await db.from('organisations').select('id, name, description').in('id', parsed.data).eq('source', 'import').in('status', ['draft', 'pending_review'])
+  // Fix F-1: up to 200 ids, read in parts of 50 (one long id list is refused by the gateway).
+  const { data: rows } = await readAllIn(parsed.data, (part) => db.from('organisations').select('id, name, description').in('id', part).eq('source', 'import').in('status', ['draft', 'pending_review']), { maxRows: REPORT_MAX_ROWS })
   const blocked = await importPublishBlock((rows ?? []).map((r) => r.id))
   const confirmed = (rows ?? []).filter((r) => !blocked.has(r.id))
   if (!confirmed.length) return fail(blocked.size === 1 ? Array.from(blocked.values())[0] : 'None of these is confirmed with the business yet. Open each one and use “Confirm with the business” first.')

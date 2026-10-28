@@ -1,4 +1,5 @@
 import 'server-only'
+import { readAll, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { must } from '@/lib/admin/must'
 import { PILLAR_KEYS, VERTICAL_PILLAR, isPillarKey, type PillarKey } from '@/lib/pillars'
@@ -70,12 +71,12 @@ export async function demandReport(since: Date, until: Date = new Date()): Promi
   const to = until.toISOString()
   // The failure rule (Jobs Phase 6, C2-10): a failed read stops the page with an error instead of showing zeros.
   const [interest, requests, misses, enquiries, locations, categories] = must(await Promise.all([
-    db.from('interest_registrations').select('vertical_key, pillar_key, category, city, country_code, created_at').gte('created_at', from).lt('created_at', to).limit(50000),
-    db.from('service_requests').select('id, vertical_key, service_category_id, location_id, location_text, country_code, status, closed_reason, created_at, matches:service_request_matches(status)').gte('created_at', from).lt('created_at', to).limit(50000),
-    db.from('search_misses').select('q_normalised, vertical, count, last_seen_at').gte('last_seen_at', from).lt('last_seen_at', to).limit(5000),
-    db.from('enquiries').select('target_type, created_at').gte('created_at', from).lt('created_at', to).limit(50000),
-    db.from('locations').select('id, display_name, country_code').limit(20000),
-    db.from('service_categories').select('id, name').limit(2000),
+    readAll(() => db.from('interest_registrations').select('vertical_key, pillar_key, category, city, country_code, created_at').gte('created_at', from).lt('created_at', to), { maxRows: REPORT_MAX_ROWS }),
+    readAll(() => db.from('service_requests').select('id, vertical_key, service_category_id, location_id, location_text, country_code, status, closed_reason, created_at, matches:service_request_matches(status)').gte('created_at', from).lt('created_at', to), { maxRows: REPORT_MAX_ROWS }),
+    readAll(() => db.from('search_misses').select('q_normalised, vertical, count, last_seen_at').gte('last_seen_at', from).lt('last_seen_at', to), { maxRows: REPORT_MAX_ROWS, key: ['q_normalised', 'vertical'] }),
+    readAll(() => db.from('enquiries').select('target_type, created_at').gte('created_at', from).lt('created_at', to), { maxRows: REPORT_MAX_ROWS }),
+    readAll(() => db.from('locations').select('id, display_name, country_code'), { maxRows: REPORT_MAX_ROWS }),
+    readAll(() => db.from('service_categories').select('id, name'), { maxRows: REPORT_MAX_ROWS }),
   ]))
   const placeName = new Map((locations.data ?? []).map((l) => [l.id, l.display_name ?? '']))
   const catName = new Map((categories.data ?? []).map((c) => [c.id, c.name]))

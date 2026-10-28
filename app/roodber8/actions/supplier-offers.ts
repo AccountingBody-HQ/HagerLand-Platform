@@ -3,6 +3,7 @@
 /** Admin area these actions belong to (staff roles are checked against it, spec 26.15). */
 const AREA = '/roodber8/supply/partners'
 
+import { readAllIn, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { getAdminSupabase } from '@/lib/supabase/admin'
@@ -133,9 +134,8 @@ export interface PastePreviewRow extends PastedLine {
 async function preparePaste(orgId: string, text: string, priceDate: string, fxLinked: boolean, categories: Record<string, string>): Promise<PastePreviewRow[]> {
   const lines = parsePastedLines(text.slice(0, 50_000)).slice(0, 500)
   const keys = Array.from(new Set(lines.filter((l) => l.item).map((l) => itemKey(l.item))))
-  const { data: earlier } = keys.length
-    ? await getAdminSupabase().from('supplier_offers').select('item_key, unit, status, price_etb_cents, category_id, category:product_categories(name), captured_at').eq('org_id', orgId).in('item_key', keys).order('captured_at', { ascending: false }).limit(5000)
-    : { data: [] }
+  // Fix F-1: up to 500 item names, in parts of 50 (one item's prices stay together, newest first), page by page.
+  const { data: earlier } = await readAllIn(keys, (part) => getAdminSupabase().from('supplier_offers').select('item_key, unit, status, price_etb_cents, category_id, category:product_categories(name), captured_at').eq('org_id', orgId).in('item_key', part).order('captured_at', { ascending: false }), { maxRows: REPORT_MAX_ROWS })
   const chosen = Object.values(categories).filter((v) => z.uuid().safeParse(v).success)
   const slugs = await categorySlugs(Array.from(new Set([...chosen, ...(earlier ?? []).map((e) => e.category_id).filter((c): c is string => Boolean(c))])))
   const seen = new Set<string>()

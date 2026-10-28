@@ -1,3 +1,4 @@
+import { readAll, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import { requireAdminPage } from '@/lib/admin/guard'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { lastMonths, monthlyReport } from '@/lib/admin/aggregate'
@@ -17,13 +18,15 @@ export default async function DealsPage() {
   const db = getAdminSupabase()
   const months = lastMonths(12)
   const since = `${months[0]}-01T00:00:00Z`
-  const [{ data: deals }, { data: reqs }, { data: enqs }, { data: quotes }] = await Promise.all([
+  // The table shows the latest 500 deals; the monthly figures use every deal (Fix F-1, same read as the CSV report).
+  const [{ data: deals }, { data: allDeals }, { data: reqs }, { data: enqs }, { data: quotes }] = await Promise.all([
     db.from('deals').select('*').order('created_at', { ascending: false }).limit(500),
-    db.from('service_requests').select('created_at').gte('created_at', since).limit(50000),
-    db.from('enquiries').select('created_at').gte('created_at', since).limit(50000),
-    db.from('quote_requests').select('created_at').gte('created_at', since).limit(50000),
+    readAll(() => db.from('deals').select('closed_at, created_at, status, currency, value_minor, commission_minor, lead_fee_minor'), { maxRows: REPORT_MAX_ROWS }),
+    readAll(() => db.from('service_requests').select('created_at').gte('created_at', since), { maxRows: REPORT_MAX_ROWS }),
+    readAll(() => db.from('enquiries').select('created_at').gte('created_at', since), { maxRows: REPORT_MAX_ROWS }),
+    readAll(() => db.from('quote_requests').select('created_at').gte('created_at', since), { maxRows: REPORT_MAX_ROWS }),
   ])
-  const report = monthlyReport(months, { requests: (reqs ?? []).map((r) => r.created_at), enquiries: (enqs ?? []).map((r) => r.created_at), quoteRequests: (quotes ?? []).map((r) => r.created_at), deals: deals ?? [] })
+  const report = monthlyReport(months, { requests: (reqs ?? []).map((r) => r.created_at), enquiries: (enqs ?? []).map((r) => r.created_at), quoteRequests: (quotes ?? []).map((r) => r.created_at), deals: allDeals })
   const currencies = Array.from(new Set(report.flatMap((r) => Object.keys(r.money)))).sort()
   return (
     <div className="space-y-6">

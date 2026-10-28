@@ -4,6 +4,7 @@ import { getProductCategories, getServiceCategories, getSettingNumber } from '@/
 import { canonicalUrl } from '@/lib/site'
 import { countByAncestors, indexablePaths, SITEMAP_IDS, STATIC_PATHS, typePathCounts, type SitemapId } from '@/lib/sitemap-rules'
 import { log } from '@/lib/log'
+import { readAll, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import { listTag } from '@/lib/revalidate'
 import { getVerticals } from '@/lib/data/verticals'
 import { getAgencyAvailability, getPillars } from '@/lib/data/pillars'
@@ -24,7 +25,8 @@ export async function generateSitemaps() {
 
 const AGENCY_SALES_PATHS = ['/agency/sell', '/agency/buyer-representation', '/agency/property-sourcing', '/agency/developer-sales']
 const AGENCY_LETTINGS_PATHS = ['/agency/let']
-const LIMIT = 50_000
+// The sitemap protocol allows 50,000 addresses per file: more throws (logged; see below) rather than listing part of them.
+const MAX_URLS = 50_000
 
 type Entry = MetadataRoute.Sitemap[number]
 
@@ -74,11 +76,11 @@ async function build(id: SitemapId): Promise<MetadataRoute.Sitemap> {
       return [...paths.map((p) => entry(p, null, p === '/' ? 1 : 0.7)), ...amharic.map((p) => entry(p, null, 0.5))]
     }
     case 'properties': {
-      const { data } = await db.from('properties_public').select('slug, updated_at').order('published_at', { ascending: false }).limit(LIMIT)
+      const { data } = await readAll(() => db.from('properties_public').select('slug, updated_at').order('published_at', { ascending: false }), { maxRows: MAX_URLS })
       return (data ?? []).filter((r) => r.slug).map((r) => entry(`/property/${r.slug}`, r.updated_at))
     }
     case 'developments': {
-      const { data } = await db.from('developments_public').select('slug, updated_at, is_hagerland').limit(LIMIT)
+      const { data } = await readAll(() => db.from('developments_public').select('slug, updated_at, is_hagerland'), { maxRows: MAX_URLS })
       return (data ?? [])
         .filter((r) => r.slug)
         .map((r) => ({ path: `${r.is_hagerland ? '/our-developments' : '/developments'}/${r.slug}`, updated: r.updated_at }))
@@ -86,17 +88,17 @@ async function build(id: SitemapId): Promise<MetadataRoute.Sitemap> {
         .map((r) => entry(r.path, r.updated))
     }
     case 'products': {
-      const { data } = await db.from('products_public').select('slug, updated_at').limit(LIMIT)
+      const { data } = await readAll(() => db.from('products_public').select('slug, updated_at'), { maxRows: MAX_URLS })
       return (data ?? []).filter((r) => r.slug).map((r) => entry(`/supplies/product/${r.slug}`, r.updated_at))
     }
     case 'companies': {
-      const { data } = await db.from('organisations_public').select('slug, updated_at, kind').neq('kind', 'hagerland').limit(LIMIT)
+      const { data } = await readAll(() => db.from('organisations_public').select('slug, updated_at, kind').neq('kind', 'hagerland'), { maxRows: MAX_URLS })
       return (data ?? []).filter((r) => r.slug).map((r) => entry(`/company/${r.slug}`, r.updated_at))
     }
     case 'locations-sale':
     case 'locations-rent': {
       const purpose = id === 'locations-sale' ? 'sale' : 'rent'
-      const { data } = await db.from('properties_public').select('location_path, property_type').eq('purpose', purpose).limit(LIMIT)
+      const { data } = await readAll(() => db.from('properties_public').select('location_path, property_type').eq('purpose', purpose), { maxRows: REPORT_MAX_ROWS })
       const base = purpose === 'sale' ? '/property/for-sale' : '/property/to-rent'
       const locationPages = indexablePaths(countByAncestors((data ?? []).map((r) => r.location_path)), min).map((p) => entry(`${base}/${p}`))
       // Property-type pages (spec 25.2l), nationwide and per place, when they meet the same threshold.
@@ -105,8 +107,8 @@ async function build(id: SitemapId): Promise<MetadataRoute.Sitemap> {
     }
     case 'professionals': {
       const [{ data: links }, { data: orgs }, services] = await Promise.all([
-        db.from('organisation_services_public').select('org_id, service_id, parent_id').limit(LIMIT),
-        db.from('organisations_public').select('id, location_path').limit(LIMIT),
+        readAll(() => db.from('organisation_services_public').select('org_id, service_id, parent_id'), { maxRows: REPORT_MAX_ROWS, key: ['org_id', 'service_id'] }),
+        readAll(() => db.from('organisations_public').select('id, location_path'), { maxRows: REPORT_MAX_ROWS }),
         getServiceCategories(),
       ])
       const orgPath = new Map((orgs ?? []).map((o) => [o.id as string, o.location_path]))
@@ -140,7 +142,7 @@ async function build(id: SitemapId): Promise<MetadataRoute.Sitemap> {
       return [...jobs.map((j) => entry(`/jobs/${j.slug}`, j.updated_at)), ...amharic]
     }
     case 'categories': {
-      const [{ data }, tree] = await Promise.all([db.from('products_public').select('category_id, category_parent_id').limit(LIMIT), getProductCategories()])
+      const [{ data }, tree] = await Promise.all([readAll(() => db.from('products_public').select('category_id, category_parent_id'), { maxRows: REPORT_MAX_ROWS }), getProductCategories()])
       const used = new Set((data ?? []).flatMap((r) => [r.category_id, r.category_parent_id]).filter(Boolean))
       return tree.flatMap((root) => (used.has(root.id) ? [entry(`/supplies/${root.slug}`), ...root.children.filter((c) => used.has(c.id)).map((c) => entry(`/supplies/${root.slug}/${c.slug}`))] : []))
     }

@@ -6,7 +6,7 @@ import 'server-only'
 // (must): on a database error the page shows an error, never zeros. Service role, server only.
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { must } from '@/lib/admin/must'
-import { inChunks } from '@/lib/admin/in-chunks'
+import { readAll, readAllIn, REPORT_MAX_ROWS, type Pageable } from '@/lib/admin/read-all'
 import { readJobsSwitches } from '@/lib/jobs-switches'
 import { addDays, todayAddis } from '@/lib/jobs-desk'
 import { STAFFING_SLUG } from '@/lib/service-requests/form-copy'
@@ -53,13 +53,18 @@ import { REPORT_REASON_LABEL } from '@/lib/job-reports'
 const OPEN_REQUEST = ['submitted', 'triaged', 'matched', 'quoted']
 const OPEN_ASSIGNMENT = ['open', 'searching', 'introducing']
 const RUNNING_PLACEMENT = ['hired', 'guarantee_running']
+
+/** Every row for a long id list: parts of 50 ids, each read page by page (Fix F-1), with the failure rule. */
+function rowsIn<R>(ids: string[], build: (part: string[]) => Pageable<R>): Promise<R[]> {
+  return readAllIn(ids, build, { maxRows: REPORT_MAX_ROWS }).then((r) => r.data)
+}
 /** The places with the places above them (an area's sub-city and city), for rolling up to city or sub-city. */
 export async function placesFor(ids: (string | null)[]): Promise<Map<string, PlaceRow>> {
   const db = getAdminSupabase()
   const places = new Map<string, PlaceRow>()
   let todo = Array.from(new Set(ids.filter((x): x is string => Boolean(x))))
   for (let depth = 0; todo.length && depth < 4; depth++) {
-    const rows = await inChunks(todo, (part) => db.from('locations').select('id, name, display_name, level, parent_id').in('id', part))
+    const rows = await rowsIn(todo, (part) => db.from('locations').select('id, name, display_name, level, parent_id').in('id', part))
     for (const p of rows) places.set(p.id, p)
     todo = rows.filter((p) => p.level === 'area' && p.parent_id && !places.has(p.parent_id)).map((p) => p.parent_id as string)
   }
@@ -110,17 +115,17 @@ export async function jobsInsights(sinceTs: string, untilTs: string | null, now:
     { data: openAssignments },
   ] = must(
     await Promise.all([
-      range(db.from('job_status_events').select('job_post_id'), 'created_at').limit(50000),
-      range(db.from('job_applications').select('id, job_id, channel, trade, created_at'), 'created_at').limit(50000),
-      range(db.from('job_posts').select('id, published_at'), 'published_at').limit(20000),
-      db.from('jobs_public').select('id, title, employer_name, posted_for, trade, location_id, published_at').limit(5000),
-      db.from('worker_register').select('trades').is('personal_data_deleted_at', null).limit(50000),
+      readAll(() => range(db.from('job_status_events').select('job_post_id'), 'created_at'), { maxRows: REPORT_MAX_ROWS }),
+      readAll(() => range(db.from('job_applications').select('id, job_id, channel, trade, created_at'), 'created_at'), { maxRows: REPORT_MAX_ROWS }),
+      readAll(() => range(db.from('job_posts').select('id, published_at'), 'published_at'), { maxRows: REPORT_MAX_ROWS }),
+      readAll(() => db.from('jobs_public').select('id, title, employer_name, posted_for, trade, location_id, published_at'), { maxRows: REPORT_MAX_ROWS }),
+      readAll(() => db.from('worker_register').select('trades').is('personal_data_deleted_at', null), { maxRows: REPORT_MAX_ROWS }),
       db.from('service_categories').select('id').eq('slug', STAFFING_SLUG).maybeSingle(),
-      range(db.from('callback_requests').select('status, outcome, created_at, handled_at'), 'created_at').limit(50000),
-      range(db.from('job_reports').select('job_post_id, reason, status, outcome, created_at, handled_at'), 'created_at').limit(50000),
-      range(db.from('recruitment_assignments').select('id, status, created_at'), 'created_at').limit(20000),
+      readAll(() => range(db.from('callback_requests').select('status, outcome, created_at, handled_at'), 'created_at'), { maxRows: REPORT_MAX_ROWS }),
+      readAll(() => range(db.from('job_reports').select('job_post_id, reason, status, outcome, created_at, handled_at'), 'created_at'), { maxRows: REPORT_MAX_ROWS }),
+      readAll(() => range(db.from('recruitment_assignments').select('id, status, created_at'), 'created_at'), { maxRows: REPORT_MAX_ROWS }),
       db.from('recruitment_placements').select('id', head).in('status', RUNNING_PLACEMENT).gte('guarantee_ends_on', today).lte('guarantee_ends_on', addDays(today, 30)),
-      db.from('recruitment_assignments').select('id').in('status', OPEN_ASSIGNMENT).limit(20000),
+      readAll(() => db.from('recruitment_assignments').select('id').in('status', OPEN_ASSIGNMENT), { maxRows: REPORT_MAX_ROWS }),
     ]),
   )
 
@@ -129,22 +134,16 @@ export async function jobsInsights(sinceTs: string, untilTs: string | null, now:
   const open = (openJobs ?? []) as OpenJob[]
   const assignmentIds = (assignments ?? []).map((a) => a.id)
   const [events, appJobs, firstApps, openApps, staffing, candidates, placements, shortlistTrades, switches] = await Promise.all([
-    inChunks<StatusEvent>(eventJobIds, (part) => db.from('job_status_events').select('job_post_id, from_status, to_status, actor_kind, created_at').in('job_post_id', part).limit(50000)),
-    inChunks(appJobIds, (part) => db.from('job_posts').select('id, trade, location_id').in('id', part)),
-    inChunks((approvedJobs ?? []).map((j) => j.id), (part) => db.from('job_applications').select('job_id, created_at').in('job_id', part).limit(50000)),
-    inChunks(open.map((j) => j.id), (part) => db.from('job_applications').select('job_id').in('job_id', part).limit(50000)),
+    rowsIn<StatusEvent>(eventJobIds, (part) => db.from('job_status_events').select('job_post_id, from_status, to_status, actor_kind, created_at').in('job_post_id', part)),
+    rowsIn(appJobIds, (part) => db.from('job_posts').select('id, trade, location_id').in('id', part)),
+    rowsIn((approvedJobs ?? []).map((j) => j.id), (part) => db.from('job_applications').select('job_id, created_at').in('job_id', part)),
+    rowsIn(open.map((j) => j.id), (part) => db.from('job_applications').select('job_id').in('job_id', part)),
     staffingCategory
-      ? db
-          .from('service_requests')
-          .select('location_id')
-          .eq('service_category_id', staffingCategory.id)
-          .in('status', OPEN_REQUEST)
-          .limit(20000)
-          .then((r) => must(r).data ?? [])
+      ? readAll(() => db.from('service_requests').select('location_id').eq('service_category_id', staffingCategory.id).in('status', OPEN_REQUEST), { maxRows: REPORT_MAX_ROWS }).then((r) => r.data)
       : Promise.resolve([] as { location_id: string | null }[]),
-    inChunks<DeskCandidate>(assignmentIds, (part) => db.from('recruitment_candidates').select('id, assignment_id, status, consent_at, declined_at, introduced_at, consent_withdrawn_at').in('assignment_id', part).limit(50000)),
-    inChunks<DeskPlacement>(assignmentIds, (part) => db.from('recruitment_placements').select('id, assignment_id, candidate_id, status, is_free_replacement, created_at').in('assignment_id', part).limit(50000)),
-    inChunks((openAssignments ?? []).map((a) => a.id), (part) => db.from('recruitment_candidates').select('trade').in('assignment_id', part).limit(50000)),
+    rowsIn<DeskCandidate>(assignmentIds, (part) => db.from('recruitment_candidates').select('id, assignment_id, status, consent_at, declined_at, introduced_at, consent_withdrawn_at').in('assignment_id', part)),
+    rowsIn<DeskPlacement>(assignmentIds, (part) => db.from('recruitment_placements').select('id, assignment_id, candidate_id, status, is_free_replacement, created_at').in('assignment_id', part)),
+    rowsIn((openAssignments ?? []).map((a) => a.id), (part) => db.from('recruitment_candidates').select('trade').in('assignment_id', part)),
     readJobsSwitches(),
   ])
 
@@ -200,9 +199,9 @@ export async function jobsInsights(sinceTs: string, untilTs: string | null, now:
 /** For the digest and the Jobs tab (L22): open jobs live 14 days or more with no applications. */
 export async function quietJobCount(now: Date = new Date()): Promise<number> {
   const db = getAdminSupabase()
-  const { data: open } = must(await db.from('jobs_public').select('id, title, employer_name, posted_for, trade, location_id, published_at').limit(5000))
+  const { data: open } = await readAll(() => db.from('jobs_public').select('id, title, employer_name, posted_for, trade, location_id, published_at'), { maxRows: REPORT_MAX_ROWS })
   const jobs = (open ?? []) as OpenJob[]
-  const apps = await inChunks(jobs.map((j) => j.id), (part) => db.from('job_applications').select('job_id').in('job_id', part).limit(50000))
+  const apps = await rowsIn(jobs.map((j) => j.id), (part) => db.from('job_applications').select('job_id').in('job_id', part))
   const per = new Map<string, number>()
   for (const a of apps) per.set(a.job_id, (per.get(a.job_id) ?? 0) + 1)
   return jobsWithNoApplications(jobs, per, new Map(), now).length

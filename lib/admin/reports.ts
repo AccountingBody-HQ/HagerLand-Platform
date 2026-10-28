@@ -1,4 +1,5 @@
 import 'server-only'
+import { readAll, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { countBy, sumBy, weeklySeries } from './aggregate'
 
@@ -13,7 +14,7 @@ export function periodFrom(p: string | undefined): { key: ReportPeriod; since: s
 
 /** Listing counts: all properties by status; published ones by type and by location. */
 export async function listingReport() {
-  const { data } = await getAdminSupabase().from('properties').select('status, property_type, purpose, location:locations(display_name)').limit(50_000)
+  const { data } = await readAll(() => getAdminSupabase().from('properties').select('status, property_type, purpose, location:locations(display_name)'), { maxRows: REPORT_MAX_ROWS })
   const rows = data ?? []
   const live = rows.filter((r) => r.status === 'published')
   return {
@@ -25,7 +26,7 @@ export async function listingReport() {
 
 /** Enquiries received per organisation (and HagerLand / private owners) in the period. */
 export async function enquiriesPerOrg(since: string) {
-  const { data } = await getAdminSupabase().from('enquiries').select('recipient_org_id, recipient_user_id, status, org:organisations!enquiries_recipient_org_id_fkey(name)').gte('created_at', since).neq('status', 'spam').limit(50_000)
+  const { data } = await readAll(() => getAdminSupabase().from('enquiries').select('recipient_org_id, recipient_user_id, status, org:organisations!enquiries_recipient_org_id_fkey(name)').gte('created_at', since).neq('status', 'spam'), { maxRows: REPORT_MAX_ROWS })
   const rows = data ?? []
   const label = (r: (typeof rows)[number]) => (r.org as { name: string } | null)?.name ?? (r.recipient_user_id ? 'Private owners' : 'HagerLand')
   const won = countBy(rows.filter((r) => r.status === 'won'), label)
@@ -35,7 +36,7 @@ export async function enquiriesPerOrg(since: string) {
 
 /** Quote values by month (issued quotes) and the pipeline by status. */
 export async function quoteReport(since: string) {
-  const { data } = await getAdminSupabase().from('quote_requests').select('status, created_at, quoted_at, quoted_total_etb_cents').gte('created_at', since).limit(50_000)
+  const { data } = await readAll(() => getAdminSupabase().from('quote_requests').select('status, created_at, quoted_at, quoted_total_etb_cents').gte('created_at', since), { maxRows: REPORT_MAX_ROWS })
   const rows = data ?? []
   return {
     byStatus: countBy(rows, (r) => r.status),
@@ -50,8 +51,8 @@ export async function signupSeries(weeks: number) {
   const since = new Date(Date.now() - weeks * 7 * 86_400_000).toISOString()
   const db = getAdminSupabase()
   const [{ data: profiles }, { data: enquiries }] = await Promise.all([
-    db.from('profiles').select('created_at, account_type').gte('created_at', since).limit(50_000),
-    db.from('enquiries').select('created_at').gte('created_at', since).neq('status', 'spam').limit(50_000),
+    readAll(() => db.from('profiles').select('created_at, account_type').gte('created_at', since), { maxRows: REPORT_MAX_ROWS }),
+    readAll(() => db.from('enquiries').select('created_at').gte('created_at', since).neq('status', 'spam'), { maxRows: REPORT_MAX_ROWS }),
   ])
   return {
     signups: weeklySeries((profiles ?? []).map((p) => p.created_at), weeks),

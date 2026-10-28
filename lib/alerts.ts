@@ -1,4 +1,5 @@
 import 'server-only'
+import { readAll, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { propertySearchArgs, type PublicProperty } from '@/lib/data/properties'
 import { parsePropertyParams } from '@/lib/property-search'
@@ -94,7 +95,8 @@ export async function runScheduledAlerts(now = Date.now()): Promise<number> {
 /** "Instant" alerts for one newly published listing (called when HagerLand approves it). Never throws. */
 export async function sendInstantAlerts(propertyId: string): Promise<void> {
   try {
-    const { data } = await getAdminSupabase().from('saved_searches').select('id, user_id, name, params, last_sent_at, created_at, unsubscribe_token').eq('alert_frequency', 'instant').limit(1000)
+    // Fix F-1: every instant alert, page by page (a cap would silently leave people out).
+    const { data } = await readAll(() => getAdminSupabase().from('saved_searches').select('id, user_id, name, params, last_sent_at, created_at, unsubscribe_token').eq('alert_frequency', 'instant'), { maxRows: REPORT_MAX_ROWS })
     for (const s of data ?? []) await sendAlert({ ...s, last_sent_at: new Date(Date.now() - 86_400_000).toISOString() }, propertyId)
   } catch (err) {
     log.error('alerts', 'instant alerts failed', err)

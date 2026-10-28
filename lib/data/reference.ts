@@ -1,4 +1,5 @@
 import 'server-only'
+import { readAll, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import { cache } from 'react'
 import type { Database } from '@/lib/database.types'
 import { getPublicSupabase } from '@/lib/supabase/public'
@@ -21,7 +22,7 @@ function toTree(rows: Category[]): CategoryNode[] {
 
 export const getLocations = cache(async (): Promise<Location[]> =>
   safeQuery('locations', [], async () =>
-    unwrap(await getPublicSupabase(REF).from('locations').select(LOCATION_COLUMNS).order('sort').order('name').limit(5000), 'locations'),
+    unwrap(await readAll(() => getPublicSupabase(REF).from('locations').select(LOCATION_COLUMNS).order('sort').order('name'), { maxRows: REPORT_MAX_ROWS }), 'locations'),
   ),
 )
 
@@ -74,7 +75,7 @@ export async function findCategory(tree: CategoryNode[], slug: string): Promise<
 
 export const getBrands = cache(async () =>
   safeQuery('brands', [] as { id: string; name: string; slug: string }[], async () =>
-    unwrap(await getPublicSupabase(REF).from('brands').select('id, name, slug').order('name'), 'brands'),
+    unwrap(await readAll(() => getPublicSupabase(REF).from('brands').select('id, name, slug').order('name'), { maxRows: REPORT_MAX_ROWS }), 'brands'),
   ),
 )
 

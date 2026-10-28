@@ -1,7 +1,7 @@
 import { must } from '@/lib/admin/must'
 
 // Small parts: the database server repeats the address in its reply header, and a long one is refused by the gateway.
-const CHUNK = 50
+export const CHUNK = 50
 
 type Rows<R> = PromiseLike<{ data: R[] | null; error: { message: string } | null }>
 

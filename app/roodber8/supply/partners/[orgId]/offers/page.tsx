@@ -1,3 +1,4 @@
+import { readAll, readAllIn, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { requireAdminPage } from '@/lib/admin/guard'
@@ -32,12 +33,12 @@ export default async function PartnerOffersPage(props: { params: Promise<{ orgId
   const [offers, tree, { data: products }, { data: branches }] = await Promise.all([
     partnerOffers(orgId),
     getProductCategories(),
-    db.from('products').select('id, name, category_id').eq('status', 'published').order('name').limit(1000),
+    readAll(() => db.from('products').select('id, name, category_id').eq('status', 'published').order('name'), { maxRows: REPORT_MAX_ROWS }),
     db.from('org_branches').select('id, name').eq('org_id', orgId).order('sort'),
   ])
   const categories = tree.flatMap((c) => [{ id: c.id, name: c.name, slug: c.slug }, ...c.children.map((k) => ({ id: k.id, name: `${c.name} › ${k.name}`, slug: k.slug }))])
   const areaIds = Array.from(new Set(offers.flatMap((o) => o.delivery_area_ids)))
-  const { data: areas } = areaIds.length ? await db.from('locations').select('id, name').in('id', areaIds) : { data: [] }
+  const { data: areas } = await readAllIn(areaIds, (part) => db.from('locations').select('id, name').in('id', part), { maxRows: REPORT_MAX_ROWS })
   const areaName = new Map((areas ?? []).map((a) => [a.id, a.name]))
   const now = today()
   const groupKey = (o: (typeof offers)[number]) => `${o.branch_id ?? ''}|${o.item_key}|${o.unit}`

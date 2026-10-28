@@ -1,3 +1,4 @@
+import { readAll, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import { requireAdminPage } from '@/lib/admin/guard'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { AdminHeader, Panel } from '@/components/admin/AdminUi'
@@ -10,8 +11,8 @@ export default async function LocationsPage() {
   await requireAdminPage()
   const db = getAdminSupabase()
   const [{ data: locs }, { data: props }] = await Promise.all([
-    db.from('locations').select('id, parent_id, name, name_am, slug, sort, is_active, level, display_name, country_code, seo_intro_sale, seo_intro_rent, seo_intro_professionals'),
-    db.from('properties').select('location_id').eq('status', 'published'),
+    readAll(() => db.from('locations').select('id, parent_id, name, name_am, slug, sort, is_active, level, display_name, country_code, seo_intro_sale, seo_intro_rent, seo_intro_professionals'), { maxRows: REPORT_MAX_ROWS }),
+    readAll(() => db.from('properties').select('location_id').eq('status', 'published'), { maxRows: REPORT_MAX_ROWS }),
   ])
   const counts = new Map<string, number>()
   for (const p of props ?? []) counts.set(p.location_id, (counts.get(p.location_id) ?? 0) + 1)

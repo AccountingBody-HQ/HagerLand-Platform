@@ -4,6 +4,7 @@ import 'server-only'
 // the page and the CSV route. The digest gets one count (fees owed for over 30 days), never an amount. Read-only.
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { must } from '@/lib/admin/must'
+import { readAll, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import { isOwnerSession } from '@/lib/admin/guard'
 import { todayAddis } from '@/lib/jobs-desk'
 import { feeAgeing, owedLongerThan, reconcileFees, totalsByCurrency, type AgeingRow, type CurrencyTotals, type FeeEntryRow, type FeeTermsRow, type Reconciliation } from '@/lib/jobs-fee-report'
@@ -13,8 +14,8 @@ async function loadLedger(): Promise<{ terms: FeeTermsRow[]; entries: FeeEntryRo
   const db = getAdminSupabase()
   const [{ data: terms }, { data: entries }] = must(
     await Promise.all([
-      db.from('recruitment_fee_terms').select('id, currency, status, placement:recruitment_placements(reference)').limit(20000),
-      db.from('recruitment_fee_entries').select('id, fee_terms_id, entry_type, amount_minor, currency, occurred_on, reverses_entry_id').limit(50000),
+      readAll(() => db.from('recruitment_fee_terms').select('id, currency, status, placement:recruitment_placements(reference)'), { maxRows: REPORT_MAX_ROWS }),
+      readAll(() => db.from('recruitment_fee_entries').select('id, fee_terms_id, entry_type, amount_minor, currency, occurred_on, reverses_entry_id'), { maxRows: REPORT_MAX_ROWS }),
     ]),
   )
   return {

@@ -3,6 +3,7 @@
 /** Admin area these actions belong to (staff roles are checked against it, spec 26.15). */
 const AREA = '/roodber8/developments'
 
+import { readAll, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
@@ -83,9 +84,9 @@ export async function saveAdminDevelopmentAction(_prev: ActionResult<{ id: strin
 async function importContext() {
   const db = getAdminSupabase()
   const [{ data: locations }, { data: developers }, { data: existing }] = await Promise.all([
-    db.from('locations').select('id, parent_id, name, level'),
-    db.from('organisations').select('id, name').in('kind', ['developer', 'hagerland']),
-    db.from('developments').select('name, location_id').neq('status', 'removed'),
+    readAll(() => db.from('locations').select('id, parent_id, name, level'), { maxRows: REPORT_MAX_ROWS }),
+    readAll(() => db.from('organisations').select('id, name').in('kind', ['developer', 'hagerland']), { maxRows: REPORT_MAX_ROWS }),
+    readAll(() => db.from('developments').select('name, location_id').neq('status', 'removed'), { maxRows: REPORT_MAX_ROWS }),
   ])
   return { locations: locations ?? [], developers: developers ?? [], existing: existing ?? [] }
 }
