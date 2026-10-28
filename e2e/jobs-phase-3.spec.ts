@@ -599,7 +599,9 @@ test('J6: fees are the owner’s only — fixed or percentage, agreement upload,
   await expect(opsBox.getByText('Fee agreed in writing:')).toBeVisible()
   await expect(opsBox.getByText('Yes', { exact: true })).toBeVisible()
   const opsHtml = await ops.content()
-  for (const money of ['Fee (owner only)', '3,000', '3000', 'telebirr', 'Entered twice by mistake', 'recruitment-private', 'Fixed fee']) expect(opsHtml, money).not.toContain(money)
+  for (const money of ['Fee (owner only)', 'telebirr', 'Entered twice by mistake', 'recruitment-private', 'Fixed fee']) expect(opsHtml, money).not.toContain(money)
+  // The amount as a number on its own (Tidy T-2, T2-14b): random test emails such as "…330009@…" must not match.
+  expect(opsHtml).not.toMatch(/(?<![\d.])3,?000(?![\d])/)
   for (const [name, args] of [
     ['saveFeeTermsAction', [p!.id, { fee_type: 'fixed', currency: 'ETB', amount: '1' }]],
     ['addFeeEntryAction', [p!.id, { type: 'fee_received', amount: '1', date: addisToday(), method: 'cash' }]],
@@ -609,7 +611,7 @@ test('J6: fees are the owner’s only — fixed or percentage, agreement upload,
   ] as [string, unknown[]][]) {
     const res = await callAction(ops, 'actions/jobs-desk', name, args)
     expect(res, name).not.toMatch(/"ok":true/)
-    expect(res, name).not.toContain('300000')
+    expect(res, name).not.toMatch(/(?<![\d.])300000(?![\d])/)
   }
   expect((await db().from('recruitment_fee_entries').select('id').eq('fee_terms_id', t!.id)).data).toHaveLength(3)
   expect((await db().from('recruitment_fee_terms').select('status').eq('id', t!.id).single()).data?.status).toBe('agreed')
@@ -618,14 +620,16 @@ test('J6: fees are the owner’s only — fixed or percentage, agreement upload,
   await ops.goto(`/roodber8/service-requests/${signedReq.id}`)
   await expect(ops.getByText(/Lead fee/)).toHaveCount(0)
   const { data: team } = await db().from('service_request_matches').select('id').eq('request_id', signedReq.id).single()
-  expect(await callAction(ops, 'actions/service-requests', 'saveMatchCommercialAction', [team!.id, { lead_fee: '500', commission_rate: '', commission: '', invoiced: false }])).toContain('Only the owner can see or change fees on staffing requests.')
+  expect(await callAction(ops, 'actions/service-requests', 'saveMatchCommercialAction', [team!.id, { lead_fee: '500', commission_rate: '', commission: '', invoiced: false }])).toContain('Only the owner can see or change fees.')
   expect((await db().from('service_request_matches').select('lead_fee_minor').eq('id', team!.id).single()).data?.lead_fee_minor).toBeNull()
   const { data: plumb } = await db().from('service_requests').select('id').eq('title', `E2E P3 plumbers ${stamp}`).single()
   await ops.goto(`/roodber8/service-requests/${plumb!.id}`)
-  await expect(ops.getByText(/Lead fee/).first()).toBeVisible()
+  // Tidy T-2 (T2-1): fees are the owner's only on every service now, plumbers included.
+  await expect(ops.getByRole('heading', { level: 1 })).toBeVisible()
+  await expect(ops.getByText(/Lead fee/)).toHaveCount(0)
   const { data: plumbMatch } = await db().from('service_request_matches').select('id').eq('request_id', plumb!.id).single()
-  expect(await callAction(ops, 'actions/service-requests', 'saveMatchCommercialAction', [plumbMatch!.id, { lead_fee: '250', commission_rate: '', commission: '', invoiced: false }])).toContain('Saved.')
-  expect((await db().from('service_request_matches').select('lead_fee_minor').eq('id', plumbMatch!.id).single()).data?.lead_fee_minor).toBe(25_000)
+  expect(await callAction(ops, 'actions/service-requests', 'saveMatchCommercialAction', [plumbMatch!.id, { lead_fee: '250', commission_rate: '', commission: '', invoiced: false }])).toContain('Only the owner can see or change fees.')
+  expect((await db().from('service_request_matches').select('lead_fee_minor').eq('id', plumbMatch!.id).single()).data?.lead_fee_minor).toBeNull()
   // The owner still sees the staffing fee fields.
   await page.goto(`/roodber8/service-requests/${signedReq.id}`)
   await expect(page.getByText(/Lead fee/).first()).toBeVisible()

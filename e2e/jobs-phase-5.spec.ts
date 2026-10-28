@@ -293,7 +293,8 @@ test('J6: share buttons on a live job only; private-client masked; closed jobs n
   const link = `https://www.hagerland.com/jobs/${job.slug}`
   const message = `E2E P5 Masons ${stamp} in Bole. See the job and apply on HagerLand: ${link}`
   await expect(box.getByRole('link', { name: 'WhatsApp' })).toHaveAttribute('href', `https://wa.me/?text=${encodeURIComponent(message)}`)
-  await expect(box.getByRole('link', { name: 'Telegram' })).toHaveAttribute('href', `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(message)}`)
+  // Tidy T-2 (T2-6): Telegram adds the link itself, so its text leaves it out (the link appears once).
+  await expect(box.getByRole('link', { name: 'Telegram' })).toHaveAttribute('href', `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(`E2E P5 Masons ${stamp} in Bole. See the job and apply on HagerLand.`)}`)
   await page.context().grantPermissions(['clipboard-read', 'clipboard-write'])
   await box.getByRole('button', { name: 'Copy link' }).click()
   await expect(box.getByText('Link copied.')).toBeVisible()

@@ -21,7 +21,7 @@ import { VerificationBadge } from '@/components/company/VerificationBadge'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { ReportJob } from '@/components/jobs/ReportJob'
 import { ShareJob } from '@/components/jobs/ShareJob'
-import { shareLinks, shareText } from '@/lib/jobs-share'
+import { shareLinks, shareText, telegramShareText } from '@/lib/jobs-share'
 import { liveRecord } from '@/lib/verification-data'
 import { REPORT_REASONS } from '@/lib/job-reports'
 import { brand } from '@/lib/brand'
@@ -59,7 +59,7 @@ export default async function JobPage(props: { params: Promise<{ slug: string }>
   // Share links (Jobs Phase 5): the canonical address of this page (the /am address on Amharic pages), no tracking tags.
   const shareLink = canonicalUrl(href(`/jobs/${job.slug}`))
   const shareMessage = shareText({ title: job.title ?? '', place: place[0] ?? '', link: shareLink, privateClient }, t)
-  const share = shareLinks(shareMessage, shareLink)
+  const share = shareLinks(shareMessage, shareLink, telegramShareText({ title: job.title ?? '', place: place[0] ?? '', privateClient }, t))
   return (
     <Container className="py-6 lg:py-8">
       <Breadcrumbs items={[{ label: t('Jobs'), href: href('/jobs') }, { label: t(categoryLabel(job.category)), href: href(`/jobs?category=${job.category}`) }, { label: job.title ?? '' }]} />

@@ -46,6 +46,20 @@ async function submitRequest(page: Page, email: string, opts: { emergency?: bool
   return ref
 }
 
+// Tidy T-2 (T2-14a): the Plumbers questions and the emergency option are put back as they were, through the same admin
+// editor (which also refreshes the public form), so later tests (the English snapshot) see the usual form.
+let original: { json: string; emergency: boolean } | null = null
+test.beforeAll(async () => {
+  const { data } = await db().from('service_categories').select('question_schema, allows_emergency').eq('slug', 'plumbers').single()
+  original = { json: JSON.stringify(data?.question_schema ?? [], null, 2), emergency: Boolean(data?.allows_emergency) }
+})
+test.afterAll(async ({ browser }) => {
+  if (!original) return
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
+  await setPlumberQuestions(page, original.json, original.emergency)
+  await page.close()
+})
+
 test('a guest requests a plumber, HagerLand matches a provider, the provider quotes and the guest chooses it', async ({ page, browser }) => {
   test.setTimeout(240_000)
   await setPlumberQuestions(page, QUESTIONS, true)

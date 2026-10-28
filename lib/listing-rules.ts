@@ -15,4 +15,9 @@ export function canRenew(row: { status: string; expires_at: string | null }, now
 }
 
 /** A quote is valid for this many days after it is issued; the daily job then marks it expired. */
-export const QUOTE_VALID_DAYS = 14
+export const QUOTE_VALID_DAYS = 3
+
+/** The moment a supply quote issued at `quotedAt` stops being valid (shown to staff as an Addis Ababa date). */
+export function quoteValidUntil(quotedAt: string): Date {
+  return new Date(new Date(quotedAt).getTime() + QUOTE_VALID_DAYS * 86_400_000)
+}

@@ -6,6 +6,7 @@ import { getAdminSupabase } from '@/lib/supabase/admin'
 import { auditFor } from '@/lib/admin/options'
 import { signedDocumentUrl } from '@/lib/storage'
 import { formatDate, formatETBCents, formatPhone } from '@/lib/format'
+import { quoteValidUntil } from '@/lib/listing-rules'
 import { getAdminSession } from '@/lib/admin-auth'
 import { roleCanAccess } from '@/lib/admin/roles'
 import { CLOSED_QUOTE_STATUSES, quoteSupplyData } from '@/lib/supply/quote-supply-data'
@@ -117,6 +118,7 @@ export default async function AdminQuotePage(props: { params: Promise<{ id: stri
         <aside className="space-y-5">
           <Panel title={q.status === 'quoted' ? 'Quote issued' : 'Issue the quote'}>
             {q.quoted_total_etb_cents !== null && <p className="mb-3 font-display text-h3 font-bold tabular-nums">{formatETBCents(q.quoted_total_etb_cents)}</p>}
+            {q.status === 'quoted' && q.quoted_at && <p className="mb-3 text-small text-muted">Valid until {formatDate(quoteValidUntil(q.quoted_at))}</p>}
             {quoteDoc && (
               <a href={quoteDoc} target="_blank" rel="noopener noreferrer" className="mb-3 inline-flex min-h-11 items-center gap-2 font-semibold text-green underline">
                 <Download className="size-4" aria-hidden /> Current quote PDF

@@ -1172,7 +1172,7 @@ begin
     end;
 
     -- If the history cannot be written, the status change fails too (no silent gaps).
-    alter table public.job_status_events add constraint rls_p6_block check (to_status <> 'archived');
+    alter table public.job_status_events add constraint rls_p6_block check (to_status <> 'archived') not valid;
     begin
       update public.job_posts set status = 'archived' where id = v_job;
       res := res || E'FAIL · A status change fails when its history cannot be written\n';
@@ -1187,6 +1187,44 @@ begin
 end $$;
 select pg_temp.record_check('Phase 6 checks left nothing behind', not exists (select 1 from public.job_posts where slug = 'rls-p6-job')
   and not exists (select 1 from pg_constraint where conname = 'rls_p6_block'));
+
+-- ---------- Tidy T-2 (0045): listing report clearing columns; HagerLand never counted as a provider ----------
+reset role;
+select pg_temp.record_check('Listing reports gained handled_at and personal_data_deleted_at, both optional with no default',
+  (select count(*) from information_schema.columns where table_schema = 'public' and table_name = 'reports' and column_name in ('handled_at', 'personal_data_deleted_at') and is_nullable = 'YES' and column_default is null) = 2);
+set role anon;
+select pg_temp.record_check('Anonymous still cannot read listing reports', pg_temp.read_denied('reports'));
+reset role;
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000001", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', false);
+select pg_temp.record_check('Signed-in user still cannot read listing reports', pg_temp.read_denied('reports'));
+reset role;
+do $$
+declare
+  res text := '';
+  v_before int;
+  v_hs uuid;
+  v_req uuid;
+  v_a uuid;
+  v_job uuid;
+begin
+  begin
+    select public.pillar_active_providers('jobs') into v_before;
+    select id into v_hs from public.organisations where slug = 'hagerland-services';
+    update public.site_settings set value = 'true'::jsonb where key = 'jobs_private_client_posts';
+    insert into public.service_requests (vertical_key, service_category_id, title, name, phone) select 'jobs', id, 'RLS TEST T2 staffing', 'RLS', '+251911000091' from public.service_categories where slug = 'staffing' returning id into v_req;
+    insert into public.recruitment_assignments (service_request_id, private_client, created_by) values (v_req, true, 'rls') returning id into v_a;
+    insert into public.job_posts (slug, employer_org_id, title, category, employment_type, description, location_id, posted_for, recruitment_assignment_id, created_by_staff, status)
+      values ('rls-t2-pc', v_hs, 'RLS TEST T2 private', 'construction', 'full_time', 'A private-client job for the provider count check.', (select id from public.locations where path = 'addis-ababa/bole'), 'private_client', v_a, 'staff:ops@test', 'pending_review') returning id into v_job;
+    update public.job_posts set status = 'published', approved_by = 'staff:owner@test' where id = v_job;
+    res := res || case when public.pillar_active_providers('jobs') = v_before then 'PASS' else 'FAIL' end || E' · An approved private-client job does not count HagerLand Services as a Jobs provider\n';
+    raise exception 'hl_rollback';
+  exception when raise_exception then
+    if sqlerrm <> 'hl_rollback' then res := res || 'FAIL · Tidy T-2 checks stopped early: ' || sqlerrm || E'\n'; end if;
+  end;
+  perform set_config('hl.results', current_setting('hl.results') || res, false);
+end $$;
+select pg_temp.record_check('Tidy T-2 checks left nothing behind', not exists (select 1 from public.job_posts where slug = 'rls-t2-pc') and (select value from public.site_settings where key = 'jobs_private_client_posts') = 'false'::jsonb);
 
 -- ---------- Clean up ----------
 reset role;

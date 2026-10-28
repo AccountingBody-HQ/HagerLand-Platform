@@ -177,7 +177,9 @@ export function ServiceRequestForm({
   useEffect(() => {
     if (state?.ok) {
       track('service_request_submitted', { category: categorySlug })
-      router.push(jobsHref(`/request-service/sent?ref=${encodeURIComponent(state.data.reference)}${copy.nextStep ? `&for=${encodeURIComponent(categorySlug)}` : ''}`))
+      // Tidy T-2 (T2-4): staff who sent it for a phone-only caller go back to the call-back queue (no email was sent).
+      if (state.data.phoneOnly) router.push(`/roodber8/jobs/callbacks?made=${encodeURIComponent(state.data.reference)}`)
+      else router.push(jobsHref(`/request-service/sent?ref=${encodeURIComponent(state.data.reference)}${copy.nextStep ? `&for=${encodeURIComponent(categorySlug)}` : ''}`))
     }
   }, [state, router, categorySlug, copy.nextStep, jobsHref])
 
@@ -301,7 +303,15 @@ export function ServiceRequestForm({
           <Field label={t('Phone')} htmlFor="sr-phone" error={errors.phone} required>
             <PhoneInput id="sr-phone" name="phone" defaultValue={defaults.phone} invalid={Boolean(errors.phone)} describedById={describedBy('sr-phone', errors.phone)} />
           </Field>
-          <Field label={t('Email')} htmlFor="sr-email" error={errors.email} required hint={t('We email you a link to follow your request and see quotes.')}>
+          {/* Tidy T-2 (T2-4): staff sending it from a call-back may leave the email out (the server checks the same). */}
+          <Field
+            label={t('Email')}
+            htmlFor="sr-email"
+            error={errors.email}
+            required={!callbackId}
+            optional={Boolean(callbackId)}
+            hint={callbackId ? 'Leave it empty if the caller has no email. They will get no emails or link: keep them updated by phone.' : t('We email you a link to follow your request and see quotes.')}
+          >
             <Input id="sr-email" name="email" type="email" autoComplete="email" defaultValue={defaults.email ?? ''} invalid={Boolean(errors.email)} aria-describedby={describedBy('sr-email', errors.email, true)} />
           </Field>
           <Field label={t('Preferred way to reply')} htmlFor="sr-pref">

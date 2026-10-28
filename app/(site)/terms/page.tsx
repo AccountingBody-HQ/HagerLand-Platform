@@ -57,13 +57,13 @@ export default async function TermsPage() {
           <p>Listings by other users are their responsibility. We do not guarantee that any listing is accurate, available or lawful, or that any user will complete a transaction. Always view a property and check the title deed (carta) and lease documents before paying anything. Our <Link href="/help#safety">safety advice</Link> explains what to check.</p>
         </TextSection>
         <TextSection title={n('Verification badges')}>
-          <p>“Listed”, “Claimed” and “Verified” describe the checks we have made, explained on our <Link href="/how-it-works">How it works</Link> page. A Verified badge means we checked documents on the date shown. It is not a guarantee of the quality of a business’s work.</p>
+          <p>“Listed”, “Claimed” and “Verified” describe the checks we have made, explained on our <Link href="/how-it-works">How it works</Link> page.</p>
           <p>A Verified badge means HagerLand checked the business&apos;s trade licence and tax number on the date shown. Verified badges are checked again every 12 months and can be removed at any time. It is not a guarantee of the business&apos;s work.</p>
         </TextSection>
         <TextSection title={n(`Quotes from ${brand.divisions.supply}`)}>
           <ul>
             <li>Prices on quotes are in Ethiopian Birr (ETB).</li>
-            <li>Quotes are valid for 14 days unless the quote states otherwise. Prices of volatile materials such as steel and cement are confirmed on each quote.</li>
+            <li>Quotes are valid for 3 days unless the quote states otherwise. Prices of volatile materials such as steel and cement are confirmed on each quote.</li>
             <li>A quote is not a contract. An order is made only when you confirm the quote with us and we confirm payment and delivery terms with you.</li>
             <li>Prices and availability shown on product pages are a guide and may change before your quote is issued.</li>
           </ul>

@@ -4,6 +4,7 @@ import 'server-only'
 // money (commission, earned, customer totals) is loaded only when `owner` is true. Service role, server only.
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { must } from '@/lib/admin/must'
+import { inChunks } from '@/lib/admin/in-chunks'
 import { addDays, itemKey } from './offers'
 import { customerTotalCents, hagerlandEarned, needsAction, summariseLedger, supplierTotalCents, type LedgerSummary, type MoneyModel, type OrderStatus } from './money'
 import { addisDate, inAddisMonth, todayInAddis } from './shortlist'
@@ -26,6 +27,15 @@ const OPEN_QUOTE = ['submitted', 'in_review', 'quoted', 'accepted']
 
 // The failure rule (shared with Jobs insights, Demand and Performance since Jobs Phase 6; same behaviour).
 export { must }
+
+type Rows<R> = PromiseLike<{ data: R[] | null; error: { message: string } | null }>
+/**
+ * Tidy T-2 (T2-15): a long id list is read in parts of 50 (the gateway refuses very long addresses), with the failure
+ * rule kept. Returns the same { data } shape as a single query, so the figures are worked out exactly as before.
+ */
+function chunked<R>(ids: string[], run: (part: string[]) => Rows<R>): Promise<{ data: R[]; error: null }> {
+  return inChunks(ids, run).then((data) => ({ data, error: null }))
+}
 const LIVE_ORDER = ['placed', 'confirmed', 'out_for_delivery']
 
 /* ------------------------------------------------------------------ Places ------------------------------------------------------------------ */
@@ -36,7 +46,7 @@ async function placeChains(ids: string[]): Promise<Map<string, { id: string; nam
   const known = new Map<string, { id: string; name: string; parent_id: string | null }>()
   let todo = Array.from(new Set(ids.filter(Boolean)))
   for (let depth = 0; todo.length && depth < 6; depth++) {
-    const { data } = must(await db.from('locations').select('id, name, parent_id').in('id', todo))
+    const { data } = await chunked(todo, (part) => db.from('locations').select('id, name, parent_id').in('id', part))
     for (const l of data ?? []) known.set(l.id, l)
     todo = Array.from(new Set((data ?? []).map((l) => l.parent_id).filter((p): p is string => Boolean(p) && !known.has(p as string))))
   }
@@ -86,17 +96,17 @@ export async function partnerPerformanceRows(opts: { orgIds?: string[]; owner: b
   const orgIds = (partners ?? []).map((p) => p.org_id)
   if (!orgIds.length) return []
   const [{ data: lines }, { data: orders }, { data: offers }, { data: contacts }] = must(await Promise.all([
-    db.from('supply_quote_lines').select('org_id, quote_item_id, status, asked_at, received_at, unit_price_cents, quantity, delivery_charge_cents').in('org_id', orgIds).limit(50000),
-    db.from('supply_orders').select('id, org_id, status, money_model, placed_at, delivered_at, promised_delivery_on').in('org_id', orgIds).limit(20000),
-    db.from('supplier_offers').select('org_id, price_date, valid_until, status').in('org_id', orgIds).eq('status', 'current').limit(50000),
-    db.from('supply_contacts').select('org_id, last_contacted_at, created_at, do_not_contact').in('org_id', orgIds).limit(20000),
+    chunked(orgIds, (part) => db.from('supply_quote_lines').select('org_id, quote_item_id, status, asked_at, received_at, unit_price_cents, quantity, delivery_charge_cents').in('org_id', part).limit(50000)),
+    chunked(orgIds, (part) => db.from('supply_orders').select('id, org_id, status, money_model, placed_at, delivered_at, promised_delivery_on').in('org_id', part).limit(20000)),
+    chunked(orgIds, (part) => db.from('supplier_offers').select('org_id, price_date, valid_until, status').in('org_id', part).eq('status', 'current').limit(50000)),
+    chunked(orgIds, (part) => db.from('supply_contacts').select('org_id, last_contacted_at, created_at, do_not_contact').in('org_id', part).limit(20000)),
   ]))
   const itemIds = Array.from(new Set((lines ?? []).map((l) => l.quote_item_id).filter((x): x is string => Boolean(x))))
   const orderIds = (orders ?? []).map((o) => o.id)
   const [{ data: replies }, { data: events }, { data: proofs }] = must(await Promise.all([
-    itemIds.length ? db.from('supply_quote_lines').select('quote_item_id, unit_price_cents, quantity, delivery_charge_cents').in('quote_item_id', itemIds).not('received_at', 'is', null).limit(50000) : Promise.resolve({ data: [] }),
-    orderIds.length ? db.from('supply_order_events').select('order_id, to_status, created_at').in('order_id', orderIds).eq('event_type', 'status').limit(50000) : Promise.resolve({ data: [] }),
-    orderIds.length ? db.from('supply_delivery_proofs').select('order_id').in('order_id', orderIds).is('removed_at', null).limit(50000) : Promise.resolve({ data: [] }),
+    chunked(itemIds, (part) => db.from('supply_quote_lines').select('quote_item_id, unit_price_cents, quantity, delivery_charge_cents').in('quote_item_id', part).not('received_at', 'is', null).limit(50000)),
+    chunked(orderIds, (part) => db.from('supply_order_events').select('order_id, to_status, created_at').in('order_id', part).eq('event_type', 'status').limit(50000)),
+    chunked(orderIds, (part) => db.from('supply_delivery_proofs').select('order_id').in('order_id', part).is('removed_at', null).limit(50000)),
   ]))
   const cheapest = new Map<string, number[]>()
   for (const r of replies ?? []) {
@@ -114,7 +124,7 @@ export async function partnerPerformanceRows(opts: { orgIds?: string[]; owner: b
   let money: Map<string, PartnerMoney> | null = null
   if (opts.owner) {
     money = new Map()
-    const { data: entries } = must(orderIds.length ? await db.from('supply_ledger_entries').select('id, entry_type, direction, amount_cents, reverses_entry_id, order_id, occurred_on').in('order_id', orderIds).limit(50000) : { data: [] })
+    const { data: entries } = await chunked(orderIds, (part) => db.from('supply_ledger_entries').select('id, entry_type, direction, amount_cents, reverses_entry_id, order_id, occurred_on').in('order_id', part).limit(50000))
     for (const orgId of orgIds) {
       const mine = (orders ?? []).filter((o) => o.org_id === orgId)
       let due = 0
@@ -182,7 +192,7 @@ async function demandItems(since: string, until: string | null, includeCancelled
   const quoteIds = (quotes ?? []).map((x) => x.id)
   if (!quoteIds.length) return { items: [], quoteIds }
   const [{ data: rows }, chains] = must(await Promise.all([
-    db.from('quote_request_items').select('id, quote_request_id, free_text_item, quantity, unit, category_id, removed_at, category:product_categories(name), product:products(name, category_id, category:product_categories(name))').in('quote_request_id', quoteIds).is('removed_at', null).limit(50000),
+    chunked(quoteIds, (part) => db.from('quote_request_items').select('id, quote_request_id, free_text_item, quantity, unit, category_id, removed_at, category:product_categories(name), product:products(name, category_id, category:product_categories(name))').in('quote_request_id', part).is('removed_at', null).limit(50000)),
     placeChains((quotes ?? []).map((x) => x.delivery_location_id).filter((x): x is string => Boolean(x))),
   ]))
   const location = new Map((quotes ?? []).map((x) => [x.id, x.delivery_location_id]))
@@ -213,12 +223,12 @@ export async function demandData(days: number, includeCancelled: boolean): Promi
   const { items, quoteIds } = await demandItems(since, null, includeCancelled)
   const itemIds = items.map((i) => i.itemId)
   const [{ data: lines }, { data: offers }, { data: projects }] = must(await Promise.all([
-    quoteIds.length ? db.from('supply_quote_lines').select('id, quote_item_id, status, asked_at, received_at').in('quote_request_id', quoteIds).limit(50000) : Promise.resolve({ data: [] }),
+    chunked(quoteIds, (part) => db.from('supply_quote_lines').select('id, quote_item_id, status, asked_at, received_at').in('quote_request_id', part).limit(50000)),
     db.from('supplier_offers').select('category_id, item_key, status, valid_until, delivery_area_ids').eq('status', 'current').limit(50000),
     db.from('build_projects').select('location_id, location_text, services, status').in('status', ['submitted', 'in_progress']).gte('created_at', since).limit(5000),
   ]))
   const lineIds = (lines ?? []).map((l) => l.id)
-  const { data: orderLines } = must(lineIds.length ? await db.from('supply_order_lines').select('supply_quote_line_id, quote_item_id, order:supply_orders!inner(status)').in('supply_quote_line_id', lineIds).neq('order.status', 'cancelled').limit(50000) : { data: [] })
+  const { data: orderLines } = await chunked(lineIds, (part) => db.from('supply_order_lines').select('supply_quote_line_id, quote_item_id, order:supply_orders!inner(status)').in('supply_quote_line_id', part).neq('order.status', 'cancelled').limit(50000))
   const ordered = new Set((orderLines ?? []).map((l) => l.quote_item_id).filter((x): x is string => Boolean(x)))
   const completed = new Set((orderLines ?? []).filter((l) => (l.order as { status: string } | null)?.status === 'completed').map((l) => l.quote_item_id).filter((x): x is string => Boolean(x)))
   const groups = groupDemand(items)
@@ -305,13 +315,13 @@ export async function supplyReport(month: string): Promise<SupplyReport> {
     db.from('supply_ledger_entries').select('id, entry_type, direction, amount_cents, reverses_entry_id, order_id, occurred_on').gte('occurred_on', start).lt('occurred_on', next).limit(50000),
     db.from('supply_ledger_entries').select('id, entry_type, direction, amount_cents, reverses_entry_id, order_id, occurred_on').in('entry_type', ['commission_due', 'commission_received', 'reversal']).lte('occurred_on', asOf).limit(50000),
   ]))
-  const { data: withLines } = must(quoteIds.length ? await db.from('supply_quote_lines').select('quote_request_id').in('quote_request_id', quoteIds).limit(50000) : { data: [] })
+  const { data: withLines } = await chunked(quoteIds, (part) => db.from('supply_quote_lines').select('quote_request_id').in('quote_request_id', part).limit(50000))
   const all = orders ?? []
   const inMonth = (ts: string | null) => inAddisMonth(ts, month)
   const created = all.filter((o) => inMonth(o.created_at))
   const createdIds = created.map((o) => o.id)
   const [{ data: lines }, { data: disputes }] = must(await Promise.all([
-    createdIds.length ? db.from('supply_order_lines').select('order_id, quantity, supplier_unit_price_cents, customer_unit_price_cents').in('order_id', createdIds).limit(50000) : Promise.resolve({ data: [] }),
+    chunked(createdIds, (part) => db.from('supply_order_lines').select('order_id, quantity, supplier_unit_price_cents, customer_unit_price_cents').in('order_id', part).limit(50000)),
     db.from('supply_order_events').select('order_id, created_at').eq('event_type', 'status').eq('to_status', 'disputed').gte('created_at', startTs).lt('created_at', nextTs).limit(20000),
   ]))
   const moneyLines = (orderId: string) => (lines ?? []).filter((l) => l.order_id === orderId).map((l) => ({ quantity: Number(l.quantity), supplierUnitPriceCents: l.supplier_unit_price_cents, customerUnitPriceCents: l.customer_unit_price_cents }))
@@ -392,7 +402,7 @@ export async function supplyActionItems(owner: boolean): Promise<ActionItem[]> {
     for (const e of dues ?? []) if (e.order_id) byOrder.set(e.order_id, [...(byOrder.get(e.order_id) ?? []), e])
     const overdue = commissionOutstanding(Array.from(byOrder.entries()).map(([orderId, entries]) => ({ orderId, model: 'B' as MoneyModel, entries })), today).filter((c) => c.days > 30)
     if (overdue.length) {
-      const { data: refs } = must(await db.from('supply_orders').select('id, reference').in('id', overdue.map((c) => c.orderId)))
+      const { data: refs } = await chunked(overdue.map((c) => c.orderId), (part) => db.from('supply_orders').select('id, reference').in('id', part))
       for (const c of overdue) items.push({ kind: 'commission_overdue', text: `${refs?.find((r) => r.id === c.orderId)?.reference ?? 'Order'}: commission due for ${c.days} days`, href: `/roodber8/supply/orders/${c.orderId}` })
     }
   }
@@ -426,10 +436,10 @@ export async function supplyDigestCounts(now = Date.now()): Promise<[string, num
     supplyActionItems(true),
   ]))
   const openIds = (openQuotes ?? []).map((q) => q.id)
-  const { data: withLines } = must(openIds.length ? await db.from('supply_quote_lines').select('quote_request_id').in('quote_request_id', openIds).limit(20000) : { data: [] })
+  const { data: withLines } = await chunked(openIds, (part) => db.from('supply_quote_lines').select('quote_request_id').in('quote_request_id', part).limit(20000))
   const needingSuppliers = openIds.filter((id) => !(withLines ?? []).some((l) => l.quote_request_id === id)).length
   const ids = (orders ?? []).map((o) => o.id)
-  const { data: proofs } = must(ids.length ? await db.from('supply_delivery_proofs').select('order_id').in('order_id', ids).is('removed_at', null) : { data: [] })
+  const { data: proofs } = await chunked(ids, (part) => db.from('supply_delivery_proofs').select('order_id').in('order_id', part).is('removed_at', null))
   const withProof = new Set((proofs ?? []).map((p) => p.order_id))
   const needAction = (orders ?? []).filter((o) => needsAction({ status: o.status as OrderStatus, statusChangedAt: o.status_changed_at, hasProof: withProof.has(o.id) }, now)).length
   return [

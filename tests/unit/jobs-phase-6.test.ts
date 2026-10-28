@@ -478,8 +478,8 @@ describe('who changed a job status (fix 3)', () => {
 })
 
 describe('the health check', () => {
-  it('expects migration 0044 last', () => {
-    expect(EXPECTED_MIGRATIONS[EXPECTED_MIGRATIONS.length - 1]).toBe('0044')
+  it('expects migration 0044 (and the later ones)', () => {
+    expect(EXPECTED_MIGRATIONS).toContain('0044')
   })
 })
 

@@ -48,5 +48,5 @@ export async function submitClaimAction(_prev: ActionResult | null, formData: Fo
   if (process.env.ADMIN_DIGEST_EMAIL) {
     await sendEmail({ to: process.env.ADMIN_DIGEST_EMAIL, ...adminNoticeEmail({ subject: `New claim: ${org.name}`, heading: 'A business claim needs review', lines: [['Business', org.name], ['Role', d.relationship]], adminUrl: canonicalUrl('/roodber8/review?tab=claims') }) })
   }
-  return ok(undefined, "Thanks. We'll check your claim within 1–2 business days and email you.")
+  return ok(undefined, "Thanks. We'll check your claim and email you when it's decided.")
 }

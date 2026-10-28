@@ -83,7 +83,8 @@ export default async function PrivacyPage() {
             <li>CVs and other details sent with job applications (your name, contact details and cover note): deleted 12 months after the application. Your candidate profile and its CV: until you delete them.</li>
             <li>If you are hired through HagerLand&apos;s recruitment service, we keep your name, contact details and the placement record for as long as we need them for our fee and accounting records, then delete them. Your CV is still deleted after 12 months.</li>
             <li>Records of people our recruitment team contacted for a role but who were not hired: deleted 12 months after the last contact.</li>
-            <li>Job reports: your details, contact and the coded internet address are deleted 12 months after the report; the reason and what we did about it are kept.</li>
+            <li>Job reports: your details, contact and the coded internet address are deleted 12 months after the report or our decision on it, whichever is later; the reason and what we did about it are kept.</li>
+            <li>Reports about listings or businesses: your details, contact and the coded internet address are deleted 12 months after the report or our decision on it, whichever is later; the reason and what we did about it are kept.</li>
             <li>Worker register: deleted 12 months after you last updated it.</li>
             <li>Call-back requests: deleted 12 months after the request or our last call, whichever is later. If you tell us you did not ask for the call, we delete your number straight away and keep only a coded version for 30 days to stop repeat calls.</li>
             <li>Viewings, offers and applications to rent: 24 months after the last activity, unless they lead to a sale or tenancy, which we keep for as long as the law requires for our records.</li>

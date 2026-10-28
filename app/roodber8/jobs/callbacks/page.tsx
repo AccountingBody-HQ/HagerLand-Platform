@@ -10,6 +10,8 @@ import { AdminHeader, Panel } from '@/components/admin/AdminUi'
 import { RunButton } from '@/components/admin/AgencyTools'
 import { ActionButton } from '@/components/forms/ActionButton'
 import { recordCallbackOutcomeAction } from '@/app/roodber8/actions/jobs-callbacks'
+import { FormAlert } from '@/components/forms/FormParts'
+import { getAdminSupabase } from '@/lib/supabase/admin'
 
 export const metadata = { title: 'Call-back requests' }
 
@@ -42,12 +44,23 @@ function Details({ r }: { r: CallbackRow }) {
  * Owner and Operations (the role map and the middleware refuse Agent and Content). Call-back requests from people
  * hiring (Jobs Phase 5). Nothing is emailed or texted to the caller: the team calls.
  */
-export default async function CallbackRequestsPage() {
+export default async function CallbackRequestsPage(props: { searchParams: Promise<{ made?: string }> }) {
   await requireAdminPage()
-  const { open, closed } = await callbackQueue()
+  const { made } = await props.searchParams
+  // Tidy T-2 (T2-4): after staff sent a staffing request for a phone-only caller (only a real one, without email).
+  const madeRef = made && /^HLS-\d{4}-\d{6}$/.test(made) ? made : null
+  const [{ open, closed }, { data: madeRequest }] = await Promise.all([
+    callbackQueue(),
+    madeRef ? getAdminSupabase().from('service_requests').select('reference').eq('reference', madeRef).is('email', null).maybeSingle() : Promise.resolve({ data: null }),
+  ])
   return (
     <div className="space-y-5">
       <AdminHeader title="Call-back requests" description="People hiring who asked HagerLand's recruitment team to call them. Call them at the time they chose (Addis Ababa time), then record what happened. Details are deleted 12 months after the request or the last call." />
+      {madeRequest && (
+        <FormAlert tone="success">
+          Staffing request {madeRequest.reference} created and linked to the call-back. No email was sent: give the caller the reference by phone.
+        </FormAlert>
+      )}
       <Panel title="What to say">
         <p className="text-small">{CALLBACK_SCRIPT}</p>
       </Panel>

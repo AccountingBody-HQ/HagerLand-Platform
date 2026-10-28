@@ -178,7 +178,7 @@ export default async function ServiceRequestDetail(
                         </ActionForm>
                       </div>
                     )}
-                    {(!staffing || owner) && (
+                    {owner && (
                     <div className="mt-3 border-t border-border pt-3">
                       <MatchCommercialTool
                         matchId={m.id}

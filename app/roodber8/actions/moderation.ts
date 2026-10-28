@@ -213,7 +213,8 @@ export async function verificationDecisionAction(requestId: string, approve: boo
 export async function reportDecisionAction(reportId: string, status: 'actioned' | 'dismissed'): Promise<ActionResult<{ message: string }>> {
   await assertAdmin(AREA)
   if (!z.uuid().safeParse(reportId).success) return fail('Invalid.')
-  const { error } = await getAdminSupabase().from('reports').update({ status }).eq('id', reportId)
+  // Tidy T-2: the decision time starts the 12-month clearing of the report's details (lib/listing-reports.ts).
+  const { error } = await getAdminSupabase().from('reports').update({ status, handled_at: new Date().toISOString() }).eq('id', reportId)
   if (error) return fail('Please try again.')
   await audit(`report.${status}`, { type: 'report', id: reportId })
   revalidatePath('/roodber8', 'layout')

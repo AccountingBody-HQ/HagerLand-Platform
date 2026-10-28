@@ -1,5 +1,6 @@
 import 'server-only'
 import { getAdminSupabase } from '@/lib/supabase/admin'
+import { must } from '@/lib/admin/must'
 import { daysBetween, OPEN_STAGES } from '@/lib/agency'
 
 export interface AgencyKpis {
@@ -22,7 +23,8 @@ export interface AgencyKpis {
 export async function agencyKpis(since: Date): Promise<AgencyKpis> {
   const db = getAdminSupabase()
   const iso = since.toISOString()
-  const [ins, val, vw, off, app, done, deals, ten] = await Promise.all([
+  // The failure rule (Tidy T-2, T2-13): a failed read stops the page with an error instead of showing zeros.
+  const [ins, val, vw, off, app, done, deals, ten] = must(await Promise.all([
     db.from('agency_instructions').select('stage').in('stage', OPEN_STAGES).limit(10000),
     db.from('agency_valuations').select('status').gte('created_at', iso).limit(10000),
     db.from('agency_viewings').select('status, scheduled_at').gte('created_at', iso).limit(10000),
@@ -31,7 +33,7 @@ export async function agencyKpis(since: Date): Promise<AgencyKpis> {
     db.from('agency_instructions').select('live_at, completed_at').eq('stage', 'completed').gte('completed_at', iso).limit(10000),
     db.from('deals').select('commission_minor').in('source_type', ['agency_instruction', 'tenancy']).gte('created_at', iso).limit(10000),
     db.from('tenancies').select('id', { count: 'exact', head: true }).eq('status', 'active'),
-  ])
+  ]))
   const byStage: Record<string, number> = {}
   for (const r of ins.data ?? []) byStage[r.stage] = (byStage[r.stage] ?? 0) + 1
   const marketed = (done.data ?? []).filter((r) => r.live_at && r.completed_at)

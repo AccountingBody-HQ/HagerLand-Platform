@@ -288,10 +288,12 @@ describe('who may use the desk, and fees owner only (server checks)', () => {
   })
   it('staffing requests are refused on every provider and quote path', () => {
     const sr = readFileSync('app/roodber8/actions/service-requests.ts', 'utf8')
-    for (const name of ['matchProvidersAction', 'hagerlandQuoteAction', 'noProviderAction', 'saveMatchCommercialAction']) {
+    for (const name of ['matchProvidersAction', 'hagerlandQuoteAction', 'noProviderAction']) {
       const body = sr.split(`export async function ${name}`)[1].split('\nexport ')[0]
       expect(body, name).toContain('isStaffingRequest(')
     }
+    // Tidy T-2 (T2-1): fees are now the owner's only on every service, staffing included (checked first).
+    expect(sr.split('export async function saveMatchCommercialAction')[1].split('\nexport ')[0]).toContain("if (!(await isOwnerSession())) return fail('Only the owner can see or change fees.')")
     expect(readFileSync('lib/service-requests/notify.ts', 'utf8')).toContain('if (await isStaffingRequest(match.request_id)) return { guest: false }')
     const provider = readFileSync('app/(account)/account/requests/actions.ts', 'utf8')
     expect(provider.split('export async function respondToMatchAction')[1].split('\nexport ')[0]).toContain('isStaffingRequest(')
