@@ -4,6 +4,7 @@ import 'server-only'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { log } from '@/lib/log'
 import { MANY_REPORTS, distinctReporters, type ReportReason } from '@/lib/job-reports'
+import { asJobActor } from '@/lib/job-status-actor'
 
 /** Stores a report unless the same connection or account already has an open report on this job. */
 export async function storeJobReport(r: { jobId: string; reason: ReportReason; details: string | null; contact: string | null; userId: string | null; ipHash: string }): Promise<'stored' | 'repeat' | 'failed'> {
@@ -49,10 +50,10 @@ export async function restorePausedJob(jobId: string): Promise<{ ok: true; statu
   const { data: job } = await db.from('job_posts').select('id, status, expires_at').eq('id', jobId).maybeSingle()
   if (!job || job.status !== 'paused') return { ok: false }
   if (job.expires_at && job.expires_at <= new Date().toISOString()) {
-    const { error } = await db.from('job_posts').update({ status: 'expired' }).eq('id', jobId).eq('status', 'paused')
+    const { error } = await asJobActor(db.from('job_posts').update({ status: 'expired' }).eq('id', jobId).eq('status', 'paused'), 'staff')
     return error ? { ok: false } : { ok: true, status: 'expired' }
   }
-  const { error } = await db.from('job_posts').update({ status: 'published' }).eq('id', jobId).eq('status', 'paused')
+  const { error } = await asJobActor(db.from('job_posts').update({ status: 'published' }).eq('id', jobId).eq('status', 'paused'), 'staff')
   if (error) return { ok: false }
   if (job.expires_at) await db.from('job_posts').update({ expires_at: job.expires_at }).eq('id', jobId)
   return { ok: true, status: 'published' }

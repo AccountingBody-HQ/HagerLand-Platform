@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { requireAdminPage } from '@/lib/admin/guard'
 import { getProjectWithLinks } from '@/lib/data/projects'
@@ -7,6 +8,7 @@ import { PROJECT_STATUS_LABEL } from '@/lib/build-projects'
 import { countryName } from '@/lib/countries'
 import { AdminHeader, KeyValue, Panel } from '@/components/admin/AdminUi'
 import { ProjectView } from '@/components/build/ProjectView'
+import { staffingRequestOf } from '@/lib/jobs-signals-data'
 import { ActionForm } from '@/components/forms/ActionForm'
 import { Field, Select, Textarea } from '@/components/ui/Field'
 
@@ -19,9 +21,19 @@ export default async function ProjectAdminPage(props: { params: Promise<{ id: st
   const data = await getProjectWithLinks(id)
   if (!data) notFound()
   const p = data.project
+  // Jobs Phase 6 (W27): the customer's staffing request with HagerLand, if any.
+  const staffing = await staffingRequestOf(p.user_id)
   return (
     <div className="space-y-5">
       <AdminHeader title={`${p.reference} · ${p.title}`} description={`Started ${formatDate(p.created_at)}`} />
+      {staffing && (
+        <p className="rounded-md bg-stone-100 px-3 py-2 text-small">
+          This customer has a staffing request with HagerLand:{' '}
+          <Link href={`/roodber8/service-requests/${staffing.id}`} prefetch={false} className="font-semibold text-green underline">
+            {staffing.reference}
+          </Link>
+        </p>
+      )}
       <div className="grid gap-5 lg:grid-cols-[1fr_340px]">
         <ProjectView data={data} requestHref={(rid) => `/roodber8/service-requests/${rid}`} quoteHref={(qid) => `/roodber8/quotes/${qid}`} />
         <div className="space-y-5">

@@ -27,6 +27,9 @@ import { deskDigestCounts, runDeskDaily } from '@/lib/jobs-desk-cron'
 import { runVerificationDaily, verificationDigestCounts, type VerificationDailyCounts } from '@/lib/verification-data'
 import { jobReportDigestCounts } from '@/lib/job-reports-data'
 import { purgeExpiredCallbackBlocks, waitingCallbacks } from '@/lib/callbacks-data'
+import { asJobActor } from '@/lib/job-status-actor'
+import { quietJobCount } from '@/lib/jobs-insights-data'
+import { feesOwedOver30Days } from '@/lib/jobs-fee-report-data'
 
 const DAY = 86_400_000
 const BATCH = 500
@@ -150,7 +153,7 @@ async function purgeVerificationDocs(now: number): Promise<number> {
 
 /** Open jobs close on their closing date (or 60 days after approval). */
 async function expireJobs(now: number): Promise<number> {
-  const { data } = await getAdminSupabase().from('job_posts').update({ status: 'expired' }).eq('status', 'published').lt('expires_at', iso(now)).select('id').limit(BATCH)
+  const { data } = await asJobActor(getAdminSupabase().from('job_posts').update({ status: 'expired' }).eq('status', 'published').lt('expires_at', iso(now)).select('id').limit(BATCH), 'system')
   for (const j of data ?? []) revalidateEntity('job', j.id)
   return data?.length ?? 0
 }
@@ -333,8 +336,13 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
   add('Listings expired today', s.expired)
   add('Quotes expired today', s.quotesExpired)
   add('Jobs closed today', s.jobsExpired)
-  const demand = await demandDigestLine(now)
-  if (demand) lines.push(demand)
+  // Failure-isolated since Jobs Phase 6: the demand figures now stop on a failed read instead of counting zeros.
+  try {
+    const demand = await demandDigestLine(now)
+    if (demand) lines.push(demand)
+  } catch (err) {
+    log.error('cron', 'demand digest failed', err)
+  }
   lines.push(...(await supplyDigestLines(() => supplyDigestCounts(now))))
   for (const [label, count] of importsDigestCounts(s.importsCleanup)) if (count > 0) lines.push([label, String(count)])
   for (const [label, count] of cleanupDigestCounts(s.jobsDataCleanup)) if (count > 0) lines.push([label, String(count)])
@@ -360,6 +368,19 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent'>): Pr
     if (waiting > 0) lines.push(['Call-back requests waiting', String(waiting)])
   } catch (err) {
     log.error('cron', 'call-back digest failed', err)
+  }
+  // Jobs Phase 6 (W24, W25): counts only, each failure-isolated; shown only when above 0 (no daily email for a 0).
+  try {
+    const quiet = await quietJobCount(new Date(now))
+    if (quiet > 0) lines.push(['Jobs: open 14 days or more with no applications', String(quiet)])
+  } catch (err) {
+    log.error('cron', 'quiet jobs digest failed', err)
+  }
+  try {
+    const owed = await feesOwedOver30Days(new Date(now))
+    if (owed > 0) lines.push(['Recruitment fees owed for over 30 days', String(owed)])
+  } catch (err) {
+    log.error('cron', 'recruitment fees digest failed', err)
   }
   for (const e of errors.data ?? []) lines.push([`Error ×${e.count}`, `${e.route}: ${e.message}`.slice(0, 160)])
   return lines

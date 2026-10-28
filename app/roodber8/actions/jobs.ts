@@ -17,6 +17,7 @@ import { revalidateEntity } from '@/lib/revalidate'
 import { canonicalUrl } from '@/lib/site'
 import { formatSalary } from '@/lib/jobs'
 import { telegramPostText } from '@/lib/jobs-share'
+import { asJobActor } from '@/lib/job-status-actor'
 
 type Done = ActionResult<{ message: string }>
 
@@ -41,12 +42,15 @@ export async function jobDecisionAction(id: string, approve: boolean, note?: str
     if (check === 'needs_reason') return fail('You created this job. To approve it yourself, write the reason in the note (owner only).')
     fourEyes = { approved_by: actor, self_approval_reason: job.created_by_staff === actor ? (note ?? '').trim().slice(0, 500) : null }
   }
-  const { data: updated, error } = await db
-    .from('job_posts')
-    .update(approve ? { status: 'published', rejection_reason: null, ...(fourEyes ?? {}) } : { status: 'rejected', rejection_reason: note?.trim().slice(0, 2000) ?? null })
-    .eq('id', id)
-    .select('expires_at')
-    .single()
+  const { data: updated, error } = await asJobActor(
+    db
+      .from('job_posts')
+      .update(approve ? { status: 'published', rejection_reason: null, ...(fourEyes ?? {}) } : { status: 'rejected', rejection_reason: note?.trim().slice(0, 2000) ?? null })
+      .eq('id', id)
+      .select('expires_at')
+      .single(),
+    'staff',
+  )
   if (error) return fail('Please try again.')
   const [{ data: org }, managers] = await Promise.all([db.from('organisations').select('name').eq('id', job.employer_org_id).maybeSingle(), orgManagerEmails(job.employer_org_id)])
   if (managers.length)
@@ -62,7 +66,7 @@ export async function adminJobStatusAction(id: string, status: 'paused' | 'archi
   await assertAdmin(AREA)
   const parsed = z.object({ id: z.uuid(), status: z.enum(['paused', 'archived', 'removed']) }).safeParse({ id, status })
   if (!parsed.success) return fail('Invalid request.')
-  const { data, error } = await getAdminSupabase().from('job_posts').update({ status: parsed.data.status }).eq('id', parsed.data.id).select('title').single()
+  const { data, error } = await asJobActor(getAdminSupabase().from('job_posts').update({ status: parsed.data.status }).eq('id', parsed.data.id).select('title').single(), 'staff')
   if (error || !data) return fail('Please try again.')
   await audit(`job.${parsed.data.status}`, { type: 'job', id: parsed.data.id, label: data.title })
   revalidateEntity('job', parsed.data.id, ['/jobs'])

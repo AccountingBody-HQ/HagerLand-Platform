@@ -398,8 +398,15 @@ select pg_temp.record_check('When the Verified badge ends, candidate access ends
 reset role;
 
 reset role;
+-- Jobs Phase 6 (0044): every status change of the test job is in its history, with who made it (the employer through
+-- their own session; this script's own changes as the database owner count as "server").
+select pg_temp.record_check('Job status history records every change of the test job and who made it',
+  (select array_agg(coalesce(from_status, '-') || '>' || to_status || ':' || actor_kind order by 1) from public.job_status_events where job_post_id = '00000000-0000-4000-8000-0000000000d1')
+  = (select array_agg(x order by 1) from unnest(array['->pending_review:employer', 'pending_review>published:server', 'published>paused:server', 'paused>removed:server']) as x));
 delete from public.candidate_profiles where user_id = '00000000-0000-4000-8000-000000000002';
 delete from public.job_posts where id = '00000000-0000-4000-8000-0000000000d1';
+select pg_temp.record_check('Deleting a job (only this test does) takes its history with it',
+  not exists (select 1 from public.job_status_events where job_post_id = '00000000-0000-4000-8000-0000000000d1'));
 
 -- ---------- Special Buys and trade accounts (0020) ----------
 reset role;
@@ -1081,6 +1088,105 @@ begin
   perform set_config('hl.results', current_setting('hl.results') || res, false);
 end $$;
 select pg_temp.record_check('Phase 5 checks left nothing behind', not exists (select 1 from public.callback_requests where name = 'RLS TEST caller') and (select value from public.site_settings where key = 'jobs_callbacks') = 'false'::jsonb);
+
+-- ---------- Jobs Phase 6 (0044): the job status history (server only, append-only, honest actor) ----------
+reset role;
+set role anon;
+select pg_temp.record_check('Anonymous cannot read job_status_events', pg_temp.read_denied('job_status_events'));
+reset role;
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000001", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', false);
+select pg_temp.record_check('Signed-in user cannot read job_status_events', pg_temp.read_denied('job_status_events'));
+select pg_temp.record_check('Signed-in user cannot write a status history row directly',
+  pg_temp.write_denied($q$insert into public.job_status_events (job_post_id, to_status, actor_kind) select id, 'published', 'staff' from public.job_posts limit 1$q$));
+select pg_temp.record_check('Signed-in user cannot call the status history function',
+  pg_temp.write_denied($q$select public.job_posts_status_history()$q$));
+reset role;
+do $$
+declare
+  res text := '';
+  v_job uuid;
+  v_n int;
+  v_trail text;
+begin
+  begin
+    -- The employer (user 1, a member of the test business) posts and closes a job with their own session, and tries to
+    -- claim "staff" with the header: the role decides, so it is still "employer".
+    perform set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000001", "role": "authenticated"}', true);
+    perform set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', true);
+    perform set_config('request.headers', '{"x-hl-job-actor": "staff"}', true);
+    execute 'set local role authenticated';
+    insert into public.job_posts (slug, employer_org_id, title, category, employment_type, location_id, description, status)
+    values ('rls-p6-job', '00000000-0000-4000-8000-0000000000b1', 'RLS TEST P6 mason', 'construction', 'full_time',
+            (select id from public.locations where path = 'addis-ababa/bole'), 'A job for the status history checks, long enough.', 'pending_review')
+    returning id into v_job;
+    update public.job_posts set status = 'draft' where id = v_job;
+    update public.job_posts set status = 'pending_review' where id = v_job;
+    execute 'reset role';
+    -- Staff actions (service role + "staff"), the daily job (service role + "system"), the service role without a valid
+    -- header ("server"), and SQL run by hand ("server").
+    execute 'set local role service_role';
+    perform set_config('request.headers', '{"x-hl-job-actor": "staff"}', true);
+    update public.job_posts set status = 'rejected' where id = v_job;
+    update public.job_posts set status = 'published' where id = v_job;
+    perform set_config('request.headers', '{"x-hl-job-actor": "system"}', true);
+    update public.job_posts set status = 'expired' where id = v_job;
+    perform set_config('request.headers', '{"x-hl-job-actor": "owner"}', true);
+    update public.job_posts set status = 'paused' where id = v_job;
+    perform set_config('request.headers', '', true);
+    update public.job_posts set status = 'published' where id = v_job;
+    execute 'reset role';
+    update public.job_posts set status = 'removed' where id = v_job;
+    select string_agg(coalesce(from_status, '-') || '>' || to_status || ':' || actor_kind, ' ' order by created_at, id) into v_trail
+      from public.job_status_events where job_post_id = v_job;
+    res := res || case when (select array_agg(coalesce(from_status, '-') || '>' || to_status || ':' || actor_kind order by 1) from public.job_status_events where job_post_id = v_job)
+        = (select array_agg(x order by 1) from unnest(array['->pending_review:employer', 'pending_review>draft:employer', 'draft>pending_review:employer', 'pending_review>rejected:staff',
+             'rejected>published:staff', 'published>expired:system', 'expired>paused:server', 'paused>published:server', 'published>removed:server']) as x)
+      then 'PASS' else 'FAIL' end || ' · Status history records employer, staff, system and server honestly (' || coalesce(v_trail, 'none') || E')\n';
+
+    -- No row when the status does not change.
+    select count(*) into v_n from public.job_status_events where job_post_id = v_job;
+    update public.job_posts set title = 'RLS TEST P6 mason (edited)' where id = v_job;
+    res := res || case when (select count(*) from public.job_status_events where job_post_id = v_job) = v_n then 'PASS' else 'FAIL' end || E' · No history row when the status does not change\n';
+
+    -- Append-only: no change, no direct delete, no emptying.
+    begin
+      update public.job_status_events set actor_kind = 'staff' where job_post_id = v_job;
+      res := res || E'FAIL · Status history rows cannot be changed\n';
+    exception when insufficient_privilege then res := res || E'PASS · Status history rows cannot be changed\n';
+    end;
+    begin
+      delete from public.job_status_events where job_post_id = v_job;
+      res := res || E'FAIL · Status history rows cannot be deleted directly\n';
+    exception when insufficient_privilege then res := res || E'PASS · Status history rows cannot be deleted directly\n';
+    end;
+    begin
+      truncate public.job_status_events;
+      res := res || E'FAIL · The status history cannot be emptied\n';
+    exception when insufficient_privilege then res := res || E'PASS · The status history cannot be emptied\n';
+    end;
+    begin
+      insert into public.job_status_events (job_post_id, to_status, actor_kind) values (v_job, 'published', 'admin');
+      res := res || E'FAIL · Only employer, staff, system or server can be recorded\n';
+    exception when check_violation then res := res || E'PASS · Only employer, staff, system or server can be recorded\n';
+    end;
+
+    -- If the history cannot be written, the status change fails too (no silent gaps).
+    alter table public.job_status_events add constraint rls_p6_block check (to_status <> 'archived');
+    begin
+      update public.job_posts set status = 'archived' where id = v_job;
+      res := res || E'FAIL · A status change fails when its history cannot be written\n';
+    exception when check_violation then
+      res := res || case when (select status from public.job_posts where id = v_job) = 'removed' then 'PASS' else 'FAIL' end || E' · A status change fails when its history cannot be written\n';
+    end;
+    raise exception 'hl_rollback';
+  exception when raise_exception then
+    if sqlerrm <> 'hl_rollback' then res := res || 'FAIL · Phase 6 checks stopped early: ' || sqlerrm || E'\n'; end if;
+  end;
+  perform set_config('hl.results', current_setting('hl.results') || res, false);
+end $$;
+select pg_temp.record_check('Phase 6 checks left nothing behind', not exists (select 1 from public.job_posts where slug = 'rls-p6-job')
+  and not exists (select 1 from pg_constraint where conname = 'rls_p6_block'));
 
 -- ---------- Clean up ----------
 reset role;

@@ -317,7 +317,8 @@
     "app/(site)/jobs/[slug]/apply-by-phone/page.tsx",
     "app/(site)/jobs/[slug]/apply/page.tsx",
     "app/(site)/jobs/[slug]/page.tsx",
-    "app/(site)/jobs/call-back/page.tsx"
+    "app/(site)/jobs/call-back/page.tsx",
+    "components/jobs/CompanyJobs.tsx"
   ],
   "Jobs are posted by organisations": [
     "app/(account)/account/jobs/new/page.tsx",
@@ -325,6 +326,12 @@
   ],
   "Jobs are posted by organisations. Create your business profile first.": [
     "app/actions/job-actions.ts"
+  ],
+  "Jobs at {company}": [
+    "app/(site)/jobs/page.tsx"
+  ],
+  "Jobs at {company}, approved by HagerLand before they went live. Apply on each job's page.": [
+    "components/jobs/CompanyJobs.tsx"
   ],
   "Jobs in construction, engineering and property": [
     "app/(site)/jobs/page.tsx"
@@ -374,6 +381,9 @@
   "Need help hiring?": [
     "app/(account)/account/jobs/page.tsx",
     "app/(site)/jobs/page.tsx"
+  ],
+  "Need workers for this project? Ask HagerLand's recruitment team to help you find them.": [
+    "components/jobs/ProjectHiringHelp.tsx"
   ],
   "Never pay a deposit before you have agreed the work, price and timing in writing.": [
     "app/(site)/request-service/sent/page.tsx"
@@ -437,6 +447,9 @@
   ],
   "Open": [
     "components/jobs/CandidateForm.tsx"
+  ],
+  "Open jobs ({n})": [
+    "components/jobs/CompanyJobs.tsx"
   ],
   "Open menu": [
     "components/layout/SiteHeader.tsx"
@@ -570,6 +583,9 @@
     "app/(account)/account/applications/page.tsx",
     "app/(site)/jobs/page.tsx"
   ],
+  "See all {n} jobs": [
+    "components/jobs/CompanyJobs.tsx"
+  ],
   "See our": [
     "components/service-requests/ServiceRequestForm.tsx"
   ],
@@ -644,7 +660,8 @@
   "Submit a staffing requirement": [
     "app/(account)/account/jobs/candidates/page.tsx",
     "app/(account)/account/jobs/page.tsx",
-    "app/(site)/jobs/page.tsx"
+    "app/(site)/jobs/page.tsx",
+    "components/jobs/ProjectHiringHelp.tsx"
   ],
   "Submit a staffing requirement and include the candidate reference (for example C-1A2B3C4D). We will ask them and introduce you.": [
     "app/(account)/account/jobs/candidates/page.tsx"

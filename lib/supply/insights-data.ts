@@ -3,6 +3,7 @@ import 'server-only'
 // "needs action" list and the digest counts, and hands it to the pure maths in lib/supply/insights.ts. Owner-only
 // money (commission, earned, customer totals) is loaded only when `owner` is true. Service role, server only.
 import { getAdminSupabase } from '@/lib/supabase/admin'
+import { must } from '@/lib/admin/must'
 import { addDays, itemKey } from './offers'
 import { customerTotalCents, hagerlandEarned, needsAction, summariseLedger, supplierTotalCents, type LedgerSummary, type MoneyModel, type OrderStatus } from './money'
 import { addisDate, inAddisMonth, todayInAddis } from './shortlist'
@@ -23,17 +24,8 @@ import {
 
 const OPEN_QUOTE = ['submitted', 'in_review', 'quoted', 'accepted']
 
-/**
- * Stops when any query failed, so a page, the supply report or the digest never shows zeros (or "Reconciles with
- * ledger: yes") for data it could not read. Takes one query result or the array from Promise.all.
- */
-export function must<T>(result: T): T {
-  for (const r of (Array.isArray(result) ? result : [result]) as unknown[]) {
-    const error = (r as { error?: { message: string } | null } | null)?.error
-    if (error) throw new Error(`Could not read from the database: ${error.message}`)
-  }
-  return result
-}
+// The failure rule (shared with Jobs insights, Demand and Performance since Jobs Phase 6; same behaviour).
+export { must }
 const LIVE_ORDER = ['placed', 'confirmed', 'out_for_delivery']
 
 /* ------------------------------------------------------------------ Places ------------------------------------------------------------------ */
@@ -177,7 +169,8 @@ export interface DemandData {
   funnel: ReturnType<typeof demandFunnel>
   unmet: ReturnType<typeof unmetDemand>
   quotes: number
-  signals: { openJobs: { category: string; count: number }[]; projects: { area: string; count: number }[] }
+  /** Jobs signals (trades being hired) come from lib/jobs-signals-data.ts since Jobs Phase 6. */
+  signals: { projects: { area: string; count: number }[] }
 }
 
 async function demandItems(since: string, until: string | null, includeCancelled: boolean): Promise<{ items: DemandItem[]; quoteIds: string[] }> {
@@ -219,10 +212,9 @@ export async function demandData(days: number, includeCancelled: boolean): Promi
   const since = `${addDays(today, -days)}T00:00:00+03:00`
   const { items, quoteIds } = await demandItems(since, null, includeCancelled)
   const itemIds = items.map((i) => i.itemId)
-  const [{ data: lines }, { data: offers }, { data: jobs }, { data: projects }] = must(await Promise.all([
+  const [{ data: lines }, { data: offers }, { data: projects }] = must(await Promise.all([
     quoteIds.length ? db.from('supply_quote_lines').select('id, quote_item_id, status, asked_at, received_at').in('quote_request_id', quoteIds).limit(50000) : Promise.resolve({ data: [] }),
     db.from('supplier_offers').select('category_id, item_key, status, valid_until, delivery_area_ids').eq('status', 'current').limit(50000),
-    db.from('job_posts').select('category').eq('status', 'published').limit(5000),
     db.from('build_projects').select('location_id, location_text, services, status').in('status', ['submitted', 'in_progress']).gte('created_at', since).limit(5000),
   ]))
   const lineIds = (lines ?? []).map((l) => l.id)
@@ -230,8 +222,6 @@ export async function demandData(days: number, includeCancelled: boolean): Promi
   const ordered = new Set((orderLines ?? []).map((l) => l.quote_item_id).filter((x): x is string => Boolean(x)))
   const completed = new Set((orderLines ?? []).filter((l) => (l.order as { status: string } | null)?.status === 'completed').map((l) => l.quote_item_id).filter((x): x is string => Boolean(x)))
   const groups = groupDemand(items)
-  const jobCounts = new Map<string, number>()
-  for (const j of jobs ?? []) jobCounts.set(j.category, (jobCounts.get(j.category) ?? 0) + 1)
   const materialProjects = (projects ?? []).filter((p) => p.services.includes('materials'))
   const projectChains = await placeChains(materialProjects.map((p) => p.location_id).filter((x): x is string => Boolean(x)))
   const projectAreas = new Map<string, number>()
@@ -246,7 +236,6 @@ export async function demandData(days: number, includeCancelled: boolean): Promi
     unmet: unmetDemand(groups, (offers ?? []).map((o) => ({ categoryId: o.category_id, itemKey: o.item_key, status: o.status, validUntil: o.valid_until, deliveryAreaIds: o.delivery_area_ids })), today),
     quotes: quoteIds.length,
     signals: {
-      openJobs: Array.from(jobCounts.entries()).map(([category, count]) => ({ category, count })).sort((a, b) => b.count - a.count || a.category.localeCompare(b.category)),
       projects: Array.from(projectAreas.entries()).map(([area, count]) => ({ area, count })).sort((a, b) => b.count - a.count || a.area.localeCompare(b.area)),
     },
   }

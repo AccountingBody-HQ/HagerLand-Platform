@@ -1,5 +1,6 @@
 import 'server-only'
 import { getAdminSupabase } from '@/lib/supabase/admin'
+import { must } from '@/lib/admin/must'
 import { PILLAR_KEYS, VERTICAL_PILLAR, isPillarKey, type PillarKey } from '@/lib/pillars'
 import { isVerticalKey } from '@/lib/verticals'
 
@@ -67,14 +68,15 @@ export async function demandReport(since: Date, until: Date = new Date()): Promi
   const db = getAdminSupabase()
   const from = since.toISOString()
   const to = until.toISOString()
-  const [interest, requests, misses, enquiries, locations, categories] = await Promise.all([
+  // The failure rule (Jobs Phase 6, C2-10): a failed read stops the page with an error instead of showing zeros.
+  const [interest, requests, misses, enquiries, locations, categories] = must(await Promise.all([
     db.from('interest_registrations').select('vertical_key, pillar_key, category, city, country_code, created_at').gte('created_at', from).lt('created_at', to).limit(50000),
     db.from('service_requests').select('id, vertical_key, service_category_id, location_id, location_text, country_code, status, closed_reason, created_at, matches:service_request_matches(status)').gte('created_at', from).lt('created_at', to).limit(50000),
     db.from('search_misses').select('q_normalised, vertical, count, last_seen_at').gte('last_seen_at', from).lt('last_seen_at', to).limit(5000),
     db.from('enquiries').select('target_type, created_at').gte('created_at', from).lt('created_at', to).limit(50000),
     db.from('locations').select('id, display_name, country_code').limit(20000),
     db.from('service_categories').select('id, name').limit(2000),
-  ])
+  ]))
   const placeName = new Map((locations.data ?? []).map((l) => [l.id, l.display_name ?? '']))
   const catName = new Map((categories.data ?? []).map((c) => [c.id, c.name]))
   const signals: DemandSignal[] = []
@@ -142,7 +144,7 @@ async function recommendations(signals: DemandSignal[]): Promise<Recommendation[
   const db = getAdminSupabase()
   const pillars = Array.from(new Set(Array.from(groups.values()).map((g) => g.pillar)))
   const supply = new Map<string, number>()
-  await Promise.all(pillars.map(async (p) => supply.set(p, ((await db.rpc('pillar_active_providers', { p_pillar: p })).data as number | null) ?? 0)))
+  await Promise.all(pillars.map(async (p) => supply.set(p, (must(await db.rpc('pillar_active_providers', { p_pillar: p })).data as number | null) ?? 0)))
   return Array.from(groups.values())
     .map((g) => {
       const s = supply.get(g.pillar) ?? 0

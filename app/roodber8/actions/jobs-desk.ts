@@ -33,6 +33,7 @@ import {
 } from '@/lib/jobs-desk'
 import { sendEmail } from '@/lib/email/send'
 import { placementConfirmedEmail, recruitmentIntroductionEmail } from '@/lib/email/templates'
+import { asJobActor } from '@/lib/job-status-actor'
 
 type Msg = ActionResult<{ message: string }>
 const blank = (v: unknown) => (v === null || (typeof v === 'string' && v.trim() === '') ? undefined : v)
@@ -752,11 +753,14 @@ export async function createPrivateClientJobAction(assignmentId: string, _prev: 
   if (loc.country_code !== 'ET') return fail('Only work in Ethiopia. Placements abroad are not offered.')
   if (loc.level === 'area') return fail('Choose the city or sub-city only, so the client cannot be identified.')
   const actor = await adminActor()
-  const { data, error } = await db
-    .from('job_posts')
-    .insert({ ...jobColumns(d), slug: `${slugify(d.title, 60)}-${shortId(4)}`, employer_org_id: team.id, status: 'pending_review', posted_for: 'private_client', recruitment_assignment_id: a.id, created_by_staff: actor.slice(0, 120) })
-    .select('id, title')
-    .single()
+  const { data, error } = await asJobActor(
+    db
+      .from('job_posts')
+      .insert({ ...jobColumns(d), slug: `${slugify(d.title, 60)}-${shortId(4)}`, employer_org_id: team.id, status: 'pending_review', posted_for: 'private_client', recruitment_assignment_id: a.id, created_by_staff: actor.slice(0, 120) })
+      .select('id, title')
+      .single(),
+    'staff',
+  )
   if (error || !data) {
     log.error('jobs-desk', 'private-client job insert failed', error)
     return fail('Could not create the job.')

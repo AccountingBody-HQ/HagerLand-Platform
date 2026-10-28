@@ -1200,7 +1200,8 @@
       "app/(site)/jobs/[slug]/apply-by-phone/page.tsx",
       "app/(site)/jobs/[slug]/apply/page.tsx",
       "app/(site)/jobs/[slug]/page.tsx",
-      "app/(site)/jobs/call-back/page.tsx"
+      "app/(site)/jobs/call-back/page.tsx",
+      "components/jobs/CompanyJobs.tsx"
     ],
     "draft": "ስራዎች"
   },
@@ -1216,6 +1217,20 @@
     "key": "Jobs are posted by organisations. Create your business profile first.",
     "where": [
       "app/actions/job-actions.ts"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Jobs at {company}",
+    "where": [
+      "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Jobs at {company}, approved by HagerLand before they went live. Apply on each job's page.",
+    "where": [
+      "components/jobs/CompanyJobs.tsx"
     ],
     "draft": ""
   },
@@ -1395,6 +1410,13 @@
     "where": [
       "app/(account)/account/jobs/page.tsx",
       "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Need workers for this project? Ask HagerLand's recruitment team to help you find them.",
+    "where": [
+      "components/jobs/ProjectHiringHelp.tsx"
     ],
     "draft": ""
   },
@@ -1612,6 +1634,13 @@
     "key": "Open",
     "where": [
       "components/jobs/CandidateForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Open jobs ({n})",
+    "where": [
+      "components/jobs/CompanyJobs.tsx"
     ],
     "draft": ""
   },
@@ -2116,6 +2145,13 @@
     "draft": ""
   },
   {
+    "key": "See all {n} jobs",
+    "where": [
+      "components/jobs/CompanyJobs.tsx"
+    ],
+    "draft": ""
+  },
+  {
     "key": "See our",
     "where": [
       "components/service-requests/ServiceRequestForm.tsx"
@@ -2386,6 +2422,7 @@
       "app/(account)/account/jobs/candidates/page.tsx",
       "app/(account)/account/jobs/page.tsx",
       "app/(site)/jobs/page.tsx",
+      "components/jobs/ProjectHiringHelp.tsx",
       "lib/service-requests/form-copy.ts (staffing)"
     ],
     "draft": ""

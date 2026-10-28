@@ -4,6 +4,7 @@ import { getProjectWithLinks } from '@/lib/data/projects'
 import { formatDate } from '@/lib/format'
 import { AccountPageHeader } from '@/components/account/PageHeader'
 import { ProjectView } from '@/components/build/ProjectView'
+import { ProjectHiringHelp } from '@/components/jobs/ProjectHiringHelp'
 
 export const metadata = { title: 'Building project' }
 
@@ -18,6 +19,7 @@ export default async function ProjectPage(props: { params: Promise<{ id: string 
     <div>
       <AccountPageHeader title={data.project.title} description={`${data.project.reference} · started ${formatDate(data.project.created_at)}`} />
       <ProjectView data={data} requestHref={(rid) => `/account/service-requests/${rid}`} quoteHref={() => '/account/quotes'} />
+      <ProjectHiringHelp />
     </div>
   )
 }

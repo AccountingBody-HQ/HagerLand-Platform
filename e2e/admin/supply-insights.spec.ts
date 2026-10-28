@@ -53,7 +53,9 @@ test('J1 demand, J2 price trends, J3 partner performance and J9 activity, as the
   await expect(page.getByText(/Corrugated roofing sheet 0\.3mm.*No partner with a current price delivers to Lideta/)).toBeVisible()
   await expect(page.getByRole('link', { name: 'Add a supplier for this' }).first()).toHaveAttribute('href', '/roodber8/organisations/new?supplier=1')
   for (const area of ['Kirkos', 'Yeka', 'Lideta', 'Nifas Silk-Lafto', 'Bole']) await expect(page.getByRole('cell', { name: area, exact: true })).toBeVisible()
-  await expect(page.getByText('Drivers & loaders: 1')).toBeVisible()
+  // Jobs Phase 6: the jobs signal is open jobs by trade, by the public board's rule (the seed job has no trade).
+  await expect(page.getByText('Trades being hired (open jobs)')).toBeVisible()
+  await expect(page.getByText(/^No trade given: \d+$/)).toBeVisible()
   await expect(page.getByText(/Bole: \d+/).first()).toBeVisible()
   await page.getByRole('link', { name: 'Include cancelled quotes' }).click()
   await expect(page).toHaveURL(/cancelled=1/)

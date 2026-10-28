@@ -1,5 +1,6 @@
 import 'server-only'
 import { getAdminSupabase } from '@/lib/supabase/admin'
+import { must } from '@/lib/admin/must'
 import { PILLAR_KEYS, VERTICAL_PILLAR, type PillarKey } from '@/lib/pillars'
 import { isVerticalKey } from '@/lib/verticals'
 
@@ -34,7 +35,8 @@ export async function pillarKpis(since: Date): Promise<PillarKpis[]> {
   const db = getAdminSupabase()
   const from = since.toISOString()
   const head = { count: 'exact' as const, head: true }
-  const [requests, matches, enquiries, deals, valuations, viewings, applications, projects, care, quotes, interestFinance, interestInsurance, props, products, jobs] = await Promise.all([
+  // The failure rule (Jobs Phase 6, C2-10): a failed read stops the page with an error instead of showing zeros.
+  const [requests, matches, enquiries, deals, valuations, viewings, applications, projects, care, quotes, interestFinance, interestInsurance, props, products, jobs] = must(await Promise.all([
     db.from('service_requests').select('vertical_key, status').gte('created_at', from).limit(50000),
     db.from('service_request_matches').select('offered_at, responded_at, request:service_requests!inner(vertical_key, created_at)').gte('offered_at', from).not('responded_at', 'is', null).limit(50000),
     db.from('enquiries').select('target_type, status, created_at, first_viewed_at').gte('created_at', from).limit(50000),
@@ -49,8 +51,10 @@ export async function pillarKpis(since: Date): Promise<PillarKpis[]> {
     db.from('interest_registrations').select('id', head).eq('vertical_key', 'insurance').gte('created_at', from),
     db.from('properties').select('purpose').eq('status', 'published').limit(100000),
     db.from('products').select('id', head).eq('status', 'published'),
-    db.from('job_posts').select('id', head).eq('status', 'published'),
-  ])
+    // Jobs Phase 6 (fix 4): open jobs by the public board's rule (jobs_public leaves out jobs past their closing date that
+    // the daily job has not closed yet, and private-client jobs hidden by their switch).
+    db.from('jobs_public').select('id', head),
+  ]))
   const zero = () => ({ leads: 0, won: 0, resp: [] as number[], revenue: 0 })
   const acc = new Map<PillarKey, ReturnType<typeof zero>>(PILLAR_KEYS.map((k) => [k, zero()]))
   const of = (v: string | null | undefined) => (v && isVerticalKey(v) ? VERTICAL_PILLAR[v] : null)
@@ -96,7 +100,7 @@ export async function pillarKpis(since: Date): Promise<PillarKpis[]> {
   const sale = (props.data ?? []).filter((p) => p.purpose === 'sale').length
   const rent = (props.data ?? []).filter((p) => p.purpose === 'rent').length
   const listings: Partial<Record<PillarKey, number>> = { buy: sale, rent, supplies: products.count ?? 0, jobs: jobs.count ?? 0 }
-  const providers = await Promise.all(PILLAR_KEYS.map(async (k) => [k, ((await db.rpc('pillar_active_providers', { p_pillar: k })).data as number | null) ?? 0] as const))
+  const providers = await Promise.all(PILLAR_KEYS.map(async (k) => [k, (must(await db.rpc('pillar_active_providers', { p_pillar: k })).data as number | null) ?? 0] as const))
   return PILLAR_KEYS.map((k) => {
     const a = acc.get(k)!
     const med = median(a.resp)

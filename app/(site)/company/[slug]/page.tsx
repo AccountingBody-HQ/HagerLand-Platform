@@ -33,6 +33,8 @@ import { getReviews, MIN_REVIEWS_FOR_RATING } from '@/lib/data/reviews'
 import { Star } from 'lucide-react'
 import { formatDate } from '@/lib/format'
 import { SaveButton } from '@/components/saved/SaveButton'
+import { companyJobs } from '@/lib/data/jobs'
+import { COMPANY_JOBS_SHOWN, CompanyJobs, companyJobsTab } from '@/components/jobs/CompanyJobs'
 
 export const revalidate = 600
 
@@ -62,7 +64,7 @@ export default async function CompanyPage(props: { params: Promise<{ slug: strin
   const isSeller = o.kind === 'supplier' || o.kind === 'manufacturer'
   // Jobs Phase 4: the live recorded check, so the badge shows the new wording only when there is one (F5).
   const badgeRecord = o.id && o.verification_level === 'verified' ? await liveRecord(o.id) : null
-  const [chain, services, productCats, portfolio, areaNames, forSale, toRent, developments, products, branches, reviews] = await Promise.all([
+  const [chain, services, productCats, portfolio, areaNames, forSale, toRent, developments, products, branches, reviews, jobs] = await Promise.all([
     o.location_id ? getLocationChain(o.location_id) : Promise.resolve([] as Location[]),
     getOrganisationServices(o.id),
     getOrganisationProductCategories(o.id),
@@ -74,6 +76,8 @@ export default async function CompanyPage(props: { params: Promise<{ slug: strin
     isSeller ? searchProducts({ sellerOrgId: o.id, sort: 'newest', pageSize: 48 }) : Promise.resolve({ total: 0, items: [] }),
     getBranches(o.id),
     getReviews(o.id),
+    // Jobs Phase 6: the business's own open jobs (never private-client jobs; nothing on HagerLand's own businesses).
+    companyJobs(o, { pageSize: COMPANY_JOBS_SHOWN }),
   ])
   const city = cityOf(chain)
   const region = chain.find((l) => l.level === 'region') ?? null
@@ -87,6 +91,7 @@ export default async function CompanyPage(props: { params: Promise<{ slug: strin
     { id: 'for-sale', label: 'For sale', show: forSale.total > 0 },
     { id: 'to-rent', label: 'To rent', show: toRent.total > 0 },
     { id: 'developments', label: 'Developments', show: developments.total > 0 },
+    { id: 'jobs', label: companyJobsTab(), show: jobs.total > 0 && jobs.items.length > 0 },
     { id: 'reviews', label: 'Reviews', show: reviews.items.length > 0 },
     { id: 'branches', label: 'Branches', show: branches.length > 0 },
     { id: 'areas', label: 'Areas served', show: areaNames.length > 0 },
@@ -303,6 +308,8 @@ export default async function CompanyPage(props: { params: Promise<{ slug: strin
                 </ul>
               </section>
             )}
+
+            <CompanyJobs company={o.name ?? ''} slug={o.slug ?? ''} jobs={jobs.items} total={jobs.total} />
 
             {reviews.items.length > 0 && (
               <section id="reviews" aria-labelledby="reviews-heading" className="scroll-mt-24">

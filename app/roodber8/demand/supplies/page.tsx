@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { requireAdminPage } from '@/lib/admin/guard'
 import { demandData } from '@/lib/supply/insights-data'
+import { hiringSignals, hiringWithoutSupplyActivity } from '@/lib/jobs-signals-data'
 import { unitLabel } from '@/lib/units'
 import { AdminHeader, DataTable, Panel } from '@/components/admin/AdminUi'
 import { ButtonLink } from '@/components/ui/Button'
@@ -16,7 +17,7 @@ export default async function SupplyDemandPage(props: { searchParams: Promise<{ 
   const custom = Number(sp.days)
   const days = PERIODS.find((d) => String(d) === sp.days) ?? (Number.isInteger(custom) && custom >= 1 && custom <= 1825 ? custom : 90)
   const includeCancelled = sp.cancelled === '1'
-  const d = await demandData(days, includeCancelled)
+  const [d, hiring, hiringNoSupply] = await Promise.all([demandData(days, includeCancelled), hiringSignals(), hiringWithoutSupplyActivity()])
   const href = (p: { days?: number; cancelled?: boolean }) => `/roodber8/demand/supplies?days=${p.days ?? days}${(p.cancelled ?? includeCancelled) ? '&cancelled=1' : ''}`
   const steps: [string, number][] = [
     ['Requested', d.funnel.requested],
@@ -36,6 +37,9 @@ export default async function SupplyDemandPage(props: { searchParams: Promise<{ 
         <span aria-current="page" className="inline-flex min-h-10 items-center rounded-full bg-ink px-3 font-semibold text-white">
           Supplies
         </span>
+        <Link href="/roodber8/demand/jobs" prefetch={false} className="inline-flex min-h-10 items-center rounded-full bg-stone-100 px-3 font-semibold text-ink">
+          Jobs
+        </Link>
       </nav>
       <form action="/roodber8/demand/supplies" method="get" className="flex flex-wrap items-end gap-2">
         {PERIODS.map((p) => (
@@ -111,18 +115,19 @@ export default async function SupplyDemandPage(props: { searchParams: Promise<{ 
       <Panel title="Other signals: jobs and building projects">
         <div className="grid gap-4 sm:grid-cols-2 text-small">
           <div>
-            <p className="font-semibold">Open job posts by kind of work</p>
-            {d.signals.openJobs.length ? (
+            <p className="font-semibold">Trades being hired (open jobs)</p>
+            {hiring.trades.length ? (
               <ul className="mt-1 space-y-0.5">
-                {d.signals.openJobs.map((j) => (
-                  <li key={j.category}>
-                    {j.category}: {j.count}
+                {hiring.trades.map((j) => (
+                  <li key={j.key}>
+                    {j.label}: {j.count}
                   </li>
                 ))}
               </ul>
             ) : (
               <p className="text-muted">No open job posts.</p>
             )}
+            <p className="mt-2">Open staffing requests with HagerLand: {hiring.openStaffingRequests}</p>
           </div>
           <div>
             <p className="font-semibold">Building projects asking for materials, by area</p>
@@ -139,6 +144,28 @@ export default async function SupplyDemandPage(props: { searchParams: Promise<{ 
             )}
           </div>
         </div>
+      </Panel>
+      <Panel title="Hiring, no supply activity yet">
+        <p className="mb-3 text-small text-muted">Businesses with open jobs or an open recruitment desk assignment that have not asked for a materials quote or had a supply order yet.</p>
+        <DataTable
+          label="Hiring, no supply activity yet"
+          rows={hiringNoSupply}
+          rowKey={(b) => b.orgId}
+          empty="None at the moment."
+          columns={[
+            {
+              key: 'n',
+              label: 'Business',
+              render: (b) => (
+                <Link href={`/roodber8/organisations/${b.orgId}`} prefetch={false} className="font-semibold text-green underline">
+                  {b.name}
+                </Link>
+              ),
+            },
+            { key: 'j', label: 'Open jobs', render: (b) => b.openJobs },
+            { key: 'a', label: 'Open desk assignments', render: (b) => b.activeAssignments },
+          ]}
+        />
       </Panel>
     </div>
   )

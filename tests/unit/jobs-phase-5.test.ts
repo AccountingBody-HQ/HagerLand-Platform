@@ -259,7 +259,7 @@ describe('legal wording and the health check', () => {
   it('/terms: W20 only while Amharic is on', () => {
     expect(read('app/(site)/terms/page.tsx')).toContain('{amharicOn && <p>These terms are written in English. If a translation differs, the English version applies.</p>}')
   })
-  it('the health check expects migration 0043', () => {
-    expect(EXPECTED_MIGRATIONS[EXPECTED_MIGRATIONS.length - 1]).toBe('0043')
+  it('the health check expects migration 0043 (and the later ones)', () => {
+    expect(EXPECTED_MIGRATIONS).toContain('0043')
   })
 })

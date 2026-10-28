@@ -13,6 +13,7 @@ import { sendEmail } from '@/lib/email/send'
 import { jobPausedEmail } from '@/lib/email/templates'
 import { revalidateEntity } from '@/lib/revalidate'
 import { restorePausedJob } from '@/lib/job-reports-data'
+import { asJobActor } from '@/lib/job-status-actor'
 
 type Msg = ActionResult<{ message: string }>
 const uuid = z.uuid()
@@ -57,7 +58,7 @@ export async function pauseJobFromReportAction(reportId: string): Promise<Msg> {
   const { data: job } = await db.from('job_posts').select('id, title, status, employer_org_id, posted_for').eq('id', r.job_post_id).maybeSingle()
   if (!job) return fail('Not found.')
   if (job.status !== 'published') return fail('Only a live job can be paused.')
-  const { error } = await db.from('job_posts').update({ status: 'paused' }).eq('id', job.id).eq('status', 'published')
+  const { error } = await asJobActor(db.from('job_posts').update({ status: 'paused' }).eq('id', job.id).eq('status', 'published'), 'staff')
   if (error) return fail('Please try again.')
   await closeOpenReports(job.id, 'actioned', 'paused')
   let emailed = false
@@ -90,7 +91,7 @@ export async function removeJobFromReportAction(reportId: string): Promise<Msg> 
   const r = await loadReport(reportId)
   if (!r) return fail('Not found.')
   const db = getAdminSupabase()
-  const { data: job, error } = await db.from('job_posts').update({ status: 'removed' }).eq('id', r.job_post_id).select('title').single()
+  const { data: job, error } = await asJobActor(db.from('job_posts').update({ status: 'removed' }).eq('id', r.job_post_id).select('title').single(), 'staff')
   if (error || !job) return fail('Please try again.')
   await closeOpenReports(r.job_post_id, 'actioned', 'removed')
   await audit('job.removed', { type: 'job', id: r.job_post_id, label: job.title }, { from_report: r.id })

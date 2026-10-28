@@ -37,6 +37,9 @@ export default async function DemandPage(props: { searchParams: Promise<{ days?:
         <Link href="/roodber8/demand/supplies" prefetch={false} className="inline-flex min-h-10 items-center rounded-full bg-stone-100 px-3 font-semibold text-ink">
           Supplies
         </Link>
+        <Link href="/roodber8/demand/jobs" prefetch={false} className="inline-flex min-h-10 items-center rounded-full bg-stone-100 px-3 font-semibold text-ink">
+          Jobs
+        </Link>
       </nav>
       <nav aria-label="Period" className="flex flex-wrap gap-2">
         {PERIODS.map((d) => (

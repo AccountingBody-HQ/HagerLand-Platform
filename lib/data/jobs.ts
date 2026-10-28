@@ -26,6 +26,8 @@ export interface JobQuery {
   /** A location path (country, region or city); jobs in it and in the places below it. */
   location?: string
   employerOrgId?: string
+  /** Jobs Phase 6: only the business's own jobs, never jobs HagerLand posts for a private client. */
+  employerOnly?: boolean
   page?: number
   pageSize?: number
 }
@@ -43,6 +45,7 @@ export async function searchJobs(query: JobQuery): Promise<SearchResult<JobListI
     if (query.type) req = req.eq('employment_type', query.type)
     if (query.trade) req = req.eq('trade', query.trade)
     if (query.employerOrgId) req = req.eq('employer_org_id', query.employerOrgId)
+    if (query.employerOnly) req = req.eq('posted_for', 'employer')
     if (query.location) {
       const all = await getLocations()
       const root = all.find((l) => l.path === query.location)
@@ -54,6 +57,17 @@ export async function searchJobs(query: JobQuery): Promise<SearchResult<JobListI
     if (error) throw error
     return { total: count ?? 0, items: (data ?? []) as JobListItem[] }
   })
+}
+
+/**
+ * Jobs Phase 6: a business's open jobs, for its company page and /jobs?company=. Two locks (AB's fix 2): nothing for
+ * HagerLand's own businesses (including HagerLand Services, which owns private-client jobs), and only jobs the business
+ * posted itself (posted_for = 'employer'). Closed, paused, removed and expired jobs, and jobs of unpublished businesses,
+ * are already left out by jobs_public. Newest approved first.
+ */
+export async function companyJobs(org: { id: string | null; is_hagerland: boolean | null; kind: string | null }, opts: Omit<JobQuery, 'employerOrgId' | 'employerOnly'> = {}): Promise<SearchResult<JobListItem>> {
+  if (!org.id || org.is_hagerland !== false || org.kind === 'hagerland') return EMPTY
+  return searchJobs({ ...opts, employerOrgId: org.id, employerOnly: true })
 }
 
 export const getJobBySlug = cache(async (slug: string): Promise<PublicJob | null> =>

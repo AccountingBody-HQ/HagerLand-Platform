@@ -8,8 +8,8 @@ import type { Locale } from '@/lib/i18n/config'
 import { VerificationBadge } from '@/components/company/VerificationBadge'
 import type { Translate } from '@/lib/i18n/translate'
 
-/** One vacancy in the job board (spec 24.9). */
-export function JobCard({ job, t = (s) => s, locale = 'en', href = (h) => h }: { job: JobListItem; t?: Translate; locale?: Locale; href?: (h: string) => string }) {
+/** One vacancy in the job board (spec 24.9). `hideEmployer` (company pages, Jobs Phase 6) leaves out the employer line, which would repeat the page's own name and badge. */
+export function JobCard({ job, t = (s) => s, locale = 'en', href = (h) => h, hideEmployer = false }: { job: JobListItem; t?: Translate; locale?: Locale; href?: (h: string) => string; hideEmployer?: boolean }) {
   const salary = formatSalary(job.salary_min_minor, job.salary_max_minor, job.currency ?? 'ETB', job.salary_period, t)
   return (
     <article className="relative rounded-lg border border-border bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
@@ -19,10 +19,12 @@ export function JobCard({ job, t = (s) => s, locale = 'en', href = (h) => h }: {
           {job.title}
         </Link>
       </h3>
-      <p className="mt-1 flex flex-wrap items-center gap-2 text-muted">
-        {job.posted_for === 'private_client' ? t('Posted by HagerLand for a private client') : job.employer_name}
-        {job.posted_for !== 'private_client' && job.employer_verification === 'verified' && <VerificationBadge level="verified" />}
-      </p>
+      {!hideEmployer && (
+        <p className="mt-1 flex flex-wrap items-center gap-2 text-muted">
+          {job.posted_for === 'private_client' ? t('Posted by HagerLand for a private client') : job.employer_name}
+          {job.posted_for !== 'private_client' && job.employer_verification === 'verified' && <VerificationBadge level="verified" />}
+        </p>
+      )}
       <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-small text-muted">
         <li className="inline-flex items-center gap-1.5">
           <MapPin className="size-4" aria-hidden /> {job.location_display}
