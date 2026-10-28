@@ -446,9 +446,9 @@ test('J11 + J12 + J13 + J16: small numbers, the Supplies signals, the organisati
   test.skip(info.project.name !== 'desktop', 'admin at desktop width')
   test.setTimeout(240_000)
   await adminSession(page)
-  // J11: a median that rests on fewer than 3 data points.
-  await page.goto('/roodber8/demand/jobs?days=30')
-  await expect(page.getByText(/^Not enough data yet \(\d\)\. Shown from 3\.$/).first()).toBeVisible()
+  // J11: medians that rest on fewer than 3 data points (a past month with no data; the same panels as the Jobs tab).
+  await page.goto('/roodber8/reports/jobs?month=2026-01')
+  await expect(page.getByText('Not enough data yet (0). Shown from 3.')).toHaveCount(6)
 
   // J12: trades being hired, by the public board's rule. Two open glass-fitter jobs count; one past its closing time
   // (not closed yet) and one hidden private-client job do not.

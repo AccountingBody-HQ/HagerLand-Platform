@@ -6,6 +6,7 @@ import 'server-only'
 // (must): on a database error the page shows an error, never zeros. Service role, server only.
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { must } from '@/lib/admin/must'
+import { inChunks } from '@/lib/admin/in-chunks'
 import { readJobsSwitches } from '@/lib/jobs-switches'
 import { addDays, todayAddis } from '@/lib/jobs-desk'
 import { STAFFING_SLUG } from '@/lib/service-requests/form-copy'
@@ -52,21 +53,6 @@ import { REPORT_REASON_LABEL } from '@/lib/job-reports'
 const OPEN_REQUEST = ['submitted', 'triaged', 'matched', 'quoted']
 const OPEN_ASSIGNMENT = ['open', 'searching', 'introducing']
 const RUNNING_PLACEMENT = ['hired', 'guarantee_running']
-const CHUNK = 200
-
-type Rows<R> = PromiseLike<{ data: R[] | null; error: { message: string } | null }>
-
-/** Runs an `.in(ids)` query in parts (long id lists do not fit in one request) and joins the rows. */
-async function inChunks<R>(ids: string[], run: (part: string[]) => Rows<R>): Promise<R[]> {
-  const unique = Array.from(new Set(ids))
-  const out: R[] = []
-  for (let i = 0; i < unique.length; i += CHUNK) {
-    const { data } = must(await run(unique.slice(i, i + CHUNK)))
-    out.push(...(data ?? []))
-  }
-  return out
-}
-
 /** The places with the places above them (an area's sub-city and city), for rolling up to city or sub-city. */
 export async function placesFor(ids: (string | null)[]): Promise<Map<string, PlaceRow>> {
   const db = getAdminSupabase()

@@ -482,3 +482,18 @@ describe('the health check', () => {
     expect(EXPECTED_MIGRATIONS[EXPECTED_MIGRATIONS.length - 1]).toBe('0044')
   })
 })
+
+describe('long id lists are read in small parts', () => {
+  it('asks for at most 50 ids at a time, joins the rows, and stops on a failed read', async () => {
+    const { inChunks } = await import('@/lib/admin/in-chunks')
+    const ids = Array.from({ length: 123 }, (_, i) => `id-${i}`)
+    const sizes: number[] = []
+    const rows = await inChunks([...ids, 'id-0'], async (part) => {
+      sizes.push(part.length)
+      return { data: part.map((id) => ({ id })), error: null }
+    })
+    expect(sizes).toEqual([50, 50, 23])
+    expect(rows).toHaveLength(123)
+    await expect(inChunks(ids, async () => ({ data: null, error: { message: 'too big header' } }))).rejects.toThrow('Could not read from the database: too big header')
+  })
+})

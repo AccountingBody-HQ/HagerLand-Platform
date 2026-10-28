@@ -7,6 +7,7 @@ import { getAdminSupabase } from '@/lib/supabase/admin'
 import { must } from '@/lib/admin/must'
 import { STAFFING_SLUG } from '@/lib/service-requests/form-copy'
 import { countBy, tradeName, NO_TRADE, type Count } from '@/lib/jobs-insights'
+import { inChunks } from '@/lib/admin/in-chunks'
 
 const OPEN_REQUEST = ['submitted', 'triaged', 'matched', 'quoted']
 const OPEN_ASSIGNMENT = ['open', 'searching', 'introducing']
@@ -59,19 +60,17 @@ export async function hiringWithoutSupplyActivity(): Promise<HiringBusiness[]> {
   for (const a of assignments ?? []) tally(a.employer_org_id, 'activeAssignments')
   const orgIds = Array.from(counts.keys())
   if (!orgIds.length) return []
-  const [{ data: orgs }, { data: orders }, { data: members }] = must(
-    await Promise.all([
-      db.from('organisations').select('id, name, is_hagerland').in('id', orgIds),
-      db.from('supply_orders').select('org_id').in('org_id', orgIds).limit(20000),
-      db.from('organisation_members').select('org_id, user_id').in('org_id', orgIds).limit(20000),
-    ]),
-  )
-  const userIds = Array.from(new Set((members ?? []).map((m) => m.user_id)))
-  const { data: quotes } = must(userIds.length ? await db.from('quote_requests').select('requester_user_id').in('requester_user_id', userIds).limit(20000) : { data: [], error: null })
-  const quoting = new Set((quotes ?? []).map((q) => q.requester_user_id))
-  const withOrders = new Set((orders ?? []).map((o) => o.org_id))
-  const withQuotes = new Set((members ?? []).filter((m) => quoting.has(m.user_id)).map((m) => m.org_id))
-  return (orgs ?? [])
+  const [orgs, orders, members] = await Promise.all([
+    inChunks(orgIds, (part) => db.from('organisations').select('id, name, is_hagerland').in('id', part)),
+    inChunks(orgIds, (part) => db.from('supply_orders').select('org_id').in('org_id', part).limit(20000)),
+    inChunks(orgIds, (part) => db.from('organisation_members').select('org_id, user_id').in('org_id', part).limit(20000)),
+  ])
+  const userIds = Array.from(new Set(members.map((m) => m.user_id)))
+  const quotes = await inChunks(userIds, (part) => db.from('quote_requests').select('requester_user_id').in('requester_user_id', part).limit(20000))
+  const quoting = new Set(quotes.map((q) => q.requester_user_id))
+  const withOrders = new Set(orders.map((o) => o.org_id))
+  const withQuotes = new Set(members.filter((m) => quoting.has(m.user_id)).map((m) => m.org_id))
+  return orgs
     .filter((o) => !o.is_hagerland && !withOrders.has(o.id) && !withQuotes.has(o.id))
     .map((o) => ({ orgId: o.id, name: o.name, ...(counts.get(o.id) as { openJobs: number; activeAssignments: number }) }))
     .sort((a, b) => b.openJobs + b.activeAssignments - (a.openJobs + a.activeAssignments) || a.name.localeCompare(b.name))
