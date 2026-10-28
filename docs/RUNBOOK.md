@@ -1,33 +1,91 @@
 # HagerLand — Runbook
 
-Plain-English instructions for running the site day to day. Written for AB.
+Plain-English instructions for running the site day to day. Written for AB. For the Operations team's daily routine, see `docs/OPERATIONS_HANDBOOK.md`.
 
 ---
 
-## 1. Backups
+## 1. Backups and restore
 
-Supabase's Free plan keeps no downloadable backups. Until you upgrade to Pro (which keeps daily backups for 7 days), take a manual backup **before every database change** and at least weekly.
+HagerLand runs on Supabase's Free plan, which keeps **no backups for you**. Your own backup is the only safety net, so:
 
-1. Open the Codespace for this repository.
-2. In Supabase: **Project Settings → Database → Connection string → Session pooler**. Copy it (leave `[YOUR-PASSWORD]` in it).
+- **every week** (the daily digest reminds you on Mondays: "Weekly reminder: run the backup (RUNBOOK §1).");
+- **and always before a database change** (a migration, section 2).
+
+One backup is **one encrypted file** holding everything: every table, the sign-in accounts, and every stored file (photos, CVs, verification and supply documents). It contains personal data, so it is locked with a passphrase that only you know. The backup only **reads** the live project; it never changes anything there.
+
+### 1a. What to have ready (once)
+
+1. **Your database password**, in your password manager. If you have lost it, Supabase → **Project Settings → Database → Reset database password**. Resetting changes the password the site does not use (the site uses keys, not this password), but write the new one into your password manager straight away.
+2. **A backup passphrase**: make a new entry "HagerLand backup passphrase" in your password manager, let it generate a long passphrase (at least 12 characters; 20+ is better) and save it. **Without it a backup cannot be opened, by anyone, ever.** Use the same passphrase every week, so any backup opens with it.
+3. Where the **service_role key** is (you copy it fresh each time; never save it in a file): Supabase → your project → **Project Settings → API Keys** → the **service_role** (secret) key → **Copy**. It is a long secret: treat it like a password and never paste it anywhere except the backup's hidden prompt.
+
+### 1b. Run the backup (about 5 minutes)
+
+1. Open the Codespace for this repository. In the terminal (bottom of the screen), make sure you are on `main`: `git checkout main && git pull`.
+2. In Supabase: click **Connect** (top of the project page) → **Session pooler** → copy the connection string. Leave `[YOUR-PASSWORD]` in it.
 3. In the Codespace terminal run:
    ```bash
    bash scripts/backup-supabase.sh
    ```
-4. Paste the connection string, then your database password when asked.
-5. Three files appear in `backups/`. Right-click each in the file list → **Download**. Keep them somewhere safe (they contain personal data).
-6. Delete them from the Codespace afterwards: `rm backups/*`.
+4. Answer the questions, pressing Enter after each:
+   - paste the **connection string**;
+   - type your **database password** (nothing appears as you type: that is normal);
+   - the project address is filled in for you;
+   - paste the **service_role key** (hidden);
+   - type the **backup passphrase**, then again (hidden).
+5. The first time, it installs the matching database tools (a minute). It then shows each step and ends with "Backup finished", a summary (tables, rows, sign-in accounts, files) and the file name, for example `backups/hagerland-backup-20261102-0900.tar.gz.enc`.
+6. **Download** it: in the file list on the left, open **backups**, right-click the `.enc` file → **Download**. Do the same for the matching `.sha256` file (its fingerprint).
+7. **Delete them from the Codespace**: `rm backups/hagerland-backup-*`.
 
-`backups/` is never committed to git.
+If anything goes wrong, the backup stops with a plain message and deletes everything it had started: nothing unencrypted is left behind. Fix the problem (usually a mistyped password or key) and run it again. Two backups cannot start in the same minute; wait a minute.
+
+### 1c. Where to keep backups, and how many
+
+- Keep them in a **private folder on your computer** (for example `Documents/HagerLand backups`), plus a **second copy somewhere offline**: a USB stick or external drive kept at home, or your own private cloud drive. A backup without its passphrase cannot be read, but keep it private anyway.
+- Keep the **last 8 weekly backups**, plus **one per month** for the last 12 months (the first backup of each month). Delete older ones.
+- `backups/` is never committed to git (it is git-ignored).
+
+### 1d. Test-restore every quarter (into the local copy, never live)
+
+Once every three months (January, April, July, October), prove a backup opens and restores, using the Codespace's local copy of the site. This never touches live.
+
+1. Upload one recent backup and its `.sha256` file into the Codespace's `backups/` folder (drag them onto the folder in the file list).
+2. In the terminal:
+   ```bash
+   bash supabase/local-stack/setup.sh reset
+   bash scripts/restore-supabase.sh backups/<the file>.tar.gz.enc
+   ```
+3. Answer:
+   - the **backup passphrase**;
+   - the connection string `postgresql://postgres:[YOUR-PASSWORD]@localhost:54322/postgres`;
+   - the address `http://localhost:54321`;
+   - the password `postgres`;
+   - the local service_role key: the value of `SUPABASE_SECRET_KEY` in the file `.env.test.local`. That file holds the LOCAL copy's keys only; open it in the editor and copy the value.
+   - Then type `REPLACE ALL DATA IN TARGET` (the local copy is replaced).
+4. It must end with "Every table's rows, every bucket's files and bytes, and a sample of files byte for byte match the backup."
+5. Delete the uploaded files afterwards: `rm backups/hagerland-backup-*`. Reset the local copy if you like: `bash supabase/local-stack/setup.sh reset`.
+
+### 1e. Restoring for real (a last resort)
+
+Restoring **replaces everything** in the target. **Talk it through with your developer first**: most problems are fixed forward (a new migration, or the Vercel rollback in section 8), not by a restore.
+
+- **Preferred:** restore into a **new, empty Supabase project**:
+  1. Create the project in the same region, then run steps 2–3 of 1d with that project's Session pooler string, its database password and its service_role key.
+  2. Point the site at it: Vercel environment variables `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `SUPABASE_SECRET_KEY`, then redeploy. This is a settings change you make yourself, after talking it through.
+  3. In the new project, copy across the **Authentication settings**: site URL, redirect URLs, email templates (`docs/auth-email-templates`), SMTP and password rules. Copy the **Storage** settings too. These are dashboard settings, not data, so a backup cannot carry them.
+- **Over the live project:** the restore script refuses unless you type `RESTORE OVER LIVE HAGERLAND` exactly. Take a fresh backup of the current state first.
+
+**What a restore brings back:** every table of the site (with its security rules, links, triggers and functions), the sign-in accounts (people keep their passwords), the app's sign-up trigger, the extensions, every bucket's settings and every stored file. **What it does not:** Supabase dashboard settings (above), Vercel settings, and anything that happened after the backup was taken.
 
 ## 2. Running a database migration
 
-All changes are numbered files in `supabase/migrations/`. Instructions and a check query for each are in `supabase/README.md`.
+All changes are numbered files in `supabase/migrations/`. Each comes with a read-only check file in `docs/sql/` (for example `docs/sql/0045_tidy_t2_verify.sql`): that check is the proof the migration worked.
 
 1. Take a backup (section 1).
 2. Supabase → **SQL Editor → New query**. Paste the whole migration file. Click **Run**.
-3. Paste the matching check query from `supabase/README.md`, run it and compare the result.
-4. Run `supabase/tests/rls_test.sql` the same way: every row must start with `PASS`.
+3. Paste the matching `docs/sql/<number>_..._verify.sql` file into a new query and run it: **every row must say PASS**.
+
+`supabase/tests/rls_test.sql` is for the **local copy only**: it creates and deletes test accounts and records, so it is **never run on live**.
 
 If anything fails, Supabase undoes the whole file. Nothing is half-applied. Send the error message to your developer.
 
@@ -56,14 +114,14 @@ Every day at 06:00 UTC Vercel calls `/api/cron/daily` (set in `vercel.json`, pro
 
 - takes down listings past their expiry date and emails the owner;
 - emails owners once, 7 days before their listing expires;
-- marks quotes as expired 14 days after they were issued;
+- marks supply quotes as expired 3 days after they were issued;
 - switches "featured" badges on and off as promotions start and end;
 - reminds providers once when they have not answered a service request within 48 hours;
 - sends daily and weekly saved-search alerts (instant alerts go out when a listing is approved);
 - closes jobs past their closing date;
 - retries emails that failed to send (up to five times; see admin → **Email problems**);
 - deletes verification documents 90 days after the decision, contact-reveal records older than 12 months, CVs sent with job applications after 12 months, and interest registrations after 24 months;
-- emails you a digest at `ADMIN_DIGEST_EMAIL`, only when there is something to look at (reviews waiting, new leads and requests, emergencies, unanswered enquiries, emails waiting to be resent, errors).
+- emails you a digest at `ADMIN_DIGEST_EMAIL`, only when there is something to look at (reviews waiting, new leads and requests, emergencies, unanswered enquiries, emails waiting to be resent, errors). Every Monday (Addis Ababa date) it also says "Weekly reminder: run the backup (RUNBOOK §1)."
 
 To check it ran: Vercel → Project → **Logs**, filter by `/api/cron/daily`, or Vercel → **Settings → Cron Jobs**.
 
@@ -100,7 +158,7 @@ npm run test:e2e:build && npm run test:e2e   # browser tests against the local c
 
 - Code: Vercel → **Deployments**, pick the previous good deployment → **⋯ → Promote to Production**. Takes seconds.
 - Before the relaunch: git tag `pre-construction-relaunch` marks the old live site.
-- Database: restore from your latest backup (Supabase support can help on Pro). This is a last resort: prefer fixing forward with a new migration.
+- Database: restore from your latest backup (section 1e). This is a last resort: prefer fixing forward with a new migration.
 
 ## 9. Imports and Google data
 
