@@ -54,6 +54,7 @@ export default async function PerformancePage(props: { searchParams: Promise<{ d
             { key: 'prov', label: 'Live providers / partners', render: (r) => String(r.providers) },
           ]}
         />
+        <p className="mt-2 text-small text-muted">Recruitment fees are kept in their own record and are not in &quot;Revenue&quot;: see the Jobs report.</p>
       </Panel>
       <Panel title="Estate agency">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

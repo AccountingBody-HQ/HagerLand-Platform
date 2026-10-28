@@ -26,6 +26,7 @@ import { partnerAgreements } from '@/lib/supply/agreements-data'
 import { AgreementsPanel } from '@/components/admin/SupplyAgreements'
 import { partnerPerformanceRows } from '@/lib/supply/insights-data'
 import { organisationActivity } from '@/lib/supply/activity-data'
+import { organisationHiring } from '@/lib/jobs-signals-data'
 import { PerformanceSummary } from '@/components/admin/PartnerPerformance'
 import { ActivityList } from '@/components/admin/OrganisationActivity'
 import { GoogleDataPanel } from '@/components/admin/GoogleDataPanel'
@@ -75,7 +76,7 @@ export default async function AdminOrgPage(
   const today = todayInAddis()
   const gc = imported ? compliance({ id: o.id, status: o.status, claimed: Boolean(o.claimed_at), sources: googleRows }, today) : null
   const session = imported ? await getAdminSession() : null
-  const [performance, activity] = await Promise.all([supply.partner ? partnerPerformanceRows({ orgIds: [o.id], owner }).then((r) => r[0] ?? null) : Promise.resolve(null), organisationActivity(o.id)])
+  const [performance, activity, hiring] = await Promise.all([supply.partner ? partnerPerformanceRows({ orgIds: [o.id], owner }).then((r) => r[0] ?? null) : Promise.resolve(null), organisationActivity(o.id), organisationHiring(o.id)])
   const duplicates = supply.partner ? [] : await findPossibleDuplicates(o)
   const { data: memberProfiles } = await db.from('profiles').select('id, full_name').in('id', (members ?? []).map((m) => m.user_id))
   const memberEmails = await Promise.all(
@@ -185,7 +186,7 @@ export default async function AdminOrgPage(
             </div>
           )}
           <Panel title="Jobs, projects and supply activity">
-            <ActivityList activity={activity} />
+            <ActivityList activity={activity} hiring={hiring} />
           </Panel>
           {owner && supply.partner && (
             <Panel title="Agreement">

@@ -14,6 +14,7 @@ import { cleanupRunText } from '@/lib/jobs-cleanup'
 import { DESK_SWITCH_KEY, RETENTION_MONTHS_KEY, todayAddis } from '@/lib/jobs-desk'
 import { PRIVATE_CLIENT_SWITCH_KEY, REPORTS_SWITCH_KEY } from '@/lib/job-reports'
 import { VERIFICATION_EXPIRY_KEY, VERIFICATION_EXPIRY_STARTED_KEY } from '@/lib/verification'
+import { listTag } from '@/lib/revalidate'
 
 type Msg = ActionResult<{ message: string }>
 
@@ -60,6 +61,8 @@ export async function setJobsSwitchAction(which: string, on: boolean, lawyerConf
   await audit('jobs.switch', { type: 'setting', label: key }, { from: before?.value ?? false, to: parsed.data.on })
   revalidatePath('/jobs', 'layout')
   revalidatePath('/roodber8/jobs', 'layout')
+  // Jobs Phase 6: job lists outside /jobs (company pages, site search) read the same cached job data.
+  revalidateTag(listTag('job'))
   if (parsed.data.which === 'private_client') {
     revalidatePath('/terms')
     revalidatePath('/sitemap/jobs.xml')

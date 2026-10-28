@@ -43,9 +43,14 @@ export default async function ReportsPage(props: { searchParams: Promise<{ perio
         title="Reports"
         description="Simple numbers from the live data. Every table can be downloaded as CSV."
         actions={
-          <ButtonLink href="/roodber8/reports/supply" variant="secondary" size="sm" prefetch={false}>
-            Supply report
-          </ButtonLink>
+          <div className="flex flex-wrap gap-2">
+            <ButtonLink href="/roodber8/reports/supply" variant="secondary" size="sm" prefetch={false}>
+              Supply report
+            </ButtonLink>
+            <ButtonLink href="/roodber8/reports/jobs" variant="secondary" size="sm" prefetch={false}>
+              Jobs report
+            </ButtonLink>
+          </div>
         }
       />
       <nav aria-label="Period" className="flex gap-2">

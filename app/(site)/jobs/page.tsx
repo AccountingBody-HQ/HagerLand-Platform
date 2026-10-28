@@ -3,7 +3,8 @@ import { notFound } from 'next/navigation'
 import { Search } from 'lucide-react'
 import { buildMetadata } from '@/lib/seo'
 import { getVertical } from '@/lib/data/verticals'
-import { searchJobs } from '@/lib/data/jobs'
+import { companyJobs, searchJobs } from '@/lib/data/jobs'
+import { getOrganisationBySlug } from '@/lib/data/organisations'
 import { getLocationByPath } from '@/lib/data/reference'
 import { EMPLOYMENT_TYPES, OFFERED_JOB_CATEGORIES, TRADES, categoryLabel } from '@/lib/jobs'
 import { readJobsSwitches } from '@/lib/jobs-switches'
@@ -27,7 +28,7 @@ import { WorkerRegisterForm } from '@/components/jobs/WorkerRegisterForm'
 
 export const revalidate = 300
 
-type Params = { q?: string; category?: string; type?: string; trade?: string; loc?: string; page?: string }
+type Params = { q?: string; category?: string; type?: string; trade?: string; loc?: string; page?: string; company?: string }
 
 function clean(sp: Params) {
   return {
@@ -36,6 +37,7 @@ function clean(sp: Params) {
     type: EMPLOYMENT_TYPES.some((t) => t.value === sp.type) ? sp.type : undefined,
     trade: TRADES.some((t) => t.value === sp.trade) ? sp.trade : undefined,
     loc: sp.loc && /^[a-z0-9/-]{1,200}$/.test(sp.loc) ? sp.loc : undefined,
+    company: sp.company && /^[a-z0-9-]{1,120}$/.test(sp.company) ? sp.company : undefined,
     page: Math.min(500, Math.max(1, Number.parseInt(sp.page ?? '1', 10) || 1)),
   }
 }
@@ -50,7 +52,8 @@ export async function generateMetadata(props: { searchParams: Promise<Params> })
       title: f.category ? fill(t('{category} jobs'), { category: t(categoryLabel(f.category)) }) : t('Jobs in construction, engineering and property'),
       description: t('Vacancies from construction, engineering, architecture, property and trades employers in Ethiopia and abroad. Apply with your CV on HagerLand.'),
       path: '/jobs',
-      noindex: filtered,
+      // Jobs Phase 6: every ?company= address is noindex, whatever the company.
+      noindex: filtered || searchParams.company !== undefined,
       locale,
     }),
   )
@@ -62,15 +65,25 @@ export default async function JobsPage(props: { searchParams: Promise<Params> })
   const v = await getVertical('jobs')
   if (!v || v.status !== 'live') notFound()
   const f = clean(searchParams)
-  const [{ items, total }, loc, pillar, switches, i18n] = await Promise.all([searchJobs({ q: f.q, category: f.category, type: f.type, trade: f.trade, location: f.loc, page: f.page }), f.loc ? getLocationByPath(f.loc) : Promise.resolve(null), getPillar('jobs'), readJobsSwitches(), getJobsI18n()])
+  // Jobs Phase 6 (AB's fix 2): ?company= filters only for a published business that is not HagerLand's own, and then
+  // only its own jobs (never private-client jobs). Any other company shows the normal board.
+  const org = f.company ? await getOrganisationBySlug(f.company) : null
+  const company = org?.id && org.is_hagerland === false && org.kind !== 'hagerland' ? org : null
+  const [{ items, total }, loc, pillar, switches, i18n] = await Promise.all([
+    company ? companyJobs(company, { q: f.q, category: f.category, type: f.type, trade: f.trade, location: f.loc, page: f.page }) : searchJobs({ q: f.q, category: f.category, type: f.type, trade: f.trade, location: f.loc, page: f.page }),
+    f.loc ? getLocationByPath(f.loc) : Promise.resolve(null),
+    getPillar('jobs'),
+    readJobsSwitches(),
+    getJobsI18n(),
+  ])
   const { t, href } = i18n
   const totalPages = Math.ceil(total / 20)
   const hrefFor = (page: number) => {
-    const qs = new URLSearchParams(Object.entries({ q: f.q, category: f.category, type: f.type, trade: f.trade, loc: f.loc, page: page > 1 ? String(page) : undefined }).filter((e): e is [string, string] => Boolean(e[1])))
+    const qs = new URLSearchParams(Object.entries({ q: f.q, category: f.category, type: f.type, trade: f.trade, loc: f.loc, company: company ? f.company : undefined, page: page > 1 ? String(page) : undefined }).filter((e): e is [string, string] => Boolean(e[1])))
     const s = qs.toString()
     return s ? `/jobs?${s}` : '/jobs'
   }
-  const filtered = Boolean(f.q || f.category || f.type || f.trade || f.loc)
+  const filtered = Boolean(f.q || f.category || f.type || f.trade || f.loc || company)
   return (
     <>
       <section className="hl-blueprint bg-ink text-white">
@@ -179,6 +192,7 @@ export default async function JobsPage(props: { searchParams: Promise<Params> })
             )}
           </aside>
           <div className="mt-8 min-w-0 lg:mt-0">
+            {company && <h2 className="hl-h3 mb-2">{fill(t('Jobs at {company}'), { company: company.name ?? '' })}</h2>}
             <p className="mb-4 text-muted" role="status">
               {total > 0 ? fill(t(filtered ? '{count} match your search' : '{count} open now'), { count: total === 1 ? t('1 job') : fill(t('{n} jobs'), { n: formatNumber(total) }) }) : ''}
             </p>

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { isOwnerSession, requireAdminPage } from '@/lib/admin/guard'
 import { ButtonLink } from '@/components/ui/Button'
 import { getAdminSupabase } from '@/lib/supabase/admin'
+import { must } from '@/lib/admin/must'
 import { formatDate } from '@/lib/format'
 import { EMPLOYMENT_TYPES, categoryLabel, labelFor } from '@/lib/jobs'
 import { AdminHeader, DataTable, FilterBar, FilterField, KeyValue, Panel, SimplePager, StatusBadge, filterInput } from '@/components/admin/AdminUi'
@@ -21,19 +22,22 @@ export default async function AdminJobsPage(props: { searchParams: Promise<Recor
   let q = db.from('job_posts').select('id, title, category, employment_type, status, applications_count, employer_org_id, published_at, expires_at, updated_at').order('updated_at', { ascending: false }).range((page - 1) * PAGE, page * PAGE)
   if (status) q = q.eq('status', status)
   const head = { count: 'exact' as const, head: true }
-  const [{ data }, live, pending, apps, apps30, hired, phoneApps, register, owner] = await Promise.all([
-    q,
-    db.from('job_posts').select('id', head).eq('status', 'published'),
-    db.from('job_posts').select('id', head).eq('status', 'pending_review'),
-    db.from('job_applications').select('id', head),
-    db.from('job_applications').select('id', head).gte('created_at', new Date(Date.now() - 30 * 86_400_000).toISOString()),
-    db.from('job_applications').select('id', head).eq('status', 'hired'),
-    db.from('job_applications').select('id', head).eq('channel', 'phone'),
-    db.from('worker_register').select('id', head).is('personal_data_deleted_at', null),
+  // The failure rule (Jobs Phase 6, F-1): a failed read shows an error, never zeros.
+  const [[{ data }, live, pending, apps, apps30, hired, phoneApps, register], owner] = await Promise.all([
+    Promise.all([
+      q,
+      db.from('job_posts').select('id', head).eq('status', 'published'),
+      db.from('job_posts').select('id', head).eq('status', 'pending_review'),
+      db.from('job_applications').select('id', head),
+      db.from('job_applications').select('id', head).gte('created_at', new Date(Date.now() - 30 * 86_400_000).toISOString()),
+      db.from('job_applications').select('id', head).eq('status', 'hired'),
+      db.from('job_applications').select('id', head).eq('channel', 'phone'),
+      db.from('worker_register').select('id', head).is('personal_data_deleted_at', null),
+    ]).then(must),
     isOwnerSession(),
   ])
   const rows = (data ?? []).slice(0, PAGE)
-  const { data: orgs } = await db.from('organisations').select('id, name').in('id', Array.from(new Set(rows.map((r) => r.employer_org_id))))
+  const { data: orgs } = must(await db.from('organisations').select('id, name').in('id', Array.from(new Set(rows.map((r) => r.employer_org_id)))))
   const orgName = new Map((orgs ?? []).map((o) => [o.id, o.name]))
   return (
     <div className="space-y-5">

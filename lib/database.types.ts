@@ -2315,6 +2315,49 @@ export type Database = {
           },
         ]
       }
+      job_status_events: {
+        Row: {
+          actor_kind: string
+          created_at: string
+          from_status: string | null
+          id: string
+          job_post_id: string
+          to_status: string
+        }
+        ComputedFields: never
+        Insert: {
+          actor_kind: string
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          job_post_id: string
+          to_status: string
+        }
+        Update: {
+          actor_kind?: string
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          job_post_id?: string
+          to_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'job_status_events_job_post_id_fkey'
+            columns: ['job_post_id']
+            isOneToOne: false
+            referencedRelation: 'job_posts'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'job_status_events_job_post_id_fkey'
+            columns: ['job_post_id']
+            isOneToOne: false
+            referencedRelation: 'jobs_public'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       locations: {
         Row: {
           country_code: string

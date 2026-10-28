@@ -53,6 +53,7 @@ export const ADMIN_NAV_GROUPS: readonly AdminNavGroup[] = [
       { href: '/roodber8/jobs/desk', label: 'Recruitment desk', icon: Handshake },
       { href: '/roodber8/jobs/register', label: 'Worker register', icon: Users },
       { href: '/roodber8/jobs/callbacks', label: 'Call-back requests', icon: PhoneCall },
+      { href: '/roodber8/demand/jobs', label: 'Jobs insights', icon: TrendingUp },
     ],
   },
   {
@@ -99,6 +100,7 @@ export const ADMIN_NAV_GROUPS: readonly AdminNavGroup[] = [
       { href: '/roodber8/performance', label: 'Performance', icon: Activity },
       { href: '/roodber8/reports', label: 'Reports', icon: BarChart3 },
       { href: '/roodber8/reports/supply', label: 'Supply report', icon: FileBarChart },
+      { href: '/roodber8/reports/jobs', label: 'Jobs report', icon: FileBarChart },
     ],
   },
   {
@@ -134,7 +136,7 @@ export const NAV_SYNONYMS: Record<string, string[]> = {
   performance: ['/roodber8/performance', '/roodber8/supply/performance'],
   reliability: ['/roodber8/supply/performance'],
   trends: ['/roodber8/supply/partners'],
-  report: ['/roodber8/reports', '/roodber8/reports/supply'],
+  report: ['/roodber8/reports', '/roodber8/reports/supply', '/roodber8/reports/jobs'],
   ageing: ['/roodber8/reports/supply'],
   debtors: ['/roodber8/reports/supply'],
   'commission owed': ['/roodber8/reports/supply'],
