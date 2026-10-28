@@ -6,6 +6,7 @@ import { formatDate, formatMoney } from '@/lib/format'
 import { AdminHeader, Panel, StatusBadge } from '@/components/admin/AdminUi'
 import { DealForm } from '@/components/admin/DealForm'
 import { ButtonLink } from '@/components/ui/Button'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Deals and commissions' }
 
@@ -19,13 +20,13 @@ export default async function DealsPage() {
   const months = lastMonths(12)
   const since = `${months[0]}-01T00:00:00Z`
   // The table shows the latest 500 deals; the monthly figures use every deal (Fix F-1, same read as the CSV report).
-  const [{ data: deals }, { data: allDeals }, { data: reqs }, { data: enqs }, { data: quotes }] = await Promise.all([
+  const [{ data: deals }, { data: allDeals }, { data: reqs }, { data: enqs }, { data: quotes }] = must(await Promise.all([
     db.from('deals').select('*').order('created_at', { ascending: false }).limit(500),
     readAll(() => db.from('deals').select('closed_at, created_at, status, currency, value_minor, commission_minor, lead_fee_minor'), { maxRows: REPORT_MAX_ROWS }),
     readAll(() => db.from('service_requests').select('created_at').gte('created_at', since), { maxRows: REPORT_MAX_ROWS }),
     readAll(() => db.from('enquiries').select('created_at').gte('created_at', since), { maxRows: REPORT_MAX_ROWS }),
     readAll(() => db.from('quote_requests').select('created_at').gte('created_at', since), { maxRows: REPORT_MAX_ROWS }),
-  ])
+  ]))
   const report = monthlyReport(months, { requests: (reqs ?? []).map((r) => r.created_at), enquiries: (enqs ?? []).map((r) => r.created_at), quoteRequests: (quotes ?? []).map((r) => r.created_at), deals: allDeals })
   const currencies = Array.from(new Set(report.flatMap((r) => Object.keys(r.money)))).sort()
   return (

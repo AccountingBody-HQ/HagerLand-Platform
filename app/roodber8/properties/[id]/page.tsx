@@ -15,6 +15,7 @@ import { AuditTrail } from '@/components/admin/AuditTrail'
 import { MediaManager } from '@/components/media/MediaManager'
 import { FormAlert } from '@/components/forms/FormParts'
 import type { MediaItem } from '@/lib/media-actions'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Listing' }
 
@@ -25,9 +26,9 @@ export default async function AdminPropertyPage(
   const params = await props.params
   await requireAdminPage()
   const db = getAdminSupabase()
-  const { data: p } = await db.from('properties').select('*').eq('id', params.id).maybeSingle()
+  const { data: p } = must(await db.from('properties').select('*').eq('id', params.id).maybeSingle())
   if (!p) notFound()
-  const [{ data: media }, listers, developments, notes, trail, loc, org, person, enquiries] = await Promise.all([
+  const [{ data: media }, listers, developments, notes, trail, loc, org, person, enquiries] = must(await Promise.all([
     db.from('media').select('id, kind, storage_path, thumb_path, width, height, alt, sort, is_cover, status').eq('entity_type', 'property').eq('entity_id', p.id).order('sort'),
     listerOptions(),
     developmentOptions(),
@@ -37,7 +38,7 @@ export default async function AdminPropertyPage(
     p.lister_org_id ? db.from('organisations').select('id, name').eq('id', p.lister_org_id).maybeSingle() : Promise.resolve({ data: null }),
     p.lister_user_id ? db.from('profiles').select('id, full_name, phone').eq('id', p.lister_user_id).maybeSingle() : Promise.resolve({ data: null }),
     db.from('enquiries').select('id', { count: 'exact', head: true }).eq('target_type', 'property').eq('target_id', p.id),
-  ])
+  ]))
   const values = { ...p, area_m2: p.area_m2 === null ? null : Number(p.area_m2), plot_area_m2: p.plot_area_m2 === null ? null : Number(p.plot_area_m2), location: loc ? { value: loc.id, label: loc.name, description: loc.display_name } : null }
 
   return (

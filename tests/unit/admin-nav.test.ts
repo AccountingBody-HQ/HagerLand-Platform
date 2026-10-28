@@ -73,7 +73,7 @@ describe('admin menu', () => {
   })
 
   it('keeps the counts shown next to items', () => {
-    expect(ADMIN_NAV.filter((i) => i.badgeKey).map((i) => i.badgeKey).sort()).toEqual(['agency', 'care', 'email', 'interest', 'quotes', 'requests', 'review', 'reviews', 'trade'])
+    expect(ADMIN_NAV.filter((i) => i.badgeKey).map((i) => i.badgeKey).sort()).toEqual(['agency', 'callbacks', 'care', 'email', 'enquiries', 'interest', 'partners', 'quotes', 'requests', 'review', 'reviews', 'trade', 'users'])
   })
 })
 

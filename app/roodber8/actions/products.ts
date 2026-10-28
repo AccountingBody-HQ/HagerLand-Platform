@@ -8,6 +8,7 @@ import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
 import type { Database } from '@/lib/database.types'
 import { getAdminSupabase } from '@/lib/supabase/admin'
+import { readAll, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import { assertAdmin, audit, changedFields } from '@/lib/admin/guard'
 import { productSchema, preparePriceRows, type PriceRow } from '@/lib/validation/product'
 import { fail, invalid, ok, type ActionResult } from '@/lib/action-result'
@@ -77,8 +78,8 @@ export async function saveProductAction(_prev: ActionResult<{ id: string }> | nu
 }
 
 async function priceContext() {
-  const { data } = await getAdminSupabase().from('products').select('id, sku, name').not('sku', 'is', null)
-  return data ?? []
+  const { data } = await readAll(() => getAdminSupabase().from('products').select('id, sku, name').not('sku', 'is', null), { maxRows: REPORT_MAX_ROWS })
+  return data
 }
 
 export async function previewPriceCsvAction(csv: string): Promise<ActionResult<{ rows: PriceRow[] }>> {

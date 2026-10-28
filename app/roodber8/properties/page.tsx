@@ -7,6 +7,7 @@ import { formatDate, formatETB } from '@/lib/format'
 import { PROPERTY_TYPES, propertyTypeLabel } from '@/lib/labels'
 import { AdminHeader, DataTable, FilterBar, FilterField, filterInput, SimplePager, StatusBadge } from '@/components/admin/AdminUi'
 import { ButtonLink } from '@/components/ui/Button'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Properties' }
 const PAGE = 50
@@ -28,7 +29,7 @@ export default async function AdminPropertiesPage(props: { searchParams: Promise
   if (searchParams.lister) q = q.eq('lister_type', searchParams.lister)
   if (searchParams.featured === '1') q = q.eq('is_featured', true)
   if (searchParams.expiring === '1') q = q.eq('status', 'published').lt('expires_at', new Date(Date.now() + 7 * 86_400_000).toISOString())
-  const { data, count } = await q.order('updated_at', { ascending: false }).range((page - 1) * PAGE, page * PAGE - 1)
+  const { data, count } = must(await q.order('updated_at', { ascending: false }).range((page - 1) * PAGE, page * PAGE - 1))
   const rows = data ?? []
   const qs = (p: number) => {
     const s = new URLSearchParams(Object.entries(searchParams).filter((e): e is [string, string] => Boolean(e[1]) && e[0] !== 'page'))

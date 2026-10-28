@@ -4,6 +4,7 @@ import { escapeLikePattern } from '@/lib/security'
 import { formatDate, formatPhone } from '@/lib/format'
 import { INTENT_LABELS } from '@/lib/enquiries'
 import { DataTable, FilterBar, FilterField, filterInput, SimplePager, StatusBadge } from './AdminUi'
+import { must } from '@/lib/admin/must'
 
 const PAGE = 50
 const TARGETS: Record<string, string> = {
@@ -29,7 +30,7 @@ export async function EnquiryList({ basePath, searchParams, salesOnly = false }:
   if (searchParams.from) q = q.gte('created_at', `${searchParams.from}T00:00:00Z`)
   if (searchParams.to) q = q.lte('created_at', `${searchParams.to}T23:59:59Z`)
   if (searchParams.unanswered === '1') q = q.is('first_viewed_at', null).lt('created_at', new Date(Date.now() - 48 * 3_600_000).toISOString()).not('target_type', 'in', '("general","hagerland_development")')
-  const { data, count } = await q.order('created_at', { ascending: false }).range((page - 1) * PAGE, page * PAGE - 1)
+  const { data, count } = must(await q.order('created_at', { ascending: false }).range((page - 1) * PAGE, page * PAGE - 1))
   const params = new URLSearchParams(Object.entries(searchParams).filter((e): e is [string, string] => Boolean(e[1]) && e[0] !== 'page'))
   return (
     <>

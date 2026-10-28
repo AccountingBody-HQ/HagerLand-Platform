@@ -8,6 +8,7 @@ import { CARE_SERVICE_LABEL, CARE_STATUSES, CARE_STATUS_LABEL } from '@/lib/prop
 import { brand } from '@/lib/brand'
 import { AdminHeader, DataTable, FilterBar, FilterField, StatusBadge, filterInput } from '@/components/admin/AdminUi'
 import { ButtonLink } from '@/components/ui/Button'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Property Care pipeline' }
 
@@ -19,7 +20,7 @@ export default async function CarePipelinePage(props: { searchParams: Promise<{ 
   const db = getAdminSupabase()
   let q = db.from('property_care_requests').select('id, reference, created_at, name, country_code, city, property_type, services, status').order('created_at', { ascending: false }).limit(500)
   if (status) q = q.eq('status', status)
-  const [{ data }, { data: all }] = await Promise.all([q, readAll(() => db.from('property_care_requests').select('status'), { maxRows: REPORT_MAX_ROWS })])
+  const [{ data }, { data: all }] = must(await Promise.all([q, readAll(() => db.from('property_care_requests').select('status'), { maxRows: REPORT_MAX_ROWS })]))
   const counts = new Map<string, number>()
   for (const r of all ?? []) counts.set(r.status, (counts.get(r.status) ?? 0) + 1)
   return (

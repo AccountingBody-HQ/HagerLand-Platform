@@ -547,7 +547,9 @@ test('J15 + J18: digest lines (counts only, failure-isolated) and the same figur
     psql('grant select on public.recruitment_fee_entries to service_role')
   }
   expect(failed).toContain('Jobs: open 14 days or more with no applications')
-  expect(failed).not.toContain('Recruitment fees owed for over 30 days')
+  // Fix F-2: the failed group is named ("Could not read"), never shown as a figure or left out.
+  expect(failed).not.toMatch(/Recruitment fees owed for over 30 days: \d/)
+  expect(failed).toContain('Could not read: Recruitment fees owed for over 30 days')
 
   // J18: a phone application from 13 months ago; the figures before and after the deletion clears its details.
   const { data: app } = await db().from('job_applications').insert({ job_id: quiet.id, channel: 'phone', name: 'E2E P6 Old Applicant', phone: randomPhone(), trade: 'tiler', area_text: 'Bole', preferred_contact: 'call', language: 'am', adult_confirmed_at: new Date().toISOString(), consent_at: new Date().toISOString(), created_at: new Date(Date.now() - 400 * DAY).toISOString() }).select('id').single()

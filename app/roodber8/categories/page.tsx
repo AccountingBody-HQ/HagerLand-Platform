@@ -5,6 +5,7 @@ import { getAdminSupabase } from '@/lib/supabase/admin'
 import { AdminHeader } from '@/components/admin/AdminUi'
 import { TaxonomyEditor, type TreeNode } from '@/components/admin/TaxonomyEditor'
 import { cn } from '@/lib/cn'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Categories' }
 
@@ -24,17 +25,17 @@ export default async function CategoriesPage(props: { searchParams: Promise<{ ty
   const db = getAdminSupabase()
   let nodes: TreeNode[]
   if (type === 'product') {
-    const [{ data: cats }, { data: products }] = await Promise.all([
+    const [{ data: cats }, { data: products }] = must(await Promise.all([
       db.from('product_categories').select('id, parent_id, name, slug, sort, is_active, description, seo_title, seo_intro'),
       readAll(() => db.from('products').select('category_id').neq('status', 'removed'), { maxRows: REPORT_MAX_ROWS }),
-    ])
+    ]))
     const counts = countBy(products, (p) => p.category_id)
     nodes = (cats ?? []).map((c) => ({ ...c, meta: counts.get(c.id) ? `${counts.get(c.id)} products` : undefined, fields: { description: c.description, seo_title: c.seo_title, seo_intro: c.seo_intro } }))
   } else {
-    const [{ data: cats }, { data: links }] = await Promise.all([
+    const [{ data: cats }, { data: links }] = must(await Promise.all([
       db.from('service_categories').select('id, parent_id, name, slug, sort, is_active, description, seo_title, seo_intro'),
       readAll(() => db.from('organisation_services').select('service_id'), { maxRows: REPORT_MAX_ROWS, key: ['org_id', 'service_id'] }),
-    ])
+    ]))
     const counts = countBy(links, (l) => l.service_id)
     nodes = (cats ?? []).map((c) => ({ ...c, meta: counts.get(c.id) ? `${counts.get(c.id)} companies` : undefined, fields: { description: c.description, seo_title: c.seo_title, seo_intro: c.seo_intro } }))
   }

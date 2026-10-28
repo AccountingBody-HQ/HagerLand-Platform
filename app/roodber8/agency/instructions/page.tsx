@@ -7,6 +7,7 @@ import { formatDate, formatETB } from '@/lib/format'
 import { AdminHeader, DataTable, FilterBar, FilterField, Panel, filterInput } from '@/components/admin/AdminUi'
 import { ActionForm } from '@/components/forms/ActionForm'
 import { Field, Input, Select } from '@/components/ui/Field'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Instructions' }
 
@@ -18,7 +19,7 @@ export default async function InstructionsPage(props: { searchParams: Promise<{ 
   let q = getAdminSupabase().from('agency_instructions').select('id, reference, title, purpose, stage, asking_price_etb, assigned_agent, updated_at, contact:agency_contacts(name)').order('updated_at', { ascending: false }).limit(300)
   if (stage) q = q.eq('stage', stage)
   if (purpose) q = q.eq('purpose', purpose)
-  const { data } = await q
+  const { data } = must(await q)
   return (
     <div className="space-y-5">
       <AdminHeader title="Instructions" description="Every property HagerLand sells or lets, from first contact to completion." />

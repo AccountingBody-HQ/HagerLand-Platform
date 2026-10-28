@@ -18,6 +18,7 @@ import { AuditTrail } from '@/components/admin/AuditTrail'
 import { ActionButton } from '@/components/forms/ActionButton'
 import { AdvertWarnings } from '@/components/admin/AdvertWarnings'
 import { CopyForTelegram } from '@/components/admin/CopyForTelegram'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Job' }
 
@@ -26,18 +27,18 @@ export default async function AdminJobPage(props: { params: Promise<{ id: string
   await requireAdminPage()
   if (!/^[0-9a-f-]{36}$/.test(params.id)) notFound()
   const db = getAdminSupabase()
-  const { data: job } = await db.from('job_posts').select('*').eq('id', params.id).maybeSingle()
+  const { data: job } = must(await db.from('job_posts').select('*').eq('id', params.id).maybeSingle())
   if (!job) notFound()
-  const [{ data: org }, { data: loc }, { data: apps }, trail] = await Promise.all([
+  const [{ data: org }, { data: loc }, { data: apps }, trail] = must(await Promise.all([
     db.from('organisations').select('id, name, status').eq('id', job.employer_org_id).maybeSingle(),
     job.location_id ? db.from('locations').select('display_name').eq('id', job.location_id).maybeSingle() : Promise.resolve({ data: null }),
     db.from('job_applications').select('id, reference, name, email, phone, channel, trade, area_text, status, cv_path, cv_purged_at, personal_data_deleted_at, created_at').eq('job_id', job.id).order('created_at', { ascending: false }),
     auditFor(job.id),
-  ])
+  ]))
   const rows = await Promise.all((apps ?? []).map(async (a) => ({ ...a, cvUrl: a.cv_path ? await signedDocumentUrl(a.cv_path) : null })))
   // Jobs Phase 4: private-client details, the four-eyes rule and open reports.
   const privateClient = job.posted_for === 'private_client'
-  const [actor, owner, { data: openReports }] = await Promise.all([adminActor(), isOwnerSession(), db.from('job_reports').select('id, reason').eq('job_post_id', job.id).eq('status', 'open')])
+  const [actor, owner, { data: openReports }] = must(await Promise.all([adminActor(), isOwnerSession(), db.from('job_reports').select('id, reason').eq('job_post_id', job.id).eq('status', 'open')]))
   const createdByMe = privateClient && job.created_by_staff === actor.slice(0, 120)
   const warnings = [...advertWarnings(job.title, job.description, job.requirements), ...(privateClient ? privateClientWarnings(job.title, job.description, job.requirements) : [])]
   return (

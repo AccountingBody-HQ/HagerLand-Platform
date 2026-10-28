@@ -21,6 +21,7 @@ import { UpdateForm } from '@/components/development/UpdateForm'
 import { DecisionButtons } from '@/components/admin/ModerationControls'
 import { ActionButton } from '@/components/forms/ActionButton'
 import { adminPostDevelopmentUpdateAction, developmentUpdateDecisionAction, removeDevelopmentUpdateAction } from '../../actions/development-updates'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Development' }
 
@@ -31,9 +32,9 @@ export default async function AdminDevelopmentPage(
   const params = await props.params
   await requireAdminPage()
   const db = getAdminSupabase()
-  const { data: d } = await db.from('developments').select('*').eq('id', params.id).maybeSingle()
+  const { data: d } = must(await db.from('developments').select('*').eq('id', params.id).maybeSingle())
   if (!d) notFound()
-  const [{ data: media }, devs, notes, trail, loc, units, { data: updates }] = await Promise.all([
+  const [{ data: media }, devs, notes, trail, loc, units, { data: updates }] = must(await Promise.all([
     db.from('media').select('id, kind, storage_path, thumb_path, width, height, alt, sort, is_cover, status').eq('entity_type', 'development').eq('entity_id', d.id).order('sort'),
     developerOptions(),
     notesFor('development', d.id),
@@ -41,7 +42,7 @@ export default async function AdminDevelopmentPage(
     getLocationById(d.location_id),
     db.from('properties').select('id, title, status').eq('development_id', d.id).limit(50),
     db.from('development_updates').select('id, title, body, happened_on, status, photo_paths').eq('development_id', d.id).order('happened_on', { ascending: false }),
-  ])
+  ]))
   return (
     <div className="space-y-5">
       <AdminHeader

@@ -7,6 +7,7 @@ import { Panel } from '@/components/admin/AdminUi'
 import { TenancyFields } from '@/components/admin/TenancyFields'
 import { ActionForm } from '@/components/forms/ActionForm'
 import { Field, Input } from '@/components/ui/Field'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Tenancies' }
 
@@ -15,7 +16,7 @@ export default async function TenanciesPage(props: { searchParams: Promise<{ sta
   const status = TENANCY_STATUSES.find((s) => s === sp.status)
   let q = getAdminSupabase().from('tenancies').select('id, reference, title, tenant_names, start_date, end_date, rent_minor, currency, rent_period, renewal_date, notice_date, status').order('start_date', { ascending: false }).limit(300)
   if (status) q = q.eq('status', status)
-  const { data } = await q
+  const { data } = must(await q)
   return (
     <AgencyList
       title="Tenancies"

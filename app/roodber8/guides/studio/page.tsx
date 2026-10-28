@@ -3,12 +3,13 @@ import { getAdminSupabase } from '@/lib/supabase/admin'
 import { AdminHeader } from '@/components/admin/AdminUi'
 import { GuideStudio } from '@/components/admin/GuideStudio'
 import { ButtonLink } from '@/components/ui/Button'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Guide studio' }
 
 export default async function GuideStudioPage() {
   await requireAdminPage()
-  const { data } = await getAdminSupabase().from('guides').select('title')
+  const { data } = must(await getAdminSupabase().from('guides').select('title'))
   return (
     <div className="space-y-5">
       <AdminHeader

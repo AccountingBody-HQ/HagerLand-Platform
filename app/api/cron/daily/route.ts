@@ -10,6 +10,8 @@ export async function GET(request: NextRequest) {
   const secret = process.env.CRON_SECRET
   const header = request.headers.get('authorization')
   if (!secret || !header || !safeEqual(header, `Bearer ${secret}`)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  const summary = await runDaily()
+  // Local test copy only (HL_TEST_ENV, set by scripts/with-test-env.sh, never on Vercel): force the digest fallback email.
+  const failDigestForTest = process.env.HL_TEST_ENV === '1' && request.headers.get('x-test-fail-digest') === '1'
+  const summary = await runDaily(Date.now(), { failDigestForTest })
   return NextResponse.json({ ok: true, ...summary })
 }

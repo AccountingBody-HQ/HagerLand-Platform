@@ -8,6 +8,7 @@ import { legacyCleanupStartedOn } from '@/lib/verification-data'
 import { legacyEndsOn } from '@/lib/verification'
 import { AdminHeader, DataTable, Panel } from '@/components/admin/AdminUi'
 import { JobsCleanupModeControl, JobsDryRunButton, JobsSwitchControl, RetentionMonthsControl } from '@/components/admin/JobsPhase2Controls'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Jobs: switches and data deletion' }
 
@@ -18,11 +19,11 @@ export const metadata = { title: 'Jobs: switches and data deletion' }
 export default async function JobsDataPage() {
   await requireAdminPage()
   if (!(await isOwnerSession())) redirect('/roodber8?denied=1')
-  const [switches, { data: runs }, startedOn] = await Promise.all([
+  const [switches, { data: runs }, startedOn] = must(await Promise.all([
     readJobsSwitches(),
     getAdminSupabase().from('job_data_cleanup_runs').select('id, mode, started_at, finished_at, counts, failures, run_by').order('started_at', { ascending: false }).limit(20),
     legacyCleanupStartedOn(),
-  ])
+  ]))
   const verificationExpiry = { on: startedOn !== null, startedOn }
   return (
     <div className="space-y-5">

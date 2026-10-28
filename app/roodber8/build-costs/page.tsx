@@ -8,13 +8,14 @@ import { ActionForm } from '@/components/forms/ActionForm'
 import { ActionButton } from '@/components/forms/ActionButton'
 import { Combobox } from '@/components/ui/Combobox'
 import { Input, Select } from '@/components/ui/Field'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Build-cost rates' }
 
 /** Rates per m² behind the public build-cost estimator (spec 25.2h). The estimator is hidden until a rate exists. */
 export default async function BuildCostsPage() {
   await requireAdminPage()
-  const { data } = await getAdminSupabase().from('build_cost_rates_public').select('*').order('location_display', { nullsFirst: true }).order('finish')
+  const { data } = must(await getAdminSupabase().from('build_cost_rates_public').select('*').order('location_display', { nullsFirst: true }).order('finish'))
   const rows = data ?? []
   return (
     <div className="space-y-5">

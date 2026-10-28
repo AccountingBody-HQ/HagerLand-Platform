@@ -7,6 +7,7 @@ import { LICENCE_KINDS, LICENCE_LABELS } from '@/lib/validation/settings'
 import { integrationStatuses } from '@/lib/integrations'
 import { AdminHeader, Panel } from '@/components/admin/AdminUi'
 import { ClaimsEditor, SettingsForm } from './SettingsForm'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Settings' }
 
@@ -15,7 +16,7 @@ const SOCIAL_LABEL: Record<string, string> = { facebook: 'Facebook', instagram: 
 export default async function SettingsPage() {
   await requireAdminPage()
   const db = getAdminSupabase()
-  const { data } = await db.from('site_settings').select('key, value')
+  const { data } = must(await db.from('site_settings').select('key, value'))
   const s = Object.fromEntries((data ?? []).map((r) => [r.key, r.value])) as Record<string, unknown>
   const o = (k: string) => (s[k] && typeof s[k] === 'object' && !Array.isArray(s[k]) ? (s[k] as Record<string, unknown>) : {})
   const v = (x: unknown) => (x === null || x === undefined ? '' : String(x))
@@ -26,7 +27,7 @@ export default async function SettingsPage() {
   const dates = o('legal_last_updated')
   const claims = (Array.isArray(s.developments_claims) ? s.developments_claims : []).map((c) => ({ title: v((c as Record<string, unknown>)?.title), text: v((c as Record<string, unknown>)?.text) }))
   const pickIds = Array.isArray(s.homepage_featured_ids) ? (s.homepage_featured_ids as string[]) : []
-  const { data: picks } = pickIds.length ? await db.from('properties').select('id, short_id').in('id', pickIds) : { data: [] }
+  const { data: picks } = pickIds.length ? must(await db.from('properties').select('id, short_id').in('id', pickIds)) : { data: [] }
   const pickText = pickIds.map((id) => picks?.find((p) => p.id === id)?.short_id).filter(Boolean).join('\n')
   return (
     <div className="max-w-4xl space-y-5">

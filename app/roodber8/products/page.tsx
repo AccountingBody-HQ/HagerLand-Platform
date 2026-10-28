@@ -8,6 +8,7 @@ import { productPrice } from '@/lib/product-price'
 import { STOCK_LABEL } from '@/lib/units'
 import { AdminHeader, DataTable, FilterBar, FilterField, filterInput, SimplePager, StatusBadge } from '@/components/admin/AdminUi'
 import { ButtonLink } from '@/components/ui/Button'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Products' }
 const PAGE = 50
@@ -21,12 +22,12 @@ export default async function AdminProductsPage(props: { searchParams: Promise<R
   if (searchParams.q) {
     const term = escapeLikePattern(searchParams.q.trim().slice(0, 80))
     // An exact SKU match wins; otherwise search by name.
-    const { data: bySku } = await db.from('products').select('id').ilike('sku', term).limit(50)
+    const { data: bySku } = must(await db.from('products').select('id').ilike('sku', term).limit(50))
     q = bySku?.length ? q.in('id', bySku.map((r) => r.id)) : q.ilike('name', `%${term}%`)
   }
   if (searchParams.status) q = q.eq('status', searchParams.status as 'published')
   if (searchParams.stock) q = q.eq('stock_status', searchParams.stock as 'in_stock')
-  const { data, count } = await q.order('name').range((page - 1) * PAGE, page * PAGE - 1)
+  const { data, count } = must(await q.order('name').range((page - 1) * PAGE, page * PAGE - 1))
   return (
     <div>
       <AdminHeader

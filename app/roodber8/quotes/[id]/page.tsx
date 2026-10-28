@@ -16,6 +16,7 @@ import { listOrders, orderableGroups } from '@/lib/supply/orders-data'
 import { AdminHeader, KeyValue, Panel, StatusBadge } from '@/components/admin/AdminUi'
 import { IssueQuoteTool, LeadStatusTool, QuoteInternalTool } from '@/components/admin/LeadTools'
 import { AuditTrail } from '@/components/admin/AuditTrail'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Quote' }
 
@@ -25,7 +26,7 @@ export default async function AdminQuotePage(props: { params: Promise<{ id: stri
   const params = await props.params
   await requireAdminPage()
   const db = getAdminSupabase()
-  const { data: q } = await db.from('quote_requests').select('*, location:locations(display_name)').eq('id', params.id).maybeSingle()
+  const { data: q } = must(await db.from('quote_requests').select('*, location:locations(display_name)').eq('id', params.id).maybeSingle())
   if (!q) notFound()
   const session = await getAdminSession()
   // Suppliers and HagerLand-added items are for owner and operations (the supply area); margins for the owner only.

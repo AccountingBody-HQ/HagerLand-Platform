@@ -11,6 +11,7 @@ import { AgencyRecordSide } from '@/components/admin/AgencyRecordSide'
 import { ReportUpload } from '@/components/admin/AgencyTools'
 import { ActionForm } from '@/components/forms/ActionForm'
 import { Field, Input, Select, Textarea } from '@/components/ui/Field'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Valuation' }
 
@@ -24,7 +25,7 @@ export default async function ValuationPage(props: { params: Promise<{ id: strin
   const { id } = await props.params
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound()
   const db = getAdminSupabase()
-  const { data: v } = await db.from('agency_valuations').select('*, contact:agency_contacts(id, name, email, phone), location:locations(display_name)').eq('id', id).maybeSingle()
+  const { data: v } = must(await db.from('agency_valuations').select('*, contact:agency_contacts(id, name, email, phone), location:locations(display_name)').eq('id', id).maybeSingle())
   if (!v) notFound()
   const one = <T,>(x: T | T[] | null): T | null => (Array.isArray(x) ? (x[0] ?? null) : x)
   const c = one(v.contact)

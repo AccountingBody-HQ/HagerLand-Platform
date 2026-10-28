@@ -10,6 +10,7 @@ import { UserTools } from '@/components/admin/UserTools'
 import { AuditTrail } from '@/components/admin/AuditTrail'
 import { Badge } from '@/components/ui/Badge'
 import { FormAlert } from '@/components/forms/FormParts'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'User' }
 
@@ -21,7 +22,7 @@ export default async function AdminUserPage(props: { params: Promise<{ id: strin
   const { data: auth } = await db.auth.admin.getUserById(params.id)
   const user = auth.user
   if (!user) notFound()
-  const [{ data: p }, { data: orgs }, { data: listings }, { count: sent }, { count: received }, { data: quotes }, trail] = await Promise.all([
+  const [{ data: p }, { data: orgs }, { data: listings }, { count: sent }, { count: received }, { data: quotes }, trail] = must(await Promise.all([
     db.from('profiles').select('*').eq('id', user.id).maybeSingle(),
     db.from('organisation_members').select('role, org:organisations(id, name, kind, status)').eq('user_id', user.id),
     db.from('properties').select('id, title, status, updated_at').eq('lister_user_id', user.id).order('updated_at', { ascending: false }).limit(50),
@@ -29,7 +30,7 @@ export default async function AdminUserPage(props: { params: Promise<{ id: strin
     db.from('enquiries').select('id', { count: 'exact', head: true }).eq('recipient_user_id', user.id),
     db.from('quote_requests').select('id, reference, status, created_at').eq('requester_user_id', user.id).order('created_at', { ascending: false }).limit(20),
     auditFor(user.id),
-  ])
+  ]))
   const providers = (user.app_metadata?.providers as string[] | undefined) ?? [user.app_metadata?.provider as string].filter(Boolean)
   return (
     <div className="space-y-5">

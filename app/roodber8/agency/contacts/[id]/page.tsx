@@ -11,6 +11,7 @@ import { RequirementTools } from '@/components/admin/AgencyTools'
 import { ActionForm } from '@/components/forms/ActionForm'
 import { LocationMultiPicker } from '@/components/forms/LocationMultiPicker'
 import { Field, Input, Select, Textarea } from '@/components/ui/Field'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Agency contact' }
 
@@ -19,19 +20,19 @@ export default async function ContactPage(props: { params: Promise<{ id: string 
   const { id } = await props.params
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound()
   const db = getAdminSupabase()
-  const { data: c } = await db.from('agency_contacts').select('*').eq('id', id).maybeSingle()
+  const { data: c } = must(await db.from('agency_contacts').select('*').eq('id', id).maybeSingle())
   if (!c) notFound()
-  const [{ data: reqs }, { data: instructions }, { data: valuations }, { data: viewings }, { data: offers }, { data: apps }] = await Promise.all([
+  const [{ data: reqs }, { data: instructions }, { data: valuations }, { data: viewings }, { data: offers }, { data: apps }] = must(await Promise.all([
     db.from('applicant_requirements').select('*').eq('contact_id', id).order('created_at', { ascending: false }),
     db.from('agency_instructions').select('id, reference, title, stage').eq('contact_id', id).order('created_at', { ascending: false }),
     db.from('agency_valuations').select('id, reference, status, created_at').eq('contact_id', id).order('created_at', { ascending: false }),
     db.from('agency_viewings').select('id, reference, status, created_at').eq('contact_id', id).order('created_at', { ascending: false }),
     db.from('agency_offers').select('id, reference, status, amount_etb').eq('contact_id', id).order('created_at', { ascending: false }),
     db.from('rental_applications').select('id, reference, status').eq('contact_id', id).order('created_at', { ascending: false }),
-  ])
-  const matches = await Promise.all((reqs ?? []).map(async (r) => ({ id: r.id, rows: r.is_active ? ((await db.rpc('agency_requirement_matches', { p_requirement: r.id, p_limit: 10 })).data ?? []) : [] })))
+  ]))
+  const matches = await Promise.all((reqs ?? []).map(async (r) => ({ id: r.id, rows: r.is_active ? ((must(await db.rpc('agency_requirement_matches', { p_requirement: r.id, p_limit: 10 }))).data ?? []) : [] })))
   const locIds = Array.from(new Set((reqs ?? []).flatMap((r) => r.location_ids)))
-  const { data: locs } = locIds.length ? await db.from('locations').select('id, display_name').in('id', locIds) : { data: [] }
+  const { data: locs } = locIds.length ? must(await db.from('locations').select('id, display_name').in('id', locIds)) : { data: [] }
   const placeName = (lid: string) => locs?.find((l) => l.id === lid)?.display_name ?? 'a place'
   const related = [
     ...(instructions ?? []).map((x) => ({ href: `/roodber8/agency/instructions/${x.id}`, text: `${x.reference} · ${x.title} · ${STAGE_LABEL[x.stage as InstructionStage]}` })),

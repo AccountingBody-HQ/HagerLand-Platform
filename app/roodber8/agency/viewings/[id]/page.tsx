@@ -8,6 +8,7 @@ import { AdminHeader, KeyValue, Panel } from '@/components/admin/AdminUi'
 import { AgencyRecordSide } from '@/components/admin/AgencyRecordSide'
 import { ActionForm } from '@/components/forms/ActionForm'
 import { Field, Input, Select, Textarea } from '@/components/ui/Field'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Viewing' }
 
@@ -19,7 +20,7 @@ function eatLocal(iso: string | null): string {
 export default async function ViewingPage(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound()
-  const { data: v } = await getAdminSupabase().from('agency_viewings').select('*, property:properties(title, slug)').eq('id', id).maybeSingle()
+  const { data: v } = must(await getAdminSupabase().from('agency_viewings').select('*, property:properties(title, slug)').eq('id', id).maybeSingle())
   if (!v) notFound()
   const p = Array.isArray(v.property) ? v.property[0] : v.property
   return (

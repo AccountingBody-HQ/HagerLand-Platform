@@ -1,4 +1,5 @@
 import 'server-only'
+import { must } from '@/lib/admin/must'
 // Jobs Phase 4: "Report this job" (database side). Reports are server only (migration 0042: no grants). A repeat
 // report on the same job by the same connection or account is not stored again (the reporter sees the same thanks).
 import { readAll, readAllIn, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
@@ -29,10 +30,10 @@ export async function storeJobReport(r: { jobId: string; reason: ReportReason; d
 /** Digest counts (W22): open reports, and jobs with 3 or more different reporters in the last 7 days. */
 export async function jobReportDigestCounts(now: number): Promise<[string, number][]> {
   const db = getAdminSupabase()
-  const [{ count: open }, { data: week }] = await Promise.all([
+  const [{ count: open }, { data: week }] = must(await Promise.all([
     db.from('job_reports').select('id', { count: 'exact', head: true }).eq('status', 'open'),
     readAll(() => db.from('job_reports').select('id, job_post_id, reporter_user_id, ip_hash').gte('created_at', new Date(now - 7 * 86_400_000).toISOString()), { maxRows: REPORT_MAX_ROWS }),
-  ])
+  ]))
   const byJob = new Map<string, { id: string; reporter_user_id: string | null; ip_hash: string | null }[]>()
   for (const r of week ?? []) byJob.set(r.job_post_id, [...(byJob.get(r.job_post_id) ?? []), r])
   const many = Array.from(byJob.values()).filter((rows) => distinctReporters(rows) >= MANY_REPORTS).length
@@ -70,7 +71,7 @@ export interface ReportGroup {
 /** Open reports grouped by job, for admin (Owner and Operations). Reporter details never leave admin. */
 export async function openReportGroups(): Promise<ReportGroup[]> {
   const db = getAdminSupabase()
-  const { data: reports } = await db.from('job_reports').select('id, job_post_id, reason, details, contact, reporter_user_id, ip_hash, created_at, staff_note').eq('status', 'open').order('created_at').limit(500)
+  const { data: reports } = must(await db.from('job_reports').select('id, job_post_id, reason, details, contact, reporter_user_id, ip_hash, created_at, staff_note').eq('status', 'open').order('created_at').limit(500))
   const rows = reports ?? []
   if (!rows.length) return []
   const jobIds = Array.from(new Set(rows.map((r) => r.job_post_id)))

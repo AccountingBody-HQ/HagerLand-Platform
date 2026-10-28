@@ -7,6 +7,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import type { Json } from '@/lib/database.types'
 import { getAdminSupabase } from '@/lib/supabase/admin'
+import { readAll, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import { assertAdmin, audit } from '@/lib/admin/guard'
 import { fail, ok, type ActionResult } from '@/lib/action-result'
 import { checkGuideJson, uniqueSlug, type GuideJsonCheck } from '@/lib/guides/studio-import'
@@ -14,8 +15,8 @@ import { checkGuideJson, uniqueSlug, type GuideJsonCheck } from '@/lib/guides/st
 const rawSchema = z.string().max(200_000, 'The pasted text is too long.')
 
 async function existingGuides(): Promise<{ slugs: string[]; titles: string[] }> {
-  const { data } = await getAdminSupabase().from('guides').select('slug, title')
-  return { slugs: (data ?? []).map((g) => g.slug), titles: (data ?? []).map((g) => g.title) }
+  const { data } = await readAll(() => getAdminSupabase().from('guides').select('id, slug, title'), { maxRows: REPORT_MAX_ROWS })
+  return { slugs: data.map((g) => g.slug), titles: data.map((g) => g.title) }
 }
 
 /** Guide studio: checks pasted JSON and returns errors, notes, CHECK markers and the cleaned guide for the preview. */

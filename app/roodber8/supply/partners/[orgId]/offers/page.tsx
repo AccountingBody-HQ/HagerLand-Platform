@@ -10,6 +10,7 @@ import { freshness, type Freshness } from '@/lib/supply/offers'
 import { partnerOffers, today } from '@/lib/supply/offers-data'
 import { AdminHeader, FilterBar, FilterField, Panel, StatusBadge, filterInput } from '@/components/admin/AdminUi'
 import { OfferActions, OffersTable, type OfferView } from '@/components/admin/SupplierOffers'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Price list' }
 
@@ -21,21 +22,21 @@ export default async function PartnerOffersPage(props: { params: Promise<{ orgId
   await requireAdminPage()
   if (!/^[0-9a-f-]{36}$/.test(orgId)) notFound()
   const db = getAdminSupabase()
-  const [{ data: org }, { data: partner }] = await Promise.all([
+  const [{ data: org }, { data: partner }] = must(await Promise.all([
     db.from('organisations').select('id, name, status').eq('id', orgId).maybeSingle(),
     db.from('supply_partners').select('relationship_status').eq('org_id', orgId).maybeSingle(),
-  ])
+  ]))
   if (!org) notFound()
   const status = STATUS_FILTERS.find((s) => s === sp.status) ?? 'current'
   const fresh = FRESHNESS_FILTERS.find((f) => f === sp.freshness)
   const category = sp.category && /^[0-9a-f-]{36}$/.test(sp.category) ? sp.category : undefined
 
-  const [offers, tree, { data: products }, { data: branches }] = await Promise.all([
+  const [offers, tree, { data: products }, { data: branches }] = must(await Promise.all([
     partnerOffers(orgId),
     getProductCategories(),
     readAll(() => db.from('products').select('id, name, category_id').eq('status', 'published').order('name'), { maxRows: REPORT_MAX_ROWS }),
     db.from('org_branches').select('id, name').eq('org_id', orgId).order('sort'),
-  ])
+  ]))
   const categories = tree.flatMap((c) => [{ id: c.id, name: c.name, slug: c.slug }, ...c.children.map((k) => ({ id: k.id, name: `${c.name} › ${k.name}`, slug: k.slug }))])
   const areaIds = Array.from(new Set(offers.flatMap((o) => o.delivery_area_ids)))
   const { data: areas } = await readAllIn(areaIds, (part) => db.from('locations').select('id, name').in('id', part), { maxRows: REPORT_MAX_ROWS })

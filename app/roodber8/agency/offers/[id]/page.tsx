@@ -8,13 +8,14 @@ import { AdminHeader, KeyValue, Panel } from '@/components/admin/AdminUi'
 import { AgencyRecordSide } from '@/components/admin/AgencyRecordSide'
 import { ActionForm } from '@/components/forms/ActionForm'
 import { Field, Input, Select, Textarea } from '@/components/ui/Field'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Offer' }
 
 export default async function OfferPage(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params
   if (!/^[0-9a-f-]{36}$/.test(id)) notFound()
-  const { data: o } = await getAdminSupabase().from('agency_offers').select('*, property:properties(title, slug, price_etb)').eq('id', id).maybeSingle()
+  const { data: o } = must(await getAdminSupabase().from('agency_offers').select('*, property:properties(title, slug, price_etb)').eq('id', id).maybeSingle())
   if (!o) notFound()
   const p = Array.isArray(o.property) ? o.property[0] : o.property
   return (

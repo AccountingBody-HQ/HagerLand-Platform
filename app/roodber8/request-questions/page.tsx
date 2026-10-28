@@ -4,6 +4,7 @@ import { getAdminSupabase } from '@/lib/supabase/admin'
 import { parseQuestions } from '@/lib/service-requests/questions'
 import { AdminHeader, DataTable } from '@/components/admin/AdminUi'
 import { Badge } from '@/components/ui/Badge'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Request questions' }
 
@@ -11,10 +12,10 @@ export const metadata = { title: 'Request questions' }
 export default async function RequestQuestionsPage() {
   await requireAdminPage()
   const db = getAdminSupabase()
-  const [{ data: cats }, { data: verticals }] = await Promise.all([
+  const [{ data: cats }, { data: verticals }] = must(await Promise.all([
     db.from('service_categories').select('id, parent_id, name, slug, is_active, vertical_key, question_schema, allows_emergency, sort').order('sort'),
     db.from('verticals').select('key, name, status'),
-  ])
+  ]))
   const all = cats ?? []
   const groups = new Map(all.filter((c) => !c.parent_id).map((c) => [c.id, c.name]))
   const vName = new Map((verticals ?? []).map((v) => [v.key, `${v.name}${v.status === 'live' ? '' : ` (${v.status.replace('_', ' ')})`}`]))

@@ -1,4 +1,5 @@
 import 'server-only'
+import { must } from '@/lib/admin/must'
 // Jobs Phase 4: the recorded verification check (database side). Recording a check gives the "Verified" badge;
 // revoking or the end date takes it away (the business keeps "Claimed" if someone manages it, else "Listed").
 // The daily job sends one reminder 30 days before a badge ends, ends badges on time, ends "needs re-check" records
@@ -187,7 +188,7 @@ export async function verificationDigestCounts(now: number): Promise<[string, nu
     const hasRecord = new Set((withRecord ?? []).map((r) => r.organisation_id))
     ending += ids.filter((x) => !hasRecord.has(x)).length
   }
-  const { count: endedToday } = await db.from('org_verification_notices').select('id', { count: 'exact', head: true }).eq('kind', 'ended').gte('sent_at', new Date(`${today}T00:00:00+03:00`).toISOString())
+  const { count: endedToday } = must(await db.from('org_verification_notices').select('id', { count: 'exact', head: true }).eq('kind', 'ended').gte('sent_at', new Date(`${today}T00:00:00+03:00`).toISOString()))
   return [
     ['Verified badges ending within 30 days', ending],
     ['Verified badges ended today', endedToday ?? 0],

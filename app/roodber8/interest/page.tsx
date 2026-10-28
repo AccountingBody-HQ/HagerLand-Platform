@@ -7,6 +7,7 @@ import { isVerticalKey } from '@/lib/verticals'
 import { AdminHeader, DataTable, FilterBar, FilterField, SimplePager, StatusBadge, filterInput } from '@/components/admin/AdminUi'
 import { LeadTool } from '@/components/admin/VerticalTools'
 import { ButtonLink } from '@/components/ui/Button'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Interest registrations' }
 
@@ -24,11 +25,11 @@ export default async function InterestPage(props: { searchParams: Promise<Record
   if (vertical) q = q.eq('vertical_key', vertical)
   if (status) q = q.eq('status', status)
   if (category) q = q.eq('category', category)
-  const [{ data }, { data: verticals }, { data: cats }] = await Promise.all([
+  const [{ data }, { data: verticals }, { data: cats }] = must(await Promise.all([
     q,
     db.from('verticals').select('key, name').order('sort'),
     readAll(() => db.from('interest_registrations').select('category').not('category', 'is', null), { maxRows: REPORT_MAX_ROWS }),
-  ])
+  ]))
   const rows = (data ?? []).slice(0, PAGE)
   const names = new Map((verticals ?? []).map((v) => [v.key, v.name]))
   const categories = Array.from(new Set((cats ?? []).map((c) => c.category).filter((c): c is string => Boolean(c)))).sort()

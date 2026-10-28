@@ -6,6 +6,7 @@ import { formatDate, formatPhone } from '@/lib/format'
 import { AdminHeader, DataTable, FilterBar, FilterField, Panel, filterInput } from '@/components/admin/AdminUi'
 import { ActionForm } from '@/components/forms/ActionForm'
 import { Field, Input } from '@/components/ui/Field'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Agency contacts' }
 
@@ -19,7 +20,7 @@ export default async function ContactsPage(props: { searchParams: Promise<{ q?: 
   let query = getAdminSupabase().from('agency_contacts').select('id, reference, name, email, phone, roles, marketing_consent, assigned_agent, created_at').order('created_at', { ascending: false }).limit(200)
   if (q) query = query.ilike('name', like(q))
   if (role) query = query.contains('roles', [role])
-  const { data } = await query
+  const { data } = must(await query)
   return (
     <div className="space-y-5">
       <AdminHeader title="Contacts" description="Everyone the agency deals with. Marketing emails go only to contacts with recorded consent." />

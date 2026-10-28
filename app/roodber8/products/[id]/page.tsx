@@ -18,6 +18,7 @@ import { AuditTrail } from '@/components/admin/AuditTrail'
 import { MediaManager } from '@/components/media/MediaManager'
 import { FormAlert } from '@/components/forms/FormParts'
 import type { MediaItem } from '@/lib/media-actions'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Product' }
 
@@ -28,14 +29,14 @@ export default async function AdminProductPage(
   const params = await props.params
   await requireAdminPage()
   const db = getAdminSupabase()
-  const { data: p } = await db.from('products').select('*').eq('id', params.id).maybeSingle()
+  const { data: p } = must(await db.from('products').select('*').eq('id', params.id).maybeSingle())
   if (!p) notFound()
-  const [{ data: media }, o, notes, trail] = await Promise.all([
+  const [{ data: media }, o, notes, trail] = must(await Promise.all([
     db.from('media').select('id, kind, storage_path, thumb_path, width, height, alt, sort, is_cover, status').eq('entity_type', 'product').eq('entity_id', p.id).order('sort'),
     productFormOptions(),
     notesFor('product', p.id),
     auditFor(p.id),
-  ])
+  ]))
   return (
     <div className="space-y-5">
       <AdminHeader

@@ -8,6 +8,7 @@ import { formatDate } from '@/lib/format'
 import { ORDER_STATUS_LABEL, ORDER_STATUSES } from '@/lib/supply/money'
 import { listOrders } from '@/lib/supply/orders-data'
 import { AdminHeader, DataTable, FilterBar, FilterField, Panel, StatusBadge, filterInput } from '@/components/admin/AdminUi'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Supply orders' }
 
@@ -19,12 +20,12 @@ export default async function SupplyOrdersPage(props: { searchParams: Promise<Re
   const orgId = sp.supplier && /^[0-9a-f-]{36}$/.test(sp.supplier) ? sp.supplier : undefined
   const action = sp.action === '1'
   const owner = await isOwnerSession()
-  const [rows, { data: suppliers }, extra] = await Promise.all([
+  const [rows, { data: suppliers }, extra] = must(await Promise.all([
     listOrders({ status, model, orgId, action }),
     readAll(() => getAdminSupabase().from('supply_orders').select('org_id, org:organisations(name)'), { maxRows: REPORT_MAX_ROWS }),
     // Agreement and commission items only for the owner (decided here, on the server).
     action ? supplyActionItems(owner) : Promise.resolve([]),
-  ])
+  ]))
   const supplierOptions = Array.from(new Map((suppliers ?? []).map((s) => [s.org_id, (s.org as { name: string } | null)?.name ?? ''])).entries()).sort((a, b) => a[1].localeCompare(b[1]))
 
   return (

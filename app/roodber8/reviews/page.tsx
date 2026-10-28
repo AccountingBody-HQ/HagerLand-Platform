@@ -4,6 +4,7 @@ import { getAdminSupabase } from '@/lib/supabase/admin'
 import { formatDate } from '@/lib/format'
 import { AdminHeader, DataTable } from '@/components/admin/AdminUi'
 import { ReviewModeration } from '@/components/admin/ReviewTools'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Reviews' }
 
@@ -12,7 +13,7 @@ export default async function ReviewsAdminPage(props: { searchParams: Promise<{ 
   await requireAdminPage()
   const sp = await props.searchParams
   const status = ['pending', 'published', 'rejected'].includes(sp.status ?? '') ? sp.status! : 'pending'
-  const { data } = await getAdminSupabase().from('reviews').select('id, rating, body, author_name, status, created_at, provider_reply, rejection_reason, org:organisations(name), request:service_requests(id, reference)').eq('status', status).order('created_at').limit(300)
+  const { data } = must(await getAdminSupabase().from('reviews').select('id, rating, body, author_name, status, created_at, provider_reply, rejection_reason, org:organisations(name), request:service_requests(id, reference)').eq('status', status).order('created_at').limit(300))
   return (
     <div className="space-y-5">
       <AdminHeader title="Reviews" description="Reviews come only from customers who chose a provider through HagerLand. Publish them unless they are abusive, off-topic or include personal details. Never edit their words." />

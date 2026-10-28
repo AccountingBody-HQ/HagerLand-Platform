@@ -4,13 +4,14 @@ import { getAdminSupabase } from '@/lib/supabase/admin'
 import { formatDate } from '@/lib/format'
 import { BUDGET_BANDS, PROJECT_SERVICES, PROJECT_STATUS_LABEL, labelOf } from '@/lib/build-projects'
 import { AdminHeader, DataTable } from '@/components/admin/AdminUi'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Building projects' }
 
 /** Building projects (spec 26.9): each with its linked requests. */
 export default async function ProjectsAdminPage() {
   await requireAdminPage()
-  const { data } = await getAdminSupabase().from('build_projects').select('id, reference, title, name, status, budget_band, services, created_at, requests:service_requests(count)').order('created_at', { ascending: false }).limit(300)
+  const { data } = must(await getAdminSupabase().from('build_projects').select('id, reference, title, name, status, budget_band, services, created_at, requests:service_requests(count)').order('created_at', { ascending: false }).limit(300))
   return (
     <div className="space-y-5">
       <AdminHeader title="Building projects" description="Started from “Start a building project”. Each links the design, engineering, contractor, materials and finance requests it created; match those in Service requests and Quotes as usual." />

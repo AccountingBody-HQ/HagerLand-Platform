@@ -5,6 +5,7 @@ import { formatDate } from '@/lib/format'
 import { readJobsSwitches } from '@/lib/jobs-switches'
 import { ASSIGNMENT_STATUSES, ASSIGNMENT_STATUS_LABEL } from '@/lib/jobs-desk'
 import { AdminHeader, DataTable, FilterBar, FilterField, StatusBadge, filterInput } from '@/components/admin/AdminUi'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Recruitment desk' }
 
@@ -24,7 +25,7 @@ export default async function RecruitmentDeskPage(props: { searchParams: Promise
     .limit(300)
   if (status) q = q.eq('status', status)
   else q = q.in('status', ['open', 'searching', 'introducing'])
-  const [{ data }, switches] = await Promise.all([q, readJobsSwitches()])
+  const [{ data }, switches] = must(await Promise.all([q, readJobsSwitches()]))
   const rows = data ?? []
   return (
     <div className="space-y-5">

@@ -2,6 +2,7 @@ import { getAdminSupabase } from '@/lib/supabase/admin'
 import { OFFER_STATUSES, STATUS_LABEL } from '@/lib/agency'
 import { formatDate, formatETB } from '@/lib/format'
 import { AgencyList, RefLink } from '@/components/admin/AgencyList'
+import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Offers' }
 
@@ -10,7 +11,7 @@ export default async function OffersPage(props: { searchParams: Promise<{ status
   const status = OFFER_STATUSES.find((s) => s === sp.status)
   let q = getAdminSupabase().from('agency_offers').select('id, reference, name, amount_etb, status, created_at, decided_at, property:properties(title)').order('created_at', { ascending: false }).limit(300)
   if (status) q = q.eq('status', status)
-  const { data } = await q
+  const { data } = must(await q)
   return (
     <AgencyList
       title="Offers"
