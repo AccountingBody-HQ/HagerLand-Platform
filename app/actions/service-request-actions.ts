@@ -9,7 +9,7 @@ import { fail, invalid, ok, type ActionResult } from '@/lib/action-result'
 import { getClientIp, hashIp } from '@/lib/security'
 import { rateLimit } from '@/lib/rate-limit'
 import { isHoneypotFilled, verifyTurnstileToken } from '@/lib/turnstile'
-import { emailSchema, nameSchema, optionalText, optionalUuid, phoneSchema, preferredContactSchema, textSchema } from '@/lib/validation/common'
+import { emailSchema, nameSchema, optionalEmailSchema, optionalText, optionalUuid, phoneSchema, preferredContactSchema, textSchema } from '@/lib/validation/common'
 import { COUNTRY_CODES } from '@/lib/countries'
 import { getRequestableCategory } from '@/lib/data/service-requests'
 import { answerLines, validateAnswers } from '@/lib/service-requests/questions'
@@ -26,12 +26,14 @@ import { parseUtm } from '@/lib/utm'
 import { log } from '@/lib/log'
 import { getJobsI18n } from '@/lib/i18n/server'
 import { adminActor, audit, isOwnerOrOperationsSession } from '@/lib/admin/guard'
-import { linkCallbackToRequest } from '@/lib/callbacks-data'
+import { linkCallbackToRequest, openCallback } from '@/lib/callbacks-data'
+import { phoneOnlyAllowed } from '@/lib/service-requests/phone-only'
 import { translateResult } from '@/lib/i18n/translate'
 
-export type RequestState = ActionResult<{ reference: string }> | null
+/** `phoneOnly`: staff sent it for a caller with no email (Tidy T-2): the form goes back to the call-back queue. */
+export type RequestState = ActionResult<{ reference: string; phoneOnly?: boolean }> | null
 
-const schema = z
+const fields = z
   .object({
     category_slug: z.string().max(80),
     title: textSchema(160, { min: 3, label: 'Title' }),
@@ -51,14 +53,25 @@ const schema = z
     source_url: optionalText(500),
     utm: z.string().max(600).optional(),
   })
-  .refine((d) => d.location_id || d.location_text, { message: 'Tell us where the work is', path: ['location_id'] })
+const whereRule = (d: { location_id?: string; location_text?: string }) => Boolean(d.location_id || d.location_text)
+const WHERE = { message: 'Tell us where the work is', path: ['location_id'] }
+const schema = fields.refine(whereRule, WHERE)
+// Tidy T-2 (T2-4): staff sending a staffing request for a phone-only caller (phoneOnlyAllowed) may leave the email out.
+const phoneOnlySchema = fields
+  .extend({ email: optionalEmailSchema })
+  .refine(whereRule, WHERE)
+  .refine((d) => d.email || d.preferred_contact !== 'email', { message: 'Choose phone, WhatsApp or Telegram, or add an email', path: ['email'] })
 
 /** "Request a service" (spec 24.5): validates, stores, emails the customer a link, tells HagerLand. */
 async function submitServiceRequestActionImpl(_prev: RequestState, formData: FormData): Promise<RequestState> {
   if (isHoneypotFilled(formData)) return ok({ reference: 'HLS-0' })
   const raw: Record<string, unknown> = Object.fromEntries(formData)
   for (const k of Array.from(new Set(Array.from(formData.keys())))) if (k.startsWith('q_')) raw[k] = formData.getAll(k)
-  const parsed = schema.safeParse({ ...raw, files: formData.getAll('files') })
+  const phoneOnly = await phoneOnlyAllowed(
+    { categorySlug: String(formData.get('category_slug') ?? ''), callbackId: String(formData.get('callback_id') ?? ''), staffSession: isOwnerOrOperationsSession, callbackOpen: async (id) => Boolean(await openCallback(id)) },
+    STAFFING_SLUG,
+  )
+  const parsed = (phoneOnly ? phoneOnlySchema : schema).safeParse({ ...raw, files: formData.getAll('files') })
   const category = await getRequestableCategory(String(formData.get('category_slug') ?? ''))
   if (!category) return fail('This service is not available to request right now.')
   const copy = requestFormCopy(category.slug)
@@ -92,7 +105,8 @@ async function submitServiceRequestActionImpl(_prev: RequestState, formData: For
     if (!loc) return fail('Choose a place from the list.', { location_id: 'Choose a place from the list' })
   }
   const user = await getUser()
-  const link = user ? null : newRequestToken()
+  // No email (phone-only, staff only): no private link, since nobody could receive it.
+  const link = user || !d.email ? null : newRequestToken()
   const { data: row, error } = await db
     .from('service_requests')
     .insert({
@@ -110,7 +124,7 @@ async function submitServiceRequestActionImpl(_prev: RequestState, formData: For
       requester_user_id: user?.id ?? null,
       name: d.name,
       phone: d.phone,
-      email: d.email,
+      email: d.email ?? null,
       attachment_paths: d.files,
       access_token_hash: link?.hash ?? null,
       access_token_expires_at: link?.expiresAt ?? null,
@@ -126,13 +140,13 @@ async function submitServiceRequestActionImpl(_prev: RequestState, formData: For
   }
 
   const viewUrl = link ? canonicalUrl(`/requests/${link.token}`) : canonicalUrl(`/account/service-requests/${row.id}`)
-  await sendEmail({ to: d.email, ...serviceRequestReceivedEmail({ name: d.name.split(' ')[0] || d.name, reference: row.reference, title: d.title, link: viewUrl, emergency: d.urgency === 'emergency', linkDays: link ? GUEST_LINK_DAYS : 0, nextStep: copy.nextStep, preheader: copy.customer?.receivedPreheader, extraLine: abroad.value?.abroad ? EMPLOYER_ABROAD_TEXT.confirmation : null }) })
+  if (d.email) await sendEmail({ to: d.email, ...serviceRequestReceivedEmail({ name: d.name.split(' ')[0] || d.name, reference: row.reference, title: d.title, link: viewUrl, emergency: d.urgency === 'emergency', linkDays: link ? GUEST_LINK_DAYS : 0, nextStep: copy.nextStep, preheader: copy.customer?.receivedPreheader, extraLine: abroad.value?.abroad ? EMPLOYER_ABROAD_TEXT.confirmation : null }) })
   const inbox = await hagerlandInbox('general')
   const admins = Array.from(new Set([inbox, process.env.ADMIN_DIGEST_EMAIL].filter((x): x is string => Boolean(x))))
   if (admins.length) {
     await sendEmail({
       to: admins,
-      replyTo: d.email,
+      ...(d.email ? { replyTo: d.email } : {}),
       ...adminNoticeEmail({
         subject: `${d.urgency === 'emergency' ? 'EMERGENCY ' : ''}Service request ${row.reference}: ${category.name}`,
         heading: d.urgency === 'emergency' ? 'Emergency service request: please match it now' : 'New service request to match',
@@ -141,7 +155,7 @@ async function submitServiceRequestActionImpl(_prev: RequestState, formData: For
       }),
     })
   }
-  return ok({ reference: row.reference })
+  return ok({ reference: row.reference, ...(d.email ? {} : { phoneOnly: true }) })
 }
 
 type Owner = { requestId: string; token?: string }

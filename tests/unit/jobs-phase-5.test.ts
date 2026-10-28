@@ -148,9 +148,10 @@ describe('share links (W3–W7) and Copy for Telegram (W16)', () => {
   it('approved share text, no tracking tags', () => {
     expect(shareText(job)).toBe('Site engineer in Bole. See the job and apply on HagerLand: https://www.hagerland.com/jobs/site-engineer-abc')
     expect(shareText({ ...job, privateClient: true })).toBe('Site engineer in Bole, posted by HagerLand for a private client. See the job and apply on HagerLand: https://www.hagerland.com/jobs/site-engineer-abc')
-    const l = shareLinks(shareText(job), job.link)
+    const l = shareLinks(shareText(job), job.link, 'Site engineer in Bole. See the job and apply on HagerLand.')
     expect(l.whatsapp).toBe(`https://wa.me/?text=${encodeURIComponent(shareText(job))}`)
-    expect(l.telegram).toBe(`https://t.me/share/url?url=${encodeURIComponent(job.link)}&text=${encodeURIComponent(shareText(job))}`)
+    // Tidy T-2 (T2-6): Telegram adds the link itself, so its text leaves it out (the link appears once).
+    expect(l.telegram).toBe(`https://t.me/share/url?url=${encodeURIComponent(job.link)}&text=${encodeURIComponent('Site engineer in Bole. See the job and apply on HagerLand.')}`)
     expect(`${l.whatsapp}${l.telegram}`).not.toMatch(/utm_/)
   })
   it('the share text goes through the Jobs translator on Amharic pages', () => {

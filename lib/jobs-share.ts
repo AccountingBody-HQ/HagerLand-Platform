@@ -7,6 +7,15 @@ export const SHARE_TEXT = {
   privateClient: '{title} in {place}, posted by HagerLand for a private client. See the job and apply on HagerLand: {link}',
 } as const
 
+/**
+ * Tidy T-2 (T7, T8): the Telegram share button's text. Telegram shows the link (url) next to the text itself, so this
+ * text leaves the link out; otherwise the link appeared twice. WhatsApp, the share menu and Copy link are unchanged.
+ */
+export const TELEGRAM_SHARE_TEXT = {
+  public: '{title} in {place}. See the job and apply on HagerLand.',
+  privateClient: '{title} in {place}, posted by HagerLand for a private client. See the job and apply on HagerLand.',
+} as const
+
 export const TELEGRAM_TEXT = {
   public: 'New job: {title} in {place}{pay}. Apply on HagerLand: {link}',
   privateClient: '{title} in {place}, posted by HagerLand for a private client. Apply on HagerLand: {link}',
@@ -26,11 +35,16 @@ export function shareText(job: ShareJob, t: Translate = (s) => s): string {
   return fill(t(job.privateClient ? SHARE_TEXT.privateClient : SHARE_TEXT.public), { title: job.title, place: job.place, link: job.link })
 }
 
-/** WhatsApp and Telegram share addresses (the visitor picks who to send it to). */
-export function shareLinks(text: string, link: string): { whatsapp: string; telegram: string } {
+/** T7 / T8, in the page's language: the Telegram text, without the link (Telegram adds it). */
+export function telegramShareText(job: Omit<ShareJob, 'link'>, t: Translate = (s) => s): string {
+  return fill(t(job.privateClient ? TELEGRAM_SHARE_TEXT.privateClient : TELEGRAM_SHARE_TEXT.public), { title: job.title, place: job.place })
+}
+
+/** WhatsApp and Telegram share addresses (the visitor picks who to send it to). Telegram gets the link once, as its url. */
+export function shareLinks(text: string, link: string, telegramText: string): { whatsapp: string; telegram: string } {
   return {
     whatsapp: `https://wa.me/?text=${encodeURIComponent(text)}`,
-    telegram: `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`,
+    telegram: `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(telegramText)}`,
   }
 }
 

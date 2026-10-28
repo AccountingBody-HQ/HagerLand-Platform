@@ -698,7 +698,7 @@ test('T5 roles: Operations without money or agreements; Agent and Content kept o
 const visible = (html: string) => html.replace(/<style[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]+>/g, ' ').toLowerCase()
 const SECRETS = () => [S.name, 'Merkato', 'Abebe', 'Bole Trading', 'Added by HagerLand', 'Hollow block 20cm', 'Habesha cement', 'margin', 'commission', '1,280', '1,408', S.orderA.reference, S.orderB.reference, S.orderCancel.reference, 'HLO-']
 
-test('T6 customer: account and emails show nothing of the supply work; issuing and the 14-day expiry as before', async ({ page, request }) => {
+test('T6 customer: account and emails show nothing of the supply work; issuing and the 3-day expiry (Tidy T-2)', async ({ page, request }) => {
   const d = db()
   await adminSession(page)
   await page.goto(`/roodber8/quotes/${S.quoteId}`)
@@ -715,7 +715,7 @@ test('T6 customer: account and emails show nothing of the supply work; issuing a
       expect(m.text.toLowerCase(), `“${m.subject}” shows ${secret}`).not.toContain(secret.toLowerCase())
     }
   }
-  expect(mails.find((m) => m.subject.includes('Your quote is ready'))!.text).toMatch(/14 days/)
+  expect(mails.find((m) => m.subject.includes('Your quote is ready'))!.text).toMatch(/3 days/)
   const customer = await page.context().browser()!.newPage()
   await signIn(customer, S.customer.email, S.customer.password)
   await customer.goto('/account/quotes')
@@ -726,15 +726,15 @@ test('T6 customer: account and emails show nothing of the supply work; issuing a
   const raw = await customer.content()
   for (const secret of [S.name, 'Merkato', 'Abebe', 'Bole Trading', 'Habesha cement', 'HLO-', 'supply_quote_lines', 'added_by_admin']) expect(raw, `account HTML contains ${secret}`).not.toContain(secret)
   await shot(customer, 't6-customer-account')
-  // 14-day expiry: 13 days after issuing it stays quoted; after 15 days the daily job expires it.
+  // 3-day expiry (Tidy T-2): 2 days after issuing it stays quoted; after 4 days the daily job expires it.
   const cron = () => request.get('/api/cron/daily', { headers: { authorization: `Bearer ${process.env.CRON_SECRET}` } })
-  await d.from('quote_requests').update({ quoted_at: new Date(Date.now() - 13 * 86_400_000).toISOString() }).eq('id', S.quoteId)
+  await d.from('quote_requests').update({ quoted_at: new Date(Date.now() - 2 * 86_400_000).toISOString() }).eq('id', S.quoteId)
   expect((await cron()).status()).toBe(200)
   expect((await d.from('quote_requests').select('status').eq('id', S.quoteId).single()).data?.status).toBe('quoted')
-  await d.from('quote_requests').update({ quoted_at: new Date(Date.now() - 15 * 86_400_000).toISOString() }).eq('id', S.quoteId)
+  await d.from('quote_requests').update({ quoted_at: new Date(Date.now() - 4 * 86_400_000).toISOString() }).eq('id', S.quoteId)
   expect((await cron()).status()).toBe(200)
   expect((await d.from('quote_requests').select('status').eq('id', S.quoteId).single()).data?.status).toBe('expired')
-  log('T6', `${mails.length} customer emails and /account/quotes show no supplier, price, margin, commission, admin item or order; quote issued as before (“valid for 14 days”); expired by the daily job after 15 days, not after 13`)
+  log('T6', `${mails.length} customer emails and /account/quotes show no supplier, price, margin, commission, admin item or order; quote issued as before (“valid for 3 days”); expired by the daily job after 15 days, not after 13`)
 })
 
 test('T7 public pages, sitemaps and Jobs show no supply data', async ({ request }) => {

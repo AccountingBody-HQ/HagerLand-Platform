@@ -848,6 +848,13 @@
     "draft": ""
   },
   {
+    "key": "Fixed-term contract",
+    "where": [
+      "database: service_categories (staffing)"
+    ],
+    "draft": ""
+  },
+  {
     "key": "Flexible",
     "where": [
       "lib/service-requests/labels.ts (URGENCY)"
@@ -1042,6 +1049,13 @@
     "key": "Hired",
     "where": [
       "lib/jobs.ts (APPLICATION_STATUSES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "How many people?",
+    "where": [
+      "database: service_categories (staffing)"
     ],
     "draft": ""
   },
@@ -1589,6 +1603,13 @@
     "draft": ""
   },
   {
+    "key": "Not sure",
+    "where": [
+      "database: service_categories (staffing)"
+    ],
+    "draft": ""
+  },
+  {
     "key": "Now",
     "where": [
       "lib/jobs-phone.ts (REGISTER_AVAILABILITY)"
@@ -1734,6 +1755,13 @@
     "key": "Per",
     "where": [
       "components/jobs/JobForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Permanent",
+    "where": [
+      "database: service_categories (staffing)"
     ],
     "draft": ""
   },
@@ -1982,6 +2010,13 @@
     "key": "Recent roles and projects.",
     "where": [
       "components/jobs/CandidateForm.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Recruitment",
+    "where": [
+      "database: service_categories (staffing)"
     ],
     "draft": ""
   },
@@ -2389,6 +2424,13 @@
     "draft": ""
   },
   {
+    "key": "Staffing requirement",
+    "where": [
+      "database: service_categories (staffing)"
+    ],
+    "draft": ""
+  },
+  {
     "key": "Start typing a city, sub-city or area.",
     "where": [
       "lib/service-requests/form-copy.ts (staffing)"
@@ -2497,6 +2539,13 @@
     "key": "Temporary labour",
     "where": [
       "lib/content/verticals.ts (JOB_CATEGORIES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Temporary or day labour",
+    "where": [
+      "database: service_categories (staffing)"
     ],
     "draft": ""
   },
@@ -2648,6 +2697,13 @@
     "key": "Try fewer filters or a different place.",
     "where": [
       "app/(site)/jobs/page.tsx"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Type of contract",
+    "where": [
+      "database: service_categories (staffing)"
     ],
     "draft": ""
   },
@@ -2965,6 +3021,13 @@
     "draft": ""
   },
   {
+    "key": "When should they start?",
+    "where": [
+      "database: service_categories (staffing)"
+    ],
+    "draft": ""
+  },
+  {
     "key": "When you apply for a job, you can follow it here.",
     "where": [
       "app/(account)/account/applications/page.tsx"
@@ -3006,6 +3069,13 @@
     "where": [
       "lib/service-requests/employer-abroad.ts",
       "lib/callbacks.ts (call-back box and form)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Which roles do you need to fill?",
+    "where": [
+      "database: service_categories (staffing)"
     ],
     "draft": ""
   },
@@ -3573,9 +3643,23 @@
     "draft": ""
   },
   {
+    "key": "{title} in {place}, posted by HagerLand for a private client. See the job and apply on HagerLand.",
+    "where": [
+      "lib/jobs-share.ts (Telegram share text)"
+    ],
+    "draft": ""
+  },
+  {
     "key": "{title} in {place}, posted by HagerLand for a private client. See the job and apply on HagerLand: {link}",
     "where": [
       "lib/jobs-share.ts (share message)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "{title} in {place}. See the job and apply on HagerLand.",
+    "where": [
+      "lib/jobs-share.ts (Telegram share text)"
     ],
     "draft": ""
   },

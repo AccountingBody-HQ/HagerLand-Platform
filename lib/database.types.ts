@@ -5363,8 +5363,10 @@ export type Database = {
           details: string | null
           entity_id: string
           entity_type: string
+          handled_at: string | null
           id: string
           ip_hash: string | null
+          personal_data_deleted_at: string | null
           reason: string
           reporter_contact: string | null
           status: string
@@ -5376,8 +5378,10 @@ export type Database = {
           details?: string | null
           entity_id: string
           entity_type: string
+          handled_at?: string | null
           id?: string
           ip_hash?: string | null
+          personal_data_deleted_at?: string | null
           reason: string
           reporter_contact?: string | null
           status?: string
@@ -5388,8 +5392,10 @@ export type Database = {
           details?: string | null
           entity_id?: string
           entity_type?: string
+          handled_at?: string | null
           id?: string
           ip_hash?: string | null
+          personal_data_deleted_at?: string | null
           reason?: string
           reporter_contact?: string | null
           status?: string

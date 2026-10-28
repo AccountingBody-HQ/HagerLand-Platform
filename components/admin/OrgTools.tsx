@@ -66,10 +66,10 @@ export function MembersTool({ orgId, members }: { orgId: string; members: { user
         <ul className="space-y-1 text-small">
           {members.map((m) => (
             <li key={m.user_id} className="flex items-center justify-between gap-2">
-              <span>
+              <span className="min-w-0 [overflow-wrap:anywhere]">
                 {m.label} <span className="text-muted">· {m.role}</span>
               </span>
-              <button type="button" className="text-caption font-semibold text-error" disabled={pending} onClick={() => run(() => removeMemberAction(orgId, m.user_id))}>
+              <button type="button" className="min-h-11 shrink-0 text-caption font-semibold text-error" disabled={pending} onClick={() => run(() => removeMemberAction(orgId, m.user_id))}>
                 Remove
               </button>
             </li>

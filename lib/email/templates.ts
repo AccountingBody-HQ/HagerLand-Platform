@@ -192,7 +192,7 @@ export function claimDecisionEmail(p: { name: string; orgName: string; approved:
 export function claimSubmittedEmail(p: { name: string; orgName: string }): RenderedEmail {
   return renderEmail({
     subject: `We've received your claim for ${p.orgName}`,
-    preheader: 'We review claims within 1–2 business days.',
+    preheader: "We check every claim and will email you when it's decided.",
     heading: 'Your claim is being reviewed',
     paragraphs: [`Hello ${p.name},`, `Thanks for claiming ${p.orgName}. We check every claim to protect businesses from impersonation. We'll email you when it's decided.`],
     reason: LISTER_REASON,

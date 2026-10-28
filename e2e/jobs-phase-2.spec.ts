@@ -456,7 +456,7 @@ test('J6: the 12-month deletion: dry run changes nothing; live clears exactly th
   expect(dry.jobsDataCleanup.counts.due.applications).toBeGreaterThanOrEqual(3)
   expect(dry.jobsDataCleanup.counts.due.register).toBeGreaterThanOrEqual(1)
   expect(dry.jobsDataCleanup.counts.due.emails).toBeGreaterThanOrEqual(1)
-  expect(dry.jobsDataCleanup.counts.cleared).toEqual({ applications: 0, register: 0, emails: 0, shortlist: 0, reports: 0, callbacks: 0 })
+  expect(dry.jobsDataCleanup.counts.cleared).toEqual({ applications: 0, register: 0, emails: 0, shortlist: 0, reports: 0, callbacks: 0, listing_reports: 0 })
   expect(withoutCv(await snapshot())).toEqual(withoutCv(before))
   const files = async (folder: string) => ((await db().storage.from('private-docs').list(folder)).data ?? []).map((f) => f.name)
   await adminSession(page)
@@ -468,7 +468,7 @@ test('J6: the 12-month deletion: dry run changes nothing; live clears exactly th
   await setMode(page, 'live')
   const live = await cron()
   expect(live.jobsDataCleanup.mode).toBe('live')
-  expect(live.jobsDataCleanup.counts.failed).toEqual({ applications: 0, register: 0, emails: 0, shortlist: 0, reports: 0, callbacks: 0 })
+  expect(live.jobsDataCleanup.counts.failed).toEqual({ applications: 0, register: 0, emails: 0, shortlist: 0, reports: 0, callbacks: 0, listing_reports: 0 })
   const after = await snapshot()
   const byId = (id: string) => after.apps!.find((a) => a.id === id)!
   for (const id of [aOld, aKept, aPhone]) {

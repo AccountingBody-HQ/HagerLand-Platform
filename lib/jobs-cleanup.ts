@@ -4,8 +4,9 @@
 // the rules and the failure handling are unit-tested; lib/jobs-cleanup-data.ts is the database adapter. One failing
 // row is counted and left for the next day; it never stops the others.
 
-export type CleanupKind = 'applications' | 'register' | 'emails' | 'shortlist' | 'reports' | 'callbacks'
-export const CLEANUP_KINDS: CleanupKind[] = ['applications', 'register', 'emails', 'shortlist', 'reports', 'callbacks']
+// Tidy T-2: listing reports ("Report this listing") use the same 12-month deletion and the same switch.
+export type CleanupKind = 'applications' | 'register' | 'emails' | 'shortlist' | 'reports' | 'callbacks' | 'listing_reports'
+export const CLEANUP_KINDS: CleanupKind[] = ['applications', 'register', 'emails', 'shortlist', 'reports', 'callbacks', 'listing_reports']
 
 export interface CleanupCounts {
   /** Would be (dry run) or should be (live) cleared today. */
@@ -40,7 +41,7 @@ export interface CleanupResult {
   failures: { kind: CleanupKind; id: string }[]
 }
 
-const zero = (): Record<CleanupKind, number> => ({ applications: 0, register: 0, emails: 0, shortlist: 0, reports: 0, callbacks: 0 })
+const zero = (): Record<CleanupKind, number> => ({ applications: 0, register: 0, emails: 0, shortlist: 0, reports: 0, callbacks: 0, listing_reports: 0 })
 
 export async function runCleanupCore(adapter: CleanupAdapter, mode: 'dry_run' | 'live', opts: { batch?: number; onError?: (kind: CleanupKind, id: string, err: unknown) => void } = {}): Promise<CleanupResult> {
   const counts: CleanupCounts = { due: zero(), cleared: zero(), failed: zero(), cvFilesDeleted: 0 }
@@ -71,7 +72,7 @@ export async function runCleanupCore(adapter: CleanupAdapter, mode: 'dry_run' | 
   return { mode, counts, failures }
 }
 
-const KIND_LABEL: Record<CleanupKind, string> = { applications: 'job applications', register: 'worker register entries', emails: 'old queued emails', shortlist: 'recruitment shortlist rows', reports: 'job reports', callbacks: 'call-back requests' }
+const KIND_LABEL: Record<CleanupKind, string> = { applications: 'job applications', register: 'worker register entries', emails: 'old queued emails', shortlist: 'recruitment shortlist rows', reports: 'job reports', callbacks: 'call-back requests', listing_reports: 'listing reports' }
 
 /** The two Phase 3 counts, in the owner's words (AB's names: "kept: hired through HagerLand", "kept: period not set"). */
 function keptLines(counts: CleanupCounts): [string, number][] {

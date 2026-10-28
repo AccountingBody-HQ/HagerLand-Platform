@@ -81,6 +81,10 @@ export default async function JobsDataPage() {
         <p className="mb-3 text-small">
           Mode: <strong>{switches.cleanupMode === 'live' ? 'Live — deletes personal details' : 'Dry run — report only'}</strong>. Every day the job looks at job applications (by phone and by email), worker register entries and old queued emails. It keeps each row, its reference, status and dates, and clears names, phone numbers, emails, cover notes, notes and CV files. Recruitment desk shortlist rows are cleared 12 months after their last activity (never later than 12 months after the assignment closes). People hired through HagerLand keep their name, contact details and consent record while the fee records need them; their notes, cover notes and CVs still go. Candidate profiles are never touched.
         </p>
+        <dl className="mb-3 grid gap-1 text-small sm:grid-cols-[180px_1fr]">
+          <dt className="font-semibold">Listing reports</dt>
+          <dd>Reports about listings or businesses: the details, contact and coded internet address are cleared 12 months after the report or the decision on it, whichever is later. The reason and the decision stay.</dd>
+        </dl>
         <JobsCleanupModeControl mode={switches.cleanupMode} />
         <div className="mt-4">
           <DataTable

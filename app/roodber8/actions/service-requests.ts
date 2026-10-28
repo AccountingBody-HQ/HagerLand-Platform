@@ -132,6 +132,8 @@ const money = z.preprocess((v) => (v === '' || v === null || v === undefined ? n
 /** Lead fee, commission and invoicing for one match: HagerLand-only figures (spec 24.5, 25.2k). */
 export async function saveMatchCommercialAction(matchId: string, input: { lead_fee: string; commission_rate: string; commission: string; invoiced: boolean }): Promise<Msg> {
   await assertAdmin(AREA)
+  // Fees on every service are the owner's only (Tidy T-2, T2-1): checked before anything is read.
+  if (!(await isOwnerSession())) return fail('Only the owner can see or change fees.')
   const parsed = z
     .object({ id: z.uuid(), lead_fee: money, commission_rate: money.refine((v) => v === null || v <= 100, 'Commission rate is a percentage up to 100.'), commission: money, invoiced: z.boolean() })
     .safeParse({ id: matchId, ...input })
@@ -140,8 +142,6 @@ export async function saveMatchCommercialAction(matchId: string, input: { lead_f
   const db = getAdminSupabase()
   const { data: before } = await db.from('service_request_matches').select('request_id, lead_fee_minor, commission_rate, commission_minor, invoiced, quote_amount_minor').eq('id', matchId).maybeSingle()
   if (!before) return fail('Not found.')
-  // Fees on staffing requests are the owner's only (Jobs decision 10); other services are unchanged.
-  if ((await isStaffingRequest(before.request_id)) && !(await isOwnerSession())) return fail('Only the owner can see or change fees on staffing requests.')
   const commission = d.commission ?? (d.commission_rate !== null && before.quote_amount_minor !== null ? (before.quote_amount_minor / 100) * (d.commission_rate / 100) : null)
   const update = {
     lead_fee_minor: d.lead_fee === null ? null : Math.round(d.lead_fee * 100),

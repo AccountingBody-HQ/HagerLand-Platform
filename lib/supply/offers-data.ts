@@ -2,6 +2,8 @@ import 'server-only'
 // Supplier offers (admin): reads for the Offers page, partner counts and the expiring list. Service role only: the
 // table has no grants, so nothing here is reachable by visitors, customers or suppliers.
 import { getAdminSupabase } from '@/lib/supabase/admin'
+import { inChunks } from '@/lib/admin/in-chunks'
+import { must } from '@/lib/admin/must'
 import type { Database } from '@/lib/database.types'
 import { addDays } from './offers'
 
@@ -21,9 +23,9 @@ export function today(): string {
 
 /** Current prices per partner: total, expiring within 7 days (not yet expired) and already expired. */
 export async function offerCounts(orgIds?: string[]): Promise<Map<string, OfferCounts>> {
-  let q = getAdminSupabase().from('supplier_offers').select('org_id, valid_until').eq('status', 'current').limit(50_000)
-  if (orgIds) q = q.in('org_id', orgIds.length ? orgIds : ['00000000-0000-0000-0000-000000000000'])
-  const { data } = await q
+  const base = () => getAdminSupabase().from('supplier_offers').select('org_id, valid_until').eq('status', 'current').limit(50_000)
+  // Tidy T-2 (T2-15): a long list of partners is read in parts of 50, with the failure rule.
+  const data = orgIds ? await inChunks(orgIds, (part) => base().in('org_id', part)) : must(await base()).data
   const now = today()
   const soon = addDays(now, EXPIRING_DAYS)
   const out = new Map<string, OfferCounts>()
@@ -75,15 +77,14 @@ export async function expiringOffers(): Promise<ExpiringRow[]> {
     .order('valid_until')
     .limit(2000)
   const orgIds = Array.from(new Set((data ?? []).map((r) => r.org_id)))
-  const [{ data: contacts }, { data: partners }] = orgIds.length
-    ? await Promise.all([
-        db.from('supply_contacts').select('org_id, name, preferred_channel, phone, phone_normalised, whatsapp, do_not_contact, created_at').in('org_id', orgIds).order('created_at'),
-        db.from('supply_partners').select('org_id, relationship_status').in('org_id', orgIds),
-      ])
-    : [{ data: [] }, { data: [] }]
-  const blocked = new Set((partners ?? []).filter((p) => p.relationship_status === 'do_not_contact').map((p) => p.org_id))
+  // Tidy T-2 (T2-15): in parts of 50 (one partner's contacts stay together, in date order), with the failure rule.
+  const [contacts, partners] = await Promise.all([
+    inChunks(orgIds, (part) => db.from('supply_contacts').select('org_id, name, preferred_channel, phone, phone_normalised, whatsapp, do_not_contact, created_at').in('org_id', part).order('created_at')),
+    inChunks(orgIds, (part) => db.from('supply_partners').select('org_id, relationship_status').in('org_id', part)),
+  ])
+  const blocked = new Set(partners.filter((p) => p.relationship_status === 'do_not_contact').map((p) => p.org_id))
   return (data ?? []).map((r) => {
-    const people = (contacts ?? []).filter((c) => c.org_id === r.org_id)
+    const people = contacts.filter((c) => c.org_id === r.org_id)
     const reachable = people.filter((c) => !c.do_not_contact)
     const best = reachable.find((c) => c.preferred_channel) ?? reachable[0]
     const contact: ExpiringRow['contact'] = blocked.has(r.org_id) || (people.length > 0 && !best) ? 'do_not_contact' : best ? { name: best.name, channel: best.preferred_channel, phone: best.preferred_channel === 'whatsapp' && best.whatsapp ? best.whatsapp : best.phone_normalised ?? best.phone } : null

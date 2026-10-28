@@ -2,6 +2,7 @@ import 'server-only'
 // Supply Phase 4 (admin): reads for orders and the ledger. Owner-only figures (customer prices, margins, commission,
 // ledger, agreements) are only loaded when `owner` is true, so they never reach Operations, even in page data.
 import { getAdminSupabase } from '@/lib/supabase/admin'
+import { inChunks } from '@/lib/admin/in-chunks'
 import { privateFileLink } from './private-files'
 import { commissionDueCents, customerNetPaid, customerTotalCents, hagerlandEarned, needsAction, summariseLedger, supplierTotalCents, type LedgerSummary, type MoneyModel, type OrderStatus } from './money'
 
@@ -32,8 +33,9 @@ export async function listOrders(f: { status?: string; model?: string; orgId?: s
   if (f.quoteId) q = q.eq('quote_request_id', f.quoteId)
   const { data } = await q
   const ids = (data ?? []).map((o) => o.id)
-  const { data: proofs } = ids.length ? await db.from('supply_delivery_proofs').select('order_id').in('order_id', ids).is('removed_at', null) : { data: [] }
-  const withProof = new Set((proofs ?? []).map((p) => p.order_id))
+  // Tidy T-2 (T2-15): read in parts of 50, with the failure rule (an error, never a list without proofs).
+  const proofs = await inChunks(ids, (part) => db.from('supply_delivery_proofs').select('order_id').in('order_id', part).is('removed_at', null))
+  const withProof = new Set(proofs.map((p) => p.order_id))
   const rows = (data ?? []).map((o) => ({
     id: o.id,
     reference: o.reference,
@@ -281,13 +283,14 @@ export async function ledgerEntries(f: LedgerFilters): Promise<LedgerEntryRow[]>
 export async function orderSummaries(orderIds: string[]): Promise<{ id: string; reference: string; supplier: string; model: MoneyModel; status: string; summary: LedgerSummary; earnedCents: number }[]> {
   if (!orderIds.length) return []
   const db = getAdminSupabase()
-  const [{ data: orders }, { data: entries }] = await Promise.all([
-    db.from('supply_orders').select('id, reference, money_model, status, org:organisations(name)').in('id', orderIds),
-    db.from('supply_ledger_entries').select('id, entry_type, direction, amount_cents, reverses_entry_id, order_id').in('order_id', orderIds),
+  // Tidy T-2 (T2-15): read in parts of 50, with the failure rule (an error, never an empty ledger).
+  const [orders, entries] = await Promise.all([
+    inChunks(orderIds, (part) => db.from('supply_orders').select('id, reference, money_model, status, org:organisations(name)').in('id', part)),
+    inChunks(orderIds, (part) => db.from('supply_ledger_entries').select('id, entry_type, direction, amount_cents, reverses_entry_id, order_id').in('order_id', part)),
   ])
-  return (orders ?? [])
+  return orders
     .map((o) => {
-      const summary = summariseLedger((entries ?? []).filter((e) => e.order_id === o.id))
+      const summary = summariseLedger(entries.filter((e) => e.order_id === o.id))
       return { id: o.id, reference: o.reference, supplier: (o.org as { name: string } | null)?.name ?? '', model: o.money_model as MoneyModel, status: o.status, summary, earnedCents: hagerlandEarned(o.money_model as MoneyModel, summary) }
     })
     .sort((a, b) => b.reference.localeCompare(a.reference))

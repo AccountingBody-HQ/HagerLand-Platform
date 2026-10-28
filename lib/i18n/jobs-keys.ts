@@ -1,7 +1,7 @@
 // Jobs Phase 5: every Jobs text (key = the English text) and where it appears. Used by the native-speaker review sheet
 // (scripts/i18n-export-review.mjs), the "shown in English" notice (W2) and the coverage test. The literal t() text is
 // collected from the Jobs files by scripts/i18n-jobs-keys.mjs (lib/i18n/jobs-static-keys.json); text built from lists
-// is added here. Staffing category names and questions come from the database and are listed by the export script.
+// is added here, and the staffing texts stored in the database come from lib/i18n/jobs-db-keys.ts (Tidy T-2).
 import STATIC_KEYS from './jobs-static-keys.json'
 import { JOBS_EMAIL_KEYS } from './jobs-email-keys'
 import { APPLICATION_STATUSES, AVAILABILITY, EMPLOYMENT_TYPES, JOBS_NOT_LIVE, SALARY_PERIODS, TRADES } from '@/lib/jobs'
@@ -13,7 +13,8 @@ import { CLOSED_REASON_LABEL, REQUEST_STATUS_LABEL, URGENCY } from '@/lib/servic
 import { requestFormCopy, STAFFING_SLUG } from '@/lib/service-requests/form-copy'
 import { EMPLOYER_ABROAD_TEXT } from '@/lib/service-requests/employer-abroad'
 import { CALLBACK_TEXT, CALLBACK_TIMES } from '@/lib/callbacks'
-import { SHARE_TEXT } from '@/lib/jobs-share'
+import { SHARE_TEXT, TELEGRAM_SHARE_TEXT } from '@/lib/jobs-share'
+import { STAFFING_DB_KEYS, STAFFING_DB_PLACE } from './jobs-db-keys'
 
 function listKeys(): [string, string][] {
   const staffing = requestFormCopy(STAFFING_SLUG)
@@ -62,6 +63,8 @@ function listKeys(): [string, string][] {
     ...Object.values(CALLBACK_TEXT).map((x): [string, string] => [x, 'lib/callbacks.ts (call-back box and form)']),
     ...CALLBACK_TIMES.map((x): [string, string] => [x.label, 'lib/callbacks.ts (best time to call)']),
     ...Object.values(SHARE_TEXT).map((x): [string, string] => [x, 'lib/jobs-share.ts (share message)']),
+    ...Object.values(TELEGRAM_SHARE_TEXT).map((x): [string, string] => [x, 'lib/jobs-share.ts (Telegram share text)']),
+    ...STAFFING_DB_KEYS.map((x): [string, string] => [x, STAFFING_DB_PLACE]),
     ...JOBS_EMAIL_KEYS.flatMap((e) => e.keys.map((k): [string, string] => [k, `email (sent in English): ${e.email}`])),
   ]
   return out
