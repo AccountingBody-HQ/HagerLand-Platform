@@ -749,3 +749,16 @@ There are no migrations after 0033 in the repository.
 - S6-2: order requests and reservations;
 - S6-3: settlements, markup and commission rules, reconciliation;
 - S6-4: trade price agreements and consolidated ordering.
+
+**S6-2 built (released 29 Oct 2026, migration 0049): order requests, stock reservations and the payment window.**
+- **Customers** tap "Request to order" on a HagerLand Supply product with an active partner source (only while catalogue ordering is on) and pay nothing. They get a private status page.
+- **Operations** check stock with the partner and record holds. They see partner names, never money.
+- **The owner** sets customer prices and the delivery charge and reserves the stock (48 hours by default, 1–168). The customer is emailed how to pay.
+- **Payments:** offline payments are recorded by the owner in `order_request_payments`, which is append-only, with the ledger's rules. "Paid" is set by the database only when payments cover the total before the reservation ends. A late payment is never accepted on its own: reopen or refund.
+- **Supplier orders:** from a paid request, "Create supplier orders" makes one Model A supplier order per partner, all or nothing. It moves the money into ordinary ledger customer payments, and the existing golden rule makes each order "paid".
+- **Delivery:** a request becomes delivered and completed when its supplier orders are.
+- **Hourly job:** ends overdue reservations and emails those customers.
+- **Schema:** supplier orders and their lines now come from exactly one source, a quote or an order request (two approved "drop not null" statements, each with a check).
+- **Waits for:** catalogue ordering stays locked Off until HagerLand Ltd (Ethiopia), a bank account and VAT registration exist, and the payment details are filled in Settings.
+
+**Next:** S6-3 (settlements, markup and commission rules, reconciliation) and S6-4 (trade price agreements and consolidated ordering).
