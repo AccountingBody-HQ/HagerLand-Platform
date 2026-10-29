@@ -121,10 +121,11 @@ export default async function SupplyOrdersPage(props: { searchParams: Promise<Re
             },
             {
               key: 'quote',
-              label: 'Quote',
+              label: 'Quote or request',
+              // S6-2: an order comes from a quote or from an order request (exactly one).
               render: (r) => (
-                <Link href={`/roodber8/quotes/${r.quoteId}`} prefetch={false} className="font-mono text-caption hover:underline">
-                  {r.quoteReference}
+                <Link href={r.quoteId ? `/roodber8/quotes/${r.quoteId}` : `/roodber8/supply/order-requests/${r.orderRequestId}`} prefetch={false} className="font-mono text-caption hover:underline">
+                  {r.quoteId ? r.quoteReference : r.orderRequestReference}
                 </Link>
               ),
             },

@@ -6,7 +6,7 @@
 import { addisDay, REMOVED_NAME } from '@/lib/jobs-privacy'
 
 /** The F-5 kinds in the shared clean-up (lib/jobs-cleanup.ts), cleared under the owner's Dry run → Live switch. */
-export const RETENTION_KINDS = ['enquiries', 'service_requests', 'quote_requests', 'property_care', 'managed_properties', 'build_projects', 'partner_applications', 'claims', 'trade_accounts', 'supply_contacts', 'audit_log', 'partner_registrations', 'partner_drafts'] as const
+export const RETENTION_KINDS = ['enquiries', 'service_requests', 'quote_requests', 'property_care', 'managed_properties', 'build_projects', 'partner_applications', 'claims', 'trade_accounts', 'supply_contacts', 'audit_log', 'partner_registrations', 'partner_drafts', 'order_requests'] as const
 export type RetentionKind = (typeof RETENTION_KINDS)[number]
 /** Kinds whose rows are deleted in batches (D2, D3), at most DELETE_BATCH ids per call. */
 export const BATCH_KINDS: readonly RetentionKind[] = ['supply_contacts', 'audit_log']
@@ -94,6 +94,8 @@ export const clearedTradeAccount = (at: string) => ({ phone: '', tin: null, note
 export const clearedPartnerRegistration = (at: string) => ({ contact_name: REMOVED_NAME, phone: '', email: null, tin: null, other_names: null, message: null, admin_note: null, ip_hash: null, personal_data_deleted_at: at })
 /** S6-1: a declined or withdrawn product draft keeps its name and status; photos and private fields go. */
 export const clearedPartnerDraft = (at: string) => ({ photo_paths: [] as string[], partner_sku: null, proposed_price_cents: null, stock_note: null, personal_data_deleted_at: at })
+/** S6-2: an order request keeps its reference, items, status, dates and every money record; the person's details go. */
+export const clearedOrderRequest = (at: string) => ({ name: REMOVED_NAME, phone: '', email: null, delivery_address: null, note: null, access_token_hash: null, access_token_expires_at: null, ip_hash: null, personal_data_deleted_at: at })
 /** Product drafts cleared once decided this way (approved ones live on as HagerLand products and their sources). */
 export const CLEARED_DRAFT_STATUSES = ['rejected', 'withdrawn']
 /** A do-not-contact supply contact keeps the business link, role, number and flag (D2). */
@@ -151,6 +153,11 @@ export const AUDIT_SIX_YEARS = [
   'supply.switch',
   // S6-1: a partner product's source and terms (cost, commission, markup) are money records.
   'supply.source.',
+  // S6-2: an order request's prices, payments, reversals and refunds are money records.
+  'supply.order_request.reserve',
+  'supply.order_request.payment',
+  'supply.order_request.reversal',
+  'supply.order_request.refunded',
   'settings.update',
   'staff.role',
 ] as const

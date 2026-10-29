@@ -22,7 +22,7 @@ const ROWS: { which: SupplySwitch; label: string; note: string }[] = [
   {
     which: 'catalogueOrdering',
     label: 'Catalogue ordering',
-    note: 'Order requests, reservations and payments (a later release). Waits for HagerLand Ltd (Ethiopia), a bank account and VAT registration.',
+    note: '"Request to order" on HagerLand Supply products, stock reservations and offline payments, plus their lines in /terms and /privacy. Locked off. Waits for HagerLand Ltd (Ethiopia), a bank account and VAT registration. It also needs the payment details in Settings.',
   },
   {
     which: 'tradePricing',

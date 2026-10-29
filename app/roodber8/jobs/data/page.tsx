@@ -31,6 +31,7 @@ const RETENTION_ROWS: [string, string][] = [
   ['Supply contacts', 'Deleted 24 months after the last contact; do-not-contact numbers kept.'],
   ['Partner registrations', 'Contact details cleared 24 months after the last activity if we did not start working together; for partners, kept while the relationship lasts, then 24 months.'],
   ['Partner product drafts', 'Declined or withdrawn drafts: photos deleted and the private code, price and stock note cleared 24 months after the decision.'],
+  ['Order requests', 'Name, contact and address cleared 24 months after the last activity, once finished; never while open. Payments, supplier orders and the ledger stay.'],
   ['Audit log', 'Entries deleted after 24 months; payments, fees and data-protection decisions after 6 years.'],
   ['Error log', 'Deleted 90 days after last seen (always on).'],
   ['Invitations', 'Unaccepted invitations deleted 30 days after expiry (always on).'],

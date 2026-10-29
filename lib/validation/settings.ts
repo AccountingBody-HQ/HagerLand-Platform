@@ -50,7 +50,7 @@ const email = z
   .default('')
   .refine((v) => !v || z.email().safeParse(v).success, 'Enter a valid email address.')
 
-export const SETTINGS_SECTIONS = ['contact', 'social', 'legal', 'business', 'announcement', 'thresholds', 'legal_dates', 'homepage', 'language', 'licences', 'gates', 'agency'] as const
+export const SETTINGS_SECTIONS = ['contact', 'social', 'legal', 'business', 'announcement', 'thresholds', 'legal_dates', 'homepage', 'language', 'licences', 'gates', 'agency', 'payments'] as const
 export type SettingsSection = (typeof SETTINGS_SECTIONS)[number]
 
 export const contactSchema = z.object({
@@ -149,3 +149,6 @@ export const gatesSchema = z.object({
 
 /** Estate agency (spec 26.5): a published fee schedule (empty = "fees agreed in writing"). */
 export const agencySchema = z.object({ agency_fee_schedule: text(2000), market_insight_min_sample: z.coerce.number().int().min(1).max(100).default(5) })
+
+/** S6-2: how customers pay HagerLand for a reserved order request (bank, telebirr, CBE Birr). Empty until the owner fills it. */
+export const paymentsSchema = z.object({ supply_payment_details: z.string().trim().max(1000).default('') })

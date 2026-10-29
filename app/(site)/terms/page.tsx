@@ -7,13 +7,14 @@ import { Container } from '@/components/ui/Layout'
 import { PageHero, TextSection } from '@/components/content/PageHero'
 import { LegalEntity } from '@/components/content/LegalEntity'
 import { licenceText } from '@/components/content/LicenceNote'
+import { readSupplySwitches } from '@/lib/supply/partner-switches'
 import { readJobsSwitches } from '@/lib/jobs-switches'
 
 export const revalidate = 3600
 export const metadata = buildMetadata({ title: 'Terms of use', description: 'The terms for using HagerLand: listings, enquiries, quotes, estate agency, service requests, reviews, our role as a marketplace and a participant.', path: '/terms' })
 
 export default async function TermsPage() {
-  const [business, updated, jobsSwitches, amharicOn] = await Promise.all([getBusinessDetails(), legalUpdated('terms'), readJobsSwitches(), amharicVersionOn()])
+  const [business, updated, jobsSwitches, amharicOn, supplySwitches] = await Promise.all([getBusinessDetails(), legalUpdated('terms'), readJobsSwitches(), amharicVersionOn(), readSupplySwitches()])
   const { legal } = business
   // Sections are numbered in order of appearance, so optional sections never leave a gap.
   let section = 0
@@ -66,6 +67,8 @@ export default async function TermsPage() {
             <li>Quotes are valid for 3 days unless the quote states otherwise. Prices of volatile materials such as steel and cement are confirmed on each quote.</li>
             <li>A quote is not a contract. An order is made only when you confirm the quote with us and we confirm payment and delivery terms with you.</li>
             <li>Prices and availability shown on product pages are a guide and may change before your quote is issued.</li>
+            {/* S6-2: only while catalogue ordering is on (approved text). */}
+            {supplySwitches.catalogueOrdering && <li>When you buy from {brand.divisions.supply}, HagerLand is the seller. A reservation holds stock until the time shown. It ends automatically if we do not receive payment by then.</li>}
           </ul>
         </TextSection>
         <TextSection title={n('Enquiries and contact details')}>

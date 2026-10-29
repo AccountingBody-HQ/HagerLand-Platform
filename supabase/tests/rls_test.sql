@@ -1513,6 +1513,165 @@ select pg_temp.record_check('S6-1 checks left nothing behind',
   and not exists (select 1 from public.products where slug like 'rls-test-s6%')
   and not exists (select 1 from public.organisations where slug like 'rls-test-s6%'));
 
+create or replace function pg_temp.read_denied_sql(sql text)
+returns boolean language plpgsql as $$
+begin
+  execute sql;
+  return false;
+exception when insufficient_privilege then
+  return true;
+end $$;
+
+-- ---------- S6-2 (0049): order requests, reservations and payments ----------
+reset role;
+select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);
+-- A private partner, a HagerLand Supply product it supplies, and one order request for each test user. Fixed references,
+-- so no reference number is used up.
+insert into public.organisations (id, kind, name, slug, status, source) values ('00000000-0000-4000-8000-0000000007a1', 'supplier', 'RLS TEST S62 partner', 'rls-test-s62-partner', 'draft', 'admin');
+insert into public.products (id, slug, name, category_id, seller_org_id, unit, status)
+select '00000000-0000-4000-8000-0000000007c1', 'rls-test-s62-product', 'RLS TEST S62 cement', (select id from public.product_categories order by sort limit 1), id, 'bag', 'published'
+from public.organisations where slug = 'hagerland-supply';
+insert into public.product_sources (product_id, org_id, cost_price_cents) values ('00000000-0000-4000-8000-0000000007c1', '00000000-0000-4000-8000-0000000007a1', 70000);
+insert into public.order_requests (id, reference, requester_user_id, name, phone, delivery_address, access_token_hash) values
+  ('00000000-0000-4000-8000-0000000007d1', 'HLR-RLS-A', '00000000-0000-4000-8000-000000000001', 'RLS TEST S62 A', '+251911000071', 'Bole', 'rls-s62-a'),
+  ('00000000-0000-4000-8000-0000000007d2', 'HLR-RLS-B', '00000000-0000-4000-8000-000000000002', 'RLS TEST S62 B', '+251911000072', 'Kirkos', 'rls-s62-b');
+insert into public.order_request_lines (id, order_request_id, product_id, item_name, quantity, unit) values
+  ('00000000-0000-4000-8000-0000000007e1', '00000000-0000-4000-8000-0000000007d1', '00000000-0000-4000-8000-0000000007c1', 'RLS TEST S62 cement', 10, 'bag'),
+  ('00000000-0000-4000-8000-0000000007e2', '00000000-0000-4000-8000-0000000007d2', '00000000-0000-4000-8000-0000000007c1', 'RLS TEST S62 cement', 5, 'bag');
+update public.order_request_lines set source_org_id = '00000000-0000-4000-8000-0000000007a1', cost_price_cents = 70000 where id = '00000000-0000-4000-8000-0000000007e1';
+
+set role anon;
+select pg_temp.record_check('Anonymous cannot read ' || name, pg_temp.read_denied(name))
+from unnest(array['order_requests', 'order_request_lines', 'stock_reservations', 'order_request_events', 'order_request_payments', 'order_request_lines_customer']) as t(name);
+
+reset role;
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000001", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', false);
+select pg_temp.record_check('A customer reads only their own order request',
+  (select string_agg(reference, ',') from (select reference from public.order_requests where reference like 'HLR-RLS-%') x) = 'HLR-RLS-A');
+select pg_temp.record_check('A customer cannot read the private link, notes or history columns of their request',
+  pg_temp.read_denied_sql($q$select access_token_hash from public.order_requests$q$) and pg_temp.read_denied_sql($q$select requester_user_id from public.order_requests$q$));
+select pg_temp.record_check('A customer reads only their own lines, without the partner or the cost',
+  (select count(*) from public.order_request_lines_customer where item_name like 'RLS TEST S62%') = 1
+  and (select quantity from public.order_request_lines_customer where item_name like 'RLS TEST S62%') = 10
+  and not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'order_request_lines_customer' and column_name in ('source_org_id', 'cost_price_cents')));
+select pg_temp.record_check('A signed-in user cannot read ' || name || ' directly', pg_temp.read_denied(name))
+from unnest(array['order_request_lines', 'stock_reservations', 'order_request_events', 'order_request_payments']) as t(name);
+select pg_temp.record_check('A customer cannot ' || label, pg_temp.write_denied(sql)) from (values
+  ('send a request directly', $q$insert into public.order_requests (name, phone) values ('RLS TEST S62 direct', '+251911000079')$q$),
+  ('change their request', $q$update public.order_requests set status = 'paid' where reference = 'HLR-RLS-A'$q$),
+  ('record a payment', $q$insert into public.order_request_payments (order_request_id, entry_type, direction, amount_cents, occurred_on) values ('00000000-0000-4000-8000-0000000007d1', 'customer_payment', 'in', 1, current_date)$q$),
+  ('record a stock hold', $q$insert into public.stock_reservations (order_request_line_id, org_id, qty, held_until) values ('00000000-0000-4000-8000-0000000007e1', '00000000-0000-4000-8000-0000000007a1', 1, now() + interval '1 day')$q$)
+) as w(label, sql);
+reset role;
+select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);
+
+-- The state machine, the golden rule and the "exactly one source" checks (inside one block that is rolled back, so
+-- no reference number is used up and nothing stays behind).
+do $$
+declare
+  res text := '';
+  v_total bigint;
+  v_n int;
+  refused boolean;
+begin
+  begin
+    begin
+      update public.order_requests set status = 'paid', updated_by = 'rls' where id = '00000000-0000-4000-8000-0000000007d1';
+      refused := false;
+    exception when check_violation then refused := true;
+    end;
+    res := res || case when refused then 'PASS' else 'FAIL' end || E' · A new order request cannot jump to paid\n';
+    update public.order_requests set status = 'checking_stock', updated_by = 'rls' where id = '00000000-0000-4000-8000-0000000007d1';
+    update public.order_request_lines set status = 'confirmed', confirmed_qty = 10 where id = '00000000-0000-4000-8000-0000000007e1';
+    begin
+      perform public.order_request_reserve('00000000-0000-4000-8000-0000000007d1', 48, 0, '[{"line_id": "00000000-0000-4000-8000-0000000007e1", "price_cents": 2000}]'::jsonb, 'rls');
+      refused := false;
+    exception when check_violation then refused := true;
+    end;
+    res := res || case when refused then 'PASS' else 'FAIL' end || E' · No reservation without a partner hold that lasts until it ends\n';
+    insert into public.stock_reservations (order_request_line_id, org_id, qty, held_until) values ('00000000-0000-4000-8000-0000000007e1', '00000000-0000-4000-8000-0000000007a1', 10, now() + interval '3 days');
+    v_total := public.order_request_reserve('00000000-0000-4000-8000-0000000007d1', 48, 0, '[{"line_id": "00000000-0000-4000-8000-0000000007e1", "price_cents": 2000}]'::jsonb, 'rls');
+    res := res || case when v_total = 20000 and (select status from public.order_requests where id = '00000000-0000-4000-8000-0000000007d1') = 'reserved' then 'PASS' else 'FAIL' end || E' · Reserving fixes the total (10 × 20.00 = 200.00)\n';
+    insert into public.order_request_payments (order_request_id, entry_type, direction, amount_cents, occurred_on, created_by) values ('00000000-0000-4000-8000-0000000007d1', 'customer_payment', 'in', 10000, current_date, 'rls');
+    res := res || case when (select status from public.order_requests where id = '00000000-0000-4000-8000-0000000007d1') = 'reserved' then 'PASS' else 'FAIL' end || E' · A part payment does not make it paid\n';
+    begin
+      update public.order_requests set status = 'paid', updated_by = 'rls' where id = '00000000-0000-4000-8000-0000000007d1';
+      refused := false;
+    exception when check_violation then refused := true;
+    end;
+    res := res || case when refused then 'PASS' else 'FAIL' end || E' · Paid cannot be set by hand without full payment\n';
+    begin
+      insert into public.order_request_payments (order_request_id, entry_type, direction, amount_cents, occurred_on, created_by) values ('00000000-0000-4000-8000-0000000007d1', 'refund', 'out', 10001, current_date, 'rls');
+      refused := false;
+    exception when check_violation then refused := true;
+    end;
+    res := res || case when refused then 'PASS' else 'FAIL' end || E' · A refund can never be more than was paid\n';
+    insert into public.order_request_payments (order_request_id, entry_type, direction, amount_cents, occurred_on, created_by) values ('00000000-0000-4000-8000-0000000007d1', 'customer_payment', 'in', 10000, current_date, 'rls');
+    res := res || case when (select status from public.order_requests where id = '00000000-0000-4000-8000-0000000007d1') = 'paid' then 'PASS' else 'FAIL' end || E' · Full payment before the end makes it paid (set by the database)\n';
+    perform public.order_request_create_supply_orders('00000000-0000-4000-8000-0000000007d1', 'rls', current_date);
+    select count(*) into v_n from public.supply_orders where order_request_id = '00000000-0000-4000-8000-0000000007d1' and status = 'paid' and quote_request_id is null;
+    res := res || case when v_n = 1 and public.order_request_net_cents('00000000-0000-4000-8000-0000000007d1') = 0 and public.order_request_held_cents('00000000-0000-4000-8000-0000000007d1') = 20000 then 'PASS' else 'FAIL' end || E' · Supplier orders take the money into the ledger, to the cent\n';
+    begin
+      perform public.order_request_create_supply_orders('00000000-0000-4000-8000-0000000007d1', 'rls', current_date);
+      refused := false;
+    exception when check_violation or unique_violation then refused := true;
+    end;
+    res := res || case when refused then 'PASS' else 'FAIL' end || E' · A second tap never makes a second supplier order\n';
+    -- A late payment: the reservation of request B ends before the money arrives.
+    update public.order_requests set status = 'checking_stock', updated_by = 'rls' where id = '00000000-0000-4000-8000-0000000007d2';
+    update public.order_request_lines set status = 'confirmed', confirmed_qty = 5 where id = '00000000-0000-4000-8000-0000000007e2';
+    insert into public.stock_reservations (order_request_line_id, org_id, qty, held_until) values ('00000000-0000-4000-8000-0000000007e2', '00000000-0000-4000-8000-0000000007a1', 5, now() + interval '3 days');
+    perform public.order_request_reserve('00000000-0000-4000-8000-0000000007d2', 1, 0, '[{"line_id": "00000000-0000-4000-8000-0000000007e2", "price_cents": 2000}]'::jsonb, 'rls');
+    update public.order_requests set reserved_until = now() - interval '1 minute', payment_due_at = now() - interval '1 minute' where id = '00000000-0000-4000-8000-0000000007d2';
+    insert into public.order_request_payments (order_request_id, entry_type, direction, amount_cents, occurred_on, created_by) values ('00000000-0000-4000-8000-0000000007d2', 'customer_payment', 'in', 10000, current_date, 'rls');
+    res := res || case when (select status from public.order_requests where id = '00000000-0000-4000-8000-0000000007d2') = 'reserved' then 'PASS' else 'FAIL' end || E' · A payment after the reservation ended is not accepted\n';
+    perform public.order_request_expire_due('rls');
+    res := res || case when (select status from public.order_requests where id = '00000000-0000-4000-8000-0000000007d2') = 'expired' then 'PASS' else 'FAIL' end || E' · The ended reservation expires\n';
+    begin
+      update public.order_requests set status = 'paid', updated_by = 'rls' where id = '00000000-0000-4000-8000-0000000007d2';
+      refused := false;
+    exception when check_violation then refused := true;
+    end;
+    res := res || case when refused then 'PASS' else 'FAIL' end || E' · An ended reservation cannot become paid (only Reopen or refund)\n';
+    begin
+      insert into public.supply_orders (org_id, money_model) values ('00000000-0000-4000-8000-0000000007a1', 'A');
+      refused := false;
+    exception when check_violation then refused := true;
+    end;
+    res := res || case when refused then 'PASS' else 'FAIL' end || E' · A supplier order needs exactly one source (a quote or an order request)\n';
+    begin
+      insert into public.supply_order_lines (order_id, item_name, quantity, unit, supplier_unit_price_cents)
+      select id, 'RLS TEST S62 line', 1, 'bag', 1 from public.supply_orders where order_request_id = '00000000-0000-4000-8000-0000000007d1' limit 1;
+      refused := false;
+    exception when check_violation then refused := true;
+    end;
+    res := res || case when refused then 'PASS' else 'FAIL' end || E' · An order line needs exactly one link (a quote line or an order request line)\n';
+    raise exception 'hl_rollback';
+  exception when raise_exception then
+    if sqlerrm <> 'hl_rollback' then res := res || 'FAIL · S6-2 checks stopped early: ' || sqlerrm || E'\n'; end if;
+  end;
+  perform set_config('hl.results', current_setting('hl.results') || res, false);
+end $$;
+
+-- Clean up (the history is append-only, so its test rows go with the replica setting, which turns the protections off
+-- for this session's own statements only).
+set session_replication_role = replica;
+delete from public.order_request_events where order_request_id in ('00000000-0000-4000-8000-0000000007d1', '00000000-0000-4000-8000-0000000007d2');
+set session_replication_role = origin;
+delete from public.stock_reservations where order_request_line_id in ('00000000-0000-4000-8000-0000000007e1', '00000000-0000-4000-8000-0000000007e2');
+set session_replication_role = replica;
+delete from public.order_request_lines where id in ('00000000-0000-4000-8000-0000000007e1', '00000000-0000-4000-8000-0000000007e2');
+set session_replication_role = origin;
+delete from public.order_requests where id in ('00000000-0000-4000-8000-0000000007d1', '00000000-0000-4000-8000-0000000007d2');
+delete from public.product_sources where product_id = '00000000-0000-4000-8000-0000000007c1';
+delete from public.products where id = '00000000-0000-4000-8000-0000000007c1';
+delete from public.organisations where id = '00000000-0000-4000-8000-0000000007a1';
+select pg_temp.record_check('S6-2 checks left nothing behind',
+  not exists (select 1 from public.order_requests where reference like 'HLR-RLS-%')
+  and not exists (select 1 from public.order_request_events where order_request_id in ('00000000-0000-4000-8000-0000000007d1', '00000000-0000-4000-8000-0000000007d2'))
+  and not exists (select 1 from public.products where slug = 'rls-test-s62-product'));
+
 -- ---------- Clean up ----------
 reset role;
 select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);

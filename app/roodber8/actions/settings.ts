@@ -26,6 +26,7 @@ import {
   licencesInput,
   gatesSchema,
   agencySchema,
+  paymentsSchema,
 } from '@/lib/validation/settings'
 
 type Msg = ActionResult<{ message: string }>
@@ -112,6 +113,12 @@ export async function saveSettingsAction(section: SettingsSection, _prev: Msg | 
       const p = agencySchema.safeParse(input)
       if (!p.success) return invalid(p.error)
       for (const [key, value] of Object.entries(p.data)) rows.push({ key, value })
+      break
+    }
+    case 'payments': {
+      const p = paymentsSchema.safeParse(input)
+      if (!p.success) return invalid(p.error)
+      rows.push({ key: 'supply_payment_details', value: p.data.supply_payment_details })
       break
     }
     case 'homepage': {

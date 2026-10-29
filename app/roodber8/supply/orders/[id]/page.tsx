@@ -32,9 +32,15 @@ export default async function SupplyOrderPage(props: { params: Promise<{ id: str
         description={
           <span className="flex flex-wrap items-center gap-2">
             <StatusBadge status={o.status} /> {ORDER_STATUS_LABEL[o.status]} · model {o.model} · {o.supplier} ·{' '}
-            <Link href={`/roodber8/quotes/${o.quoteId}`} prefetch={false} className="font-semibold text-green underline">
-              Quote {o.quoteReference}
-            </Link>
+            {o.quoteId ? (
+              <Link href={`/roodber8/quotes/${o.quoteId}`} prefetch={false} className="font-semibold text-green underline">
+                Quote {o.quoteReference}
+              </Link>
+            ) : (
+              <Link href={`/roodber8/supply/order-requests/${o.orderRequestId}`} prefetch={false} className="font-semibold text-green underline">
+                Order request {o.orderRequestReference}
+              </Link>
+            )}
           </span>
         }
       />

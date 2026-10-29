@@ -40,7 +40,7 @@ export async function addManualEntryAction(input: ManualEntryInput): Promise<Msg
   if (amount === null) return fail('Enter the amount in birr, like 2500 or 2,500.50.')
   if (d.date > todayInAddis()) return fail('The date cannot be in the future.')
   const db = getAdminSupabase()
-  let order: { id: string; org_id: string; quote_request_id: string } | null = null
+  let order: { id: string; org_id: string; quote_request_id: string | null } | null = null
   if (d.orderReference) {
     const { data } = await db.from('supply_orders').select('id, org_id, quote_request_id').eq('reference', d.orderReference).maybeSingle()
     if (!data) return fail(`No order ${d.orderReference}.`)

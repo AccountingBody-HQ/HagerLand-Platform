@@ -125,6 +125,7 @@ export const KIND_LABEL: Record<CleanupKind, string> = {
   audit_log: 'audit log entries',
   partner_registrations: 'partner registrations',
   partner_drafts: 'partner product drafts',
+  order_requests: 'order requests',
 }
 
 /** The two Phase 3 counts, in the owner's words (AB's names: "kept: hired through HagerLand", "kept: period not set"). */

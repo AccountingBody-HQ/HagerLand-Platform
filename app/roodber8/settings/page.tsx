@@ -46,6 +46,12 @@ export default async function SettingsPage() {
           ]}
         />
       </Panel>
+      <Panel title="Payment details shown to customers">
+        <p className="mb-3 text-small text-muted">
+          Shown to a customer when you reserve their order request (in the email and on their order page): for example the bank, account name and number, and telebirr or CBE Birr numbers. While this is empty, no reservation can be sent and catalogue ordering cannot be switched on.
+        </p>
+        <SettingsForm section="payments" fields={[{ name: 'supply_payment_details', label: 'Payment details', type: 'textarea', value: typeof s.supply_payment_details === 'string' ? s.supply_payment_details : '' }]} />
+      </Panel>
       <Panel title="Licences and approvals">
         <p className="mb-3 text-small text-muted">
           AB confirmed on 15 Oct 2026 that HagerLand&rsquo;s approval covers estate agency, property management (including collecting and holding rent for owners), recruitment and placement, and finance and insurance introductions. Record each licence or approval reference here. Once a number is filled in it is shown on the matching pages (estate agency also in the footer and the terms); empty ones stay hidden.

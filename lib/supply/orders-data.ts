@@ -6,11 +6,17 @@ import { readAll, readAllIn, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import { privateFileLink } from './private-files'
 import { commissionDueCents, customerNetPaid, customerTotalCents, hagerlandEarned, needsAction, summariseLedger, supplierTotalCents, type LedgerSummary, type MoneyModel, type OrderStatus } from './money'
 
-export interface OrderListRow {
+/** Where an order came from: a customer quote, or (S6-2) an order request. Exactly one (0049). */
+export interface OrderSource {
+  quoteId: string | null
+  quoteReference: string
+  orderRequestId: string | null
+  orderRequestReference: string
+}
+
+export interface OrderListRow extends OrderSource {
   id: string
   reference: string
-  quoteId: string
-  quoteReference: string
   supplier: string
   orgId: string
   model: MoneyModel
@@ -26,7 +32,7 @@ export async function listOrders(f: { status?: string; model?: string; orgId?: s
   const { data } = await readAll(() => {
     let q = db
       .from('supply_orders')
-      .select('id, reference, quote_request_id, org_id, money_model, status, status_changed_at, created_at, updated_at, quote:quote_requests(reference), org:organisations(name)')
+      .select('id, reference, quote_request_id, order_request_id, org_id, money_model, status, status_changed_at, created_at, updated_at, quote:quote_requests(reference), order_request:order_requests(reference), org:organisations(name)')
       .order('created_at', { ascending: false })
     if (f.status) q = q.eq('status', f.status)
     if (f.model) q = q.eq('money_model', f.model)
@@ -43,6 +49,8 @@ export async function listOrders(f: { status?: string; model?: string; orgId?: s
     reference: o.reference,
     quoteId: o.quote_request_id,
     quoteReference: (o.quote as { reference: string } | null)?.reference ?? '',
+    orderRequestId: o.order_request_id,
+    orderRequestReference: (o.order_request as { reference: string } | null)?.reference ?? '',
     supplier: (o.org as { name: string } | null)?.name ?? '',
     orgId: o.org_id,
     model: o.money_model as MoneyModel,
@@ -76,11 +84,9 @@ export interface OrderEventView {
   detail: Record<string, unknown> | null
 }
 
-export interface OrderDetail {
+export interface OrderDetail extends OrderSource {
   id: string
   reference: string
-  quoteId: string
-  quoteReference: string
   orgId: string
   supplier: string
   partnerStatus: string | null
@@ -113,7 +119,7 @@ export interface OrderDetail {
 
 export async function orderDetail(orderId: string, owner: boolean): Promise<OrderDetail | null> {
   const db = getAdminSupabase()
-  const { data: o } = await db.from('supply_orders').select('*, quote:quote_requests(reference), org:organisations(name)').eq('id', orderId).maybeSingle()
+  const { data: o } = await db.from('supply_orders').select('*, quote:quote_requests(reference), order_request:order_requests(reference), org:organisations(name)').eq('id', orderId).maybeSingle()
   if (!o) return null
   const [{ data: lines }, { data: proofs }, { data: events }, { data: partner }, { data: contacts }] = await Promise.all([
     db.from('supply_order_lines').select('*').eq('order_id', orderId).order('created_at'),
@@ -131,6 +137,8 @@ export async function orderDetail(orderId: string, owner: boolean): Promise<Orde
     reference: o.reference,
     quoteId: o.quote_request_id,
     quoteReference: (o.quote as { reference: string } | null)?.reference ?? '',
+    orderRequestId: o.order_request_id,
+    orderRequestReference: (o.order_request as { reference: string } | null)?.reference ?? '',
     orgId: o.org_id,
     supplier: (o.org as { name: string } | null)?.name ?? '',
     partnerStatus: partner?.relationship_status ?? null,
