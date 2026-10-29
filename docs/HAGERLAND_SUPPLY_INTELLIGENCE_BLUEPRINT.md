@@ -1,6 +1,6 @@
 # HagerLand Supply: commercial intelligence blueprint (Ethiopia)
 
-Status: **blueprint only**. Nothing in this document has been built. Written 23 Oct 2026 on branch `docs/supply-intelligence-blueprint`, from `main` at `536229c`.
+Status: **blueprint** (Phases 1a–5 were built later; see `docs/SUPPLY_PARTNERS.md`). Section 14 records S6-1, the first part of "HagerLand as the seller" (`reports/S6-0_review.md`). Written 23 Oct 2026 on branch `docs/supply-intelligence-blueprint`, from `main` at `536229c`.
 
 How to read it:
 
@@ -720,3 +720,32 @@ There are no migrations after 0033 in the repository.
 6. **Freshness defaults** (7.3): accept them or change them.
 7. **Approval of migration 0034** when Phase 1 is commissioned, or choose the no-migration fallback first.
 8. **Whether diaspora customers should receive delivery photos** by email (later, by choice).
+
+
+## 14. S6-1: HagerLand as the seller, part 1 (built, released 29 Oct 2026, migration 0048)
+
+**Principle (AB, approved):** HagerLand is the seller. Partners (manufacturers, importers, suppliers and shops) are never visible to customers, who see HagerLand Supply and the product's own brand.
+
+**Built in S6-1:**
+- Private partner registration: a public form behind an owner switch (Off), or staff on a business's behalf. One database step creates the registration, a private organisation (status draft, never published) and a `supply_partners` record (`self_signup`, "interested").
+- A private partner area (`/partner`), by owner invitation: product drafts with private photos, the partner's own code and price.
+- Admin review: Operations can review without seeing price or code. The owner approves into a **HagerLand Supply** product (draft, price on request) plus a private `product_sources` row (cost, commission, markup, settlement timing, primary source). Products are published with the usual step.
+- The homepage "Sell through HagerLand" row, behind its own switch, shown only while registration is also on.
+- Four owner switches, all Off: partner registration, homepage row, catalogue ordering, trade price agreements.
+
+**Database rules (L20):**
+- a partner business can never be published or sent for review, and never gets business members;
+- a product with a partner source is sold only by a HagerLand organisation.
+
+**Stored but not used yet:**
+- `product_sources` terms;
+- `supply_agreements.default_markup_bps` and `settlement_timing`.
+
+**What each switch waits for:**
+- Registration and the homepage row: AB's decision only (no money is involved). Set the /privacy "Last updated" date at that release.
+- Catalogue ordering (S6-2: order requests, reservations, payment window) and trade price agreements (S6-4): HagerLand Ltd (Ethiopia), a bank account, VAT registration and the lawyer's review. Until then Model B (commission) stays the default, and nothing takes customer money.
+
+**Next jobs:**
+- S6-2: order requests and reservations;
+- S6-3: settlements, markup and commission rules, reconciliation;
+- S6-4: trade price agreements and consolidated ordering.
