@@ -476,3 +476,17 @@ HagerLand is the seller: businesses that supply HagerLand (manufacturers, import
 - **Dashboard:** "Recent admin activity" leaves out the hourly job's runs. The Audit log still lists them.
 
 **Read-only check after applying 0050:** `docs/sql/0050_partner_settlements_verify.sql` (every row PASS; 10/10 on live, 29 Oct 2026; no destructive warning).
+
+### 20.3 Trade prices for one customer (S6-4, migration 0051)
+
+- **Where:** admin → Supply → **Trade accounts** → click the account's reference (owner only; Operations still see the list but not the prices).
+- **Add a trade price:** choose one product (an agreed price per unit) or a category (a price, or a discount off the price the partner's terms suggest), the dates and an optional note, then "Add trade price".
+  - Refused: a price below what HagerLand pays the partner (the message names the products), and a second price for the same item in overlapping dates (end the first one, or choose other dates).
+  - Only approved trade accounts can have trade prices.
+- **End a trade price:** "End", give the reason, "End trade price". It is kept in the list as "Ended".
+- **Check:** "Effective prices today" shows, per product, the price the customer gets, the rule used, the suggested price, what HagerLand pays the partner, and the no-loss result. "Trade prices CSV" downloads every agreement (no phone, TIN, cost or partner).
+- **Which price wins:** product price → category price or discount (own category, then parent) → the general trade price.
+- **The switch:** "Trade price agreements" (Supply switches) stays **locked Off**. It needs catalogue ordering on first, and waits for HagerLand Ltd (Ethiopia), a bank account and VAT registration. While Off, customers see only the general trade price, as before, and reservations use the partner terms.
+- **When it is on:** the trade customer sees "Your trade price: ETB … per bag", can send the whole basket as one order request, and has "Your trade orders" in their account. When you reserve, the prices are pre-filled with their trade prices; you may change one (kept in the history).
+
+**Read-only check after applying 0051:** `docs/sql/0051_trade_price_agreements_verify.sql` (every row PASS; 9/9 on live, 29 Oct 2026; no destructive warning).
