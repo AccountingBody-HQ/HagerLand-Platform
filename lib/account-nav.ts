@@ -1,6 +1,7 @@
 import 'server-only'
 import type { AccountNavItem } from '@/components/account/AccountNav'
 import type { Membership } from '@/lib/auth'
+import { TRADE_TEXT } from '@/lib/supply/trade-prices'
 
 /** Account menu items, adapted to what the user's organisation does (spec 7.3). */
 export interface AccountExtras {
@@ -8,6 +9,8 @@ export interface AccountExtras {
   agency?: boolean
   /** The user owns a property HagerLand manages (owner portal, spec 26.7). */
   owner?: boolean
+  /** An approved trade customer while trade pricing is on (S6-4). */
+  tradeOrders?: boolean
 }
 
 export function accountNavItems(active: Membership | null, newEnquiries: number, newMatches = 0, jobsLive = false, extras: AccountExtras = {}): AccountNavItem[] {
@@ -30,6 +33,7 @@ export function accountNavItems(active: Membership | null, newEnquiries: number,
   if (extras.owner) items.push({ href: '/owner', label: 'Owner portal', icon: 'owner' })
   if (jobsLive) items.push({ href: '/account/applications', label: 'My job applications', icon: 'applications' }, { href: '/account/candidate', label: 'Candidate profile', icon: 'candidate' })
   items.push({ href: '/account/quotes', label: 'Quotes', icon: 'quotes' })
+  if (extras.tradeOrders) items.push({ href: '/account/trade-orders', label: TRADE_TEXT.ordersHeading, icon: 'trade' })
   items.push({ href: '/account/saved', label: 'Saved', icon: 'saved' })
   items.push({ href: '/account/alerts', label: 'Search alerts', icon: 'alerts' })
   items.push({ href: '/account/settings', label: 'Settings', icon: 'settings' })

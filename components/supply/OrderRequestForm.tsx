@@ -30,6 +30,19 @@ export function OrderRequestForm({ productId, unit, minOrder }: { productId: str
           <span className="text-muted">{unit}</span>
         </div>
       </Field>
+      <OrderRequestFields errors={errors} />
+      <Turnstile action="order_request" />
+      <SubmitButton fullWidth size="lg" pendingText="Sending…">
+        {CUSTOMER_TEXT.submit}
+      </SubmitButton>
+    </NoResetForm>
+  )
+}
+
+/** The customer's details (AB's approved S6-2 labels): shared by the product form and the trade basket (S6-4). */
+export function OrderRequestFields({ errors }: { errors: Record<string, string> }) {
+  return (
+    <>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Your name" htmlFor="or-name" error={errors.name} required>
           <Input id="or-name" name="name" autoComplete="name" invalid={Boolean(errors.name)} aria-describedby={describedBy('or-name', errors.name)} />
@@ -53,10 +66,6 @@ export function OrderRequestForm({ productId, unit, minOrder }: { productId: str
       <Field label="Anything else we should know?" htmlFor="or-note" error={errors.note} optional>
         <Textarea id="or-note" name="note" rows={3} maxLength={2000} invalid={Boolean(errors.note)} />
       </Field>
-      <Turnstile action="order_request" />
-      <SubmitButton fullWidth size="lg" pendingText="Sending…">
-        {CUSTOMER_TEXT.submit}
-      </SubmitButton>
-    </NoResetForm>
+    </>
   )
 }

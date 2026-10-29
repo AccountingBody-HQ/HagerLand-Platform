@@ -20,6 +20,7 @@ import {
   StockOutcomeButtons,
 } from '@/components/admin/OrderRequestTools'
 import { ADMIN_STATUS_LABEL, EDITABLE, addisDateTime } from '@/lib/supply/order-requests'
+import { RULE_LABEL } from '@/lib/supply/trade-prices'
 import { termsLabel } from '@/lib/supply/terms'
 import { expireDueOrderRequests, loadAdminOrderRequest, readPaymentDetails } from '@/lib/supply/order-requests-data'
 import { todayInAddis } from '@/lib/supply/shortlist'
@@ -136,7 +137,9 @@ export default async function OrderRequestPage(props: { params: Promise<{ id: st
               .map((l) => {
                 // S6-3: pre-filled with the price suggested by the partner's terms (the owner may change it; a change is kept in the history).
                 const suggested = l.money?.suggested ?? null
-                const price = l.money?.unitPriceCents ?? suggested?.customerUnitCents ?? null
+                // S6-4: a trade customer's own price comes first (only while trade pricing is on).
+                const trade = l.money?.trade ?? null
+                const price = l.money?.unitPriceCents ?? trade?.priceCents ?? suggested?.customerUnitCents ?? null
                 return {
                   id: l.id,
                   name: l.itemName,
@@ -144,7 +147,7 @@ export default async function OrderRequestPage(props: { params: Promise<{ id: st
                   unit: unitLabel(l.unit, l.confirmedQty ?? l.quantity),
                   price: price !== null ? (price / 100).toFixed(2) : '',
                   cost: suggested?.payableUnitCents != null ? formatETBCents(suggested.payableUnitCents) : l.money?.costCents != null ? formatETBCents(l.money.costCents) : null,
-                  terms: suggested ? `${termsLabel(suggested)}${suggested.customerUnitCents !== null ? ` · suggested ${formatETBCents(suggested.customerUnitCents)}` : ''}` : null,
+                  terms: suggested ? `${termsLabel(suggested)}${suggested.customerUnitCents !== null ? ` · suggested ${formatETBCents(suggested.customerUnitCents)}` : ''}${trade ? ` · trade price ${formatETBCents(trade.priceCents)} (${RULE_LABEL[trade.rule].toLowerCase()})` : ''}` : null,
                 }
               })}
           />

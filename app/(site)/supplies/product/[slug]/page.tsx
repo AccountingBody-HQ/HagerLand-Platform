@@ -75,6 +75,8 @@ export default async function ProductPage(props: { params: Promise<{ slug: strin
   // S6-2: "Request to order" only while catalogue ordering is on, for HagerLand Supply products with an active partner
   // source. Otherwise the page is exactly as before.
   const ordering = Boolean(p.seller_is_hagerland && (await readSupplySwitches()).catalogueOrdering && (await orderableProduct(p.id)))
+  // S6-4: the customer's own trade price (their agreements first) only while trade pricing is on.
+  const tradePricing = (await readSupplySwitches()).tradePricing
 
   return (
     <Container className="py-6 lg:py-8">
@@ -117,7 +119,7 @@ export default async function ProductPage(props: { params: Promise<{ slug: strin
             )}
             {p.price_type !== 'on_request' && p.price_etb_cents !== null && <ApproxPrice etb={p.price_etb_cents / 100} className="block" />}
             {ordering && p.price_type === 'on_request' && <p className="mt-1 text-small text-muted">{CUSTOMER_TEXT.priceLine}</p>}
-            <TradePrice productId={p.id} />
+            {tradePricing ? <TradePrice productId={p.id} unit={unitLabel(p.unit, 1)} /> : <TradePrice productId={p.id} />}
             {p.price_type !== 'on_request' && p.price_updated_at && <p className="mt-1 text-small text-muted">Price updated {formatDate(p.price_updated_at)}</p>}
             {volatile && <p className="mt-1 text-small text-warning-dark">Prices change often — we confirm today&apos;s price on your quote.</p>}
             <ul className="mt-3 space-y-1 text-small text-muted">

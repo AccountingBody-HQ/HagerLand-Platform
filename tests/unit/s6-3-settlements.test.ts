@@ -216,6 +216,6 @@ describe('migration 0050', () => {
   })
   it('the health check expects 0050', async () => {
     const { EXPECTED_MIGRATIONS } = await import('@/lib/health')
-    expect(EXPECTED_MIGRATIONS[EXPECTED_MIGRATIONS.length - 1]).toBe('0050')
+    expect(EXPECTED_MIGRATIONS).toContain('0050')
   })
 })

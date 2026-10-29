@@ -27,7 +27,7 @@ const ROWS: { which: SupplySwitch; label: string; note: string }[] = [
   {
     which: 'tradePricing',
     label: 'Trade price agreements',
-    note: 'Prices agreed with each trade customer (a later release). Waits for the same as catalogue ordering.',
+    note: 'Prices agreed with each trade customer. Needs catalogue ordering on. Waits for HagerLand Ltd (Ethiopia), a bank account and VAT registration.',
   },
 ]
 

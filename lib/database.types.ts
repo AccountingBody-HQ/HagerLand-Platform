@@ -8305,6 +8305,104 @@ export type Database = {
           },
         ]
       }
+      trade_price_agreements: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          discount_bps: number | null
+          end_reason: string | null
+          ended_at: string | null
+          id: string
+          note: string | null
+          price_cents: number | null
+          product_id: string | null
+          status: string
+          trade_account_id: string
+          updated_at: string
+          valid_from: string
+          valid_until: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          discount_bps?: number | null
+          end_reason?: string | null
+          ended_at?: string | null
+          id?: string
+          note?: string | null
+          price_cents?: number | null
+          product_id?: string | null
+          status?: string
+          trade_account_id: string
+          updated_at?: string
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          discount_bps?: number | null
+          end_reason?: string | null
+          ended_at?: string | null
+          id?: string
+          note?: string | null
+          price_cents?: number | null
+          product_id?: string | null
+          status?: string
+          trade_account_id?: string
+          updated_at?: string
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'trade_price_agreements_category_id_fkey'
+            columns: ['category_id']
+            isOneToOne: false
+            referencedRelation: 'org_product_categories_public'
+            referencedColumns: ['product_category_id']
+          },
+          {
+            foreignKeyName: 'trade_price_agreements_category_id_fkey'
+            columns: ['category_id']
+            isOneToOne: false
+            referencedRelation: 'product_categories'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'trade_price_agreements_product_id_fkey'
+            columns: ['product_id']
+            isOneToOne: false
+            referencedRelation: 'products'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'trade_price_agreements_product_id_fkey'
+            columns: ['product_id']
+            isOneToOne: false
+            referencedRelation: 'products_public'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'trade_price_agreements_product_id_fkey'
+            columns: ['product_id']
+            isOneToOne: false
+            referencedRelation: 'special_buys_public'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'trade_price_agreements_trade_account_id_fkey'
+            columns: ['trade_account_id']
+            isOneToOne: false
+            referencedRelation: 'trade_accounts'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       verification_requests: {
         Row: {
           admin_notes: string | null
@@ -9664,6 +9762,14 @@ export type Database = {
         Args: { p_aggregate: boolean; p_direct: boolean; p_interest: boolean }
         Returns: Database['public']['Enums']['vertical_status']
       }
+      my_trade_prices: {
+        Args: { p_product_ids: string[] }
+        Returns: {
+          price_cents: number
+          product_id: string
+          rule: string
+        }[]
+      }
       next_reference: { Args: { p_prefix: string }; Returns: string }
       order_request_claim_email: { Args: { p_key: string; p_request: string }; Returns: boolean }
       order_request_create_supply_orders: {
@@ -9908,6 +10014,8 @@ export type Database = {
       supply_order_payable_cents: { Args: { p_order: string }; Returns: number }
       supply_order_transition_allowed: { Args: { p_from: string; p_model: string; p_to: string }; Returns: boolean }
       supply_order_upfront: { Args: { p_order: string }; Returns: boolean }
+      supply_product_payable_floor: { Args: { p_product: string }; Returns: number }
+      supply_product_suggested_price: { Args: { p_product: string }; Returns: number }
       supply_resolve_terms: {
         Args: { p_org: string; p_product: string }
         Returns: {
@@ -9929,6 +10037,23 @@ export type Database = {
         }[]
       }
       sync_verticals_from_pillars: { Args: Record<PropertyKey, never>; Returns: undefined }
+      trade_agreement_price: {
+        Args: {
+          p_agreement: Omit<
+            Database['public']['Tables']['trade_price_agreements']['Row'],
+            Database['public']['Tables']['trade_price_agreements']['ComputedFields']
+          >
+          p_product: string
+        }
+        Returns: number
+      }
+      trade_effective_price_for: {
+        Args: { p_product: string; p_user: string }
+        Returns: {
+          price_cents: number
+          rule: string
+        }[]
+      }
       tsquery_or_null: { Args: { q: string }; Returns: unknown }
       vertical_pillar: { Args: { p_vertical: string }; Returns: string }
     }

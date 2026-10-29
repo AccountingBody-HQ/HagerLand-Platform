@@ -6,6 +6,7 @@ import { ClipboardList, Package, Plus, Trash2 } from 'lucide-react'
 import { useQuoteList } from './quoteStore'
 import { QuantityStepper } from './QuantityStepper'
 import { QuoteRequestForm } from './QuoteRequestForm'
+import { TradeOrderPanel } from './TradeOrderPanel'
 import { MediaImage } from '@/components/media/MediaImage'
 import { Button, ButtonLink } from '@/components/ui/Button'
 import { Input, Select } from '@/components/ui/Field'
@@ -100,6 +101,7 @@ export function QuoteBasket() {
 
       <section aria-labelledby="send-heading" className="lg:sticky lg:top-24 lg:self-start">
         <div className="rounded-xl border border-border bg-white p-5 shadow-sm">
+          <TradeOrderPanel items={items} onSent={clear} />
           <h2 id="send-heading" className="hl-h3">
             Get your quote
           </h2>

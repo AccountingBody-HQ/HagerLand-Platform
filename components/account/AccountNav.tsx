@@ -3,14 +3,14 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTransition } from 'react'
-import { Briefcase, Building2, ClipboardList, FileUser, FolderKanban, Bell, Handshake, Heart, House, Inbox, LayoutDashboard, LogOut, MapPin, Send, Users, Settings, Store, Wrench, KeyRound, Building, HardHat, Star, type LucideIcon } from 'lucide-react'
+import { Bell, Briefcase, Building, Building2, ClipboardList, FileUser, FolderKanban, Handshake, HardHat, Heart, House, Inbox, KeyRound, LayoutDashboard, LogOut, MapPin, Receipt, Send, Settings, Star, Store, Users, Wrench, type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { signOutAction } from '@/app/(account)/auth-actions'
 
 export interface AccountNavItem {
   href: string
   label: string
-  icon: 'overview' | 'listings' | 'developments' | 'company' | 'portfolio' | 'enquiries' | 'quotes' | 'settings' | 'products' | 'requests' | 'leads' | 'saved' | 'alerts' | 'jobs' | 'applications' | 'candidate' | 'team' | 'branches' | 'agency' | 'owner' | 'projects' | 'reviews'
+  icon: 'overview' | 'listings' | 'developments' | 'company' | 'portfolio' | 'enquiries' | 'quotes' | 'settings' | 'products' | 'requests' | 'leads' | 'saved' | 'alerts' | 'jobs' | 'applications' | 'candidate' | 'team' | 'branches' | 'agency' | 'owner' | 'projects' | 'reviews' | 'trade'
   badge?: number
 }
 
@@ -22,6 +22,7 @@ const ICONS: Record<AccountNavItem['icon'], LucideIcon> = {
   portfolio: FolderKanban,
   enquiries: Inbox,
   quotes: ClipboardList,
+  trade: Receipt,
   settings: Settings,
   products: Store,
   requests: Wrench,
