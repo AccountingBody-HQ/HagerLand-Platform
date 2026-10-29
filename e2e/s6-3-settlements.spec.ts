@@ -346,7 +346,7 @@ test('the owner creates, approves, pays and voids in the admin pages; Operations
     for (const path of ['/roodber8/supply/settlements/export', '/roodber8/reports/supply-settlements/export']) {
       const res = await staff.request.get(path, { maxRedirects: 0 })
       expect(res.status(), `${role} ${path}`).not.toBe(200)
-      expect(await res.text()).not.toMatch(/HLT-|paid_to_partners|total_etb/)
+      expect(await res.text()).not.toMatch(/HLG-|paid_to_partners|total_etb/)
     }
     await staff.close()
   }

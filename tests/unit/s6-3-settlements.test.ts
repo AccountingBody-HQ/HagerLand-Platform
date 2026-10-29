@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('server-only', () => ({}))
@@ -82,25 +82,25 @@ describe('the partner statement (section 3, verbatim)', () => {
   it('title, partner, period, headings, rows, adjustments, total, paid line and footer', async () => {
     const { buildStatement, statementHtml } = await import('@/lib/supply/settlements')
     const st = buildStatement({
-      reference: 'HLT-2026-000001',
+      reference: 'HLG-2026-000001',
       business: 'Kaliti Cement',
       from: '1 Oct 2026',
       to: '31 Oct 2026',
       rows: [{ order: 'HLO-2026-000001', deliveredOn: '20 Oct 2026', item: 'Portland cement', quantity: '30 bags', amountCents: 1840110 }],
-      adjustments: [{ reason: 'Customer refund after settlement HLT-2026-000000', amountCents: -50000 }],
+      adjustments: [{ reason: 'Customer refund after settlement HLG-2026-000000', amountCents: -50000 }],
       totalCents: 1790110,
       paid: { on: '31 Oct 2026', method: 'bank_transfer', reference: 'CBE-778' },
     })
-    expect(st.title).toBe('HagerLand Supply — statement HLT-2026-000001')
+    expect(st.title).toBe('HagerLand Supply — statement HLG-2026-000001')
     expect(st.lines).toEqual(['Partner: Kaliti Cement', 'Period: 1 Oct 2026 to 31 Oct 2026'])
     expect(st.headings).toEqual(['Order', 'Delivered on', 'Item', 'Quantity', 'Amount due (ETB)'])
     expect(st.rows[0]).toEqual(['HLO-2026-000001', '20 Oct 2026', 'Portland cement', '30 bags', '18,401.10'])
-    expect(st.rows[1][0]).toBe('Adjustment: Customer refund after settlement HLT-2026-000000')
+    expect(st.rows[1][0]).toBe('Adjustment: Customer refund after settlement HLG-2026-000000')
     expect(st.rows[2][0]).toBe('Total due: ETB 17,901.10')
     expect(st.rows[3][0]).toBe('Paid on 31 Oct 2026 (bank transfer, reference CBE-778)')
     expect(st.footer).toBe('Questions? Contact HagerLand Supply.')
     const html = statementHtml(st)
-    expect(html).toContain('<title>HagerLand Supply — statement HLT-2026-000001</title>')
+    expect(html).toContain('<title>HagerLand Supply — statement HLG-2026-000001</title>')
     expect(html).toContain('noindex')
   })
   it('the statement reads no customer, customer price, margin, delivery income or other partner', () => {
@@ -127,9 +127,9 @@ describe('the reconciliation', () => {
     ],
     ledger: [
       { orderId: 'o1', type: 'customer_payment', direction: 'in', amountCents: 2460000, occurredOn: '2026-10-06', reference: 'HLR-1', reversedType: null, reversedReference: null },
-      { orderId: 'o1', type: 'supplier_payment', direction: 'out', amountCents: 2100000, occurredOn: '2026-11-02', reference: 'HLT-1', reversedType: null, reversedReference: null },
+      { orderId: 'o1', type: 'supplier_payment', direction: 'out', amountCents: 2100000, occurredOn: '2026-11-02', reference: 'HLG-1', reversedType: null, reversedReference: null },
     ],
-    settlements: [{ id: 's1', reference: 'HLT-1', status: 'paid', totalCents: 2100000, items: [{ kind: 'payable', orderId: 'o1', amountCents: 2100000, void: false, createdAt: '2026-11-01T08:00:00Z' }] }],
+    settlements: [{ id: 's1', reference: 'HLG-1', status: 'paid', totalCents: 2100000, items: [{ kind: 'payable', orderId: 'o1', amountCents: 2100000, void: false, createdAt: '2026-11-01T08:00:00Z' }] }],
     pending: [],
   })
   it('figures by Addis month and to date, to the cent, and "yes"', async () => {
@@ -146,7 +146,7 @@ describe('the reconciliation', () => {
     expect(reconcilesText(reconcile(twice))).toBe(`no (${CHECK_LABEL.twice}: HLO-1)`)
     const mismatch = base()
     mismatch.ledger[1].amountCents = 2000000
-    expect(reconcile(mismatch).checks.find((c) => c.label === CHECK_LABEL.settlements)?.references).toEqual(['HLT-1'])
+    expect(reconcile(mismatch).checks.find((c) => c.label === CHECK_LABEL.settlements)?.references).toEqual(['HLG-1'])
     const moved = base()
     moved.payments[1].amountCents = 2400000
     expect(reconcile(moved).checks.find((c) => c.label === CHECK_LABEL.moved)?.references).toEqual(['HLR-1'])
@@ -155,7 +155,7 @@ describe('the reconciliation', () => {
     expect(reconcile(loss).checks.find((c) => c.label === CHECK_LABEL.margin)?.references).toEqual(['HLO-1'])
     const totals = base()
     totals.settlements[0].totalCents = 1
-    expect(reconcile(totals).checks.find((c) => c.label === CHECK_LABEL.totals)?.references).toEqual(['HLT-1'])
+    expect(reconcile(totals).checks.find((c) => c.label === CHECK_LABEL.totals)?.references).toEqual(['HLG-1'])
   })
   it('a refund on a delivered order lowers the margin; a partner repayment raises it', async () => {
     const { reconcile } = await import('@/lib/supply/settlements')
@@ -200,6 +200,12 @@ describe('owner only, and the tidy-ups', () => {
 })
 
 describe('migration 0050', () => {
+  it('settlement references have a prefix of their own (HLG): no other table or code uses it', () => {
+    expect(code).toContain("default public.next_reference('HLG')")
+    const others = readdirSync('supabase/migrations').filter((f) => f !== '0050_partner_settlements.sql').map((f) => readFileSync(`supabase/migrations/${f}`, 'utf8'))
+    expect(others.some((t) => /next_reference\('HLG'\)/.test(t))).toBe(false)
+    expect(code.match(/next_reference\('HL[A-Z]+'\)/g)).toEqual(["next_reference('HLG')"])
+  })
   it('additive: no drop of any kind, no deletion, no change to the ledger; records itself', () => {
     expect(code).not.toMatch(/\bdrop\b/i)
     expect(code).not.toMatch(/delete\s+from|^\s*truncate\b|\brename\b/im)

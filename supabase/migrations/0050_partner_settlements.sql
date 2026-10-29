@@ -7,7 +7,7 @@
 --   - supply_orders.hagerland_delivery_income_cents: the customer's delivery charge on an order-request supplier order
 --     is HagerLand's income, never part of what a partner is paid.
 --   - partner_settlements / partner_settlement_items: what HagerLand pays each partner for delivered orders (statements
---     reference HLT-…), approved and paid by the owner in one all-or-nothing step that writes ordinary supply ledger
+--     reference HLG-…, a prefix of their own), approved and paid by the owner in one all-or-nothing step that writes ordinary supply ledger
 --     entries (supplier_payment per order; adjustments as ledger adjustments). The ledger's own rules do not change.
 --   - A customer refund on an order already in a settlement creates an adjustment for the partner's next settlement.
 --   - partner_draft_approve: S6-1's draft approval as one all-or-nothing database step.
@@ -227,7 +227,7 @@ $$;
 -- ---------------------------------------------------------------------------
 create table if not exists public.partner_settlements (
   id uuid primary key default gen_random_uuid(),
-  reference text not null unique default public.next_reference('HLT'),
+  reference text not null unique default public.next_reference('HLG'),
   org_id uuid not null references public.organisations (id),
   period_from date not null,
   period_to date not null,
