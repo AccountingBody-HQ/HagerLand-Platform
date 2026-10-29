@@ -14,7 +14,7 @@ import { ModerationControls, DecisionButtons } from '@/components/admin/Moderati
 import { BulkApprove } from '@/components/admin/BulkApprove'
 import { ChangesDiff } from '@/components/admin/ChangesDiff'
 import { MediaImage } from '@/components/media/MediaImage'
-import { claimDecisionAction, mediaDecisionAction, reportDecisionAction, verificationDecisionAction } from '../actions/moderation'
+import { claimDecisionAction, mediaDecisionAction, reportDecisionAction, declineVerificationAction } from '../actions/moderation'
 import { jobDecisionAction } from '../actions/jobs'
 import { developmentUpdateDecisionAction } from '../actions/development-updates'
 import { EMPLOYMENT_TYPES, categoryLabel, formatSalary, labelFor, tradeLabel } from '@/lib/jobs'
@@ -318,7 +318,7 @@ export default async function ReviewPage(route: { searchParams: Promise<{ tab?: 
                         .
                       </p>
                     )}
-                    <DecisionButtons askNote approveLabel="Mark Verified" rejectLabel="Decline" onApprove={verificationDecisionAction.bind(null, v.id, true)} onReject={verificationDecisionAction.bind(null, v.id, false)} />
+                    <DecisionButtons askNote approveLink={v.org ? { href: `/roodber8/organisations/${v.org.id}`, label: 'Record the check on the business page' } : undefined} rejectLabel="Decline" onReject={declineVerificationAction.bind(null, v.id)} />
                   </Panel>
                 </li>
               )

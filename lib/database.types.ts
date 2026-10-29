@@ -8443,6 +8443,7 @@ export type Database = {
       }
       can_edit_entity: { Args: { p_entity_id: string; p_entity_type: string }; Returns: boolean }
       category_descendants: { Args: { root: string; tbl: string }; Returns: string[] }
+      choose_service_request_quote: { Args: { p_actor_user_id?: string; p_match_id: string; p_request_id: string; p_token_hash?: string }; Returns: Json }
       country_currency: { Args: { p_country: string }; Returns: string }
       f_unaccent: { Args: { '': string }; Returns: string }
       find_similar_organisations: { Args: { p_limit?: number; p_location_id?: string; p_name: string }; Returns: Json }

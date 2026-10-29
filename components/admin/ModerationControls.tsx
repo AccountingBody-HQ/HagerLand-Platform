@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { Check, Pencil, Trash2, X } from 'lucide-react'
 import { moderateAction } from '@/app/roodber8/actions/moderation'
-import { Button } from '@/components/ui/Button'
+import { Button, ButtonLink } from '@/components/ui/Button'
 import { Dialog } from '@/components/ui/Dialog'
 import { Textarea } from '@/components/ui/Field'
 import { useToast } from '@/components/ui/Toast'
@@ -97,13 +97,18 @@ export function ModerationControls({ entity, id, mode = 'review', size = 'sm' }:
   )
 }
 
-/** Approve/decline buttons for claims, verification, media and reports. */
-export function DecisionButtons({ onApprove, onReject, approveLabel = 'Approve', rejectLabel = 'Reject', askNote }: { onApprove: (note?: string) => Promise<{ ok: boolean; error?: string; data?: { message: string } }>; onReject: (note?: string) => Promise<{ ok: boolean; error?: string; data?: { message: string } }>; approveLabel?: string; rejectLabel?: string; askNote?: boolean }) {
+type Decide = (note?: string) => Promise<{ ok: boolean; error?: string; data?: { message: string } }>
+
+/**
+ * Approve/decline buttons for claims, verification, media and reports. `approveLink` replaces the approve button with
+ * a link, for decisions made on another page (verification: the badge is given by recording the check, Fix F-3).
+ */
+export function DecisionButtons({ onApprove, onReject, approveLabel = 'Approve', rejectLabel = 'Reject', askNote, approveLink }: { onApprove?: Decide; onReject: Decide; approveLabel?: string; rejectLabel?: string; askNote?: boolean; approveLink?: { href: string; label: string } }) {
   const [pending, start] = useTransition()
   const [note, setNote] = useState('')
   const toast = useToast()
   const router = useRouter()
-  const run = (fn: (n?: string) => Promise<{ ok: boolean; error?: string; data?: { message: string } }>) =>
+  const run = (fn: Decide) =>
     start(async () => {
       const res = await fn(note || undefined)
       toast(res.ok ? res.data?.message ?? 'Done.' : res.error ?? 'Please try again.', res.ok ? 'success' : 'error')
@@ -113,9 +118,17 @@ export function DecisionButtons({ onApprove, onReject, approveLabel = 'Approve',
     <div className="space-y-2">
       {askNote && <Textarea aria-label="Note to the applicant (optional)" placeholder="Note (sent to the applicant if rejected)" rows={2} value={note} onChange={(e) => setNote(e.target.value)} maxLength={2000} />}
       <div className="flex flex-wrap gap-2">
-        <Button size="sm" disabled={pending} onClick={() => run(onApprove)}>
-          <Check /> {approveLabel}
-        </Button>
+        {approveLink ? (
+          <ButtonLink href={approveLink.href} size="sm" prefetch={false}>
+            {approveLink.label}
+          </ButtonLink>
+        ) : (
+          onApprove && (
+            <Button size="sm" disabled={pending} onClick={() => run(onApprove)}>
+              <Check /> {approveLabel}
+            </Button>
+          )
+        )}
         <Button size="sm" variant="ghost" disabled={pending} onClick={() => run(onReject)}>
           <X /> {rejectLabel}
         </Button>

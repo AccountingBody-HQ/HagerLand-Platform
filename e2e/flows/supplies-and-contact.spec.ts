@@ -30,7 +30,9 @@ test('a guest builds a quote list, requests a quote, and HagerLand issues it', a
   const admin = await browser.newPage()
   await adminSession(admin)
   await admin.goto(`/roodber8/quotes/${q!.id}`)
-  await expect(admin.getByText(pname)).toBeVisible()
+  // Since Supply A–Z the line shows the product twice: a link to its admin page, and the line text with the quantity.
+  await expect(admin.getByRole('link', { name: pname })).toHaveAttribute('href', `/roodber8/products/${product!.id}`)
+  await expect(admin.getByText(`${pname} · 1`)).toBeVisible()
   await admin.fill('#q-total', '17000')
   await admin.getByRole('button', { name: 'Issue quote' }).click()
   await expect.poll(async () => (await d.from('quote_requests').select('status').eq('id', q!.id).single()).data?.status).toBe('quoted')

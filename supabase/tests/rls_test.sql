@@ -1226,6 +1226,143 @@ begin
 end $$;
 select pg_temp.record_check('Tidy T-2 checks left nothing behind', not exists (select 1 from public.job_posts where slug = 'rls-t2-pc') and (select value from public.site_settings where key = 'jobs_private_client_posts') = 'false'::jsonb);
 
+-- ---------- Fix F-3 (0046): choosing a quote is all or nothing; one deal per chosen request ----------
+reset role;
+create or replace function pg_temp.choose_denied()
+returns boolean language plpgsql as $$
+begin
+  perform public.choose_service_request_quote(gen_random_uuid(), gen_random_uuid(), null, null);
+  return false;
+exception when insufficient_privilege then
+  return true;
+end $$;
+set role anon;
+select pg_temp.record_check('Anonymous cannot run the quote choice', pg_temp.choose_denied());
+reset role;
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000001", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', false);
+select pg_temp.record_check('A signed-in customer cannot run the quote choice directly (only the website can)', pg_temp.choose_denied());
+reset role;
+set role service_role;
+select pg_temp.record_check('The website (service role) can run the quote choice',
+  public.choose_service_request_quote(gen_random_uuid(), gen_random_uuid(), null, null) = '{"outcome": "not_allowed", "reason": "not_owner"}'::jsonb);
+reset role;
+do $$
+declare
+  res text := '';
+  v_a uuid;
+  v_b uuid;
+  v_c uuid;
+  v_req uuid;
+  v_req2 uuid;
+  v_req3 uuid;
+  v_ma uuid;
+  v_mb uuid;
+  v_mc uuid;
+  v_m2 uuid;
+  v_m3 uuid;
+  v_out jsonb;
+  v_ok boolean;
+  v_deal record;
+  v_user constant uuid := '00000000-0000-4000-8000-000000000001';
+  v_other constant uuid := '00000000-0000-4000-8000-000000000002';
+begin
+  begin
+    insert into public.organisations (kind, name, slug, status) values ('contractor', 'RLS TEST F3 A', 'rls-test-f3-a', 'published') returning id into v_a;
+    insert into public.organisations (kind, name, slug, status) values ('contractor', 'RLS TEST F3 B', 'rls-test-f3-b', 'published') returning id into v_b;
+    insert into public.organisations (kind, name, slug, status) values ('contractor', 'RLS TEST F3 C', 'rls-test-f3-c', 'published') returning id into v_c;
+    insert into public.service_requests (vertical_key, title, name, phone, requester_user_id, status) values ('contractors', 'RLS TEST F3 pipes', 'RLS', '+251911000301', v_user, 'quoted') returning id into v_req;
+    insert into public.service_request_matches (request_id, org_id, status, quote_amount_minor, quote_currency, quote_valid_until, lead_fee_minor, commission_minor)
+      values (v_req, v_a, 'quoted', 2500000, 'ETB', current_date + 7, 50000, 125000) returning id into v_ma;
+    insert into public.service_request_matches (request_id, org_id, status, quote_amount_minor, quote_currency) values (v_req, v_b, 'quoted', 3000000, 'ETB') returning id into v_mb;
+    insert into public.service_request_matches (request_id, org_id, status) values (v_req, v_c, 'declined') returning id into v_mc;
+
+    -- Refusals before any choice: nothing is written.
+    v_out := public.choose_service_request_quote(v_req, v_ma, v_other, null);
+    res := res || case when v_out ->> 'reason' = 'not_owner' then 'PASS' else 'FAIL' end || E' · Another user cannot choose a quote on someone else''s request\n';
+    v_out := public.choose_service_request_quote(v_req, v_ma, null, 'not-the-link');
+    res := res || case when v_out ->> 'reason' = 'not_owner' then 'PASS' else 'FAIL' end || E' · A wrong private link cannot choose a quote\n';
+    v_out := public.choose_service_request_quote(gen_random_uuid(), v_ma, v_user, null);
+    res := res || case when v_out ->> 'reason' = 'not_owner' then 'PASS' else 'FAIL' end || E' · An unknown request is refused\n';
+    v_out := public.choose_service_request_quote(v_req, v_mc, v_user, null);
+    res := res || case when v_out ->> 'reason' = 'quote_not_available' then 'PASS' else 'FAIL' end || E' · A declined match cannot be chosen\n';
+    v_out := public.choose_service_request_quote(v_req, gen_random_uuid(), v_user, null);
+    res := res || case when v_out ->> 'reason' = 'quote_not_available' then 'PASS' else 'FAIL' end || E' · A match that is not on this request is refused\n';
+    res := res || case when (select status from public.service_requests where id = v_req) = 'quoted'
+      and (select count(*) from public.service_request_matches where request_id = v_req and status = 'quoted') = 2
+      and not exists (select 1 from public.deals where source_id = v_req) then 'PASS' else 'FAIL' end || E' · Refused choices change nothing\n';
+
+    -- All or nothing: a deal that cannot be saved leaves the request and every match as they were.
+    execute format('alter table public.deals add constraint rls_f3_block check (source_id is distinct from %L) not valid', v_req);
+    v_ok := false;
+    begin
+      perform public.choose_service_request_quote(v_req, v_ma, v_user, null);
+    exception when check_violation then
+      v_ok := true;
+    end;
+    alter table public.deals drop constraint rls_f3_block;
+    res := res || case when v_ok and (select status from public.service_requests where id = v_req) = 'quoted' and (select closed_at from public.service_requests where id = v_req) is null
+      and (select status from public.service_request_matches where id = v_ma) = 'quoted' and (select status from public.service_request_matches where id = v_mb) = 'quoted'
+      and not exists (select 1 from public.deals where source_id = v_req) then 'PASS' else 'FAIL' end || E' · A failure while saving the deal leaves nothing half-done\n';
+
+    -- The choice.
+    v_out := public.choose_service_request_quote(v_req, v_ma, v_user, null);
+    res := res || case when v_out ->> 'outcome' = 'chosen' and (v_out ->> 'org_id')::uuid = v_a then 'PASS' else 'FAIL' end || E' · The requester chooses a quote: chosen\n';
+    res := res || case when (select status from public.service_request_matches where id = v_ma) = 'won' and (select status from public.service_request_matches where id = v_mb) = 'lost'
+      and (select status from public.service_request_matches where id = v_mc) = 'declined' then 'PASS' else 'FAIL' end || E' · Chosen match won, the other quote lost, the declined one untouched\n';
+    res := res || case when (select status = 'won' and closed_reason = 'completed' and closed_at is not null from public.service_requests where id = v_req) then 'PASS' else 'FAIL' end || E' · The request is won and closed as completed\n';
+    select * into v_deal from public.deals where source_id = v_req;
+    res := res || case when (select count(*) from public.deals where source_id = v_req) = 1 and v_deal.source_type = 'service_request' and v_deal.match_id = v_ma and v_deal.org_id = v_a
+      and v_deal.title = (select reference || ': RLS TEST F3 pipes' from public.service_requests where id = v_req) and v_deal.currency = 'ETB' and v_deal.value_minor = 2500000
+      and v_deal.lead_fee_minor = 50000 and v_deal.commission_minor = 125000 and v_deal.status = 'won' and v_deal.closed_at = (select closed_at from public.service_requests where id = v_req)
+      and v_deal.pillar_key is null and v_deal.notes is null then 'PASS' else 'FAIL' end || E' · Exactly one deal, with the value and fees copied from the match\n';
+
+    -- Again: the same quote (double tap) and another quote.
+    v_out := public.choose_service_request_quote(v_req, v_ma, v_user, null);
+    res := res || case when v_out ->> 'outcome' = 'already_chosen' and (select count(*) from public.deals where source_id = v_req) = 1 then 'PASS' else 'FAIL' end || E' · Choosing the same quote again: already chosen, no second deal\n';
+    v_out := public.choose_service_request_quote(v_req, v_mb, v_user, null);
+    res := res || case when v_out ->> 'reason' = 'request_closed' and (select status from public.service_request_matches where id = v_mb) = 'lost'
+      and (select count(*) from public.deals where source_id = v_req) = 1 then 'PASS' else 'FAIL' end || E' · Choosing another quote afterwards is refused and changes nothing\n';
+
+    -- The database safety net: no second deal from a chosen quote; hand-made ledger entries are still allowed.
+    v_ok := false;
+    begin
+      insert into public.deals (source_type, source_id, match_id, org_id, title, status) values ('service_request', v_req, v_mb, v_b, 'RLS TEST F3 duplicate', 'won');
+    exception when unique_violation then
+      v_ok := true;
+    end;
+    res := res || case when v_ok then 'PASS' else 'FAIL' end || E' · A second deal from a chosen quote is refused by the database\n';
+    insert into public.deals (source_type, source_id, title, status) values ('service_request', v_req, 'RLS TEST F3 manual 1', 'open'), ('service_request', v_req, 'RLS TEST F3 manual 2', 'open');
+    res := res || E'PASS · Staff can still add their own ledger entries for the same request\n';
+
+    -- Private links, a closed request and an expired quote.
+    insert into public.service_requests (vertical_key, title, name, phone, status, access_token_hash, access_token_expires_at) values ('contractors', 'RLS TEST F3 guest', 'RLS', '+251911000302', 'matched', 'rls-f3-hash', now() + interval '1 day') returning id into v_req2;
+    insert into public.service_request_matches (request_id, org_id, status, quote_amount_minor, quote_currency) values (v_req2, v_a, 'quoted', 100000, 'USD') returning id into v_m2;
+    v_out := public.choose_service_request_quote(v_req2, v_m2, v_user, null);
+    res := res || case when v_out ->> 'reason' = 'not_owner' then 'PASS' else 'FAIL' end || E' · A signed-in user cannot choose on a guest''s request (no account on it)\n';
+    update public.service_requests set access_token_expires_at = now() - interval '1 second' where id = v_req2;
+    v_out := public.choose_service_request_quote(v_req2, v_m2, null, 'rls-f3-hash');
+    res := res || case when v_out ->> 'reason' = 'not_owner' then 'PASS' else 'FAIL' end || E' · An expired private link cannot choose a quote\n';
+    update public.service_requests set access_token_expires_at = now() + interval '1 day' where id = v_req2;
+    v_out := public.choose_service_request_quote(v_req2, v_m2, null, 'rls-f3-hash');
+    res := res || case when v_out ->> 'outcome' = 'chosen' and (select currency from public.deals where source_id = v_req2) = 'USD' then 'PASS' else 'FAIL' end || E' · A guest with a valid private link chooses a quote (deal in the quote''s currency)\n';
+    insert into public.service_requests (vertical_key, title, name, phone, requester_user_id, status) values ('contractors', 'RLS TEST F3 expired', 'RLS', '+251911000303', v_user, 'quoted') returning id into v_req3;
+    insert into public.service_request_matches (request_id, org_id, status, quote_amount_minor, quote_currency, quote_valid_until) values (v_req3, v_b, 'quoted', 100000, 'ETB', current_date - 1) returning id into v_m3;
+    v_out := public.choose_service_request_quote(v_req3, v_m3, v_user, null);
+    res := res || case when v_out ->> 'reason' = 'quote_expired' and (select status from public.service_requests where id = v_req3) = 'quoted' then 'PASS' else 'FAIL' end || E' · An expired quote cannot be chosen\n';
+    update public.service_requests set status = 'cancelled' where id = v_req3;
+    update public.service_request_matches set quote_valid_until = null where id = v_m3;
+    v_out := public.choose_service_request_quote(v_req3, v_m3, v_user, null);
+    res := res || case when v_out ->> 'reason' = 'request_closed' and not exists (select 1 from public.deals where source_id = v_req3) then 'PASS' else 'FAIL' end || E' · A cancelled request cannot have a quote chosen\n';
+    raise exception 'hl_rollback';
+  exception when raise_exception then
+    if sqlerrm <> 'hl_rollback' then res := res || 'FAIL · F-3 checks stopped early: ' || sqlerrm || E'\n'; end if;
+  end;
+  perform set_config('hl.results', current_setting('hl.results') || res, false);
+end $$;
+select pg_temp.record_check('F-3 checks left nothing behind', not exists (select 1 from public.service_requests where title like 'RLS TEST F3%')
+  and not exists (select 1 from public.organisations where name like 'RLS TEST F3%') and not exists (select 1 from pg_constraint where conname = 'rls_f3_block'));
+
 -- ---------- Clean up ----------
 reset role;
 select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);
