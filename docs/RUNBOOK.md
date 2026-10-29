@@ -389,3 +389,34 @@ Callers get nothing by email or text, ever. Limits: 3 requests an hour and 10 a 
 - **Dry run:** the daily job only counts (digest lines above 0, run history on the switches page). **Switch to Live before 15 Oct 2027 (covers Jobs and all keeping periods).** No record can reach 24 months before Oct 2028.
 
 **Read-only check after AB applies 0047 on live:** `docs/sql/0047_keeping_periods_verify.sql` (every row PASS). 0047 only adds empty columns, one trigger and indexes, so the Supabase editor should show no "destructive" warning.
+
+## 20. Partner registration, the partner area and the supply switches (S6-1, migration 0048)
+
+HagerLand is the seller: businesses that supply HagerLand (manufacturers, importers, suppliers and shops) are never shown to customers. Customers see HagerLand Supply and the product's own brand only.
+
+- **Owner switches** (admin → Supplies → Supply switches; owner only; all start **Off**):
+  - **Partner registration:** opens the public form `/sell-through-hagerland/register` and shows its two lines in /privacy. Off: the page is "not found". It may go live before HagerLand Ltd (Ethiopia) exists. **At the release that switches it on, set the /privacy "Last updated" date.**
+  - **Homepage "Sell through HagerLand" row:** the second row under "Start here". It shows only while partner registration is also on.
+  - **Catalogue ordering** and **Trade price agreements:** locked off (used from S6-2 and S6-4). They wait for HagerLand Ltd (Ethiopia), a bank account and VAT registration.
+- **Registrations** (admin → Supplies → Partner registrations):
+  - A registration (public form, or "Add registration" by staff, which works with the switch off) creates, in one database step, a private business (never published) and its supply partner record ("interested").
+  - Operations may start a review. The owner approves, asks for changes, declines or suspends. Nothing is emailed to the business by these steps.
+- **Partner area:** on an approved registration, the owner sends a partner-area invitation (an email link, valid 7 days; sending again withdraws the old link).
+  - The person signs in or creates an account, then taps "Open my partner area" (`/partner`).
+  - There they add product drafts: brand, specifications, their own code and price (private), stock, lead time, minimum order and photos (private, re-encoded without metadata). Then they send each one for review.
+  - A suspended partner is shut out.
+  - A partner never becomes a business member: no business page, team, claims or self-listing.
+- **Product drafts** (admin → Supplies → Partner product drafts):
+  - Operations may ask for changes. They never see the partner's price or code.
+  - The owner approves: this creates a HagerLand Supply product as a **draft** (price on request, no partner code, photos copied if ticked) or links an existing HagerLand Supply product, and records the private product source (cost, commission, markup, settlement).
+  - Publish with the usual product status step.
+- **Database safety rules:**
+  - a partner business can never be published or sent for review, and never gets business members;
+  - a product with a partner source must be sold by a HagerLand organisation.
+- **Keeping periods** (the shared Dry run → Live switch):
+  - registrations: contact details cleared 24 months after the last activity if we never worked together; for partners, kept while the relationship lasts (supply partner status), then 24 months;
+  - declined or withdrawn drafts: photos, code, price and stock note cleared 24 months after the decision;
+  - partner invitations: in the always-on invitation clean-up.
+- **Digest and menu:** "Partner registrations waiting", "Partner product drafts waiting".
+
+**Read-only check after applying 0048:** `docs/sql/0048_partner_registration_verify.sql` (every row PASS; 14/14 on live, 29 Oct 2026).
