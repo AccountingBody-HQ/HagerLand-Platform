@@ -780,4 +780,12 @@ There are no migrations after 0033 in the repository.
 - **"Supply settlements" report:** by Addis Ababa month and to date, with "Reconciles with ledger" (five checks naming the references behind any "no").
 - **The supply ledger's checks** did not change.
 
-**Next:** S6-4, trade price agreements and consolidated ordering.
+**S6-4 built (released 29 Oct 2026, migration 0051): per-customer trade prices and multi-item trade order requests.**
+- **Agreements** (`trade_price_agreements`, owner only, on each trade account's admin page): an agreed price for a product, or a price or discount for a category (the discount applies to the price the partner's terms suggest), with dates, a note, and an end with a reason.
+- **Database rules:** only for approved trade accounts; no two active agreements for the same customer and item on the same day; never below what HagerLand pays any active partner for a product covered.
+- **Precedence:** the customer's product agreement → their category agreement (own category, then parent) → the general trade price → none; a candidate below the partner payable is skipped.
+- **Customers** (only while trade pricing is on): `my_trade_prices` returns the signed-in customer's own prices and nothing else; "Your trade price: ETB … per unit" on product pages; with catalogue ordering also on, the whole basket becomes one order request (S6-2 steps unchanged, one supplier order per partner); "Your trade orders" in the account.
+- **Reservation:** pre-filled with the customer's trade price; an override is kept in the history.
+- **Waits for:** trade pricing stays locked Off until HagerLand Ltd (Ethiopia), a bank account and VAT registration exist, and catalogue ordering is on.
+
+**The S6 phase (HagerLand as the seller) is complete:** partner registration and area (S6-1), order requests and reservations (S6-2), terms, settlements and reconciliation (S6-3), and per-customer trade prices (S6-4). Everything that takes customer money stays behind locked switches until the company, bank account and VAT registration exist.
