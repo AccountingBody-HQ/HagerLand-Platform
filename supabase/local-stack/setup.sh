@@ -19,7 +19,9 @@ console.log(h+'.'+p+'.'+c.createHmac('sha256','$JWT_SECRET').update(h+'.'+p).dig
 fi
 set -a; . ./.env; set +a
 
-if [ "${1:-}" = "reset" ]; then docker compose down -v; fi
+# A reset gives every row a new id, so the local builds' saved data (e.g. the place search) is cleared too: otherwise
+# forms keep offering ids that no longer exist ("Choose a place from the list", Fix F-3). Cache only, never data.
+if [ "${1:-}" = "reset" ]; then docker compose down -v; rm -rf "$ROOT/.next-test/cache/fetch-cache" "$ROOT/.next/cache/fetch-cache"; fi
 docker compose up -d
 echo "Waiting for the database..."
 for _ in $(seq 1 90); do

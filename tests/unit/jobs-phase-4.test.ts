@@ -154,7 +154,7 @@ describe('roles and server checks', () => {
     const v = readFileSync('app/roodber8/actions/verification.ts', 'utf8')
     for (const name of ['recordVerificationCheckAction', 'revokeBadgeAction']) expect(v.split(`export async function ${name}`)[1].split('\nexport ')[0], name).toMatch(/await assertAdmin\(AREA\)\s+await assertOwnerOrOperations\(\)/)
     const m = readFileSync('app/roodber8/actions/moderation.ts', 'utf8')
-    expect(m.split('export async function verificationDecisionAction')[1].split('\nexport ')[0]).toMatch(/await assertOwnerOrOperations\(\)/)
+    expect(m.split('export async function declineVerificationAction')[1].split('\nexport ')[0]).toMatch(/await assertOwnerOrOperations\(\)/)
     const o = readFileSync('app/roodber8/actions/organisations.ts', 'utf8')
     expect(o).toContain('To give the Verified badge, use “Record verification check”.')
   })

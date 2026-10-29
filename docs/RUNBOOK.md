@@ -355,3 +355,12 @@ Callers get nothing by email or text, ever. Limits: 3 requests an hour and 10 a 
 
 **Read-only check after AB applies 0045 on live:** `docs/sql/0045_tidy_t2_verify.sql` (every row PASS, including the last one: 0 supply quotes in "quoted" status before the 3-day change is released). 0045 only adds two empty columns and an index, so the Supabase editor should show no "destructive" warning.
 
+
+## 17. Choosing a quote: the safety net (Fix F-3, migration 0046)
+
+- **"Yes, choose" is all or nothing.** When a customer chooses a quote, one database step (`choose_service_request_quote`) does everything together: the chosen provider's match becomes won, the other open quotes become lost, the request becomes won (closed as completed) and one deal is added to the ledger with the quote's value and the match's lead fee and commission. If any part fails, nothing is saved and the customer sees "Something went wrong. Please refresh the page." The chosen provider is emailed only after the choice is saved.
+- **A double tap never makes two deals.** Pressing again (or a second tab) shows the same "You chose …" message and sends no second email. Choosing a different quote afterwards is refused ("This request is closed."). The database also refuses a second deal from a chosen quote for the same request (index `deals_service_request_choice_key`). Deals you add by hand in admin → Deals (with or without an HLS- reference) are not affected.
+- **Cancelling checks the save.** A request is cancelled only while it is still open; if the save fails the customer sees "Something went wrong. Please refresh the page." and nothing is reported as cancelled. A failure is recorded in the errors list (admin digest).
+- **Verification in the review queue.** The Verification tab has a "Record the check on the business page" link instead of the old "Mark Verified" button (which always refused). Recording the check on the business's page gives the badge and closes the request. "Decline" still works from the queue.
+
+**Read-only check after AB applies 0046 on live:** `docs/sql/0046_safe_quote_choice_verify.sql` (every row PASS). 0046 only adds a function and an index, so the Supabase editor should show no "destructive" warning. If duplicate deals already existed, the migration stops by itself and changes nothing.

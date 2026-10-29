@@ -189,13 +189,15 @@ export async function claimDecisionAction(claimId: string, approve: boolean, not
   return ok({ message: approve ? `${claim.claimant_name} now manages ${org.name}.` : 'Claim rejected.' })
 }
 
-export async function verificationDecisionAction(requestId: string, approve: boolean, note?: string): Promise<ActionResult<{ message: string }>> {
+/**
+ * Declines a verification request. There is no "approve" here (Fix F-3, audit K-01): the badge is given only by
+ * recording the check (licence, tax number, phone) on the business's page, which also closes the request.
+ */
+export async function declineVerificationAction(requestId: string, note?: string): Promise<ActionResult<{ message: string }>> {
   await assertAdmin(AREA)
   // Jobs Phase 4: only Owner and Operations decide verification (Agent and Content are refused).
   await assertOwnerOrOperations()
   if (!z.uuid().safeParse(requestId).success) return fail('Invalid.')
-  // The badge is given only by recording the check (licence, tax number, phone) on the business's page.
-  if (approve) return fail('Record the verification check on the business’s page to give the Verified badge.')
   const db = getAdminSupabase()
   const { data: req } = await db.from('verification_requests').select('*').eq('id', requestId).maybeSingle()
   if (!req || req.status !== 'pending') return fail('This request has already been decided.')

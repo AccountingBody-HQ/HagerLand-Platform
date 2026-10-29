@@ -201,8 +201,8 @@ describe('T2-10 and T2-13', () => {
 })
 
 describe('the health check', () => {
-  it('expects migration 0045 last', async () => {
+  it('expects migration 0045 (and the later ones)', async () => {
     const { EXPECTED_MIGRATIONS } = await import('@/lib/health')
-    expect(EXPECTED_MIGRATIONS[EXPECTED_MIGRATIONS.length - 1]).toBe('0045')
+    expect(EXPECTED_MIGRATIONS).toContain('0045')
   })
 })

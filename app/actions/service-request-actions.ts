@@ -14,7 +14,8 @@ import { COUNTRY_CODES } from '@/lib/countries'
 import { getRequestableCategory } from '@/lib/data/service-requests'
 import { answerLines, validateAnswers } from '@/lib/service-requests/questions'
 import { PAY_OFFERED_MAX, STAFFING_SLUG, askedQuestions, detailsWithPay, requestFormCopy } from '@/lib/service-requests/form-copy'
-import { GUEST_LINK_DAYS, URGENCY_LABEL, isQuoteExpired } from '@/lib/service-requests/labels'
+import { GUEST_LINK_DAYS, URGENCY_LABEL } from '@/lib/service-requests/labels'
+import { CHOICE_FAILED, quoteChoiceRefusal, readQuoteChoice } from '@/lib/service-requests/quote-choice'
 import { hashRequestToken, isWellFormedToken, linkDaysLeft, newRequestToken } from '@/lib/service-requests/token'
 import { EMPLOYER_ABROAD_TEXT, employerAbroadAnswers, employerAbroadLines, parseEmployerAbroad } from '@/lib/service-requests/employer-abroad'
 import { hagerlandInbox, orgManagerEmails } from '@/lib/enquiries'
@@ -179,47 +180,56 @@ const ownerSchema = z.object({ request_id: z.uuid(), token: z.string().max(64).o
 /** The customer chooses one quote: that provider is told; the others are closed; a deal is opened for HagerLand. */
 export async function chooseQuoteAction(input: { request_id: string; match_id: string; token?: string }): Promise<ActionResult<{ message: string }>> {
   const parsed = ownerSchema.extend({ match_id: z.uuid() }).safeParse(input)
-  if (!parsed.success) return fail('Something went wrong. Please refresh the page.')
+  if (!parsed.success) return fail(CHOICE_FAILED)
   const r = await loadOwned({ requestId: parsed.data.request_id, token: parsed.data.token })
   if (!r) return fail('This link has expired. Ask for a new one below.')
-  if (!['matched', 'quoted'].includes(r.status)) return fail('This request is closed.')
+  // Fix F-3: one transaction in the database (migration 0046) checks the chooser again, the request and the quote,
+  // and refuses a second deal. The provider is emailed only when this call made the choice.
   const db = getAdminSupabase()
-  const { data: m } = await db.from('service_request_matches').select('id, org_id, status, quote_amount_minor, quote_currency, quote_valid_until, lead_fee_minor, commission_minor').eq('id', parsed.data.match_id).eq('request_id', r.id).maybeSingle()
-  if (!m || m.status !== 'quoted') return fail('That quote is not available.')
-  if (isQuoteExpired(m.quote_valid_until)) return fail('That quote has expired. Ask the provider for an updated quote.')
-  const now = new Date().toISOString()
-  await db.from('service_request_matches').update({ status: 'won' }).eq('id', m.id)
-  await db.from('service_request_matches').update({ status: 'lost' }).eq('request_id', r.id).neq('id', m.id).in('status', ['offered', 'accepted', 'quoted'])
-  await db.from('service_requests').update({ status: 'won', closed_at: now, closed_reason: 'completed' }).eq('id', r.id)
-  const { data: org } = await db.from('organisations').select('name').eq('id', m.org_id).maybeSingle()
-  await db.from('deals').insert({
-    source_type: 'service_request',
-    source_id: r.id,
-    match_id: m.id,
-    org_id: m.org_id,
-    title: `${r.reference}: ${r.title}`.slice(0, 200),
-    currency: m.quote_currency ?? 'ETB',
-    value_minor: m.quote_amount_minor,
-    lead_fee_minor: m.lead_fee_minor,
-    commission_minor: m.commission_minor,
-    status: 'won',
-    closed_at: now,
+  const { data, error } = await db.rpc('choose_service_request_quote', {
+    p_request_id: r.id,
+    p_match_id: parsed.data.match_id,
+    ...(parsed.data.token ? { p_token_hash: hashRequestToken(parsed.data.token) } : { p_actor_user_id: r.requester_user_id ?? undefined }),
   })
-  const to = await orgManagerEmails(m.org_id)
-  if (to.length) await sendEmail({ to, ...providerChosenEmail({ orgName: org?.name ?? 'your business', reference: r.reference, title: r.title, url: canonicalUrl(`/account/requests/${m.id}`) }) })
+  const choice = readQuoteChoice(data, error)
+  if (choice.outcome === 'error') {
+    log.error('service-request', 'choose quote failed', error, { request: r.id })
+    return fail(CHOICE_FAILED)
+  }
+  if (choice.outcome === 'not_allowed') return fail(quoteChoiceRefusal(choice.reason))
+  const { data: org } = await db.from('organisations').select('name').eq('id', choice.orgId).maybeSingle()
+  if (choice.outcome === 'chosen') {
+    const to = await orgManagerEmails(choice.orgId)
+    if (to.length) await sendEmail({ to, ...providerChosenEmail({ orgName: org?.name ?? 'your business', reference: r.reference, title: r.title, url: canonicalUrl(`/account/requests/${parsed.data.match_id}`) }) })
+  }
   return ok({ message: `You chose ${org?.name ?? 'this provider'}. They will contact you to agree the details.` })
 }
 
 /** The customer cancels their request: open offers are withdrawn. */
 export async function cancelServiceRequestAction(input: { request_id: string; token?: string }): Promise<ActionResult<{ message: string }>> {
   const parsed = ownerSchema.safeParse(input)
-  if (!parsed.success) return fail('Something went wrong. Please refresh the page.')
+  if (!parsed.success) return fail(CHOICE_FAILED)
   const r = await loadOwned({ requestId: parsed.data.request_id, token: parsed.data.token })
   if (!r) return fail('This link has expired. Ask for a new one below.')
   if (['won', 'lost', 'cancelled'].includes(r.status)) return fail('This request is already closed.')
   const db = getAdminSupabase()
-  await db.from('service_requests').update({ status: 'cancelled', closed_reason: 'customer_cancelled', closed_at: new Date().toISOString() }).eq('id', r.id)
-  await db.from('service_request_matches').update({ status: 'withdrawn' }).eq('request_id', r.id).in('status', ['offered', 'accepted', 'quoted'])
+  // Fix F-3: only an open request is cancelled (a quote chosen meanwhile wins), and a failed save is reported.
+  const { data: cancelled, error } = await db
+    .from('service_requests')
+    .update({ status: 'cancelled', closed_reason: 'customer_cancelled', closed_at: new Date().toISOString() })
+    .eq('id', r.id)
+    .in('status', ['submitted', 'triaged', 'matched', 'quoted'])
+    .select('id')
+  if (error) {
+    log.error('service-request', 'cancel failed', error, { request: r.id })
+    return fail(CHOICE_FAILED)
+  }
+  if (!cancelled?.length) return fail('This request is already closed.')
+  const { error: matchError } = await db.from('service_request_matches').update({ status: 'withdrawn' }).eq('request_id', r.id).in('status', ['offered', 'accepted', 'quoted'])
+  if (matchError) {
+    log.error('service-request', 'cancel: withdrawing offers failed', matchError, { request: r.id })
+    return fail(CHOICE_FAILED)
+  }
   return ok({ message: 'Your request is cancelled. Thank you for letting us know.' })
 }
 
