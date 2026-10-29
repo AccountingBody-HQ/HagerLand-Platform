@@ -52,7 +52,7 @@ describe('admin menu', () => {
   it('keeps every earlier item exactly once, with the same label and address (plus the Phase 4 and 5 supply items, the worker register, the recruitment desk, call-back requests and the Jobs Phase 6 insights and report)', () => {
     const now = ADMIN_NAV.map((i) => [i.href, i.label])
     // S6-1: partner registrations, partner product drafts and the owner's supply switches.
-    const added = [['/roodber8/supply/registrations', 'Partner registrations'], ['/roodber8/supply/product-drafts', 'Partner product drafts'], ['/roodber8/supply/switches', 'Supply switches'], ['/roodber8/supply/order-requests', 'Order requests'], ['/roodber8/supply/orders', 'Supply orders'], ['/roodber8/supply/ledger', 'Supply ledger'], ['/roodber8/supply/performance', 'Partner performance'], ['/roodber8/reports/supply', 'Supply report'], ['/roodber8/imports/compliance', 'Imports compliance'], ['/roodber8/jobs/register', 'Worker register'], ['/roodber8/jobs/desk', 'Recruitment desk'], ['/roodber8/jobs/callbacks', 'Call-back requests'], ['/roodber8/demand/jobs', 'Jobs insights'], ['/roodber8/reports/jobs', 'Jobs report']]
+    const added = [['/roodber8/supply/registrations', 'Partner registrations'], ['/roodber8/supply/product-drafts', 'Partner product drafts'], ['/roodber8/supply/switches', 'Supply switches'], ['/roodber8/supply/order-requests', 'Order requests'], ['/roodber8/supply/settlements', 'Settlements'], ['/roodber8/reports/supply-settlements', 'Supply settlements'], ['/roodber8/supply/orders', 'Supply orders'], ['/roodber8/supply/ledger', 'Supply ledger'], ['/roodber8/supply/performance', 'Partner performance'], ['/roodber8/reports/supply', 'Supply report'], ['/roodber8/imports/compliance', 'Imports compliance'], ['/roodber8/jobs/register', 'Worker register'], ['/roodber8/jobs/desk', 'Recruitment desk'], ['/roodber8/jobs/callbacks', 'Call-back requests'], ['/roodber8/demand/jobs', 'Jobs insights'], ['/roodber8/reports/jobs', 'Jobs report']]
     expect(new Set(now.map((x) => x.join('|'))).size).toBe(now.length)
     expect([...now].sort()).toEqual([...BEFORE, ...added].sort())
   })
@@ -65,9 +65,9 @@ describe('admin menu', () => {
       ['Jobs', ['Jobs and applications', 'Recruitment desk', 'Worker register', 'Call-back requests', 'Jobs insights']],
       ['Property', ['Properties', 'Developments', 'Agency', 'Property Care', 'HagerLand sales']],
       ['Businesses & people', ['Organisations', 'Users', 'Partner applications', 'Imports', 'Imports compliance', 'Reviews']],
-      ['Money', ['Deals and commissions', 'Supply ledger']],
+      ['Money', ['Deals and commissions', 'Supply ledger', 'Settlements']],
       ['Content', ['Guides', 'Area guides', 'Newsletter', 'Promotions']],
-      ['Insights', ['Demand', 'Performance', 'Reports', 'Supply report', 'Jobs report']],
+      ['Insights', ['Demand', 'Performance', 'Reports', 'Supply report', 'Supply settlements', 'Jobs report']],
       ['Setup', ['Settings', 'Pillars and modes', 'Verticals', 'Locations', 'Exchange rates', 'Build-cost rates', 'Request questions', 'Staff']],
       ['System', ['Email problems', 'Audit log']],
     ])

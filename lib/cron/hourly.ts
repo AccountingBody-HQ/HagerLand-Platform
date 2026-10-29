@@ -7,7 +7,8 @@ import { readSupplySwitches } from '@/lib/supply/partner-switches'
 import { expireDueOrderRequests, sendMissedDeliveredEmails } from '@/lib/supply/order-requests-data'
 import { log } from '@/lib/log'
 
-export const HOURLY_RUN_ACTION = 'cron.hourly'
+export { HOURLY_RUN_ACTION } from '@/lib/cron/hourly-action'
+import { HOURLY_RUN_ACTION } from '@/lib/cron/hourly-action'
 
 export interface HourlySummary {
   ordering: boolean

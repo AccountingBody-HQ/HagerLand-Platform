@@ -138,7 +138,7 @@ export function ReleaseHoldButton({ id, holdId }: { id: string; holdId: string }
 }
 
 /** Owner: customer prices per available item, delivery charge and the reservation length. */
-export function ReserveForm({ id, lines }: { id: string; lines: { id: string; name: string; qty: number; unit: string; price: string; cost: string | null }[] }) {
+export function ReserveForm({ id, lines }: { id: string; lines: { id: string; name: string; qty: number; unit: string; price: string; cost: string | null; terms: string | null }[] }) {
   const [prices, setPrices] = useState<Record<string, string>>(Object.fromEntries(lines.map((l) => [l.id, l.price])))
   const [delivery, setDelivery] = useState('0')
   const [hours, setHours] = useState(String(DEFAULT_RESERVATION_HOURS))
@@ -150,7 +150,8 @@ export function ReserveForm({ id, lines }: { id: string; lines: { id: string; na
           <li key={l.id} className="grid gap-2 sm:grid-cols-[1fr_180px] sm:items-end">
             <p className="text-small">
               <span className="font-semibold">{l.name}</span> · {l.qty} {l.unit}
-              {l.cost !== null && <span className="text-muted"> · partner cost {l.cost} per unit</span>}
+              {l.cost !== null && <span className="text-muted"> · HagerLand pays the partner {l.cost} per unit</span>}
+              {l.terms && <span className="text-muted"> · {l.terms}</span>}
             </p>
             <Field label="Customer price per unit (ETB)" htmlFor={`rp-${l.id}`}>
               <Input id={`rp-${l.id}`} inputMode="decimal" value={prices[l.id] ?? ''} onChange={(e) => setPrices({ ...prices, [l.id]: e.target.value })} className="h-10" />

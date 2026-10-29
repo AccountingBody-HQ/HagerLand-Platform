@@ -1,6 +1,6 @@
 /** The admin menu (spec 18.2, 26), in groups. Staff see the items their role may open (lib/admin/roles.ts). */
 import {
-  type LucideIcon, ShoppingCart, PackagePlus, ToggleRight, BadgePercent, BarChart3, MailWarning, BookOpen, Calculator, Briefcase, Building2, LayoutGrid, UserSearch, KeySquare, FileSignature, UserPlus, Coins, Wrench, ListChecks, Receipt, KeyRound, ClipboardCheck, ClipboardList, FileClock, FolderTree, Gauge, Import, Inbox, ShieldCheck, MapPin, Megaphone, Package, Settings, Store, Users, HandCoins, House, Layers, HardHat, Mail, Star, TrendingUp, Activity, UserCog, Truck, PackageCheck, BookText, FileBarChart, PhoneCall,
+  type LucideIcon, Banknote, Scale, ShoppingCart, PackagePlus, ToggleRight, BadgePercent, BarChart3, MailWarning, BookOpen, Calculator, Briefcase, Building2, LayoutGrid, UserSearch, KeySquare, FileSignature, UserPlus, Coins, Wrench, ListChecks, Receipt, KeyRound, ClipboardCheck, ClipboardList, FileClock, FolderTree, Gauge, Import, Inbox, ShieldCheck, MapPin, Megaphone, Package, Settings, Store, Users, HandCoins, House, Layers, HardHat, Mail, Star, TrendingUp, Activity, UserCog, Truck, PackageCheck, BookText, FileBarChart, PhoneCall,
 } from 'lucide-react'
 import { roleCanAccess, type StaffRole } from '@/lib/admin/roles'
 
@@ -86,6 +86,7 @@ export const ADMIN_NAV_GROUPS: readonly AdminNavGroup[] = [
     items: [
       { href: '/roodber8/deals', label: 'Deals and commissions', icon: Receipt },
       { href: '/roodber8/supply/ledger', label: 'Supply ledger', icon: BookText },
+      { href: '/roodber8/supply/settlements', label: 'Settlements', icon: Banknote },
     ],
   },
   {
@@ -104,6 +105,7 @@ export const ADMIN_NAV_GROUPS: readonly AdminNavGroup[] = [
       { href: '/roodber8/performance', label: 'Performance', icon: Activity },
       { href: '/roodber8/reports', label: 'Reports', icon: BarChart3 },
       { href: '/roodber8/reports/supply', label: 'Supply report', icon: FileBarChart },
+      { href: '/roodber8/reports/supply-settlements', label: 'Supply settlements', icon: Scale },
       { href: '/roodber8/reports/jobs', label: 'Jobs report', icon: FileBarChart },
     ],
   },

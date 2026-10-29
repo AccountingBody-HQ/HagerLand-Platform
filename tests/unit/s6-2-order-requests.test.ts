@@ -269,7 +269,7 @@ describe('owner money steps', () => {
   })
   it('Operations never get money in page data: prices, costs and payments are loaded for the owner only', () => {
     const data = readFileSync('lib/supply/order-requests-data.ts', 'utf8')
-    expect(data).toContain('...(owner ? { money: { unitPriceCents: l.customer_unit_price_cents, costCents: l.cost_price_cents')
+    expect(data).toMatch(/\.\.\.\(owner\s*\?\s*\{\s*money: \{\s*unitPriceCents: l\.customer_unit_price_cents,\s*costCents: l\.cost_price_cents/)
     expect(data).toMatch(/if \(owner\) \{\s+const \[\{ data: entries \}/)
     const page = readFileSync('app/roodber8/supply/order-requests/[id]/page.tsx', 'utf8')
     expect(page).toContain('{r.money && (')
@@ -330,9 +330,9 @@ describe('migration 0049', () => {
     expect(code).not.toMatch(/alter table public\.supply_ledger_entries/)
     expect(code).toContain("insert into public.site_settings (key, value) values ('supply_payment_details', '\"\"'::jsonb) on conflict (key) do nothing;")
   })
-  it('the health check expects 0049', async () => {
+  it('the health check expects 0049 (S6-3 added 0050 after it)', async () => {
     const { EXPECTED_MIGRATIONS } = await import('@/lib/health')
-    expect(EXPECTED_MIGRATIONS[EXPECTED_MIGRATIONS.length - 1]).toBe('0049')
+    expect(EXPECTED_MIGRATIONS).toContain('0049')
   })
   it('the quote → order path is unchanged: supply_create_order is not redefined, and quote orders keep their quote', () => {
     expect(code).not.toMatch(/function public\.supply_create_order\b/)

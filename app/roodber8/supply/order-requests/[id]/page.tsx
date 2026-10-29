@@ -20,6 +20,7 @@ import {
   StockOutcomeButtons,
 } from '@/components/admin/OrderRequestTools'
 import { ADMIN_STATUS_LABEL, EDITABLE, addisDateTime } from '@/lib/supply/order-requests'
+import { termsLabel } from '@/lib/supply/terms'
 import { expireDueOrderRequests, loadAdminOrderRequest, readPaymentDetails } from '@/lib/supply/order-requests-data'
 import { todayInAddis } from '@/lib/supply/shortlist'
 import { log } from '@/lib/log'
@@ -90,6 +91,7 @@ export default async function OrderRequestPage(props: { params: Promise<{ id: st
                   <span className="text-muted">
                     {' '}
                     · customer price {l.money.unitPriceCents === null ? '—' : formatETBCents(l.money.unitPriceCents)} · partner cost {l.money.costCents === null ? '—' : formatETBCents(l.money.costCents)}
+                    {l.money.termsModel ? ` · ${termsLabel({ model: l.money.termsModel as 'markup', bps: l.money.termsBps })} · HagerLand pays the partner ${formatETBCents(l.money.payableUnitCents)}` : ''}
                   </span>
                 )}
               </p>
@@ -131,7 +133,20 @@ export default async function OrderRequestPage(props: { params: Promise<{ id: st
             id={r.id}
             lines={r.lines
               .filter((l) => l.status === 'confirmed' || l.status === 'short')
-              .map((l) => ({ id: l.id, name: l.itemName, qty: l.confirmedQty ?? l.quantity, unit: unitLabel(l.unit, l.confirmedQty ?? l.quantity), price: l.money?.unitPriceCents ? (l.money.unitPriceCents / 100).toFixed(2) : '', cost: l.money?.costCents != null ? formatETBCents(l.money.costCents) : null }))}
+              .map((l) => {
+                // S6-3: pre-filled with the price suggested by the partner's terms (the owner may change it; a change is kept in the history).
+                const suggested = l.money?.suggested ?? null
+                const price = l.money?.unitPriceCents ?? suggested?.customerUnitCents ?? null
+                return {
+                  id: l.id,
+                  name: l.itemName,
+                  qty: l.confirmedQty ?? l.quantity,
+                  unit: unitLabel(l.unit, l.confirmedQty ?? l.quantity),
+                  price: price !== null ? (price / 100).toFixed(2) : '',
+                  cost: suggested?.payableUnitCents != null ? formatETBCents(suggested.payableUnitCents) : l.money?.costCents != null ? formatETBCents(l.money.costCents) : null,
+                  terms: suggested ? `${termsLabel(suggested)}${suggested.customerUnitCents !== null ? ` · suggested ${formatETBCents(suggested.customerUnitCents)}` : ''}` : null,
+                }
+              })}
           />
         </Panel>
       )}

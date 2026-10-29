@@ -400,7 +400,7 @@ test('reopen after the end: back to checking stock', async ({ page, browser }) =
   psql(`update public.order_requests set status = 'checking_stock', updated_by = 'e2e' where id = '${id}'`)
   psql(`update public.order_request_lines set status = 'confirmed', confirmed_qty = 2 where id = '${line}'`)
   psql(`insert into public.stock_reservations (order_request_line_id, org_id, qty, held_until) values ('${line}', '${seeded.org2}', 2, now() + interval '3 days')`)
-  psql(`select public.order_request_reserve('${id}', 1, 0, '[{"line_id": "${line}", "price_cents": 50000}]'::jsonb, 'e2e')`)
+  psql(`select public.order_request_reserve('${id}', 1, 0, '[{"line_id": "${line}", "price_cents": 100000}]'::jsonb, 'e2e')`)
   psql(`update public.order_requests set reserved_until = now() - interval '1 minute', payment_due_at = now() - interval '1 minute' where id = '${id}'`)
   await ownerPage(page, id)
   expect(await status(id)).toBe('expired')
