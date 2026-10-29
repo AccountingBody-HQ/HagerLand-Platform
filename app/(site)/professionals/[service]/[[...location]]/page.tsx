@@ -57,7 +57,7 @@ export async function generateMetadata(
   const result = await searchOrganisations({ serviceId: ctx.service.id, locationId: ctx.location?.id, pageSize: 1 })
   const min = await getSettingNumber('min_results_for_index', 3)
   return buildMetadata({
-    title: `${ctx.service.seo_title ?? ctx.service.name} in ${place(ctx)} — verified professionals${f.page > 1 ? ` – Page ${f.page}` : ''}`,
+    title: `${ctx.service.seo_title ?? ctx.service.name} in ${place(ctx)} — compare professionals${f.page > 1 ? ` – Page ${f.page}` : ''}`,
     description: truncateDescription(ctx.service.seo_intro ?? `Find ${ctx.service.name.toLowerCase()} in ${place(ctx)}. Compare portfolios and reviews of their work, check who is verified, and contact businesses directly or ask HagerLand for quotes.`),
     path: hasDirectoryFilters({ ...f, page: 1 }) ? base : `${base}${f.page > 1 ? `?page=${f.page}` : ''}`,
     noindex: Boolean(ctx.location) && result.total < min,

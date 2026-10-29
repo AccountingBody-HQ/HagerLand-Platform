@@ -132,3 +132,12 @@ describe('active item', () => {
     expect(isNavActive('/roodber8', '/roodber8')).toBe(true)
   })
 })
+
+describe('menu icons (Fix F-7, audit D-01)', () => {
+  it('Recruitment desk, Agency and Partner applications each have their own icon', () => {
+    const icon = (href: string) => ADMIN_NAV.find((i) => i.href === href)?.icon
+    const icons = ['/roodber8/jobs/desk', '/roodber8/agency', '/roodber8/partners'].map(icon)
+    expect(icons.every(Boolean)).toBe(true)
+    expect(new Set(icons).size).toBe(3)
+  })
+})

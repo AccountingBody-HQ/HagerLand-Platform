@@ -35,7 +35,7 @@ export const revalidate = 300
 export const metadata = buildMetadata({
   title: `${brand.name} — ${brand.titleLine}`,
   absoluteTitle: true,
-  description: 'Buy, rent, build and manage property in Ethiopia with verified partners, wherever you live: homes, building materials, contractors, repairs and property care.',
+  description: 'Buy, rent, build and manage property in Ethiopia with partners we check, wherever you live: homes, building materials, contractors, repairs and property care.',
   path: '/',
 })
 
@@ -97,7 +97,7 @@ export default async function HomePage() {
   const proofPoints = [
     { icon: ClipboardList, title: 'Every listing checked', text: 'Our team reviews every listing and profile before it goes live.' },
     { icon: BadgeCheck, title: 'Verified means verified', text: 'A business shows the Verified badge only after we have checked its documents.' },
-    { icon: Clock, title: 'Always up to date', text: 'Listings expire unless their owner renews them, so what you see is available.' },
+    { icon: Clock, title: 'Always up to date', text: 'Listings expire unless their owner renews them, so old listings do not stay up.' },
     { icon: Hammer, title: 'Built by construction people', text: `${brand.divisions.supply} sources building materials, so we know real costs and quality.` },
   ]
 
@@ -166,7 +166,7 @@ export default async function HomePage() {
                   <Search className="size-5" aria-hidden />
                 </span>
                 <h3 className="hl-h3 mt-5">Looking to buy or rent?</h3>
-                <p className="mt-2 flex-1 text-muted">Search what is listed today, or save a search and we will email you as soon as a home that matches goes live.</p>
+                <p className="mt-2 flex-1 text-muted">Search what is listed today, or save a search and we will email you when a home that matches goes live.</p>
                 <div className="mt-6 flex flex-col gap-3 sm:flex-row [&>*]:sm:flex-1">
                   <ButtonLink href="/property/for-sale">Property for sale</ButtonLink>
                   <ButtonLink href="/property/to-rent" variant="secondary">
@@ -306,7 +306,7 @@ export default async function HomePage() {
 
       {live.professionals && (
       <Section tone="stone">
-        <SectionHeader title="Hire trusted professionals" description="Tell us what you need and get quotes from up to three professionals, or browse by trade." action={<ButtonLink href="/professionals" variant="secondary">All professionals</ButtonLink>} />
+        <SectionHeader title="Hire professionals" description="Tell us what you need and get quotes from up to three professionals at a time, or browse by trade." action={<ButtonLink href="/professionals" variant="secondary">All professionals</ButtonLink>} />
         <ul className="flex flex-wrap gap-2">
           {PRO_CHIPS.map(([label, slug]) => (
             <li key={slug}>

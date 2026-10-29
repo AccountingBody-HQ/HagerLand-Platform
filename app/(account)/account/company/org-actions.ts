@@ -116,7 +116,7 @@ export async function updateOrganisationAction(_prev: OrgFormState | null, formD
     if (error) return fail('We could not save your changes. Please try again.')
     await syncLinks(d.existing_id, d)
     revalidateEntity('organisation', d.existing_id)
-    return ok({ id: d.existing_id }, 'Thanks. Your changes are with our team and will appear once reviewed (usually within 1 business day).')
+    return ok({ id: d.existing_id }, 'Thanks. Your changes are with our team and will appear once they have been reviewed.')
   }
 
   const status = membership.org.status === 'rejected' ? 'pending_review' : undefined

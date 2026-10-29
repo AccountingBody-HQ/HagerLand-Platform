@@ -17,4 +17,9 @@ export const BANNED: [string, RegExp][] = [
   ['mode chip: Provided by HagerLand', /provided by hagerland/i],
   ['mode chip: Trusted partners', /trusted partners/i],
   ['old support line', /Find it\. Buy it\./],
+  // Fix F-4: promises HagerLand cannot keep every time (L19) and a claim it cannot back up yet.
+  ['time promise: business day', /business day/i],
+  ['time promise: within 24 hours', /within 24 hours/i],
+  ['time promise: looking at it now', /looking at it now/i],
+  ['claim: verified partners', /verified partners/i],
 ]

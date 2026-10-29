@@ -4,6 +4,19 @@ import { translator } from '@/lib/i18n/translate'
 import { AM_MESSAGES, AM_NEEDS_NATIVE_REVIEW } from '@/lib/i18n/messages/am'
 import { brand } from '@/lib/brand'
 
+/**
+ * Fix F-4: English texts whose old Amharic was removed because the English changed. They fall back to English until a
+ * native speaker translates them (never machine or draft Amharic). Exactly these six; every other rule stays.
+ */
+const AWAITING_NATIVE_REVIEW = [
+  'Buy, rent, build and manage property in Ethiopia, with partners we check, wherever you live.',
+  'Buy, rent, build, manage and maintain property in Ethiopia, supported by our own team and professionals across Ethiopia.',
+  'Tradespeople for repairs, servicing and emergencies, matched by HagerLand.',
+  'Building materials with one clear quote and delivery to your site.',
+  'Hire professionals',
+  'Construction materials with one clear quote, delivered to site.',
+]
+
 describe('i18n (spec 25.2m)', () => {
   it('prefixes public links in Amharic and leaves admin, APIs and English alone', () => {
     expect(localizeHref('/property/for-sale', 'am')).toBe('/am/property/for-sale')
@@ -35,6 +48,15 @@ describe('i18n (spec 25.2m)', () => {
       expect(am.trim(), en).not.toBe('')
       if (en !== 'English') expect(/[ሀ-፿]/.test(am), en).toBe(true)
     }
-    for (const line of [brand.masterLine, brand.supportLine, brand.audienceLine, brand.heroEyebrow]) expect(AM_MESSAGES[line]).toBeTruthy()
+    for (const line of [brand.masterLine, brand.supportLine, brand.audienceLine, brand.heroEyebrow]) if (!AWAITING_NATIVE_REVIEW.includes(line)) expect(AM_MESSAGES[line], line).toBeTruthy()
+  })
+  it('only the six English texts changed by Fix F-4 are awaiting a native speaker (they show in English until then)', () => {
+    expect(AWAITING_NATIVE_REVIEW).toHaveLength(6)
+    expect(AWAITING_NATIVE_REVIEW).toContain(brand.supportLine)
+    for (const en of AWAITING_NATIVE_REVIEW) {
+      expect(AM_MESSAGES[en], en).toBeUndefined()
+      expect(translator('am')(en)).toBe(en)
+    }
+    for (const line of [brand.masterLine, brand.audienceLine, brand.heroEyebrow]) expect(AWAITING_NATIVE_REVIEW).not.toContain(line)
   })
 })

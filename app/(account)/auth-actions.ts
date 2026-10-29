@@ -73,6 +73,8 @@ export async function magicLinkAction(_prev: ActionResult<{ email: string }> | n
   const parsed = magicLinkSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   if (await limited('magic', 5, 3600)) return fail('Too many requests. Please wait an hour and try again.')
+  // Fix F-7: the security check, so nobody can use HagerLand to send sign-in emails to strangers.
+  if (!(await verifyTurnstileToken(formData.get('cf-turnstile-response') as string | null, getClientIp(await headers())))) return fail('Please complete the security check and try again.')
   const next = safeNextPath(formData.get('next'))
   const { error } = await getServerSupabase().auth.signInWithOtp({
     email: parsed.data.email,
@@ -89,6 +91,7 @@ export async function resetPasswordAction(_prev: ActionResult<{ email: string }>
   const parsed = magicLinkSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   if (await limited('reset', 5, 3600)) return fail('Too many requests. Please wait an hour and try again.')
+  if (!(await verifyTurnstileToken(formData.get('cf-turnstile-response') as string | null, getClientIp(await headers())))) return fail('Please complete the security check and try again.')
   await getServerSupabase().auth.resetPasswordForEmail(parsed.data.email, { redirectTo: callbackUrl('/auth/update-password') })
   return ok({ email: parsed.data.email })
 }

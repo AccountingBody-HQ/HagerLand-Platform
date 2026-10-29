@@ -62,7 +62,7 @@ export default function HowItWorksPage() {
                   cta={{ label: 'Request a service', href: '/request-service' }}
                   steps={[
                     { title: 'Describe the job', text: 'Choose the service, answer a few questions and add photos or plans. You do not need an account.' },
-                    { title: 'We match it', text: 'HagerLand sends your request to up to three suitable providers who work where you need them. Emergencies are looked at first.' },
+                    { title: 'We match it', text: 'HagerLand sends your request to up to three suitable providers at a time who work where you need them. Emergencies are looked at first.' },
                     { title: 'Compare quotes', text: 'Providers contact you and send their quotes to your private request page.' },
                     { title: 'Choose and agree', text: 'Pick the provider you prefer. Agree the work, price and timing in writing before you pay anything.' },
                   ]}
@@ -78,7 +78,7 @@ export default function HowItWorksPage() {
                   steps={[
                     { title: 'Create an account', text: 'Sign up with your email and phone. It takes about a minute.' },
                     { title: 'List your property', text: 'Add the basics, location, details, at least three photos and how buyers can contact you.' },
-                    { title: 'We review it', text: 'Our team checks every listing before it goes live, usually within one business day.' },
+                    { title: 'We review it', text: 'Our team checks every listing before it goes live and emails you when it is approved.' },
                     { title: 'Manage enquiries', text: 'Enquiries arrive by email and in your account. Track each one and reply quickly.' },
                     { title: 'Renew or archive', text: 'Listings stay live for 60 days. Renew in one click if it is still available.' },
                   ]}
@@ -104,11 +104,11 @@ export default function HowItWorksPage() {
         />
       </Section>
       <Section labelledBy="modes">
-        <SectionHeader id="modes" title="Who does the work" description="Each service page explains whether our own team handles it, a verified partner does, or it is still on its way." />
+        <SectionHeader id="modes" title="Who does the work" description="Each service page explains whether our own team handles it, a partner we check does, or it is still on its way." />
         <ul className="grid gap-4 md:grid-cols-3">
           {[
             { label: `By ${brand.name}`, text: `Our own team does the work, for example our estate agency, ${brand.divisions.propertyCare}, ${brand.divisions.supply} and recruitment. You deal with us from start to finish.` },
-            { label: 'Verified partners', text: 'Professionals, suppliers and listings we check before they appear. We introduce you or you find them through search, and you agree terms with them directly.' },
+            { label: 'Partners we check', text: 'Professionals, suppliers and listings we check before they appear. We introduce you or you find them through search, and you agree terms with them directly.' },
             { label: 'Coming soon', text: 'Services we are preparing, such as finance and insurance. Register your interest and we will tell you when they open.' },
           ].map((m) => (
             <li key={m.label} className="rounded-lg border border-border bg-white p-5">
@@ -147,7 +147,7 @@ export default function HowItWorksPage() {
             <li><strong>Listings stay current.</strong> Property listings expire after 60 days unless the owner renews them.</li>
             <li><strong>We are a participant too, and we say so.</strong> {brand.name} also sells materials through {brand.divisions.supply} and builds homes through {brand.divisions.developments}. Our own items are always labelled, and they are never pushed above other listings in search. Any promoted placement is clearly marked.</li>
             <li><strong>Reviews are from real jobs.</strong> Only customers who chose a provider through {brand.name} can review them, we check each review before it appears, and we never invent or import reviews.</li>
-            <li><strong>Report problems.</strong> Every listing and profile has a “Report” link. We act on reports quickly.</li>
+            <li><strong>Report problems.</strong> Every listing and profile has a “Report” link. We look at every report.</li>
           </ul>
         </div>
       </Section>

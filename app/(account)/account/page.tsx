@@ -62,7 +62,7 @@ export default async function AccountOverview(props: { searchParams: Promise<{ w
       />
 
       {searchParams.welcome === 'business' && (
-        <FormAlert tone="success">Your business has been submitted. We review new profiles within one business day and will email you when it is live.</FormAlert>
+        <FormAlert tone="success">Your business has been submitted. We review every new profile and will email you when it is live.</FormAlert>
       )}
       {searchParams.error === 'forbidden' && <FormAlert>You don&apos;t have access to that page.</FormAlert>}
       {active?.org.status === 'pending_review' && <FormAlert tone="info">{active.org.name} is waiting for review. You can keep adding details in the meantime.</FormAlert>}

@@ -16,9 +16,18 @@ async function setAmharic(page: Page, on: boolean) {
   await expect(panel.getByText(/Saved/)).toBeVisible()
 }
 
-test('Amharic is off by default: /am does not exist and nothing points to it', async ({ page, request }) => {
+// Fix F-7 (N-03): a run that stopped half-way may have left Amharic on. Put it back through the real admin form (which
+// also refreshes the cached pages) instead of skipping the check.
+test.beforeAll(async ({ browser }) => {
   const { data } = await db().from('site_settings').select('value').eq('key', 'amharic_enabled').single()
-  test.skip(data?.value === true, 'switched on by another run')
+  if (data?.value !== true) return
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
+  await setAmharic(page, false)
+  await page.close()
+})
+
+test('Amharic is off by default: /am does not exist and nothing points to it', async ({ page, request }) => {
+  expect((await db().from('site_settings').select('value').eq('key', 'amharic_enabled').single()).data?.value).toBe(false)
   expect((await request.get('/am')).status()).toBe(404)
   expect((await request.get('/am/property')).status()).toBe(404)
   const res = await page.goto('/')

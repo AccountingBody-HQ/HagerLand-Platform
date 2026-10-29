@@ -314,3 +314,52 @@ export async function giveVerifiedBadge(orgId: string): Promise<void> {
   const { error: e2 } = await d.from('organisations').update({ verification_level: 'verified', verified_at: now.toISOString() }).eq('id', orgId)
   if (e2) throw new Error(`verified badge failed: ${e2.message}`)
 }
+
+/**
+ * Fix F-7 (N-03): guides that only tests publish on the local copy (the three starter guides the guides test publishes,
+ * and the guide studio's test guides). Puts any of them that a stopped run left published back to draft through the
+ * real admin form (which also refreshes the cached pages). Any other published guide is not touched: the test stops
+ * with a clear message instead of skipping.
+ */
+const TEST_GUIDE_SLUGS = ['how-to-prepare-a-materials-list', 'questions-to-ask-a-contractor', 'property-viewing-checklist']
+export async function unpublishTestGuides(page: Page): Promise<void> {
+  const { data, error } = await db().from('guides').select('id, slug').eq('status', 'published')
+  if (error) throw new Error(`guides read failed: ${error.message}`)
+  const ours = (data ?? []).filter((g) => TEST_GUIDE_SLUGS.includes(g.slug) || g.slug.startsWith('studio-test-guide-'))
+  const others = (data ?? []).filter((g) => !ours.includes(g))
+  if (others.length) throw new Error(`Published guides not made by tests: ${others.map((g) => g.slug).join(', ')}. Unpublish them in admin, then run again.`)
+  if (!ours.length) return
+  await adminSession(page)
+  for (const g of ours) {
+    await page.goto(`/roodber8/guides/${g.id}`)
+    await page.getByLabel('Status').selectOption('draft')
+    const checked = page.getByLabel(/Content checked/)
+    if (await checked.isChecked()) await checked.uncheck()
+    await page.getByRole('button', { name: 'Save guide' }).click()
+    await expect(page.getByText('Saved.', { exact: true })).toBeVisible()
+  }
+}
+
+/**
+ * Fix F-7 (audit N-01): fills in the staff sign-in form and, if the code is refused (in a long run a code can go stale
+ * or the local sign-in service can be slow), tries once more with the next code. Staff accounts only, local copy only.
+ */
+export async function submitStaffSignIn(page: Page, email: string, password: string, secret: string): Promise<void> {
+  const { authenticator } = await import('otplib')
+  let usedStep = -1
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    await page.goto('/roodber8-login')
+    await page.getByText('Staff sign in').click()
+    await page.fill('#stf-email', email)
+    await page.fill('#stf-pass', password)
+    // A code made in the last seconds of its 30-second window can expire before the server checks it; a retry needs
+    // a code from a new window.
+    while (Date.now() % 30_000 > 25_000 || Math.floor(Date.now() / 30_000) === usedStep) await new Promise((r) => setTimeout(r, 500))
+    usedStep = Math.floor(Date.now() / 30_000)
+    await page.fill('#stf-code', authenticator.generate(secret))
+    await page.getByRole('button', { name: 'Sign in as staff' }).click()
+    await page.waitForURL((u) => u.pathname === '/roodber8' || u.searchParams.has('error'))
+    if (new URL(page.url()).pathname === '/roodber8') return
+  }
+  throw new Error(`Staff sign-in refused twice for ${email}`)
+}

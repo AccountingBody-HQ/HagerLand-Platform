@@ -265,7 +265,7 @@ They also cover every admin screen, admin sign-in and lock-out, the daily job, s
 | Rate limiter counts per fixed time window, not a sliding window | Simpler and good enough at launch. |
 | HEIC photos (iPhone) | The image library cannot read HEIC. Phones convert to JPEG when uploading through a browser, so this is not a problem in practice. |
 | Turnstile (anti-bot check) | Skipped only when its secret is not set, which is the case on previews and tests. Production must have it. |
-| AI drafts for imported businesses use `claude-sonnet-5-5` | You can change the model with `ANTHROPIC_MODEL`. Every draft is reviewed by you before going live. |
+| AI drafts for imported businesses use `claude-sonnet-5-5` | You can change the model with `ANTHROPIC_MODEL`. Every draft is reviewed by you before going live. **Removed:** AI drafts stopped with migration 0039; the unused Anthropic package and these settings were removed in F-7. |
 | The old About, Contact and Terms pages were removed in WP-1 | They were rebuilt in WP-13. |
 | The `gold-dark` and `info-dark` colour tokens are slightly darker | Needed for readable contrast (WCAG AA). |
 
@@ -462,7 +462,7 @@ Vercel → Project **hagerland-platform** → Settings → Environment Variables
 | `GOOGLE_PLACES_API_KEY` | Google Cloud → Credentials (Places API (New) enabled), for business imports | Optional |
 | `NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY` | Google Cloud, Maps Embed API, restricted to hagerland.com | Optional |
 | `NEXT_PUBLIC_MAP_TILE_URL`, `NEXT_PUBLIC_MAP_ATTRIBUTION` | A map tile provider that allows commercial use (e.g. MapTiler); maps stay hidden without it | Optional |
-| `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL` | Anthropic Console, for AI drafts of imported businesses (leave the model empty) | Optional |
+| `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL` | Anthropic Console, for AI drafts of imported businesses (leave the model empty) | **Removed in F-7** (no longer read; the Vercel variable can be deleted, your choice) |
 | `NEXT_PUBLIC_GOOGLE_AUTH_ENABLED` | `true` only after Google sign-in is set up in step 4 | Optional |
 | `CRON_PURGE_RATE_LIMITS` | `true` if you agree to the daily clean-up of old rate-limit counters | Optional |
 
@@ -576,7 +576,7 @@ Checked again on 15 Oct 2026 after Section 26: everything below is genuinely not
 - **Build tools:** Tailwind 3 and ESLint have `npm audit` warnings; they only run while building, never on the live site (`docs/qa/npm-audit-2026-10-15.md`).
 - **Amharic:** the `/am` version translates menus, headings and the main buttons only, machine-assisted and marked for native review, and is off until you switch it on.
 - **Maps:** hidden until you choose a tile provider (`NEXT_PUBLIC_MAP_TILE_URL`).
-- **Imports and AI drafts:** need `GOOGLE_PLACES_API_KEY` and `ANTHROPIC_API_KEY`; without them the Imports screen says so and you write descriptions yourself.
+- **Imports and AI drafts:** need `GOOGLE_PLACES_API_KEY` and `ANTHROPIC_API_KEY`; without them the Imports screen says so and you write descriptions yourself. (Removed in F-7: AI drafts stopped with 0039 and `ANTHROPIC_API_KEY` is no longer used.)
 - **Admin user search by email** scans the account list page by page: fine for thousands of users.
 - **Staff two-factor set-up** shows a setup key and an "open in authenticator" link, not a QR code (no QR library was added).
 - **Market insight and demand** count asking prices and requests on HagerLand only; empty searches have no day-by-day history, so their period uses the date they were last seen; revenue figures count deals in birr (deals in other currencies are listed in Deals).

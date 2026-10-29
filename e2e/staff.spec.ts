@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test'
 import crypto from 'node:crypto'
 import { authenticator } from 'otplib'
-import { adminSession, db, linkMatching, mailWithSubject, uniqueEmail } from './helpers'
+import { adminSession, db, linkMatching, mailWithSubject, uniqueEmail, submitStaffSignIn } from './helpers'
 
 /** Staff accounts and roles (spec 26.15). */
 
@@ -27,13 +27,7 @@ async function makeStaff(role: 'agent' | 'operations' | 'content'): Promise<{ em
 
 async function staffSignIn(page: Page, s: { email: string; password: string; secret: string }) {
   await page.context().clearCookies()
-  await page.goto('/roodber8-login')
-  await page.getByText('Staff sign in').click()
-  await page.fill('#stf-email', s.email)
-  await page.fill('#stf-pass', s.password)
-  await page.fill('#stf-code', authenticator.generate(s.secret))
-  await page.getByRole('button', { name: 'Sign in as staff' }).click()
-  await page.waitForURL('**/roodber8')
+  await submitStaffSignIn(page, s.email, s.password, s.secret)
 }
 
 test('owner invites an agent; the agent sets a password and enrols two-factor, then signs in to their areas only', async ({ page }, info) => {

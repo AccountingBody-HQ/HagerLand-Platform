@@ -9,12 +9,12 @@ export const SERVICE_COPY: Record<PillarKey, { benefit: string; action: string; 
   buy: { benefit: 'Homes, land and commercial property, and our own estate agents to sell yours.', action: 'Buy or sell', soonAction: 'Register interest' },
   rent: { benefit: 'Places to rent across Ethiopia, and letting handled for landlords.', action: 'Rent or let', soonAction: 'Register interest' },
   build: { benefit: 'Architects, engineers and contractors, with quotes for your project.', action: 'Find a contractor', soonAction: 'Register interest' },
-  maintain: { benefit: 'Trusted tradespeople for repairs, servicing and emergencies.', action: 'Request a repair', soonAction: 'Register interest' },
+  maintain: { benefit: 'Tradespeople for repairs, servicing and emergencies, matched by HagerLand.', action: 'Request a repair', soonAction: 'Register interest' },
   manage: { benefit: 'HagerLand Property Care looks after your property and tenants.', action: 'Explore Property Care', soonAction: 'Register interest' },
   finance: { benefit: 'Mortgages and construction finance through licensed partners.', action: 'Explore finance', soonAction: 'Register interest' },
   insurance: { benefit: 'Home, landlord and construction cover through licensed partners.', action: 'Explore insurance', soonAction: 'Register interest' },
   advice: { benefit: 'Practical help on buying, renting and building in Ethiopia.', action: 'Get advice', soonAction: 'Register interest' },
-  supplies: { benefit: 'Building materials quoted fast, with delivery to your site.', action: 'Get a quote', soonAction: 'Register interest' },
+  supplies: { benefit: 'Building materials with one clear quote and delivery to your site.', action: 'Get a quote', soonAction: 'Register interest' },
   jobs: { benefit: 'Construction and property jobs, and staff for your business.', action: 'Browse jobs', soonAction: 'Register interest' },
 }
 

@@ -13,7 +13,6 @@ export interface BusinessDetails {
   freeListingConfirmed: boolean
   developmentsClaims: { title: string; text: string }[]
   deliveryArea: string
-  quoteResponseTarget: string
   announcement: { text: string; href: string } | null
   verifiedBusinessCountMin: number
   /** Licence or approval references that have a number filled in (spec 26.1). */
@@ -55,7 +54,6 @@ export const getBusinessDetails = cache(async (): Promise<BusinessDetails> => {
       .map((x) => ({ title: str(x.title), text: str(x.text) }))
       .filter((x) => x.title && x.text),
     deliveryArea: str(s.delivery_area),
-    quoteResponseTarget: str(s.quote_response_target),
     announcement: ann.enabled === true && str(ann.text) ? { text: str(ann.text), href: str(ann.href) } : null,
     verifiedBusinessCountMin: typeof s.verified_business_count_min === 'number' ? s.verified_business_count_min : 25,
     licences: Object.fromEntries(

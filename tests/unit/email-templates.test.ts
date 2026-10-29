@@ -16,7 +16,7 @@ const ALL: Record<string, () => RenderedEmail> = {
   newEnquiry: () => T.newEnquiryEmail({ reference: 'HLE-1', subjectLine: X, targetLabel: X, targetUrl: url, name: X, phone: '+251911000000', email: 'a@b.c', preferredContact: 'phone', intentLabel: 'Book a viewing', message: X }),
   enquiryConfirmation: () => T.enquiryConfirmationEmail({ name: X, reference: 'HLE-1', targetLabel: X, recipientLabel: X, message: X }),
   registerInterest: () => T.registerInterestConfirmationEmail({ name: X, reference: 'HLR-1', projectName: X }),
-  quoteReceived: () => T.quoteReceivedEmail({ name: X, reference: 'HLQ-1', itemCount: 3, hasFiles: true, responseTarget: 'within one business day' }),
+  quoteReceived: () => T.quoteReceivedEmail({ name: X, reference: 'HLQ-1', itemCount: 3, hasFiles: true }),
   quoteInternal: () => T.quoteInternalEmail({ reference: 'HLQ-1', name: X, phone: '+251911000000', email: null, source: 'materials list', lines: [X], notes: X, adminUrl: url }),
   quoteIssued: () => T.quoteIssuedEmail({ name: X, reference: 'HLQ-1', totalCents: 1234500, hasDocument: true, validDays: 14 }),
   claimDecision: () => T.claimDecisionEmail({ name: X, orgName: X, approved: false, note: X }),

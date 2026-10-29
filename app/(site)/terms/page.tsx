@@ -73,7 +73,7 @@ export default async function TermsPage() {
         </TextSection>
         <TextSection title={n('Service requests and matching')}>
           <ul>
-            <li>When you request a service, we send your request to up to three providers we believe can help, and they may contact you and send quotes. You choose whether to accept a quote.</li>
+            <li>When you request a service, we send your request to up to three providers at a time who we believe can help, and they may contact you and send quotes. You choose whether to accept a quote.</li>
             <li>Any agreement for the work is between you and the provider. We are not a party to it, and we do not guarantee the work, price or timing. Agree everything in writing before you pay.</li>
             <li>Providers who receive requests must reply honestly, quote only for work they can do and keep customers’ details private. {brand.name} may receive a fee or commission from a provider for work that comes through the platform. This never changes the price we show you or the order of search results.</li>
           </ul>

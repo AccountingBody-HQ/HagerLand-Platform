@@ -13,7 +13,6 @@ import { UNITS, unitLabel } from '@/lib/units'
 import { hagerlandInbox } from '@/lib/enquiries'
 import { sendEmail } from '@/lib/email/send'
 import { quoteInternalEmail, quoteReceivedEmail } from '@/lib/email/templates'
-import { getSiteSettings } from '@/lib/data/reference'
 import { canonicalUrl } from '@/lib/site'
 import { formatPhone } from '@/lib/format'
 import { log } from '@/lib/log'
@@ -117,10 +116,8 @@ export async function submitQuoteAction(_prev: QuoteState, formData: FormData): 
     if (itemsError) log.error('quote', 'items insert failed', itemsError)
   }
 
-  const settings = await getSiteSettings()
-  const responseTarget = typeof settings.quote_response_target === 'string' ? settings.quote_response_target : ''
   if (d.email) {
-    await sendEmail({ to: d.email, from: 'supply', ...quoteReceivedEmail({ name: d.name.split(' ')[0], reference: q.reference, itemCount: d.items.length, hasFiles: d.files.length > 0, responseTarget }) })
+    await sendEmail({ to: d.email, from: 'supply', ...quoteReceivedEmail({ name: d.name.split(' ')[0], reference: q.reference, itemCount: d.items.length, hasFiles: d.files.length > 0 }) })
   }
   const inbox = await hagerlandInbox('supply')
   if (inbox) {

@@ -157,7 +157,7 @@ export const DEFAULT_PILLARS: Pillar[] = [
   D('rent', 2, 'Rent & Let Property', 'Rent', 'Landlords, tenants, lettings', 'key-round', true, true, false, 'Places to rent across Ethiopia, letting with HagerLand, tenant applications and tenancies.'),
   D('build', 3, 'Build & Develop Property', 'Build', 'Construction, renovation, development', 'hard-hat', false, true, true, 'Architects, engineers and contractors, building quotes and a build-cost estimator.'),
   D('maintain', 4, 'Repair & Maintain Property', 'Maintain', 'Trades, repairs, upkeep', 'wrench', true, true, false, 'Repairs, servicing and emergency help, coordinated by HagerLand.'),
-  D('manage', 5, 'Manage Property', 'Manage', 'Management, tenants, diaspora care', 'users', true, true, false, 'HagerLand Property Care and trusted third-party property managers.'),
+  D('manage', 5, 'Manage Property', 'Manage', 'Management, tenants, diaspora care', 'users', true, true, false, 'HagerLand Property Care and third-party property managers we work with.'),
   D('finance', 6, 'Property Finance', 'Finance', 'Mortgages, construction and development finance', 'landmark', false, false, true, 'Property finance introduced through approved, licensed partners.'),
   D('insurance', 7, 'Property Insurance', 'Insurance', 'Home, landlord, commercial cover', 'shield-check', false, false, true, 'Property insurance introduced through approved, licensed partners.'),
   D('advice', 8, 'Knowledge & Advice', 'Advice & guides', 'Guides, awareness, market insight', 'book-open', true, false, false, 'Guides, area guides, market insight, checklists and a glossary.'),

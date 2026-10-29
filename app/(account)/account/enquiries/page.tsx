@@ -34,7 +34,7 @@ export default async function EnquiriesPage(props: { searchParams: Promise<{ sta
   }
   return (
     <div>
-      <AccountPageHeader title="Enquiries" description="Leads from your listings and profile. Reply quickly: fast replies win more business." />
+      <AccountPageHeader title="Enquiries" description="Leads from your listings and profile. Reply as soon as you can." />
       <div className="mb-4 flex flex-wrap gap-2">
         <ChipLink href={href({ box: 'received' })} active={box === 'received'}>
           Received

@@ -10,9 +10,9 @@ const LISTER_REASON = 'You are receiving this because you have a listing or busi
 export function listingSubmittedEmail(p: { name: string; title: string }): RenderedEmail {
   return renderEmail({
     subject: `We've received your listing: ${p.title}`,
-    preheader: 'We review every listing before it goes live, usually within 1 business day.',
+    preheader: 'We review every listing before it goes live and email you when it is approved.',
     heading: 'Your listing is with our review team',
-    paragraphs: [`Hello ${p.name},`, `Thanks for listing "${p.title}". We review every listing before it goes live, usually within one business day. We'll email you as soon as it's approved.`],
+    paragraphs: [`Hello ${p.name},`, `Thanks for listing "${p.title}". We review every listing before it goes live, and we'll email you when it's approved.`],
     button: { label: 'View my listings', href: canonicalUrl('/account/listings') },
     reason: LISTER_REASON,
   })
@@ -83,7 +83,7 @@ export function newEnquiryEmail(p: {
     subject: `New enquiry: ${p.subjectLine}`,
     preheader: `${p.name} sent an enquiry about ${p.targetLabel}.`,
     heading: 'You have a new enquiry',
-    paragraphs: [`${p.name} sent an enquiry about ${p.targetLabel}. Reply quickly: fast replies win more business.`],
+    paragraphs: [`${p.name} sent an enquiry about ${p.targetLabel}. Reply as soon as you can.`],
     details: [
       ['Reference', p.reference],
       ['Enquiry', p.intentLabel],
@@ -132,14 +132,14 @@ export function registerInterestConfirmationEmail(p: { name: string; reference: 
   })
 }
 
-export function quoteReceivedEmail(p: { name: string; reference: string; itemCount: number; hasFiles: boolean; responseTarget: string }): RenderedEmail {
+export function quoteReceivedEmail(p: { name: string; reference: string; itemCount: number; hasFiles: boolean }): RenderedEmail {
   return renderEmail({
     subject: `We've received your quote request (${p.reference})`,
     preheader: 'HagerLand Supply will reply with a clear price and delivery.',
     heading: 'Your quote request is with HagerLand Supply',
     paragraphs: [
       `Hello ${p.name},`,
-      `Thanks for your request${p.itemCount ? ` for ${p.itemCount} item${p.itemCount === 1 ? '' : 's'}` : ''}${p.hasFiles ? ' and your materials list' : ''}. Our team will reply with a clear price and delivery details${p.responseTarget ? ` ${p.responseTarget}` : ' as soon as possible'}.`,
+      `Thanks for your request${p.itemCount ? ` for ${p.itemCount} item${p.itemCount === 1 ? '' : 's'}` : ''}${p.hasFiles ? ' and your materials list' : ''}. Our team will reply with a clear price and delivery details.`,
     ],
     details: [['Reference', p.reference]],
     reason: 'You are receiving this because you requested a quote from HagerLand Supply.',
@@ -332,14 +332,14 @@ const PROVIDER_REASON = 'You are receiving this because your business is listed 
 export function serviceRequestReceivedEmail(p: { name: string; reference: string; title: string; link: string; emergency: boolean; linkDays: number; nextStep?: string | null; preheader?: string | null; extraLine?: string | null }): RenderedEmail {
   return renderEmail({
     subject: `We've received your request (${p.reference})`,
-    preheader: p.emergency ? 'Marked as an emergency: we are looking at it now.' : (p.preheader ?? 'We are finding the right providers for you.'),
+    preheader: p.emergency ? 'Marked as an emergency: it is looked at first.' : (p.preheader ?? 'We are finding the right providers for you.'),
     heading: 'Your request is with us',
     paragraphs: [
       `Hello ${p.name},`,
       `Thanks for your request: "${p.title}".`,
       p.emergency
         ? 'You marked it as an emergency, so we are looking at it first. If anyone is in danger, call the emergency services.'
-        : (p.nextStep ?? 'We will match it with up to three suitable providers. Each one contacts you directly, and their quotes appear on your request page.'),
+        : (p.nextStep ?? 'We will match it with up to three suitable providers at a time. Each one contacts you directly, and their quotes appear on your request page.'),
       ...(p.extraLine ? [p.extraLine] : []),
       `Keep this email: the button below opens your request${p.linkDays ? ` (the link works for ${p.linkDays} days; you can ask for a new one at any time)` : ''}.`,
     ],
@@ -426,7 +426,7 @@ export function serviceNoProviderEmail(p: { name: string; reference: string; tit
     paragraphs: [
       `Hello ${p.name},`,
       `We're sorry: we could not find a suitable provider on HagerLand for "${p.title}" right now. We have closed the request so you are not left waiting.`,
-      'New businesses join HagerLand every week. You are welcome to send a new request later, or reply to this email and we will try to help.',
+      'You are welcome to send a new request later, or reply to this email and we will try to help.',
     ],
     details: [['Reference', p.reference]],
     reason: REQUESTER_REASON,
@@ -539,7 +539,7 @@ const TRADE_REASON = 'You are receiving this because you applied for a HagerLand
 export function tradeApplicationEmail(p: { name: string; reference: string }): RenderedEmail {
   return renderEmail({
     subject: `Trade account application received (${p.reference})`,
-    preheader: 'We check every trade application, usually within 2 business days.',
+    preheader: 'We check every trade application and email you when it has been decided.',
     heading: 'Thanks for applying for a trade account',
     paragraphs: [`Hello ${p.name},`, 'We have received your application. We check every application and will email you when it has been decided. Once approved, you will see trade prices when you are signed in.'],
     details: [['Reference', p.reference]],

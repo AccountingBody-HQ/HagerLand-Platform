@@ -16,7 +16,7 @@ describe('request form wording (Jobs Phase 1)', () => {
     for (const slug of ['plumbers', 'roof-repair', 'electricians', 'architects', 'staffing-other', '']) {
       const c = requestFormCopy(slug)
       expect(c.heading('Plumbers')).toBe('Request plumbers')
-      expect(c.metaDescription('Plumbers')).toBe('Describe what you need and get quotes from up to three plumbers on HagerLand. Free for customers; you choose who to hire.')
+      expect(c.metaDescription('Plumbers')).toBe('Describe what you need and get quotes from up to three plumbers at a time on HagerLand. Free for customers; you choose who to hire.')
       expect(c.titleHint('Plumbers')).toBe('For example: “Plumbers for a G+1 house in Bole”.')
       expect(c.detailsLabel).toBe('Describe what you need')
       expect(c.detailsHint).toBe('Size, materials, access, anything a provider should know before quoting.')
@@ -24,10 +24,10 @@ describe('request form wording (Jobs Phase 1)', () => {
       expect(c.pay).toBeNull()
       expect(c.locationLabel).toBe('Where is the work?')
       expect(c.locationHint).toBe('Start typing a city, sub-city or area. We also cover cities abroad.')
-      expect(c.footer).toBe('We share your request with up to three suitable providers. Your phone and email go only to providers who accept it.')
+      expect(c.footer).toBe('We share your request with up to three suitable providers at a time. Your phone and email go only to providers who accept it.')
       expect(c.steps).toEqual([
         { title: 'Tell us what you need', text: 'A few questions about the job, where it is and how soon.' },
-        { title: 'We match up to three providers', text: 'Chosen by service, location and verification. They contact you directly.' },
+        { title: 'We match up to three providers at a time', text: 'Chosen by service, location and verification. They contact you directly.' },
         { title: 'Compare quotes and choose', text: 'Quotes appear on your request page. Agree everything in writing before you pay.' },
       ])
       expect(askedQuestions(slug, STAFFING_QUESTIONS)).toEqual(STAFFING_QUESTIONS)
@@ -81,7 +81,7 @@ describe('what happens next, staffing only (Jobs Phase 1b)', () => {
     const base = { name: 'Tigist', reference: 'HLS-2026-000123', title: 'Ten masons', link: 'https://www.hagerland.com/requests/x', emergency: false, linkDays: 30 }
     const plain = serviceRequestReceivedEmail(base)
     const staffing = serviceRequestReceivedEmail({ ...base, nextStep: NEXT })
-    expect(plain.html).toContain('We will match it with up to three suitable providers. Each one contacts you directly, and their quotes appear on your request page.')
+    expect(plain.html).toContain('We will match it with up to three suitable providers at a time. Each one contacts you directly, and their quotes appear on your request page.')
     expect(staffing.html).not.toContain('up to three')
     expect(staffing.html).toContain('recruitment team will contact you to talk about the roles and agree the fee in writing before we start.')
     expect(staffing.subject).toBe(plain.subject)

@@ -2,7 +2,7 @@
 
 export const CARE_SERVICES = [
   { value: 'management', label: 'Full property management', text: 'One accountable team looking after your property while you are away.' },
-  { value: 'maintenance', label: 'Maintenance and repairs', text: 'Problems fixed promptly by vetted tradespeople, with costs agreed with you first.' },
+  { value: 'maintenance', label: 'Maintenance and repairs', text: 'Problems fixed by tradespeople we work with, with costs agreed with you first.' },
   { value: 'security', label: 'Security and monitoring', text: 'Regular checks that the property is secure, occupied as agreed and not at risk.' },
   { value: 'inspections', label: 'Inspections with photo reports', text: 'Scheduled visits with dated photos and written notes you can see from abroad.' },
   { value: 'tenants', label: 'Finding and managing tenants', text: 'Marketing, viewings, checking tenants and handling their requests.' },

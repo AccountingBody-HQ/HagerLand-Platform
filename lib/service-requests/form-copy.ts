@@ -51,14 +51,14 @@ export interface CustomerCopy {
 
 export const DEFAULT_REQUEST_STEPS: RequestStep[] = [
   { title: 'Tell us what you need', text: 'A few questions about the job, where it is and how soon.' },
-  { title: 'We match up to three providers', text: 'Chosen by service, location and verification. They contact you directly.' },
+  { title: 'We match up to three providers at a time', text: 'Chosen by service, location and verification. They contact you directly.' },
   { title: 'Compare quotes and choose', text: 'Quotes appear on your request page. Agree everything in writing before you pay.' },
 ]
 
 const DEFAULT_COPY: RequestFormCopy = {
   heading: (name) => `Request ${name.toLowerCase()}`,
   tabTitle: (name) => `Request ${name.toLowerCase()}`,
-  metaDescription: (name) => `Describe what you need and get quotes from up to three ${name.toLowerCase()} on HagerLand. Free for customers; you choose who to hire.`,
+  metaDescription: (name) => `Describe what you need and get quotes from up to three ${name.toLowerCase()} at a time on HagerLand. Free for customers; you choose who to hire.`,
   titleHint: (name) => `For example: “${name} for a G+1 house in Bole”.`,
   detailsLabel: 'Describe what you need',
   detailsHint: 'Size, materials, access, anything a provider should know before quoting.',
@@ -66,7 +66,7 @@ const DEFAULT_COPY: RequestFormCopy = {
   pay: null,
   locationLabel: 'Where is the work?',
   locationHint: 'Start typing a city, sub-city or area. We also cover cities abroad.',
-  footer: 'We share your request with up to three suitable providers. Your phone and email go only to providers who accept it.',
+  footer: 'We share your request with up to three suitable providers at a time. Your phone and email go only to providers who accept it.',
   steps: DEFAULT_REQUEST_STEPS,
   hiddenQuestions: [],
   nextStep: null,

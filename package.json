@@ -14,7 +14,6 @@
     "stack": "bash supabase/local-stack/setup.sh"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.115.0",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.110.2",
     "@tailwindcss/typography": "^0.5.20",

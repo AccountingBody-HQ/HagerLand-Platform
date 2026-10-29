@@ -2,7 +2,7 @@ import crypto from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { expect, test, type Page } from '@playwright/test'
 import { authenticator } from 'otplib'
-import { adminSession, assertLocalStack, db, mailWithSubject, uniqueEmail } from '../helpers'
+import { adminSession, assertLocalStack, db, mailWithSubject, uniqueEmail, submitStaffSignIn } from '../helpers'
 
 test.describe.configure({ mode: 'serial' })
 test.beforeAll(() => {
@@ -28,13 +28,7 @@ async function staffSignIn(page: Page, role: 'operations' | 'agent' | 'content')
   const { data } = await db().auth.admin.createUser({ email, password, email_confirm: true, app_metadata: { staff: true } })
   await db().from('staff_users').insert({ email, name: `E2E ${role}`, role, status: 'active', user_id: data.user!.id, totp_secret_enc: encrypt(secret), totp_enrolled_at: new Date().toISOString() })
   await page.context().clearCookies()
-  await page.goto('/roodber8-login')
-  await page.getByText('Staff sign in').click()
-  await page.fill('#stf-email', email)
-  await page.fill('#stf-pass', password)
-  await page.fill('#stf-code', authenticator.generate(secret))
-  await page.getByRole('button', { name: 'Sign in as staff' }).click()
-  await page.waitForURL('**/roodber8')
+  await submitStaffSignIn(page, email, password, secret)
   return async () => {
     await db().from('staff_users').delete().eq('email', email)
     await db().auth.admin.deleteUser(data.user!.id)
