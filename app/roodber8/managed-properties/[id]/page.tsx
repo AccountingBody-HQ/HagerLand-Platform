@@ -39,7 +39,8 @@ export default async function ManagedPropertyPage(props: { params: Promise<{ id:
     db.from('managed_property_documents').select('id, label, storage_path, visible_to_owner').eq('managed_property_id', p.id).order('created_at', { ascending: false }),
     db.from('owner_messages').select('id, sender, sender_name, body, created_at').eq('managed_property_id', p.id).order('created_at').limit(200),
   ]))
-  const docs = await Promise.all((docRows ?? []).map(async (d) => ({ ...d, url: await signedDocumentUrl(d.storage_path, d.label) })))
+  // F-5: a document whose file was deleted under the keeping period has no path: its label shows without a link.
+  const docs = await Promise.all((docRows ?? []).map(async (d) => ({ ...d, url: d.storage_path ? await signedDocumentUrl(d.storage_path, d.label) : null })))
   const ownerEmail = p.owner_user_id ? ((await db.auth.admin.getUserById(p.owner_user_id)).data.user?.email ?? null) : null
   const photos = await Promise.all((inspections ?? []).map(async (i) => Promise.all(i.photo_paths.map((path) => signedDocumentUrl(path)))))
   const today = new Date().toISOString().slice(0, 10)

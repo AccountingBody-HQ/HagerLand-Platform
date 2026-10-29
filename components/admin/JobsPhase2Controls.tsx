@@ -60,17 +60,17 @@ export function JobsSwitchControl({ which, on, label }: { which: keyof typeof LA
   )
 }
 
-/** Owner: "Dry run — report only" (default) or "Live — delete personal details after 12 months". */
+/** Owner: "Dry run — report only" (default) or "Live — delete personal details" (every kind listed above, F-5). */
 export function JobsCleanupModeControl({ mode }: { mode: 'dry_run' | 'live' }) {
   const [value, setValue] = useState(mode)
   const [read, setRead] = useState(false)
   const { pending, run } = useRun()
   return (
     <div className="space-y-3">
-      <Field label="Deletion mode" htmlFor="jc-mode" hint="Live deletes the personal details of applications and register entries older than 12 months at the next daily run. The rows, references and counts stay.">
+      <Field label="Deletion mode" htmlFor="jc-mode" hint="Live clears the personal details listed above, each after its own period, at the next daily run. The rows, references and counts stay (supply contacts and old audit entries are deleted).">
         <Select id="jc-mode" value={value} onChange={(e) => setValue(e.target.value === 'live' ? 'live' : 'dry_run')}>
           <option value="dry_run">Dry run — report only</option>
-          <option value="live">Live — delete personal details after 12 months</option>
+          <option value="live">Live — delete personal details</option>
         </Select>
       </Field>
       {value === 'live' && mode !== 'live' && <Checkbox id="jc-read" label="I have read the latest dry run below" checked={read} onChange={(e) => setRead(e.target.checked)} />}

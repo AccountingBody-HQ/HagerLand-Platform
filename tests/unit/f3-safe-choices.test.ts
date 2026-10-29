@@ -178,9 +178,9 @@ describe('the code and the migration', () => {
     expect(code).toMatch(/where source_type = 'service_request' and match_id is not null;/)
     expect(code).toContain("values ('0046', 'safe_quote_choice')")
   })
-  it('the health check expects 0046 last', async () => {
+  it('the health check expects 0046 (and the later ones)', async () => {
     const { EXPECTED_MIGRATIONS } = await import('@/lib/health')
-    expect(EXPECTED_MIGRATIONS[EXPECTED_MIGRATIONS.length - 1]).toBe('0046')
+    expect(EXPECTED_MIGRATIONS).toContain('0046')
   })
 })
 

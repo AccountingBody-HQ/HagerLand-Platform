@@ -27,6 +27,7 @@ export async function getOwnedProperty(user: User, id: string) {
   // Messages from HagerLand count as read once the owner opens the page.
   await db.from('owner_messages').update({ read_by_owner_at: new Date().toISOString() }).eq('managed_property_id', id).eq('sender', 'hagerland').is('read_by_owner_at', null)
   const withPhotos = await Promise.all((inspections.data ?? []).map(async (i) => ({ ...i, photos: (await Promise.all(i.photo_paths.map((path) => signedDocumentUrl(path)))).filter((u): u is string => Boolean(u)) })))
-  const docs = await Promise.all((documents.data ?? []).map(async (d) => ({ ...d, url: await signedDocumentUrl(d.storage_path, d.label) })))
+  // F-5: a document whose file was deleted under the keeping period has no path and no link.
+  const docs = await Promise.all((documents.data ?? []).map(async (d) => ({ ...d, url: d.storage_path ? await signedDocumentUrl(d.storage_path, d.label) : null })))
   return { property: p, inspections: withPhotos, statements: statements.data ?? [], maintenance: maintenance.data ?? [], documents: docs, messages: messages.data ?? [] }
 }

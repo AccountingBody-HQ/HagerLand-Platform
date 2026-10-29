@@ -74,7 +74,7 @@ async function setMode(page: Page, mode: 'dry_run' | 'live') {
   const save = page.getByRole('button', { name: 'Save mode' })
   if (await save.isEnabled()) {
     await save.click()
-    await expect(page.getByText(mode === 'live' ? 'Live: the next daily run deletes personal details older than 12 months.' : 'Dry run: the daily run only counts.')).toBeVisible()
+    await expect(page.getByText(mode === 'live' ? 'Live: the next daily run deletes the personal details listed above, each after its own period.' : 'Dry run: the daily run only counts.')).toBeVisible()
   }
 }
 

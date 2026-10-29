@@ -1363,6 +1363,52 @@ end $$;
 select pg_temp.record_check('F-3 checks left nothing behind', not exists (select 1 from public.service_requests where title like 'RLS TEST F3%')
   and not exists (select 1 from public.organisations where name like 'RLS TEST F3%') and not exists (select 1 from pg_constraint where conname = 'rls_f3_block'));
 
+-- ---------- F-5 (0047): keeping periods ----------
+reset role;
+create or replace function pg_temp.column_write_denied(tbl text, col text)
+returns boolean language plpgsql as $$
+begin
+  execute format('update public.%I set %I = now() where false', tbl, col);
+  return false;
+exception when insufficient_privilege then
+  return true;
+end $$;
+set role anon;
+select pg_temp.record_check('Anonymous cannot read ' || name || ' (with its new column)', pg_temp.read_denied(name))
+from unnest(array['enquiries', 'service_requests', 'quote_requests', 'property_care_requests', 'managed_properties', 'build_projects', 'partner_applications', 'claims', 'trade_accounts']) as t(name);
+reset role;
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000001", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', false);
+select pg_temp.record_check('A signed-in user cannot set personal_data_deleted_at on ' || name, pg_temp.column_write_denied(name, 'personal_data_deleted_at'))
+from unnest(array['enquiries', 'service_requests', 'quote_requests', 'property_care_requests', 'managed_properties', 'build_projects', 'partner_applications', 'claims', 'trade_accounts']) as t(name);
+select pg_temp.record_check('A signed-in user cannot set ended_at on managed properties', pg_temp.column_write_denied('managed_properties', 'ended_at'));
+reset role;
+do $$
+declare
+  res text := '';
+  v_mp uuid;
+  v_ended timestamptz;
+begin
+  begin
+    insert into public.managed_properties (owner_name, title, status) values ('RLS TEST F5 owner', 'RLS TEST F5 flat', 'active') returning id into v_mp;
+    res := res || case when (select ended_at from public.managed_properties where id = v_mp) is null then 'PASS' else 'FAIL' end || E' · A new managed property has no end date\n';
+    update public.managed_properties set notes = 'still managed' where id = v_mp;
+    res := res || case when (select ended_at from public.managed_properties where id = v_mp) is null then 'PASS' else 'FAIL' end || E' · Other changes do not set the end date\n';
+    update public.managed_properties set status = 'ended' where id = v_mp;
+    select ended_at into v_ended from public.managed_properties where id = v_mp;
+    res := res || case when v_ended is not null then 'PASS' else 'FAIL' end || E' · Ending the management records when it ended\n';
+    update public.managed_properties set notes = 'after the end' where id = v_mp;
+    res := res || case when (select ended_at from public.managed_properties where id = v_mp) = v_ended then 'PASS' else 'FAIL' end || E' · A later change keeps the end date\n';
+    update public.managed_properties set status = 'active' where id = v_mp;
+    res := res || case when (select ended_at from public.managed_properties where id = v_mp) is null then 'PASS' else 'FAIL' end || E' · Restarting the management clears the end date\n';
+    raise exception 'hl_rollback';
+  exception when raise_exception then
+    if sqlerrm <> 'hl_rollback' then res := res || 'FAIL · F-5 checks stopped early: ' || sqlerrm || E'\n'; end if;
+  end;
+  perform set_config('hl.results', current_setting('hl.results') || res, false);
+end $$;
+select pg_temp.record_check('F-5 checks left nothing behind', not exists (select 1 from public.managed_properties where title like 'RLS TEST F5%'));
+
 -- ---------- Clean up ----------
 reset role;
 select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);

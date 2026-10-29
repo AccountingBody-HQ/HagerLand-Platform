@@ -268,18 +268,6 @@ export function adminNoticeEmail(p: { subject: string; heading: string; lines: [
   })
 }
 
-export function contactMessageEmail(p: { name: string; phone: string; email: string | null; topic: string; message: string; reference: string }): RenderedEmail {
-  return renderEmail({
-    subject: `Website message ${p.reference}: ${p.topic}`,
-    preheader: `From ${p.name}`,
-    heading: 'New message from the contact form',
-    paragraphs: [],
-    details: [['Reference', p.reference], ['Topic', p.topic], ['Name', p.name], ['Phone', p.phone], ...(p.email ? ([['Email', p.email]] as [string, string][]) : [])],
-    quote: p.message,
-    reason: 'Internal notification for the HagerLand team.',
-  })
-}
-
 export function accountDeletedEmail(p: { name: string }): RenderedEmail {
   return renderEmail({
     subject: 'Your HagerLand account has been deleted',
