@@ -70,7 +70,7 @@ async function capture(page: Page, path: string) {
   return page.evaluate(() => {
     for (const el of Array.from(document.querySelectorAll<HTMLElement>('[aria-labelledby="share-job-h"]'))) el.style.display = 'none'
     const meta = (n: string) => document.querySelector(`meta[name="${n}"], meta[property="${n}"]`)?.getAttribute('content') ?? ''
-    const text = document.body.innerText.replace(/Posted [^\n]*? ago/g, 'Posted <time> ago').replace(/Posted (today|yesterday)/g, 'Posted <time> ago').replace(/\b(HLA|HLS)-\d{4}-\d{6}\b/g, '<ref>')
+    const text = document.body.innerText.replace(/Posted [^\n]*? ago/g, 'Posted <time> ago').replace(/Posted (today|yesterday)/g, 'Posted <time> ago').replace(/Last updated \d{1,2} [A-Z][a-z]{2,8} \d{4}/g, 'Last updated <date>').replace(/\b(HLA|HLS)-\d{4}-\d{6}\b/g, '<ref>')
     return { title: document.title, description: meta('description'), ogTitle: meta('og:title'), canonical: document.querySelector('link[rel="canonical"]')?.getAttribute('href') ?? '', lang: document.documentElement.lang, text }
   })
 }
@@ -148,7 +148,8 @@ async function record(page: Page, jobId: string, requestId: string) {
     return
   }
   expect(existsSync(FILE), 'snapshot recorded from the build before the change').toBe(true)
-  // Times that move on their own ("Posted today" one day, "Posted 2 days ago" the next) are compared as "<time>".
-  const before = JSON.parse(readFileSync(FILE, 'utf8').replace(/Posted (today|yesterday)/g, 'Posted <time> ago')) as Record<string, unknown>
+  // Times that move on their own ("Posted today" one day, "Posted 2 days ago" the next) are compared as "<time>", and
+  // the legal pages' "Last updated" date (set at each release that changes them, F-8) as "<date>".
+  const before = JSON.parse(readFileSync(FILE, 'utf8').replace(/Posted (today|yesterday)/g, 'Posted <time> ago').replace(/Last updated \d{1,2} [A-Z][a-z]{2,8} \d{4}/g, 'Last updated <date>')) as Record<string, unknown>
   for (const key of Object.keys(before)) expect(out[key], key).toEqual(before[key])
 }
