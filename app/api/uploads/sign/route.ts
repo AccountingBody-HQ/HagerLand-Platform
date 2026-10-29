@@ -5,7 +5,7 @@ import { countMedia, createIncomingUpload, isAllowedUpload, mediaLimit } from '@
 import { rateLimit } from '@/lib/rate-limit'
 import { getClientIp, hashIp } from '@/lib/security'
 import { log } from '@/lib/log'
-import { CV_TYPES, PRIVATE_AREAS } from '@/lib/media'
+import { CV_TYPES, IMAGE_TYPES, PRIVATE_AREAS } from '@/lib/media'
 
 const bodySchema = z.discriminatedUnion('purpose', [
   z.object({
@@ -38,6 +38,8 @@ export async function POST(request: NextRequest) {
   if (!(await canUpload(scope))) return NextResponse.json({ error: 'You cannot upload files here.' }, { status: 403 })
 
   if (b.purpose === 'private' && b.area === 'cv' && !CV_TYPES.includes(b.content_type)) return NextResponse.json({ error: 'Upload your CV as a PDF or Word (.docx) file.' }, { status: 400 })
+  // S6-1: partner portal photos are photos only (re-encoded, metadata removed, on processing).
+  if (b.purpose === 'private' && b.area === 'partner' && !IMAGE_TYPES.includes(b.content_type)) return NextResponse.json({ error: 'That file is not a JPEG, PNG or WebP image.' }, { status: 400 })
   const problem = isAllowedUpload(b.purpose === 'media' ? b.kind : 'private', b.content_type, b.size)
   if (problem) return NextResponse.json({ error: problem }, { status: 400 })
 

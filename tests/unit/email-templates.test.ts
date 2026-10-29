@@ -48,6 +48,9 @@ const ALL: Record<string, () => RenderedEmail> = {
   placementConfirmed: () => T.placementConfirmedEmail({ name: X, role: X, date: '1 November 2026' }),
   badgeEnding: () => T.badgeEndingEmail({ date: X, link: url }),
   jobPaused: () => T.jobPausedEmail({ title: X }),
+  partnerRegistrationReceived: () => T.partnerRegistrationReceivedEmail({ reference: 'HLB-2026-000001', business: X }),
+  partnerInvitation: () => T.partnerInvitationEmail({ name: X, business: X, link: url }),
+  partnerRegistrationInternal: () => T.partnerRegistrationInternalEmail({ reference: 'HLB-2026-000001', business: X, roles: 'Manufacturer', adminUrl: url }),
 }
 
 describe('email templates', () => {

@@ -120,6 +120,28 @@ export async function processIncomingImage(incomingPath: string, entityType: Med
   }
 }
 
+/**
+ * S6-1: copies a private partner photo (docs/partner/…) to a HagerLand product's public photos, re-encoded as WebP with
+ * no metadata. The private file stays where it is (it is cleared with the draft's keeping period).
+ */
+export async function publishPrivateImage(privatePath: string, entityType: MediaEntity, entityId: string): Promise<ProcessedImage> {
+  if (!privatePath.startsWith('docs/partner/') || privatePath.includes('..')) throw new Error('invalid private photo path')
+  const { data, error } = await getAdminSupabase().storage.from(PRIVATE_BUCKET).download(privatePath)
+  if (error || !data) throw new Error(`download failed: ${error?.message}`)
+  const buf = Buffer.from(await data.arrayBuffer())
+  const sniffed = sniffType(buf)
+  if (!sniffed || !IMAGE_TYPES.includes(sniffed)) throw new UploadError('That file is not a JPEG, PNG or WebP image.')
+  const { full, thumb } = await encodeImage(buf)
+  const id = crypto.randomUUID()
+  const storagePath = `${entityType}/${entityId}/${id}.webp`
+  const thumbPath = `${entityType}/${entityId}/${id}-640.webp`
+  const bucket = getAdminSupabase().storage.from(PUBLIC_BUCKET)
+  const opts = { contentType: 'image/webp', cacheControl: '31536000', upsert: false }
+  const [a, b] = await Promise.all([bucket.upload(storagePath, full.data, opts), bucket.upload(thumbPath, thumb, opts)])
+  if (a.error || b.error) throw new Error(`publish failed: ${a.error?.message ?? b.error?.message}`)
+  return { storage_path: storagePath, thumb_path: thumbPath, width: full.info.width, height: full.info.height, bytes: full.data.length }
+}
+
 /** Validates a private document and moves it to its final private location. Returns the stored path. */
 export async function processIncomingDocument(incomingPath: string, claimedType: string, scope: string): Promise<string> {
   const buf = await readIncoming(incomingPath)

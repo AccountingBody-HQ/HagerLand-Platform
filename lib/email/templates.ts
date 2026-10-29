@@ -583,3 +583,37 @@ export function jobPausedEmail(p: { title: string }): RenderedEmail {
   const body = `We have paused your job "${p.title}" while we check it. We will be in touch if we need anything from you.`
   return renderEmail({ subject, preheader: body, heading: subject, paragraphs: [body], reason: EMPLOYER_REASON })
 }
+
+// ---------------------------------------------------------------------------------------------------------------
+// S6-1 partner registration and portal (AB's approved text, verbatim; the heading repeats the subject). The footer
+// reuses the existing partner-application sentence, so no new public wording is added (every email says why it was sent).
+// ---------------------------------------------------------------------------------------------------------------
+const PARTNER_REASON = 'You are receiving this because you applied to become a HagerLand partner.'
+
+export function partnerRegistrationReceivedEmail(p: { reference: string; business: string }): RenderedEmail {
+  const subject = `We received your registration (${p.reference})`
+  const body = `Thank you for registering ${p.business} with HagerLand Supply. Our team will contact you to talk about terms. Your details stay private.`
+  return renderEmail({ subject, preheader: body, heading: subject, paragraphs: [body], reason: PARTNER_REASON })
+}
+
+export function partnerInvitationEmail(p: { name: string; business: string; link: string }): RenderedEmail {
+  const subject = 'Your HagerLand Supply partner area'
+  const body = `Hello ${p.name}, we have set up a private partner area for ${p.business}. Use the button to sign in and add your products. The link works for 7 days.`
+  return renderEmail({ subject, preheader: body, heading: subject, paragraphs: [body], button: { label: 'Open my partner area', href: p.link }, reason: PARTNER_REASON })
+}
+
+/** Internal (HagerLand's supply inbox only): a new partner registration to review. */
+export function partnerRegistrationInternalEmail(p: { reference: string; business: string; roles: string; adminUrl: string }): RenderedEmail {
+  return renderEmail({
+    subject: `New partner registration (${p.reference})`,
+    preheader: `${p.business} registered to supply HagerLand.`,
+    heading: 'New partner registration',
+    paragraphs: [`${p.business} registered to supply HagerLand. Review it in admin → Supply → Partner registrations.`],
+    details: [
+      ['Reference', p.reference],
+      ['What they do', p.roles],
+    ],
+    button: { label: 'Open in admin', href: p.adminUrl },
+    reason: 'Internal notification for the HagerLand Supply team.',
+  })
+}

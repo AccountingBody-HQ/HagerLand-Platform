@@ -27,6 +27,10 @@ import {
   clearedMatch,
   clearedOwnerMessage,
   clearedPartnerApplication,
+  clearedPartnerDraft,
+  clearedPartnerRegistration,
+  CLEARED_DRAFT_STATUSES,
+  partnerRegistrationDue,
   clearedQuoteItem,
   clearedQuoteRequest,
   clearedServiceRequest,
@@ -37,6 +41,7 @@ import {
   type RetentionKind,
 } from '@/lib/retention'
 import { REMOVED_NAME } from '@/lib/jobs-privacy'
+import { ENDED_RELATIONSHIP } from '@/lib/supply/partner-rules'
 
 
 const opts = { maxRows: REPORT_MAX_ROWS }
@@ -155,6 +160,23 @@ const DUE: Record<RetentionKind, (now: Date) => Promise<string[]>> = {
       .filter((r) => !(r.do_not_contact && r.name === REMOVED_NAME && !r.email && !r.whatsapp && !r.telegram && !r.consent_note))
       .map((r) => r.id)
   },
+  // S6-1 partner registrations: never while an approved partner's relationship is active (supply_partners).
+  partner_registrations: async (now) => {
+    const db = getAdminSupabase()
+    const cutoff = retentionCutoff(now, M24)
+    const { data: regs } = await readAll(() => db.from('partner_registrations').select('id, org_id, status, updated_at').is('personal_data_deleted_at', null).lt('updated_at', cutoff), opts)
+    const { data: partners } = await readAllIn(Array.from(new Set(regs.map((r) => r.org_id))), (part) => db.from('supply_partners').select('org_id, relationship_status, status_changed_at, updated_at').in('org_id', part), opts)
+    const rel = new Map(partners.map((p) => [p.org_id, p]))
+    return regs
+      .filter((r) => partnerRegistrationDue({ status: r.status, updated_at: r.updated_at, relationship_status: rel.get(r.org_id)?.relationship_status ?? null, relationship_changed_at: latest(rel.get(r.org_id)?.status_changed_at, rel.get(r.org_id)?.updated_at) }, cutoff, ENDED_RELATIONSHIP))
+      .map((r) => r.id)
+  },
+  // S6-1 partner product drafts: declined or withdrawn, 24 months after the decision.
+  partner_drafts: async (now) => {
+    const cutoff = retentionCutoff(now, M24)
+    const { data } = await readAll(() => getAdminSupabase().from('partner_product_drafts').select('id, decided_at, updated_at').is('personal_data_deleted_at', null).in('status', CLEARED_DRAFT_STATUSES).lt('updated_at', cutoff), opts)
+    return data.filter((r) => old(cutoff)(r.decided_at ?? r.updated_at)).map((r) => r.id)
+  },
   // Audit log: older than 24 months, and money / data-protection entries only after 6 years.
   audit_log: async (now) => {
     const cutoff = retentionCutoff(now, M24)
@@ -223,6 +245,16 @@ export async function clearRetention(kind: RetentionKind, id: string, at: string
     case 'trade_accounts':
       check(await db.from('trade_accounts').update(clearedTradeAccount(at)).eq('id', id).is('personal_data_deleted_at', null))
       return
+    case 'partner_registrations':
+      check(await db.from('partner_registrations').update(clearedPartnerRegistration(at)).eq('id', id).is('personal_data_deleted_at', null))
+      return
+    case 'partner_drafts': {
+      const { data: d } = check(await db.from('partner_product_drafts').select('photo_paths').eq('id', id).is('personal_data_deleted_at', null).in('status', CLEARED_DRAFT_STATUSES).maybeSingle())
+      if (!d) return
+      await removeFiles(d.photo_paths ?? [], [DELETABLE_PREFIXES.partner])
+      check(await db.from('partner_product_drafts').update(clearedPartnerDraft(at)).eq('id', id).is('personal_data_deleted_at', null).in('status', CLEARED_DRAFT_STATUSES))
+      return
+    }
     case 'supply_contacts':
     case 'audit_log':
       await clearRetentionBatch(kind, [id])
@@ -280,9 +312,19 @@ export async function runAlwaysOnCleanup(now: Date): Promise<AlwaysOnResult> {
   for (let i = 0; i < unaccepted.length; i += DELETE_BATCH) {
     invitationsDeleted += (check(await db.from('org_invitations').delete().in('id', unaccepted.slice(i, i + DELETE_BATCH)).is('accepted_at', null).select('id')).data ?? []).length
   }
+  // S6-1: partner-area invitations follow the same rules (they share the digest counts).
+  const { data: partnerInvites } = await readAll(() => db.from('partner_invitations').select('id, expires_at, revoked_at, accepted_at, email'), opts)
+  const partnerUnaccepted = partnerInvites.filter((r) => !r.accepted_at && (r.revoked_at ?? r.expires_at) < thirty).map((r) => r.id)
+  for (let i = 0; i < partnerUnaccepted.length; i += DELETE_BATCH) {
+    invitationsDeleted += (check(await db.from('partner_invitations').delete().in('id', partnerUnaccepted.slice(i, i + DELETE_BATCH)).is('accepted_at', null).select('id')).data ?? []).length
+  }
   let invitationsCleared = 0
   for (const r of invites.filter((x) => x.accepted_at && x.accepted_at < twoYears && x.email !== '')) {
     check(await db.from('org_invitations').update(clearedInvitation(r.id)).eq('id', r.id).neq('email', ''))
+    invitationsCleared++
+  }
+  for (const r of partnerInvites.filter((x) => x.accepted_at && x.accepted_at < twoYears && x.email !== '')) {
+    check(await db.from('partner_invitations').update(clearedInvitation(r.id)).eq('id', r.id).neq('email', ''))
     invitationsCleared++
   }
   return { errorsDeleted, invitationsDeleted, invitationsCleared }

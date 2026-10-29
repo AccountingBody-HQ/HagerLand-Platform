@@ -6,7 +6,7 @@
 import { addisDay, REMOVED_NAME } from '@/lib/jobs-privacy'
 
 /** The F-5 kinds in the shared clean-up (lib/jobs-cleanup.ts), cleared under the owner's Dry run → Live switch. */
-export const RETENTION_KINDS = ['enquiries', 'service_requests', 'quote_requests', 'property_care', 'managed_properties', 'build_projects', 'partner_applications', 'claims', 'trade_accounts', 'supply_contacts', 'audit_log'] as const
+export const RETENTION_KINDS = ['enquiries', 'service_requests', 'quote_requests', 'property_care', 'managed_properties', 'build_projects', 'partner_applications', 'claims', 'trade_accounts', 'supply_contacts', 'audit_log', 'partner_registrations', 'partner_drafts'] as const
 export type RetentionKind = (typeof RETENTION_KINDS)[number]
 /** Kinds whose rows are deleted in batches (D2, D3), at most DELETE_BATCH ids per call. */
 export const BATCH_KINDS: readonly RetentionKind[] = ['supply_contacts', 'audit_log']
@@ -90,6 +90,12 @@ export const clearedBuildProject = (at: string) => ({ name: REMOVED_NAME, phone:
 export const clearedPartnerApplication = (at: string) => ({ contact_name: REMOVED_NAME, email: REMOVED_EMAIL, phone: null, licence_details: null, message: null, admin_notes: null, ip_hash: null, personal_data_deleted_at: at })
 export const clearedClaim = (at: string) => ({ claimant_name: REMOVED_NAME, claimant_phone: '', claimant_email: null, message: null, admin_notes: null, evidence_paths: [] as string[], personal_data_deleted_at: at })
 export const clearedTradeAccount = (at: string) => ({ phone: '', tin: null, notes: null, admin_note: null, personal_data_deleted_at: at })
+/** S6-1: a partner registration keeps the business name, roles, status and dates; the contact details go. */
+export const clearedPartnerRegistration = (at: string) => ({ contact_name: REMOVED_NAME, phone: '', email: null, tin: null, other_names: null, message: null, admin_note: null, ip_hash: null, personal_data_deleted_at: at })
+/** S6-1: a declined or withdrawn product draft keeps its name and status; photos and private fields go. */
+export const clearedPartnerDraft = (at: string) => ({ photo_paths: [] as string[], partner_sku: null, proposed_price_cents: null, stock_note: null, personal_data_deleted_at: at })
+/** Product drafts cleared once decided this way (approved ones live on as HagerLand products and their sources). */
+export const CLEARED_DRAFT_STATUSES = ['rejected', 'withdrawn']
 /** A do-not-contact supply contact keeps the business link, role, number and flag (D2). */
 export const clearedDoNotContact = { name: REMOVED_NAME, whatsapp: null, telegram: null, email: null, consent_note: null }
 /** An accepted invitation: email and token are no longer needed (token_hash is NOT NULL and unique). */
@@ -105,6 +111,8 @@ export const DELETABLE_PREFIXES = {
   inspection: 'docs/inspection/',
   /** Managed-property documents shared in the owner portal. */
   agency: 'docs/agency/',
+  /** S6-1 partner product draft photos. */
+  partner: 'docs/partner/',
 } as const
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -140,6 +148,9 @@ export const AUDIT_SIX_YEARS = [
   'imports.make_private_and_clear',
   'imports.google_cleared',
   'jobs.switch',
+  'supply.switch',
+  // S6-1: a partner product's source and terms (cost, commission, markup) are money records.
+  'supply.source.',
   'settings.update',
   'staff.role',
 ] as const
@@ -200,6 +211,16 @@ export function auditKeep(action: string): AuditKeep {
 }
 
 /** The always-on housekeeping (D4), for the digest: counts only, lines above 0 only (the digest filters zeros). */
+/**
+ * S6-1: is a partner registration due? Never while an approved partner's relationship is still active; otherwise 24
+ * months after the latest of the registration's and the relationship's last change.
+ */
+export function partnerRegistrationDue(r: { status: string; updated_at: string; relationship_status: string | null; relationship_changed_at: string | null }, cutoff: string, endedRelationship: readonly string[]): boolean {
+  if (r.status === 'approved' && !(r.relationship_status && endedRelationship.includes(r.relationship_status))) return false
+  const last = latest(r.updated_at, r.relationship_changed_at)
+  return last !== null && last < cutoff
+}
+
 export function alwaysOnDigestCounts(r: { errorsDeleted: number; invitationsDeleted: number; invitationsCleared: number } | null): [string, number][] {
   if (!r) return []
   return [

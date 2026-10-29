@@ -3490,6 +3490,379 @@ export type Database = {
           },
         ]
       }
+      partner_invitations: {
+        Row: {
+          accepted_at: string | null
+          accepted_by: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string | null
+          name: string | null
+          org_id: string
+          registration_id: string | null
+          revoked_at: string | null
+          token_hash: string
+        }
+        ComputedFields: never
+        Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by?: string | null
+          name?: string | null
+          org_id: string
+          registration_id?: string | null
+          revoked_at?: string | null
+          token_hash: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string | null
+          name?: string | null
+          org_id?: string
+          registration_id?: string | null
+          revoked_at?: string | null
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'partner_invitations_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'partner_invitations_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'partner_invitations_registration_id_fkey'
+            columns: ['registration_id']
+            isOneToOne: false
+            referencedRelation: 'partner_registrations'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      partner_members: {
+        Row: {
+          created_at: string
+          id: string
+          invitation_id: string | null
+          org_id: string
+          role: string
+          user_id: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          id?: string
+          invitation_id?: string | null
+          org_id: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          invitation_id?: string | null
+          org_id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'partner_members_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'partner_members_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      partner_product_drafts: {
+        Row: {
+          brand_name: string | null
+          category_id: string | null
+          created_at: string
+          created_by_user: string | null
+          decided_at: string | null
+          description: string | null
+          id: string
+          lead_time_days: number | null
+          min_order_qty: number | null
+          name: string
+          org_id: string
+          pack_size: string | null
+          partner_sku: string | null
+          personal_data_deleted_at: string | null
+          photo_paths: string[]
+          product_id: string | null
+          proposed_price_cents: number | null
+          reviewer_note: string | null
+          specs: NonNullable<Json>
+          status: string
+          status_changed_at: string
+          stock_note: string | null
+          submitted_at: string | null
+          unit: string
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          brand_name?: string | null
+          category_id?: string | null
+          created_at?: string
+          created_by_user?: string | null
+          decided_at?: string | null
+          description?: string | null
+          id?: string
+          lead_time_days?: number | null
+          min_order_qty?: number | null
+          name: string
+          org_id: string
+          pack_size?: string | null
+          partner_sku?: string | null
+          personal_data_deleted_at?: string | null
+          photo_paths?: string[]
+          product_id?: string | null
+          proposed_price_cents?: number | null
+          reviewer_note?: string | null
+          specs?: NonNullable<Json>
+          status?: string
+          status_changed_at?: string
+          stock_note?: string | null
+          submitted_at?: string | null
+          unit?: string
+          updated_at?: string
+        }
+        Update: {
+          brand_name?: string | null
+          category_id?: string | null
+          created_at?: string
+          created_by_user?: string | null
+          decided_at?: string | null
+          description?: string | null
+          id?: string
+          lead_time_days?: number | null
+          min_order_qty?: number | null
+          name?: string
+          org_id?: string
+          pack_size?: string | null
+          partner_sku?: string | null
+          personal_data_deleted_at?: string | null
+          photo_paths?: string[]
+          product_id?: string | null
+          proposed_price_cents?: number | null
+          reviewer_note?: string | null
+          specs?: NonNullable<Json>
+          status?: string
+          status_changed_at?: string
+          stock_note?: string | null
+          submitted_at?: string | null
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'partner_product_drafts_category_id_fkey'
+            columns: ['category_id']
+            isOneToOne: false
+            referencedRelation: 'org_product_categories_public'
+            referencedColumns: ['product_category_id']
+          },
+          {
+            foreignKeyName: 'partner_product_drafts_category_id_fkey'
+            columns: ['category_id']
+            isOneToOne: false
+            referencedRelation: 'product_categories'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'partner_product_drafts_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'partner_product_drafts_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'partner_product_drafts_product_id_fkey'
+            columns: ['product_id']
+            isOneToOne: false
+            referencedRelation: 'products'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'partner_product_drafts_product_id_fkey'
+            columns: ['product_id']
+            isOneToOne: false
+            referencedRelation: 'products_public'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'partner_product_drafts_product_id_fkey'
+            columns: ['product_id']
+            isOneToOne: false
+            referencedRelation: 'special_buys_public'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      partner_registrations: {
+        Row: {
+          admin_note: string | null
+          business_name: string
+          category_ids: string[]
+          city_location_id: string | null
+          consent_at: string | null
+          consent_version: string | null
+          contact_name: string
+          created_at: string
+          created_by: string | null
+          decided_at: string | null
+          email: string | null
+          id: string
+          ip_hash: string | null
+          message: string | null
+          org_id: string
+          other_names: string | null
+          personal_data_deleted_at: string | null
+          phone: string
+          reference: string
+          roles: string[]
+          source: string
+          status: string
+          status_changed_at: string
+          subcity_location_id: string | null
+          tin: string | null
+          updated_at: string
+          woreda_location_id: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          admin_note?: string | null
+          business_name: string
+          category_ids?: string[]
+          city_location_id?: string | null
+          consent_at?: string | null
+          consent_version?: string | null
+          contact_name: string
+          created_at?: string
+          created_by?: string | null
+          decided_at?: string | null
+          email?: string | null
+          id?: string
+          ip_hash?: string | null
+          message?: string | null
+          org_id: string
+          other_names?: string | null
+          personal_data_deleted_at?: string | null
+          phone: string
+          reference?: string
+          roles: string[]
+          source: string
+          status?: string
+          status_changed_at?: string
+          subcity_location_id?: string | null
+          tin?: string | null
+          updated_at?: string
+          woreda_location_id?: string | null
+        }
+        Update: {
+          admin_note?: string | null
+          business_name?: string
+          category_ids?: string[]
+          city_location_id?: string | null
+          consent_at?: string | null
+          consent_version?: string | null
+          contact_name?: string
+          created_at?: string
+          created_by?: string | null
+          decided_at?: string | null
+          email?: string | null
+          id?: string
+          ip_hash?: string | null
+          message?: string | null
+          org_id?: string
+          other_names?: string | null
+          personal_data_deleted_at?: string | null
+          phone?: string
+          reference?: string
+          roles?: string[]
+          source?: string
+          status?: string
+          status_changed_at?: string
+          subcity_location_id?: string | null
+          tin?: string | null
+          updated_at?: string
+          woreda_location_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'partner_registrations_city_location_id_fkey'
+            columns: ['city_location_id']
+            isOneToOne: false
+            referencedRelation: 'locations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'partner_registrations_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'partner_registrations_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'partner_registrations_subcity_location_id_fkey'
+            columns: ['subcity_location_id']
+            isOneToOne: false
+            referencedRelation: 'locations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'partner_registrations_woreda_location_id_fkey'
+            columns: ['woreda_location_id']
+            isOneToOne: false
+            referencedRelation: 'locations'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       pillar_gate_checks: {
         Row: {
           actor: string
@@ -3822,6 +4195,131 @@ export type Database = {
             columns: ['parent_id']
             isOneToOne: false
             referencedRelation: 'product_categories'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      product_sources: {
+        Row: {
+          branch_id: string | null
+          commission_bps: number | null
+          cost_price_cents: number | null
+          created_at: string
+          created_by: string | null
+          credit_days: number | null
+          draft_id: string | null
+          id: string
+          is_primary: boolean
+          markup_bps: number | null
+          org_id: string
+          partner_sku: string | null
+          product_id: string
+          settlement_timing: string | null
+          status: string
+          updated_at: string
+          valid_until: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          branch_id?: string | null
+          commission_bps?: number | null
+          cost_price_cents?: number | null
+          created_at?: string
+          created_by?: string | null
+          credit_days?: number | null
+          draft_id?: string | null
+          id?: string
+          is_primary?: boolean
+          markup_bps?: number | null
+          org_id: string
+          partner_sku?: string | null
+          product_id: string
+          settlement_timing?: string | null
+          status?: string
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Update: {
+          branch_id?: string | null
+          commission_bps?: number | null
+          cost_price_cents?: number | null
+          created_at?: string
+          created_by?: string | null
+          credit_days?: number | null
+          draft_id?: string | null
+          id?: string
+          is_primary?: boolean
+          markup_bps?: number | null
+          org_id?: string
+          partner_sku?: string | null
+          product_id?: string
+          settlement_timing?: string | null
+          status?: string
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'product_sources_branch_id_fkey'
+            columns: ['branch_id']
+            isOneToOne: false
+            referencedRelation: 'org_branches'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'product_sources_branch_id_fkey'
+            columns: ['branch_id']
+            isOneToOne: false
+            referencedRelation: 'org_branches_public'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'product_sources_draft_id_fkey'
+            columns: ['draft_id']
+            isOneToOne: false
+            referencedRelation: 'partner_my_products'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'product_sources_draft_id_fkey'
+            columns: ['draft_id']
+            isOneToOne: false
+            referencedRelation: 'partner_product_drafts'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'product_sources_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'product_sources_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'product_sources_product_id_fkey'
+            columns: ['product_id']
+            isOneToOne: false
+            referencedRelation: 'products'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'product_sources_product_id_fkey'
+            columns: ['product_id']
+            isOneToOne: false
+            referencedRelation: 'products_public'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'product_sources_product_id_fkey'
+            columns: ['product_id']
+            isOneToOne: false
+            referencedRelation: 'special_buys_public'
             referencedColumns: ['id']
           },
         ]
@@ -6275,6 +6773,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           credit_days: number | null
+          default_markup_bps: number | null
           document_path: string | null
           end_date: string | null
           id: string
@@ -6282,6 +6781,7 @@ export type Database = {
           notes: string | null
           org_id: string
           payment_terms: string | null
+          settlement_timing: string | null
           start_date: string
           status: string
           terminated_reason: string | null
@@ -6293,6 +6793,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           credit_days?: number | null
+          default_markup_bps?: number | null
           document_path?: string | null
           end_date?: string | null
           id?: string
@@ -6300,6 +6801,7 @@ export type Database = {
           notes?: string | null
           org_id: string
           payment_terms?: string | null
+          settlement_timing?: string | null
           start_date: string
           status?: string
           terminated_reason?: string | null
@@ -6310,6 +6812,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           credit_days?: number | null
+          default_markup_bps?: number | null
           document_path?: string | null
           end_date?: string | null
           id?: string
@@ -6317,6 +6820,7 @@ export type Database = {
           notes?: string | null
           org_id?: string
           payment_terms?: string | null
+          settlement_timing?: string | null
           start_date?: string
           status?: string
           terminated_reason?: string | null
@@ -7947,6 +8451,56 @@ export type Database = {
           },
         ]
       }
+      partner_my_products: {
+        Row: {
+          brand_name: string | null
+          category_id: string | null
+          created_at: string | null
+          decided_at: string | null
+          id: string | null
+          name: string | null
+          org_id: string | null
+          pack_size: string | null
+          product_name: string | null
+          product_status: string | null
+          status: string | null
+          status_changed_at: string | null
+          submitted_at: string | null
+          unit: string | null
+          updated_at: string | null
+        }
+        ComputedFields: never
+        Relationships: [
+          {
+            foreignKeyName: 'partner_product_drafts_category_id_fkey'
+            columns: ['category_id']
+            isOneToOne: false
+            referencedRelation: 'org_product_categories_public'
+            referencedColumns: ['product_category_id']
+          },
+          {
+            foreignKeyName: 'partner_product_drafts_category_id_fkey'
+            columns: ['category_id']
+            isOneToOne: false
+            referencedRelation: 'product_categories'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'partner_product_drafts_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'partner_product_drafts_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       pillars_public: {
         Row: {
           aggregate_enabled: boolean | null
@@ -8473,7 +9027,10 @@ export type Database = {
       }
       can_edit_entity: { Args: { p_entity_id: string; p_entity_type: string }; Returns: boolean }
       category_descendants: { Args: { root: string; tbl: string }; Returns: string[] }
-      choose_service_request_quote: { Args: { p_actor_user_id?: string; p_match_id: string; p_request_id: string; p_token_hash?: string }; Returns: Json }
+      choose_service_request_quote: {
+        Args: { p_actor_user_id?: string; p_match_id: string; p_request_id: string; p_token_hash?: string }
+        Returns: Json
+      }
       country_currency: { Args: { p_country: string }; Returns: string }
       f_unaccent: { Args: { '': string }; Returns: string }
       find_similar_organisations: { Args: { p_limit?: number; p_location_id?: string; p_name: string }; Returns: Json }
@@ -8483,6 +9040,7 @@ export type Database = {
       is_active_user: { Args: Record<PropertyKey, never>; Returns: boolean }
       is_end_user: { Args: Record<PropertyKey, never>; Returns: boolean }
       is_org_member: { Args: { org: string; roles?: Database['public']['Enums']['org_role'][] }; Returns: boolean }
+      is_partner_org: { Args: { p_org: string }; Returns: boolean }
       is_trade_account: { Args: Record<PropertyKey, never>; Returns: boolean }
       location_summary: { Args: { p_location_id: string; p_purpose: Database['public']['Enums']['listing_purpose'] }; Returns: Json }
       locations_descendants: { Args: { root: string }; Returns: string[] }
@@ -8491,6 +9049,31 @@ export type Database = {
         Returns: Database['public']['Enums']['vertical_status']
       }
       next_reference: { Args: { p_prefix: string }; Returns: string }
+      partner_register: {
+        Args: {
+          p_actor: string
+          p_business_name: string
+          p_category_ids: string[]
+          p_city: string
+          p_consent_version: string
+          p_contact_name: string
+          p_email: string
+          p_ip_hash: string
+          p_message: string
+          p_other_names: string
+          p_phone: string
+          p_roles: string[]
+          p_source: string
+          p_subcity: string
+          p_tin: string
+          p_woreda: string
+        }
+        Returns: {
+          id: string
+          org_id: string
+          reference: string
+        }[]
+      }
       pillar_active_providers: { Args: { p_pillar: string }; Returns: number }
       popular_locations: { Args: { p_limit?: number; p_purpose?: Database['public']['Enums']['listing_purpose'] }; Returns: Json }
       product_trade_prices: {

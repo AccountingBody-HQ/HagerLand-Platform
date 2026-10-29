@@ -1409,6 +1409,110 @@ begin
 end $$;
 select pg_temp.record_check('F-5 checks left nothing behind', not exists (select 1 from public.managed_properties where title like 'RLS TEST F5%'));
 
+-- ---------- S6-1 (0048): private partner registration, partner area and product drafts ----------
+reset role;
+select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);
+-- Two private partners (A for user 1, B for user 2), each with one draft. Inserted directly (fixed references), so no
+-- reference number is used up.
+insert into public.organisations (id, kind, name, slug, status, source) values
+  ('00000000-0000-4000-8000-0000000006a1', 'manufacturer', 'RLS TEST S6 partner A', 'rls-test-s6-partner-a', 'draft', 'admin'),
+  ('00000000-0000-4000-8000-0000000006b1', 'supplier', 'RLS TEST S6 partner B', 'rls-test-s6-partner-b', 'draft', 'admin');
+insert into public.partner_registrations (reference, roles, business_name, contact_name, phone, org_id, source, status) values
+  ('HLB-RLS-A', array['manufacturer'], 'RLS TEST S6 partner A', 'A Test', '+251911000001', '00000000-0000-4000-8000-0000000006a1', 'staff', 'approved'),
+  ('HLB-RLS-B', array['supplier'], 'RLS TEST S6 partner B', 'B Test', '+251911000002', '00000000-0000-4000-8000-0000000006b1', 'staff', 'approved');
+insert into public.partner_members (org_id, user_id) values
+  ('00000000-0000-4000-8000-0000000006a1', '00000000-0000-4000-8000-000000000001'),
+  ('00000000-0000-4000-8000-0000000006b1', '00000000-0000-4000-8000-000000000002');
+insert into public.partner_product_drafts (org_id, name, partner_sku, proposed_price_cents, status) values
+  ('00000000-0000-4000-8000-0000000006a1', 'RLS TEST S6 draft A', 'SKU-A', 10000, 'submitted'),
+  ('00000000-0000-4000-8000-0000000006b1', 'RLS TEST S6 draft B', 'SKU-B', 20000, 'draft');
+
+set role anon;
+select pg_temp.record_check('Anonymous cannot read ' || name, pg_temp.read_denied(name))
+from unnest(array['partner_registrations', 'partner_members', 'partner_invitations', 'partner_product_drafts', 'product_sources', 'partner_my_products']) as t(name);
+
+reset role;
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000001", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', false);
+select pg_temp.record_check('A signed-in user cannot read ' || name || ' directly', pg_temp.read_denied(name))
+from unnest(array['partner_registrations', 'partner_members', 'partner_invitations', 'partner_product_drafts', 'product_sources']) as t(name);
+select pg_temp.record_check('A partner member sees only their own partner''s drafts',
+  (select count(*) from public.partner_my_products where name like 'RLS TEST S6%') = 1
+  and (select name from public.partner_my_products where name like 'RLS TEST S6%') = 'RLS TEST S6 draft A');
+select pg_temp.record_check('The partner view never carries prices or product codes',
+  not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'partner_my_products' and column_name in ('partner_sku', 'proposed_price_cents')));
+select pg_temp.record_check('A partner member cannot ' || label, pg_temp.write_denied(sql)) from (values
+  ('add a draft directly', $q$insert into public.partner_product_drafts (org_id, name) values ('00000000-0000-4000-8000-0000000006a1', 'RLS TEST S6 direct')$q$),
+  ('write a product source', $q$insert into public.product_sources (product_id, org_id) select id, '00000000-0000-4000-8000-0000000006a1' from public.products limit 1$q$),
+  ('make themselves a member of another partner', $q$insert into public.partner_members (org_id, user_id) values ('00000000-0000-4000-8000-0000000006b1', '00000000-0000-4000-8000-000000000001')$q$),
+  ('approve their own registration', $q$update public.partner_registrations set status = 'approved'$q$)
+) as w(label, sql);
+reset role;
+-- The view cannot be written at all (read-only grant, and a view over two tables).
+create or replace function pg_temp.view_write_refused(sql text)
+returns boolean language plpgsql as $$
+begin
+  execute sql;
+  return false;
+exception when insufficient_privilege or feature_not_supported or object_not_in_prerequisite_state then
+  return true;
+end $$;
+set role authenticated;
+select pg_temp.record_check('A partner member cannot change a draft through the view',
+  pg_temp.view_write_refused($q$update public.partner_my_products set name = 'RLS TEST S6 hacked' where name like 'RLS TEST S6%'$q$));
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000002", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000002', false);
+select pg_temp.record_check('The other partner sees only theirs',
+  (select string_agg(name, ',') from public.partner_my_products where name like 'RLS TEST S6%') = 'RLS TEST S6 draft B');
+reset role;
+-- A suspended partner's member sees nothing.
+update public.partner_registrations set status = 'suspended' where reference = 'HLB-RLS-B';
+set role authenticated;
+select pg_temp.record_check('A suspended partner''s member sees no drafts', not exists (select 1 from public.partner_my_products where name like 'RLS TEST S6%'));
+reset role;
+select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);
+
+create or replace function pg_temp.refused(sql text)
+returns boolean language plpgsql as $$
+begin
+  execute sql;
+  return false;
+exception when check_violation then
+  return true;
+end $$;
+-- Every path that makes a business public ends in a status change or a business member: both are refused for partners.
+select pg_temp.record_check('Partner business: ' || label || ' is refused', pg_temp.refused(sql)) from (values
+  ('publishing (admin, moderation, imports)', $q$update public.organisations set status = 'published' where id = '00000000-0000-4000-8000-0000000006a1'$q$),
+  ('sending for review (owner resubmit)', $q$update public.organisations set status = 'pending_review' where id = '00000000-0000-4000-8000-0000000006a1'$q$),
+  ('adding a business member (team invitation, claim approval)', $q$insert into public.organisation_members (org_id, user_id, role) values ('00000000-0000-4000-8000-0000000006a1', '00000000-0000-4000-8000-000000000001', 'owner')$q$)
+) as w(label, sql);
+insert into public.products (id, slug, name, category_id, seller_org_id)
+select '00000000-0000-4000-8000-0000000006c1', 'rls-test-s6-product', 'RLS TEST S6 product', (select id from public.product_categories order by sort limit 1), id
+from public.organisations where slug = 'hagerland-supply';
+insert into public.products (id, slug, name, category_id, seller_org_id)
+select '00000000-0000-4000-8000-0000000006c2', 'rls-test-s6-product-2', 'RLS TEST S6 product 2', (select id from public.product_categories order by sort limit 1), '00000000-0000-4000-8000-0000000000b1';
+select pg_temp.record_check('A partner source on a product sold by HagerLand Supply is accepted',
+  not pg_temp.refused($q$insert into public.product_sources (product_id, org_id) values ('00000000-0000-4000-8000-0000000006c1', '00000000-0000-4000-8000-0000000006a1')$q$));
+select pg_temp.record_check('Partner-sourced product: ' || label || ' is refused', pg_temp.refused(sql)) from (values
+  ('a source on a product sold by another business', $q$insert into public.product_sources (product_id, org_id) values ('00000000-0000-4000-8000-0000000006c2', '00000000-0000-4000-8000-0000000006a1')$q$),
+  ('moving its seller away from HagerLand', $q$update public.products set seller_org_id = '00000000-0000-4000-8000-0000000006a1' where id = '00000000-0000-4000-8000-0000000006c1'$q$),
+  ('making HagerLand itself a partner source', $q$insert into public.product_sources (product_id, org_id) select '00000000-0000-4000-8000-0000000006c1', id from public.organisations where slug = 'hagerland-developments'$q$)
+) as w(label, sql);
+select pg_temp.record_check('A product source makes its business a partner business too (publishing refused)',
+  pg_temp.refused($q$update public.organisations set status = 'published' where id = '00000000-0000-4000-8000-0000000006b1'$q$));
+update public.organisations set status = 'paused' where id = '00000000-0000-4000-8000-0000000000b1';
+select pg_temp.record_check('Ordinary businesses can still be published (the rule is for partners only)',
+  not pg_temp.refused($q$update public.organisations set status = 'published' where id = '00000000-0000-4000-8000-0000000000b1'$q$));
+delete from public.product_sources where product_id in ('00000000-0000-4000-8000-0000000006c1', '00000000-0000-4000-8000-0000000006c2');
+delete from public.products where id in ('00000000-0000-4000-8000-0000000006c1', '00000000-0000-4000-8000-0000000006c2');
+delete from public.partner_product_drafts where name like 'RLS TEST S6%';
+delete from public.partner_members where org_id in ('00000000-0000-4000-8000-0000000006a1', '00000000-0000-4000-8000-0000000006b1');
+delete from public.partner_registrations where reference in ('HLB-RLS-A', 'HLB-RLS-B');
+delete from public.organisations where id in ('00000000-0000-4000-8000-0000000006a1', '00000000-0000-4000-8000-0000000006b1');
+select pg_temp.record_check('S6-1 checks left nothing behind',
+  not exists (select 1 from public.partner_registrations where reference like 'HLB-RLS-%')
+  and not exists (select 1 from public.products where slug like 'rls-test-s6%')
+  and not exists (select 1 from public.organisations where slug like 'rls-test-s6%'));
+
 -- ---------- Clean up ----------
 reset role;
 select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);

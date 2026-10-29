@@ -123,6 +123,8 @@ export const KIND_LABEL: Record<CleanupKind, string> = {
   trade_accounts: 'trade account applications',
   supply_contacts: 'supply contacts',
   audit_log: 'audit log entries',
+  partner_registrations: 'partner registrations',
+  partner_drafts: 'partner product drafts',
 }
 
 /** The two Phase 3 counts, in the owner's words (AB's names: "kept: hired through HagerLand", "kept: period not set"). */

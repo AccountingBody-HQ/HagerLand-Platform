@@ -37,6 +37,7 @@ import { purgeExpiredCallbackBlocks, waitingCallbacks } from '@/lib/callbacks-da
 import { asJobActor } from '@/lib/job-status-actor'
 import { quietJobCount } from '@/lib/jobs-insights-data'
 import { feesOwedOver30Days } from '@/lib/jobs-fee-report-data'
+import { REGISTRATION_WAITING } from '@/lib/supply/partner-rules'
 
 const DAY = 86_400_000
 const BATCH = 500
@@ -312,6 +313,8 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent' | 'st
     ['Of which by phone (24 h)', db.from('job_applications').select('id', head).eq('channel', 'phone').gte('created_at', since)],
     ['Worker register: joined or updated (24 h)', db.from('worker_register').select('id', head).gte('last_updated_at', since)],
     ['Trade account applications to decide', db.from('trade_accounts').select('id', head).eq('status', 'pending')],
+    ['Partner registrations waiting', db.from('partner_registrations').select('id', head).in('status', REGISTRATION_WAITING)],
+    ['Partner product drafts waiting', db.from('partner_product_drafts').select('id', head).eq('status', 'submitted')],
     ['Emails not yet delivered (see admin → Email problems)', db.from('email_outbox').select('id', head).in('status', ['failed', 'gave_up'])],
     ['Listings expiring within 7 days', db.from('properties').select('id', head).eq('status', 'published').lte('expires_at', iso(now + 7 * DAY))],
     ['Listings expired today', s.expired],

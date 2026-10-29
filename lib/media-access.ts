@@ -4,6 +4,8 @@ import { getUser, getMemberships } from '@/lib/auth'
 import { userCanEditEntity } from '@/lib/storage'
 import type { MediaEntity, PrivateArea } from '@/lib/media'
 import { getServerSupabase } from '@/lib/supabase/server'
+import { ownDraft } from '@/lib/supply/partner-access'
+import { PARTNER_EDITABLE, type DraftStatus } from '@/lib/supply/partner-rules'
 
 export type UploadScope =
   | { purpose: 'media'; entityType: MediaEntity; entityId: string }
@@ -32,6 +34,11 @@ export async function canUpload(scope: UploadScope): Promise<boolean> {
       return (await getUser())?.id === scope.id
     case 'verification':
       return (await getMemberships()).some((m) => m.org.id === scope.id && (m.role === 'owner' || m.role === 'admin'))
+    case 'partner': {
+      // S6-1 partner portal photos: a partner member, into a draft folder that is new or their own partner's.
+      const own = await ownDraft(scope.id)
+      return Boolean(own && (!own.draft || PARTNER_EDITABLE.includes(own.draft.status as DraftStatus)))
+    }
     case 'brochure':
       return (await getUser()) ? userCanEditEntity('development', scope.id) : false
     default:
