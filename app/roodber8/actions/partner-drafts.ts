@@ -16,6 +16,10 @@ import { publishPrivateImage } from '@/lib/storage'
 import { percentToBps } from '@/lib/supply/money'
 import { ownPhotoPaths, parseSpecLines, REVIEWABLE, type DraftStatus } from '@/lib/supply/partner-rules'
 import { log } from '@/lib/log'
+import type { Database } from '@/lib/database.types'
+
+// The generated types mark every SQL argument as required; these may be NULL, which partner_draft_approve (0050) accepts.
+type ApproveArgs = Database['public']['Functions']['partner_draft_approve']['Args']
 
 type Msg = ActionResult<{ message: string }>
 
@@ -114,8 +118,7 @@ export async function approveDraftAction(_prev: Msg | null, formData: FormData):
   if (!seller) return fail('The HagerLand Supply organisation was not found.')
   const actor = (await adminActor()).slice(0, 120)
 
-  let productId: string
-  let created = false
+  let existingId: string | null = null
   if (d.existing_product) {
     const key = d.existing_product.trim()
     const { data: existing } = z.uuid().safeParse(key).success
@@ -123,59 +126,48 @@ export async function approveDraftAction(_prev: Msg | null, formData: FormData):
       : await db.from('products').select('id, seller_org_id').eq('short_id', key).maybeSingle()
     if (!existing) return fail('Please check the highlighted fields.', { existing_product: 'No product with this ID.' })
     if (existing.seller_org_id !== seller.id) return fail('Please check the highlighted fields.', { existing_product: 'Only a HagerLand Supply product can be linked.' })
-    productId = existing.id
-  } else {
-    if (!d.category_id) return fail('Please check the highlighted fields.', { category_id: 'Choose a category' })
-    let brandId: string | null = null
-    if (d.brand_name) {
-      const slug = slugify(d.brand_name, 60)
-      const { data: brand } = await db.from('brands').select('id').eq('slug', slug).maybeSingle()
-      brandId = brand?.id ?? (await db.from('brands').insert({ name: d.brand_name, slug }).select('id').single()).data?.id ?? null
-    }
-    const { data: product, error } = await db
-      .from('products')
-      .insert({
-        name: d.name,
-        slug: `${slugify(d.name, 70)}-${shortId(4)}`,
-        category_id: d.category_id,
-        brand_id: brandId,
-        seller_org_id: seller.id,
-        description: d.description ?? null,
-        specs: parseSpecLines(d.specs).filter((s) => s.value),
-        unit: d.unit,
-        pack_size: d.pack_size ?? null,
-        min_order_qty: d.min_order_qty ?? 1,
-        lead_time_days: d.lead_time_days ?? null,
-        price_type: 'on_request',
-        stock_status: 'available_on_request',
-        status: 'draft',
-      })
-      .select('id')
-      .single()
-    if (error || !product) return fail('Could not create the product.')
-    productId = product.id
-    created = true
-    await audit('product.create', { type: 'product', id: productId, label: d.name }, { from_partner_draft: draft.id })
+    existingId = existing.id
+  } else if (!d.category_id) {
+    return fail('Please check the highlighted fields.', { category_id: 'Choose a category' })
   }
+  // S6-3: one model per source (the database refuses both, product_sources_one_model).
+  if (commissionBps !== null && markupBps !== null) return fail('Please check the highlighted fields.', { markup: 'Use a commission or a markup for one source, not both.' })
 
-  const { data: primary } = await db.from('product_sources').select('id').eq('product_id', productId).eq('is_primary', true).maybeSingle()
-  const { error: sourceError } = await db.from('product_sources').insert({
-    product_id: productId,
-    org_id: draft.org_id,
-    draft_id: draft.id,
-    partner_sku: draft.partner_sku,
-    cost_price_cents: d.cost_price === undefined ? null : Math.round(d.cost_price * 100),
-    commission_bps: commissionBps,
-    markup_bps: markupBps,
-    settlement_timing: d.settlement_timing ?? null,
-    credit_days: d.credit_days ?? null,
-    is_primary: !primary,
-    created_by: actor,
-  })
-  if (sourceError) {
-    log.error('partner-drafts', 'source insert failed', sourceError)
-    return fail(sourceError.code === '23505' ? 'This partner is already a source of that product.' : created ? 'The product draft was created, but the source could not be saved. Open the draft again to retry with “Existing product”.' : 'Could not save the source.')
+  // S6-3 (D7): the product (created or linked), its private source and the approved draft in ONE database step, all or
+  // nothing; a second tap finds the draft already approved. Slugs are made here exactly as before.
+  const { data: step, error: stepError } = await db
+    .rpc('partner_draft_approve', {
+      p_draft: draft.id,
+      p_existing_product: existingId,
+      p_name: d.name,
+      p_category: d.category_id ?? null,
+      p_brand_name: d.brand_name ?? null,
+      p_unit: d.unit,
+      p_pack_size: d.pack_size ?? null,
+      p_min_order: d.min_order_qty ?? null,
+      p_lead_time: d.lead_time_days ?? null,
+      p_description: d.description ?? null,
+      p_specs: parseSpecLines(d.specs).filter((s) => s.value),
+      p_cost_cents: d.cost_price === undefined ? null : Math.round(d.cost_price * 100),
+      p_commission_bps: commissionBps,
+      p_markup_bps: markupBps,
+      p_settlement_timing: d.settlement_timing ?? null,
+      p_credit_days: d.credit_days ?? null,
+      p_actor: actor,
+      p_product_slug: `${slugify(d.name, 70)}-${shortId(4)}`,
+      p_brand_slug: d.brand_name ? slugify(d.brand_name, 60) : null,
+    } as unknown as ApproveArgs)
+    .single()
+  const done = step as { product_id: string; created: boolean } | null
+  if (stepError || !done) {
+    log.error('partner-drafts', 'approval failed', stepError)
+    if (stepError?.code === '23505') return fail('This partner is already a source of that product.')
+    if (stepError?.code === '23514') return fail(stepError.message)
+    return fail('Could not create the product.')
   }
+  const productId = done.product_id
+  const created = done.created
+  if (created) await audit('product.create', { type: 'product', id: productId, label: d.name }, { from_partner_draft: draft.id })
   await audit('supply.source.create', { type: 'product', id: productId, label: d.name }, { partner: draft.org_id, draft: draft.id })
 
   let copied = 0
@@ -203,13 +195,6 @@ export async function approveDraftAction(_prev: Msg | null, formData: FormData):
     }
   }
 
-  const now = new Date().toISOString()
-  const { error: doneError } = await db
-    .from('partner_product_drafts')
-    .update({ status: 'approved', product_id: productId, status_changed_at: now, decided_at: now })
-    .eq('id', draft.id)
-    .eq('status', 'submitted')
-  if (doneError) return fail('The product and source were saved, but the draft could not be marked approved. Reload the page.')
   await audit('supply.draft.approve', { type: 'partner_product_draft', id: draft.id, label: d.name }, { product: productId, created, photos: copied })
   refresh(draft.id)
   revalidatePath('/roodber8/products')

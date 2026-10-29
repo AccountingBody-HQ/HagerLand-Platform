@@ -303,7 +303,12 @@ test('owner approves: a HagerLand Supply product draft and a private source; pub
   await page.goto(`/roodber8/supply/product-drafts/${shared.draftId}`)
   await expect(page.getByText('Partner’s product code (owner only)')).toBeVisible()
   await expect(page.locator('#ap-cost')).toHaveValue('777.25')
+  // S6-3: one model per source, so a markup only (a commission as well is refused).
   await page.fill('#ap-comm', '5')
+  await page.fill('#ap-markup', '12.5')
+  await page.getByRole('button', { name: 'Approve and create the product draft' }).click()
+  await expect(page.getByText('Use a commission or a markup for one source, not both.')).toBeVisible()
+  await page.fill('#ap-comm', '')
   await page.fill('#ap-markup', '12.5')
   await page.locator('#ap-settle').selectOption('after_delivery')
   await page.getByRole('button', { name: 'Approve and create the product draft' }).click()
@@ -313,7 +318,7 @@ test('owner approves: a HagerLand Supply product draft and a private source; pub
   expect(product).toMatchObject({ status: 'draft', sku: null, price_type: 'on_request', seller: { slug: 'hagerland-supply', is_hagerland: true }, brand: { name: 'Zebra' } })
   shared.productSlug = product!.slug
   const { data: source } = await db().from('product_sources').select('org_id, partner_sku, cost_price_cents, commission_bps, markup_bps, settlement_timing, is_primary').eq('product_id', shared.productId).single()
-  expect(source).toEqual({ org_id: shared.orgId, partner_sku: SKU, cost_price_cents: 77725, commission_bps: 500, markup_bps: 1250, settlement_timing: 'after_delivery', is_primary: true })
+  expect(source).toEqual({ org_id: shared.orgId, partner_sku: SKU, cost_price_cents: 77725, commission_bps: null, markup_bps: 1250, settlement_timing: 'after_delivery', is_primary: true })
   const { data: media } = await db().from('media').select('storage_path, status').eq('entity_type', 'product').eq('entity_id', shared.productId)
   expect(media).toHaveLength(2)
   expect(media!.every((m) => m.storage_path.endsWith('.webp') && m.status === 'approved')).toBe(true)

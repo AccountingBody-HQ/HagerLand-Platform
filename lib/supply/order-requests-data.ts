@@ -19,6 +19,7 @@ import {
 import { formatETBCents } from '@/lib/format'
 import { log } from '@/lib/log'
 import { addisDateTime, itemList, type OrderRequestStatus } from '@/lib/supply/order-requests'
+import { resolveTerms, type SuggestedTerms } from '@/lib/supply/terms'
 
 export const PAYMENT_DETAILS_KEY = 'supply_payment_details'
 
@@ -173,7 +174,17 @@ export interface AdminLine {
   /** Partners that can supply this product (active product sources). Names only. */
   partners: { orgId: string; name: string }[]
   /** Owner only. */
-  money?: { unitPriceCents: number | null; costCents: number | null; source: string | null }
+  money?: {
+    unitPriceCents: number | null
+    costCents: number | null
+    source: string | null
+    /** S6-3: the terms stored at reservation, and what HagerLand pays the partner per unit. */
+    termsModel: string | null
+    termsBps: number | null
+    payableUnitCents: number | null
+    /** S6-3: the suggested price from the held partner's terms (lib/supply/terms.ts, the same as the database). */
+    suggested: SuggestedTerms | null
+  }
 }
 
 export interface AdminOrderRequest {
@@ -226,6 +237,21 @@ export async function loadAdminOrderRequest(id: string, owner: boolean): Promise
     ]),
   )
   const orgName = (o: unknown) => (o as { name: string } | null)?.name ?? ''
+  // Owner only: each held partner's terms for its product (source first, then the active agreement).
+  const heldOrgs = Array.from(new Set((holds ?? []).filter((h) => h.status === 'held').map((h) => h.org_id)))
+  const [{ data: terms }, { data: agreements }] = owner && heldOrgs.length
+    ? must(await Promise.all([
+        db.from('product_sources').select('product_id, org_id, cost_price_cents, markup_bps, commission_bps').in('product_id', productIds).in('org_id', heldOrgs),
+        db.from('supply_agreements').select('org_id, default_markup_bps, commission_rate_bps').in('org_id', heldOrgs).eq('status', 'active'),
+      ]))
+    : [{ data: [] as { product_id: string; org_id: string; cost_price_cents: number | null; markup_bps: number | null; commission_bps: number | null }[] }, { data: [] as { org_id: string; default_markup_bps: number | null; commission_rate_bps: number | null }[] }]
+  const suggestionFor = (productId: string, lineId: string): SuggestedTerms | null => {
+    const hold = (holds ?? []).find((h) => h.order_request_line_id === lineId && h.status === 'held')
+    if (!hold) return null
+    const src = (terms ?? []).find((t) => t.product_id === productId && t.org_id === hold.org_id)
+    const ag = (agreements ?? []).find((a) => a.org_id === hold.org_id)
+    return resolveTerms(src ? { costCents: src.cost_price_cents, markupBps: src.markup_bps, commissionBps: src.commission_bps } : null, ag ? { defaultMarkupBps: ag.default_markup_bps, commissionBps: ag.commission_rate_bps } : null)
+  }
   const view: AdminOrderRequest = {
     id: r.id,
     reference: r.reference,
@@ -253,7 +279,19 @@ export async function loadAdminOrderRequest(id: string, owner: boolean): Promise
         .filter((h) => h.order_request_line_id === l.id)
         .map((h) => ({ id: h.id, orgId: h.org_id, partner: orgName(h.org), qty: Number(h.qty), heldUntil: h.held_until, status: h.status, partnerReference: h.partner_reference, note: h.note })),
       partners: (sources ?? []).filter((s) => s.product_id === l.product_id).map((s) => ({ orgId: s.org_id, name: orgName(s.org) })),
-      ...(owner ? { money: { unitPriceCents: l.customer_unit_price_cents, costCents: l.cost_price_cents, source: l.source_org_id ? orgName((sources ?? []).find((s) => s.org_id === l.source_org_id)?.org) || null : null } } : {}),
+      ...(owner
+        ? {
+            money: {
+              unitPriceCents: l.customer_unit_price_cents,
+              costCents: l.cost_price_cents,
+              source: l.source_org_id ? orgName((sources ?? []).find((s) => s.org_id === l.source_org_id)?.org) || null : null,
+              termsModel: l.terms_model,
+              termsBps: l.terms_bps,
+              payableUnitCents: l.partner_payable_unit_cents,
+              suggested: suggestionFor(l.product_id, l.id),
+            },
+          }
+        : {}),
     })),
     events: (events ?? []).map((e) => ({ at: e.created_at, type: e.event_type, from: e.from_status, to: e.to_status, reason: e.reason, actor: e.actor })),
     orders: (orders ?? []).map((o) => ({ id: o.id, reference: o.reference, status: o.status, supplier: orgName(o.org) })),

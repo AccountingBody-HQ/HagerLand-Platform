@@ -2840,10 +2840,13 @@ export type Database = {
           id: string
           item_name: string
           order_request_id: string
+          partner_payable_unit_cents: number | null
           product_id: string
           quantity: number
           source_org_id: string | null
           status: string
+          terms_bps: number | null
+          terms_model: string | null
           unit: string
           updated_at: string
           vat_rate_bps: number | null
@@ -2858,10 +2861,13 @@ export type Database = {
           id?: string
           item_name: string
           order_request_id: string
+          partner_payable_unit_cents?: number | null
           product_id: string
           quantity: number
           source_org_id?: string | null
           status?: string
+          terms_bps?: number | null
+          terms_model?: string | null
           unit: string
           updated_at?: string
           vat_rate_bps?: number | null
@@ -2875,10 +2881,13 @@ export type Database = {
           id?: string
           item_name?: string
           order_request_id?: string
+          partner_payable_unit_cents?: number | null
           product_id?: string
           quantity?: number
           source_org_id?: string | null
           status?: string
+          terms_bps?: number | null
+          terms_model?: string | null
           unit?: string
           updated_at?: string
           vat_rate_bps?: number | null
@@ -4175,6 +4184,151 @@ export type Database = {
             columns: ['woreda_location_id']
             isOneToOne: false
             referencedRelation: 'locations'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      partner_settlement_items: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          created_by: string | null
+          id: string
+          kind: string
+          org_id: string
+          reason: string | null
+          settlement_id: string | null
+          settlement_void: boolean
+          supply_order_id: string | null
+          upfront_reason: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind: string
+          org_id: string
+          reason?: string | null
+          settlement_id?: string | null
+          settlement_void?: boolean
+          supply_order_id?: string | null
+          upfront_reason?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind?: string
+          org_id?: string
+          reason?: string | null
+          settlement_id?: string | null
+          settlement_void?: boolean
+          supply_order_id?: string | null
+          upfront_reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'partner_settlement_items_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'partner_settlement_items_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations_public'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'partner_settlement_items_settlement_id_fkey'
+            columns: ['settlement_id']
+            isOneToOne: false
+            referencedRelation: 'partner_settlements'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'partner_settlement_items_supply_order_id_fkey'
+            columns: ['supply_order_id']
+            isOneToOne: false
+            referencedRelation: 'supply_orders'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      partner_settlements: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          method: string | null
+          org_id: string
+          paid_on: string | null
+          period_from: string
+          period_to: string
+          reference: string
+          status: string
+          total_cents: number
+          transfer_reference: string | null
+          updated_at: string
+          void_reason: string | null
+        }
+        ComputedFields: never
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          method?: string | null
+          org_id: string
+          paid_on?: string | null
+          period_from: string
+          period_to: string
+          reference?: string
+          status?: string
+          total_cents?: number
+          transfer_reference?: string | null
+          updated_at?: string
+          void_reason?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          method?: string | null
+          org_id?: string
+          paid_on?: string | null
+          period_from?: string
+          period_to?: string
+          reference?: string
+          status?: string
+          total_cents?: number
+          transfer_reference?: string | null
+          updated_at?: string
+          void_reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'partner_settlements_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'partner_settlements_org_id_fkey'
+            columns: ['org_id']
+            isOneToOne: false
+            referencedRelation: 'organisations_public'
             referencedColumns: ['id']
           },
         ]
@@ -7624,6 +7778,7 @@ export type Database = {
           created_by: string | null
           customer_delivery_charge_cents: number | null
           delivered_at: string | null
+          hagerland_delivery_income_cents: number | null
           id: string
           money_model: string
           order_request_id: string | null
@@ -7651,6 +7806,7 @@ export type Database = {
           created_by?: string | null
           customer_delivery_charge_cents?: number | null
           delivered_at?: string | null
+          hagerland_delivery_income_cents?: number | null
           id?: string
           money_model: string
           order_request_id?: string | null
@@ -7677,6 +7833,7 @@ export type Database = {
           created_by?: string | null
           customer_delivery_charge_cents?: number | null
           delivered_at?: string | null
+          hagerland_delivery_income_cents?: number | null
           id?: string
           money_model?: string
           order_request_id?: string | null
@@ -9551,6 +9708,33 @@ export type Database = {
         }[]
       }
       order_request_transition_allowed: { Args: { p_from: string; p_to: string }; Returns: boolean }
+      partner_draft_approve: {
+        Args: {
+          p_actor: string
+          p_brand_name: string
+          p_brand_slug: string
+          p_category: string
+          p_commission_bps: number
+          p_cost_cents: number
+          p_credit_days: number
+          p_description: string
+          p_draft: string
+          p_existing_product: string
+          p_lead_time: number
+          p_markup_bps: number
+          p_min_order: number
+          p_name: string
+          p_pack_size: string
+          p_product_slug: string
+          p_settlement_timing: string
+          p_specs: Json
+          p_unit: string
+        }
+        Returns: {
+          created: boolean
+          product_id: string
+        }[]
+      }
       partner_register: {
         Args: {
           p_actor: string
@@ -9575,6 +9759,18 @@ export type Database = {
           org_id: string
           reference: string
         }[]
+      }
+      partner_settlement_create: {
+        Args: { p_actor: string; p_from: string; p_orders: string[]; p_org: string; p_to: string; p_upfront_reasons: Json }
+        Returns: {
+          id: string
+          reference: string
+        }[]
+      }
+      partner_settlement_items_total: { Args: { p_settlement: string }; Returns: number }
+      partner_settlement_pay: {
+        Args: { p_actor: string; p_method: string; p_paid_on: string; p_reference: string; p_settlement: string }
+        Returns: number
       }
       pillar_active_providers: { Args: { p_pillar: string }; Returns: number }
       popular_locations: { Args: { p_limit?: number; p_purpose?: Database['public']['Enums']['listing_purpose'] }; Returns: Json }
@@ -9709,7 +9905,29 @@ export type Database = {
       }
       supply_order_customer_total_cents: { Args: { p_order: string }; Returns: number }
       supply_order_paid_cents: { Args: { p_order: string }; Returns: number }
+      supply_order_payable_cents: { Args: { p_order: string }; Returns: number }
       supply_order_transition_allowed: { Args: { p_from: string; p_model: string; p_to: string }; Returns: boolean }
+      supply_order_upfront: { Args: { p_order: string }; Returns: boolean }
+      supply_resolve_terms: {
+        Args: { p_org: string; p_product: string }
+        Returns: {
+          cost_cents: number
+          customer_unit_cents: number
+          payable_unit_cents: number
+          terms_bps: number
+          terms_model: string
+        }[]
+      }
+      supply_round_div: { Args: { p_d: number; p_n: number }; Returns: number }
+      supply_suggested_terms: {
+        Args: { p_commission_bps: number; p_cost: number; p_markup_bps: number }
+        Returns: {
+          customer_unit_cents: number
+          payable_unit_cents: number
+          terms_bps: number
+          terms_model: string
+        }[]
+      }
       sync_verticals_from_pillars: { Args: Record<PropertyKey, never>; Returns: undefined }
       tsquery_or_null: { Args: { q: string }; Returns: unknown }
       vertical_pillar: { Args: { p_vertical: string }; Returns: string }

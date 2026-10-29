@@ -3,6 +3,7 @@ import { requireAdminPage } from '@/lib/admin/guard'
 import { queueCounts, unansweredEnquiriesCount } from '@/lib/admin/counts'
 import { must } from '@/lib/admin/must'
 import { DAILY_RUN_ACTION, NO_RECENT_RUN, lastRunStatus } from '@/lib/cron/digest-text'
+import { HOURLY_RUN_ACTION } from '@/lib/cron/hourly-action'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { formatNumber, relativeTime } from '@/lib/format'
 import { AdminHeader, Panel } from '@/components/admin/AdminUi'
@@ -68,7 +69,8 @@ export default async function AdminDashboard(props: { searchParams: Promise<{ de
     db.from('profiles').select('id', head).gte('created_at', iso(now - 7 * 86_400_000)),
     db.from('properties').select('id', head).eq('status', 'published').lt('expires_at', iso(now + 7 * 86_400_000)),
     db.from('properties').select('id', head).eq('status', 'published'),
-    db.from('audit_log').select('id, action, entity_type, entity_label, created_at').order('created_at', { ascending: false }).limit(12),
+    // S6-3 (D8): the hourly job's runs stay in the Audit log, not in "Recent admin activity".
+    db.from('audit_log').select('id, action, entity_type, entity_label, created_at').neq('action', HOURLY_RUN_ACTION).order('created_at', { ascending: false }).limit(12),
     db.from('audit_log').select('created_at, diff').eq('action', DAILY_RUN_ACTION).order('created_at', { ascending: false }).limit(1).maybeSingle(),
   ]))
   const n = (r: { count: number | null }) => r.count ?? 0

@@ -1531,14 +1531,15 @@ insert into public.organisations (id, kind, name, slug, status, source) values (
 insert into public.products (id, slug, name, category_id, seller_org_id, unit, status)
 select '00000000-0000-4000-8000-0000000007c1', 'rls-test-s62-product', 'RLS TEST S62 cement', (select id from public.product_categories order by sort limit 1), id, 'bag', 'published'
 from public.organisations where slug = 'hagerland-supply';
-insert into public.product_sources (product_id, org_id, cost_price_cents) values ('00000000-0000-4000-8000-0000000007c1', '00000000-0000-4000-8000-0000000007a1', 70000);
+-- S6-3: a cost below the test prices (a customer price below the partner's cost is refused).
+insert into public.product_sources (product_id, org_id, cost_price_cents) values ('00000000-0000-4000-8000-0000000007c1', '00000000-0000-4000-8000-0000000007a1', 1000);
 insert into public.order_requests (id, reference, requester_user_id, name, phone, delivery_address, access_token_hash) values
   ('00000000-0000-4000-8000-0000000007d1', 'HLR-RLS-A', '00000000-0000-4000-8000-000000000001', 'RLS TEST S62 A', '+251911000071', 'Bole', 'rls-s62-a'),
   ('00000000-0000-4000-8000-0000000007d2', 'HLR-RLS-B', '00000000-0000-4000-8000-000000000002', 'RLS TEST S62 B', '+251911000072', 'Kirkos', 'rls-s62-b');
 insert into public.order_request_lines (id, order_request_id, product_id, item_name, quantity, unit) values
   ('00000000-0000-4000-8000-0000000007e1', '00000000-0000-4000-8000-0000000007d1', '00000000-0000-4000-8000-0000000007c1', 'RLS TEST S62 cement', 10, 'bag'),
   ('00000000-0000-4000-8000-0000000007e2', '00000000-0000-4000-8000-0000000007d2', '00000000-0000-4000-8000-0000000007c1', 'RLS TEST S62 cement', 5, 'bag');
-update public.order_request_lines set source_org_id = '00000000-0000-4000-8000-0000000007a1', cost_price_cents = 70000 where id = '00000000-0000-4000-8000-0000000007e1';
+update public.order_request_lines set source_org_id = '00000000-0000-4000-8000-0000000007a1', cost_price_cents = 1000 where id = '00000000-0000-4000-8000-0000000007e1';
 
 set role anon;
 select pg_temp.record_check('Anonymous cannot read ' || name, pg_temp.read_denied(name))
@@ -1671,6 +1672,123 @@ select pg_temp.record_check('S6-2 checks left nothing behind',
   not exists (select 1 from public.order_requests where reference like 'HLR-RLS-%')
   and not exists (select 1 from public.order_request_events where order_request_id in ('00000000-0000-4000-8000-0000000007d1', '00000000-0000-4000-8000-0000000007d2'))
   and not exists (select 1 from public.products where slug = 'rls-test-s62-product'));
+
+-- ---------- S6-3 (0050): partner terms, settlements after delivery ----------
+reset role;
+select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);
+set role anon;
+select pg_temp.record_check('Anonymous cannot read ' || name, pg_temp.read_denied(name)) from unnest(array['partner_settlements', 'partner_settlement_items']) as t(name);
+reset role;
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000001", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', false);
+select pg_temp.record_check('A signed-in user (customer or partner member) cannot read ' || name, pg_temp.read_denied(name)) from unnest(array['partner_settlements', 'partner_settlement_items']) as t(name);
+select pg_temp.record_check('A signed-in user cannot write a settlement', pg_temp.write_denied($q$insert into public.partner_settlements (org_id, period_from, period_to) values ('00000000-0000-4000-8000-0000000000b1', current_date, current_date)$q$));
+reset role;
+select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);
+
+do $$
+declare
+  res text := '';
+  refused boolean;
+  v_req uuid := '00000000-0000-4000-8000-0000000008d1';
+  v_line uuid := '00000000-0000-4000-8000-0000000008e1';
+  v_org uuid := '00000000-0000-4000-8000-0000000008a1';
+  v_order uuid;
+  v_settlement uuid;
+  v_ref text;
+  v_n int;
+begin
+  begin
+    insert into public.organisations (id, kind, name, slug, status, source) values (v_org, 'supplier', 'RLS TEST S63 partner', 'rls-test-s63-partner', 'draft', 'admin');
+    insert into public.products (id, slug, name, category_id, seller_org_id, unit, status)
+    select '00000000-0000-4000-8000-0000000008c1', 'rls-test-s63-product', 'RLS TEST S63 cement', (select id from public.product_categories order by sort limit 1), id, 'bag', 'published'
+    from public.organisations where slug = 'hagerland-supply';
+    begin
+      insert into public.product_sources (product_id, org_id, cost_price_cents, markup_bps, commission_bps) values ('00000000-0000-4000-8000-0000000008c1', v_org, 70000, 1000, 500);
+      refused := false;
+    exception when check_violation then refused := true;
+    end;
+    res := res || case when refused then 'PASS' else 'FAIL' end || E' · A source has one model: a markup or a commission, never both\n';
+    insert into public.product_sources (product_id, org_id, cost_price_cents, markup_bps) values ('00000000-0000-4000-8000-0000000008c1', v_org, 70000, 1000);
+    insert into public.order_requests (id, reference, name, phone, delivery_address) values (v_req, 'HLR-RLS-S63', 'RLS TEST S63', '+251911000081', 'Bole');
+    insert into public.order_request_lines (id, order_request_id, product_id, item_name, quantity, unit) values (v_line, v_req, '00000000-0000-4000-8000-0000000008c1', 'RLS TEST S63 cement', 10, 'bag');
+    update public.order_requests set status = 'checking_stock', updated_by = 'rls' where id = v_req;
+    update public.order_request_lines set status = 'confirmed', confirmed_qty = 10 where id = v_line;
+    insert into public.stock_reservations (order_request_line_id, org_id, qty, held_until) values (v_line, v_org, 10, now() + interval '3 days');
+    begin
+      perform public.order_request_reserve(v_req, 48, 0, jsonb_build_array(jsonb_build_object('line_id', v_line, 'price_cents', 60000)), 'rls');
+      refused := false;
+    exception when check_violation then refused := true;
+    end;
+    res := res || case when refused then 'PASS' else 'FAIL' end || E' · A reservation below what the partner is paid is refused\n';
+    perform public.order_request_reserve(v_req, 48, 5000, '[]'::jsonb, 'rls');
+    res := res || case when (select terms_model || ':' || terms_bps || ':' || partner_payable_unit_cents || ':' || customer_unit_price_cents from public.order_request_lines where id = v_line) = 'markup:1000:70000:77000' then 'PASS' else 'FAIL' end || E' · The reservation stores the terms (markup 10%: pays 700.00, suggests 770.00)\n';
+    insert into public.order_request_payments (order_request_id, entry_type, direction, amount_cents, occurred_on, created_by) values (v_req, 'customer_payment', 'in', 775000, current_date, 'rls');
+    select o.id into v_order from public.order_request_create_supply_orders(v_req, 'rls', current_date) o;
+    res := res || case when (select hagerland_delivery_income_cents from public.supply_orders where id = v_order) = 5000 and public.supply_order_payable_cents(v_order) = 700000 then 'PASS' else 'FAIL' end || E' · Delivery stays HagerLand''s; the partner is owed 7,000.00\n';
+    begin
+      perform public.partner_settlement_create(v_org, current_date, current_date, array[v_order], '{}'::jsonb, 'rls');
+      refused := false;
+    exception when check_violation then refused := true;
+    end;
+    res := res || case when refused then 'PASS' else 'FAIL' end || E' · A partner is not settled before delivery with proof\n';
+    update public.product_sources set settlement_timing = 'upfront' where product_id = '00000000-0000-4000-8000-0000000008c1' and org_id = v_org;
+    begin
+      perform public.partner_settlement_create(v_org, current_date, current_date, array[v_order], '{}'::jsonb, 'rls');
+      refused := false;
+    exception when check_violation then refused := true;
+    end;
+    res := res || case when refused then 'PASS' else 'FAIL' end || E' · Up-front terms still need the owner''s reason\n';
+    update public.product_sources set settlement_timing = 'after_delivery' where product_id = '00000000-0000-4000-8000-0000000008c1' and org_id = v_org;
+    update public.supply_orders set status = 'placed', updated_by = 'rls' where id = v_order;
+    update public.supply_orders set status = 'confirmed', updated_by = 'rls' where id = v_order;
+    update public.supply_orders set status = 'out_for_delivery', updated_by = 'rls' where id = v_order;
+    update public.supply_orders set status = 'delivered', updated_by = 'rls' where id = v_order;
+    insert into public.supply_delivery_proofs (order_id, file_path, file_type, file_size_bytes) values (v_order, 'proofs/rls/s63.jpg', 'image/jpeg', 100);
+    select s.id, s.reference into v_settlement, v_ref from public.partner_settlement_create(v_org, current_date, current_date, array[v_order], '{}'::jsonb, 'rls') s;
+    begin
+      perform public.partner_settlement_create(v_org, current_date, current_date, array[v_order], '{}'::jsonb, 'rls');
+      refused := false;
+    exception when unique_violation then refused := true;
+    end;
+    res := res || case when refused then 'PASS' else 'FAIL' end || E' · An order is never in two settlements\n';
+    begin
+      update public.partner_settlements set status = 'paid', paid_on = current_date, method = 'cash', approved_at = now() where id = v_settlement;
+      refused := false;
+    exception when check_violation then refused := true;
+    end;
+    res := res || case when refused then 'PASS' else 'FAIL' end || E' · A draft cannot jump to paid\n';
+    begin
+      update public.partner_settlements set total_cents = 1, status = 'approved', approved_at = now() where id = v_settlement;
+      refused := false;
+    exception when check_violation then refused := true;
+    end;
+    res := res || case when refused then 'PASS' else 'FAIL' end || E' · A total that differs from the items is refused\n';
+    update public.partner_settlements set status = 'approved', approved_at = now(), approved_by = 'rls' where id = v_settlement;
+    perform public.partner_settlement_pay(v_settlement, current_date, 'bank_transfer', 'RLS-TRX', 'rls');
+    select count(*) into v_n from public.supply_ledger_entries where reference = v_ref and entry_type = 'supplier_payment' and amount_cents = 700000 and order_id = v_order and org_id = v_org;
+    res := res || case when v_n = 1 and (select status from public.partner_settlements where id = v_settlement) = 'paid' then 'PASS' else 'FAIL' end || E' · Paying writes one supplier payment per order and marks it paid\n';
+    begin
+      perform public.partner_settlement_pay(v_settlement, current_date, 'bank_transfer', 'RLS-TRX', 'rls');
+      refused := false;
+    exception when check_violation then refused := true;
+    end;
+    res := res || case when refused then 'PASS' else 'FAIL' end || E' · A settlement is paid only once\n';
+    begin
+      update public.partner_settlements set status = 'void', void_reason = 'test' where id = v_settlement;
+      refused := false;
+    exception when check_violation then refused := true;
+    end;
+    res := res || case when refused then 'PASS' else 'FAIL' end || E' · A paid settlement is final\n';
+    insert into public.supply_ledger_entries (entry_type, direction, amount_cents, occurred_on, order_id, org_id, created_by) values ('refund', 'out', 77000, current_date, v_order, v_org, 'rls');
+    res := res || case when exists (select 1 from public.partner_settlement_items where settlement_id is null and org_id = v_org and kind = 'adjustment' and amount_cents = -77000) then 'PASS' else 'FAIL' end || E' · A refund after settlement waits as an adjustment for the next settlement\n';
+    raise exception 'hl_rollback';
+  exception when raise_exception then
+    if sqlerrm <> 'hl_rollback' then res := res || 'FAIL · S6-3 checks stopped early: ' || sqlerrm || E'\n'; end if;
+  end;
+  perform set_config('hl.results', current_setting('hl.results') || res, false);
+end $$;
+select pg_temp.record_check('S6-3 checks left nothing behind', not exists (select 1 from public.partner_settlements s join public.organisations o on o.id = s.org_id where o.slug = 'rls-test-s63-partner') and not exists (select 1 from public.organisations where slug = 'rls-test-s63-partner'));
 
 -- ---------- Clean up ----------
 reset role;

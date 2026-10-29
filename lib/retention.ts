@@ -158,6 +158,8 @@ export const AUDIT_SIX_YEARS = [
   'supply.order_request.payment',
   'supply.order_request.reversal',
   'supply.order_request.refunded',
+  // S6-3: settlements (payments to partners and their adjustments) are money records.
+  'supply.settlement.',
   'settings.update',
   'staff.role',
 ] as const
