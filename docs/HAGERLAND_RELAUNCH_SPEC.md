@@ -49,7 +49,7 @@ SECTION 0 — RULES OF ENGAGEMENT (READ FIRST, FOLLOW ALWAYS)
 
 0.7 Things you must never change without AB's explicit agreement
 - The brand name "HagerLand" (capital H, capital L, one word; lowercase only in domains/emails).
-- The core colours (green #1C7C4C, gold #B8862E) and the logo mark (three connected nodes) — see Section 3.5.
+- The core colours (green #1C7C4C, gold #B8862E) and the logo mark, the house logo (E1: a white house outline in a green circle) — see Section 3.5. (Replaced the three-node mark in F-8, 29 Oct 2026, by AB's decision.)
 - The admin path /roodber8 and its username + password + TOTP login model (you will harden it, not replace it).
 - The primary domain www.hagerland.com (canonical host).
 - Anything in Section 23.
@@ -115,7 +115,7 @@ Findings from inspecting the repository (318 files, ~44k lines excluding lockfil
 - Admin audit log concept (admin_audit) — keep, extend to new entities (new table audit_log).
 - Moderation concepts proven in the current admin: pending → approve/reject, pending_changes JSON applied on approval, freeze/soft-delete, restore, purge, bulk approve, featured toggle, daily admin digest cron. Re-implement generically.
 - Import pipeline (Google Places search via Places API (New) with pageToken in POST body; place details; dedup via import_log on (google_place_id, section); bulk import; history; AI description drafting; bulk review). Keep the logic; retarget it to create Organisations (professionals, suppliers, developers, agents). IMPORTANT known-good details to preserve: places-search uses POST places.googleapis.com/v1/places:searchText with pageToken in the body; admin GET routes authenticate with cookies() — do not change that auth pattern; do not reintroduce legacy Places API pagination.
-- Brand assets: components/Logo.tsx, app/icon.svg, app/favicon.ico, Manrope wordmark with ®.
+- Brand assets: lib/brand-mark.json (the one definition of the mark), components/brand/Logo.tsx, app/icon.svg, app/favicon.ico, app/apple-icon.png, app/manifest.ts, public/icons/ (192, 512, maskable 512), public/logo.png; all icon files are written by scripts/brand-icons.mjs. Manrope wordmark with ®.
 - Turnstile widget component, Breadcrumb, ShareButton (refactor to new design tokens).
 - Fonts via next/font (Inter, Manrope). Drop IBM Plex Mono and the unused Geist local fonts.
 - DESIGN_PRINCIPLES.md rules that remain valid: paired buttons equal width; mobile-first.
@@ -162,8 +162,8 @@ For people building, buying, renting or investing in property in Ethiopia — at
 Divisions are labels within one site now; they can become separate businesses later. Keep division names in lib/brand.ts so they can change in one place.
 
 3.5 Visual identity decision
-- Keep: name, wordmark (Manrope ExtraBold + ®), logo mark (three connected nodes in a green circle), primary green #1C7C4C, gold #B8862E.
-- Reinterpret the mark's meaning in brand copy: the three connected points are Supply, Build and Property — connected.
+- Keep: name, wordmark (Manrope ExtraBold + ®), logo mark (the house logo (E1: a white house outline in a green circle)), primary green #1C7C4C, gold #B8862E.
+- The mark's meaning in brand copy: Our mark is a simple house: the home at the centre of everything we do.
 - Evolve (Section 5): retire the gradient + dot-grid green heroes that defined the directory era; move to a calmer, premium, photography-led and architectural look with a deep ink colour and warm stone neutrals. Green becomes the action/brand colour rather than a background wash. Gold is reserved for verification and HagerLand Developments.
 
 ======================================================================

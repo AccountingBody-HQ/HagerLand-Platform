@@ -304,7 +304,7 @@ Employer subscriptions, day-labour supply (after legal advice), skills checks wi
 
 ## 11. What must not change
 
-- The name **HagerLand**, green #1C7C4C, gold #B8862E, the three-node logo, fonts and the public look.
+- The name **HagerLand**, green #1C7C4C, gold #B8862E, the house logo (E1: a white house outline in a green circle), fonts and the public look.
 - URLs (`/jobs`, `/jobs/[slug]`, `/account/jobs`, `/account/candidate`, `/request-service/staffing`), the canonical host www.hagerland.com.
 - `/roodber8` and its login model (username, password, TOTP; staff sign-in).
 - The ten fixed services, including “Jobs, Recruitment & Staffing”.

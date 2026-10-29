@@ -39,7 +39,7 @@ export default async function AboutPage() {
             <p className="mt-4 text-[1.0625rem]">
               <span className="font-ethiopic">Hager (ሀገር)</span> means homeland in Amharic. Land means the same in English. Together they say what we do: we help people buy, build and live on the land they call home.
             </p>
-            <p className="mt-4 text-muted">Our mark is three connected points: Supply, Build and Property.</p>
+            <p className="mt-4 text-muted">Our mark is a simple house: the home at the centre of everything we do.</p>
           </div>
           <div>
             <h2 className="hl-h2">What we do</h2>

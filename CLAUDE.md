@@ -60,7 +60,7 @@ Every job follows these, even when the prompt does not repeat them. Where a rule
 - **Never run SQL against the database.** Write numbered migrations in `supabase/migrations/` (e.g. `0001_core_schema.sql`); hand each to AB with a plain explanation and a verification query; wait for confirmation before writing code that depends on it.
 - Database is in production use. New schema is additive. Never DROP or TRUNCATE legacy tables (companies, jobs, housing, money, cars, tutors, community, events, delivery, made_in_ethiopia, business_claims, listing_enquiries, import_log, admin_audit, rate_limits, countries, ...).
 - Stay on Next.js 15.5.x / React 19 (upgraded in E10, authorised by the Phase 1.5 brief). No other major upgrades without AB.
-- Never change without AB's explicit agreement: the name "HagerLand", green #1C7C4C, gold #B8862E, the three-node logo, admin path `/roodber8` and its username + password + TOTP login, canonical host `www.hagerland.com`.
+- Never change without AB's explicit agreement: the name "HagerLand", green #1C7C4C, gold #B8862E, the house logo (E1: a white house outline in a green circle), admin path `/roodber8` and its username + password + TOTP login, canonical host `www.hagerland.com`.
 - Never back up the database into git: backups go to `backups/` (git-ignored) via `scripts/backup-supabase.sh`.
 
 ## Commands

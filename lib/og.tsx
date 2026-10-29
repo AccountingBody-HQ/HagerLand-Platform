@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import sharp from 'sharp'
 import { log } from '@/lib/log'
+import { BRAND_MARK } from '@/lib/brand-mark'
 
 export const OG_SIZE = { width: 1200, height: 630 }
 const GREEN = '#1C7C4C'
@@ -34,14 +35,16 @@ async function photoDataUrl(url: string | null): Promise<string | null> {
   }
 }
 
+/** The E1 mark (lib/brand-mark.ts) in plain SVG elements, as the share-image renderer needs. */
 function Mark({ size }: { size: number }) {
+  const m = BRAND_MARK
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32">
-      <circle cx="16" cy="16" r="16" fill={GREEN} />
-      <path d="M11 12 L21 12 L16 21 Z" stroke="white" strokeWidth="1.4" fill="none" opacity="0.55" />
-      <circle cx="11" cy="12" r="2.6" fill="white" />
-      <circle cx="21" cy="12" r="2.6" fill="white" />
-      <circle cx="16" cy="21" r="2.6" fill="white" />
+    <svg width={size} height={size} viewBox={`0 0 ${m.viewBox} ${m.viewBox}`}>
+      <circle cx={m.circle.cx} cy={m.circle.cy} r={m.circle.r} fill={m.green} />
+      <g fill="none" stroke={m.stroke} strokeWidth={m.strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+        <path d={m.paths[0]} />
+        <path d={m.paths[1]} />
+      </g>
     </svg>
   )
 }
