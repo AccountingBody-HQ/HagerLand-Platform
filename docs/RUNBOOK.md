@@ -420,3 +420,33 @@ HagerLand is the seller: businesses that supply HagerLand (manufacturers, import
 - **Digest and menu:** "Partner registrations waiting", "Partner product drafts waiting".
 
 **Read-only check after applying 0048:** `docs/sql/0048_partner_registration_verify.sql` (every row PASS; 14/14 on live, 29 Oct 2026).
+
+### 20.1 Order requests, reservations and the hourly job (S6-2, migration 0049)
+
+- **Where:** admin → Supplies → **Order requests**. The menu count shows requests waiting for a stock check.
+- **The switch:** catalogue ordering (Supply switches) stays **locked Off**. It waits for HagerLand Ltd (Ethiopia), a bank account and VAT registration. It also cannot go on while **admin → Settings → "Payment details shown to customers"** is empty. **At the release that unlocks it, set the /terms and /privacy "Last updated" dates**, because their order-request lines then appear.
+- **A request, step by step:**
+  1. The customer taps "Request to order" (no payment) and gets an email with a private link to their order request page.
+  2. Operations click "Start stock check", phone the partner, and for each item record what is available (all, part, none) and the partner's hold: quantity, and until when, in Addis Ababa time.
+     - Part available: "Part available: tell the customer" (email). Record the customer's answer by reserving or cancelling.
+     - Nothing available: "Nothing available: tell the customer" (email).
+  3. The owner enters the customer price for each item and the delivery charge, and the hours (48 by default, 1–168), then clicks "Reserve and email how to pay". Every item needs a partner hold that lasts until the reservation ends.
+  4. When the money arrives, the owner records it (Money panel, "Payment from the customer").
+     - The request becomes **Paid** only when payments cover the total before the reservation ends. The customer is emailed.
+     - Money that arrives later is recorded but not accepted: "Reopen: check stock again", or refund it ("Refund to the customer") and "Close as refunded".
+  5. The owner clicks "Create supplier orders". This makes one supplier order per partner, already paid from the customer's money (it appears in the supply ledger), and nothing is sent to the partner. Then the usual delivery steps and proof on each supplier order follow.
+  6. When every supplier order is delivered, the request becomes Delivered (the customer is emailed). It becomes Completed when they are all completed.
+  7. A problem with a delivery: "Mark disputed", then "Dispute settled: complete", or refund and "Close as refunded".
+- **Cancelling:**
+  - Nothing paid: "Cancel (nothing was paid)" (email).
+  - Something paid: cancel any supplier orders and refund them on their own pages, record any other refund on the request, then "Close as refunded" (email).
+- **The hourly job** (`/api/cron/hourly`, 5 minutes past each hour, same `CRON_SECRET`):
+  - ends reservations whose time has passed and emails those customers;
+  - sends any missed "delivered" email;
+  - does nothing while ordering is off;
+  - records each run in the audit log as `cron.hourly`.
+
+  Admin and customer pages also end overdue reservations when opened. The daily digest shows: requests waiting for a stock check, reservations ending in the next 12 hours, paid requests without supplier orders, and disputed requests.
+- **Privacy:** customers never see the partner or the cost; partners never see the customer. Order requests' personal details are cleared 24 months after the last activity once finished (shared Dry run switch); money records stay.
+
+**Read-only check after applying 0049:** `docs/sql/0049_order_requests_verify.sql` (every row PASS; 15/15 on live, 29 Oct 2026). Supabase shows a "destructive operation" warning for the two approved `drop not null` statements only.
