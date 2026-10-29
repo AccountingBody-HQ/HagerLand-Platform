@@ -617,3 +617,78 @@ export function partnerRegistrationInternalEmail(p: { reference: string; busines
     reason: 'Internal notification for the HagerLand Supply team.',
   })
 }
+
+// ---------------------------------------------------------------------------------------------------------------
+// S6-2 order requests (AB's approved text, verbatim; the heading repeats the subject). Sent only when the customer gave
+// an email. The first email carries the private link to the order request page; the footer reuses the existing
+// enquiry sentence, so no new public wording is added.
+// ---------------------------------------------------------------------------------------------------------------
+const ORDER_REQUEST_REASON = 'You are receiving this because you sent an enquiry on HagerLand.'
+
+function orderRequestEmail(subject: string, body: string, link?: { reference: string; href: string }): RenderedEmail {
+  return renderEmail({
+    subject,
+    preheader: body,
+    heading: subject,
+    paragraphs: [body],
+    ...(link ? { button: { label: `Order request ${link.reference}`, href: link.href } } : {}),
+    reason: ORDER_REQUEST_REASON,
+  })
+}
+
+export function orderRequestReceivedEmail(p: { reference: string; link: string }): RenderedEmail {
+  return orderRequestEmail(`We received your order request (${p.reference})`, 'Thank you. We are checking stock and will contact you. You have not paid anything yet.', { reference: p.reference, href: p.link })
+}
+
+export function orderRequestReservedEmail(p: { reference: string; until: string; amount: string; paymentDetails: string }): RenderedEmail {
+  return orderRequestEmail(
+    `Your items are reserved (${p.reference})`,
+    `Good news: we have reserved your items until ${p.until} (Addis Ababa time). To confirm your order, pay ${p.amount} to HagerLand by then. Please include ${p.reference} with your payment. Payment details: ${p.paymentDetails}. If we do not receive payment by then, the reservation ends and you will not be charged.`,
+  )
+}
+
+export function orderRequestPartialEmail(p: { reference: string; available: string; unavailable: string }): RenderedEmail {
+  return orderRequestEmail(
+    `Part of your order is available (${p.reference})`,
+    `We can reserve ${p.available}, but not ${p.unavailable}. Reply to this email or call us to tell us whether you want the available items. You have not been charged.`,
+  )
+}
+
+export function orderRequestUnavailableEmail(p: { reference: string; items: string }): RenderedEmail {
+  return orderRequestEmail(`We could not confirm stock (${p.reference})`, `Sorry, we could not confirm stock for ${p.items}. You have not been charged.`)
+}
+
+export function orderRequestExpiredEmail(p: { reference: string }): RenderedEmail {
+  return orderRequestEmail(
+    `Your reservation has ended (${p.reference})`,
+    `Your reservation ${p.reference} ended because we did not receive payment in time. If you still need the items, send a new request. Prices and stock may have changed.`,
+  )
+}
+
+export function orderRequestPaidEmail(p: { reference: string; amount: string }): RenderedEmail {
+  return orderRequestEmail(`Payment received (${p.reference})`, `Thank you. We received ${p.amount} for ${p.reference}. We will contact you to arrange delivery.`)
+}
+
+export function orderRequestCancelledEmail(p: { reference: string; refundAmount: string | null }): RenderedEmail {
+  return orderRequestEmail(
+    `Your order request is cancelled (${p.reference})`,
+    p.refundAmount === null ? `Your order request ${p.reference} is cancelled. You have not been charged.` : `Your order ${p.reference} is cancelled. We will refund ${p.refundAmount} to you.`,
+  )
+}
+
+export function orderRequestDeliveredEmail(p: { reference: string }): RenderedEmail {
+  return orderRequestEmail(`Your order has been delivered (${p.reference})`, `Your order ${p.reference} has been delivered. Thank you for buying from HagerLand Supply.`)
+}
+
+/** Internal (HagerLand's supply inbox only): a new order request to check stock for. */
+export function orderRequestInternalEmail(p: { reference: string; adminUrl: string }): RenderedEmail {
+  return renderEmail({
+    subject: `New order request (${p.reference})`,
+    preheader: 'A customer asked to order. Check stock with the partner.',
+    heading: 'New order request',
+    paragraphs: ['A customer asked to order. Check stock with the partner, then reserve it in admin → Supplies → Order requests.'],
+    details: [['Reference', p.reference]],
+    button: { label: 'Open in admin', href: p.adminUrl },
+    reason: 'Internal notification for the HagerLand Supply team.',
+  })
+}

@@ -93,6 +93,8 @@ const BADGE_COUNTS: Record<string, (now: number) => Promise<number>> = {
   // S6-1: the same queries as the daily digest.
   partnerRegistrations: () => counted(getAdminSupabase().from('partner_registrations').select('id', head).in('status', REGISTRATION_WAITING)),
   partnerDrafts: () => counted(getAdminSupabase().from('partner_product_drafts').select('id', head).eq('status', 'submitted')),
+  // S6-2: order requests waiting for a stock check (the same query as the daily digest).
+  orderRequests: () => counted(getAdminSupabase().from('order_requests').select('id', head).eq('status', 'submitted')),
   users: async () => (await deletionRequests()).count,
 }
 

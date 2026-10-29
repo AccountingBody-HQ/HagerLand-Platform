@@ -15,6 +15,7 @@ import { normaliseSupplyPhone } from '@/lib/supply/phone'
 import { confirmPrivateUpload, createPrivateUpload } from '@/lib/supply/private-files'
 import { CLOSED_QUOTE_STATUSES } from '@/lib/supply/quote-supply-data'
 import { todayInAddis } from '@/lib/supply/shortlist'
+import { afterSupplyOrderChange } from '@/lib/supply/order-requests-data'
 
 type Msg = ActionResult<{ message: string }>
 /** A save that changed the order returns its new updated_at, so the page's next action is not taken for a stale edit. */
@@ -27,11 +28,13 @@ function birr(text: string | undefined, zero = false): number | null | undefined
   return parsePriceEtb(text)
 }
 
-function refresh(orderId: string, quoteId?: string) {
+/** S6-2: an order comes from a quote or from an order request (exactly one, 0049); the page of either is refreshed. */
+function refresh(orderId: string, quoteId?: string | null, orderRequestId?: string | null) {
   revalidatePath(`/roodber8/supply/orders/${orderId}`)
   revalidatePath('/roodber8/supply/orders')
   revalidatePath('/roodber8/supply/ledger')
   if (quoteId) revalidatePath(`/roodber8/quotes/${quoteId}`)
+  if (orderRequestId) revalidatePath(`/roodber8/supply/order-requests/${orderRequestId}`)
 }
 
 async function loadOrder(orderId: string) {
@@ -176,7 +179,7 @@ export async function saveDraftOrderAction(orderId: string, input: DraftInput): 
   const { data: saved, error } = await db.from('supply_orders').update(changes).eq('id', orderId).select('updated_at').single()
   if (error || !saved) return fail(error?.code === '23514' ? error.message : 'Could not save the order.')
   await audit('supply.order.draft_edit', { type: 'supply_order', id: orderId, label: order.reference }, { lines: d.lines.length, model: order.money_model })
-  refresh(orderId, order.quote_request_id)
+  refresh(orderId, order.quote_request_id, order.order_request_id)
   return ok({ message: 'Order saved.', updatedAt: saved.updated_at })
 }
 
@@ -221,7 +224,9 @@ export async function setOrderStatusAction(orderId: string, to: string, reason: 
   // Nothing updated: the status changed in between (another person or tab).
   if (!saved) return fail(STALE_EDIT)
   await audit('supply.order.status', { type: 'supply_order', id: orderId, label: order.reference }, { from, to: target.data, reason: why || null })
-  refresh(orderId, order.quote_request_id)
+  // S6-2: an order from an order request moves the request on (in the database); its customer is told once delivered.
+  await afterSupplyOrderChange(order.order_request_id)
+  refresh(orderId, order.quote_request_id, order.order_request_id)
   return ok({ message: `Order is now “${ORDER_STATUS_LABEL[target.data]}”.`, updatedAt: saved.updated_at })
 }
 
@@ -278,7 +283,7 @@ export async function recordOrderEntryAction(orderId: string, input: EntryInput)
     .single()
   if (error || !data) return fail('Could not record the entry.')
   await audit('supply.ledger.entry', { type: 'supply_order', id: orderId, label: order.reference }, { entry: data.id, entry_type: d.type, amount_cents: amount, currency: fx?.original_currency ?? 'ETB' })
-  refresh(orderId, order.quote_request_id)
+  refresh(orderId, order.quote_request_id, order.order_request_id)
   return ok({ message: 'Recorded in the ledger.' })
 }
 
@@ -326,7 +331,7 @@ export async function addProofAction(orderId: string, input: ProofInput): Promis
     .single()
   if (error || !data) return fail('Could not save the delivery proof.')
   await audit('supply.order.proof_add', { type: 'supply_order', id: orderId, label: order.reference }, { proof: data.id, type: file.contentType, size: file.size })
-  refresh(orderId, order.quote_request_id)
+  refresh(orderId, order.quote_request_id, order.order_request_id)
   return ok({ message: 'Delivery proof added.' })
 }
 
@@ -347,7 +352,7 @@ export async function removeProofAction(orderId: string, proofId: string, reason
     .select('id')
   if (error || !data?.length) return fail('Could not remove this proof (it may already be removed).')
   await audit('supply.order.proof_remove', { type: 'supply_order', id: orderId, label: order.reference }, { proof: proofId, reason: why })
-  refresh(orderId, order.quote_request_id)
+  refresh(orderId, order.quote_request_id, order.order_request_id)
   return ok({ message: 'Proof marked as removed.' })
 }
 
@@ -374,6 +379,6 @@ export async function setPromisedDateAction(orderId: string, date: string, reaso
     .single()
   if (error || !saved) return fail(error?.code === '23514' ? error.message : 'Could not save the date.')
   await audit('supply.order.promised_date', { type: 'supply_order', id: orderId, label: order.reference }, { from: order.promised_delivery_on, to: next, reason: parsed.data.reason || null })
-  refresh(orderId, order.quote_request_id)
+  refresh(orderId, order.quote_request_id, order.order_request_id)
   return ok({ message: next ? `Promised delivery date set to ${next}.` : 'Promised delivery date cleared.', updatedAt: saved.updated_at })
 }

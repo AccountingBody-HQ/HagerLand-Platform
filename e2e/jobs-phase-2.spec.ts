@@ -25,7 +25,7 @@ async function setSwitch(page: Page, label: 'Apply by phone' | 'Worker register'
 }
 
 /** F-5 (and S6-1's partner kinds): the keeping-period kinds run in the same daily run; this test's records are not among them. */
-const NO_KEEPING_PERIOD_COUNTS = Object.fromEntries(['enquiries', 'service_requests', 'quote_requests', 'property_care', 'managed_properties', 'build_projects', 'partner_applications', 'claims', 'trade_accounts', 'supply_contacts', 'audit_log', 'partner_registrations', 'partner_drafts'].map((k) => [k, 0]))
+const NO_KEEPING_PERIOD_COUNTS = Object.fromEntries(['enquiries', 'service_requests', 'quote_requests', 'property_care', 'managed_properties', 'build_projects', 'partner_applications', 'claims', 'trade_accounts', 'supply_contacts', 'audit_log', 'partner_registrations', 'partner_drafts', 'order_requests'].map((k) => [k, 0]))
 
 async function setMode(page: Page, mode: 'dry_run' | 'live') {
   await adminSession(page)

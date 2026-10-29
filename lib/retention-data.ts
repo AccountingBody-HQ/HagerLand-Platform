@@ -31,6 +31,7 @@ import {
   clearedPartnerRegistration,
   CLEARED_DRAFT_STATUSES,
   partnerRegistrationDue,
+  clearedOrderRequest,
   clearedQuoteItem,
   clearedQuoteRequest,
   clearedServiceRequest,
@@ -42,6 +43,7 @@ import {
 } from '@/lib/retention'
 import { REMOVED_NAME } from '@/lib/jobs-privacy'
 import { ENDED_RELATIONSHIP } from '@/lib/supply/partner-rules'
+import { FINISHED as FINISHED_ORDER_REQUEST } from '@/lib/supply/order-requests'
 
 
 const opts = { maxRows: REPORT_MAX_ROWS }
@@ -102,7 +104,8 @@ const DUE: Record<RetentionKind, (now: Date) => Promise<string[]>> = {
     const { data: orders } = await readAllIn(qr.map((r) => r.id), (part) => db.from('supply_orders').select('id, quote_request_id, status, updated_at').in('quote_request_id', part), opts)
     const held = new Set(orders.filter((o) => !FINISHED_ORDER.includes(o.status)).map((o) => o.quote_request_id))
     const last = new Map<string, string | null>()
-    for (const o of orders) last.set(o.quote_request_id, latest(last.get(o.quote_request_id), o.updated_at))
+    // Read by quote, so every order here has its quote (orders from an order request, S6-2, never appear).
+    for (const o of orders) if (o.quote_request_id) last.set(o.quote_request_id, latest(last.get(o.quote_request_id), o.updated_at))
     return qr.filter((r) => !held.has(r.id) && old(cutoff)(latest(r.updated_at, r.quoted_at, last.get(r.id)))).map((r) => r.id)
   },
   // Property Care enquiries: never while a property they led to is still managed.
@@ -176,6 +179,17 @@ const DUE: Record<RetentionKind, (now: Date) => Promise<string[]>> = {
     const cutoff = retentionCutoff(now, M24)
     const { data } = await readAll(() => getAdminSupabase().from('partner_product_drafts').select('id, decided_at, updated_at').is('personal_data_deleted_at', null).in('status', CLEARED_DRAFT_STATUSES).lt('updated_at', cutoff), opts)
     return data.filter((r) => old(cutoff)(r.decided_at ?? r.updated_at)).map((r) => r.id)
+  },
+  // S6-2 order requests: only once finished (completed, cancelled, ended, not available, refunded), 24 months after
+  // the latest of its own and its history's activity. Money records (payments, supplier orders, ledger) stay.
+  order_requests: async (now) => {
+    const db = getAdminSupabase()
+    const cutoff = retentionCutoff(now, M24)
+    const { data: reqs } = await readAll(() => db.from('order_requests').select('id, updated_at').is('personal_data_deleted_at', null).in('status', FINISHED_ORDER_REQUEST).lt('updated_at', cutoff), opts)
+    const { data: events } = await readAllIn(reqs.map((r) => r.id), (part) => db.from('order_request_events').select('order_request_id, created_at').in('order_request_id', part), opts)
+    const last = new Map<string, string | null>()
+    for (const e of events) last.set(e.order_request_id, latest(last.get(e.order_request_id), e.created_at))
+    return reqs.filter((r) => old(cutoff)(latest(r.updated_at, last.get(r.id)))).map((r) => r.id)
   },
   // Audit log: older than 24 months, and money / data-protection entries only after 6 years.
   audit_log: async (now) => {
@@ -255,6 +269,9 @@ export async function clearRetention(kind: RetentionKind, id: string, at: string
       check(await db.from('partner_product_drafts').update(clearedPartnerDraft(at)).eq('id', id).is('personal_data_deleted_at', null).in('status', CLEARED_DRAFT_STATUSES))
       return
     }
+    case 'order_requests':
+      check(await db.from('order_requests').update(clearedOrderRequest(at)).eq('id', id).is('personal_data_deleted_at', null).in('status', FINISHED_ORDER_REQUEST))
+      return
     case 'supply_contacts':
     case 'audit_log':
       await clearRetentionBatch(kind, [id])

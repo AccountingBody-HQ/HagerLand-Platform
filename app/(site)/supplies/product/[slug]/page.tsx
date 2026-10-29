@@ -26,6 +26,10 @@ import { JsonLd } from '@/components/seo/JsonLd'
 import { ApproxPrice } from '@/components/currency/ApproxPrice'
 import { TradePrice } from '@/components/supplies/TradePrice'
 import { SaveButton } from '@/components/saved/SaveButton'
+import { ButtonLink } from '@/components/ui/Button'
+import { readSupplySwitches } from '@/lib/supply/partner-switches'
+import { orderableProduct } from '@/lib/supply/order-requests-data'
+import { CUSTOMER_TEXT } from '@/lib/supply/order-requests'
 
 export const revalidate = 600
 
@@ -68,6 +72,9 @@ export default async function ProductPage(props: { params: Promise<{ slug: strin
   const stock = STOCK_LABEL[p.stock_status ?? 'available_on_request']
   const volatile = VOLATILE_CATEGORY_SLUGS.includes(p.category_slug ?? '')
   const installers = INSTALLERS[root?.slug ?? ''] ?? []
+  // S6-2: "Request to order" only while catalogue ordering is on, for HagerLand Supply products with an active partner
+  // source. Otherwise the page is exactly as before.
+  const ordering = Boolean(p.seller_is_hagerland && (await readSupplySwitches()).catalogueOrdering && (await orderableProduct(p.id)))
 
   return (
     <Container className="py-6 lg:py-8">
@@ -109,13 +116,14 @@ export default async function ProductPage(props: { params: Promise<{ slug: strin
               </p>
             )}
             {p.price_type !== 'on_request' && p.price_etb_cents !== null && <ApproxPrice etb={p.price_etb_cents / 100} className="block" />}
+            {ordering && p.price_type === 'on_request' && <p className="mt-1 text-small text-muted">{CUSTOMER_TEXT.priceLine}</p>}
             <TradePrice productId={p.id} />
             {p.price_type !== 'on_request' && p.price_updated_at && <p className="mt-1 text-small text-muted">Price updated {formatDate(p.price_updated_at)}</p>}
             {volatile && <p className="mt-1 text-small text-warning-dark">Prices change often — we confirm today&apos;s price on your quote.</p>}
             <ul className="mt-3 space-y-1 text-small text-muted">
               {Number(p.min_order_qty) > 1 && <li>Minimum order: {Number(p.min_order_qty)} {unitLabel(p.unit, Number(p.min_order_qty))}</li>}
               {p.pack_size && <li>Pack size: {p.pack_size}</li>}
-              {p.lead_time_days ? <li>Lead time: about {p.lead_time_days} day{p.lead_time_days === 1 ? '' : 's'}</li> : null}
+              {p.lead_time_days ? <li>{ordering ? CUSTOMER_TEXT.leadTime(p.lead_time_days) : `Lead time: about ${p.lead_time_days} day${p.lead_time_days === 1 ? '' : 's'}`}</li> : null}
             </ul>
           </div>
           {p.summary && <p className="text-[1.0625rem]">{p.summary}</p>}
@@ -128,6 +136,14 @@ export default async function ProductPage(props: { params: Promise<{ slug: strin
                 </li>
               ))}
             </ul>
+          )}
+          {ordering && (
+            <div className="space-y-2">
+              <ButtonLink href={`/supplies/product/${p.slug}/order`} size="lg" fullWidth>
+                {CUSTOMER_TEXT.button}
+              </ButtonLink>
+              <p className="text-small text-muted">{CUSTOMER_TEXT.note}</p>
+            </div>
           )}
           <div className="grid gap-3 sm:grid-cols-2">
             <AddToQuote withQuantity size="lg" product={{ id: p.id, slug: p.slug ?? '', name: p.name ?? '', unit: p.unit ?? 'piece', imagePath: p.image_path, minOrder: Number(p.min_order_qty ?? 1) }} />

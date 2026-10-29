@@ -196,12 +196,12 @@ describe('F-2 menu counts by role', () => {
   it('each role is counted only the areas it may open (new: Enquiries, Call-back requests, Partner applications, Users)', async () => {
     const { badgeKeysFor } = await load()
     const sorted = (r: Parameters<typeof badgeKeysFor>[0]) => badgeKeysFor(r).sort()
-    // S6-1 added partner registrations and partner product drafts (owner and operations).
-    const all = ['agency', 'callbacks', 'care', 'email', 'enquiries', 'interest', 'partnerDrafts', 'partnerRegistrations', 'partners', 'quotes', 'requests', 'review', 'reviews', 'trade', 'users']
+    // S6-1 added partner registrations and partner product drafts; S6-2 order requests (owner and operations).
+    const all = ['agency', 'callbacks', 'care', 'email', 'enquiries', 'interest', 'orderRequests', 'partnerDrafts', 'partnerRegistrations', 'partners', 'quotes', 'requests', 'review', 'reviews', 'trade', 'users']
     expect(sorted(null)).toEqual(all)
     expect(sorted('owner')).toEqual(all)
     expect(sorted('agent')).toEqual(['agency', 'enquiries', 'review'])
-    expect(sorted('operations')).toEqual(['callbacks', 'care', 'partnerDrafts', 'partnerRegistrations', 'quotes', 'requests', 'reviews', 'trade'])
+    expect(sorted('operations')).toEqual(['callbacks', 'care', 'orderRequests', 'partnerDrafts', 'partnerRegistrations', 'quotes', 'requests', 'reviews', 'trade'])
     expect(sorted('content')).toEqual([])
   })
   it('a count that cannot be read is null ("!"), the others still count', async () => {

@@ -38,6 +38,8 @@ import { asJobActor } from '@/lib/job-status-actor'
 import { quietJobCount } from '@/lib/jobs-insights-data'
 import { feesOwedOver30Days } from '@/lib/jobs-fee-report-data'
 import { REGISTRATION_WAITING } from '@/lib/supply/partner-rules'
+import { readSupplySwitches } from '@/lib/supply/partner-switches'
+import { expireDueOrderRequests } from '@/lib/supply/order-requests-data'
 
 const DAY = 86_400_000
 const BATCH = 500
@@ -315,6 +317,10 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent' | 'st
     ['Trade account applications to decide', db.from('trade_accounts').select('id', head).eq('status', 'pending')],
     ['Partner registrations waiting', db.from('partner_registrations').select('id', head).in('status', REGISTRATION_WAITING)],
     ['Partner product drafts waiting', db.from('partner_product_drafts').select('id', head).eq('status', 'submitted')],
+    ['Order requests waiting for a stock check', db.from('order_requests').select('id', head).eq('status', 'submitted')],
+    ['Reservations ending in the next 12 hours', db.from('order_requests').select('id', head).eq('status', 'reserved').lte('reserved_until', iso(now + 12 * 3_600_000))],
+    ['Paid order requests without supplier orders', db.from('order_requests').select('id', head).eq('status', 'paid')],
+    ['Order requests disputed', db.from('order_requests').select('id', head).eq('status', 'disputed')],
     ['Emails not yet delivered (see admin → Email problems)', db.from('email_outbox').select('id', head).in('status', ['failed', 'gave_up'])],
     ['Listings expiring within 7 days', db.from('properties').select('id', head).eq('status', 'published').lte('expires_at', iso(now + 7 * DAY))],
     ['Listings expired today', s.expired],
@@ -439,6 +445,8 @@ export async function runDaily(now = Date.now(), opts: { failDigestForTest?: boo
   const callbackBlocksRemoved = await step('call-back blocks', () => purgeExpiredCallbackBlocks(new Date(now)), null)
   // F-5: old error records and expired invitations are always cleared, in dry run and live alike (lib/retention-data).
   const housekeeping = await step('data housekeeping', () => runAlwaysOnCleanup(new Date(now)), null)
+  // S6-2: a backstop for the hourly job, while catalogue ordering is on: reservations whose time has passed end.
+  await step('order request expiry', async () => ((await readSupplySwitches()).catalogueOrdering ? await expireDueOrderRequests('daily job') : 0), 0)
   const summary = { expired, expiredEmailed: emailed, reminded, quotesExpired, verificationDocsPurged, revealsPurged, rateLimitsPurged, matchReminders, searchAlerts, jobsExpired, cvsPurged, emailsRetried, interestPurged, viewingReminders, tenancyReminders, importsCleanup, jobsDataCleanup, placementsMoved, verification, callbackBlocksRemoved, housekeeping }
   let digestSent = false
   const to = process.env.ADMIN_DIGEST_EMAIL

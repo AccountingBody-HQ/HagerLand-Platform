@@ -45,6 +45,8 @@ vi.mock('@/lib/security', async (real) => ({ ...(await real<typeof import('@/lib
 vi.mock('@/lib/rate-limit', () => ({ rateLimit: async () => ({ allowed: true }) }))
 vi.mock('@/lib/turnstile', () => ({ isHoneypotFilled: () => false, verifyTurnstileToken: async () => true }))
 vi.mock('@/lib/email/send', () => ({ sendEmail: async () => true }))
+// S6-2: the switch action also checks the owner's payment details (empty here).
+vi.mock('@/lib/supply/order-requests-data', () => ({ readPaymentDetails: async () => '' }))
 
 beforeEach(() => {
   state.switches = { registration: false, catalogueOrdering: false, tradePricing: false, homeBusinessRow: false }
@@ -207,7 +209,8 @@ describe('switches off close every door (L6)', () => {
   })
   it('switches nothing uses yet cannot be switched on; the others need the owner', async () => {
     const { setSupplySwitchAction } = await import('@/app/roodber8/actions/supply-switches')
-    expect(await setSupplySwitchAction('catalogueOrdering', true)).toEqual({ ok: false, error: 'This switch is used from a later release and cannot be switched on yet.' })
+    // S6-2: catalogue ordering first needs the payment details (empty here), and it is locked anyway.
+    expect(await setSupplySwitchAction('catalogueOrdering', true)).toMatchObject({ ok: false, error: 'Add the payment details in Settings first.' })
     expect(await setSupplySwitchAction('tradePricing', true)).toMatchObject({ ok: false })
     expect(state.upserts).toEqual([])
     state.owner = false
@@ -332,9 +335,9 @@ describe('migration 0048', () => {
     expect(code).toContain('grant select on public.partner_my_products to authenticated;')
     expect(code).toMatch(/on conflict \(key\) do nothing;/)
   })
-  it('the health check expects 0048', async () => {
+  it('the health check expects 0048 (S6-2 added 0049 after it)', async () => {
     const { EXPECTED_MIGRATIONS } = await import('@/lib/health')
-    expect(EXPECTED_MIGRATIONS[EXPECTED_MIGRATIONS.length - 1]).toBe('0048')
+    expect(EXPECTED_MIGRATIONS).toContain('0048')
   })
   it('a verify query exists, read-only', () => {
     const verify = readFileSync('docs/sql/0048_partner_registration_verify.sql', 'utf8').replace(/--.*$/gm, '')

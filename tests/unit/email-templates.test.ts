@@ -50,6 +50,15 @@ const ALL: Record<string, () => RenderedEmail> = {
   jobPaused: () => T.jobPausedEmail({ title: X }),
   partnerRegistrationReceived: () => T.partnerRegistrationReceivedEmail({ reference: 'HLB-2026-000001', business: X }),
   partnerInvitation: () => T.partnerInvitationEmail({ name: X, business: X, link: url }),
+  orderRequestReceived: () => T.orderRequestReceivedEmail({ reference: X, link: url }),
+  orderRequestReserved: () => T.orderRequestReservedEmail({ reference: X, until: '31 Oct 2026, 14:30', amount: 'ETB 27,015', paymentDetails: X }),
+  orderRequestPartial: () => T.orderRequestPartialEmail({ reference: X, available: X, unavailable: X }),
+  orderRequestUnavailable: () => T.orderRequestUnavailableEmail({ reference: X, items: X }),
+  orderRequestExpired: () => T.orderRequestExpiredEmail({ reference: X }),
+  orderRequestPaid: () => T.orderRequestPaidEmail({ reference: X, amount: 'ETB 27,015' }),
+  orderRequestCancelled: () => T.orderRequestCancelledEmail({ reference: X, refundAmount: null }),
+  orderRequestDelivered: () => T.orderRequestDeliveredEmail({ reference: X }),
+  orderRequestInternal: () => T.orderRequestInternalEmail({ reference: X, adminUrl: url }),
   partnerRegistrationInternal: () => T.partnerRegistrationInternalEmail({ reference: 'HLB-2026-000001', business: X, roles: 'Manufacturer', adminUrl: url }),
 }
 
