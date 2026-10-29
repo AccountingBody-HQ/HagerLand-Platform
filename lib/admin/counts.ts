@@ -5,6 +5,7 @@ import { roleCanAccess, type StaffRole } from '@/lib/admin/roles'
 import { ADMIN_NAV } from '@/components/admin/admin-nav-items'
 import { waitingCallbacks } from '@/lib/callbacks-data'
 import { log } from '@/lib/log'
+import { REGISTRATION_WAITING } from '@/lib/supply/partner-rules'
 
 export interface QueueCounts {
   properties: number
@@ -89,6 +90,9 @@ const BADGE_COUNTS: Record<string, (now: number) => Promise<number>> = {
   enquiries: (now) => counted(unansweredEnquiriesCount(now)),
   callbacks: () => waitingCallbacks(),
   partners: () => counted(getAdminSupabase().from('partner_applications').select('id', head).eq('status', 'new')),
+  // S6-1: the same queries as the daily digest.
+  partnerRegistrations: () => counted(getAdminSupabase().from('partner_registrations').select('id', head).in('status', REGISTRATION_WAITING)),
+  partnerDrafts: () => counted(getAdminSupabase().from('partner_product_drafts').select('id', head).eq('status', 'submitted')),
   users: async () => (await deletionRequests()).count,
 }
 

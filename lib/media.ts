@@ -6,7 +6,7 @@ export type MediaKind = 'image' | 'floorplan' | 'document' | 'logo' | 'cover'
 /** Private upload areas: verification and claim evidence, materials lists, admin quotes, brochures,
  * service-request attachments ("request"), provider quote documents ("match"), Property Care inspection photos ("inspection", admin only)
  * and job seekers' CVs ("cv", in the user's own folder). */
-export const PRIVATE_AREAS = ['verification', 'claim', 'materials', 'quote', 'brochure', 'request', 'match', 'inspection', 'cv', 'application', 'agency', 'supply'] as const
+export const PRIVATE_AREAS = ['verification', 'claim', 'materials', 'quote', 'brochure', 'request', 'match', 'inspection', 'cv', 'application', 'agency', 'supply', 'partner'] as const
 export type PrivateArea = (typeof PRIVATE_AREAS)[number]
 
 export const PUBLIC_BUCKET = 'public-media'

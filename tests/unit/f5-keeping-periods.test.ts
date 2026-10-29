@@ -231,8 +231,8 @@ describe('the code', () => {
     expect(sql).not.toMatch(/\b(drop|truncate|delete)\b/i)
     expect(sql).toContain("values ('0047', 'keeping_periods')")
   })
-  it('the health check expects 0047 last', async () => {
+  it('the health check expects 0047 (S6-1 added 0048 after it)', async () => {
     const { EXPECTED_MIGRATIONS } = await import('@/lib/health')
-    expect(EXPECTED_MIGRATIONS[EXPECTED_MIGRATIONS.length - 1]).toBe('0047')
+    expect(EXPECTED_MIGRATIONS).toContain('0047')
   })
 })

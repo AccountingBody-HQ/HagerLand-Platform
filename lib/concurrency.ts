@@ -4,7 +4,7 @@ import { getAdminSupabase } from '@/lib/supabase/admin'
 /** Shown when two people edit the same record at once (spec 25.4): the second save is refused, not silently merged. */
 export const STALE_EDIT = 'Someone else changed this since you opened it. Reload the page to see their changes, then make yours again.'
 
-type Versioned = 'properties' | 'developments' | 'organisations' | 'products'
+type Versioned = 'properties' | 'developments' | 'organisations' | 'products' | 'partner_product_drafts' | 'partner_registrations'
 
 /**
  * True when the record changed after the form was opened. Forms send the record's updated_at as

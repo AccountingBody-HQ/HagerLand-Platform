@@ -9,7 +9,7 @@ import { countMedia, deletePublicFiles, mediaLimit, processIncomingDocument, pro
 import { fail, ok, type ActionResult } from '@/lib/action-result'
 import { revalidateEntity } from '@/lib/revalidate'
 import { log } from '@/lib/log'
-import { CV_TYPES, PRIVATE_AREAS, type MediaEntity } from '@/lib/media'
+import { CV_TYPES, IMAGE_TYPES, PRIVATE_AREAS, type MediaEntity } from '@/lib/media'
 
 const entitySchema = z.enum(['property', 'development', 'organisation', 'portfolio', 'product'])
 
@@ -115,6 +115,7 @@ export async function processPrivateUploadAction(input: { incoming_path: string;
   const scope: UploadScope = { purpose: 'private', area: d.area, id: d.id }
   if (!(await canUpload(scope))) return fail('You cannot upload files here.')
   if (d.area === 'cv' && !CV_TYPES.includes(d.content_type)) return fail('Upload your CV as a PDF or Word (.docx) file.')
+  if (d.area === 'partner' && !IMAGE_TYPES.includes(d.content_type)) return fail('That file is not a JPEG, PNG or WebP image.')
   if (!d.incoming_path.startsWith(`incoming/${scopePrefix(scope)}/`)) return fail('Invalid upload.')
   try {
     const path = await processIncomingDocument(d.incoming_path, d.content_type, scopePrefix(scope))

@@ -29,6 +29,8 @@ const RETENTION_ROWS: [string, string][] = [
   ['Claims', 'Personal details cleared 24 months after the decision; evidence files deleted.'],
   ['Trade account applications', 'Contact details cleared 24 months after the decision; approved accounts stay while the person’s account is open.'],
   ['Supply contacts', 'Deleted 24 months after the last contact; do-not-contact numbers kept.'],
+  ['Partner registrations', 'Contact details cleared 24 months after the last activity if we did not start working together; for partners, kept while the relationship lasts, then 24 months.'],
+  ['Partner product drafts', 'Declined or withdrawn drafts: photos deleted and the private code, price and stock note cleared 24 months after the decision.'],
   ['Audit log', 'Entries deleted after 24 months; payments, fees and data-protection decisions after 6 years.'],
   ['Error log', 'Deleted 90 days after last seen (always on).'],
   ['Invitations', 'Unaccepted invitations deleted 30 days after expiry (always on).'],

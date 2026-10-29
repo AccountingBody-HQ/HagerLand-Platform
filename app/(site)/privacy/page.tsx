@@ -6,12 +6,15 @@ import { amharicVersionOn, legalUpdated } from '@/lib/content/legal'
 import { Container } from '@/components/ui/Layout'
 import { PageHero, TextSection } from '@/components/content/PageHero'
 import { LegalEntity } from '@/components/content/LegalEntity'
+import { readSupplySwitchesCached } from '@/lib/supply/partner-switches'
 
 export const revalidate = 3600
 export const metadata = buildMetadata({ title: 'Privacy policy', description: 'What personal information HagerLand collects, why we use it, who we share it with, how long we keep it, and your rights, including getting a copy of your data.', path: '/privacy' })
 
 export default async function PrivacyPage() {
-  const [business, updated, amharicOn] = await Promise.all([getBusinessDetails(), legalUpdated('privacy'), amharicVersionOn()])
+  const [business, updated, amharicOn, supplySwitches] = await Promise.all([getBusinessDetails(), legalUpdated('privacy'), amharicVersionOn(), readSupplySwitchesCached()])
+  // S6-1: the partner registration lines show only while the owner's registration switch is on.
+  const partnerLines = supplySwitches.registration
   return (
     <>
       <PageHero crumb="Privacy" title="Privacy policy" intro={`Last updated ${updated}`} />
@@ -29,6 +32,7 @@ export default async function PrivacyPage() {
             <li><strong>Service requests:</strong> your contact details, where the work is, what you need, your answers to the questions and any photos or plans you add. Providers we match you with add their quotes.</li>
             <li><strong>Property Care and interest registrations:</strong> the details you give when you ask about Property Care, register interest in a service that is coming soon or apply to become a partner.</li>
             <li><strong>Trade accounts:</strong> your business name, type, phone and tax number if you give it.</li>
+            {partnerLines && <li><strong>Businesses that register to supply HagerLand:</strong> business name, contact name, phone, email if given, TIN if given, location and the products you tell us about.</li>}
             <li><strong>Verification documents:</strong> trade licences, TIN certificates and similar documents you upload to get Verified or to claim a business.</li>
             <li><strong>Jobs:</strong> when you apply for a job, your name, contact details, cover note and CV. If you create a candidate profile, your skills, qualifications, experience, availability and CV. If you apply by phone or join the worker register: your name, phone, trade, area, preferred language, how you want to be contacted, and that you confirmed you are 18 or older. If HagerLand&apos;s recruitment team introduces you to an employer: that you agreed, when and how, the employer, and whether you were hired.</li>
             <li><strong>Call-back requests:</strong> your name, phone number, what you need, your area, the language and time of day you prefer, whether you are based outside Ethiopia, and that you agreed to be called.</li>
@@ -83,6 +87,7 @@ export default async function PrivacyPage() {
             <li>Building projects: your name and contact details are deleted 24 months after the last activity.</li>
             <li>Partner applications, business claims (including the documents you upload, which are deleted) and trade account applications: your contact details are deleted 24 months after our decision or the last activity. An approved trade account is kept while your account is open.</li>
             <li>Business contacts our supply team works with: deleted 24 months after the last contact, except that if you asked us not to contact you again, we keep your number only to respect that.</li>
+            {partnerLines && <li>Businesses that register to supply HagerLand: if we do not start working together, contact details are deleted 24 months after the last activity; while we work together, they are kept while the relationship lasts, then for 24 months.</li>}
             <li>Records of changes made by our team: 24 months; records of payments, fees and data-protection decisions: 6 years.</li>
             <li>Verification documents: deleted 90 days after our decision, unless we need them to deal with a dispute or fraud.</li>
             <li>Contact reveal records: 12 months.</li>
