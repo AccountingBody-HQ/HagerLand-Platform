@@ -762,3 +762,22 @@ There are no migrations after 0033 in the repository.
 - **Waits for:** catalogue ordering stays locked Off until HagerLand Ltd (Ethiopia), a bank account and VAT registration exist, and the payment details are filled in Settings.
 
 **Next:** S6-3 (settlements, markup and commission rules, reconciliation) and S6-4 (trade price agreements and consolidated ordering).
+
+**S6-3 built (released 29 Oct 2026, migration 0050): partner terms → prices, settlements after delivery, reconciliation.**
+- **Terms:** a product source has a markup or a commission (never both); otherwise the partner's agreement default applies (markup first, then commission); otherwise a manual price.
+  - **Markup:** the customer price is cost + markup; HagerLand pays the partner the cost.
+  - **Commission:** the partner's agreed price is the customer price; HagerLand pays that price less the commission.
+  - The same rules exist in `lib/supply/terms.ts` and in SQL, tested to give identical results.
+- **Reservation:** the price is suggested from the terms. The owner may change it, and the change is kept in the history. The line stores the terms and what HagerLand pays the partner, and a price below that is refused by the database.
+- **Delivery:** the customer's delivery charge is HagerLand's income (`hagerland_delivery_income_cents`), never part of a partner payable.
+- **Settlements (`HLG-…`, owner only):**
+  - per partner, delivered orders with proof (or up front with a reason);
+  - draft → approved → paid | void;
+  - paying writes one ledger `supplier_payment` per order, plus ledger adjustments, in one step;
+  - an order is never settled twice;
+  - a refund after settlement waits as an adjustment for the partner's next settlement;
+  - a printable statement goes to the partner (the owner shares it).
+- **"Supply settlements" report:** by Addis Ababa month and to date, with "Reconciles with ledger" (five checks naming the references behind any "no").
+- **The supply ledger's checks** did not change.
+
+**Next:** S6-4, trade price agreements and consolidated ordering.
