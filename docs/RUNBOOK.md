@@ -450,3 +450,29 @@ HagerLand is the seller: businesses that supply HagerLand (manufacturers, import
 - **Privacy:** customers never see the partner or the cost; partners never see the customer. Order requests' personal details are cleared 24 months after the last activity once finished (shared Dry run switch); money records stay.
 
 **Read-only check after applying 0049:** `docs/sql/0049_order_requests_verify.sql` (every row PASS; 15/15 on live, 29 Oct 2026). Supabase shows a "destructive operation" warning for the two approved `drop not null` statements only.
+
+### 20.2 Settlements, partner statements and the reconciliation (S6-3, migration 0050)
+
+- **The after-delivery rule:**
+  - A partner is paid for an order-request supplier order only once it is **delivered with delivery proof**. The database enforces this.
+  - The one exception is a partner whose terms say "up front": that order can be paid earlier, with your reason.
+  - An order can never be in two settlements, and a settlement can be paid only once.
+  - Quote-flow orders and Model B commissions are not part of settlements; they work as before.
+- **Prices from terms:** set each partner's terms on the product source (a markup *or* a commission) or as a default in the partner's agreement.
+  - The reservation screen suggests the customer price and shows what HagerLand pays the partner. You may change the price; the change is kept in the request's history.
+  - A price below what the partner is paid is refused.
+- **Paying partners** (admin → Money → **Settlements**, owner only):
+  1. "Due to partners" lists, per partner, the delivered orders not yet paid, and any adjustments waiting.
+  2. Tick the orders (for up-front ones, give the reason), set the period, then "Create draft settlement". Check the amounts, then **Approve**.
+  3. Pay the partner (bank transfer, telebirr, CBE Birr…), then "Record payment to the partner" with the date and the bank or transfer reference. This writes the supplier payments into the supply ledger in one step.
+  4. "Statement for the partner" opens a printable statement (HagerLand Supply — statement HLG-…); "Download statement" saves it. Share it with the partner yourself: nothing is emailed.
+  5. A wrong draft or approved settlement can be **voided** with a reason. Its orders become due again.
+- **Refunds after a partner was paid:** recording a refund on such an order creates an **adjustment** (the partner repays). It waits on "Due to partners" for the partner's next settlement. You can change its amount or remove it, with a reason.
+- **The reconciliation** (admin → Insights → **Supply settlements**, owner only, with CSV):
+  - by Addis Ababa month and to date: money in from customers, refunds, delivery income, partner payables earned, adjustments, paid to partners, due to partners, and HagerLand's margin;
+  - **"Reconciles with ledger: yes / no"**. A "no" names the settlement, request or order to look at.
+  - All amounts are in ETB.
+- **References:** settlements are `HLG-…` (their own prefix and counter). `HLT-…` stays with trade accounts.
+- **Dashboard:** "Recent admin activity" leaves out the hourly job's runs. The Audit log still lists them.
+
+**Read-only check after applying 0050:** `docs/sql/0050_partner_settlements_verify.sql` (every row PASS; 10/10 on live, 29 Oct 2026; no destructive warning).
