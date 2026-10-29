@@ -1790,6 +1790,149 @@ begin
 end $$;
 select pg_temp.record_check('S6-3 checks left nothing behind', not exists (select 1 from public.partner_settlements s join public.organisations o on o.id = s.org_id where o.slug = 'rls-test-s63-partner') and not exists (select 1 from public.organisations where slug = 'rls-test-s63-partner'));
 
+-- ---------- S6-4 (0051): per-customer trade prices ----------
+reset role;
+select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);
+set role anon;
+select pg_temp.record_check('Anonymous cannot read trade_price_agreements', pg_temp.read_denied('trade_price_agreements'));
+select pg_temp.record_check('Anonymous cannot run my_trade_prices', not has_function_privilege('anon', 'public.my_trade_prices(uuid[])', 'execute'));
+reset role;
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000001", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', false);
+select pg_temp.record_check('A signed-in user cannot read trade_price_agreements', pg_temp.read_denied('trade_price_agreements'));
+select pg_temp.record_check('A signed-in user cannot write a trade price agreement', pg_temp.write_denied($q$insert into public.trade_price_agreements (trade_account_id, category_id, discount_bps) values ('00000000-0000-4000-8000-0000000009a1', (select id from public.product_categories limit 1), 100)$q$));
+select pg_temp.record_check('A signed-in user cannot run the internal trade price step', not has_function_privilege('authenticated', 'public.trade_effective_price_for(uuid, uuid)', 'execute'));
+reset role;
+select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);
+
+-- The prices one user (or a visitor, null) would see through my_trade_prices, as the signed-in role.
+create function pg_temp.s64_prices(p_user uuid, p_ids uuid[]) returns text language plpgsql as $f$
+declare v text;
+begin
+  perform set_config('request.jwt.claims', case when p_user is null then '' else json_build_object('sub', p_user, 'role', 'authenticated')::text end, true);
+  perform set_config('request.jwt.claim.sub', coalesce(p_user::text, ''), true);
+  execute format('set local role %I', case when p_user is null then 'anon' else 'authenticated' end);
+  if p_user is null then
+    v := case when has_function_privilege('anon', 'public.my_trade_prices(uuid[])', 'execute') then 'anon may run it' else '' end;
+  else
+    select coalesce(string_agg('item' || array_position(p_ids, t.product_id) || '=' || t.price_cents || ':' || t.rule, ',' order by array_position(p_ids, t.product_id)), '') into v
+    from public.my_trade_prices(p_ids) t;
+  end if;
+  reset role;
+  perform set_config('request.jwt.claims', '', true);
+  perform set_config('request.jwt.claim.sub', '', true);
+  return v;
+end
+$f$;
+
+do $$
+declare
+  res text := '';
+  refused boolean;
+  v_org uuid := '00000000-0000-4000-8000-0000000009b1';
+  v_prod uuid := '00000000-0000-4000-8000-0000000009c1';
+  v_prod2 uuid := '00000000-0000-4000-8000-0000000009c2';
+  v_acc uuid := '00000000-0000-4000-8000-0000000009a1';
+  v_cat uuid;
+  v_got text;
+  v_req uuid := '00000000-0000-4000-8000-0000000009d1';
+  v_line uuid := '00000000-0000-4000-8000-0000000009e1';
+begin
+  begin
+    select id into v_cat from public.product_categories where parent_id is null order by sort limit 1;
+    insert into public.organisations (id, kind, name, slug, status, source) values (v_org, 'supplier', 'RLS TEST S64 partner', 'rls-test-s64-partner', 'draft', 'admin');
+    insert into public.products (id, slug, name, category_id, seller_org_id, unit, status, trade_price_etb_cents)
+    select x.id, x.slug, x.name, v_cat, o.id, 'bag', 'published', x.trade
+    from public.organisations o, (values (v_prod, 'rls-test-s64-a', 'RLS TEST S64 cement', null::bigint), (v_prod2, 'rls-test-s64-b', 'RLS TEST S64 sand', 90000::bigint)) as x(id, slug, name, trade)
+    where o.slug = 'hagerland-supply';
+    -- Partner A: cost 700.00, markup 10% → suggests 770.00, pays 700.00.
+    insert into public.product_sources (product_id, org_id, cost_price_cents, markup_bps) values (v_prod, v_org, 70000, 1000), (v_prod2, v_org, 80000, 1000);
+    insert into public.trade_accounts (id, user_id, business_name, trade_type, phone, status) values (v_acc, '00000000-0000-4000-8000-000000000001', 'RLS TEST S64 builder', 'Contractor', '+251911000091', 'pending');
+    begin
+      insert into public.trade_price_agreements (trade_account_id, product_id, price_cents) values (v_acc, v_prod, 75000);
+      refused := false;
+    exception when check_violation then refused := true;
+    end;
+    res := res || case when refused then 'PASS' else 'FAIL' end || E' · Trade prices are refused for an account not approved\n';
+    update public.trade_accounts set status = 'approved' where id = v_acc;
+    begin
+      insert into public.trade_price_agreements (trade_account_id, product_id, category_id, price_cents) values (v_acc, v_prod, v_cat, 75000);
+      refused := false;
+    exception when check_violation then refused := true;
+    end;
+    res := res || case when refused then 'PASS' else 'FAIL' end || E' · An agreement is for a product or a category, not both\n';
+    begin
+      insert into public.trade_price_agreements (trade_account_id, product_id, price_cents, discount_bps) values (v_acc, v_prod, 75000, 100);
+      refused := false;
+    exception when check_violation then refused := true;
+    end;
+    res := res || case when refused then 'PASS' else 'FAIL' end || E' · An agreement is a price or a discount, not both\n';
+    begin
+      insert into public.trade_price_agreements (trade_account_id, category_id, discount_bps) values (v_acc, v_cat, 9001);
+      refused := false;
+    exception when check_violation then refused := true;
+    end;
+    res := res || case when refused then 'PASS' else 'FAIL' end || E' · A discount above 90% is refused\n';
+    begin
+      insert into public.trade_price_agreements (trade_account_id, product_id, price_cents) values (v_acc, v_prod, 69999);
+      refused := false;
+    exception when check_violation then refused := true;
+    end;
+    res := res || case when refused then 'PASS' else 'FAIL' end || E' · A product trade price below what HagerLand pays the partner is refused\n';
+    begin
+      -- 20% off 770.00 = 616.00, below the 700.00 paid for the cement.
+      insert into public.trade_price_agreements (trade_account_id, category_id, discount_bps) values (v_acc, v_cat, 2000);
+      refused := false;
+    exception when check_violation then refused := true;
+    end;
+    res := res || case when refused then 'PASS' else 'FAIL' end || E' · A category discount that puts any product below the partner payable is refused\n';
+    insert into public.trade_price_agreements (trade_account_id, product_id, price_cents, valid_from, valid_until) values (v_acc, v_prod, 75000, current_date - 1, current_date + 30);
+    begin
+      insert into public.trade_price_agreements (trade_account_id, product_id, price_cents, valid_from) values (v_acc, v_prod, 76000, current_date + 30);
+      refused := false;
+    exception when check_violation then refused := true;
+    end;
+    res := res || case when refused then 'PASS' else 'FAIL' end || E' · Overlapping dates for the same product are refused (the last day counts)\n';
+    insert into public.trade_price_agreements (trade_account_id, product_id, price_cents, valid_from) values (v_acc, v_prod, 76000, current_date + 31);
+    -- 5% off the suggested 880.00 for the sand = 836.00 (above 800.00 paid); the cement keeps its product price.
+    insert into public.trade_price_agreements (trade_account_id, category_id, discount_bps) values (v_acc, v_cat, 500);
+    -- Trade pricing off: nothing at all.
+    v_got := pg_temp.s64_prices('00000000-0000-4000-8000-000000000001', array[v_prod, v_prod2]);
+    res := res || case when v_got = '' then 'PASS' else 'FAIL' end || E' · my_trade_prices returns nothing while trade pricing is off\n';
+    update public.site_settings set value = 'true'::jsonb where key = 'supply_trade_pricing';
+    v_got := pg_temp.s64_prices('00000000-0000-4000-8000-000000000001', array[v_prod, v_prod2]);
+    res := res || case when v_got = 'item1=75000:product_price,item2=83600:category_discount' then 'PASS' else 'FAIL' end || ' · The trade customer sees their own prices (product 750.00; 5% off 880.00 = 836.00): ' || v_got || E'\n';
+    v_got := pg_temp.s64_prices('00000000-0000-4000-8000-000000000002', array[v_prod, v_prod2]);
+    res := res || case when v_got = '' then 'PASS' else 'FAIL' end || E' · Another signed-in user gets nothing\n';
+    v_got := pg_temp.s64_prices(null, array[v_prod, v_prod2]);
+    res := res || case when v_got = '' then 'PASS' else 'FAIL' end || E' · A visitor gets nothing\n';
+    update public.trade_price_agreements set status = 'ended', end_reason = 'rls', ended_at = now() where category_id = v_cat and trade_account_id = v_acc;
+    v_got := pg_temp.s64_prices('00000000-0000-4000-8000-000000000001', array[v_prod2]);
+    res := res || case when v_got = 'item1=90000:general_trade_price' then 'PASS' else 'FAIL' end || ' · Without an agreement the general trade price applies: ' || v_got || E'\n';
+    update public.profiles set is_suspended = true where id = '00000000-0000-4000-8000-000000000001';
+    v_got := pg_temp.s64_prices('00000000-0000-4000-8000-000000000001', array[v_prod, v_prod2]);
+    res := res || case when v_got = '' then 'PASS' else 'FAIL' end || E' · A suspended customer gets nothing\n';
+    update public.profiles set is_suspended = false where id = '00000000-0000-4000-8000-000000000001';
+    -- Reservation: the trade customer's request is priced from their trade terms; an owner override is in the history.
+    insert into public.order_requests (id, reference, name, phone, delivery_address, requester_user_id) values (v_req, 'HLR-RLS-S64', 'RLS TEST S64', '+251911000092', 'Bole', '00000000-0000-4000-8000-000000000001');
+    insert into public.order_request_lines (id, order_request_id, product_id, item_name, quantity, unit) values (v_line, v_req, v_prod, 'RLS TEST S64 cement', 10, 'bag');
+    update public.order_requests set status = 'checking_stock', updated_by = 'rls' where id = v_req;
+    update public.order_request_lines set status = 'confirmed', confirmed_qty = 10 where id = v_line;
+    insert into public.stock_reservations (order_request_line_id, org_id, qty, held_until) values (v_line, v_org, 10, now() + interval '3 days');
+    perform public.order_request_reserve(v_req, 48, 0, '[]'::jsonb, 'rls');
+    res := res || case when (select customer_unit_price_cents from public.order_request_lines where id = v_line) = 75000 then 'PASS' else 'FAIL' end || E' · The reservation suggests the trade price (750.00, not 770.00)\n';
+    update public.trade_accounts set status = 'revoked' where id = v_acc;
+    v_got := pg_temp.s64_prices('00000000-0000-4000-8000-000000000001', array[v_prod, v_prod2]);
+    res := res || case when v_got = '' then 'PASS' else 'FAIL' end || E' · A closed trade account gets nothing\n';
+    update public.site_settings set value = 'false'::jsonb where key = 'supply_trade_pricing';
+    raise exception 'hl_rollback';
+  exception when raise_exception then
+    if sqlerrm <> 'hl_rollback' then res := res || 'FAIL · S6-4 checks stopped early: ' || sqlerrm || E'\n'; end if;
+  end;
+  perform set_config('hl.results', current_setting('hl.results') || res, false);
+end $$;
+select pg_temp.record_check('S6-4 checks left nothing behind', not exists (select 1 from public.trade_price_agreements) and not exists (select 1 from public.organisations where slug = 'rls-test-s64-partner') and (select value from public.site_settings where key = 'supply_trade_pricing') = 'false'::jsonb);
+
 -- ---------- Clean up ----------
 reset role;
 select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);

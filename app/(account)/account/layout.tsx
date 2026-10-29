@@ -10,6 +10,8 @@ import { AccountNav } from '@/components/account/AccountNav'
 import { OrgSwitcher } from '@/components/account/OrgSwitcher'
 import { Container } from '@/components/ui/Layout'
 import { RETURN_PATH_HEADER, safeNextPath } from '@/lib/return-path'
+import { readSupplySwitches } from '@/lib/supply/partner-switches'
+import { approvedTradeAccount } from '@/lib/supply/trade-prices-data'
 
 export const dynamic = 'force-dynamic'
 
@@ -26,7 +28,9 @@ export default async function AccountLayout({ children }: { children: React.Reac
     getPillars(),
     getAdminSupabase().from('managed_properties').select('id', { count: 'exact', head: true }).eq('owner_user_id', user.id).neq('status', 'ended'),
   ])
-  const items = accountNavItems(active, count ?? 0, offered ?? 0, jobsLive, { agency: agency.any, owner: Boolean(owned) && serviceOn(pillars, 'manage', 'owner-portal') })
+  // S6-4: "Your trade orders" only for an approved trade customer, and only while trade pricing is on.
+  const tradeOrders = (await readSupplySwitches()).tradePricing && Boolean(await approvedTradeAccount(user.id))
+  const items = accountNavItems(active, count ?? 0, offered ?? 0, jobsLive, { agency: agency.any, owner: Boolean(owned) && serviceOn(pillars, 'manage', 'owner-portal'), tradeOrders })
 
   return (
     <Container className="py-6 lg:py-10">

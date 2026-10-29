@@ -8,7 +8,7 @@ import { z } from 'zod'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { assertAdmin, assertOwner, audit } from '@/lib/admin/guard'
 import { fail, ok, type ActionResult } from '@/lib/action-result'
-import { SUPPLY_SWITCHES_TAG } from '@/lib/supply/partner-switches'
+import { SUPPLY_SWITCHES_TAG, readSupplySwitches } from '@/lib/supply/partner-switches'
 import { readPaymentDetails } from '@/lib/supply/order-requests-data'
 import { NOT_YET_USED, REGISTER_PATH, SUPPLY_SWITCH_KEYS, type SupplySwitch } from '@/lib/supply/partner-rules'
 
@@ -29,6 +29,8 @@ export async function setSupplySwitchAction(which: string, on: boolean): Promise
   if (!parsed.success) return fail('Choose a switch.')
   // S6-2: customers cannot be told how to pay while the payment details are empty.
   if (parsed.data.on && parsed.data.which === 'catalogueOrdering' && !(await readPaymentDetails())) return fail('Add the payment details in Settings first.')
+  // S6-4: trade prices on orders need catalogue ordering on first.
+  if (parsed.data.on && parsed.data.which === 'tradePricing' && !(await readSupplySwitches()).catalogueOrdering) return fail('Switch on catalogue ordering first.')
   if (parsed.data.on && NOT_YET_USED.includes(parsed.data.which)) return fail('This switch is used from a later release and cannot be switched on yet.')
   const key = SUPPLY_SWITCH_KEYS[parsed.data.which]
   const db = getAdminSupabase()

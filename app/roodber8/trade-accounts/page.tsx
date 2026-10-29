@@ -1,4 +1,5 @@
-import { requireAdminPage } from '@/lib/admin/guard'
+import Link from 'next/link'
+import { isOwnerSession, requireAdminPage } from '@/lib/admin/guard'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { formatDate, formatPhone } from '@/lib/format'
 import { tradeDecisionAction } from '../actions/products'
@@ -15,6 +16,8 @@ const STATUSES = ['pending', 'approved', 'rejected', 'revoked'] as const
 export default async function TradeAccountsPage(props: { searchParams: Promise<{ status?: string }> }) {
   const searchParams = await props.searchParams
   await requireAdminPage()
+  // S6-4: each account's trade prices are the owner's (they show what HagerLand pays partners).
+  const owner = await isOwnerSession()
   const status = STATUSES.find((s) => s === searchParams.status) ?? 'pending'
   const { data } = must(await getAdminSupabase().from('trade_accounts').select('*').eq('status', status).order('created_at', { ascending: status === 'pending' }).limit(200))
   return (
@@ -37,7 +40,18 @@ export default async function TradeAccountsPage(props: { searchParams: Promise<{
         rowKey={(r) => r.id}
         empty="Nothing here."
         columns={[
-          { key: 'ref', label: 'Reference', render: (r) => <span className="font-mono text-caption">{r.reference}</span> },
+          {
+            key: 'ref',
+            label: 'Reference',
+            render: (r) =>
+              owner ? (
+                <Link href={`/roodber8/trade-accounts/${r.id}`} prefetch={false} className="font-mono text-caption text-green underline">
+                  {r.reference}
+                </Link>
+              ) : (
+                <span className="font-mono text-caption">{r.reference}</span>
+              ),
+          },
           { key: 'b', label: 'Business', render: (r) => (<div><p className="font-semibold">{r.business_name}</p><p>{r.trade_type}</p></div>) },
           { key: 'c', label: 'Contact', render: (r) => (<div><p>{formatPhone(r.phone)}</p>{r.tin && <p>TIN {r.tin}</p>}</div>) },
           { key: 'n', label: 'Notes', render: (r) => <span className="line-clamp-3 max-w-xs">{[r.expected_monthly_spend, r.notes].filter(Boolean).join(' · ')}</span> },

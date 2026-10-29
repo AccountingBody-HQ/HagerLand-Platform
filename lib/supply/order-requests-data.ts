@@ -20,6 +20,8 @@ import { formatETBCents } from '@/lib/format'
 import { log } from '@/lib/log'
 import { addisDateTime, itemList, type OrderRequestStatus } from '@/lib/supply/order-requests'
 import { resolveTerms, type SuggestedTerms } from '@/lib/supply/terms'
+import { readSupplySwitches } from '@/lib/supply/partner-switches'
+import type { TradePriceRule } from '@/lib/supply/trade-prices'
 
 export const PAYMENT_DETAILS_KEY = 'supply_payment_details'
 
@@ -184,6 +186,8 @@ export interface AdminLine {
     payableUnitCents: number | null
     /** S6-3: the suggested price from the held partner's terms (lib/supply/terms.ts, the same as the database). */
     suggested: SuggestedTerms | null
+    /** S6-4: the trade customer's own price (only while trade pricing is on); the reserve step suggests it instead. */
+    trade: { priceCents: number; rule: TradePriceRule } | null
   }
 }
 
@@ -252,6 +256,15 @@ export async function loadAdminOrderRequest(id: string, owner: boolean): Promise
     const ag = (agreements ?? []).find((a) => a.org_id === hold.org_id)
     return resolveTerms(src ? { costCents: src.cost_price_cents, markupBps: src.markup_bps, commissionBps: src.commission_bps } : null, ag ? { defaultMarkupBps: ag.default_markup_bps, commissionBps: ag.commission_rate_bps } : null)
   }
+  // S6-4 (owner only): a trade customer's own price per product, the same database step the reservation uses.
+  const tradeFor = new Map<string, { priceCents: number; rule: TradePriceRule }>()
+  if (owner && r.requester_user_id && (await readSupplySwitches()).tradePricing) {
+    for (const productId of productIds) {
+      const { data } = must(await db.rpc('trade_effective_price_for', { p_user: r.requester_user_id, p_product: productId }))
+      const t = (data ?? [])[0]
+      if (t) tradeFor.set(productId, { priceCents: Number(t.price_cents), rule: t.rule as TradePriceRule })
+    }
+  }
   const view: AdminOrderRequest = {
     id: r.id,
     reference: r.reference,
@@ -289,6 +302,7 @@ export async function loadAdminOrderRequest(id: string, owner: boolean): Promise
               termsBps: l.terms_bps,
               payableUnitCents: l.partner_payable_unit_cents,
               suggested: suggestionFor(l.product_id, l.id),
+              trade: tradeFor.get(l.product_id) ?? null,
             },
           }
         : {}),
