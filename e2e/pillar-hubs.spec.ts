@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { adminSession, db, setPillarModes } from './helpers'
+import { adminSession, db, setPillarModes, unpublishTestGuides } from './helpers'
 
 /** Pillar hubs, visibility rules and deep-page links back to hubs (spec 26.2–26.4, 26.11, 26.16). */
 
@@ -32,9 +32,13 @@ test('each service page shows what it does, an abroad panel and next steps, in c
   await expect(page.getByRole('link', { name: /Property Finance.*Register interest/ })).toHaveAttribute('href', '/finance#register')
 })
 
-test('Knowledge & Advice links only to pages that have content; empty guide pages point to help and the team', async ({ page }) => {
+test('Knowledge & Advice links only to pages that have content; empty guide pages point to help and the team', async ({ page, browser }) => {
+  // Fix F-7 (N-03): test-made guides left published are put back to draft; any other published guide stops the test.
+  const admin = await browser.newPage({ viewport: { width: 1280, height: 900 } })
+  await unpublishTestGuides(admin)
+  await admin.close()
   const { count } = await db().from('guides').select('id', { count: 'exact', head: true }).eq('status', 'published')
-  test.skip((count ?? 0) > 0, 'a guide was published by an earlier run')
+  expect(count).toBe(0)
   await page.goto('/advice')
   await expect(page.locator('main').getByRole('link', { name: /Read the guides|^Guides|Process checklists|Glossary/ })).toHaveCount(0)
   await expect(page.locator('main').getByRole('link', { name: /Help & FAQs/ }).first()).toBeVisible()

@@ -19,7 +19,7 @@ export default async function MyServiceRequestsPage() {
     <div>
       <AccountPageHeader title="My service requests" description="Requests you sent for building work, repairs and other services, with the quotes you received." action={<ButtonLink href="/request-service">Request a service</ButtonLink>} />
       {rows.length === 0 ? (
-        <EmptyState icon={<Wrench />} title="No requests yet" description="Need a plumber, a builder or an architect? Describe the job once and get quotes from up to three providers." actions={<ButtonLink href="/request-service">Request a service</ButtonLink>} />
+        <EmptyState icon={<Wrench />} title="No requests yet" description="Need a plumber, a builder or an architect? Describe the job once and get quotes from up to three providers at a time." actions={<ButtonLink href="/request-service">Request a service</ButtonLink>} />
       ) : (
         <ul className="divide-y divide-border rounded-lg border border-border bg-white">
           {rows.map((r) => (

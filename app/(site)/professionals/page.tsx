@@ -14,7 +14,7 @@ export const revalidate = 300
 
 export const metadata = buildMetadata({
   title: 'Hire construction professionals in Ethiopia',
-  description: 'Find architects, engineers, contractors and tradespeople across Ethiopia, with real portfolios and verified credentials. Compare and contact them directly.',
+  description: 'Find architects, engineers, contractors and tradespeople across Ethiopia. See their portfolios, check who is Verified, and contact them directly.',
   path: '/professionals',
 })
 
@@ -30,8 +30,8 @@ export default async function ProfessionalsHub() {
       <section className="hl-blueprint bg-ink text-white">
         <Container className="py-10 sm:py-14">
           <Breadcrumbs inverse items={[{ label: 'Professionals' }]} />
-          <h1 className="hl-h1 mt-5 max-w-3xl text-white">Hire trusted construction professionals.</h1>
-          <p className="mt-3 max-w-2xl text-white/75">Architects, engineers, contractors and tradespeople across Ethiopia — with real portfolios and verified credentials.</p>
+          <h1 className="hl-h1 mt-5 max-w-3xl text-white">Find and hire construction professionals.</h1>
+          <p className="mt-3 max-w-2xl text-white/75">Architects, engineers, contractors and tradespeople across Ethiopia, with portfolios and a Verified badge for businesses we have checked.</p>
           <div className="mt-8 rounded-xl bg-white p-4 text-ink shadow-lg sm:p-5">
             <ProfessionalSearch services={tree.map((g) => ({ name: g.name, children: g.children.map((c) => ({ name: c.name, slug: c.slug })) }))} />
           </div>

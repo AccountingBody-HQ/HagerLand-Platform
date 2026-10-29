@@ -19,7 +19,7 @@ export function generateMetadata() {
   return verticalLandingMetadata('contractors', () =>
     buildMetadata({
       title: 'Builders and contractors in Ethiopia',
-      description: 'House builders, general contractors, renovation firms and specialist trades. Describe your project once and get quotes from up to three contractors.',
+      description: 'House builders, general contractors, renovation firms and specialist trades. Describe your project once and get quotes from up to three contractors at a time.',
       path: '/contractors',
     }),
   )
@@ -35,7 +35,7 @@ export default async function ContractorsPage() {
         <Container className="py-12 sm:py-16">
           <Breadcrumbs inverse items={[{ label: 'Contractors' }]} />
           <h1 className="hl-h1 mt-8 max-w-3xl text-white">Builders and contractors, with quotes on request.</h1>
-          <p className="mt-4 max-w-2xl text-[1.0625rem] text-white/80">From a new G+1 home to a kitchen refit: describe your project once and get quotes from up to three contractors who do that work where you are building.</p>
+          <p className="mt-4 max-w-2xl text-[1.0625rem] text-white/80">From a new G+1 home to a kitchen refit: describe your project once and get quotes from up to three contractors at a time who do that work where you are building.</p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row [&>*]:sm:min-w-56">
             {building && (
               <ButtonLink href={`/request-service/${building.slug}`} size="lg">

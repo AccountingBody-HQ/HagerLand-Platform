@@ -73,7 +73,7 @@ export default async function OnboardingPage(props: { searchParams: Promise<{ bu
       <div className="mx-auto max-w-3xl">
         <p className="hl-eyebrow text-green">Step 3 of 3</p>
         <h1 className="hl-h1 mt-2">Tell us about your business</h1>
-        <p className="mt-2 text-muted">We review every new profile before it goes live, usually within one business day.</p>
+        <p className="mt-2 text-muted">We review every new profile before it goes live and email you when it is approved.</p>
         <div className="mt-8 rounded-xl border border-border bg-white p-5 shadow-sm sm:p-8">
           <OrganisationForm
             action={createOrganisationAction}

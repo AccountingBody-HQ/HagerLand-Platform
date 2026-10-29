@@ -1,16 +1,22 @@
 import { expect, test } from '@playwright/test'
-import { adminSession, db } from './helpers'
+import { adminSession, db, unpublishTestGuides } from './helpers'
 
 /** Guides content hub (spec 25.2g) and the build-cost estimator (spec 25.2h). */
 
 test.describe.configure({ mode: 'serial' })
 
+// Fix F-7 (N-03): put back any starter guide a stopped run left published, instead of skipping the first test.
+test.beforeAll(async ({ browser }) => {
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
+  await unpublishTestGuides(page)
+  await page.close()
+})
+
 test('starter guides are unpublished drafts marked "Needs AB review", and nothing shows until a guide is published', async ({ page }) => {
   const { data } = await db().from('guides').select('slug, status, needs_review').in('slug', ['how-to-prepare-a-materials-list', 'questions-to-ask-a-contractor', 'property-viewing-checklist'])
   expect(data).toHaveLength(3)
   for (const g of data ?? []) expect(g).toMatchObject({ needs_review: true })
-  const live = (data ?? []).filter((g) => g.status === 'published')
-  test.skip(live.length > 0, 'a guide was published by an earlier run')
+  expect((data ?? []).filter((g) => g.status === 'published')).toEqual([])
   expect((await page.goto('/guides/questions-to-ask-a-contractor'))?.status()).toBe(404)
   await page.goto('/guides')
   await expect(page.getByRole('heading', { name: 'Our first guides are on their way' })).toBeVisible()

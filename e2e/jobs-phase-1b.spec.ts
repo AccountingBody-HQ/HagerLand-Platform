@@ -4,8 +4,8 @@ import { asFreshVisitor, db, mailWithSubject, randomPhone, uniqueEmail } from '.
 /** Jobs Phase 1b: what happens next after a staffing requirement (thank-you page, email, tab title). */
 
 const NEXT = "HagerLand's recruitment team will contact you to talk about the roles and agree the fee in writing before we start."
-const PROVIDERS = 'We check your request and match it with up to three suitable providers.'
-const PROVIDERS_EMAIL = 'We will match it with up to three suitable providers. Each one contacts you directly, and their quotes appear on your request page.'
+const PROVIDERS = 'We check your request and match it with up to three suitable providers at a time.'
+const PROVIDERS_EMAIL = 'We will match it with up to three suitable providers at a time. Each one contacts you directly, and their quotes appear on your request page.'
 
 async function send(page: Page, slug: string, fill: (p: Page) => Promise<void>) {
   const title = `E2E 1b ${slug} ${Date.now()}`

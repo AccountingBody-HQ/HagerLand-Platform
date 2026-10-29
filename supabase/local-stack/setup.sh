@@ -50,6 +50,19 @@ if [ "$($P -Atc "select to_regclass('public.locations') is null")" = "t" ]; then
     [ "$((10#$(basename "$f" | cut -d_ -f1)))" -le "$((10#$UPTO))" ] || break
     echo "Applying $(basename "$f")"; $P -1 -f "$f"
   done
+  # Fix F-7: production closed the old site's tables at the cutover (step 7); the local copy does the same so tests run
+  # with live's legacy security. Not in the "reset 0009" rehearsal, which imitates the state before the cutover.
+  if [ -z "${2:-}" ]; then
+    echo "Closing the legacy tables to visitors, as on live (cutover step 7)..."
+    $P -1 -f "$ROOT/supabase/legacy/cutover_legacy_lockdown.sql"
+    check="$($P -At -f "$ROOT/supabase/legacy/cutover_legacy_lockdown_check.sql")"
+    if printf '%s\n' "$check" | grep -q '^FAIL'; then
+      printf '%s\n' "$check" | grep '^FAIL'
+      echo "Legacy lockdown check failed (see the FAIL lines above)." >&2
+      exit 1
+    fi
+    echo "Legacy lockdown: $(printf '%s\n' "$check" | grep -c '^PASS') checks PASS."
+  fi
 else
   for f in "$ROOT"/supabase/migrations/*.sql; do
     n=$(basename "$f" | cut -d_ -f1)

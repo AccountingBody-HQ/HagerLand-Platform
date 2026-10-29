@@ -105,7 +105,7 @@ export function ServicesSection({ all, t, lh, freeListing }: { all: AllServices;
           <h2 id="services-title" className="hl-h2">
             {t('Everything your property needs')}
           </h2>
-          <p className="mt-4 text-[1.0625rem] leading-relaxed text-muted sm:text-lg">{t('Buy, rent, build, manage and maintain property in Ethiopia, supported by our own team and verified professionals.')}</p>
+          <p className="mt-4 text-[1.0625rem] leading-relaxed text-muted sm:text-lg">{t('Buy, rent, build, manage and maintain property in Ethiopia, supported by our own team and professionals across Ethiopia.')}</p>
         </div>
 
         <div className="mt-10 divide-y divide-border sm:mt-16">

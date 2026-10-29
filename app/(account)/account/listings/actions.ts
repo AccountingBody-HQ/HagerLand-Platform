@@ -191,7 +191,7 @@ async function submitListing(row: PropertyRow, raw: Record<string, unknown>, use
   if (row.status === 'published' || row.status === 'paused') {
     const applied = await maybeAutoApply(row)
     revalidatePath('/account/listings')
-    return ok({ id: row.id, next: 'done', message: applied ? 'Your changes are live.' : 'Thanks. Your changes will appear once our team has reviewed them (usually within 1 business day).' })
+    return ok({ id: row.id, next: 'done', message: applied ? 'Your changes are live.' : 'Thanks. Your changes will appear once our team has reviewed them.' })
   }
   if (!['draft', 'rejected'].includes(row.status)) return ok({ id: row.id, next: 'done' })
 
@@ -207,7 +207,7 @@ async function submitListing(row: PropertyRow, raw: Record<string, unknown>, use
   const { data: authUser } = await admin.auth.admin.getUserById(userId)
   if (authUser.user?.email) await sendEmail({ to: authUser.user.email, ...listingSubmittedEmail({ name: profile?.full_name?.split(' ')[0] ?? 'there', title: row.title }) })
   revalidatePath('/account/listings')
-  return ok({ id: row.id, next: 'done', message: "Submitted. We'll review it within one business day and email you when it's live." })
+  return ok({ id: row.id, next: 'done', message: "Submitted. We'll review it and email you when it's live." })
 }
 
 /** Changes from verified organisations go live at once unless they move the location or cut the price by more than half. */

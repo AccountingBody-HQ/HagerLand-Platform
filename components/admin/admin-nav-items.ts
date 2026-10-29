@@ -1,6 +1,6 @@
 /** The admin menu (spec 18.2, 26), in groups. Staff see the items their role may open (lib/admin/roles.ts). */
 import {
-  type LucideIcon, BadgePercent, BarChart3, MailWarning, BookOpen, Calculator, Briefcase, Building2, LayoutGrid, Handshake, UserPlus, Coins, Wrench, ListChecks, Receipt, KeyRound, ClipboardCheck, ClipboardList, FileClock, FolderTree, Gauge, Import, Inbox, ShieldCheck, MapPin, Megaphone, Package, Settings, Store, Users, HandCoins, House, Layers, HardHat, Mail, Star, TrendingUp, Activity, UserCog, Truck, PackageCheck, BookText, FileBarChart, PhoneCall,
+  type LucideIcon, BadgePercent, BarChart3, MailWarning, BookOpen, Calculator, Briefcase, Building2, LayoutGrid, UserSearch, KeySquare, FileSignature, UserPlus, Coins, Wrench, ListChecks, Receipt, KeyRound, ClipboardCheck, ClipboardList, FileClock, FolderTree, Gauge, Import, Inbox, ShieldCheck, MapPin, Megaphone, Package, Settings, Store, Users, HandCoins, House, Layers, HardHat, Mail, Star, TrendingUp, Activity, UserCog, Truck, PackageCheck, BookText, FileBarChart, PhoneCall,
 } from 'lucide-react'
 import { roleCanAccess, type StaffRole } from '@/lib/admin/roles'
 
@@ -50,7 +50,7 @@ export const ADMIN_NAV_GROUPS: readonly AdminNavGroup[] = [
     label: 'Jobs',
     items: [
       { href: '/roodber8/jobs', label: 'Jobs and applications', icon: Briefcase },
-      { href: '/roodber8/jobs/desk', label: 'Recruitment desk', icon: Handshake },
+      { href: '/roodber8/jobs/desk', label: 'Recruitment desk', icon: UserSearch },
       { href: '/roodber8/jobs/register', label: 'Worker register', icon: Users },
       { href: '/roodber8/jobs/callbacks', label: 'Call-back requests', icon: PhoneCall, badgeKey: 'callbacks' },
       { href: '/roodber8/demand/jobs', label: 'Jobs insights', icon: TrendingUp },
@@ -61,7 +61,7 @@ export const ADMIN_NAV_GROUPS: readonly AdminNavGroup[] = [
     items: [
       { href: '/roodber8/properties', label: 'Properties', icon: House },
       { href: '/roodber8/developments', label: 'Developments', icon: Building2 },
-      { href: '/roodber8/agency', label: 'Agency', icon: Handshake, badgeKey: 'agency' },
+      { href: '/roodber8/agency', label: 'Agency', icon: KeySquare, badgeKey: 'agency' },
       { href: '/roodber8/property-care', label: 'Property Care', icon: KeyRound, badgeKey: 'care' },
       { href: '/roodber8/sales', label: 'HagerLand sales', icon: HandCoins },
     ],
@@ -71,7 +71,7 @@ export const ADMIN_NAV_GROUPS: readonly AdminNavGroup[] = [
     items: [
       { href: '/roodber8/organisations', label: 'Organisations', icon: Store },
       { href: '/roodber8/users', label: 'Users', icon: Users, badgeKey: 'users' },
-      { href: '/roodber8/partners', label: 'Partner applications', icon: Handshake, badgeKey: 'partners' },
+      { href: '/roodber8/partners', label: 'Partner applications', icon: FileSignature, badgeKey: 'partners' },
       { href: '/roodber8/import', label: 'Imports', icon: Import },
       { href: '/roodber8/imports/compliance', label: 'Imports compliance', icon: ShieldCheck },
       { href: '/roodber8/reviews', label: 'Reviews', icon: Star, badgeKey: 'reviews' },

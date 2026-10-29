@@ -69,7 +69,7 @@ export function verticalForPath(pathname: string): VerticalKey | null {
 /** Defaults (migration 0011 seed), used only if the registry cannot be read. */
 export const DEFAULT_VERTICALS: Vertical[] = [
   ['property', 'Property', 'Property', 'property', 'live', 'house', 'Homes, land and commercial property for sale and to rent.'],
-  ['building-supplies', 'Building Supplies', 'Building Supplies', 'supplies', 'live', 'truck', 'Construction materials quoted fast and delivered to site.'],
+  ['building-supplies', 'Building Supplies', 'Building Supplies', 'supplies', 'live', 'truck', 'Construction materials with one clear quote, delivered to site.'],
   ['professionals', 'Find Professionals', 'Professionals & Contractors', 'professionals', 'live', 'ruler', 'Architects, engineers, surveyors and property specialists.'],
   ['contractors', 'Construction & Contractors', 'Contractors', 'contractors', 'live', 'hard-hat', 'Builders, contractors and trades, with quotes on request.'],
   ['repairs-maintenance', 'Repairs & Maintenance', 'Repairs & Maintenance', 'repairs-maintenance', 'live', 'wrench', 'Plumbing, electrical, roofing, cleaning and emergency repairs.'],

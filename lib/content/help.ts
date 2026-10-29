@@ -23,7 +23,7 @@ export const HELP_FAQ: FaqGroup[] = [
     id: 'requests',
     title: 'Getting quotes for work',
     items: [
-      { question: 'How does a service request work?', answer: 'Choose the service, describe the job and send it. You do not need an account. HagerLand sends it to up to three suitable providers who work in your area, and their quotes appear on your private request page.' },
+      { question: 'How does a service request work?', answer: 'Choose the service, describe the job and send it. You do not need an account. HagerLand sends it to up to three suitable providers at a time who work in your area, and their quotes appear on your private request page.' },
       { question: 'Is it free to ask for quotes?', answer: 'Yes. You pay only the provider you choose, for the work you agree with them.' },
       { question: 'I lost the link to my request.', answer: 'Go to www.hagerland.com/requests/resend (the expired request page links there too) and enter the email you used. If a request exists, we email you a fresh link.' },
       { question: 'What if it is an emergency?', answer: 'Mark the request as an emergency and we look at it first. If anyone is in danger, call the emergency services.' },
@@ -54,7 +54,7 @@ export const HELP_FAQ: FaqGroup[] = [
     items: [
       { question: 'How do I list a property?', answer: 'Create an account, then choose “List a property”. Add the basics, location, details, at least three photos and how buyers can contact you, then submit it for review.' },
       { question: 'How long does a listing stay live?', answer: 'Sixty days. We email you a week before it expires, and you can renew it in one click from your account.' },
-      { question: 'Can I edit a live listing?', answer: 'Yes. Your changes are reviewed quickly while the current version stays live.' },
+      { question: 'Can I edit a live listing?', answer: 'Yes. We review your changes, and the current version stays live until then.' },
       { question: 'Why was my listing not approved?', answer: 'We email you the reason, for example missing details or unclear photos. Edit the listing and submit it again.' },
     ],
   },
@@ -102,8 +102,8 @@ export const HELP_FAQ: FaqGroup[] = [
     id: 'verification',
     title: 'Verification',
     items: [
-      { question: 'What does the Verified badge mean?', answer: "It means our team checked the business's trade licence, and for contractors their licence category and grade. The badge shows the date of the check." },
-      { question: 'How do I get Verified?', answer: 'Go to My account → Company profile → Get Verified and upload your trade licence and TIN certificate. We check them within one to two business days.' },
+      { question: 'What does the Verified badge mean?', answer: "It means our team checked the business's trade licence and tax number (TIN). The badge shows the date of the check, and we check again every 12 months." },
+      { question: 'How do I get Verified?', answer: 'Go to My account → Company profile → Get Verified and upload your trade licence and TIN certificate. We check them and email you when we have decided.' },
       { question: 'My business is listed but I did not add it.', answer: 'We add some businesses from public information so customers can find them. Use “Claim this business” on your profile to take control of it.' },
     ],
   },

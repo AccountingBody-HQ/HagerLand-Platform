@@ -175,13 +175,18 @@ export async function claimDecisionAction(claimId: string, approve: boolean, not
   if (!claim || claim.status !== 'pending') return fail('This claim has already been decided.')
   const { data: org } = await db.from('organisations').select('id, name, slug, verification_level').eq('id', claim.org_id).maybeSingle()
   if (!org) return fail('Organisation not found.')
+  // Fix F-7: every save is checked; the claimant is emailed and the audit written only after all of them succeed.
   if (approve) {
     const { error: memberError } = await db.from('organisation_members').upsert({ org_id: org.id, user_id: claim.user_id, role: 'owner' })
     if (memberError) return fail('Could not add the owner. Please try again.')
-    await db.from('organisations').update({ verification_level: org.verification_level === 'listed' ? 'claimed' : org.verification_level, claimed_at: new Date().toISOString() }).eq('id', org.id)
-    await db.from('profiles').update({ account_type: 'business' }).eq('id', claim.user_id)
+    const { error: orgError } = await db.from('organisations').update({ verification_level: org.verification_level === 'listed' ? 'claimed' : org.verification_level, claimed_at: new Date().toISOString() }).eq('id', org.id)
+    if (orgError) return fail('Please try again.')
+    const { error: profileError } = await db.from('profiles').update({ account_type: 'business' }).eq('id', claim.user_id)
+    if (profileError) return fail('Please try again.')
   }
-  await db.from('claims').update({ status: approve ? 'approved' : 'rejected', admin_notes: note ?? null, decided_at: new Date().toISOString() }).eq('id', claimId)
+  const { data: decided, error: claimError } = await db.from('claims').update({ status: approve ? 'approved' : 'rejected', admin_notes: note ?? null, decided_at: new Date().toISOString() }).eq('id', claimId).eq('status', 'pending').select('id')
+  if (claimError) return fail('Please try again.')
+  if (!decided?.length) return fail('This claim has already been decided.')
   if (claim.claimant_email) await sendEmail({ to: claim.claimant_email, ...claimDecisionEmail({ name: claim.claimant_name.split(' ')[0], orgName: org.name, approved: approve, note: approve ? null : note }) })
   await audit(approve ? 'claim.approve' : 'claim.reject', { type: 'organisation', id: org.id, label: org.name }, { claim: claimId, note: note ?? null })
   revalidateEntity('organisation', org.id)
@@ -203,7 +208,10 @@ export async function declineVerificationAction(requestId: string, note?: string
   if (!req || req.status !== 'pending') return fail('This request has already been decided.')
   const { data: org } = await db.from('organisations').select('id, name').eq('id', req.org_id).maybeSingle()
   if (!org) return fail('Organisation not found.')
-  await db.from('verification_requests').update({ status: 'rejected', admin_notes: note ?? null, decided_at: new Date().toISOString() }).eq('id', requestId)
+  // Fix F-7: only a pending request is declined, and the business is emailed only once the decline is saved.
+  const { data: saved, error } = await db.from('verification_requests').update({ status: 'rejected', admin_notes: note ?? null, decided_at: new Date().toISOString() }).eq('id', requestId).eq('status', 'pending').select('id')
+  if (error) return fail('Please try again.')
+  if (!saved?.length) return fail('This request has already been decided.')
   const to = await ownerEmails(org.id, req.submitted_by)
   if (to.length) await sendEmail({ to, ...verificationDecisionEmail({ name: await firstName(req.submitted_by), orgName: org.name, approved: false, note }) })
   await audit('verification.reject', { type: 'organisation', id: org.id, label: org.name }, note ? { note } : null)

@@ -16,12 +16,16 @@ export interface AgencyKpis {
   applications: number
   completions: number
   avgDaysOnMarket: number | null
-  feeIncomeEtb: number
+  /** Owner only (Fix F-7, C8): null when the caller is not the owner, and then never read from the database. */
+  feeIncomeEtb: number | null
   tenanciesActive: number
 }
 
-/** Agency reports (spec 26.5, 26.14) over a period: instructions, valuations, viewings, offers, completions, days on market, fees. */
-export async function agencyKpis(since: Date): Promise<AgencyKpis> {
+/**
+ * Agency reports (spec 26.5, 26.14) over a period: instructions, valuations, viewings, offers, completions, days on
+ * market and, for the owner only (`owner`: from isOwnerSession()), fee income.
+ */
+export async function agencyKpis(since: Date, opts: { owner: boolean }): Promise<AgencyKpis> {
   const db = getAdminSupabase()
   const iso = since.toISOString()
   // The failure rule (Tidy T-2, T2-13): a failed read stops the page with an error instead of showing zeros.
@@ -32,7 +36,7 @@ export async function agencyKpis(since: Date): Promise<AgencyKpis> {
     readAll(() => db.from('agency_offers').select('status').gte('created_at', iso), { maxRows: REPORT_MAX_ROWS }),
     db.from('rental_applications').select('id', { count: 'exact', head: true }).gte('created_at', iso),
     readAll(() => db.from('agency_instructions').select('live_at, completed_at').eq('stage', 'completed').gte('completed_at', iso), { maxRows: REPORT_MAX_ROWS }),
-    readAll(() => db.from('deals').select('commission_minor').in('source_type', ['agency_instruction', 'tenancy']).gte('created_at', iso), { maxRows: REPORT_MAX_ROWS }),
+    opts.owner ? readAll(() => db.from('deals').select('commission_minor').in('source_type', ['agency_instruction', 'tenancy']).gte('created_at', iso), { maxRows: REPORT_MAX_ROWS }) : Promise.resolve({ data: null, error: null }),
     db.from('tenancies').select('id', { count: 'exact', head: true }).eq('status', 'active'),
   ]))
   const byStage: Record<string, number> = {}
@@ -51,7 +55,7 @@ export async function agencyKpis(since: Date): Promise<AgencyKpis> {
     applications: app.count ?? 0,
     completions: (done.data ?? []).length,
     avgDaysOnMarket: marketed.length ? Math.round(marketed.reduce((n, r) => n + daysBetween(r.live_at as string, r.completed_at as string), 0) / marketed.length) : null,
-    feeIncomeEtb: Math.round((deals.data ?? []).reduce((n, d) => n + (d.commission_minor ?? 0), 0) / 100),
+    feeIncomeEtb: opts.owner ? Math.round((deals.data ?? []).reduce((n, d) => n + (d.commission_minor ?? 0), 0) / 100) : null,
     tenanciesActive: ten.count ?? 0,
   }
 }

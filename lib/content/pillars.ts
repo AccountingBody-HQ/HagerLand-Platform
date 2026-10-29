@@ -106,7 +106,7 @@ export const PILLAR_CONTENT: Record<PillarKey, PillarContent> = {
     direct: [],
     aggregate: [
       { label: 'Start a building project', href: '/build/project', text: 'Describe your plot and plans once; we link the requests you need.', icon: 'hard-hat' },
-      { label: 'Contractors & builders', href: '/contractors', text: 'Describe your project and get up to three quotes.', icon: 'hammer', needs: 'contractors' },
+      { label: 'Contractors & builders', href: '/contractors', text: 'Describe your project and get quotes from up to three contractors at a time.', icon: 'hammer', needs: 'contractors' },
       { label: 'Architects and engineers', href: '/professionals/design-consultancy', text: 'Design, structure and building services.', icon: 'ruler', needs: 'professionals' },
       { label: 'New developments', href: '/developments', text: 'Projects by developers across Ethiopia.', icon: 'building', needs: 'property' },
     ],
@@ -130,7 +130,7 @@ export const PILLAR_CONTENT: Record<PillarKey, PillarContent> = {
       { label: 'Request a repair', href: '/repairs-maintenance', icon: 'wrench', needs: 'repairs-maintenance' },
       { label: 'Emergency repairs', href: '/repairs-maintenance#emergency', icon: 'siren', needs: 'repairs-maintenance' },
     ],
-    direct: [{ label: 'Coordinated by HagerLand', href: '/repairs-maintenance', text: 'We check every request and can send our own team as well as, or instead of, a trusted tradesperson.', icon: 'shield-check', needs: 'repairs-maintenance' }],
+    direct: [{ label: 'Coordinated by HagerLand', href: '/repairs-maintenance', text: 'We check every request and can send our own team as well as, or instead of, a tradesperson we work with.', icon: 'shield-check', needs: 'repairs-maintenance' }],
     aggregateTitle: 'Find a tradesperson',
     aggregate: [
       { label: 'Repairs & maintenance', href: '/repairs-maintenance', text: 'Plumbing, electrical, roofing, cleaning and more.', icon: 'wrench', needs: 'repairs-maintenance' },
@@ -206,7 +206,7 @@ export const PILLAR_CONTENT: Record<PillarKey, PillarContent> = {
     soon: { headline: 'Knowledge & Advice opens soon.', points: ['Guides, checklists and market insight.'] },
   },
   supplies: {
-    headline: 'Construction materials quoted fast, from HagerLand Supply and trusted suppliers.',
+    headline: 'Construction materials from HagerLand Supply and suppliers we work with, with one clear quote.',
     actions: [],
     direct: [],
     aggregate: [],

@@ -5,7 +5,7 @@ import { copyFileSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { authenticator } from 'otplib'
-import { adminSession, asFreshVisitor, createProvider, db, mailWithSubject, randomPhone, signIn, uniqueEmail } from './helpers'
+import { adminSession, asFreshVisitor, createProvider, db, mailWithSubject, randomPhone, signIn, uniqueEmail, submitStaffSignIn } from './helpers'
 import { BANNED } from './plain-language-words'
 
 /**
@@ -37,14 +37,7 @@ async function staffPage(browser: Browser, role: 'operations' | 'agent' | 'conte
   const secret = authenticator.generateSecret()
   const { data } = await db().auth.admin.createUser({ email, password: 'staff-correct-horse', email_confirm: true, app_metadata: { staff: true } })
   await db().from('staff_users').insert({ email, name: `E2E ${role}`, role, status: 'active', user_id: data.user!.id, totp_secret_enc: encrypt(secret), totp_enrolled_at: new Date().toISOString() })
-  await page.goto('/roodber8-login')
-  await page.getByText('Staff sign in').click()
-  await page.fill('#stf-email', email)
-  await page.fill('#stf-pass', 'staff-correct-horse')
-  if (authenticator.timeRemaining() < 6) await page.waitForTimeout(authenticator.timeRemaining() * 1000 + 800)
-  await page.fill('#stf-code', authenticator.generate(secret))
-  await page.getByRole('button', { name: 'Sign in as staff' }).click()
-  await page.waitForURL('**/roodber8')
+  await submitStaffSignIn(page, email, 'staff-correct-horse', secret)
   return page
 }
 
@@ -67,6 +60,17 @@ async function setSwitch(page: Page, label: SwitchLabel, on: boolean) {
   if (on && (await box.getByRole('checkbox').count())) await box.getByRole('checkbox').check()
   await box.getByRole('button', { name: on ? 'Switch on' : 'Switch off' }).click()
   await expect(page.getByText(`${label} is now ${on ? 'on' : 'off'} on the website.`)).toBeVisible()
+}
+
+/** Site-wide Amharic through the real admin form (it also refreshes the cached pages). */
+async function setSiteAmharic(page: Page, on: boolean) {
+  await adminSession(page)
+  await page.goto('/roodber8/settings')
+  const panel = page.locator('form').filter({ has: page.getByLabel('Show the Amharic version') })
+  if (on) await panel.getByLabel('Show the Amharic version').check()
+  else await panel.getByLabel('Show the Amharic version').uncheck()
+  await panel.getByRole('button', { name: /Save/ }).click()
+  await expect(panel.getByText(/Saved/)).toBeVisible()
 }
 
 /** The middleware re-reads the Amharic switches at most once a minute. */
@@ -111,7 +115,15 @@ async function seedJob(title: string, extra: Record<string, unknown> = {}) {
   return data
 }
 
-test.beforeAll(async () => {
+test.beforeAll(async ({ browser }) => {
+  // Fix F-7 (N-03): a run that stopped half-way may have left Amharic on; switch it off through admin, never skip J1.
+  const { data } = await db().from('site_settings').select('key, value').in('key', ['jobs_amharic', 'amharic_enabled'])
+  if ((data ?? []).some((r) => r.value === true)) {
+    const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
+    await setSwitch(page, 'Amharic for Jobs', false)
+    await setSiteAmharic(page, false)
+    await page.close()
+  }
   employer = await createProvider({ name: `E2E P5 Employer ${stamp}`, serviceSlug: 'plumbers', locationPath: 'addis-ababa/bole' })
   job = await seedJob(`E2E P5 Masons ${stamp}`)
   await resetCallbackLimits()
@@ -128,9 +140,12 @@ test.afterAll(async ({ browser }) => {
 
 test('J1: Amharic for Jobs Off — /am/jobs not available, no switch link, no /am sitemap entries, no hreflang', async ({ page }, info) => {
   test.skip(info.project.name !== 'desktop', 'one run')
+  test.setTimeout(180_000)
   const { data } = await db().from('site_settings').select('key, value').in('key', ['jobs_amharic', 'amharic_enabled'])
-  test.skip((data ?? []).some((r) => r.value === true), 'switched on by another run')
-  for (const p of ['/am/jobs', `/am/jobs/${job.slug}`, '/am/request-service/staffing', '/am/account/jobs']) expect((await page.request.get(p)).status(), p).toBe(404)
+  expect((data ?? []).filter((r) => r.value === true)).toEqual([])
+  // The site reads the switches through a cache of about a minute ("The website updates within a minute"), so a run
+  // that has just switched Amharic off waits for it, as J4 does when switching on.
+  for (const p of ['/am/jobs', `/am/jobs/${job.slug}`, '/am/request-service/staffing', '/am/account/jobs']) await expect.poll(async () => (await page.request.get(p)).status(), { message: p, timeout: 90_000, intervals: [5_000] }).toBe(404)
   const res = await page.goto('/jobs')
   expect(res?.headers()['link'] ?? '').not.toContain('hreflang')
   await expect(page.getByRole('link', { name: 'አማርኛ' })).toHaveCount(0)
@@ -220,16 +235,7 @@ test('J4: the site-wide Amharic version behaves exactly as before on Jobs pages'
   test.skip(info.project.name !== 'desktop', 'admin at desktop width')
   test.setTimeout(300_000)
   await setSwitch(page, 'Amharic for Jobs', false)
-  const setSiteAmharic = async (on: boolean) => {
-    await adminSession(page)
-    await page.goto('/roodber8/settings')
-    const panel = page.locator('form').filter({ has: page.getByLabel('Show the Amharic version') })
-    if (on) await panel.getByLabel('Show the Amharic version').check()
-    else await panel.getByLabel('Show the Amharic version').uncheck()
-    await panel.getByRole('button', { name: /Save/ }).click()
-    await expect(panel.getByText(/Saved/)).toBeVisible()
-  }
-  await setSiteAmharic(true)
+  await setSiteAmharic(page, true)
   try {
     await page.context().clearCookies()
     await expect.poll(async () => (await page.request.get('/am')).status(), { timeout: 90_000, intervals: [5_000] }).toBe(200)
@@ -250,7 +256,7 @@ test('J4: the site-wide Amharic version behaves exactly as before on Jobs pages'
     await page.goto('/privacy')
     await expect(page.getByText('This policy is written in English. If a translation differs, the English version applies.')).toBeVisible()
   } finally {
-    await setSiteAmharic(false)
+    await setSiteAmharic(page, false)
   }
   await page.goto('/privacy')
   await expect(page.getByText('This policy is written in English. If a translation differs, the English version applies.')).toHaveCount(0)

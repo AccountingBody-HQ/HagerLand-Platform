@@ -11,14 +11,14 @@ import { SoonBadge } from '@/components/verticals/SoonBadge'
 
 export const metadata = buildMetadata({
   title: 'About HagerLand',
-  description: 'HagerLand helps people buy, rent, build and manage property in Ethiopia, with our own team and verified professionals, for Ethiopians at home and abroad.',
+  description: 'HagerLand helps people buy, rent, build and manage property in Ethiopia, with our own team and professionals across Ethiopia, for Ethiopians at home and abroad.',
   path: '/about',
 })
 
 const STANDARDS = [
   { icon: ClipboardCheck, title: 'Every listing checked', text: 'Our team reviews every listing and profile before it is published.' },
   { icon: BadgeCheck, title: 'Verified means verified', text: 'The Verified badge appears only after we have checked a business’s documents.' },
-  { icon: Clock, title: 'Always up to date', text: 'Property listings expire unless they are renewed, so what you see is available.' },
+  { icon: Clock, title: 'Always up to date', text: 'Listings expire unless their owner renews them, so old listings do not stay up.' },
   { icon: Scale, title: 'Our own projects, clearly labelled', text: 'HagerLand’s own developments and supplies are always labelled and never given hidden priority in search.' },
 ]
 

@@ -18,7 +18,7 @@ import { EnquiryForm } from '@/components/enquiry/EnquiryForm'
 export const revalidate = 300
 
 export const metadata = buildMetadata({
-  title: 'Construction materials, quoted fast',
+  title: 'Construction materials, one clear price',
   description: 'Cement, steel, roofing, plumbing, electrical, tiles and more. Send your materials list to HagerLand Supply and get one clear price with delivery.',
   path: '/supplies',
 })
@@ -31,7 +31,7 @@ export default async function SuppliesHub() {
         <Container className="py-12 sm:py-16">
           <Breadcrumbs inverse items={[{ label: 'Supplies' }]} />
           <p className="hl-eyebrow mt-8 text-gold">{brand.divisions.supply}</p>
-          <h1 className="hl-display mt-3 max-w-3xl text-white">Construction materials, quoted fast.</h1>
+          <h1 className="hl-display mt-3 max-w-3xl text-white">Construction materials, one clear price.</h1>
           <p className="mt-5 max-w-2xl text-[1.0625rem] text-white/80">Tell us what you need — from a box of screws to a full bill of quantities. We&apos;ll come back with a clear price and delivery.</p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row [&>*]:sm:min-w-56">
             <ButtonLink href="/supplies/materials-list" size="lg">

@@ -5,7 +5,7 @@ export const brand = {
   name: 'HagerLand',
   /** Positioning (spec 24.1). The support line is AB's choice of 2026-10 (polish round 1). */
   masterLine: 'One platform for property, construction and everything around it.',
-  supportLine: 'Buy, rent, build and manage property in Ethiopia, with verified partners, wherever you live.',
+  supportLine: 'Buy, rent, build and manage property in Ethiopia, with partners we check, wherever you live.',
   audienceLine: 'For Ethiopians in Ethiopia and around the world.',
   /** Homepage hero eyebrow (AB, polish round 1, R-3). The audience line stays on About and Diaspora. */
   heroEyebrow: "Ethiopia's property and construction platform",

@@ -3,7 +3,7 @@ import crypto from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { authenticator } from 'otplib'
-import { adminSession, assertLocalStack, createProvider, db, randomPhone, signUp, uniqueEmail } from './helpers'
+import { adminSession, assertLocalStack, createProvider, db, randomPhone, signUp, uniqueEmail, submitStaffSignIn } from './helpers'
 
 /**
  * Tidy T-2 (migration 0045): AB's journeys J1–J13 on the local copy only. Switches are turned on here only on the
@@ -42,14 +42,7 @@ async function staffPage(browser: Browser, role: 'operations' | 'agent' | 'conte
   const secret = authenticator.generateSecret()
   const { data } = await db().auth.admin.createUser({ email, password: 'staff-correct-horse', email_confirm: true, app_metadata: { staff: true } })
   await db().from('staff_users').insert({ email, name: `E2E ${role}`, role, status: 'active', user_id: data.user!.id, totp_secret_enc: encrypt(secret), totp_enrolled_at: new Date().toISOString() })
-  await page.goto('/roodber8-login')
-  await page.getByText('Staff sign in').click()
-  await page.fill('#stf-email', email)
-  await page.fill('#stf-pass', 'staff-correct-horse')
-  if (authenticator.timeRemaining() < 6) await page.waitForTimeout(authenticator.timeRemaining() * 1000 + 800)
-  await page.fill('#stf-code', authenticator.generate(secret))
-  await page.getByRole('button', { name: 'Sign in as staff' }).click()
-  await page.waitForURL('**/roodber8')
+  await submitStaffSignIn(page, email, 'staff-correct-horse', secret)
   return page
 }
 async function callAction(page: Page, file: string, name: string, args: unknown[], path = '/roodber8'): Promise<string> {

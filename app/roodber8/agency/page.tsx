@@ -9,6 +9,7 @@ import { Stat } from '@/components/ui/Layout'
 import { ButtonLink } from '@/components/ui/Button'
 import { TaskDone } from '@/components/admin/AgencyTools'
 import { must } from '@/lib/admin/must'
+import { isOwnerSession } from '@/lib/admin/guard'
 
 export const metadata = { title: 'Agency' }
 
@@ -18,8 +19,10 @@ const PERIODS = [30, 90, 365] as const
 export default async function AgencyOverview(props: { searchParams: Promise<{ days?: string }> }) {
   const sp = await props.searchParams
   const days = PERIODS.find((d) => String(d) === sp.days) ?? 90
+  // Fix F-7 (C8): fee income is the owner's only; for other roles it is never read.
+  const owner = await isOwnerSession()
   const [k, agency, { data: tasks }] = must(await Promise.all([
-    agencyKpis(new Date(Date.now() - days * 86_400_000)),
+    agencyKpis(new Date(Date.now() - days * 86_400_000), { owner }),
     getAgencyAvailability(),
     getAdminSupabase().from('agency_tasks').select('id, title, due_on, assigned_to, entity_type, entity_id').eq('done', false).order('due_on', { nullsFirst: false }).limit(20),
   ]))
@@ -63,7 +66,7 @@ export default async function AgencyOverview(props: { searchParams: Promise<{ da
         <Stat label="Applications to rent" value={k.applications} />
         <Stat label="Completions" value={k.completions} />
         <Stat label="Average days on market" value={k.avgDaysOnMarket ?? '–'} hint="Live to completed" />
-        <Stat label="Fee income" value={formatETB(k.feeIncomeEtb)} hint={`Active tenancies: ${k.tenanciesActive}`} />
+        {k.feeIncomeEtb !== null && <Stat label="Fee income" value={formatETB(k.feeIncomeEtb)} hint={`Active tenancies: ${k.tenanciesActive}`} />}
       </div>
       <Panel title="Pipeline">
         <ul className="grid gap-2 sm:grid-cols-3 lg:grid-cols-7">

@@ -3,7 +3,7 @@ import crypto from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { createClient } from '@supabase/supabase-js'
 import { authenticator } from 'otplib'
-import { adminSession, asFreshVisitor, createProvider, createUser, db, mailWithSubject, randomPhone, signIn, uniqueEmail } from './helpers'
+import { adminSession, asFreshVisitor, createProvider, createUser, db, mailWithSubject, randomPhone, signIn, uniqueEmail, submitStaffSignIn } from './helpers'
 
 /** Jobs Phase 2 (migration 0040): AB's journeys J1–J8 on the local copy. Switches are flipped through the owner page. */
 
@@ -74,14 +74,7 @@ async function staffSignIn(page: Page, role: 'operations' | 'agent' | 'content')
   const { data } = await db().auth.admin.createUser({ email, password: 'staff-correct-horse', email_confirm: true, app_metadata: { staff: true } })
   await db().from('staff_users').insert({ email, name: `E2E ${role}`, role, status: 'active', user_id: data.user!.id, totp_secret_enc: encrypt(secret), totp_enrolled_at: new Date().toISOString() })
   await page.context().clearCookies()
-  await page.goto('/roodber8-login')
-  await page.getByText('Staff sign in').click()
-  await page.fill('#stf-email', email)
-  await page.fill('#stf-pass', 'staff-correct-horse')
-  if (authenticator.timeRemaining() < 5) await page.waitForTimeout(authenticator.timeRemaining() * 1000 + 500)
-  await page.fill('#stf-code', authenticator.generate(secret))
-  await page.getByRole('button', { name: 'Sign in as staff' }).click()
-  await page.waitForURL('**/roodber8')
+  await submitStaffSignIn(page, email, 'staff-correct-horse', secret)
 }
 
 /** Calls a server action directly, as a crafted request would. */

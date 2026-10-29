@@ -2,6 +2,8 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { z } from 'zod'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { isSupabaseConfigured } from '@/lib/env'
+import { rateLimit } from '@/lib/rate-limit'
+import { getClientIp, hashIp } from '@/lib/security'
 
 const COOKIE = 'hl_seen'
 const schema = z.object({ entity_type: z.enum(['property', 'development', 'product', 'organisation']), id: z.uuid() })
@@ -14,6 +16,8 @@ export async function POST(request: NextRequest) {
   const key = parsed.data.id.slice(0, 8)
   const res = new NextResponse(null, { status: 204 })
   if (seen.includes(key)) return res
+  // Fix F-7: a script without cookies cannot inflate view counts; over the limit the view is quietly not counted.
+  if (!(await rateLimit(`views:${hashIp(getClientIp(request.headers))}`, 300, 3600)).allowed) return res
   await getAdminSupabase().rpc('increment_view', { p_entity_type: parsed.data.entity_type, p_id: parsed.data.id })
   res.cookies.set(COOKIE, [key, ...seen].slice(0, 60).join('.'), { httpOnly: true, sameSite: 'lax', secure: true, path: '/' })
   return res

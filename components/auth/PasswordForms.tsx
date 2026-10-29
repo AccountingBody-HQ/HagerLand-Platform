@@ -6,6 +6,7 @@ import { Field, Input, describedBy } from '@/components/ui/Field'
 import { ButtonLink } from '@/components/ui/Button'
 import { FormAlert, SubmitButton } from '@/components/forms/FormParts'
 import { NoResetForm } from '@/components/forms/NoResetForm'
+import { Turnstile } from '@/components/forms/Turnstile'
 
 export function ResetPasswordForm() {
   const [state, action] = useActionState(resetPasswordAction, null)
@@ -23,6 +24,7 @@ export function ResetPasswordForm() {
       <Field label="Email" htmlFor="rp-email" error={errors.email}>
         <Input id="rp-email" name="email" type="email" autoComplete="email" invalid={Boolean(errors.email)} aria-describedby={describedBy('rp-email', errors.email)} />
       </Field>
+      <Turnstile action="password_reset" />
       <SubmitButton fullWidth pendingText="Sending…">
         Send reset link
       </SubmitButton>

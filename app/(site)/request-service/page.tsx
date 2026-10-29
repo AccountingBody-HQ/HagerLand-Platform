@@ -12,7 +12,7 @@ export const revalidate = 600
 
 export const metadata = buildMetadata({
   title: 'Request a service',
-  description: 'Tell us what you need, from repairs to building work and professional services, and get quotes from up to three suitable providers on HagerLand.',
+  description: 'Tell us what you need, from repairs to building work and professional services, and get quotes from up to three suitable providers at a time on HagerLand.',
   path: '/request-service',
 })
 
@@ -22,7 +22,7 @@ export default async function RequestServicePage() {
   const names = new Map(verticals.map((v) => [v.key, v.name]))
   return (
     <>
-      <PageHero crumb="Request a service" eyebrow="Get quotes" title="Request a service" intro="Describe what you need once. We send it to up to three suitable providers, they contact you, and you compare their quotes. Free for customers." />
+      <PageHero crumb="Request a service" eyebrow="Get quotes" title="Request a service" intro="Describe what you need once. We send it to up to three suitable providers at a time, they contact you, and you compare their quotes. Free for customers." />
       <Section>
         <HowRequestsWork />
         <div className="mt-12 space-y-10">

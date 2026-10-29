@@ -86,7 +86,7 @@ export default async function DiasporaPage() {
         <Container className="py-12 sm:py-20">
           <Breadcrumbs inverse items={[{ label: 'Diaspora Services' }]} />
           <p className="hl-eyebrow mt-8 text-gold">{brand.audienceLine}</p>
-          <h1 className="hl-display mt-3 max-w-3xl text-white">Your trusted bridge to property in Ethiopia.</h1>
+          <h1 className="hl-display mt-3 max-w-3xl text-white">Your bridge to property in Ethiopia.</h1>
           <p className="mt-5 max-w-2xl text-[1.0625rem] text-white/80">Buy, build, renovate and look after property at home from wherever you live, and find Ethiopian-run services in your own city.</p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row [&>*]:sm:min-w-56">
             <ButtonLink href="#home" size="lg">

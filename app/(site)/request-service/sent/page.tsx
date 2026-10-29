@@ -42,7 +42,7 @@ export default async function RequestSentPage(props: { searchParams: Promise<{ r
         </p>
       )}
       <ol className="mx-auto mt-8 max-w-md space-y-3 text-left">
-        <li>1. {nextStep ? t(nextStep) : 'We check your request and match it with up to three suitable providers.'}</li>
+        <li>1. {nextStep ? t(nextStep) : 'We check your request and match it with up to three suitable providers at a time.'}</li>
         <li>2. {steps ? t(steps.second) : 'Providers who accept it contact you directly and send a quote.'}</li>
         <li>3. {steps ? t(user ? steps.thirdSignedIn : steps.thirdGuest) : `${user ? 'Quotes appear in your account.' : 'We have emailed you a private link where your quotes will appear.'} Choose the one you want.`}</li>
       </ol>

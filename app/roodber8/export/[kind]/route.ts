@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { readAll, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import { isAdminRequest } from '@/lib/admin-auth'
-import { audit } from '@/lib/admin/guard'
+import { audit, isOwnerSession } from '@/lib/admin/guard'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { toCsv } from '@/lib/admin/csv'
 import { enquiriesPerOrg, listingReport, periodFrom, quoteReport, signupSeries } from '@/lib/admin/reports'
@@ -177,7 +177,8 @@ export async function GET(request: NextRequest, props: { params: Promise<{ kind:
     }
     case 'agency-report': {
       const days = Math.min(3650, Math.max(1, Number(sp.get('days') ?? 90) || 90))
-      const k = await agencyKpis(new Date(Date.now() - days * 86_400_000))
+      // Fix F-7 (C8): the fee income row is for the owner only.
+      const k = await agencyKpis(new Date(Date.now() - days * 86_400_000), { owner: await isOwnerSession() })
       rows = [
         { measure: 'Open instructions', value: k.openInstructions },
         ...Object.entries(k.byStage).map(([stage, n]) => ({ measure: `Open instructions: ${stage}`, value: n })),
@@ -189,7 +190,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ kind:
         { measure: 'Applications to rent', value: k.applications },
         { measure: 'Completions', value: k.completions },
         { measure: 'Average days on market', value: k.avgDaysOnMarket ?? '' },
-        { measure: 'Fee income (ETB)', value: k.feeIncomeEtb },
+        ...(k.feeIncomeEtb !== null ? [{ measure: 'Fee income (ETB)', value: k.feeIncomeEtb }] : []),
         { measure: 'Active tenancies', value: k.tenanciesActive },
       ]
       break

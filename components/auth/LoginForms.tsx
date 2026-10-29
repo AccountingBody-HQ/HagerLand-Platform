@@ -7,6 +7,7 @@ import { Field, Input, describedBy } from '@/components/ui/Field'
 import { Tabs } from '@/components/ui/Tabs'
 import { FormAlert, SubmitButton } from '@/components/forms/FormParts'
 import { NoResetForm } from '@/components/forms/NoResetForm'
+import { Turnstile } from '@/components/forms/Turnstile'
 
 function PasswordForm({ next }: { next: string }) {
   const [state, action] = useActionState(signInAction, null)
@@ -50,6 +51,7 @@ function MagicLinkForm({ next }: { next: string }) {
       <Field label="Email" htmlFor="magic-email" error={errors.email} hint="We'll email you a link that signs you in. No password needed.">
         <Input id="magic-email" name="email" type="email" autoComplete="email" required invalid={Boolean(errors.email)} aria-describedby={describedBy('magic-email', errors.email, 'hint')} />
       </Field>
+      <Turnstile action="magic_link" />
       <SubmitButton fullWidth pendingText="Sending…">
         Email me a sign-in link
       </SubmitButton>

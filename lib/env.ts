@@ -23,8 +23,6 @@ const serverSchema = z.object({
   CRON_SECRET: opt(z.string().min(16)),
   IP_HASH_SALT: opt(z.string().min(16)),
   GOOGLE_PLACES_API_KEY: optional,
-  ANTHROPIC_API_KEY: optional,
-  ANTHROPIC_MODEL: optional,
   CRON_PURGE_RATE_LIMITS: opt(z.enum(['true', 'false'])),
   NEXT_PUBLIC_GOOGLE_AUTH_ENABLED: opt(z.enum(['true', 'false'])),
   NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY: optional,

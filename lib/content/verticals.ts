@@ -112,7 +112,7 @@ export const COMING_SOON: Record<VerticalKey, ComingSoonContent> = {
     related: [{ value: '/supplies', label: 'Building supplies' }, { value: '/professionals', label: 'Find professionals' }],
   },
   'building-supplies': {
-    headline: 'Building supplies, quoted fast',
+    headline: 'Building supplies, one clear price',
     what: ['Construction materials for every stage of a build, from cement and steel to tiles and fittings, with clear quotes and delivery to site.'],
     whoFor: ['Homeowners building or renovating', 'Contractors and builders', 'Developers'],
     how: [
@@ -124,7 +124,7 @@ export const COMING_SOON: Record<VerticalKey, ComingSoonContent> = {
   },
   professionals: {
     headline: 'A directory of built-environment professionals',
-    what: ['Architects, engineers, surveyors, valuers and other property professionals, with portfolios and verified credentials.'],
+    what: ['Architects, engineers, surveyors, valuers and other property professionals, with portfolios and a Verified badge for businesses we have checked.'],
     whoFor: ['Anyone planning a build or renovation', 'Property buyers who need advice', 'Professionals looking for clients'],
     how: [
       { title: 'Search', text: 'By service and location.' },
@@ -139,7 +139,7 @@ export const COMING_SOON: Record<VerticalKey, ComingSoonContent> = {
     whoFor: ['Homeowners building or renovating', 'Landlords and property managers', 'Businesses with building projects'],
     how: [
       { title: 'Describe the job', text: 'A few questions about the work.' },
-      { title: 'We match you', text: 'With up to three suitable providers.' },
+      { title: 'We match you', text: 'With up to three suitable providers at a time.' },
       { title: 'Compare quotes', text: 'And choose who to hire.' },
     ],
     related: [{ value: '/professionals', label: 'Find professionals' }, { value: '/supplies', label: 'Building supplies' }],

@@ -18,7 +18,7 @@ export function generateMetadata() {
   return verticalLandingMetadata('repairs-maintenance', () =>
     buildMetadata({
       title: 'Repairs and maintenance',
-      description: 'Plumbing, electrical, roofing, cleaning, pest control and emergency repairs. Describe the job once and get quotes from up to three local providers.',
+      description: 'Plumbing, electrical, roofing, cleaning, pest control and emergency repairs. Describe the job once and get quotes from up to three local providers at a time.',
       path: '/repairs-maintenance',
     }),
   )
@@ -34,7 +34,7 @@ export default async function RepairsPage() {
         <Container className="py-12 sm:py-16">
           <Breadcrumbs inverse items={[{ label: 'Repairs & Maintenance' }]} />
           <h1 className="hl-h1 mt-8 max-w-3xl text-white">Repairs and maintenance, without the search.</h1>
-          <p className="mt-4 max-w-2xl text-[1.0625rem] text-white/80">Tell us what needs fixing. We send it to up to three suitable providers near you, and you compare their quotes. Free for you, with no obligation.</p>
+          <p className="mt-4 max-w-2xl text-[1.0625rem] text-white/80">Tell us what needs fixing. We send it to up to three suitable providers at a time near you, and you compare their quotes. Free for you, with no obligation.</p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row [&>*]:sm:min-w-56">
             <ButtonLink href="#services" size="lg">
               Choose a repair

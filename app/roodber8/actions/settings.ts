@@ -68,7 +68,7 @@ export async function saveSettingsAction(section: SettingsSection, _prev: Msg | 
     case 'business': {
       const p = businessSchema.safeParse({ ...input, claims: claimsFrom(formData) })
       if (!p.success) return invalid(p.error)
-      rows.push({ key: 'free_listing_confirmed', value: p.data.free_listing_confirmed }, { key: 'delivery_area', value: p.data.delivery_area }, { key: 'quote_response_target', value: p.data.quote_response_target }, { key: 'property_care_pricing', value: p.data.property_care_pricing }, { key: 'developments_claims', value: p.data.claims })
+      rows.push({ key: 'free_listing_confirmed', value: p.data.free_listing_confirmed }, { key: 'delivery_area', value: p.data.delivery_area }, { key: 'property_care_pricing', value: p.data.property_care_pricing }, { key: 'developments_claims', value: p.data.claims })
       break
     }
     case 'announcement': {

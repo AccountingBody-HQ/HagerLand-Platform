@@ -4,7 +4,7 @@ import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { createClient } from '@supabase/supabase-js'
 import { authenticator } from 'otplib'
-import { adminSession, assertLocalStack, createProvider, createUser, db, randomPhone, signIn, uniqueEmail } from './helpers'
+import { adminSession, assertLocalStack, createProvider, createUser, db, randomPhone, signIn, uniqueEmail, submitStaffSignIn } from './helpers'
 
 /**
  * Jobs Phase 6 (migration 0044): AB's journeys J1–J19 on the local copy only. Insights, the owner's Jobs report, open
@@ -43,14 +43,7 @@ async function staffPage(browser: Browser, role: 'operations' | 'agent' | 'conte
   const secret = authenticator.generateSecret()
   const { data } = await db().auth.admin.createUser({ email, password: 'staff-correct-horse', email_confirm: true, app_metadata: { staff: true } })
   await db().from('staff_users').insert({ email, name: `E2E ${role}`, role, status: 'active', user_id: data.user!.id, totp_secret_enc: encrypt(secret), totp_enrolled_at: new Date().toISOString() })
-  await page.goto('/roodber8-login')
-  await page.getByText('Staff sign in').click()
-  await page.fill('#stf-email', email)
-  await page.fill('#stf-pass', 'staff-correct-horse')
-  if (authenticator.timeRemaining() < 6) await page.waitForTimeout(authenticator.timeRemaining() * 1000 + 800)
-  await page.fill('#stf-code', authenticator.generate(secret))
-  await page.getByRole('button', { name: 'Sign in as staff' }).click()
-  await page.waitForURL('**/roodber8')
+  await submitStaffSignIn(page, email, 'staff-correct-horse', secret)
   return page
 }
 

@@ -2,16 +2,16 @@ import { expect, test, type Page } from '@playwright/test'
 import crypto from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { authenticator } from 'otplib'
-import { adminSession, asFreshVisitor, createProvider, createUser, db, firstLink, latestMail, mailWithSubject, randomPhone, uniqueEmail } from './helpers'
+import { adminSession, asFreshVisitor, createProvider, createUser, db, firstLink, latestMail, mailWithSubject, randomPhone, uniqueEmail, submitStaffSignIn } from './helpers'
 
 /** Jobs Phase 1 (docs/HAGERLAND_JOBS_BLUEPRINT.md section 9): AB's journeys J1–J8 on the local copy. */
 
 test.describe.configure({ mode: 'serial' })
 
 const STAFFING_STEPS = ['Tell us the roles', 'Who you need, how many and when.', 'We agree terms', 'HagerLand confirms the fee with you in writing before we start.', 'We introduce candidates', 'Only people who have agreed to be introduced.']
-const DEFAULT_STEPS = ['Tell us what you need', 'A few questions about the job, where it is and how soon.', 'We match up to three providers', 'Chosen by service, location and verification. They contact you directly.', 'Compare quotes and choose', 'Quotes appear on your request page. Agree everything in writing before you pay.']
+const DEFAULT_STEPS = ['Tell us what you need', 'A few questions about the job, where it is and how soon.', 'We match up to three providers at a time', 'Chosen by service, location and verification. They contact you directly.', 'Compare quotes and choose', 'Quotes appear on your request page. Agree everything in writing before you pay.']
 const STAFFING_FOOTER = "Your request goes to HagerLand's recruitment team. We share your phone or email with candidates only with your agreement."
-const DEFAULT_FOOTER = 'We share your request with up to three suitable providers. Your phone and email go only to providers who accept it.'
+const DEFAULT_FOOTER = 'We share your request with up to three suitable providers at a time. Your phone and email go only to providers who accept it.'
 const ETB_BANDS = ['Under ETB 10,000', 'ETB 10,000 – 50,000', 'ETB 50,000 – 250,000', 'ETB 250,000 – 1M', 'ETB 1M – 5M', 'Over ETB 5M']
 
 /** Same encryption as lib/admin/staff-crypto.ts (see e2e/staff.spec.ts). */
@@ -34,15 +34,7 @@ async function makeStaff(role: 'agent' | 'operations' | 'content') {
 
 async function staffSignIn(page: Page, s: { email: string; password: string; secret: string }) {
   await page.context().clearCookies()
-  await page.goto('/roodber8-login')
-  await page.getByText('Staff sign in').click()
-  await page.fill('#stf-email', s.email)
-  await page.fill('#stf-pass', s.password)
-  // A code about to expire may be stale by the time the form arrives: wait for the next one.
-  if (authenticator.timeRemaining() < 5) await page.waitForTimeout(authenticator.timeRemaining() * 1000 + 500)
-  await page.fill('#stf-code', authenticator.generate(s.secret))
-  await page.getByRole('button', { name: 'Sign in as staff' }).click()
-  await page.waitForURL('**/roodber8')
+  await submitStaffSignIn(page, s.email, s.password, s.secret)
 }
 
 /** Server action ids from the test build, to call an action directly the way a crafted request would. */
@@ -158,7 +150,7 @@ test('J2: other services keep their budget bands, sidebar, footer and location t
     const res = await page.goto(`/request-service/${slug}`)
     if (res?.status() === 404) continue
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(/^Request /)
-    expect(await page.locator('meta[name="description"]').getAttribute('content')).toMatch(/^Describe what you need and get quotes from up to three .+ on HagerLand\. Free for customers; you choose who to hire\.$/)
+    expect(await page.locator('meta[name="description"]').getAttribute('content')).toMatch(/^Describe what you need and get quotes from up to three .+ at a time on HagerLand\. Free for customers; you choose who to hire\.$/)
     await expect(page.getByLabel('Describe what you need')).toBeVisible()
     await expect(page.getByText('Size, materials, access, anything a provider should know before quoting.')).toBeVisible()
     await expect(page.getByText(/^For example: “.+ for a G\+1 house in Bole”\.$/)).toBeVisible()

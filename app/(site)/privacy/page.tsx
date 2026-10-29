@@ -48,7 +48,7 @@ export default async function PrivacyPage() {
           <ul>
             <li>To run your account and show your listings and profile.</li>
             <li>To pass your enquiry or quote request to the right person and let them reply.</li>
-            <li>To match a service request with up to three suitable providers, and to keep a record of the work and any fee or commission a provider owes us.</li>
+            <li>To match a service request with up to three suitable providers at a time, and to keep a record of the work and any fee or commission a provider owes us.</li>
             <li>To review listings and businesses, keep the marketplace safe and prevent fraud and abuse.</li>
             <li>To send you service emails, such as listing approvals, expiry reminders and quote updates.</li>
             <li>To send you news and offers, only if you have chosen to receive them. You can opt out at any time.</li>
@@ -60,7 +60,7 @@ export default async function PrivacyPage() {
             <li><strong>Employers you apply to:</strong> the employer receives your application and CV. CVs are never public. Your candidate profile is private unless you choose to make it visible to verified businesses and businesses that have had a job approved by HagerLand, and even then they see neither your contact details nor your CV.</li>
             <li><strong>Employers we recruit for:</strong> when HagerLand recruits for an employer, we share your name, trade and the contact details you choose, but only after you agree to be introduced to that employer. You can say no or change your mind at any time.</li>
             <li><strong>Private clients we recruit for:</strong> when HagerLand posts a job for a private client, your application stays with HagerLand. The client sees your details only if you agree to be introduced (as for any employer we recruit for).</li>
-            <li><strong>Providers matched to your request:</strong> up to three providers receive your request and contact details so they can quote. We tell you who they are on your request page.</li>
+            <li><strong>Providers matched to your request:</strong> up to three providers at a time receive your request and contact details so they can quote. We tell you who they are on your request page.</li>
             <li><strong>Finance and insurance partners:</strong> where these services are available and you ask for them, we pass your request to an approved, licensed partner. They handle your information under their own privacy policy.</li>
             <li><strong>Owners and landlords we act for:</strong> when you book a viewing, make an offer or apply to rent a property we market, we share your details, offer or application with the owner so they can decide. We do not share documents you upload beyond what is needed to consider the application.</li>
             <li><strong>Providers you review:</strong> your first name, rating and review are published on their profile after we check them.</li>

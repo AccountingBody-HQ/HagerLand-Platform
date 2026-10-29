@@ -3,7 +3,7 @@ import http from 'node:http'
 import { execFileSync } from 'node:child_process'
 import { expect, test, type Page } from '@playwright/test'
 import { authenticator } from 'otplib'
-import { adminSession, allMail, assertLocalStack, db, uniqueEmail } from '../helpers'
+import { adminSession, allMail, assertLocalStack, db, uniqueEmail, submitStaffSignIn } from '../helpers'
 
 // Imports compliance (Google Places data), on the local copy only. Google is replaced by a local stand-in on port 3199
 // (scripts/with-test-env.sh points the Places client there in test runs, with a dummy key).
@@ -281,15 +281,7 @@ async function staffSignIn(page: Page, role: 'operations' | 'agent' | 'content')
   const { data } = await db().auth.admin.createUser({ email, password, email_confirm: true, app_metadata: { staff: true } })
   await db().from('staff_users').insert({ email, name: `E2E ${role}`, role, status: 'active', user_id: data.user!.id, totp_secret_enc: encrypt(secret), totp_enrolled_at: new Date().toISOString() })
   await page.context().clearCookies()
-  await page.goto('/roodber8-login')
-  await page.getByText('Staff sign in').click()
-  await page.fill('#stf-email', email)
-  await page.fill('#stf-pass', password)
-  // A code made in the last seconds of its 30-second window can expire before the server checks it.
-  while (Date.now() % 30_000 > 26_000) await new Promise((r) => setTimeout(r, 500))
-  await page.fill('#stf-code', authenticator.generate(secret))
-  await page.getByRole('button', { name: 'Sign in as staff' }).click()
-  await page.waitForURL('**/roodber8')
+  await submitStaffSignIn(page, email, password, secret)
   return async () => {
     await db().from('staff_users').delete().eq('email', email)
     await db().auth.admin.deleteUser(data.user!.id)

@@ -13,7 +13,7 @@ export const AUDIENCES: Audience[] = [
     title: 'Private owners',
     who: 'You own a home, apartment, plot or commercial space and want to sell or let it yourself.',
     get: ['A listing seen by buyers and renters across Ethiopia and abroad', 'Enquiries straight to your phone, WhatsApp and email', 'Simple tools to pause, renew or archive your listing'],
-    how: 'Create an account, add your property with at least three photos, and we review it, usually within one business day.',
+    how: 'Create an account, add your property with at least three photos, and we review it before it goes live.',
     cta: { label: 'List your property', href: '/signup?type=owner' },
   },
   {
@@ -36,7 +36,7 @@ export const AUDIENCES: Audience[] = [
     id: 'professionals',
     title: 'Contractors & professionals',
     who: 'You are an architect, engineer, contractor, tradesperson or other construction professional.',
-    get: ['A profile listed under every service you offer and every area you cover', 'Portfolio projects with photos', 'Enquiries from people planning to build or renovate', 'Customer requests matched to you by HagerLand, with up to three providers per request'],
+    get: ['A profile listed under every service you offer and every area you cover', 'Portfolio projects with photos', 'Enquiries from people planning to build or renovate', 'Customer requests matched to you by HagerLand, with up to three providers at a time per request'],
     how: 'Sign up as a professional, choose your services and areas, add your work, and submit your documents to get Verified.',
     cta: { label: 'Join as a professional', href: '/signup?type=professional' },
   },
@@ -75,7 +75,7 @@ export const AUDIENCES: Audience[] = [
 ]
 
 export const LIST_WITH_US_FAQ = [
-  { question: 'How long does the review take?', answer: 'We aim to review listings and profiles within one business day. You get an email as soon as yours is live, or if anything needs changing.' },
+  { question: 'How does the review work?', answer: 'We review every listing and profile before it goes live. You get an email when yours is live, or if anything needs changing.' },
   { question: 'Which documents do I need to get Verified?', answer: 'Your trade licence and TIN certificate. Contractors also add their licence certificate showing category and grade, and agents their broker licence if they have one.' },
   { question: 'How long does a property listing stay live?', answer: 'Sixty days. We remind you a week before it expires, and you can renew it in one click.' },
   { question: 'Can I manage several businesses?', answer: 'Yes. One account can belong to several organisations, and you can switch between them in your account.' },
