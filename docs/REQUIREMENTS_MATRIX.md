@@ -58,7 +58,7 @@ Summary (updated at the end of every work package): see the last section.
 | S2-18 | Audit log extended to new entities (audit_log) | 2.2 | Done | lib/admin/guard.ts audit() | e2e:admin/admin.spec.ts (audit page loads with entries) |
 | S2-19 | Moderation concepts re-implemented generically | 2.2 | Done | app/roodber8/actions/moderation.ts | e2e:flows/owner-listing.spec.ts; e2e:flows/business.spec.ts |
 | S2-20 | Import pipeline kept (Places API New, pageToken in POST body) and retargeted to organisations | 2.2 | Done | lib/admin/places.ts, app/api/admin/places-search | unit:place-mapping.test.ts › builds the import section; verify: places.ts posts pageToken in the body |
-| S2-21 | Brand assets kept (logo, favicon, wordmark ®) | 2.2 | Done | components/brand/Logo.tsx, app/icon.svg | e2e:smoke.spec.ts (header renders on every route) |
+| S2-21 | Brand assets kept (logo, favicon, wordmark ®); logo replaced by E1 in F-8 | 2.2 | Done | components/brand/Logo.tsx, lib/brand-mark.json, app/icon.svg | e2e:smoke.spec.ts (header renders on every route) |
 | S2-22 | Fonts via next/font (Inter, Manrope); unused fonts dropped | 2.2 | Done | app/layout.tsx | verify: only Inter, Manrope, Noto Sans Ethiopic loaded |
 | S2-23 | Legacy routes, APIs, admin sections, components and lib files removed | 2.3 | Done | (deleted in WP-1) | e2e:redirects.spec.ts › legacy URLs redirect; verify: WP-19 legacy sweep |
 | S2-24 | BirrBank env vars removed from .env.example | 2.3 | Done | .env.example | verify: grep BIRRBANK in .env.example → none |

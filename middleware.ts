@@ -137,5 +137,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|icon.svg|robots.txt|sitemap).*)'],
+  // Brand icons (F-8) are static files: no session, no headers to add.
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|icon.svg|apple-icon.png|manifest.webmanifest|icons/|logo.png|robots.txt|sitemap).*)'],
 }

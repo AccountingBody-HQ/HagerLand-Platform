@@ -61,7 +61,7 @@ export function organizationJsonLd(sameAs: string[]): Record<string, unknown> {
     name: brand.name,
     description: brand.descriptor,
     url: CANONICAL_URL,
-    logo: `${CANONICAL_URL}/icon.svg`,
+    logo: `${CANONICAL_URL}/logo.png`,
     ...(sameAs.length ? { sameAs } : {}),
   }
 }

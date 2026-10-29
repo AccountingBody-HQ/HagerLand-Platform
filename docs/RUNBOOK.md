@@ -364,3 +364,11 @@ Callers get nothing by email or text, ever. Limits: 3 requests an hour and 10 a 
 - **Verification in the review queue.** The Verification tab has a "Record the check on the business page" link instead of the old "Mark Verified" button (which always refused). Recording the check on the business's page gives the badge and closes the request. "Decline" still works from the queue.
 
 **Read-only check after AB applies 0046 on live:** `docs/sql/0046_safe_quote_choice_verify.sql` (every row PASS). 0046 only adds a function and an index, so the Supabase editor should show no "destructive" warning. If duplicate deals already existed, the migration stops by itself and changes nothing.
+
+## 18. Brand icons (the house logo E1, F-8)
+
+- **Where the mark lives:** one definition, `lib/brand-mark.json` (circle, the two house paths, green, line widths). The site header and footer (`components/brand/Logo.tsx`), the admin pages and the share images (`lib/og.tsx`) all draw from it.
+- **Icon files** (all written from that definition): `app/icon.svg` and `app/favicon.ico` (16, 32, 48; heavier lines for the browser tab), `app/apple-icon.png` (180, iPhone home screen), `public/icons/icon-192.png`, `icon-512.png`, `icon-maskable-512.png` (Android, listed in `app/manifest.ts`), and `public/logo.png` (512, for Google's organisation logo).
+- **To regenerate** them (only if the logo changes, which needs AB): `node scripts/brand-icons.mjs`, then commit the files it writes.
+- **Caching:** browsers keep the old tab icon for days or weeks; open the site in a private window to see the new one. Phones that already added HagerLand to the home screen keep the old icon until it is removed and added again. Google updates its search-result icon and organisation logo on its own schedule (often weeks).
+- Emails still use the text wordmark "HagerLand" (no image), on purpose.

@@ -1,14 +1,16 @@
 import { cn } from '@/lib/cn'
+import { BRAND_MARK } from '@/lib/brand-mark'
 
-/** The HagerLand mark: three connected points (Supply, Build, Property) in a green circle. */
+/** The HagerLand mark "E1": a white house outline in a green circle (lib/brand-mark.ts). */
 export function LogoMark({ className }: { className?: string }) {
+  const m = BRAND_MARK
   return (
-    <svg viewBox="0 0 32 32" className={cn('size-8 shrink-0', className)} fill="none" aria-hidden="true">
-      <circle cx="16" cy="16" r="16" fill="#1C7C4C" />
-      <path d="M11 12 L21 12 L16 21 Z" stroke="white" strokeWidth="1.4" fill="none" opacity="0.55" />
-      <circle cx="11" cy="12" r="2.6" fill="white" />
-      <circle cx="21" cy="12" r="2.6" fill="white" />
-      <circle cx="16" cy="21" r="2.6" fill="white" />
+    <svg viewBox={`0 0 ${m.viewBox} ${m.viewBox}`} className={cn('size-8 shrink-0', className)} fill="none" aria-hidden="true">
+      <circle cx={m.circle.cx} cy={m.circle.cy} r={m.circle.r} fill={m.green} />
+      <g fill="none" stroke={m.stroke} strokeWidth={m.strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+        <path d={m.paths[0]} />
+        <path d={m.paths[1]} />
+      </g>
     </svg>
   )
 }
