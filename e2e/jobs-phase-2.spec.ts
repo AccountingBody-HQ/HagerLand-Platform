@@ -24,6 +24,9 @@ async function setSwitch(page: Page, label: 'Apply by phone' | 'Worker register'
   await expect(page.getByText(`${label === 'Apply by phone' ? 'Apply by phone' : 'The worker register'} is now ${on ? 'on' : 'off'} on the website.`)).toBeVisible()
 }
 
+/** F-5: the keeping-period kinds run in the same daily run; this test's records are not among them. */
+const NO_KEEPING_PERIOD_COUNTS = Object.fromEntries(['enquiries', 'service_requests', 'quote_requests', 'property_care', 'managed_properties', 'build_projects', 'partner_applications', 'claims', 'trade_accounts', 'supply_contacts', 'audit_log'].map((k) => [k, 0]))
+
 async function setMode(page: Page, mode: 'dry_run' | 'live') {
   await adminSession(page)
   await page.goto('/roodber8/jobs/data')
@@ -32,7 +35,7 @@ async function setMode(page: Page, mode: 'dry_run' | 'live') {
   const save = page.getByRole('button', { name: 'Save mode' })
   if (await save.isEnabled()) {
     await save.click()
-    await expect(page.getByText(mode === 'live' ? 'Live: the next daily run deletes personal details older than 12 months.' : 'Dry run: the daily run only counts.')).toBeVisible()
+    await expect(page.getByText(mode === 'live' ? 'Live: the next daily run deletes the personal details listed above, each after its own period.' : 'Dry run: the daily run only counts.')).toBeVisible()
   }
 }
 
@@ -449,7 +452,7 @@ test('J6: the 12-month deletion: dry run changes nothing; live clears exactly th
   expect(dry.jobsDataCleanup.counts.due.applications).toBeGreaterThanOrEqual(3)
   expect(dry.jobsDataCleanup.counts.due.register).toBeGreaterThanOrEqual(1)
   expect(dry.jobsDataCleanup.counts.due.emails).toBeGreaterThanOrEqual(1)
-  expect(dry.jobsDataCleanup.counts.cleared).toEqual({ applications: 0, register: 0, emails: 0, shortlist: 0, reports: 0, callbacks: 0, listing_reports: 0 })
+  expect(dry.jobsDataCleanup.counts.cleared).toEqual({ applications: 0, register: 0, emails: 0, shortlist: 0, reports: 0, callbacks: 0, listing_reports: 0, ...NO_KEEPING_PERIOD_COUNTS })
   expect(withoutCv(await snapshot())).toEqual(withoutCv(before))
   const files = async (folder: string) => ((await db().storage.from('private-docs').list(folder)).data ?? []).map((f) => f.name)
   await adminSession(page)
@@ -461,7 +464,7 @@ test('J6: the 12-month deletion: dry run changes nothing; live clears exactly th
   await setMode(page, 'live')
   const live = await cron()
   expect(live.jobsDataCleanup.mode).toBe('live')
-  expect(live.jobsDataCleanup.counts.failed).toEqual({ applications: 0, register: 0, emails: 0, shortlist: 0, reports: 0, callbacks: 0, listing_reports: 0 })
+  expect(live.jobsDataCleanup.counts.failed).toEqual({ applications: 0, register: 0, emails: 0, shortlist: 0, reports: 0, callbacks: 0, listing_reports: 0, ...NO_KEEPING_PERIOD_COUNTS })
   const after = await snapshot()
   const byId = (id: string) => after.apps!.find((a) => a.id === id)!
   for (const id of [aOld, aKept, aPhone]) {

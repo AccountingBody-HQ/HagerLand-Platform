@@ -836,6 +836,7 @@ export type Database = {
           location_id: string | null
           location_text: string | null
           name: string
+          personal_data_deleted_at: string | null
           phone: string
           plot_size_m2: number | null
           preferred_times: string | null
@@ -862,6 +863,7 @@ export type Database = {
           location_id?: string | null
           location_text?: string | null
           name: string
+          personal_data_deleted_at?: string | null
           phone: string
           plot_size_m2?: number | null
           preferred_times?: string | null
@@ -887,6 +889,7 @@ export type Database = {
           location_id?: string | null
           location_text?: string | null
           name?: string
+          personal_data_deleted_at?: string | null
           phone?: string
           plot_size_m2?: number | null
           preferred_times?: string | null
@@ -1091,6 +1094,7 @@ export type Database = {
           id: string
           message: string | null
           org_id: string
+          personal_data_deleted_at: string | null
           relationship: string
           status: string
           updated_at: string
@@ -1108,6 +1112,7 @@ export type Database = {
           id?: string
           message?: string | null
           org_id: string
+          personal_data_deleted_at?: string | null
           relationship: string
           status?: string
           updated_at?: string
@@ -1124,6 +1129,7 @@ export type Database = {
           id?: string
           message?: string | null
           org_id?: string
+          personal_data_deleted_at?: string | null
           relationship?: string
           status?: string
           updated_at?: string
@@ -1636,6 +1642,7 @@ export type Database = {
           ip_hash: string | null
           message: string
           name: string
+          personal_data_deleted_at: string | null
           phone: string
           preferred_contact: string | null
           recipient_notes: string | null
@@ -1662,6 +1669,7 @@ export type Database = {
           ip_hash?: string | null
           message: string
           name: string
+          personal_data_deleted_at?: string | null
           phone: string
           preferred_contact?: string | null
           recipient_notes?: string | null
@@ -1687,6 +1695,7 @@ export type Database = {
           ip_hash?: string | null
           message?: string
           name?: string
+          personal_data_deleted_at?: string | null
           phone?: string
           preferred_contact?: string | null
           recipient_notes?: string | null
@@ -2501,6 +2510,7 @@ export type Database = {
           care_request_id: string | null
           created_at: string
           currency: string
+          ended_at: string | null
           id: string
           location_id: string | null
           monthly_fee_minor: number | null
@@ -2510,6 +2520,7 @@ export type Database = {
           owner_name: string
           owner_phone: string | null
           owner_user_id: string | null
+          personal_data_deleted_at: string | null
           property_type: string | null
           reference: string
           services: string[]
@@ -2524,6 +2535,7 @@ export type Database = {
           care_request_id?: string | null
           created_at?: string
           currency?: string
+          ended_at?: string | null
           id?: string
           location_id?: string | null
           monthly_fee_minor?: number | null
@@ -2533,6 +2545,7 @@ export type Database = {
           owner_name: string
           owner_phone?: string | null
           owner_user_id?: string | null
+          personal_data_deleted_at?: string | null
           property_type?: string | null
           reference?: string
           services?: string[]
@@ -2546,6 +2559,7 @@ export type Database = {
           care_request_id?: string | null
           created_at?: string
           currency?: string
+          ended_at?: string | null
           id?: string
           location_id?: string | null
           monthly_fee_minor?: number | null
@@ -2555,6 +2569,7 @@ export type Database = {
           owner_name?: string
           owner_phone?: string | null
           owner_user_id?: string | null
+          personal_data_deleted_at?: string | null
           property_type?: string | null
           reference?: string
           services?: string[]
@@ -3406,6 +3421,7 @@ export type Database = {
           message: string | null
           organisation_name: string
           partner_type: string
+          personal_data_deleted_at: string | null
           phone: string | null
           reference: string
           source_url: string | null
@@ -3427,6 +3443,7 @@ export type Database = {
           message?: string | null
           organisation_name: string
           partner_type: string
+          personal_data_deleted_at?: string | null
           phone?: string | null
           reference?: string
           source_url?: string | null
@@ -3447,6 +3464,7 @@ export type Database = {
           message?: string | null
           organisation_name?: string
           partner_type?: string
+          personal_data_deleted_at?: string | null
           phone?: string | null
           reference?: string
           source_url?: string | null
@@ -4302,6 +4320,7 @@ export type Database = {
           message: string | null
           name: string
           occupancy: string
+          personal_data_deleted_at: string | null
           phone: string
           preferred_contact: string | null
           property_location_id: string | null
@@ -4331,6 +4350,7 @@ export type Database = {
           message?: string | null
           name: string
           occupancy: string
+          personal_data_deleted_at?: string | null
           phone: string
           preferred_contact?: string | null
           property_location_id?: string | null
@@ -4359,6 +4379,7 @@ export type Database = {
           message?: string | null
           name?: string
           occupancy?: string
+          personal_data_deleted_at?: string | null
           phone?: string
           preferred_contact?: string | null
           property_location_id?: string | null
@@ -4549,6 +4570,7 @@ export type Database = {
           name: string
           needed_by: string | null
           notes: string | null
+          personal_data_deleted_at: string | null
           phone: string
           project_id: string | null
           quote_document_path: string | null
@@ -4577,6 +4599,7 @@ export type Database = {
           name: string
           needed_by?: string | null
           notes?: string | null
+          personal_data_deleted_at?: string | null
           phone: string
           project_id?: string | null
           quote_document_path?: string | null
@@ -4604,6 +4627,7 @@ export type Database = {
           name?: string
           needed_by?: string | null
           notes?: string | null
+          personal_data_deleted_at?: string | null
           phone?: string
           project_id?: string | null
           quote_document_path?: string | null
@@ -5864,6 +5888,7 @@ export type Database = {
           location_text: string | null
           matched_at: string | null
           name: string
+          personal_data_deleted_at: string | null
           phone: string
           preferred_contact: string | null
           project_id: string | null
@@ -5902,6 +5927,7 @@ export type Database = {
           location_text?: string | null
           matched_at?: string | null
           name: string
+          personal_data_deleted_at?: string | null
           phone: string
           preferred_contact?: string | null
           project_id?: string | null
@@ -5939,6 +5965,7 @@ export type Database = {
           location_text?: string | null
           matched_at?: string | null
           name?: string
+          personal_data_deleted_at?: string | null
           phone?: string
           preferred_contact?: string | null
           project_id?: string | null
@@ -7139,6 +7166,7 @@ export type Database = {
           id: string
           notes: string | null
           org_id: string | null
+          personal_data_deleted_at: string | null
           phone: string
           reference: string
           status: string
@@ -7157,6 +7185,7 @@ export type Database = {
           id?: string
           notes?: string | null
           org_id?: string | null
+          personal_data_deleted_at?: string | null
           phone: string
           reference?: string
           status?: string
@@ -7174,6 +7203,7 @@ export type Database = {
           id?: string
           notes?: string | null
           org_id?: string | null
+          personal_data_deleted_at?: string | null
           phone?: string
           reference?: string
           status?: string

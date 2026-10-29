@@ -24,7 +24,7 @@ export default async function PrivacyPage() {
           <ul>
             <li><strong>Account details:</strong> your name, email, phone number, password (stored securely by our authentication provider) and contact preferences.</li>
             <li><strong>Listings and profiles:</strong> the property, business and portfolio details and photos you add, and the contact details you choose to show.</li>
-            <li><strong>Enquiries:</strong> your name, phone, email, message and the listing you contacted.</li>
+            <li><strong>Enquiries and messages:</strong> your name, phone, email, message and the listing or business you contacted (or &quot;HagerLand&quot; when you use our contact form).</li>
             <li><strong>Quote requests:</strong> your contact details, delivery area and address, the items you need and any files you upload.</li>
             <li><strong>Service requests:</strong> your contact details, where the work is, what you need, your answers to the questions and any photos or plans you add. Providers we match you with add their quotes.</li>
             <li><strong>Property Care and interest registrations:</strong> the details you give when you ask about Property Care, register interest in a service that is coming soon or apply to become a partner.</li>
@@ -76,7 +76,14 @@ export default async function PrivacyPage() {
         <TextSection title="How long we keep it">
           <ul>
             <li>Account and listing details: while your account is open, and removed within 30 days of a deletion request.</li>
-            <li>Enquiries: 24 months.</li>
+            <li>Enquiries and messages sent through our contact form: your name, contact details and message are deleted 24 months after the last activity on them. The reference and dates are kept.</li>
+            <li>Service requests and the quotes on them: your name, contact details, description and files are deleted 24 months after the request was closed or last changed. The reference, the type of work, the area and any fee records are kept.</li>
+            <li>Quote requests for materials: your name, contact details, address, notes and files are deleted 24 months after the last activity. If you placed an order, the order and payment records are kept for as long as the law requires for our records.</li>
+            <li>Property Care enquiries: your details are deleted 24 months after the last activity. For properties we manage: while we manage the property, then 24 months after the management ends. Statements and payment records are kept for as long as the law requires.</li>
+            <li>Building projects: your name and contact details are deleted 24 months after the last activity.</li>
+            <li>Partner applications, business claims (including the documents you upload, which are deleted) and trade account applications: your contact details are deleted 24 months after our decision or the last activity. An approved trade account is kept while your account is open.</li>
+            <li>Business contacts our supply team works with: deleted 24 months after the last contact, except that if you asked us not to contact you again, we keep your number only to respect that.</li>
+            <li>Records of changes made by our team: 24 months; records of payments, fees and data-protection decisions: 6 years.</li>
             <li>Verification documents: deleted 90 days after our decision, unless we need them to deal with a dispute or fraud.</li>
             <li>Contact reveal records: 12 months.</li>
             <li>Registrations of interest in services that are coming soon: 24 months.</li>

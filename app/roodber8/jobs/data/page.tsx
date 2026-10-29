@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { Fragment } from 'react'
 import { isOwnerSession, requireAdminPage } from '@/lib/admin/guard'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { formatDate } from '@/lib/format'
@@ -16,6 +17,23 @@ export const metadata = { title: 'Jobs: switches and data deletion' }
  * Owner only: the website switches (all start off: Apply by phone, the worker register, the recruitment desk), the
  * keeping period for hired people (empty until the lawyer confirms) and the 12-month deletion (starts on dry run).
  */
+/** F-5 keeping periods (decision D3): what each kind clears. The last two run every day, whatever the mode. */
+const RETENTION_ROWS: [string, string][] = [
+  ['Enquiries', 'Name, contact and message cleared 24 months after the last activity. Reference and dates stay.'],
+  ['Service requests', 'Personal details cleared 24 months after closing or the last change; never while open. Area, type of work and fee records stay.'],
+  ['Quote requests', 'Personal details cleared 24 months after the last activity; never while an order is open. Orders and the ledger stay.'],
+  ['Property Care enquiries', 'Personal details cleared 24 months after the last activity; never while the property they led to is still managed.'],
+  ['Managed properties', 'Owner details cleared 24 months after the management ended.'],
+  ['Building projects', 'Name and contact cleared 24 months after the last activity; never while open or while a linked request is open.'],
+  ['Partner applications', 'Contact details cleared 24 months after the decision or the last activity; never while new or being reviewed.'],
+  ['Claims', 'Personal details cleared 24 months after the decision; evidence files deleted.'],
+  ['Trade account applications', 'Contact details cleared 24 months after the decision; approved accounts stay while the person’s account is open.'],
+  ['Supply contacts', 'Deleted 24 months after the last contact; do-not-contact numbers kept.'],
+  ['Audit log', 'Entries deleted after 24 months; payments, fees and data-protection decisions after 6 years.'],
+  ['Error log', 'Deleted 90 days after last seen (always on).'],
+  ['Invitations', 'Unaccepted invitations deleted 30 days after expiry (always on).'],
+]
+
 export default async function JobsDataPage() {
   await requireAdminPage()
   if (!(await isOwnerSession())) redirect('/roodber8?denied=1')
@@ -78,14 +96,21 @@ export default async function JobsDataPage() {
           <RetentionMonthsControl months={switches.retentionMonths} />
         </div>
       </Panel>
-      <Panel title="Deleting personal details after 12 months" actions={<JobsDryRunButton />}>
+      <Panel title="Deleting personal details" actions={<JobsDryRunButton />}>
         <p className="mb-3 text-small">
           Mode: <strong>{switches.cleanupMode === 'live' ? 'Live — deletes personal details' : 'Dry run — report only'}</strong>. Every day the job looks at job applications (by phone and by email), worker register entries and old queued emails. It keeps each row, its reference, status and dates, and clears names, phone numbers, emails, cover notes, notes and CV files. Recruitment desk shortlist rows are cleared 12 months after their last activity (never later than 12 months after the assignment closes). People hired through HagerLand keep their name, contact details and consent record while the fee records need them; their notes, cover notes and CVs still go. Candidate profiles are never touched.
         </p>
         <dl className="mb-3 grid gap-1 text-small sm:grid-cols-[180px_1fr]">
           <dt className="font-semibold">Listing reports</dt>
           <dd>Reports about listings or businesses: the details, contact and coded internet address are cleared 12 months after the report or the decision on it, whichever is later. The reason and the decision stay.</dd>
+          {RETENTION_ROWS.map(([term, text]) => (
+            <Fragment key={term}>
+              <dt className="font-semibold">{term}</dt>
+              <dd>{text}</dd>
+            </Fragment>
+          ))}
         </dl>
+        <p className="mb-3 text-small font-semibold">Switch to Live before 15 Oct 2027 (covers Jobs and all keeping periods).</p>
         <JobsCleanupModeControl mode={switches.cleanupMode} />
         <div className="mt-4">
           <DataTable

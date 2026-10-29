@@ -12,6 +12,10 @@ import { log } from '@/lib/log'
 import { readJobsSwitches } from '@/lib/jobs-switches'
 import { CLEARED_EMAIL, clearedApplication, clearedRegisterEntry, deletionCutoff } from '@/lib/jobs-privacy'
 import { runCleanupCore, type CleanupAdapter, type CleanupKind, type CleanupResult } from '@/lib/jobs-cleanup'
+import { RETENTION_KINDS, type RetentionKind } from '@/lib/retention'
+import { clearRetention, clearRetentionBatch, retentionDueKind } from '@/lib/retention-data'
+
+const isRetention = (kind: CleanupKind): kind is RetentionKind => (RETENTION_KINDS as readonly string[]).includes(kind)
 import { clearedReport, reportClockFrom } from '@/lib/job-reports'
 import { clearedCallback } from '@/lib/callbacks'
 import { LISTING_REPORT_DECISIONS, clearedListingReport, listingReportClockFrom } from '@/lib/listing-reports'
@@ -77,7 +81,13 @@ function adapter(cutoff: string, now: string, holds: Holds, at: Date): CleanupAd
   const db = getAdminSupabase()
   // Held applications never appear in the due lists (ids are database uuids, never user input).
   const heldApps = Array.from(holds.applications.keys())
-  const due = (kind: Exclude<CleanupKind, 'shortlist' | 'reports' | 'callbacks' | 'listing_reports'>) => {
+  // F-5 keeping periods: computed once per run (lib/retention-data.ts).
+  const retention = new Map<RetentionKind, string[]>()
+  const dueRetention = async (kind: RetentionKind) => {
+    if (!retention.has(kind)) retention.set(kind, await retentionDueKind(kind, at))
+    return retention.get(kind) as string[]
+  }
+  const due = (kind: Exclude<CleanupKind, 'shortlist' | 'reports' | 'callbacks' | 'listing_reports' | RetentionKind>) => {
     if (kind === 'applications') {
       const q = db.from('job_applications').select('id', { count: 'exact' }).is('personal_data_deleted_at', null).lt('created_at', cutoff)
       return heldApps.length ? q.not('id', 'in', `(${heldApps.join(',')})`) : q
@@ -135,8 +145,8 @@ function adapter(cutoff: string, now: string, holds: Holds, at: Date): CleanupAd
     return r
   }
   return {
-    countDue: async (kind) => (kind === 'shortlist' ? (await dueShortlist()).length : kind === 'reports' ? (await dueReports()).length : kind === 'callbacks' ? (await dueCallbacks()).length : kind === 'listing_reports' ? (await dueListingReports()).length : (must(await due(kind).limit(1)).count ?? 0)),
-    listDue: async (kind, limit) => (kind === 'shortlist' ? (await dueShortlist()).slice(0, limit) : kind === 'reports' ? (await dueReports()).slice(0, limit) : kind === 'callbacks' ? (await dueCallbacks()).slice(0, limit) : kind === 'listing_reports' ? (await dueListingReports()).slice(0, limit) : (must(await due(kind).order('id').limit(limit)).data ?? []).map((r) => r.id)),
+    countDue: async (kind) => (isRetention(kind) ? (await dueRetention(kind)).length : kind === 'shortlist' ? (await dueShortlist()).length : kind === 'reports' ? (await dueReports()).length : kind === 'callbacks' ? (await dueCallbacks()).length : kind === 'listing_reports' ? (await dueListingReports()).length : (must(await due(kind).limit(1)).count ?? 0)),
+    listDue: async (kind, limit) => (isRetention(kind) ? (await dueRetention(kind)).slice(0, limit) : kind === 'shortlist' ? (await dueShortlist()).slice(0, limit) : kind === 'reports' ? (await dueReports()).slice(0, limit) : kind === 'callbacks' ? (await dueCallbacks()).slice(0, limit) : kind === 'listing_reports' ? (await dueListingReports()).slice(0, limit) : (must(await due(kind).order('id').limit(limit)).data ?? []).map((r) => r.id)),
     countKept: async () => {
       const kept = { hired: 0, periodNotSet: 0 }
       for (const id of await heldAppsAged()) kept[holds.applications.get(id) === 'hired' ? 'hired' : 'periodNotSet']++
@@ -155,7 +165,12 @@ function adapter(cutoff: string, now: string, holds: Holds, at: Date): CleanupAd
       }
       return trimmed
     },
+    clearMany: async (kind, ids) => (kind === 'supply_contacts' || kind === 'audit_log' ? clearRetentionBatch(kind, ids) : 0),
     clear: async (kind, id) => {
+      if (isRetention(kind)) {
+        await clearRetention(kind, id, now)
+        return {}
+      }
       if (kind === 'listing_reports') {
         must(await db.from('reports').update(clearedListingReport(now)).eq('id', id).is('personal_data_deleted_at', null))
         return {}

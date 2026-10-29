@@ -26,7 +26,6 @@ const ALL: Record<string, () => RenderedEmail> = {
   adminDigest: () => T.adminDigestEmail({ lines: [[X, X]], adminUrl: url }),
   adminDigestFallback: () => T.adminDigestFallbackEmail({ problem: X, run: X, adminUrl: url }),
   adminNotice: () => T.adminNoticeEmail({ subject: 'Notice', heading: X, lines: [[X, X]], adminUrl: url }),
-  contactMessage: () => T.contactMessageEmail({ name: X, phone: '+251911000000', email: null, topic: X, message: X, reference: 'HLC-1' }),
   accountDeleted: () => T.accountDeletedEmail({ name: X }),
   interestConfirmation: () => T.interestConfirmationEmail({ name: X, reference: 'HLI-1', verticalName: X, href: url, live: false }),
   partnerApplication: () => T.partnerApplicationEmail({ name: X, organisation: X, reference: 'HLP-1', verticalName: X }),

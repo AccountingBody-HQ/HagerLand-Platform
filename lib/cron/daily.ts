@@ -6,7 +6,9 @@ import { COULD_NOT_READ, DAILY_RUN_ACTION, deletionRequestsLine, failedStepsLine
 import type { RenderedEmail } from '@/lib/email/layout'
 import { importsDigestCounts, runImportsCleanup, type CleanupSummary } from '@/lib/imports/compliance-data'
 import { runJobsDataCleanup } from '@/lib/jobs-cleanup-data'
-import { cleanupDigestCounts, type CleanupResult } from '@/lib/jobs-cleanup'
+import { cleanupDigestCounts, cleanupUnreadable, type CleanupResult } from '@/lib/jobs-cleanup'
+import { runAlwaysOnCleanup, type AlwaysOnResult } from '@/lib/retention-data'
+import { alwaysOnDigestCounts } from '@/lib/retention'
 import { supplyDigestCounts } from '@/lib/supply/insights-data'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { PRIVATE_BUCKET } from '@/lib/media'
@@ -60,6 +62,8 @@ export interface DailySummary {
   importsCleanup: CleanupSummary | null
   /** Jobs personal details older than 12 months (dry run unless the owner switched it to live); null if the step failed. */
   jobsDataCleanup: CleanupResult | null
+  /** F-5: error records and expired invitations cleared (always, whatever the deletion mode); null if the step failed. */
+  housekeeping: AlwaysOnResult | null
   /** Recruitment desk placements moved to "guarantee running" or "completed" (Jobs Phase 3). */
   placementsMoved: number
   /** Verified badges: reminders sent and badges ended (Jobs Phase 4); null if the step failed. */
@@ -350,6 +354,8 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent' | 'st
   lines.push(...(await supplyDigestLines(() => supplyDigestCounts(now))))
   lines.push(...positive(importsDigestCounts(s.importsCleanup)))
   lines.push(...positive(cleanupDigestCounts(s.jobsDataCleanup)))
+  unread.push(...cleanupUnreadable(s.jobsDataCleanup))
+  lines.push(...positive(alwaysOnDigestCounts(s.housekeeping)))
   await section('Recruitment desk figures', async () => positive(await deskDigestCounts(now)))
   // Jobs Phase 4 (W22): job reports and Verified badges.
   await section('Job reports figures', async () => positive(await jobReportDigestCounts(now)))
@@ -428,7 +434,9 @@ export async function runDaily(now = Date.now(), opts: { failDigestForTest?: boo
   const verification = await step('verified badges', () => runVerificationDaily(now), null)
   // Call-back requests (F3): expired wrong-number blocks are always removed, in dry run and live alike.
   const callbackBlocksRemoved = await step('call-back blocks', () => purgeExpiredCallbackBlocks(new Date(now)), null)
-  const summary = { expired, expiredEmailed: emailed, reminded, quotesExpired, verificationDocsPurged, revealsPurged, rateLimitsPurged, matchReminders, searchAlerts, jobsExpired, cvsPurged, emailsRetried, interestPurged, viewingReminders, tenancyReminders, importsCleanup, jobsDataCleanup, placementsMoved, verification, callbackBlocksRemoved }
+  // F-5: old error records and expired invitations are always cleared, in dry run and live alike (lib/retention-data).
+  const housekeeping = await step('data housekeeping', () => runAlwaysOnCleanup(new Date(now)), null)
+  const summary = { expired, expiredEmailed: emailed, reminded, quotesExpired, verificationDocsPurged, revealsPurged, rateLimitsPurged, matchReminders, searchAlerts, jobsExpired, cvsPurged, emailsRetried, interestPurged, viewingReminders, tenancyReminders, importsCleanup, jobsDataCleanup, placementsMoved, verification, callbackBlocksRemoved, housekeeping }
   let digestSent = false
   const to = process.env.ADMIN_DIGEST_EMAIL
   if (to) {

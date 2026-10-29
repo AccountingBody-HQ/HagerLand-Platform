@@ -372,3 +372,20 @@ Callers get nothing by email or text, ever. Limits: 3 requests an hour and 10 a 
 - **To regenerate** them (only if the logo changes, which needs AB): `node scripts/brand-icons.mjs`, then commit the files it writes.
 - **Caching:** browsers keep the old tab icon for days or weeks; open the site in a private window to see the new one. Phones that already added HagerLand to the home screen keep the old icon until it is removed and added again. Google updates its search-result icon and organisation logo on its own schedule (often weeks).
 - Emails still use the text wordmark "HagerLand" (no image), on purpose.
+
+## 19. Keeping periods (F-5, migration 0047)
+
+- **What is cleared, and when** (decision D3; all under the same owner switch as the Jobs deletion: admin → Jobs → Switches and data deletion → "Deleting personal details"):
+  - enquiries and contact-form messages: 24 months after the last activity;
+  - service requests (and the quotes on them): 24 months after closing or the last change, never while open;
+  - quote requests: 24 months after the last activity, never while an order is open or disputed;
+  - Property Care enquiries: 24 months, never while the property is still managed;
+  - managed properties: 24 months after the management ended (`ended_at`, filled in automatically when the status becomes "ended");
+  - building projects, partner applications, business claims (evidence files deleted) and trade account applications (an approved account stays while the person's account is open): 24 months;
+  - supply contacts: deleted 24 months after the last contact; do-not-contact numbers are kept, without names;
+  - audit log: 24 months, but payments, fees, orders, deals and data-protection decisions for 6 years.
+- **What stays:** every row's reference, status, dates, amounts and links. Orders, the supply ledger, deals, fees and rent statements are never touched, so every report and total stays the same. Names become "Removed"; contact details are emptied; files are deleted.
+- **Always on** (whatever the switch says): error records 90 days after they were last seen; invitations never accepted, 30 days after they expired or were withdrawn; accepted invitations lose their email and token after 24 months.
+- **Dry run:** the daily job only counts (digest lines above 0, run history on the switches page). **Switch to Live before 15 Oct 2027 (covers Jobs and all keeping periods).** No record can reach 24 months before Oct 2028.
+
+**Read-only check after AB applies 0047 on live:** `docs/sql/0047_keeping_periods_verify.sql` (every row PASS). 0047 only adds empty columns, one trigger and indexes, so the Supabase editor should show no "destructive" warning.

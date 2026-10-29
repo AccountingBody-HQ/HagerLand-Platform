@@ -96,7 +96,7 @@ export async function setJobsCleanupModeAction(mode: string, readDryRun: boolean
   if (error) return fail('Could not save the setting.')
   await audit('jobs.cleanup_mode', { type: 'setting', label: CLEANUP_MODE_KEY }, { from: before?.value ?? 'dry_run', to: parsed.data })
   revalidatePath('/roodber8/jobs', 'layout')
-  return ok({ message: parsed.data === 'live' ? 'Live: the next daily run deletes personal details older than 12 months.' : 'Dry run: the daily run only counts.' })
+  return ok({ message: parsed.data === 'live' ? 'Live: the next daily run deletes the personal details listed above, each after its own period.' : 'Dry run: the daily run only counts.' })
 }
 
 /** Owner only: work out now what the deletion would clear (changes nothing). */
