@@ -6,50 +6,63 @@ Plain-English instructions for running the site day to day. Written for AB. For 
 
 ## 1. Backups and restore
 
-HagerLand runs on Supabase's Free plan, which keeps **no backups for you**. Your own backup is the only safety net, so:
+HagerLand runs on Supabase's Free plan, which keeps **no backups for you**. HagerLand's own backup is the only safety net. Since BK-1 it **runs by itself on GitHub every week**; you only check it worked and keep a copy.
 
-- **every week** (the daily digest reminds you on Mondays: "Weekly reminder: run the backup (RUNBOOK §1).");
-- **and always before a database change** (a migration, section 2).
+One backup is **one encrypted file** holding everything: every table, the sign-in accounts, and every stored file (photos, CVs, verification and supply documents), with a manifest and checksums. It contains personal data, so it is locked with a passphrase that only you know. The backup only **reads** the live project; it never changes anything there.
 
-One backup is **one encrypted file** holding everything: every table, the sign-in accounts, and every stored file (photos, CVs, verification and supply documents). It contains personal data, so it is locked with a passphrase that only you know. The backup only **reads** the live project; it never changes anything there.
+### 1a. What runs, and when
 
-### 1a. What to have ready (once)
+- **Every Monday at 02:17 UTC** (05:17 Addis Ababa), GitHub runs the workflow **"Weekly backup"** (`.github/workflows/backup.yml`). It runs `scripts/backup-supabase.sh` without questions, using three secrets kept in GitHub (1b).
+- After making the file, it **checks it** (the self-check): it opens the file again with the passphrase, checks that the database (with the sign-in accounts), the stored files, the manifest and every checksum are all there and match, then deletes the opened copy. If anything is wrong, the run fails and keeps nothing.
+- It keeps **only the encrypted file and its `.sha256` fingerprint** on GitHub for **90 days**, under the run's **Artifacts**. Nothing unencrypted is ever uploaded, and the run's log names no table, file or count.
+- The daily digest reminds you every Monday: "Weekly backup: it runs automatically on GitHub every Monday. Check it succeeded: GitHub → Actions → Weekly backup."
+- **Before a database change** (a migration, section 2), also press **Run workflow** (1c) and wait for the green tick.
 
-1. **Your database password**, in your password manager. If you have lost it, Supabase → **Project Settings → Database → Reset database password**. Resetting changes the password the site does not use (the site uses keys, not this password), but write the new one into your password manager straight away.
-2. **A backup passphrase**: make a new entry "HagerLand backup passphrase" in your password manager, let it generate a long passphrase (at least 12 characters; 20+ is better) and save it. **Without it a backup cannot be opened, by anyone, ever.** Use the same passphrase every week, so any backup opens with it.
-3. Where the **service_role key** is (you copy it fresh each time; never save it in a file): Supabase → your project → **Project Settings → API Keys** → the **service_role** (secret) key → **Copy**. It is a long secret: treat it like a password and never paste it anywhere except the backup's hidden prompt.
+### 1b. The three secrets (set up once)
 
-### 1b. Run the backup (about 5 minutes)
+They live **only** in GitHub: the repository → **Settings → Secrets and variables → Actions → New repository secret**. GitHub never shows a secret again after you save it, and the workflow never prints them. Nobody else (and not Claude Code) ever reads them.
 
-1. Open the Codespace for this repository. In the terminal (bottom of the screen), make sure you are on `main`: `git checkout main && git pull`.
-2. In Supabase: click **Connect** (top of the project page) → **Session pooler** → copy the connection string. Leave `[YOUR-PASSWORD]` in it.
-3. In the Codespace terminal run:
-   ```bash
-   bash scripts/backup-supabase.sh
-   ```
-4. Answer the questions, pressing Enter after each:
-   - paste the **connection string**;
-   - type your **database password** (nothing appears as you type: that is normal);
-   - the project address is filled in for you;
-   - paste the **service_role key** (hidden);
-   - type the **backup passphrase**, then again (hidden).
-5. The first time, it installs the matching database tools (a minute). It then shows each step and ends with "Backup finished", a summary (tables, rows, sign-in accounts, files) and the file name, for example `backups/hagerland-backup-20261102-0900.tar.gz.enc`.
-6. **Download** it: in the file list on the left, open **backups**, right-click the `.enc` file → **Download**. Do the same for the matching `.sha256` file (its fingerprint).
-7. **Delete them from the Codespace**: `rm backups/hagerland-backup-*`.
+| Name (exactly) | What goes in it |
+|---|---|
+| `HL_BACKUP_DB_URL` | The **Session pooler** connection string (Supabase → **Connect** → **Session pooler**), with `[YOUR-PASSWORD]` **replaced by your database password**. It starts `postgresql://postgres.` and ends `:5432/postgres`. If your password has `@`, `:`, `/` or `#` in it, write those as `%40`, `%3A`, `%2F`, `%23`. |
+| `HL_BACKUP_SERVICE_ROLE_KEY` | The **service_role** key: Supabase → **Project Settings → API Keys** → service_role (secret) → **Copy**. |
+| `HL_BACKUP_PASSPHRASE` | Your **backup passphrase** (at least 12 characters; 20+ is better). Make an entry "HagerLand backup passphrase" in your password manager first, and keep it there too. |
 
-If anything goes wrong, the backup stops with a plain message and deletes everything it had started: nothing unencrypted is left behind. Fix the problem (usually a mistyped password or key) and run it again. Two backups cannot start in the same minute; wait a minute.
+- **The passphrase can never be recovered.** Without it no backup can be opened, by anyone, ever. If you ever change it, older backups still need the old one: keep both in your password manager.
+- **After resetting the database password** (Supabase → Project Settings → Database → Reset database password): update **`HL_BACKUP_DB_URL` only** (same page → the secret → **Update**), with the new password in the string. The other two stay. The website does not use this password, so it keeps working.
+- If a secret is missing, the run stops at its first step with: "Backup not set up: add the secrets HL_BACKUP_DB_URL, HL_BACKUP_SERVICE_ROLE_KEY and HL_BACKUP_PASSPHRASE in GitHub (Settings → Secrets and variables → Actions)."
 
-### 1c. Where to keep backups, and how many
+### 1c. Run it now (the "Run workflow" button)
 
-- Keep them in a **private folder on your computer** (for example `Documents/HagerLand backups`), plus a **second copy somewhere offline**: a USB stick or external drive kept at home, or your own private cloud drive. A backup without its passphrase cannot be read, but keep it private anyway.
-- Keep the **last 8 weekly backups**, plus **one per month** for the last 12 months (the first backup of each month). Delete older ones.
-- `backups/` is never committed to git (it is git-ignored).
+1. GitHub → the repository → **Actions** → **Weekly backup** (left-hand list).
+2. **Run workflow** (right) → keep **Branch: main** → the green **Run workflow** button.
+3. After a few seconds a new run appears. A green tick means it worked (usually a few minutes); a red cross means it failed (1f).
 
-### 1d. Test-restore every quarter (into the local copy, never live)
+### 1d. Download a backup and keep it
+
+1. GitHub → **Actions** → **Weekly backup** → click the run (green tick).
+2. Scroll to **Artifacts** → click **hagerland-backup-<date>**. A `.zip` downloads; unzip it to get the `.tar.gz.enc` file and its `.sha256`.
+3. Keep **one downloaded copy per month** (the first Monday's) in a **private folder on your computer** (for example `Documents/HagerLand backups`) **and a second private place** (a USB stick or external drive at home, or your own private cloud drive). Keep 12 months; delete older ones. GitHub itself keeps each weekly file for 90 days.
+4. To check a downloaded file opens (optional), in a Codespace: put both files in `backups/`, then `bash scripts/backup-supabase.sh --check backups/<the file>.tar.gz.enc` and type the passphrase. It ends "Self-check passed…".
+5. `backups/` is never committed to git (it is git-ignored). Delete any copy you put in a Codespace afterwards: `rm backups/hagerland-backup-*`.
+
+While the repository is public, signed-in GitHub users can download these artifacts. That is why only the encrypted file is kept: without the passphrase it cannot be read.
+
+### 1e. Running the backup by hand (still works)
+
+In a Codespace terminal on `main`: `bash scripts/backup-supabase.sh`. It asks for the Session pooler string (with `[YOUR-PASSWORD]` left in), the database password, the service_role key and the passphrase (twice), at hidden prompts, exactly as before, and runs the same self-check at the end. Then download the `.enc` and `.sha256` files from the `backups` folder and delete them from the Codespace.
+
+### 1f. When a run fails
+
+- GitHub emails a failed **scheduled** run to the GitHub account that last changed the workflow's schedule (and a failed manual run to whoever pressed the button), if that account's notifications allow it: your GitHub picture → **Settings → Notifications → Actions** → "Notify me for failed workflows only", with email ticked.
+- Open the run: the red step's message says what went wrong in plain words (for example "could not connect to the database" after a password reset: update `HL_BACKUP_DB_URL`). Fix it, then press **Run workflow** again (1c). A failed run keeps nothing, so nothing unencrypted is left anywhere.
+- No email does not prove success: look at **Actions → Weekly backup** each Monday (the digest reminds you). GitHub switches scheduled workflows off in a public repository after 60 days with no new commits; if that happens, the page shows a button to switch it back on.
+
+### 1g. Test-restore every quarter (into the local copy, never live)
 
 Once every three months (January, April, July, October), prove a backup opens and restores, using the Codespace's local copy of the site. This never touches live.
 
-1. Upload one recent backup and its `.sha256` file into the Codespace's `backups/` folder (drag them onto the folder in the file list).
+1. Download one recent backup (1d), unzip it, and upload the `.tar.gz.enc` file and its `.sha256` into the Codespace's `backups/` folder (drag them onto the folder in the file list).
 2. In the terminal:
    ```bash
    bash supabase/local-stack/setup.sh reset
@@ -65,12 +78,12 @@ Once every three months (January, April, July, October), prove a backup opens an
 4. It must end with "Every table's rows, every bucket's files and bytes, and a sample of files byte for byte match the backup."
 5. Delete the uploaded files afterwards: `rm backups/hagerland-backup-*`. Reset the local copy if you like: `bash supabase/local-stack/setup.sh reset`.
 
-### 1e. Restoring for real (a last resort)
+### 1h. Restoring for real (a last resort)
 
 Restoring **replaces everything** in the target. **Talk it through with your developer first**: most problems are fixed forward (a new migration, or the Vercel rollback in section 8), not by a restore.
 
 - **Preferred:** restore into a **new, empty Supabase project**:
-  1. Create the project in the same region, then run steps 2–3 of 1d with that project's Session pooler string, its database password and its service_role key.
+  1. Create the project in the same region, then run steps 2–3 of 1g with that project's Session pooler string, its database password and its service_role key.
   2. Point the site at it: Vercel environment variables `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `SUPABASE_SECRET_KEY`, then redeploy. This is a settings change you make yourself, after talking it through.
   3. In the new project, copy across the **Authentication settings**: site URL, redirect URLs, email templates (`docs/auth-email-templates`), SMTP and password rules. Copy the **Storage** settings too. These are dashboard settings, not data, so a backup cannot carry them.
 - **Over the live project:** the restore script refuses unless you type `RESTORE OVER LIVE HAGERLAND` exactly. Take a fresh backup of the current state first.
@@ -121,7 +134,7 @@ Every day at 06:00 UTC Vercel calls `/api/cron/daily` (set in `vercel.json`, pro
 - closes jobs past their closing date;
 - retries emails that failed to send (up to five times; see admin → **Email problems**);
 - deletes verification documents 90 days after the decision, contact-reveal records older than 12 months, CVs sent with job applications after 12 months, and interest registrations after 24 months;
-- emails you a digest at `ADMIN_DIGEST_EMAIL` **every day**, even when there is nothing to look at (Fix F-2). Its first line says when the job ran and how many steps worked and failed ("Daily job ran at 06:00 UTC (07:00 London time): 22 steps OK, 0 failed."), then names any failed step, then the usual lines (reviews waiting, new leads and requests, emergencies, unanswered enquiries, account deletion requests, emails waiting to be resent, errors). A figure that could not be read says "Could not read: …" instead of being left out. With nothing to report it says "Nothing needs your attention today." Every Monday (Addis Ababa date) it also says "Weekly reminder: run the backup (RUNBOOK §1)."
+- emails you a digest at `ADMIN_DIGEST_EMAIL` **every day**, even when there is nothing to look at (Fix F-2). Its first line says when the job ran and how many steps worked and failed ("Daily job ran at 06:00 UTC (07:00 London time): 22 steps OK, 0 failed."), then names any failed step, then the usual lines (reviews waiting, new leads and requests, emergencies, unanswered enquiries, account deletion requests, emails waiting to be resent, errors). A figure that could not be read says "Could not read: …" instead of being left out. With nothing to report it says "Nothing needs your attention today." Every Monday (Addis Ababa date) it also says "Weekly backup: it runs automatically on GitHub every Monday. Check it succeeded: GitHub → Actions → Weekly backup." (section 1).
 
 **Silence means something is wrong.** If no digest arrives by 08:00 London time, follow section 11 ("If no digest arrives").
 
@@ -161,7 +174,7 @@ npm run test:e2e:build && npm run test:e2e   # browser tests against the local c
 
 - Code: Vercel → **Deployments**, pick the previous good deployment → **⋯ → Promote to Production**. Takes seconds.
 - Before the relaunch: git tag `pre-construction-relaunch` marks the old live site.
-- Database: restore from your latest backup (section 1e). This is a last resort: prefer fixing forward with a new migration.
+- Database: restore from your latest backup (section 1h). This is a last resort: prefer fixing forward with a new migration.
 
 ## 9. Imports and Google data
 

@@ -1,0 +1,115 @@
+# BK-1: HagerLand's weekly backup (docs/RUNBOOK.md section 1). It runs scripts/backup-supabase.sh in automatic mode,
+# which only READS the live project, and keeps ONE encrypted file (+ its .sha256 fingerprint) as an artifact for 90 days.
+# Safety (the repository may be public):
+#   - only the schedule and the "Run workflow" button start it; never a push or a pull request, so a fork can never run
+#     it with the secrets (forks never receive secrets anyway);
+#   - the three secrets reach only the two steps that need them, and are never printed;
+#   - the artifact is only the encrypted file and its fingerprint (downloadable by signed-in GitHub users while the
+#     repository is public, but useless without the passphrase); the log names no table, file or count.
+name: Weekly backup
+
+on:
+  schedule:
+    # Mondays 02:17 UTC (05:17 Addis Ababa), before the daily job's digest.
+    - cron: "17 2 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: weekly-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    name: Back up the database and stored files
+    # The default branch (main) of this repository only: never a fork, never another branch. (A scheduled run's event
+    # carries no repository details, so the branch is named here.)
+    if: github.repository == 'AccountingBody-HQ/HagerLand-Platform' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check the backup is set up
+        env:
+          HL_BACKUP_DB_URL: ${{ secrets.HL_BACKUP_DB_URL }}
+          HL_BACKUP_SERVICE_ROLE_KEY: ${{ secrets.HL_BACKUP_SERVICE_ROLE_KEY }}
+          HL_BACKUP_PASSPHRASE: ${{ secrets.HL_BACKUP_PASSPHRASE }}
+        run: |
+          if [ -z "$HL_BACKUP_DB_URL" ] || [ -z "$HL_BACKUP_SERVICE_ROLE_KEY" ] || [ -z "$HL_BACKUP_PASSPHRASE" ]; then
+            echo "::error::Backup not set up: add the secrets HL_BACKUP_DB_URL, HL_BACKUP_SERVICE_ROLE_KEY and HL_BACKUP_PASSPHRASE in GitHub (Settings → Secrets and variables → Actions)."
+            exit 1
+          fi
+          echo "::add-mask::$HL_BACKUP_DB_URL"
+          echo "::add-mask::$HL_BACKUP_SERVICE_ROLE_KEY"
+          echo "::add-mask::$HL_BACKUP_PASSPHRASE"
+          echo "The three backup secrets are set."
+
+      - name: Check out the backup script
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install the tools
+        run: |
+          for tool in curl jq openssl tar sha256sum shred python3 lsb_release; do
+            command -v "$tool" >/dev/null || { echo "::error::The tool $tool is missing on the runner."; exit 1; }
+          done
+          echo "Tools ready (the script installs the database's own backup tools)."
+
+      - name: Make the encrypted backup (read-only against the project)
+        env:
+          HL_BACKUP_DB_URL: ${{ secrets.HL_BACKUP_DB_URL }}
+          HL_BACKUP_SERVICE_ROLE_KEY: ${{ secrets.HL_BACKUP_SERVICE_ROLE_KEY }}
+          HL_BACKUP_PASSPHRASE: ${{ secrets.HL_BACKUP_PASSPHRASE }}
+        run: bash scripts/backup-supabase.sh
+
+      - name: Name the artifact
+        id: file
+        run: |
+          shopt -s nullglob
+          files=(backups/hagerland-backup-*.tar.gz.enc)
+          if [ "${#files[@]}" != 1 ] || [ ! -f "${files[0]}.sha256" ]; then
+            echo "::error::The encrypted backup file was not found."
+            exit 1
+          fi
+          # Nothing but the encrypted file and its fingerprint may be in the folder that is uploaded.
+          extra="$(find backups -mindepth 1 ! -name 'hagerland-backup-*.tar.gz.enc' ! -name 'hagerland-backup-*.tar.gz.enc.sha256' | head -n 1)"
+          [ -z "$extra" ] || { echo "::error::Something other than the encrypted backup is in the backups folder: nothing is uploaded."; exit 1; }
+          {
+            echo "name=hagerland-backup-$(date -u +%Y-%m-%d)"
+            echo "file=$(basename "${files[0]}")"
+            echo "size=$(du -h "${files[0]}" | cut -f1)"
+          } >>"$GITHUB_OUTPUT"
+
+      - name: Keep the encrypted file for 90 days
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ${{ steps.file.outputs.name }}
+          path: |
+            backups/hagerland-backup-*.tar.gz.enc
+            backups/hagerland-backup-*.tar.gz.enc.sha256
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 0
+
+      - name: Summary
+        env:
+          ARTIFACT: ${{ steps.file.outputs.name }}
+          FILE: ${{ steps.file.outputs.file }}
+          SIZE: ${{ steps.file.outputs.size }}
+        run: |
+          {
+            echo "## Weekly backup: done"
+            echo
+            echo "- Date: $(date -u '+%d %b %Y, %H:%M') UTC"
+            echo "- File: \`$FILE\` ($SIZE), encrypted with the backup passphrase"
+            echo "- Self-check passed"
+            echo
+            echo "To download: scroll down to **Artifacts** on this page and click **$ARTIFACT** (a .zip holding the .enc file and its .sha256)."
+            echo "It is kept for 90 days. Keep one copy per month on your computer and a second private place (docs/RUNBOOK.md section 1)."
+          } >>"$GITHUB_STEP_SUMMARY"
+
+      - name: Delete the working folder
+        if: always()
+        run: rm -rf backups
