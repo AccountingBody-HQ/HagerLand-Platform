@@ -52,12 +52,11 @@ export default async function AdminOrgPage(
   const db = getAdminSupabase()
   const { data: o } = must(await db.from('organisations').select('*').eq('id', params.id).maybeSingle())
   if (!o) notFound()
-  const [{ data: members }, { data: svc }, { data: cats }, { data: requests }, { data: candidates }, services, products, locations, notes, trail] = must(await Promise.all([
+  const [{ data: members }, { data: svc }, { data: cats }, { data: requests }, services, products, locations, notes, trail] = must(await Promise.all([
     db.from('organisation_members').select('user_id, role').eq('org_id', o.id),
     db.from('organisation_services').select('service_id').eq('org_id', o.id),
     db.from('org_product_categories').select('product_category_id').eq('org_id', o.id),
     db.from('verification_requests').select('id, status, documents, created_at, decided_at').eq('org_id', o.id).order('created_at', { ascending: false }),
-    db.from('organisations').select('id, name, kind').eq('kind', o.kind).neq('id', o.id).neq('status', 'archived').order('name').limit(500),
     getServiceCategories(),
     getProductCategories(),
     getLocations(),
@@ -310,7 +309,7 @@ export default async function AdminOrgPage(
           </Panel>
           {!isHl && (
             <Panel title="Merge duplicate">
-              <MergeTool orgId={o.id} candidates={(candidates ?? []).map((c) => ({ id: c.id, label: c.name }))} />
+              <MergeTool orgId={o.id} />
             </Panel>
           )}
           <Panel title="Internal notes">

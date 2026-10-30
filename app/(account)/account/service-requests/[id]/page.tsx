@@ -7,6 +7,8 @@ import { STAFFING_SLUG } from '@/lib/service-requests/form-copy'
 import { getAmScope, getJobsI18n, getLocale } from '@/lib/i18n/server'
 import { translator } from '@/lib/i18n/translate'
 import { RequestView } from '@/components/service-requests/RequestView'
+import { LoadFailed } from '@/components/account/LoadFailed'
+import { log } from '@/lib/log'
 
 /** In Amharic for Jobs, a staffing request's tab title goes through the Jobs translator; everything else is unchanged. */
 export async function generateMetadata(props: { params: Promise<{ id: string }> }) {
@@ -26,7 +28,11 @@ export default async function MyServiceRequestPage(props: { params: Promise<{ id
   const user = await requireUser(href(`/account/service-requests/${params.id}`))
   if (!/^[0-9a-f-]{36}$/.test(params.id)) notFound()
   // RLS: only the requester can read their own request.
-  const { data: own } = await getServerSupabase().from('service_requests').select('id').eq('id', params.id).eq('requester_user_id', user.id).maybeSingle()
+  const { data: own, error } = await getServerSupabase().from('service_requests').select('id').eq('id', params.id).eq('requester_user_id', user.id).maybeSingle()
+  if (error) {
+    log.error('account', 'service request failed to load', error)
+    return <LoadFailed what="this request" />
+  }
   if (!own) notFound()
   const view = await loadRequestView(own.id)
   if (!view) notFound()

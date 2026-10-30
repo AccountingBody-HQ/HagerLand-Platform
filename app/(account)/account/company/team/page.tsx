@@ -11,6 +11,8 @@ import { Input, Select } from '@/components/ui/Field'
 import { ActionForm } from '@/components/forms/ActionForm'
 import { ActionButton } from '@/components/forms/ActionButton'
 import { MemberTools } from '@/components/account/TeamTools'
+import { LoadFailed } from '@/components/account/LoadFailed'
+import { log } from '@/lib/log'
 
 export const metadata = { title: 'Team' }
 
@@ -21,7 +23,7 @@ export default async function TeamPage() {
   await requireUser('/account/company/team')
   const [active, me] = await Promise.all([getActiveMembership(), getUser()])
   if (!active) return <EmptyState icon={<Users />} title="Teams are for business accounts" description="Create a business profile to invite colleagues." />
-  const { data: members } = await getServerSupabase().from('organisation_members').select('user_id, role, created_at').eq('org_id', active.org.id).order('created_at')
+  const { data: members, error } = await getServerSupabase().from('organisation_members').select('user_id, role, created_at').eq('org_id', active.org.id).order('created_at')
   const db = getAdminSupabase()
   // Names in one query; email addresses come from the auth service, one small call per member (teams are small).
   const { data: profiles } = await db.from('profiles').select('id, full_name').in('id', (members ?? []).map((m) => m.user_id))
@@ -32,10 +34,12 @@ export default async function TeamPage() {
     }),
   )
   const manager = active.role === 'owner' || active.role === 'admin'
-  const { data: invites } = manager ? await getServerSupabase().from('org_invitations').select('id, email, role, expires_at, created_at').eq('org_id', active.org.id).is('accepted_at', null).is('revoked_at', null).order('created_at', { ascending: false }) : { data: [] }
+  const { data: invites, error: invitesError } = manager ? await getServerSupabase().from('org_invitations').select('id, email, role, expires_at, created_at').eq('org_id', active.org.id).is('accepted_at', null).is('revoked_at', null).order('created_at', { ascending: false }) : { data: [] }
+  if (error || invitesError) log.error('account', 'team failed to load', error ?? invitesError)
   return (
     <div className="space-y-6">
       <AccountPageHeader title="Team" description={`People who manage ${active.org.name} on HagerLand. Owners manage the team and ownership; admins manage listings, enquiries and members; members work on listings and enquiries.`} />
+      {(error || invitesError) && <LoadFailed what="your team" />}
       <Card className="divide-y divide-border">
         {people.map((p) => (
           <div key={p.user_id} className="flex flex-wrap items-center justify-between gap-3 p-4">

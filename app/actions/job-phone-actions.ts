@@ -5,7 +5,7 @@ import { getAdminSupabase } from '@/lib/supabase/admin'
 import { fail, ok, type ActionResult } from '@/lib/action-result'
 import { getClientIp, hashIp } from '@/lib/security'
 import { rateLimit } from '@/lib/rate-limit'
-import { isHoneypotFilled, verifyTurnstileToken } from '@/lib/turnstile'
+import { verifyTurnstileToken } from '@/lib/turnstile'
 import { getVertical } from '@/lib/data/verticals'
 import { readJobsSwitches } from '@/lib/jobs-switches'
 import { JOBS_NOT_LIVE } from '@/lib/jobs'
@@ -18,6 +18,7 @@ import { canonicalUrl } from '@/lib/site'
 import { log } from '@/lib/log'
 import { getJobsI18n } from '@/lib/i18n/server'
 import { translateResult } from '@/lib/i18n/translate'
+import { spamCheckDrop } from '@/lib/spam-check'
 
 export type PhoneFormState = ActionResult<{ reference: string }> | null
 
@@ -40,7 +41,7 @@ async function allowed(prefix: string, ip: string, phone: string, visitor: reado
  * reference on screen (no SMS or email).
  */
 async function applyByPhoneActionImpl(_prev: PhoneFormState, formData: FormData): Promise<PhoneFormState> {
-  if (isHoneypotFilled(formData)) return ok({ reference: 'HLA-0' })
+  if (await spamCheckDrop(formData, 'apply_by_phone')) return ok({ reference: 'HLA-0' })
   if (!(await readJobsSwitches()).phoneApply) return fail(PHONE_MESSAGES.unavailable)
   if ((await getVertical('jobs'))?.status !== 'live') return fail(JOBS_NOT_LIVE)
   const parsed = phoneApplicationSchema.safeParse(Object.fromEntries(formData))
@@ -80,7 +81,7 @@ async function applyByPhoneActionImpl(_prev: PhoneFormState, formData: FormData)
  * Only HagerLand staff (Owner and Operations) see the register.
  */
 async function joinWorkerRegisterActionImpl(_prev: PhoneFormState, formData: FormData): Promise<PhoneFormState> {
-  if (isHoneypotFilled(formData)) return ok({ reference: 'HLW-0' })
+  if (await spamCheckDrop(formData, 'join_worker_register')) return ok({ reference: 'HLW-0' })
   if (!(await readJobsSwitches()).workerRegister) return fail(PHONE_MESSAGES.unavailable)
   if ((await getVertical('jobs'))?.status !== 'live') return fail(JOBS_NOT_LIVE)
   const parsed = workerRegisterSchema.safeParse({ ...Object.fromEntries(formData), trades: formData.getAll('trades') })

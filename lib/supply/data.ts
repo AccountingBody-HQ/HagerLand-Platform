@@ -8,6 +8,7 @@ import { signedDocumentUrl } from '@/lib/storage'
 import type { Database } from '@/lib/database.types'
 import { normaliseSupplyPhone } from './phone'
 import { businessNameKey, NAME_MATCH_THRESHOLD, nameSimilarity } from './partners'
+import { todayInAddis } from '@/lib/supply/shortlist'
 
 export type SupplyPartnerRow = Database['public']['Tables']['supply_partners']['Row']
 export type SupplyContactRow = Database['public']['Tables']['supply_contacts']['Row']
@@ -100,7 +101,7 @@ export async function listSupplyPartners(f: PartnerListFilters): Promise<Partner
       .order('status_changed_at', { ascending: false, nullsFirst: false })
     if (f.status) query = query.eq('relationship_status', f.status)
     if (f.role) query = query.contains('roles', [f.role])
-    if (f.due) query = query.lte('reverify_by', new Date().toISOString().slice(0, 10))
+    if (f.due) query = query.lte('reverify_by', todayInAddis())
     return query
   }, { maxRows: REPORT_MAX_ROWS, key: 'org_id' })
   const phonesByOrg = new Map<string, string[]>()

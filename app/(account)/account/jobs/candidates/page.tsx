@@ -14,6 +14,8 @@ import { Badge } from '@/components/ui/Badge'
 import { Button, ButtonLink } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Field'
 import { JobsNotLive } from '@/components/jobs/JobsNotLive'
+import { LoadFailed } from '@/components/account/LoadFailed'
+import { log } from '@/lib/log'
 
 export async function generateMetadata() {
   const { t } = await getJobsI18n()
@@ -39,12 +41,14 @@ export default async function CandidatesPage(props: { searchParams: Promise<{ q?
     return <EmptyState icon={<Users />} title={t('For approved employers')} description={t('Once your business profile is approved, you can search candidates who chose to be visible to employers.')} />
   // Decision 2 (also enforced by the database view): a verified business, or one with a job HagerLand approved and has not removed.
   const memberships = (await getMemberships()).filter((m) => m.org.status === 'published')
-  const { data: jobs } = await getServerSupabase().from('job_posts').select('employer_org_id, published_at, status').in('employer_org_id', memberships.map((m) => m.org.id)).not('published_at', 'is', null)
-  if (!memberships.some((m) => canSeeCandidates(m.org, (jobs ?? []).filter((j) => j.employer_org_id === m.org.id)))) {
+  const { data: jobs, error: jobsError } = await getServerSupabase().from('job_posts').select('employer_org_id, published_at, status').in('employer_org_id', memberships.map((m) => m.org.id)).not('published_at', 'is', null)
+  if (jobsError) log.error('account', 'candidates: employer jobs failed to load', jobsError)
+  if (!jobsError && !memberships.some((m) => canSeeCandidates(m.org, (jobs ?? []).filter((j) => j.employer_org_id === m.org.id)))) {
     return <EmptyState icon={<Users />} title={t('For approved employers')} description={t('Candidate profiles are open to verified businesses and businesses that have had a job approved by HagerLand. Post a job or ask us to verify your business.')} />
   }
   const q = searchParams.q?.trim().toLowerCase().slice(0, 80) ?? ''
-  const { data } = await getServerSupabase().from('candidates_for_employers').select('*').order('updated_at', { ascending: false }).limit(300)
+  const { data, error } = jobsError ? { data: null, error: jobsError } : await getServerSupabase().from('candidates_for_employers').select('*').order('updated_at', { ascending: false }).limit(300)
+  if (error && error !== jobsError) log.error('account', 'candidates failed to load', error)
   const rows = (data ?? []).filter((c) => !q || [c.headline, c.qualifications, c.experience, ...(c.skills ?? [])].some((v) => v?.toLowerCase().includes(q)))
   return (
     <div>
@@ -58,6 +62,10 @@ export default async function CandidatesPage(props: { searchParams: Promise<{ q?
           <Search /> {t('Search')}
         </Button>
       </form>
+      {error ? (
+        <LoadFailed what="candidates" />
+      ) : (
+        <>
       <p className="mb-3 text-muted" role="status">
         {rows.length === 1 ? t('1 candidate') : fill(t('{n} candidates'), { n: formatNumber(rows.length) })}
       </p>
@@ -106,6 +114,8 @@ export default async function CandidatesPage(props: { searchParams: Promise<{ q?
           {t('Submit a staffing requirement')}
         </ButtonLink>
       </div>
+        </>
+      )}
     </div>
   )
 }

@@ -7,7 +7,7 @@ import { getUser } from '@/lib/auth'
 import { fail, invalid, ok, type ActionResult } from '@/lib/action-result'
 import { getClientIp, hashIp } from '@/lib/security'
 import { rateLimit } from '@/lib/rate-limit'
-import { isHoneypotFilled, verifyTurnstileToken } from '@/lib/turnstile'
+import { verifyTurnstileToken } from '@/lib/turnstile'
 import { decimalFromForm, emailSchema, intFromForm, nameSchema, optionalText, optionalUuid, phoneSchema, textSchema } from '@/lib/validation/common'
 import { COUNTRY_CODES } from '@/lib/countries'
 import { isEthiopianLocation } from '@/lib/data/reference'
@@ -19,6 +19,7 @@ import { adminNoticeEmail } from '@/lib/email/templates'
 import { renderEmail } from '@/lib/email/layout'
 import { canonicalUrl } from '@/lib/site'
 import { log } from '@/lib/log'
+import { spamCheckDrop } from '@/lib/spam-check'
 
 export type ProjectState = ActionResult<{ id: string; reference: string }> | null
 
@@ -49,7 +50,7 @@ const schema = z
  * Needs an account, because a project runs over months and the customer follows it in one place.
  */
 export async function createBuildProjectAction(_prev: ProjectState, formData: FormData): Promise<ProjectState> {
-  if (isHoneypotFilled(formData)) return ok({ id: '', reference: 'HLP-0' })
+  if (await spamCheckDrop(formData, 'create_build_project')) return ok({ id: '', reference: 'HLP-0' })
   const user = await getUser()
   if (!user) return fail('Please sign in first, so you can follow your project in your account.')
   const parsed = schema.safeParse({ ...Object.fromEntries(formData), services: formData.getAll('services') })

@@ -7,9 +7,10 @@ import { Button } from '@/components/ui/Button'
 import { Field, Input, Select } from '@/components/ui/Field'
 import { FormAlert } from '@/components/forms/FormParts'
 import { useToast } from '@/components/ui/Toast'
+import { todayInAddis } from '@/lib/supply/shortlist'
 
-const today = () => new Date().toISOString().slice(0, 10)
-const inDays = (n: number) => new Date(Date.now() + n * 86_400_000).toISOString().slice(0, 10)
+const today = () => todayInAddis()
+const inDays = (n: number) => todayInAddis(new Date(Date.now() + n * 86_400_000))
 
 export function NewPromotion() {
   const [type, setType] = useState('property')

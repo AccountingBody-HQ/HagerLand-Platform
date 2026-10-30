@@ -1,4 +1,5 @@
 /** Small pure helpers for admin reports. Unit-tested. */
+import { addisDate } from '@/lib/supply/shortlist'
 
 export function countBy<T>(rows: T[], key: (r: T) => string | null | undefined): { key: string; count: number }[] {
   const m = new Map<string, number>()
@@ -9,9 +10,9 @@ export function countBy<T>(rows: T[], key: (r: T) => string | null | undefined):
   return Array.from(m, ([k, count]) => ({ key: k, count })).sort((a, b) => b.count - a.count || a.key.localeCompare(b.key))
 }
 
-/** Monday (UTC) of the week containing the date, as YYYY-MM-DD. */
+/** Monday of the Addis Ababa week containing the moment, as YYYY-MM-DD (QC-1a: weeks follow the Ethiopian day). */
 export function weekStart(d: Date): string {
-  const x = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()))
+  const x = new Date(`${addisDate(d)}T00:00:00Z`)
   const dow = (x.getUTCDay() + 6) % 7
   x.setUTCDate(x.getUTCDate() - dow)
   return x.toISOString().slice(0, 10)

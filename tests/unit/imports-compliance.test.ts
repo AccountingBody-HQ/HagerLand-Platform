@@ -45,7 +45,8 @@ describe('what happens to each business', () => {
   it('expired private business: clear the expired fields, rename it as a lead', () => {
     const c = compliance(org([google('name', 40), google('phone', 40), google('lat_lng', 40), google('description', 40)]), TODAY)
     expect(c.state).toBe('expired')
-    expect(c.plan).toEqual({ action: 'clear', fields: ['name', 'phone', 'lat_lng', 'description'], rename: true })
+    // QC-1a: always in FIELD_LABEL order.
+    expect(c.plan).toEqual({ action: 'clear', fields: ['name', 'phone', 'description', 'lat_lng'], rename: true })
   })
 
   it('expired public or claimed business: never cleared automatically, the owner decides', () => {

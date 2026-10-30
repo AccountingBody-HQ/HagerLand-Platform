@@ -10,6 +10,8 @@ import { Card } from '@/components/ui/Layout'
 import { ENQUIRY_STATUS, TARGET_LABEL } from '@/lib/enquiry-labels'
 import { INTENT_LABELS } from '@/lib/enquiries'
 import { formatDate, formatPhone, whatsappLink } from '@/lib/format'
+import { LoadFailed } from '@/components/account/LoadFailed'
+import { log } from '@/lib/log'
 
 export const metadata = { title: 'Enquiry' }
 
@@ -17,7 +19,11 @@ export default async function EnquiryDetailPage(props: { params: Promise<{ id: s
   const params = await props.params
   const user = await requireUser(`/account/enquiries/${params.id}`)
   const supabase = getServerSupabase()
-  const { data: e } = await supabase.from('enquiries').select('id, reference, target_type, target_id, sender_user_id, name, phone, email, message, preferred_contact, intent, details, status, recipient_notes, first_viewed_at, source_url, created_at').eq('id', params.id).maybeSingle()
+  const { data: e, error } = await supabase.from('enquiries').select('id, reference, target_type, target_id, sender_user_id, name, phone, email, message, preferred_contact, intent, details, status, recipient_notes, first_viewed_at, source_url, created_at').eq('id', params.id).maybeSingle()
+  if (error) {
+    log.error('account', 'enquiry failed to load', error)
+    return <LoadFailed what="this enquiry" />
+  }
   if (!e) notFound()
   const isRecipient = e.sender_user_id !== user.id
   if (isRecipient && !e.first_viewed_at) await supabase.from('enquiries').update({ first_viewed_at: new Date().toISOString() }).eq('id', e.id)

@@ -9,6 +9,7 @@ import { assertAdmin, audit, changedFields } from '@/lib/admin/guard'
 import { fail, invalid, ok, type ActionResult } from '@/lib/action-result'
 import { revalidateSettings } from '@/lib/revalidate'
 import type { Json } from '@/lib/database.types'
+import { markLegalSwitchChange } from '@/lib/content/legal'
 import {
   announcementSchema,
   businessSchema,
@@ -145,9 +146,17 @@ export async function saveSettingsAction(section: SettingsSection, _prev: Msg | 
   const db = getAdminSupabase()
   const { data: before } = await db.from('site_settings').select('key, value').in('key', rows.map((r) => r.key))
   const prev = Object.fromEntries((before ?? []).map((r) => [r.key, r.value]))
+  // QC-1a: site-wide Amharic shows or hides the "written in English" notes on /privacy and /terms: their dates move first.
+  const legalDates: Awaited<ReturnType<typeof markLegalSwitchChange>>[] = []
+  try {
+    for (const r of rows) legalDates.push(await markLegalSwitchChange(r.key, prev[r.key] ?? false, r.value))
+  } catch {
+    return fail('Could not save the settings.')
+  }
+  const legal = legalDates.find(Boolean) ?? null
   const { error } = await db.from('site_settings').upsert(rows.map((r) => ({ key: r.key, value: r.value })))
   if (error) return fail('Could not save the settings.')
-  await audit('settings.update', { type: 'settings', label: section }, changedFields(prev, Object.fromEntries(rows.map((r) => [r.key, r.value]))))
+  await audit('settings.update', { type: 'settings', label: section }, { ...changedFields(prev, Object.fromEntries(rows.map((r) => [r.key, r.value]))), ...(legal ? { legal_dates: legal } : {}) })
   revalidateSettings()
   revalidatePath('/', 'layout')
   return ok({ message: 'Saved. The website updates within a minute.' }, 'Saved. The website updates within a minute.')

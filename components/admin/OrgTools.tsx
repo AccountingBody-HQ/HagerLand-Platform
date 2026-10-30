@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
-import { addMemberAction, mergeOrganisationsAction, removeMemberAction, saveOrgAdminFieldsAction, setOrganisationVisibilityAction } from '@/app/roodber8/actions/organisations'
+import { addMemberAction, mergeOrganisationsAction, removeMemberAction, saveOrgAdminFieldsAction, searchMergeTargetsAction, setOrganisationVisibilityAction } from '@/app/roodber8/actions/organisations'
 import { Button } from '@/components/ui/Button'
 import { Field, Input, Select } from '@/components/ui/Field'
 import { useToast } from '@/components/ui/Toast'
@@ -91,21 +91,59 @@ export function MembersTool({ orgId, members }: { orgId: string; members: { user
   )
 }
 
-export function MergeTool({ orgId, candidates }: { orgId: string; candidates: { id: string; label: string }[] }) {
+/** QC-1a: find the organisation to merge into by name or reference (the server searches every one, at most 20 shown). */
+export function MergeTool({ orgId }: { orgId: string }) {
+  const [query, setQuery] = useState('')
+  const [results, setResults] = useState<{ id: string; label: string }[] | null>(null)
+  const [message, setMessage] = useState('')
+  const [searching, startSearch] = useTransition()
   const [target, setTarget] = useState('')
   const [confirm, setConfirm] = useState(false)
   const { pending, run } = useRun()
+  const search = () =>
+    startSearch(async () => {
+      const res = await searchMergeTargetsAction(orgId, query)
+      setTarget('')
+      if (!res.ok) {
+        setResults(null)
+        setMessage(res.error)
+        return
+      }
+      setResults(res.data.results)
+      setMessage(res.data.results.length ? '' : 'No organisation of this kind matches.')
+    })
   return (
     <div className="space-y-3">
       <p className="text-small text-muted">Moves everything from this profile into the one you choose, then archives this one.</p>
-      <Select aria-label="Merge into" value={target} onChange={(e) => setTarget(e.target.value)}>
-        <option value="">Merge into…</option>
-        {candidates.map((c) => (
-          <option key={c.id} value={c.id}>
-            {c.label}
-          </option>
-        ))}
-      </Select>
+      <div className="flex gap-2">
+        <Input
+          aria-label="Find the organisation to merge into"
+          placeholder="Type part of a name or reference"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              search()
+            }
+          }}
+          className="h-10 min-w-0 flex-1"
+        />
+        <Button size="sm" variant="secondary" disabled={searching || query.trim().length < 2} onClick={search}>
+          Find
+        </Button>
+      </div>
+      {message && <p className="text-small text-muted">{message}</p>}
+      {results && results.length > 0 && (
+        <Select aria-label="Merge into" value={target} onChange={(e) => setTarget(e.target.value)}>
+          <option value="">Merge into…</option>
+          {results.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.label}
+            </option>
+          ))}
+        </Select>
+      )}
       <label className="flex items-center gap-2 text-small">
         <input type="checkbox" className="size-4 accent-green" checked={confirm} onChange={(e) => setConfirm(e.target.checked)} /> I understand this cannot be undone automatically
       </label>

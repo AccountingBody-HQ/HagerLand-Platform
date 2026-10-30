@@ -9,10 +9,11 @@ import { fail, invalid, ok, type ActionResult } from '@/lib/action-result'
 import { emailSchema, phoneSchema, optionalText } from '@/lib/validation/common'
 import { getClientIp } from '@/lib/security'
 import { rateLimit } from '@/lib/rate-limit'
-import { isHoneypotFilled, verifyTurnstileToken } from '@/lib/turnstile'
+import { verifyTurnstileToken } from '@/lib/turnstile'
 import { sendEmail } from '@/lib/email/send'
 import { adminNoticeEmail, claimSubmittedEmail } from '@/lib/email/templates'
 import { canonicalUrl } from '@/lib/site'
+import { spamCheckDrop } from '@/lib/spam-check'
 
 const schema = z.object({
   org_id: z.uuid(),
@@ -26,7 +27,7 @@ const schema = z.object({
 export async function submitClaimAction(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
   const user = await requireUser()
   if (!isEmailConfirmed(user)) return fail('Please confirm your email address first.')
-  if (isHoneypotFilled(formData)) return ok(undefined)
+  if (await spamCheckDrop(formData, 'submit_claim')) return ok(undefined)
   // Fix F-7: at most 5 claims per person per day.
   if (!(await rateLimit(`claim:${user.id}`, 5, 86_400)).allowed) return fail('You have sent several requests recently. Please wait a while and try again, or contact us.')
   const parsed = schema.safeParse({ ...Object.fromEntries(formData), evidence_paths: formData.getAll('evidence_paths') })

@@ -7,6 +7,8 @@ import { ButtonLink } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
 import { EmptyState } from '@/components/ui/Layout'
 import { LISTING_STATUS_LABELS } from '@/lib/labels'
+import { LoadFailed } from '@/components/account/LoadFailed'
+import { log } from '@/lib/log'
 
 export const metadata = { title: 'Developments' }
 
@@ -14,7 +16,8 @@ export default async function MyDevelopmentsPage() {
   await requireUser('/account/developments')
   const active = await getActiveMembership()
   if (active?.org.kind !== 'developer') return <EmptyState icon={<Building2 />} title="Developments are for developer accounts" description="Create a developer business profile to add developments." />
-  const { data } = await getServerSupabase().from('developments').select('id, name, status, completion_status, total_units, updated_at, pending_changes').eq('developer_org_id', active.org.id).neq('status', 'archived').order('updated_at', { ascending: false })
+  const { data, error } = await getServerSupabase().from('developments').select('id, name, status, completion_status, total_units, updated_at, pending_changes').eq('developer_org_id', active.org.id).neq('status', 'archived').order('updated_at', { ascending: false })
+  if (error) log.error('account', 'developments failed to load', error)
   const rows = data ?? []
   return (
     <div>
@@ -27,7 +30,9 @@ export default async function MyDevelopmentsPage() {
           </ButtonLink>
         }
       />
-      {rows.length === 0 ? (
+      {error ? (
+        <LoadFailed what="your developments" />
+      ) : rows.length === 0 ? (
         <EmptyState icon={<Building2 />} title="No developments yet" actions={<ButtonLink href="/account/developments/new">Add your first development</ButtonLink>} />
       ) : (
         <ul className="space-y-3">

@@ -7,7 +7,7 @@ import { getUser } from '@/lib/auth'
 import { fail, invalid, ok, type ActionResult } from '@/lib/action-result'
 import { getClientIp, hashIp } from '@/lib/security'
 import { rateLimit } from '@/lib/rate-limit'
-import { isHoneypotFilled, verifyTurnstileToken } from '@/lib/turnstile'
+import { verifyTurnstileToken } from '@/lib/turnstile'
 import { nameSchema, optionalEmailSchema, phoneSchema, preferredContactSchema, textSchema, optionalText } from '@/lib/validation/common'
 import { hagerlandInbox, INTENT_LABELS, orgManagerEmails, resolveEnquiryTarget, userEmail } from '@/lib/enquiries'
 import { sendEmail } from '@/lib/email/send'
@@ -15,6 +15,7 @@ import { enquiryConfirmationEmail, newEnquiryEmail, registerInterestConfirmation
 import { log } from '@/lib/log'
 import { formatPhone } from '@/lib/format'
 import { parseUtm } from '@/lib/utm'
+import { spamCheckDrop } from '@/lib/spam-check'
 
 const schema = z
   .object({
@@ -41,7 +42,7 @@ export type EnquiryState = ActionResult<{ reference: string }> | null
 
 /** Unified enquiry submission (spec 12). */
 export async function submitEnquiryAction(_prev: EnquiryState, formData: FormData): Promise<EnquiryState> {
-  if (isHoneypotFilled(formData)) return ok({ reference: 'HLE-0' })
+  if (await spamCheckDrop(formData, 'submit_enquiry')) return ok({ reference: 'HLE-0' })
   const parsed = schema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   const d = parsed.data

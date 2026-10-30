@@ -14,6 +14,8 @@ import { MediaManager } from '@/components/media/MediaManager'
 import { ProductForm } from '@/components/supplies/ProductForm'
 import { OwnProductActions } from '@/components/supplies/OwnProductActions'
 import type { MediaItem } from '@/lib/media-actions'
+import { LoadFailed } from '@/components/account/LoadFailed'
+import { log } from '@/lib/log'
 
 export const metadata = { title: 'Edit product' }
 
@@ -25,12 +27,20 @@ export default async function EditProductPage(
   await requireUser(`/account/products/${params.id}/edit`)
   if (!/^[0-9a-f-]{36}$/.test(params.id)) notFound()
   const supabase = getServerSupabase()
-  const { data: p } = await supabase.from('products').select('*').eq('id', params.id).maybeSingle()
+  const { data: p, error } = await supabase.from('products').select('*').eq('id', params.id).maybeSingle()
+  if (error) {
+    log.error('account', 'product failed to load', error)
+    return <LoadFailed what="this product" />
+  }
   if (!p) notFound()
-  const [{ data: media }, o] = await Promise.all([
+  const [{ data: media, error: mediaError }, o] = await Promise.all([
     supabase.from('media').select('id, kind, storage_path, thumb_path, width, height, alt, sort, is_cover, status').eq('entity_type', 'product').eq('entity_id', p.id).order('sort'),
     ownerProductOptions(),
   ])
+  if (mediaError) {
+    log.error('account', 'product photos failed to load', mediaError)
+    return <LoadFailed what="this product" />
+  }
   const s = LISTING_STATUS_LABELS[p.status]
   const shown = { ...p, ...((p.pending_changes as Record<string, unknown> | null) ?? {}) } as typeof p
   return (

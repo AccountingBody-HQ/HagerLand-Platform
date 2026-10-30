@@ -7,6 +7,8 @@ import { defineConfig, devices } from '@playwright/test'
 export default defineConfig({
   testDir: './e2e',
   outputDir: './e2e/.results',
+  // QC-1a: every known switch back to its default on the local copy after the run.
+  globalTeardown: './e2e/global.teardown.ts',
   fullyParallel: false,
   workers: 1,
   retries: 0,

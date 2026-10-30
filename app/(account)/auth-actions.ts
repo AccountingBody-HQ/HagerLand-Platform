@@ -8,9 +8,10 @@ import { safeNextPath } from '@/lib/validation/common'
 import { fail, invalid, ok, type ActionResult } from '@/lib/action-result'
 import { getClientIp, hashIp } from '@/lib/security'
 import { rateLimit } from '@/lib/rate-limit'
-import { isHoneypotFilled, verifyTurnstileToken } from '@/lib/turnstile'
+import { verifyTurnstileToken } from '@/lib/turnstile'
 import { absoluteUrl } from '@/lib/site'
 import { log, maskEmail } from '@/lib/log'
+import { spamCheckDrop } from '@/lib/spam-check'
 
 const GENERIC_AUTH_ERROR = 'Something went wrong. Please try again in a moment.'
 
@@ -25,7 +26,7 @@ function callbackUrl(next: string): string {
 }
 
 export async function signUpAction(_prev: ActionResult<{ email: string }> | null, formData: FormData): Promise<ActionResult<{ email: string }>> {
-  if (isHoneypotFilled(formData)) return ok({ email: '' })
+  if (await spamCheckDrop(formData, 'sign_up')) return ok({ email: '' })
   const parsed = signupSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   if (await limited('signup', 5, 3600)) return fail('Too many sign-up attempts. Please wait an hour and try again.')

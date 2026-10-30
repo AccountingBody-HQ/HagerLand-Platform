@@ -9,6 +9,8 @@ import { answerLines, parseQuestions } from '@/lib/service-requests/questions'
 import { MATCH_STATUS_LABEL, URGENCY_LABEL } from '@/lib/service-requests/labels'
 import { Badge } from '@/components/ui/Badge'
 import { MatchQuoteForm, MatchResponse } from '@/components/service-requests/ProviderTools'
+import { LoadFailed } from '@/components/account/LoadFailed'
+import { log } from '@/lib/log'
 
 export const metadata = { title: 'Customer request' }
 
@@ -17,7 +19,11 @@ export default async function ProviderRequestPage(props: { params: Promise<{ id:
   await requireUser(`/account/requests/${params.id}`)
   if (!/^[0-9a-f-]{36}$/.test(params.id)) notFound()
   // The view returns only matches for the signed-in user's organisations, with contact details after acceptance.
-  const { data: v } = await getServerSupabase().from('service_requests_for_provider').select('*').eq('match_id', params.id).maybeSingle()
+  const { data: v, error } = await getServerSupabase().from('service_requests_for_provider').select('*').eq('match_id', params.id).maybeSingle()
+  if (error) {
+    log.error('account', 'provider request failed to load', error)
+    return <LoadFailed what="this request" />
+  }
   if (!v || !v.request_id) notFound()
   const accepted = ['accepted', 'quoted', 'won'].includes(v.match_status ?? '')
   const db = getAdminSupabase()

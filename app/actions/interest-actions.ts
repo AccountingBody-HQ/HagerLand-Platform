@@ -7,7 +7,7 @@ import { getUser } from '@/lib/auth'
 import { fail, invalid, ok, type ActionResult } from '@/lib/action-result'
 import { getClientIp, hashIp } from '@/lib/security'
 import { rateLimit } from '@/lib/rate-limit'
-import { isHoneypotFilled, verifyTurnstileToken } from '@/lib/turnstile'
+import { verifyTurnstileToken } from '@/lib/turnstile'
 import { checkbox, emailSchema, nameSchema, optionalPhoneSchema, optionalText, optionalUrl } from '@/lib/validation/common'
 import { COUNTRY_CODES, countryByCode } from '@/lib/countries'
 import { VERTICAL_KEYS, verticalHref } from '@/lib/verticals'
@@ -20,6 +20,7 @@ import { interestConfirmationEmail, partnerApplicationEmail } from '@/lib/email/
 import { canonicalUrl } from '@/lib/site'
 import { parseUtm } from '@/lib/utm'
 import { log } from '@/lib/log'
+import { spamCheckDrop } from '@/lib/spam-check'
 
 export type InterestState = ActionResult<{ reference: string }> | null
 
@@ -41,7 +42,7 @@ const interestSchema = z.object({
 
 /** "Register your interest" on a vertical's page (spec 24.2). Stored for admin, confirmation emailed. */
 export async function submitInterestAction(_prev: InterestState, formData: FormData): Promise<InterestState> {
-  if (isHoneypotFilled(formData)) return ok({ reference: 'HLI-0' })
+  if (await spamCheckDrop(formData, 'submit_interest')) return ok({ reference: 'HLI-0' })
   const parsed = interestSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   const d = parsed.data
@@ -112,7 +113,7 @@ const partnerSchema = z.object({
 
 /** "Become a partner" for banks, lenders, insurers and brokers (spec 24.2, 24.8). */
 export async function submitPartnerAction(_prev: InterestState, formData: FormData): Promise<InterestState> {
-  if (isHoneypotFilled(formData)) return ok({ reference: 'HLP-0' })
+  if (await spamCheckDrop(formData, 'submit_partner')) return ok({ reference: 'HLP-0' })
   const parsed = partnerSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   const d = parsed.data

@@ -16,6 +16,7 @@ import { Field, Input, Select, Textarea } from '@/components/ui/Field'
 import { linkOwnerAccountAction, replyToOwnerAction } from '@/app/roodber8/actions/owner-portal'
 import { ManagedDocumentUpload } from '@/components/admin/OwnerPortalTools'
 import { must } from '@/lib/admin/must'
+import { todayInAddis } from '@/lib/supply/shortlist'
 
 export const metadata = { title: 'Managed property' }
 
@@ -43,7 +44,7 @@ export default async function ManagedPropertyPage(props: { params: Promise<{ id:
   const docs = await Promise.all((docRows ?? []).map(async (d) => ({ ...d, url: d.storage_path ? await signedDocumentUrl(d.storage_path, d.label) : null })))
   const ownerEmail = p.owner_user_id ? ((await db.auth.admin.getUserById(p.owner_user_id)).data.user?.email ?? null) : null
   const photos = await Promise.all((inspections ?? []).map(async (i) => Promise.all(i.photo_paths.map((path) => signedDocumentUrl(path)))))
-  const today = new Date().toISOString().slice(0, 10)
+  const today = todayInAddis()
   const locations = locs.filter((l) => l.country_code === 'ET').map((l) => ({ id: l.id, label: l.display_name })).sort((a, b) => a.label.localeCompare(b.label))
   return (
     <div className="space-y-5">

@@ -6,8 +6,9 @@ import { getAdminSupabase } from '@/lib/supabase/admin'
 import { fail, invalid, ok, type ActionResult } from '@/lib/action-result'
 import { getClientIp, hashIp } from '@/lib/security'
 import { rateLimit } from '@/lib/rate-limit'
-import { isHoneypotFilled, verifyTurnstileToken } from '@/lib/turnstile'
+import { verifyTurnstileToken } from '@/lib/turnstile'
 import { optionalText } from '@/lib/validation/common'
+import { spamCheckDrop } from '@/lib/spam-check'
 
 const schema = z.object({
   entity_type: z.enum(['property', 'development', 'organisation', 'product']),
@@ -18,7 +19,7 @@ const schema = z.object({
 })
 
 export async function submitReportAction(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
-  if (isHoneypotFilled(formData)) return ok(undefined)
+  if (await spamCheckDrop(formData, 'submit_report')) return ok(undefined)
   const parsed = schema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   const ip = getClientIp(await headers())

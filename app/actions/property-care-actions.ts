@@ -7,7 +7,7 @@ import { getUser } from '@/lib/auth'
 import { fail, invalid, ok, type ActionResult } from '@/lib/action-result'
 import { getClientIp, hashIp } from '@/lib/security'
 import { rateLimit } from '@/lib/rate-limit'
-import { isHoneypotFilled, verifyTurnstileToken } from '@/lib/turnstile'
+import { verifyTurnstileToken } from '@/lib/turnstile'
 import { checkbox, emailSchema, nameSchema, optionalText, optionalUuid, phoneSchema, preferredContactSchema } from '@/lib/validation/common'
 import { COUNTRY_CODES, countryName } from '@/lib/countries'
 import { CARE_SERVICE_LABEL, CARE_SERVICE_VALUES } from '@/lib/property-care'
@@ -19,6 +19,7 @@ import { canonicalUrl } from '@/lib/site'
 import { formatPhone } from '@/lib/format'
 import { parseUtm } from '@/lib/utm'
 import { log } from '@/lib/log'
+import { spamCheckDrop } from '@/lib/spam-check'
 
 export type CareState = ActionResult<{ reference: string }> | null
 
@@ -46,7 +47,7 @@ const schema = z
 
 /** "Request a consultation" for HagerLand Property Care (spec 24.6). Goes to the Property Care pipeline in admin. */
 export async function requestPropertyCareAction(_prev: CareState, formData: FormData): Promise<CareState> {
-  if (isHoneypotFilled(formData)) return ok({ reference: 'HLC-0' })
+  if (await spamCheckDrop(formData, 'request_property_care')) return ok({ reference: 'HLC-0' })
   const parsed = schema.safeParse({ ...Object.fromEntries(formData), services: formData.getAll('services') })
   if (!parsed.success) return invalid(parsed.error)
   const d = parsed.data

@@ -7,6 +7,7 @@ import { readAll, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import { redirect } from 'next/navigation'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { z } from 'zod'
+import { escapeLikePattern } from '@/lib/security'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { adminActor, assertAdmin, audit, changedFields } from '@/lib/admin/guard'
 import { findPossibleDuplicates } from '@/lib/supply/data'
@@ -273,6 +274,32 @@ async function mergeSupplierOffers(sourceId: string, targetId: string, sourceNam
  * Merge a duplicate into the organisation to keep: moves members, listings, developments,
  * portfolio, products, services, supply categories, supply partner records and leads, then archives the duplicate (spec 18.2 #5).
  */
+/**
+ * QC-1a: the organisations this one may be merged into, found by part of the name or the short reference (at most 20).
+ * The same choices the old list offered (same kind, not itself, not archived), without its 500 limit. Read only.
+ */
+export async function searchMergeTargetsAction(sourceId: string, query: string): Promise<ActionResult<{ results: { id: string; label: string }[] }>> {
+  await assertAdmin(AREA)
+  const q = query.trim().slice(0, 80)
+  if (!z.uuid().safeParse(sourceId).success) return fail('Organisation not found.')
+  if (q.length < 2) return fail('Type at least 2 letters.')
+  const db = getAdminSupabase()
+  const { data: source } = await db.from('organisations').select('id, kind').eq('id', sourceId).maybeSingle()
+  if (!source) return fail('Organisation not found.')
+  const base = () => db.from('organisations').select('id, name, short_id').eq('kind', source.kind).neq('id', source.id).neq('status', 'archived')
+  const [byName, byRef] = await Promise.all([
+    base().ilike('name', `%${escapeLikePattern(q)}%`).order('name').limit(20),
+    /^[a-z0-9]{4,12}$/i.test(q) ? base().eq('short_id', q.toLowerCase()).limit(1) : Promise.resolve({ data: [], error: null }),
+  ])
+  if (byName.error || byRef.error) return fail('The search could not be run. Please try again.')
+  const seen = new Set<string>()
+  const results = [...(byRef.data ?? []), ...(byName.data ?? [])]
+    .filter((o) => (seen.has(o.id) ? false : (seen.add(o.id), true)))
+    .slice(0, 20)
+    .map((o) => ({ id: o.id, label: o.short_id ? `${o.name} (${o.short_id})` : o.name }))
+  return ok({ results })
+}
+
 export async function mergeOrganisationsAction(sourceId: string, targetId: string): Promise<ActionResult<{ message: string }>> {
   await assertAdmin(AREA)
   if (!z.uuid().safeParse(sourceId).success || !z.uuid().safeParse(targetId).success || sourceId === targetId) return fail('Choose a different organisation to merge into.')

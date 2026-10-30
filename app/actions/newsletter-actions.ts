@@ -7,7 +7,7 @@ import { getAdminSupabase } from '@/lib/supabase/admin'
 import { fail, invalid, ok, type ActionResult } from '@/lib/action-result'
 import { getClientIp, hashIp } from '@/lib/security'
 import { rateLimit } from '@/lib/rate-limit'
-import { isHoneypotFilled, verifyTurnstileToken } from '@/lib/turnstile'
+import { verifyTurnstileToken } from '@/lib/turnstile'
 import { checkbox, emailSchema, optionalText } from '@/lib/validation/common'
 import { hashRequestToken, isWellFormedToken } from '@/lib/service-requests/token'
 import { sendEmail } from '@/lib/email/send'
@@ -15,6 +15,7 @@ import { renderEmail } from '@/lib/email/layout'
 import { canonicalUrl } from '@/lib/site'
 import { log } from '@/lib/log'
 import { NEWSLETTER_CONSENT } from '@/lib/newsletter'
+import { spamCheckDrop } from '@/lib/spam-check'
 
 export type NewsletterState = ActionResult<{ message: string }> | null
 
@@ -30,7 +31,7 @@ const schema = z.object({
  * re-subscribes. The confirmation email carries the one-click unsubscribe link (spec 25.4 marketing rules).
  */
 export async function subscribeNewsletterAction(_prev: NewsletterState, formData: FormData): Promise<NewsletterState> {
-  if (isHoneypotFilled(formData)) return ok({ message: 'Thank you.' })
+  if (await spamCheckDrop(formData, 'subscribe_newsletter')) return ok({ message: 'Thank you.' })
   const p = schema.safeParse(Object.fromEntries(formData))
   if (!p.success) return invalid(p.error)
   const ip = getClientIp(await headers())

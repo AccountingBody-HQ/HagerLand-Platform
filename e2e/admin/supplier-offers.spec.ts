@@ -1,10 +1,12 @@
 import { expect, test } from '@playwright/test'
 import { createClient } from '@supabase/supabase-js'
 import { adminSession, assertLocalStack, createUser, db, SUPABASE_URL } from '../helpers'
+import { addisDay } from '../../lib/jobs-privacy'
 
 test.beforeAll(() => assertLocalStack())
 
-const iso = (days: number) => new Date(Date.now() + days * 86_400_000).toISOString().slice(0, 10)
+// Addis Ababa dates, as the pages use (QC-1a: a UTC date failed every day from 21:00 to 24:00 UTC).
+const iso = (days: number) => addisDay(new Date(Date.now() + days * 86_400_000))
 
 async function seedPartner(name: string) {
   const d = db()
@@ -196,7 +198,9 @@ test('merging a duplicate moves its prices; for the same item the newer stays cu
     expect(seeded.error).toBeNull()
     await adminSession(page)
     await page.goto(`/roodber8/organisations/${dup}`)
-    await page.getByLabel('Merge into').selectOption(keep)
+    await page.getByLabel('Find the organisation to merge into').fill(`Piassa Steel Keep ${stamp}`)
+    await page.getByRole('button', { name: 'Find', exact: true }).click()
+    await page.getByLabel('Merge into', { exact: true }).selectOption(keep)
     await page.getByLabel('I understand this cannot be undone automatically').check()
     await page.getByRole('button', { name: 'Merge', exact: true }).click()
     await expect.poll(async () => (await d.from('audit_log').select('id', { count: 'exact', head: true }).eq('action', 'organisation.merge').eq('entity_id', keep)).count).toBe(1)

@@ -5,6 +5,7 @@ import { sendEmail } from '@/lib/email/send'
 import { adminNoticeEmail } from '@/lib/email/templates'
 import { canonicalUrl } from '@/lib/site'
 import { log } from '@/lib/log'
+import { todayInAddis } from '@/lib/supply/shortlist'
 
 /**
  * A repair request for a property HagerLand manages, raised by its tenant or its owner (spec 26.6, 26.7). It goes into
@@ -48,7 +49,7 @@ export async function createManagedRepairRequest(r: {
     log.error('maintenance', 'request insert failed', error)
     return null
   }
-  await db.from('maintenance_log').insert({ managed_property_id: r.managedPropertyId, logged_on: new Date().toISOString().slice(0, 10), title: r.title.slice(0, 160), description: `Raised by the ${r.by} (${req.reference}). ${r.details}`.slice(0, 2000), status: 'planned', service_request_id: req.id })
+  await db.from('maintenance_log').insert({ managed_property_id: r.managedPropertyId, logged_on: todayInAddis(), title: r.title.slice(0, 160), description: `Raised by the ${r.by} (${req.reference}). ${r.details}`.slice(0, 2000), status: 'planned', service_request_id: req.id })
   const to = Array.from(new Set([await hagerlandInbox('general'), process.env.ADMIN_DIGEST_EMAIL].filter((x): x is string => Boolean(x))))
   if (to.length)
     await sendEmail({

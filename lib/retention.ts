@@ -6,7 +6,7 @@
 import { addisDay, REMOVED_NAME } from '@/lib/jobs-privacy'
 
 /** The F-5 kinds in the shared clean-up (lib/jobs-cleanup.ts), cleared under the owner's Dry run → Live switch. */
-export const RETENTION_KINDS = ['enquiries', 'service_requests', 'quote_requests', 'property_care', 'managed_properties', 'build_projects', 'partner_applications', 'claims', 'trade_accounts', 'supply_contacts', 'audit_log', 'partner_registrations', 'partner_drafts', 'order_requests'] as const
+export const RETENTION_KINDS = ['enquiries', 'service_requests', 'quote_requests', 'property_care', 'managed_properties', 'build_projects', 'partner_applications', 'claims', 'trade_accounts', 'supply_contacts', 'audit_log', 'partner_registrations', 'partner_drafts', 'order_requests', 'agency_valuations', 'agency_contacts'] as const
 export type RetentionKind = (typeof RETENTION_KINDS)[number]
 /** Kinds whose rows are deleted in batches (D2, D3), at most DELETE_BATCH ids per call. */
 export const BATCH_KINDS: readonly RetentionKind[] = ['supply_contacts', 'audit_log']
@@ -96,6 +96,47 @@ export const clearedPartnerRegistration = (at: string) => ({ contact_name: REMOV
 export const clearedPartnerDraft = (at: string) => ({ photo_paths: [] as string[], partner_sku: null, proposed_price_cents: null, stock_note: null, personal_data_deleted_at: at })
 /** S6-2: an order request keeps its reference, items, status, dates and every money record; the person's details go. */
 export const clearedOrderRequest = (at: string) => ({ name: REMOVED_NAME, phone: '', email: null, delivery_address: null, note: null, access_token_hash: null, access_token_expires_at: null, ip_hash: null, personal_data_deleted_at: at })
+/** QC-1a: a finished valuation keeps its reference, purpose, dates, status, outcome and amounts; what identifies the place and the person goes. */
+export const clearedValuation = { address_line: null, details: null, notes: null, report_path: null }
+/** QC-1a: an agency contact keeps its reference, roles and dates; name and contact details go (a check needs an email or a phone). */
+export const clearedAgencyContact = { name: REMOVED_NAME, email: REMOVED_EMAIL, phone: null, time_zone: null, notes: null, user_id: null }
+export const FINISHED_VALUATION = ['completed', 'cancelled']
+/** Open agency records: while one of these points at a contact (or a valuation's instruction is open), nothing is cleared. */
+export const OPEN_AGENCY = {
+  instruction: ['lead', 'valuation_booked', 'valued', 'instructed', 'live', 'under_offer', 'let_agreed'],
+  tenancy: ['active', 'ending'],
+  offer: ['submitted', 'countered', 'accepted'],
+  application: ['submitted', 'referencing', 'approved'],
+  viewing: ['requested', 'confirmed'],
+  valuation: ['requested', 'booked'],
+} as const
+
+/** A valuation is due: finished, 24 months since its last activity, its instruction (if any) not open, something left to clear. */
+export function valuationDue(
+  v: { status: string; created_at: string; updated_at: string; appointment_at: string | null; address_line: string | null; details: string | null; notes: string | null; report_path: string | null },
+  cutoff: string,
+  instructionOpen: boolean,
+): boolean {
+  if (!FINISHED_VALUATION.includes(v.status) || instructionOpen) return false
+  if (v.address_line === null && v.details === null && v.notes === null && v.report_path === null) return false
+  const last = latest(v.created_at, v.updated_at, v.appointment_at)
+  return last !== null && last < cutoff
+}
+
+/** A valuation's last activity for its contact: a cleared, finished one counts from its own dates (the clearing is not activity). */
+export function valuationActivity(v: { status: string; created_at: string; updated_at: string; appointment_at: string | null; address_line: string | null; details: string | null; notes: string | null; report_path: string | null }): string {
+  const cleared = FINISHED_VALUATION.includes(v.status) && v.address_line === null && v.details === null && v.notes === null && v.report_path === null
+  return (cleared ? latest(v.created_at, v.appointment_at) : latest(v.created_at, v.updated_at, v.appointment_at)) ?? v.created_at
+}
+
+/** An agency contact is due: 24 months since the last activity on it or anything linked to it, nothing linked open, not already cleared. */
+export function agencyContactDue(c: { name: string; email: string | null; phone: string | null; created_at: string; updated_at: string }, cutoff: string, linked: { updated_at: string; open: boolean }[]): boolean {
+  if (c.name === REMOVED_NAME && c.email === REMOVED_EMAIL && c.phone === null) return false
+  if (linked.some((l) => l.open)) return false
+  const last = latest(c.created_at, c.updated_at, ...linked.map((l) => l.updated_at))
+  return last !== null && last < cutoff
+}
+
 /** Product drafts cleared once decided this way (approved ones live on as HagerLand products and their sources). */
 export const CLEARED_DRAFT_STATUSES = ['rejected', 'withdrawn']
 /** A do-not-contact supply contact keeps the business link, role, number and flag (D2). */
@@ -141,6 +182,8 @@ export const AUDIT_SIX_YEARS = [
   'agency.tenancy.',
   'managed_property.statement',
   'trade_account.',
+  // S6-4: prices agreed with a trade customer are commercial terms (QC-1a).
+  'trade_price.',
   // Data-protection decisions.
   'user.delete',
   'account.deletion_requested',

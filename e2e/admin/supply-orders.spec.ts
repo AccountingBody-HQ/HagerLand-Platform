@@ -60,7 +60,8 @@ test('database: golden rule, allowed steps, append-only ledger and timeline, one
   expect((await step('completed')).error?.message).toMatch(/cannot go from placed to completed/)
   expect((await d.from('supply_orders').update({ status: 'cancelled', status_reason: null }).eq('id', orderId)).error?.message).toMatch(/Give a reason/)
 
-  const { data: entry } = await d.from('supply_ledger_entries').select('id').eq('order_id', orderId).limit(1).single()
+  // QC-1a: the first payment (500.00) explicitly, not whichever row comes first.
+  const { data: entry } = await d.from('supply_ledger_entries').select('id').eq('order_id', orderId).eq('entry_type', 'customer_payment').eq('amount_cents', 500000).single()
   expect((await d.from('supply_ledger_entries').update({ amount_cents: 1 }).eq('id', entry!.id)).error?.message).toMatch(/append-only/)
   expect((await d.from('supply_ledger_entries').delete().eq('id', entry!.id)).error?.message).toMatch(/append-only/)
   expect((await d.from('supply_order_events').delete().eq('order_id', orderId)).error?.message).toMatch(/append-only/)

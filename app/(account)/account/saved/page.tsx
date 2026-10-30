@@ -13,27 +13,33 @@ import type { PublicProperty } from '@/lib/data/properties'
 import type { PublicProduct } from '@/lib/data/products'
 import type { OrganisationListItem } from '@/lib/data/organisations'
 import type { DevelopmentListItem } from '@/lib/data/developments'
+import { LoadFailed } from '@/components/account/LoadFailed'
+import { log } from '@/lib/log'
 
 export const metadata = { title: 'Saved' }
 
 /** Saved properties, products, businesses and developments (spec 25.2a). Only items still live are shown. */
 export default async function SavedPage() {
   const user = await requireUser('/account/saved')
-  const { data: saved } = await getServerSupabase().from('saved_items').select('entity_type, entity_id, created_at').eq('user_id', user.id).order('created_at', { ascending: false })
+  const { data: saved, error } = await getServerSupabase().from('saved_items').select('entity_type, entity_id, created_at').eq('user_id', user.id).order('created_at', { ascending: false })
   const ids = (t: string) => (saved ?? []).filter((s) => s.entity_type === t).map((s) => s.entity_id)
   const db = getAdminSupabase()
   const [props, prods, orgs, devs] = await Promise.all([
-    ids('property').length ? db.from('properties_public').select('*').in('id', ids('property')) : { data: [] },
-    ids('product').length ? db.from('products_public').select('*').in('id', ids('product')) : { data: [] },
-    ids('organisation').length ? db.from('organisations_public').select('*').in('id', ids('organisation')) : { data: [] },
-    ids('development').length ? db.from('developments_public').select('*').in('id', ids('development')) : { data: [] },
+    ids('property').length ? db.from('properties_public').select('*').in('id', ids('property')) : { data: [], error: null },
+    ids('product').length ? db.from('products_public').select('*').in('id', ids('product')) : { data: [], error: null },
+    ids('organisation').length ? db.from('organisations_public').select('*').in('id', ids('organisation')) : { data: [], error: null },
+    ids('development').length ? db.from('developments_public').select('*').in('id', ids('development')) : { data: [], error: null },
   ])
+  const failed = error ?? props.error ?? prods.error ?? orgs.error ?? devs.error
+  if (failed) log.error('account', 'saved items failed to load', failed)
   const total = (props.data?.length ?? 0) + (prods.data?.length ?? 0) + (orgs.data?.length ?? 0) + (devs.data?.length ?? 0)
   const unavailable = (saved?.length ?? 0) - total
   return (
     <div className="space-y-10">
       <AccountPageHeader title="Saved" description="Properties, products, businesses and developments you saved." />
-      {total === 0 ? (
+      {failed ? (
+        <LoadFailed what="your saved items" />
+      ) : total === 0 ? (
         <EmptyState icon={<Heart />} title="Nothing saved yet" description="Tap “Save” on a property, product or business page to keep it here." actions={<ButtonLink href="/property">Browse property</ButtonLink>} />
       ) : (
         <>

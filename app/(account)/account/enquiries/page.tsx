@@ -9,6 +9,8 @@ import { EmptyState } from '@/components/ui/Layout'
 import { ENQUIRY_STATUS, TARGET_LABEL } from '@/lib/enquiry-labels'
 import { INTENT_LABELS } from '@/lib/enquiries'
 import { relativeTime } from '@/lib/format'
+import { LoadFailed } from '@/components/account/LoadFailed'
+import { log } from '@/lib/log'
 
 export const metadata = { title: 'Enquiries' }
 
@@ -23,7 +25,8 @@ export default async function EnquiriesPage(props: { searchParams: Promise<{ sta
   // user.id is the server-verified account id, not visitor input.
   query = box === 'sent' ? query.eq('sender_user_id', user.id) : query.or(`sender_user_id.is.null,sender_user_id.neq.${user.id}`)
   if (status && box === 'received') query = query.eq('status', status as 'new')
-  const { data } = await query
+  const { data, error } = await query
+  if (error) log.error('account', 'enquiries failed to load', error)
   const rows = data ?? []
   const href = (o: { status?: string | null; box?: string }) => {
     const p = new URLSearchParams()
@@ -55,7 +58,9 @@ export default async function EnquiriesPage(props: { searchParams: Promise<{ sta
           ))}
         </nav>
       )}
-      {rows.length === 0 ? (
+      {error ? (
+        <LoadFailed what="your enquiries" />
+      ) : rows.length === 0 ? (
         <EmptyState icon={<Inbox />} title={box === 'sent' ? "You haven't sent any enquiries while signed in" : 'No enquiries yet'} description={box === 'sent' ? undefined : 'When someone contacts you about a listing or your profile, it appears here and we email you.'} />
       ) : (
         <ul className="space-y-2">

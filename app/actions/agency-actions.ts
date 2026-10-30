@@ -7,7 +7,7 @@ import { getUser } from '@/lib/auth'
 import { fail, invalid, ok, type ActionResult } from '@/lib/action-result'
 import { getClientIp, hashIp } from '@/lib/security'
 import { rateLimit } from '@/lib/rate-limit'
-import { isHoneypotFilled, verifyTurnstileToken } from '@/lib/turnstile'
+import { verifyTurnstileToken } from '@/lib/turnstile'
 import { checkbox, emailSchema, nameSchema, optionalEmailSchema, optionalText, optionalUuid, phoneSchema, intFromForm } from '@/lib/validation/common'
 import { isEthiopianLocation } from '@/lib/data/reference'
 import { getAgencyAvailability } from '@/lib/data/pillars'
@@ -20,6 +20,7 @@ import { canonicalUrl } from '@/lib/site'
 import { formatETB, formatPhone } from '@/lib/format'
 import { PROPERTY_TYPES, type PropertyType } from '@/lib/labels'
 import { log } from '@/lib/log'
+import { spamCheckDrop } from '@/lib/spam-check'
 
 export type AgencyState = ActionResult<{ reference: string }> | null
 
@@ -55,7 +56,7 @@ const valuationSchema = z
 
 /** "Book a valuation" with HagerLand's estate agency (spec 26.5): a contact, a lead instruction and a valuation request. */
 export async function requestValuationAction(_prev: AgencyState, formData: FormData): Promise<AgencyState> {
-  if (isHoneypotFilled(formData)) return ok({ reference: 'HLVA-0' })
+  if (await spamCheckDrop(formData, 'request_valuation')) return ok({ reference: 'HLVA-0' })
   const parsed = valuationSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   const d = parsed.data
@@ -119,7 +120,7 @@ function textRequired(max: number, message: string) {
 
 /** "Book a viewing" on a listing HagerLand markets (spec 26.5). */
 export async function bookViewingAction(_prev: AgencyState, formData: FormData): Promise<AgencyState> {
-  if (isHoneypotFilled(formData)) return ok({ reference: 'HLVW-0' })
+  if (await spamCheckDrop(formData, 'book_viewing')) return ok({ reference: 'HLVW-0' })
   const parsed = viewingSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   const d = parsed.data
@@ -159,7 +160,7 @@ const offerSchema = z.object({
 
 /** "Make an offer" on a sale HagerLand markets: a non-binding expression of interest (spec 26.5). */
 export async function makeOfferAction(_prev: AgencyState, formData: FormData): Promise<AgencyState> {
-  if (isHoneypotFilled(formData)) return ok({ reference: 'HLOF-0' })
+  if (await spamCheckDrop(formData, 'make_offer')) return ok({ reference: 'HLOF-0' })
   const parsed = offerSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   const d = parsed.data
@@ -202,7 +203,7 @@ const applySchema = z.object({
 
 /** "Apply to rent" on a let HagerLand markets (spec 26.5): details, optional private documents, referencing in admin. */
 export async function applyToRentAction(_prev: AgencyState, formData: FormData): Promise<AgencyState> {
-  if (isHoneypotFilled(formData)) return ok({ reference: 'HLRA-0' })
+  if (await spamCheckDrop(formData, 'apply_to_rent')) return ok({ reference: 'HLRA-0' })
   const parsed = applySchema.safeParse({ ...Object.fromEntries(formData), files: formData.getAll('files') })
   if (!parsed.success) return invalid(parsed.error)
   const d = parsed.data

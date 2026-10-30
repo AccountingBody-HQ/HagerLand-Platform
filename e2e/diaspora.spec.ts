@@ -5,7 +5,7 @@ import { adminSession, asFreshVisitor, db, mailWithSubject, testPhotos, uniqueEm
 
 test('the diaspora page offers both directions and links into the live services', async ({ page }) => {
   await page.goto('/diaspora')
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Your trusted bridge to property in Ethiopia.')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Your bridge to property in Ethiopia.')
   await expect(page.getByRole('link', { name: /Build a house/ })).toHaveAttribute('href', '/build/project')
   await expect(page.getByRole('link', { name: /Verification and due diligence/ })).toHaveAttribute('href', '/request-service/property-inspections')
   await expect(page.getByRole('link', { name: /Property management/ }).first()).toHaveAttribute('href', '/diaspora/property-care')

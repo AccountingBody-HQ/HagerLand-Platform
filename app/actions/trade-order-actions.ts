@@ -7,7 +7,7 @@ import { getUser } from '@/lib/auth'
 import { fail, invalid, ok } from '@/lib/action-result'
 import { getClientIp, hashIp } from '@/lib/security'
 import { rateLimit } from '@/lib/rate-limit'
-import { isHoneypotFilled, verifyTurnstileToken } from '@/lib/turnstile'
+import { verifyTurnstileToken } from '@/lib/turnstile'
 import { newRequestToken } from '@/lib/service-requests/token'
 import { sendCustomerEmail } from '@/lib/supply/order-requests-data'
 import { ORDER_REQUEST_LIMITS, STATUS_LINK_DAYS, orderRequestSchema } from '@/lib/supply/order-requests'
@@ -20,6 +20,7 @@ import { todayInAddis } from '@/lib/supply/shortlist'
 import { log } from '@/lib/log'
 import type { Database } from '@/lib/database.types'
 import type { OrderRequestState } from '@/app/actions/order-request-actions'
+import { spamCheckDrop } from '@/lib/spam-check'
 
 // The generated types mark every SQL argument as required; these may be NULL, which order_request_submit (0049) accepts.
 type SubmitArgs = Database['public']['Functions']['order_request_submit']['Args']
@@ -48,7 +49,7 @@ export async function tradeBasketOpenAction(productIds: string[]): Promise<boole
  * S6-2 form: honeypot, rate limits per visitor and the security check.
  */
 export async function submitTradeOrderAction(_prev: OrderRequestState, formData: FormData): Promise<OrderRequestState> {
-  if (isHoneypotFilled(formData)) return ok({ reference: 'HLR-0', path: '/supplies' })
+  if (await spamCheckDrop(formData, 'submit_trade_order')) return ok({ reference: 'HLR-0', path: '/supplies' })
   const user = await getUser()
   if (!user) return fail(FAILED)
   let rawItems: unknown

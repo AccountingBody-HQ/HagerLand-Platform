@@ -1,6 +1,7 @@
 import 'server-only'
 import { IS_PRODUCTION } from '@/lib/site'
 import { log } from '@/lib/log'
+import { HONEYPOT_FIELD, LEGACY_HONEYPOT_FIELD } from '@/lib/honeypot'
 
 const VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify'
 
@@ -45,10 +46,12 @@ export async function verifyTurnstileToken(token: string | null | undefined, ip?
   }
 }
 
-export const HONEYPOT_FIELD = 'hl_extra_field'
+export { HONEYPOT_FIELD } from '@/lib/honeypot'
 
-/** A hidden field real users never fill in. A value means a bot. */
+/** A hidden field real users never fill in. A value means a bot (the old field name counts too). */
 export function isHoneypotFilled(formData: FormData): boolean {
-  const value = formData.get(HONEYPOT_FIELD)
-  return typeof value === 'string' && value.trim().length > 0
+  return [HONEYPOT_FIELD, LEGACY_HONEYPOT_FIELD].some((name) => {
+    const value = formData.get(name)
+    return typeof value === 'string' && value.trim().length > 0
+  })
 }

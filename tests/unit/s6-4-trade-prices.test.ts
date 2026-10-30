@@ -221,10 +221,9 @@ describe('owner only (admin)', () => {
     expect(csv.replace(/\/\*[\s\S]*?\*\//g, '')).not.toMatch(/phone|\btin\b|cost|payable|floor|terms_/i)
     expect(read('app/roodber8/trade-accounts/page.tsx')).toContain('owner ? (')
   })
-  it('no new keeping period: trade price audit entries follow the general rule', async () => {
+  it('trade price audit entries are commercial terms: kept 6 years, like trade accounts (QC-1a F1)', async () => {
     const { auditKeep } = await import('@/lib/retention')
-    expect(auditKeep('trade_price.add')).toBeNull()
-    expect(auditKeep('trade_price.export')).toBeNull()
+    for (const a of ['trade_price.add', 'trade_price.end', 'trade_price.export']) expect(auditKeep(a), a).toBe('six_years')
   })
 })
 

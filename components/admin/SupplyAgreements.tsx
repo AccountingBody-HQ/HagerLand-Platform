@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/Button'
 import { Field, Input, Select, Textarea } from '@/components/ui/Field'
 import { useToast } from '@/components/ui/Toast'
 import { FormAlert } from '@/components/forms/FormParts'
+import { todayInAddis } from '@/lib/supply/shortlist'
 
 type Result = { ok: true; data: { message: string } } | { ok: false; error: string }
 type UploadResult = { ok: true; data: { path: string; signedUrl: string } } | { ok: false; error: string }
@@ -87,7 +88,7 @@ const STATUS_TONE: Record<string, 'neutral' | 'green' | 'warning' | 'danger'> = 
 /** The partner's signed agreements: the active one, drafts and history. Owner only (decided on the server). */
 export function AgreementsPanel({ orgId, agreements }: { orgId: string; agreements: AgreementView[] }) {
   const [adding, setAdding] = useState(false)
-  const [v, setV] = useState({ money_model: '', commission: '', payment_terms: '', credit_days: '', start_date: new Date().toISOString().slice(0, 10), end_date: '', status: 'active', notes: '' })
+  const [v, setV] = useState({ money_model: '', commission: '', payment_terms: '', credit_days: '', start_date: todayInAddis(), end_date: '', status: 'active', notes: '' })
   const [doc, setDoc] = useState<{ path: string; name: string } | null>(null)
   const [error, setError] = useState('')
   const [pending, start] = useTransition()

@@ -104,7 +104,7 @@ export default async function PrivacyPage() {
             <li>Reports about listings or businesses: your details, contact and the coded internet address are deleted 12 months after the report or our decision on it, whichever is later; the reason and what we did about it are kept.</li>
             <li>Worker register: deleted 12 months after you last updated it.</li>
             <li>Call-back requests: deleted 12 months after the request or our last call, whichever is later. If you tell us you did not ask for the call, we delete your number straight away and keep only a coded version for 30 days to stop repeat calls.</li>
-            <li>Viewings, offers and applications to rent: 24 months after the last activity, unless they lead to a sale or tenancy, which we keep for as long as the law requires for our records.</li>
+            <li>Valuation requests, viewings, offers and applications to rent: 24 months after the last activity, unless they lead to a sale or tenancy, which we keep for as long as the law requires for our records.</li>
             <li>Agency contact records and requirements: while we act for you or you want matching listings, and removed on request.</li>
             <li>Newsletter: until you unsubscribe (one click in every email).</li>
           </ul>

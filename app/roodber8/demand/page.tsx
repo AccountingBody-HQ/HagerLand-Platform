@@ -6,6 +6,7 @@ import { AdminHeader, DataTable, Panel } from '@/components/admin/AdminUi'
 import { BarChart } from '@/components/admin/BarChart'
 import { ButtonLink } from '@/components/ui/Button'
 import { must } from '@/lib/admin/must'
+import { todayInAddis } from '@/lib/supply/shortlist'
 
 export const metadata = { title: 'Demand' }
 
@@ -19,7 +20,7 @@ export default async function DemandPage(props: { searchParams: Promise<{ days?:
   const days = PERIODS.find((d) => String(d) === sp.days) ?? 30
   const [r, { data: pillars }] = must(await Promise.all([demandReport(new Date(Date.now() - days * 86_400_000)), getAdminSupabase().from('pillars').select('key, name').order('number')]))
   const name = (k: string | null) => (k ? (pillars?.find((p) => p.key === k)?.name ?? k) : 'Not linked to a pillar')
-  const month = new Date().toISOString().slice(0, 7)
+  const month = todayInAddis().slice(0, 7)
   return (
     <div className="space-y-5">
       <AdminHeader

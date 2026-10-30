@@ -14,6 +14,8 @@ import { ButtonLink } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
 import { EmptyState } from '@/components/ui/Layout'
 import { JobsNotLive } from '@/components/jobs/JobsNotLive'
+import { LoadFailed } from '@/components/account/LoadFailed'
+import { log } from '@/lib/log'
 
 export async function generateMetadata() {
   const { t } = await getJobsI18n()
@@ -28,7 +30,8 @@ export default async function MyJobsPage() {
   const active = await getActiveMembership()
   if (!active)
     return <EmptyState icon={<Briefcase />} title={t('Jobs are posted by organisations')} description={t('Create your business profile first. Once it is approved, you can post jobs.')} actions={<ButtonLink href={href('/onboarding?business=1')}>{t('Create a business profile')}</ButtonLink>} />
-  const { data } = await getServerSupabase().from('job_posts').select('id, title, status, employment_type, applications_count, expires_at, updated_at').eq('employer_org_id', active.org.id).neq('status', 'archived').order('updated_at', { ascending: false })
+  const { data, error } = await getServerSupabase().from('job_posts').select('id, title, status, employment_type, applications_count, expires_at, updated_at').eq('employer_org_id', active.org.id).neq('status', 'archived').order('updated_at', { ascending: false })
+  if (error) log.error('account', 'jobs failed to load', error)
   const rows = data ?? []
   return (
     <div>
@@ -47,7 +50,9 @@ export default async function MyJobsPage() {
         }
       />
       {active.org.status !== 'published' && <p className="mb-4 rounded-md bg-info/10 px-4 py-3 text-small">{t('Your jobs go live once your business profile has been approved.')}</p>}
-      {rows.length === 0 ? (
+      {error ? (
+        <LoadFailed what="your jobs" />
+      ) : rows.length === 0 ? (
         <EmptyState icon={<Briefcase />} title={t('No jobs yet')} description={t('Post your first vacancy, or tell us which roles you need to fill.')} actions={<ButtonLink href={href('/account/jobs/new')}>{t('Post a job')}</ButtonLink>} />
       ) : (
         <ul className="space-y-3">

@@ -152,3 +152,30 @@ Use these on the phone or in messages. Fill in the part in [brackets].
 - **Deletion requests are completed within 30 days.** Tell AB the same day you hear of one.
 - Verification documents, applications and other private files open through links that expire after 10 minutes. Do not download them to your own phone or computer.
 - Sign out of the admin on shared computers. Never share your sign-in, your password or your authenticator code. If your phone with the authenticator app is lost, tell AB at once.
+
+## 8. HagerLand as the seller (S6): partners, product drafts and order requests
+
+HagerLand Supply sells products that partners (manufacturers, importers, suppliers and shops) supply. Customers only ever see HagerLand Supply and the product's brand, never the partner. Parts of this are still switched off on the website; the admin pages work either way.
+
+- **Reviewing partner registrations** (admin → Supply → Partner registrations).
+  1. Open a new registration and press **Start review**.
+  2. Check: the business really exists and is reachable on the phone number given; the roles (manufacturer, importer, wholesaler, shop) match what they told you; the categories they supply make sense; the place (city, sub-city, woreda) is right. Write what you found in the note (kept in admin, never sent to the business).
+  3. **AB decides.** Approving, asking for changes, declining and suspending are the owner's. Tell AB when a registration is ready.
+- **Reviewing product drafts** (admin → Supply → Product drafts). A partner sends a product they want HagerLand to sell.
+  - You check the **content only**: the name customers will see, the category, the brand as printed, the unit, pack size, minimum order, lead time, the description and specifications, and that the photos show the product.
+  - You never see the partner's own price or product code; they are the owner's. AB approves the draft into a HagerLand Supply product.
+- **Order requests: stock checks and holds** (admin → Supply → Order requests). A customer asks to order; nothing is paid yet.
+  1. Press **Start stock check**.
+  2. For each item, call the partner and record what they can supply: available, part available (with the quantity) or not available. Then record the partner's **hold** (quantity and until when).
+  3. When only part is available, press **Part available: tell the customer**; when nothing is, **Nothing available: tell the customer**. Each sends the customer the approved email.
+  4. After delivery, if the customer reports a problem, press **Mark disputed** and write what they said.
+  - Prices, the reservation and payments are the owner's: AB prices and reserves the items and records the payments.
+- **What Operations never sees or does here:**
+  - the price HagerLand pays a partner, partner costs, markups, commissions and margins;
+  - settlements and payments to partners, partner statements and the supply reconciliation;
+  - trade prices agreed with trade customers (the "Trade prices" part of a trade account);
+  - customer prices, reservations, payments and refunds on order requests;
+  - any switch (partner registration, catalogue ordering, trade prices) and the payment details.
+
+  If you think something there is wrong, tell AB; never ask a partner or a customer for money or promise a price.
+

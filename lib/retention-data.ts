@@ -40,6 +40,13 @@ import {
   retentionCutoff,
   DELETE_BATCH,
   type RetentionKind,
+  FINISHED_VALUATION,
+  OPEN_AGENCY,
+  agencyContactDue,
+  clearedAgencyContact,
+  clearedValuation,
+  valuationActivity,
+  valuationDue,
 } from '@/lib/retention'
 import { REMOVED_NAME } from '@/lib/jobs-privacy'
 import { ENDED_RELATIONSHIP } from '@/lib/supply/partner-rules'
@@ -191,6 +198,50 @@ const DUE: Record<RetentionKind, (now: Date) => Promise<string[]>> = {
     for (const e of events) last.set(e.order_request_id, latest(last.get(e.order_request_id), e.created_at))
     return reqs.filter((r) => old(cutoff)(latest(r.updated_at, last.get(r.id)))).map((r) => r.id)
   },
+  // QC-1a valuations: finished, 24 months after the latest of created, changed and the appointment; never while the
+  // instruction it belongs to is open. Amounts, outcome and dates stay.
+  agency_valuations: async (now) => {
+    const db = getAdminSupabase()
+    const cutoff = retentionCutoff(now, M24)
+    const { data: vals } = await readAll(() => db.from('agency_valuations').select('id, status, instruction_id, created_at, updated_at, appointment_at, address_line, details, notes, report_path').in('status', FINISHED_VALUATION).lt('updated_at', cutoff), opts)
+    const { data: instructions } = await readAllIn(Array.from(new Set(vals.map((v) => v.instruction_id).filter((x): x is string => Boolean(x)))), (part) => db.from('agency_instructions').select('id, stage').in('id', part), opts)
+    const open = new Set(instructions.filter((i) => (OPEN_AGENCY.instruction as readonly string[]).includes(i.stage)).map((i) => i.id))
+    return vals.filter((v) => valuationDue(v, cutoff, Boolean(v.instruction_id && open.has(v.instruction_id)))).map((v) => v.id)
+  },
+  // QC-1a agency contacts: 24 months after the latest activity on the contact or anything linked to it (instructions,
+  // valuations, viewings, offers, applications to rent, tenancies, requirements); never while one of those is open.
+  agency_contacts: async (now) => {
+    const db = getAdminSupabase()
+    const cutoff = retentionCutoff(now, M24)
+    const { data: contacts } = await readAll(() => db.from('agency_contacts').select('id, name, email, phone, created_at, updated_at').lt('updated_at', cutoff), opts)
+    const ids = contacts.map((c) => c.id)
+    const linked = new Map<string, { updated_at: string; open: boolean }[]>()
+    const add = (id: string | null, updated_at: string, open: boolean) => {
+      if (!id) return
+      linked.set(id, [...(linked.get(id) ?? []), { updated_at, open }])
+    }
+    const [instructions, valuations, viewings, offers, applications, requirements, tenantsOf, landlordsOf] = await Promise.all([
+      readAllIn(ids, (part) => db.from('agency_instructions').select('id, contact_id, stage, updated_at').in('contact_id', part), opts),
+      readAllIn(ids, (part) => db.from('agency_valuations').select('id, contact_id, status, created_at, updated_at, appointment_at, address_line, details, notes, report_path').in('contact_id', part), opts),
+      readAllIn(ids, (part) => db.from('agency_viewings').select('id, contact_id, status, updated_at').in('contact_id', part), opts),
+      readAllIn(ids, (part) => db.from('agency_offers').select('id, contact_id, status, updated_at').in('contact_id', part), opts),
+      readAllIn(ids, (part) => db.from('rental_applications').select('id, contact_id, status, updated_at').in('contact_id', part), opts),
+      readAllIn(ids, (part) => db.from('applicant_requirements').select('id, contact_id, updated_at').in('contact_id', part), opts),
+      readAllIn(ids, (part) => db.from('tenancies').select('id, tenant_contact_id, status, updated_at').in('tenant_contact_id', part), opts),
+      readAllIn(ids, (part) => db.from('tenancies').select('id, landlord_contact_id, status, updated_at').in('landlord_contact_id', part), opts),
+    ])
+    const has = (list: readonly string[], v: string) => list.includes(v)
+    for (const r of instructions.data) add(r.contact_id, r.updated_at, has(OPEN_AGENCY.instruction, r.stage))
+    // A cleared valuation's last change is the clearing itself, not activity: its own dates count instead.
+    for (const r of valuations.data) add(r.contact_id, valuationActivity(r), has(OPEN_AGENCY.valuation, r.status))
+    for (const r of viewings.data) add(r.contact_id, r.updated_at, has(OPEN_AGENCY.viewing, r.status))
+    for (const r of offers.data) add(r.contact_id, r.updated_at, has(OPEN_AGENCY.offer, r.status))
+    for (const r of applications.data) add(r.contact_id, r.updated_at, has(OPEN_AGENCY.application, r.status))
+    for (const r of requirements.data) add(r.contact_id, r.updated_at, false)
+    for (const r of tenantsOf.data) add(r.tenant_contact_id, r.updated_at, has(OPEN_AGENCY.tenancy, r.status))
+    for (const r of landlordsOf.data) add(r.landlord_contact_id, r.updated_at, has(OPEN_AGENCY.tenancy, r.status))
+    return contacts.filter((c) => agencyContactDue(c, cutoff, linked.get(c.id) ?? [])).map((c) => c.id)
+  },
   // Audit log: older than 24 months, and money / data-protection entries only after 6 years.
   audit_log: async (now) => {
     const cutoff = retentionCutoff(now, M24)
@@ -272,6 +323,30 @@ export async function clearRetention(kind: RetentionKind, id: string, at: string
     case 'order_requests':
       check(await db.from('order_requests').update(clearedOrderRequest(at)).eq('id', id).is('personal_data_deleted_at', null).in('status', FINISHED_ORDER_REQUEST))
       return
+    case 'agency_valuations': {
+      // Read again: only a finished valuation is cleared (it may have been reopened since the list was made).
+      const { data: v } = check(await db.from('agency_valuations').select('report_path').eq('id', id).in('status', FINISHED_VALUATION).maybeSingle())
+      if (!v) return
+      await removeFiles([v.report_path], [DELETABLE_PREFIXES.agency])
+      check(await db.from('agency_valuations').update(clearedValuation).eq('id', id).in('status', FINISHED_VALUATION))
+      return
+    }
+    case 'agency_contacts': {
+      // Checked again just before clearing: anything linked that opened since the list was made keeps the contact.
+      const head = { count: 'exact' as const, head: true }
+      const counts = await Promise.all([
+        db.from('agency_instructions').select('id', head).eq('contact_id', id).in('stage', [...OPEN_AGENCY.instruction]),
+        db.from('agency_valuations').select('id', head).eq('contact_id', id).in('status', [...OPEN_AGENCY.valuation]),
+        db.from('agency_viewings').select('id', head).eq('contact_id', id).in('status', [...OPEN_AGENCY.viewing]),
+        db.from('agency_offers').select('id', head).eq('contact_id', id).in('status', [...OPEN_AGENCY.offer]),
+        db.from('rental_applications').select('id', head).eq('contact_id', id).in('status', [...OPEN_AGENCY.application]),
+        db.from('tenancies').select('id', head).eq('tenant_contact_id', id).in('status', [...OPEN_AGENCY.tenancy]),
+        db.from('tenancies').select('id', head).eq('landlord_contact_id', id).in('status', [...OPEN_AGENCY.tenancy]),
+      ])
+      if (counts.map(check).some((r) => (r.count ?? 0) > 0)) return
+      check(await db.from('agency_contacts').update(clearedAgencyContact).eq('id', id))
+      return
+    }
     case 'supply_contacts':
     case 'audit_log':
       await clearRetentionBatch(kind, [id])

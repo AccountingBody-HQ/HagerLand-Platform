@@ -351,7 +351,7 @@ Callers get nothing by email or text, ever. Limits: 3 requests an hour and 10 a 
 - **Phone-only staffing requests (staff only).** From the call-back queue, "Called — turned into a staffing request" opens the staffing form pre-filled. The owner or Operations may leave the email empty when the caller has none (only while that call-back is still open). Then nobody is emailed and there is no private link. After sending, you are back on the call-back queue with the reference: give it to the caller by phone and keep them updated by phone. The public staffing form still needs an email.
 - **Listing reports ("Report this listing") are cleared after 12 months.** Their details, the reporter's contact and the coded internet address are cleared 12 months after the report or the decision on it, whichever is later. The reason and the decision stay. This is part of the same daily deletion and the same switch as the Jobs data (Jobs → Switches and data deletion, "Listing reports"; still Dry run). Decisions made before 0045 take their date from the audit log.
 - **Staffing texts stored in the database on the Amharic review sheet.** The staffing service's name, group and form questions are listed in `lib/i18n/jobs-db-keys.ts` (taken from the 0019 seed). If you change the staffing questions in admin → Request questions, the new English shows in English on the Amharic pages until it is added to that list, exported on the review sheet, reviewed and imported.
-- **Legal page dates.** The "Last updated" date of /terms, /privacy and /cookies comes from `lib/content/legal.ts`, unless a date is filled in under admin → Settings → "Legal pages “last updated” dates". A filled-in date there wins; leave it empty to use the date in the code.
+- **Legal page dates.** The "Last updated" date of /terms, /privacy and /cookies is the latest of: the date in `lib/content/legal.ts`, a date filled in under admin → Settings → "Legal pages “last updated” dates" (normally empty), and the last day a switch changed that page. Switching a feature on or off that changes /privacy or /terms text updates that page's 'Last updated' date automatically (QC-1a): partner registration (privacy), catalogue ordering (terms and privacy), private-client jobs and the recruitment desk (terms), Amharic for Jobs and the site-wide Amharic version (terms and privacy). Those dates are kept server-only (`legal_switch_changed`) and recorded in the switch's audit entry.
 
 **Read-only check after AB applies 0045 on live:** `docs/sql/0045_tidy_t2_verify.sql` (every row PASS, including the last one: 0 supply quotes in "quoted" status before the 3-day change is released). 0045 only adds two empty columns and an index, so the Supabase editor should show no "destructive" warning.
 
@@ -383,7 +383,9 @@ Callers get nothing by email or text, ever. Limits: 3 requests an hour and 10 a 
   - managed properties: 24 months after the management ended (`ended_at`, filled in automatically when the status becomes "ended");
   - building projects, partner applications, business claims (evidence files deleted) and trade account applications (an approved account stays while the person's account is open): 24 months;
   - supply contacts: deleted 24 months after the last contact; do-not-contact numbers are kept, without names;
-  - audit log: 24 months, but payments, fees, orders, deals and data-protection decisions for 6 years.
+  - valuation requests (QC-1a): once completed or cancelled, 24 months after the last activity, the address, details, notes and the report file are cleared; the reference, dates, status, outcome and amounts stay; never while the instruction it belongs to is open;
+  - agency contacts (QC-1a): 24 months after the last activity on the contact or anything linked to it, the name becomes "Removed" and the contact details are emptied; never while an instruction, tenancy, offer, application to rent, viewing or valuation linked to it is open;
+  - audit log: 24 months, but payments, fees, orders, deals, trade prices and data-protection decisions for 6 years.
 - **What stays:** every row's reference, status, dates, amounts and links. Orders, the supply ledger, deals, fees and rent statements are never touched, so every report and total stays the same. Names become "Removed"; contact details are emptied; files are deleted.
 - **Always on** (whatever the switch says): error records 90 days after they were last seen; invitations never accepted, 30 days after they expired or were withdrawn; accepted invitations lose their email and token after 24 months.
 - **Dry run:** the daily job only counts (digest lines above 0, run history on the switches page). **Switch to Live before 15 Oct 2027 (covers Jobs and all keeping periods).** No record can reach 24 months before Oct 2028.
@@ -395,7 +397,7 @@ Callers get nothing by email or text, ever. Limits: 3 requests an hour and 10 a 
 HagerLand is the seller: businesses that supply HagerLand (manufacturers, importers, suppliers and shops) are never shown to customers. Customers see HagerLand Supply and the product's own brand only.
 
 - **Owner switches** (admin → Supplies → Supply switches; owner only; all start **Off**):
-  - **Partner registration:** opens the public form `/sell-through-hagerland/register` and shows its two lines in /privacy. Off: the page is "not found". It may go live before HagerLand Ltd (Ethiopia) exists. **At the release that switches it on, set the /privacy "Last updated" date.**
+  - **Partner registration:** opens the public form `/sell-through-hagerland/register` and shows its two lines in /privacy. Off: the page is "not found". It may go live before HagerLand Ltd (Ethiopia) exists. Switching it on or off moves the /privacy "Last updated" date automatically (QC-1a).
   - **Homepage "Sell through HagerLand" row:** the second row under "Start here". It shows only while partner registration is also on.
   - **Catalogue ordering** and **Trade price agreements:** locked off (used from S6-2 and S6-4). They wait for HagerLand Ltd (Ethiopia), a bank account and VAT registration.
 - **Registrations** (admin → Supplies → Partner registrations):
@@ -424,7 +426,7 @@ HagerLand is the seller: businesses that supply HagerLand (manufacturers, import
 ### 20.1 Order requests, reservations and the hourly job (S6-2, migration 0049)
 
 - **Where:** admin → Supplies → **Order requests**. The menu count shows requests waiting for a stock check.
-- **The switch:** catalogue ordering (Supply switches) stays **locked Off**. It waits for HagerLand Ltd (Ethiopia), a bank account and VAT registration. It also cannot go on while **admin → Settings → "Payment details shown to customers"** is empty. **At the release that unlocks it, set the /terms and /privacy "Last updated" dates**, because their order-request lines then appear.
+- **The switch:** catalogue ordering (Supply switches) stays **locked Off**. It waits for HagerLand Ltd (Ethiopia), a bank account and VAT registration. It also cannot go on while **admin → Settings → "Payment details shown to customers"** is empty. Switching it on or off moves the /terms and /privacy "Last updated" dates automatically (QC-1a), because their order-request lines appear or go.
 - **A request, step by step:**
   1. The customer taps "Request to order" (no payment) and gets an email with a private link to their order request page.
   2. Operations click "Start stock check", phone the partner, and for each item record what is available (all, part, none) and the partner's hold: quantity, and until when, in Addis Ababa time.

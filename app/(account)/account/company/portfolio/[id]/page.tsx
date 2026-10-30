@@ -10,6 +10,8 @@ import { Badge } from '@/components/ui/Badge'
 import { FormAlert } from '@/components/forms/FormParts'
 import { LISTING_STATUS_LABELS } from '@/lib/labels'
 import type { MediaItem } from '@/lib/media-actions'
+import { LoadFailed } from '@/components/account/LoadFailed'
+import { log } from '@/lib/log'
 
 export const metadata = { title: 'Edit project' }
 
@@ -21,9 +23,17 @@ export default async function PortfolioEditPage(
   await requireUser(`/account/company/portfolio/${params.id}`)
   const active = await getActiveMembership()
   const supabase = getServerSupabase()
-  const { data: p } = await supabase.from('portfolio_projects').select('*').eq('id', params.id).maybeSingle()
+  const { data: p, error } = await supabase.from('portfolio_projects').select('*').eq('id', params.id).maybeSingle()
+  if (error) {
+    log.error('account', 'portfolio project failed to load', error)
+    return <LoadFailed what="this project" />
+  }
   if (!p || p.org_id !== active?.org.id) notFound()
-  const { data: media } = await supabase.from('media').select('id, kind, storage_path, thumb_path, width, height, alt, sort, is_cover, status').eq('entity_type', 'portfolio').eq('entity_id', p.id).order('sort')
+  const { data: media, error: mediaError } = await supabase.from('media').select('id, kind, storage_path, thumb_path, width, height, alt, sort, is_cover, status').eq('entity_type', 'portfolio').eq('entity_id', p.id).order('sort')
+  if (mediaError) {
+    log.error('account', 'portfolio photos failed to load', mediaError)
+    return <LoadFailed what="this project" />
+  }
   const loc = await getLocationById(p.location_id)
   const s = LISTING_STATUS_LABELS[p.status]
   return (

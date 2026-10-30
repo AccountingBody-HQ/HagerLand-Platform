@@ -127,6 +127,11 @@ export function todayInAddis(now = new Date()): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Addis_Ababa', year: 'numeric', month: '2-digit', day: '2-digit' }).format(now)
 }
 
+/** The moment (UTC ISO) an Ethiopian calendar day begins: midnight in Addis Ababa (UTC+3, no daylight saving). */
+export function addisDayStart(day: string): string {
+  return new Date(`${day}T00:00:00+03:00`).toISOString()
+}
+
 /** The Ethiopian calendar date (YYYY-MM-DD) of a moment, e.g. 2026-10-10T21:01Z is already 11 October in Addis Ababa. */
 export function addisDate(moment: string | Date): string {
   return todayInAddis(typeof moment === 'string' ? new Date(moment) : moment)

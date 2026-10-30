@@ -11,6 +11,7 @@ import { getAdminSession } from '@/lib/admin-auth'
 import { ROLE_LABEL, roleCanAccess } from '@/lib/admin/roles'
 import { ADMIN_NAV } from '@/components/admin/admin-nav-items'
 import { FormAlert } from '@/components/forms/FormParts'
+import { addisDayStart, todayInAddis } from '@/lib/supply/shortlist'
 
 export const metadata = { title: 'Dashboard' }
 
@@ -56,8 +57,8 @@ export default async function AdminDashboard(props: { searchParams: Promise<{ de
   const db = getAdminSupabase()
   const now = Date.now()
   const iso = (ms: number) => new Date(ms).toISOString()
-  const startOfDay = new Date()
-  startOfDay.setUTCHours(0, 0, 0, 0)
+  // QC-1a: "today" is the Addis Ababa day (it starts at 21:00 UTC the day before).
+  const startOfDay = new Date(addisDayStart(todayInAddis()))
   const head = { count: 'exact' as const, head: true }
   // The failure rule (Fix F-2): a failed read shows the error page, never 0 or "No activity yet".
   const [q, enqToday, enq7, enqUnanswered, quotesOpen, signups7, expiring, live, audit, lastRun] = must(await Promise.all([
