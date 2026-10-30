@@ -73,7 +73,7 @@ export const HELP_FAQ: FaqGroup[] = [
     id: 'supplies',
     title: 'Supplies and quotes',
     items: [
-      { question: 'How do I get a quote?', answer: 'Add products to your quote list and send it, or upload your materials list or bill of quantities. We reply with one clear price including delivery.' },
+      { question: 'How do I get a quote?', answer: 'Add products to your quote list and send it, or upload your materials list or bill of quantities. We reply with one clear price including VAT and delivery in Addis Ababa.' },
       { question: 'Do I pay online?', answer: 'No. You confirm the quote with us, pay HagerLand by one of the payment methods we give you, and we arrange delivery.' },
       { question: 'How long is a quote valid?', answer: 'Quotes are valid for 3 days unless the quote says otherwise. Prices of steel and cement change often, so we confirm the price on each quote.' },
       { question: 'What if the product I need is not listed?', answer: 'Add it to your quote list as a custom item, or include it in your materials list. We can source many items we do not list online.' },

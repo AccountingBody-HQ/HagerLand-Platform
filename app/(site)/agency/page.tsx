@@ -45,10 +45,10 @@ export default async function AgencyPage() {
           ))}
           <li>
             <Link href="/agency/valuation" className="group flex h-full flex-col rounded-xl border border-border bg-stone-50 p-6 hover:border-green">
-              <h2 className="hl-h3">Book a valuation</h2>
+              <h2 className="hl-h3">Book a market appraisal</h2>
               <p className="mt-2 flex-1 text-muted">A HagerLand agent visits and tells you what your property could sell or let for. For other purposes, get quotes from independent valuers.</p>
               <span className="mt-4 inline-flex items-center gap-1 font-semibold text-green">
-                Book a valuation <ArrowRight className="size-4" aria-hidden />
+                Book a market appraisal <ArrowRight className="size-4" aria-hidden />
               </span>
             </Link>
           </li>

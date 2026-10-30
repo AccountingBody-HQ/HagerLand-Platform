@@ -7,7 +7,7 @@ test('agency pages explain each service and their enquiries reach the HagerLand 
   test.skip(info.project.name !== 'desktop', 'admin at desktop width')
   await asFreshVisitor(page)
   await page.goto('/agency')
-  for (const name of ['Sell with HagerLand', 'Let with HagerLand', 'Buyer representation', 'Property sourcing for diaspora buyers', 'Developer sales', 'Book a valuation']) await expect(page.getByRole('heading', { name })).toBeVisible()
+  for (const name of ['Sell with HagerLand', 'Let with HagerLand', 'Buyer representation', 'Property sourcing for diaspora buyers', 'Developer sales', 'Book a market appraisal']) await expect(page.getByRole('heading', { name })).toBeVisible()
   for (const name of ['Seller representation', 'Viewing coordination', 'Negotiation assistance', 'Investment property sourcing']) await expect(page.getByRole('link', { name })).toBeVisible()
   await page.getByRole('link', { name: /Sell with HagerLand/ }).first().click()
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Sell with HagerLand')

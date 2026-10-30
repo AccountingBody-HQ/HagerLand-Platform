@@ -20,7 +20,7 @@ export function valuationReceivedEmail(p: { name: string; reference: string; pre
     ],
     details: [['Reference', p.reference]],
     button: account('/account/agency'),
-    reason: `You are receiving this because you asked ${brand.name} to value a property.`,
+    reason: `You are receiving this because you asked ${brand.name} for a market appraisal of a property.`,
   })
 }
 

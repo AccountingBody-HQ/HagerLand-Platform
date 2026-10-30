@@ -19,7 +19,7 @@ export const revalidate = 300
 
 export const metadata = buildMetadata({
   title: 'Construction materials, one clear price',
-  description: 'Cement, steel, roofing, plumbing, electrical, tiles and more. Send your materials list to HagerLand Supply and get one clear price with delivery.',
+  description: 'Cement, steel, roofing, plumbing, electrical, tiles and more. Send your materials list to HagerLand Supply and get one clear price with delivery in Addis Ababa.',
   path: '/supplies',
 })
 

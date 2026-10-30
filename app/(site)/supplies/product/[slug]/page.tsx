@@ -54,7 +54,7 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
   return buildMetadata({
     title: `${p.name}${p.brand_name ? ` — ${p.brand_name}` : ''} | ${brand.divisions.supply}`,
     absoluteTitle: true,
-    description: truncateDescription(p.summary ?? p.description ?? `${p.name} from ${brand.divisions.supply}. Add to your quote list for a clear price with delivery.`),
+    description: truncateDescription(p.summary ?? p.description ?? `${p.name} from ${brand.divisions.supply}. Add to your quote list for a clear price with delivery in Addis Ababa.`),
     path: `/supplies/product/${p.slug}`,
     image: `/og/product/${p.slug}`,
   })

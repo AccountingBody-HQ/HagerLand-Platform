@@ -38,7 +38,7 @@ const FAQ = [
   { question: 'How will I know what is happening at my property?', answer: 'After every inspection we send you a report with dated photos and notes. Repairs are agreed with you first, and you receive a statement for each period.' },
   { question: 'My relatives live in the property. Can you still help?', answer: 'Yes. We can carry out inspections and maintenance while your family lives there, agreed with you and with them.' },
   { question: 'Can you find tenants and collect rent?', answer: 'Yes. We can find and check tenants, collect rent and account for it. The details, including what happens if rent is late, are set out in your proposal.' },
-  { question: 'Can you help if I decide to sell?', answer: 'Yes. We can coordinate a managed sale on your behalf, from valuation and marketing to viewings.' },
+  { question: 'Can you help if I decide to sell?', answer: 'Yes. We can coordinate a managed sale on your behalf, from market appraisal and marketing to viewings.' },
 ]
 
 /** HagerLand Property Care (spec 24.6, PLATFORM_VISION §9). */

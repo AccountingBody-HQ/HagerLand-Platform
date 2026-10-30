@@ -14,7 +14,7 @@ export const SERVICE_COPY: Record<PillarKey, { benefit: string; action: string; 
   finance: { benefit: 'Mortgages and construction finance through licensed partners.', action: 'Explore finance', soonAction: 'Register interest' },
   insurance: { benefit: 'Home, landlord and construction cover through licensed partners.', action: 'Explore insurance', soonAction: 'Register interest' },
   advice: { benefit: 'Practical help on buying, renting and building in Ethiopia.', action: 'Get advice', soonAction: 'Register interest' },
-  supplies: { benefit: 'Building materials with one clear quote and delivery to your site.', action: 'Get a quote', soonAction: 'Register interest' },
+  supplies: { benefit: 'Building materials with one clear quote and delivery to your site in Addis Ababa.', action: 'Get a quote', soonAction: 'Register interest' },
   jobs: { benefit: 'Construction and property jobs, and staff for your business.', action: 'Browse jobs', soonAction: 'Register interest' },
 }
 

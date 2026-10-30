@@ -12,9 +12,9 @@ const AWAITING_NATIVE_REVIEW = [
   'Buy, rent, build and manage property in Ethiopia, with partners we check, wherever you live.',
   'Buy, rent, build, manage and maintain property in Ethiopia, supported by our own team and professionals across Ethiopia.',
   'Tradespeople for repairs, servicing and emergencies, matched by HagerLand.',
-  'Building materials with one clear quote and delivery to your site.',
+  'Building materials with one clear quote and delivery to your site in Addis Ababa.',
   'Hire professionals',
-  'Construction materials with one clear quote, delivered to site.',
+  'Construction materials with one clear quote, delivered to site in Addis Ababa.',
 ]
 
 describe('i18n (spec 25.2m)', () => {

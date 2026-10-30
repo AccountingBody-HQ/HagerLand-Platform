@@ -3,7 +3,7 @@ import { Container } from '@/components/ui/Layout'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { QuoteBasket } from '@/components/supplies/QuoteBasket'
 
-export const metadata = buildMetadata({ title: 'Your quote list', description: 'Review the construction materials on your quote list and send it to HagerLand Supply for one clear price, including delivery to your site.', path: '/supplies/quote', noindex: true })
+export const metadata = buildMetadata({ title: 'Your quote list', description: 'Review the construction materials on your quote list and send it to HagerLand Supply for one clear price, including delivery to your site in Addis Ababa.', path: '/supplies/quote', noindex: true })
 
 export default function QuotePage() {
   return (
