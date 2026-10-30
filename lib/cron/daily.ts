@@ -379,7 +379,7 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent' | 'st
   await section('Recruitment fees owed for over 30 days', async () => positive([['Recruitment fees owed for over 30 days', await feesOwedOver30Days(new Date(now))]]))
   if (errors.error) unread.push('Recent errors')
   for (const e of errors.data ?? []) lines.push([`Error ×${e.count}`, `${e.route}: ${e.message}`.slice(0, 160)])
-  // Fix F-6: every Monday (Addis Ababa date) a reminder to run the backup; it also makes sure a Monday digest is sent.
+  // Fix F-6, BK-1: every Monday (Addis Ababa date) a reminder to check the weekly backup; it also makes sure a Monday digest is sent.
   try {
     const reminder = backupReminderLine(new Date(now))
     if (reminder) lines.push(reminder)

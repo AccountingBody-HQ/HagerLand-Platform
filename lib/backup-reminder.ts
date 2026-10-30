@@ -1,7 +1,7 @@
 import { todayAddis } from '@/lib/jobs-desk'
 
-/** Fix F-6: the internal digest line that reminds HagerLand to run the weekly backup (docs/RUNBOOK.md section 1). */
-export const BACKUP_REMINDER: [string, string] = ['Weekly reminder', 'run the backup (RUNBOOK §1).']
+/** Fix F-6, BK-1: the internal Monday digest line about the weekly backup, which now runs on GitHub (docs/RUNBOOK.md section 1). */
+export const BACKUP_REMINDER: [string, string] = ['Weekly backup', 'it runs automatically on GitHub every Monday. Check it succeeded: GitHub → Actions → Weekly backup.']
 
 /** The reminder on Mondays by the Addis Ababa date, otherwise null. */
 export function backupReminderLine(now: Date = new Date()): [string, string] | null {

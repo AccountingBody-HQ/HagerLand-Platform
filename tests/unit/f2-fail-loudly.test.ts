@@ -110,7 +110,7 @@ describe('F-2 the daily job always sends the digest', () => {
     expect(text.indexOf('Daily job ran at 06:00 UTC (06:00 London time):')).toBeGreaterThan(-1)
     expect(text).toMatch(new RegExp(`Daily job ran at 06:00 UTC \\(06:00 London time\\): ${summary.stepsOk} steps OK, 0 failed\\.\\s+${NOTHING_TODAY}`))
     expect(text).not.toContain('Could not read')
-    expect(text).not.toContain('Weekly reminder')
+    expect(text).not.toContain('Weekly backup')
   })
 
   it('a failed step and an unreadable count: run line shows 1 failed, the step named, "Could not read: …"', async () => {
@@ -152,7 +152,7 @@ describe('F-2 the daily job always sends the digest', () => {
 
   it('the Monday backup reminder is still there (Addis Ababa Monday)', async () => {
     await run(MONDAY)
-    expect(sent[0].text).toContain('Weekly reminder: run the backup (RUNBOOK §1).')
+    expect(sent[0].text).toContain('Weekly backup: it runs automatically on GitHub every Monday. Check it succeeded: GitHub → Actions → Weekly backup.')
   })
 
   it('records each run in audit_log (cron.daily: steps OK, failed, digest sent)', async () => {
