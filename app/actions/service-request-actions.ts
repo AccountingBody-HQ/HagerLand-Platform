@@ -15,7 +15,7 @@ import { getRequestableCategory } from '@/lib/data/service-requests'
 import { answerLines, validateAnswers } from '@/lib/service-requests/questions'
 import { PAY_OFFERED_MAX, STAFFING_SLUG, askedQuestions, detailsWithPay, requestFormCopy } from '@/lib/service-requests/form-copy'
 import { GUEST_LINK_DAYS, URGENCY_LABEL } from '@/lib/service-requests/labels'
-import { CHOICE_FAILED, quoteChoiceRefusal, readQuoteChoice } from '@/lib/service-requests/quote-choice'
+import { CHOICE_FAILED, quoteChoiceRefusal, readQuoteChoice, readRequestCancel, requestCancelRefusal } from '@/lib/service-requests/quote-choice'
 import { hashRequestToken, isWellFormedToken, linkDaysLeft, newRequestToken } from '@/lib/service-requests/token'
 import { EMPLOYER_ABROAD_TEXT, employerAbroadAnswers, employerAbroadLines, parseEmployerAbroad } from '@/lib/service-requests/employer-abroad'
 import { hagerlandInbox, orgManagerEmails } from '@/lib/enquiries'
@@ -213,24 +213,18 @@ export async function cancelServiceRequestAction(input: { request_id: string; to
   const r = await loadOwned({ requestId: parsed.data.request_id, token: parsed.data.token })
   if (!r) return fail('This link has expired. Ask for a new one below.')
   if (['won', 'lost', 'cancelled'].includes(r.status)) return fail('This request is already closed.')
-  const db = getAdminSupabase()
-  // Fix F-3: only an open request is cancelled (a quote chosen meanwhile wins), and a failed save is reported.
-  const { data: cancelled, error } = await db
-    .from('service_requests')
-    .update({ status: 'cancelled', closed_reason: 'customer_cancelled', closed_at: new Date().toISOString() })
-    .eq('id', r.id)
-    .in('status', ['submitted', 'triaged', 'matched', 'quoted'])
-    .select('id')
-  if (error) {
+  // QC-1b: one transaction in the database (migration 0052) checks the customer and the request again, cancels it
+  // and withdraws its open offers: all or nothing, so a failure never leaves a cancelled request with live offers.
+  const { data, error } = await getAdminSupabase().rpc('service_request_cancel', {
+    p_request_id: r.id,
+    ...(parsed.data.token ? { p_token_hash: hashRequestToken(parsed.data.token) } : { p_actor_user_id: r.requester_user_id ?? undefined }),
+  })
+  const result = readRequestCancel(data, error)
+  if (result.outcome === 'error') {
     log.error('service-request', 'cancel failed', error, { request: r.id })
     return fail(CHOICE_FAILED)
   }
-  if (!cancelled?.length) return fail('This request is already closed.')
-  const { error: matchError } = await db.from('service_request_matches').update({ status: 'withdrawn' }).eq('request_id', r.id).in('status', ['offered', 'accepted', 'quoted'])
-  if (matchError) {
-    log.error('service-request', 'cancel: withdrawing offers failed', matchError, { request: r.id })
-    return fail(CHOICE_FAILED)
-  }
+  if (result.outcome !== 'cancelled') return fail(requestCancelRefusal(result))
   return ok({ message: 'Your request is cancelled. Thank you for letting us know.' })
 }
 

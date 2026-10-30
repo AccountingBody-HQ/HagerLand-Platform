@@ -1933,6 +1933,205 @@ begin
 end $$;
 select pg_temp.record_check('S6-4 checks left nothing behind', not exists (select 1 from public.trade_price_agreements) and not exists (select 1 from public.organisations where slug = 'rls-test-s64-partner') and (select value from public.site_settings where key = 'supply_trade_pricing') = 'false'::jsonb);
 
+-- ---------- QC-1b (0052): one-step cancel, all or nothing; trigger functions closed to callers, still firing ----------
+reset role;
+create or replace function pg_temp.cancel_denied()
+returns boolean language plpgsql as $$
+begin
+  perform public.service_request_cancel(gen_random_uuid(), null, null);
+  return false;
+exception when insufficient_privilege then
+  return true;
+end $$;
+create or replace function pg_temp.trigger_fn_denied(fn text)
+returns boolean language plpgsql as $$
+begin
+  execute format('select public.%I()', fn);
+  return false;
+exception when insufficient_privilege then
+  return true;
+when others then
+  return false;
+end $$;
+select set_config('hl.qc1b_trigger_fns', 'add_owner_on_org_insert,agency_instruction_marks_listing,create_profile_on_signup,pillars_after_change,protect_last_owner,sync_featured_from_promotions,reviews_check_eligible', false);
+set role anon;
+select pg_temp.record_check('Anonymous cannot run the one-step cancel', pg_temp.cancel_denied());
+select pg_temp.record_check('Anonymous cannot call trigger function ' || f, pg_temp.trigger_fn_denied(f)) from unnest(string_to_array(current_setting('hl.qc1b_trigger_fns'), ',')) as t(f);
+reset role;
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000001", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', false);
+select pg_temp.record_check('A signed-in customer cannot run the one-step cancel directly (only the website can)', pg_temp.cancel_denied());
+select pg_temp.record_check('A signed-in user cannot call trigger function ' || f, pg_temp.trigger_fn_denied(f)) from unnest(string_to_array(current_setting('hl.qc1b_trigger_fns'), ',')) as t(f);
+reset role;
+set role service_role;
+select pg_temp.record_check('The website (service role) can run the one-step cancel: an unknown request is not found',
+  public.service_request_cancel(gen_random_uuid(), null, null) = '{"outcome": "not_found"}'::jsonb);
+reset role;
+do $$
+declare
+  res text := '';
+  v_org uuid;
+  v_org2 uuid;
+  v_org3 uuid;
+  v_org4 uuid;
+  v_req uuid;
+  v_req2 uuid;
+  v_req3 uuid;
+  v_req4 uuid;
+  v_offered uuid;
+  v_accepted uuid;
+  v_quoted uuid;
+  v_declined uuid;
+  v_out jsonb;
+  v_ok boolean;
+  v_before text;
+  v_user constant uuid := '00000000-0000-4000-8000-000000000001';
+  v_other constant uuid := '00000000-0000-4000-8000-000000000002';
+begin
+  begin
+    insert into public.organisations (kind, name, slug, status) values ('contractor', 'RLS TEST QC1b A', 'rls-test-qc1b-a', 'published') returning id into v_org;
+    insert into public.organisations (kind, name, slug, status) values ('contractor', 'RLS TEST QC1b B', 'rls-test-qc1b-b', 'published') returning id into v_org2;
+    insert into public.organisations (kind, name, slug, status) values ('contractor', 'RLS TEST QC1b C', 'rls-test-qc1b-c', 'published') returning id into v_org3;
+    insert into public.organisations (kind, name, slug, status) values ('contractor', 'RLS TEST QC1b D', 'rls-test-qc1b-d', 'published') returning id into v_org4;
+    insert into public.service_requests (vertical_key, title, name, phone, requester_user_id, status) values ('contractors', 'RLS TEST QC1b pipes', 'RLS', '+251911000401', v_user, 'quoted') returning id into v_req;
+    insert into public.service_request_matches (request_id, org_id, status) values (v_req, v_org, 'offered') returning id into v_offered;
+    insert into public.service_request_matches (request_id, org_id, status) values (v_req, v_org2, 'accepted') returning id into v_accepted;
+    insert into public.service_request_matches (request_id, org_id, status, quote_amount_minor, quote_currency) values (v_req, v_org3, 'quoted', 100000, 'ETB') returning id into v_quoted;
+    insert into public.service_request_matches (request_id, org_id, status) values (v_req, v_org4, 'declined') returning id into v_declined;
+    v_before := (select string_agg(id::text || '=' || status, ',' order by id) from public.service_request_matches where request_id = v_req);
+
+    -- Refusals: nothing is written.
+    v_out := public.service_request_cancel(v_req, v_other, null);
+    res := res || case when v_out = '{"outcome": "not_allowed", "reason": "not_owner"}'::jsonb then 'PASS' else 'FAIL' end || E' · Another user cannot cancel someone else''s request\n';
+    v_out := public.service_request_cancel(v_req, null, 'not-the-link');
+    res := res || case when v_out ->> 'reason' = 'not_owner' then 'PASS' else 'FAIL' end || E' · A wrong private link cannot cancel a request\n';
+    v_out := public.service_request_cancel(v_req, null, null);
+    res := res || case when v_out ->> 'reason' = 'not_owner' then 'PASS' else 'FAIL' end || E' · Nobody named: refused\n';
+    v_out := public.service_request_cancel(gen_random_uuid(), v_user, null);
+    res := res || case when v_out = '{"outcome": "not_found"}'::jsonb then 'PASS' else 'FAIL' end || E' · An unknown request is not found\n';
+    res := res || case when (select status = 'quoted' and closed_at is null and closed_reason is null from public.service_requests where id = v_req)
+      and (select string_agg(id::text || '=' || status, ',' order by id) from public.service_request_matches where request_id = v_req) = v_before then 'PASS' else 'FAIL' end || E' · Refused cancels change nothing\n';
+
+    -- All or nothing: a failure while withdrawing the offers leaves the request open and every offer as it was.
+    execute format('alter table public.service_request_matches add constraint rls_qc1b_block check (request_id is distinct from %L or status <> ''withdrawn'') not valid', v_req);
+    v_ok := false;
+    begin
+      perform public.service_request_cancel(v_req, v_user, null);
+    exception when check_violation then
+      v_ok := true;
+    end;
+    alter table public.service_request_matches drop constraint rls_qc1b_block;
+    res := res || case when v_ok and (select status = 'quoted' and closed_at is null and closed_reason is null from public.service_requests where id = v_req)
+      and (select string_agg(id::text || '=' || status, ',' order by id) from public.service_request_matches where request_id = v_req) = v_before then 'PASS' else 'FAIL' end || E' · A failure while withdrawing the offers leaves the request NOT cancelled (nothing half-done)\n';
+
+    -- The cancel.
+    v_out := public.service_request_cancel(v_req, v_user, null);
+    res := res || case when v_out = '{"outcome": "cancelled"}'::jsonb then 'PASS' else 'FAIL' end || E' · The requester cancels: cancelled\n';
+    res := res || case when (select status = 'cancelled' and closed_reason = 'customer_cancelled' and closed_at is not null from public.service_requests where id = v_req) then 'PASS' else 'FAIL' end || E' · The request is cancelled, with today''s reason (customer cancelled) and time\n';
+    res := res || case when (select status from public.service_request_matches where id = v_offered) = 'withdrawn' and (select status from public.service_request_matches where id = v_accepted) = 'withdrawn'
+      and (select status from public.service_request_matches where id = v_quoted) = 'withdrawn' and (select status from public.service_request_matches where id = v_declined) = 'declined' then 'PASS' else 'FAIL' end || E' · Offered, accepted and quoted offers withdrawn; the declined one untouched\n';
+    v_out := public.service_request_cancel(v_req, v_user, null);
+    res := res || case when v_out = '{"outcome": "not_allowed", "reason": "request_closed"}'::jsonb and (select status from public.service_request_matches where id = v_declined) = 'declined' then 'PASS' else 'FAIL' end || E' · Cancelling again: already closed, nothing changes\n';
+
+    -- Every closed state is refused; every open state can be cancelled.
+    insert into public.service_requests (vertical_key, title, name, phone, requester_user_id, status) values ('contractors', 'RLS TEST QC1b won', 'RLS', '+251911000402', v_user, 'won') returning id into v_req2;
+    v_out := public.service_request_cancel(v_req2, v_user, null);
+    res := res || case when v_out ->> 'reason' = 'request_closed' and (select status from public.service_requests where id = v_req2) = 'won' then 'PASS' else 'FAIL' end || E' · A won request cannot be cancelled\n';
+    update public.service_requests set status = 'lost' where id = v_req2;
+    v_out := public.service_request_cancel(v_req2, v_user, null);
+    res := res || case when v_out ->> 'reason' = 'request_closed' and (select status from public.service_requests where id = v_req2) = 'lost' then 'PASS' else 'FAIL' end || E' · A lost request cannot be cancelled\n';
+    v_ok := true;
+    foreach v_before in array array['submitted', 'triaged', 'matched'] loop
+      update public.service_requests set status = v_before, closed_at = null, closed_reason = null where id = v_req2;
+      v_out := public.service_request_cancel(v_req2, v_user, null);
+      v_ok := v_ok and v_out ->> 'outcome' = 'cancelled' and (select status from public.service_requests where id = v_req2) = 'cancelled';
+    end loop;
+    res := res || case when v_ok then 'PASS' else 'FAIL' end || E' · Submitted, triaged and matched requests can be cancelled\n';
+
+    -- Private links.
+    insert into public.service_requests (vertical_key, title, name, phone, status, access_token_hash, access_token_expires_at) values ('contractors', 'RLS TEST QC1b guest', 'RLS', '+251911000403', 'matched', 'rls-qc1b-hash', now() - interval '1 second') returning id into v_req3;
+    v_out := public.service_request_cancel(v_req3, null, 'rls-qc1b-hash');
+    res := res || case when v_out ->> 'reason' = 'not_owner' and (select status from public.service_requests where id = v_req3) = 'matched' then 'PASS' else 'FAIL' end || E' · An expired private link cannot cancel\n';
+    v_out := public.service_request_cancel(v_req3, v_user, null);
+    res := res || case when v_out ->> 'reason' = 'not_owner' then 'PASS' else 'FAIL' end || E' · A signed-in user cannot cancel a guest''s request (no account on it)\n';
+    update public.service_requests set access_token_expires_at = now() + interval '1 day' where id = v_req3;
+    v_out := public.service_request_cancel(v_req3, null, 'rls-qc1b-hash');
+    res := res || case when v_out ->> 'outcome' = 'cancelled' and (select status from public.service_requests where id = v_req3) = 'cancelled' then 'PASS' else 'FAIL' end || E' · A guest with a valid private link cancels\n';
+    insert into public.service_requests (vertical_key, title, name, phone, requester_user_id, status) values ('contractors', 'RLS TEST QC1b other', 'RLS', '+251911000404', v_other, 'submitted') returning id into v_req4;
+    res := res || case when (select status from public.service_requests where id = v_req4) = 'submitted' then 'PASS' else 'FAIL' end || E' · Other customers'' requests are untouched\n';
+    raise exception 'hl_rollback';
+  exception when others then
+    if sqlerrm <> 'hl_rollback' then res := res || 'FAIL · QC-1b cancel checks stopped early: ' || sqlerrm || E'\n'; end if;
+  end;
+  perform set_config('hl.results', current_setting('hl.results') || res, false);
+end $$;
+select pg_temp.record_check('QC-1b cancel checks left nothing behind', not exists (select 1 from public.service_requests where title like 'RLS TEST QC1b%')
+  and not exists (select 1 from public.organisations where name like 'RLS TEST QC1b%') and not exists (select 1 from pg_constraint where conname = 'rls_qc1b_block'));
+
+-- The trigger functions still fire when the website (service role) writes, after execute was taken away. A signed-in
+-- user is named so add_owner_on_org_insert has someone to add.
+reset role;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000001", "role": "service_role"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', false);
+set role service_role;
+do $$
+declare
+  res text := '';
+  v_org uuid;
+  v_prop uuid;
+  v_req uuid;
+  v_match uuid;
+  v_ok boolean;
+  v_user constant uuid := '00000000-0000-4000-8000-000000000001';
+begin
+  begin
+    insert into public.organisations (kind, name, slug, status) values ('contractor', 'RLS TEST QC1b triggers', 'rls-test-qc1b-triggers', 'published') returning id into v_org;
+    res := res || case when exists (select 1 from public.organisation_members where org_id = v_org and user_id = v_user and role = 'owner') then 'PASS' else 'FAIL' end || E' · add_owner_on_org_insert still fires: the signed-in creator becomes owner\n';
+    v_ok := false;
+    begin
+      delete from public.organisation_members where org_id = v_org and user_id = v_user;
+    exception when sqlstate 'P0001' then
+      v_ok := true;
+    end;
+    res := res || case when v_ok and exists (select 1 from public.organisation_members where org_id = v_org and user_id = v_user and role = 'owner') then 'PASS' else 'FAIL' end || E' · protect_last_owner still fires: the last owner cannot be removed\n';
+
+    insert into public.promotions (entity_type, entity_id, starts_at, ends_at) values ('organisation', v_org, now() - interval '1 hour', now() + interval '1 day');
+    res := res || case when (select is_featured and featured_until is not null from public.organisations where id = v_org) then 'PASS' else 'FAIL' end || E' · sync_featured_from_promotions still fires: a promotion features the business\n';
+
+    insert into public.service_requests (vertical_key, title, name, phone, requester_user_id, status) values ('contractors', 'RLS TEST QC1b review', 'RLS', '+251911000405', v_user, 'quoted') returning id into v_req;
+    insert into public.service_request_matches (request_id, org_id, status) values (v_req, v_org, 'offered') returning id into v_match;
+    v_ok := false;
+    begin
+      insert into public.reviews (org_id, request_id, match_id, author_name, rating, body) values (v_org, v_req, v_match, 'RLS', 5, 'A review for a job that was never chosen.');
+    exception when insufficient_privilege then
+      v_ok := true;
+    end;
+    res := res || case when v_ok and not exists (select 1 from public.reviews where request_id = v_req) then 'PASS' else 'FAIL' end || E' · reviews_check_eligible still fires: no review for a job that was not chosen\n';
+
+    update public.verticals set status = 'hidden' where key = 'finance';
+    update public.pillars set interest_enabled = interest_enabled where key = 'finance';
+    res := res || case when (select v.status::text = public.mode_status(p.direct_enabled, p.aggregate_enabled, p.interest_enabled)::text from public.verticals v join public.pillars p on p.key = v.controlled_by_pillar where v.key = 'finance') then 'PASS' else 'FAIL' end || E' · pillars_after_change still fires: the finance section follows its pillar again\n';
+
+    insert into public.properties (slug, purpose, property_type, title, description, price_etb, location_id, lister_user_id, contact_phone, status)
+      select 'rls-test-qc1b-prop', 'sale', 'apartment', 'RLS TEST QC1b listing', 'Test', 1000000, id, v_user, '+251911000000', 'draft' from public.locations where path = 'addis-ababa/bole'
+      returning id into v_prop;
+    insert into public.agency_instructions (purpose, title, property_id, stage, fee_type, fee_amount_etb, agency_type, term_start) values ('sale', 'RLS TEST QC1b instruction', v_prop, 'live', 'fixed', 10000, 'sole', current_date);
+    res := res || case when (select lister_type::text from public.properties where id = v_prop) = 'hagerland'
+      and (select live_at is not null from public.agency_instructions where property_id = v_prop) then 'PASS' else 'FAIL' end || E' · agency_instruction_marks_listing still fires: a live instruction marks the listing as HagerLand''s\n';
+    raise exception 'hl_rollback';
+  exception when others then
+    if sqlerrm <> 'hl_rollback' then res := res || 'FAIL · QC-1b trigger checks stopped early: ' || sqlerrm || E'\n'; end if;
+  end;
+  perform set_config('hl.results', current_setting('hl.results') || res, false);
+end $$;
+reset role;
+select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);
+select pg_temp.record_check('QC-1b trigger checks left nothing behind', not exists (select 1 from public.organisations where name like 'RLS TEST QC1b%')
+  and not exists (select 1 from public.properties where slug = 'rls-test-qc1b-prop') and (select status::text from public.verticals where key = 'finance') = 'coming_soon');
+insert into auth.users (id, email) values ('00000000-0000-4000-8000-0000000001b1', 'rls-qc1b-signup@test.hagerland.invalid');
+select pg_temp.record_check('create_profile_on_signup still fires: a new account gets its profile', exists (select 1 from public.profiles where id = '00000000-0000-4000-8000-0000000001b1'));
+delete from auth.users where id = '00000000-0000-4000-8000-0000000001b1';
+select pg_temp.record_check('QC-1b sign-up check left nothing behind', not exists (select 1 from auth.users where id = '00000000-0000-4000-8000-0000000001b1') and not exists (select 1 from public.profiles where id = '00000000-0000-4000-8000-0000000001b1'));
+
 -- ---------- Clean up ----------
 reset role;
 select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);

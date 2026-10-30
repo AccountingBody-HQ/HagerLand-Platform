@@ -9991,6 +9991,7 @@ export type Database = {
         Returns: Json
       }
       service_location_count: { Args: { p_location_id: string; p_service_id: string }; Returns: number }
+      service_request_cancel: { Args: { p_actor_user_id?: string; p_request_id: string; p_token_hash?: string }; Returns: Json }
       setting_int: { Args: { fallback: number; setting_key: string }; Returns: number }
       supply_create_order: {
         Args: {

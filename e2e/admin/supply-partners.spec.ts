@@ -66,7 +66,7 @@ test('admin creates a supply partner record, adds a contact and finds it by phon
   await db().from('organisations').delete().eq('id', org!.id)
 })
 
-test('merging a duplicate combines supply partner records and moves its contacts', async ({ page }) => {
+test('QC-1b: a supply partner is never merged; its record and contacts stay where they are', async ({ page }) => {
   const stamp = Date.now()
   const { data: orgs } = await db()
     .from('organisations')
@@ -85,16 +85,12 @@ test('merging a duplicate combines supply partner records and moves its contacts
     await db().from('supply_contacts').insert({ org_id: dup.id, name: 'Sales desk', phone: '0911000000', phone_normalised: '+251911000000' })
     await adminSession(page)
     await page.goto(`/roodber8/organisations/${dup.id}`)
-    await page.getByLabel('Find the organisation to merge into').fill(keep.name)
-    await page.getByRole('button', { name: 'Find', exact: true }).click()
-    await page.getByLabel('Merge into', { exact: true }).selectOption(keep.id)
-    await page.getByLabel('I understand this cannot be undone automatically').check()
-    await page.getByRole('button', { name: 'Merge', exact: true }).click()
-    await expect.poll(async () => (await db().from('audit_log').select('id', { count: 'exact', head: true }).eq('action', 'organisation.merge').eq('entity_id', keep.id)).count).toBe(1)
-    const { data: kept } = await db().from('supply_partners').select('roles, aka, evidence_paths').eq('org_id', keep.id).single()
-    expect(kept).toEqual({ roles: ['wholesaler', 'importer'], aka: ['መርካቶ ብረት', dup.name], evidence_paths: ['docs/supply/a.jpg'] })
-    expect((await db().from('supply_partners').select('org_id').eq('org_id', dup.id)).data).toEqual([])
-    expect((await db().from('supply_contacts').select('org_id').eq('name', 'Sales desk').eq('phone_normalised', '+251911000000')).data).toEqual([{ org_id: keep.id }])
+    await expect(page.getByText('Merging is not available for supply partner businesses.')).toBeVisible()
+    await expect(page.getByLabel('Find the organisation to merge into')).toHaveCount(0)
+    expect((await db().from('organisations').select('status').eq('id', dup.id).single()).data?.status).not.toBe('archived')
+    expect((await db().from('supply_partners').select('roles').eq('org_id', dup.id).single()).data).toEqual({ roles: ['importer'] })
+    expect((await db().from('supply_partners').select('roles').eq('org_id', keep.id).single()).data).toEqual({ roles: ['wholesaler'] })
+    expect((await db().from('supply_contacts').select('org_id').eq('name', 'Sales desk').eq('phone_normalised', '+251911000000')).data).toEqual([{ org_id: dup.id }])
   } finally {
     await db().from('organisations').delete().in('id', [dup.id, keep.id])
   }

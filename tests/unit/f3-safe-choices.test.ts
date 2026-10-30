@@ -9,8 +9,6 @@ const state = vi.hoisted(() => ({
   rpc: { data: null as unknown, error: null as unknown },
   rpcArgs: [] as unknown[],
   request: null as Record<string, unknown> | null,
-  cancel: { data: [{ id: 'r' }] as unknown[] | null, error: null as unknown },
-  withdraw: { error: null as unknown },
   user: null as { id: string } | null,
   emails: [] as unknown[],
   updates: [] as string[],
@@ -18,16 +16,13 @@ const state = vi.hoisted(() => ({
 
 function builder(table: string) {
   const chain: Record<string, unknown> = {}
-  let op = 'select'
   for (const k of ['select', 'eq', 'in', 'neq']) chain[k] = () => chain
   chain.update = () => {
-    op = 'update'
     state.updates.push(table)
     return chain
   }
   chain.maybeSingle = async () => ({ data: table === 'service_requests' ? state.request : table === 'organisations' ? { name: 'Abebe Plumbing' } : null, error: null })
-  chain.then = (resolve: (v: unknown) => unknown) =>
-    resolve(op === 'update' && table === 'service_requests' ? state.cancel : op === 'update' && table === 'service_request_matches' ? state.withdraw : { data: null, error: null })
+  chain.then = (resolve: (v: unknown) => unknown) => resolve({ data: null, error: null })
   return chain
 }
 
@@ -59,8 +54,6 @@ beforeEach(() => {
   state.updates = []
   state.user = { id: USER }
   state.request = { id: REQ, reference: 'HLS-2026-000001', title: 'Leaking pipe', status: 'quoted', requester_user_id: USER, access_token_hash: null, access_token_expires_at: null }
-  state.cancel = { data: [{ id: REQ }], error: null }
-  state.withdraw = { error: null }
 })
 
 describe('reading the database answer', () => {
@@ -131,28 +124,53 @@ describe('chooseQuoteAction', () => {
   })
 })
 
-describe('cancelServiceRequestAction', () => {
-  it('saves: the unchanged success message', async () => {
+describe('cancelServiceRequestAction (QC-1b: one database call, migration 0052)', () => {
+  const CANCELLED = { ok: true, data: { message: 'Your request is cancelled. Thank you for letting us know.' } }
+  it('cancelled: the unchanged success message, one call, no writes of its own, no email', async () => {
     const { cancelServiceRequestAction } = await import('@/app/actions/service-request-actions')
-    expect(await cancelServiceRequestAction({ request_id: REQ })).toEqual({ ok: true, data: { message: 'Your request is cancelled. Thank you for letting us know.' } })
-    expect(state.updates).toEqual(['service_requests', 'service_request_matches'])
+    state.rpc = { data: { outcome: 'cancelled' }, error: null }
+    expect(await cancelServiceRequestAction({ request_id: REQ })).toEqual(CANCELLED)
+    expect(state.rpcArgs).toEqual([{ name: 'service_request_cancel', args: { p_request_id: REQ, p_actor_user_id: USER } }])
+    expect(state.updates).toEqual([])
+    expect(state.emails).toEqual([])
   })
-  it('a failed save: the existing generic message, offers left alone', async () => {
+  it('a database error (e.g. withdrawing the offers failed and nothing was saved): the existing generic message', async () => {
     const { cancelServiceRequestAction } = await import('@/app/actions/service-request-actions')
-    state.cancel = { data: null, error: { message: 'boom' } }
+    state.rpc = { data: null, error: { message: 'boom' } }
     expect(await cancelServiceRequestAction({ request_id: REQ })).toEqual({ ok: false, error: 'Something went wrong. Please refresh the page.' })
-    expect(state.updates).toEqual(['service_requests'])
+    state.rpc = { data: { outcome: 'something else' }, error: null }
+    expect(await cancelServiceRequestAction({ request_id: REQ })).toEqual({ ok: false, error: 'Something went wrong. Please refresh the page.' })
   })
-  it('closed meanwhile (nothing saved): the existing "already closed" message', async () => {
+  it('closed meanwhile: the existing "already closed" message', async () => {
     const { cancelServiceRequestAction } = await import('@/app/actions/service-request-actions')
-    state.cancel = { data: [], error: null }
+    state.rpc = { data: { outcome: 'not_allowed', reason: 'request_closed' }, error: null }
     expect(await cancelServiceRequestAction({ request_id: REQ })).toEqual({ ok: false, error: 'This request is already closed.' })
-    expect(state.updates).toEqual(['service_requests'])
   })
-  it('withdrawing the offers fails: reported, not "cancelled"', async () => {
+  it('the database does not recognise the customer or the request: the existing expired-link message', async () => {
     const { cancelServiceRequestAction } = await import('@/app/actions/service-request-actions')
-    state.withdraw = { error: { message: 'boom' } }
-    expect(await cancelServiceRequestAction({ request_id: REQ })).toEqual({ ok: false, error: 'Something went wrong. Please refresh the page.' })
+    state.rpc = { data: { outcome: 'not_allowed', reason: 'not_owner' }, error: null }
+    expect(await cancelServiceRequestAction({ request_id: REQ })).toEqual({ ok: false, error: 'This link has expired. Ask for a new one below.' })
+    state.rpc = { data: { outcome: 'not_found' }, error: null }
+    expect(await cancelServiceRequestAction({ request_id: REQ })).toEqual({ ok: false, error: 'This link has expired. Ask for a new one below.' })
+  })
+  it('not the requester, or already closed: refused before the database is asked, with the existing messages', async () => {
+    const { cancelServiceRequestAction } = await import('@/app/actions/service-request-actions')
+    state.user = { id: '44444444-4444-4444-8444-444444444444' }
+    expect(await cancelServiceRequestAction({ request_id: REQ })).toEqual({ ok: false, error: 'This link has expired. Ask for a new one below.' })
+    state.user = { id: USER }
+    state.request = { ...state.request, status: 'cancelled' }
+    expect(await cancelServiceRequestAction({ request_id: REQ })).toEqual({ ok: false, error: 'This request is already closed.' })
+    expect(state.rpcArgs).toEqual([])
+  })
+  it('a private link: the database gets the link fingerprint, never a user id', async () => {
+    const { cancelServiceRequestAction } = await import('@/app/actions/service-request-actions')
+    const { hashRequestToken, newRequestToken } = await import('@/lib/service-requests/token')
+    const link = newRequestToken()
+    state.user = null
+    state.request = { ...state.request, requester_user_id: null, access_token_hash: link.hash, access_token_expires_at: link.expiresAt }
+    state.rpc = { data: { outcome: 'cancelled' }, error: null }
+    expect(await cancelServiceRequestAction({ request_id: REQ, token: link.token })).toEqual(CANCELLED)
+    expect(state.rpcArgs).toEqual([{ name: 'service_request_cancel', args: { p_request_id: REQ, p_token_hash: hashRequestToken(link.token) } }])
   })
 })
 
@@ -164,10 +182,10 @@ describe('the code and the migration', () => {
     expect(choose).not.toMatch(/\.(update|insert|upsert|delete)\(/)
     expect(choose).toContain("db.rpc('choose_service_request_quote'")
   })
-  it('cancelling only from open states, with the save checked', () => {
+  it('cancelling makes no writes of its own: everything is in the database function (QC-1b)', () => {
     const cancel = action.split('export async function cancelServiceRequestAction')[1].split('\nexport ')[0]
-    expect(cancel).toContain(".in('status', ['submitted', 'triaged', 'matched', 'quoted'])")
-    expect(cancel).toMatch(/if \(error\) \{/)
+    expect(cancel).not.toMatch(/\.(update|insert|upsert|delete)\(/)
+    expect(cancel).toContain(".rpc('service_request_cancel'")
   })
   it('0046 is additive, service role only, and records itself', () => {
     const code = sql.replace(/--.*$/gm, '')

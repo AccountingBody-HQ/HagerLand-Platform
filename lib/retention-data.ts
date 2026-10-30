@@ -203,7 +203,7 @@ const DUE: Record<RetentionKind, (now: Date) => Promise<string[]>> = {
   agency_valuations: async (now) => {
     const db = getAdminSupabase()
     const cutoff = retentionCutoff(now, M24)
-    const { data: vals } = await readAll(() => db.from('agency_valuations').select('id, status, instruction_id, created_at, updated_at, appointment_at, address_line, details, notes, report_path').in('status', FINISHED_VALUATION).lt('updated_at', cutoff), opts)
+    const { data: vals } = await readAll(() => db.from('agency_valuations').select('id, status, instruction_id, created_at, updated_at, appointment_at, address_line, details, notes, report_path, preferred_times, time_zone, ip_hash').in('status', FINISHED_VALUATION).lt('updated_at', cutoff), opts)
     const { data: instructions } = await readAllIn(Array.from(new Set(vals.map((v) => v.instruction_id).filter((x): x is string => Boolean(x)))), (part) => db.from('agency_instructions').select('id, stage').in('id', part), opts)
     const open = new Set(instructions.filter((i) => (OPEN_AGENCY.instruction as readonly string[]).includes(i.stage)).map((i) => i.id))
     return vals.filter((v) => valuationDue(v, cutoff, Boolean(v.instruction_id && open.has(v.instruction_id)))).map((v) => v.id)
@@ -222,7 +222,7 @@ const DUE: Record<RetentionKind, (now: Date) => Promise<string[]>> = {
     }
     const [instructions, valuations, viewings, offers, applications, requirements, tenantsOf, landlordsOf] = await Promise.all([
       readAllIn(ids, (part) => db.from('agency_instructions').select('id, contact_id, stage, updated_at').in('contact_id', part), opts),
-      readAllIn(ids, (part) => db.from('agency_valuations').select('id, contact_id, status, created_at, updated_at, appointment_at, address_line, details, notes, report_path').in('contact_id', part), opts),
+      readAllIn(ids, (part) => db.from('agency_valuations').select('id, contact_id, status, created_at, updated_at, appointment_at, address_line, details, notes, report_path, preferred_times, time_zone, ip_hash').in('contact_id', part), opts),
       readAllIn(ids, (part) => db.from('agency_viewings').select('id, contact_id, status, updated_at').in('contact_id', part), opts),
       readAllIn(ids, (part) => db.from('agency_offers').select('id, contact_id, status, updated_at').in('contact_id', part), opts),
       readAllIn(ids, (part) => db.from('rental_applications').select('id, contact_id, status, updated_at').in('contact_id', part), opts),

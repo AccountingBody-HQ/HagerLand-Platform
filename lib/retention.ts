@@ -96,11 +96,15 @@ export const clearedPartnerRegistration = (at: string) => ({ contact_name: REMOV
 export const clearedPartnerDraft = (at: string) => ({ photo_paths: [] as string[], partner_sku: null, proposed_price_cents: null, stock_note: null, personal_data_deleted_at: at })
 /** S6-2: an order request keeps its reference, items, status, dates and every money record; the person's details go. */
 export const clearedOrderRequest = (at: string) => ({ name: REMOVED_NAME, phone: '', email: null, delivery_address: null, note: null, access_token_hash: null, access_token_expires_at: null, ip_hash: null, personal_data_deleted_at: at })
-/** QC-1a: a finished valuation keeps its reference, purpose, dates, status, outcome and amounts; what identifies the place and the person goes. */
-export const clearedValuation = { address_line: null, details: null, notes: null, report_path: null }
+/** QC-1a: a finished valuation keeps its reference, purpose, dates, status, outcome and amounts; what identifies the place and the person goes
+ * (QC-1b: the preferred times, time zone and IP fingerprint too). */
+export const clearedValuation = { address_line: null, details: null, notes: null, report_path: null, preferred_times: null, time_zone: null, ip_hash: null }
 /** QC-1a: an agency contact keeps its reference, roles and dates; name and contact details go (a check needs an email or a phone). */
 export const clearedAgencyContact = { name: REMOVED_NAME, email: REMOVED_EMAIL, phone: null, time_zone: null, notes: null, user_id: null }
 export const FINISHED_VALUATION = ['completed', 'cancelled']
+type ValuationRetentionRow = { status: string; created_at: string; updated_at: string; appointment_at: string | null } & Record<keyof typeof clearedValuation, string | null>
+/** Finished and nothing left to clear (QC-1b: every cleared column empty, not only the QC-1a four). */
+const isClearedValuation = (v: ValuationRetentionRow) => FINISHED_VALUATION.includes(v.status) && (Object.keys(clearedValuation) as (keyof typeof clearedValuation)[]).every((k) => v[k] === null)
 /** Open agency records: while one of these points at a contact (or a valuation's instruction is open), nothing is cleared. */
 export const OPEN_AGENCY = {
   instruction: ['lead', 'valuation_booked', 'valued', 'instructed', 'live', 'under_offer', 'let_agreed'],
@@ -112,21 +116,16 @@ export const OPEN_AGENCY = {
 } as const
 
 /** A valuation is due: finished, 24 months since its last activity, its instruction (if any) not open, something left to clear. */
-export function valuationDue(
-  v: { status: string; created_at: string; updated_at: string; appointment_at: string | null; address_line: string | null; details: string | null; notes: string | null; report_path: string | null },
-  cutoff: string,
-  instructionOpen: boolean,
-): boolean {
+export function valuationDue(v: ValuationRetentionRow, cutoff: string, instructionOpen: boolean): boolean {
   if (!FINISHED_VALUATION.includes(v.status) || instructionOpen) return false
-  if (v.address_line === null && v.details === null && v.notes === null && v.report_path === null) return false
+  if (isClearedValuation(v)) return false
   const last = latest(v.created_at, v.updated_at, v.appointment_at)
   return last !== null && last < cutoff
 }
 
 /** A valuation's last activity for its contact: a cleared, finished one counts from its own dates (the clearing is not activity). */
-export function valuationActivity(v: { status: string; created_at: string; updated_at: string; appointment_at: string | null; address_line: string | null; details: string | null; notes: string | null; report_path: string | null }): string {
-  const cleared = FINISHED_VALUATION.includes(v.status) && v.address_line === null && v.details === null && v.notes === null && v.report_path === null
-  return (cleared ? latest(v.created_at, v.appointment_at) : latest(v.created_at, v.updated_at, v.appointment_at)) ?? v.created_at
+export function valuationActivity(v: ValuationRetentionRow): string {
+  return (isClearedValuation(v) ? latest(v.created_at, v.appointment_at) : latest(v.created_at, v.updated_at, v.appointment_at)) ?? v.created_at
 }
 
 /** An agency contact is due: 24 months since the last activity on it or anything linked to it, nothing linked open, not already cleared. */

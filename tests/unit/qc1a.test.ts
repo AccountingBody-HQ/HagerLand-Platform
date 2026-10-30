@@ -168,7 +168,7 @@ describe('F10 valuations and agency contacts', () => {
   const cutoff = '2024-10-30T21:00:00.000Z'
   const oldTs = '2024-09-01T10:00:00Z'
   const newTs = '2025-01-01T10:00:00Z'
-  const v = (over: Record<string, unknown>) => ({ status: 'completed', created_at: oldTs, updated_at: oldTs, appointment_at: null, address_line: 'House 1', details: 'x', notes: null, report_path: null, ...over }) as never
+  const v = (over: Record<string, unknown>) => ({ status: 'completed', created_at: oldTs, updated_at: oldTs, appointment_at: null, address_line: 'House 1', details: 'x', notes: null, report_path: null, preferred_times: null, time_zone: null, ip_hash: null, ...over }) as never
   it('a valuation: finished, 24 months after the latest activity, its instruction not open, something left to clear', async () => {
     const { valuationDue } = await import('@/lib/retention')
     expect(valuationDue(v({}), cutoff, false)).toBe(true)
@@ -192,14 +192,14 @@ describe('F10 valuations and agency contacts', () => {
   })
   it("a cleared valuation's clearing is not activity for its contact", async () => {
     const { valuationActivity } = await import('@/lib/retention')
-    const base = { status: 'completed', created_at: oldTs, updated_at: '2026-10-30T06:00:00Z', appointment_at: null, address_line: null, details: null, notes: null, report_path: null }
+    const base = { status: 'completed', created_at: oldTs, updated_at: '2026-10-30T06:00:00Z', appointment_at: null, address_line: null, details: null, notes: null, report_path: null, preferred_times: null, time_zone: null, ip_hash: null }
     expect(valuationActivity(base)).toBe(oldTs)
     expect(valuationActivity({ ...base, details: 'x' })).toBe('2026-10-30T06:00:00Z')
     expect(valuationActivity({ ...base, status: 'booked' })).toBe('2026-10-30T06:00:00Z')
   })
   it('clearing keeps the reference, dates, status, outcome and amounts, and satisfies every column rule', async () => {
     const { clearedValuation, clearedAgencyContact, OPEN_AGENCY, FINISHED_VALUATION } = await import('@/lib/retention')
-    expect(clearedValuation).toEqual({ address_line: null, details: null, notes: null, report_path: null })
+    expect(clearedValuation).toEqual({ address_line: null, details: null, notes: null, report_path: null, preferred_times: null, time_zone: null, ip_hash: null })
     for (const k of ['reference', 'status', 'outcome', 'value_low_etb', 'value_high_etb', 'created_at', 'appointment_at', 'purpose']) expect(Object.keys(clearedValuation)).not.toContain(k)
     // agency_contacts: name 2–120 characters; an email or a phone (agency_contacts_reachable); the email never reaches anyone.
     expect(clearedAgencyContact).toMatchObject({ name: 'Removed', email: 'removed@removed.invalid', phone: null })

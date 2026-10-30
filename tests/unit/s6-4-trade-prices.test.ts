@@ -255,8 +255,8 @@ describe('migration 0051', () => {
     expect(code).toMatch(/v_suggested := v_line\.customer_unit_cents;\s+v_trade_price := null;/)
     expect(code).toContain("'trade', v_trade_price is not null")
   })
-  it('the health check expects 0051', async () => {
+  it('the health check expects 0051 (and the later ones)', async () => {
     const { EXPECTED_MIGRATIONS } = await import('@/lib/health')
-    expect(EXPECTED_MIGRATIONS[EXPECTED_MIGRATIONS.length - 1]).toBe('0051')
+    expect(EXPECTED_MIGRATIONS).toContain('0051')
   })
 })
