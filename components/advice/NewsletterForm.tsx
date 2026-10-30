@@ -3,7 +3,7 @@
 import { useActionState } from 'react'
 import { subscribeNewsletterAction } from '@/app/actions/newsletter-actions'
 import { Field, Input } from '@/components/ui/Field'
-import { FormAlert, Honeypot, SubmitButton } from '@/components/forms/FormParts'
+import { FormAlert, Honeypot, SubmitButton, TransferConsent } from '@/components/forms/FormParts'
 import { Turnstile } from '@/components/forms/Turnstile'
 import { NoResetForm } from '@/components/forms/NoResetForm'
 
@@ -30,6 +30,7 @@ export function NewsletterForm({ source, consentText }: { source: string; consen
         <span>{consentText}</span>
       </label>
       {errors.consent && <p className="text-small text-error">{errors.consent}</p>}
+      <TransferConsent error={errors.transfer_consent} />
       <Turnstile action="newsletter" />
       <SubmitButton pendingText="Signing up…">Sign up</SubmitButton>
     </NoResetForm>

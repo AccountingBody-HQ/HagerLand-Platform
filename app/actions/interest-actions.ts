@@ -21,6 +21,8 @@ import { canonicalUrl } from '@/lib/site'
 import { parseUtm } from '@/lib/utm'
 import { log } from '@/lib/log'
 import { spamCheckDrop } from '@/lib/spam-check'
+import { transferConsentMissing } from '@/lib/data-transfer'
+import { recordTransferConsent } from '@/lib/data-transfer-server'
 
 export type InterestState = ActionResult<{ reference: string }> | null
 
@@ -43,6 +45,8 @@ const interestSchema = z.object({
 /** "Register your interest" on a vertical's page (spec 24.2). Stored for admin, confirmation emailed. */
 export async function submitInterestAction(_prev: InterestState, formData: FormData): Promise<InterestState> {
   if (await spamCheckDrop(formData, 'submit_interest')) return ok({ reference: 'HLI-0' })
+  const noConsent = transferConsentMissing(formData)
+  if (noConsent) return noConsent
   const parsed = interestSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   const d = parsed.data
@@ -94,6 +98,7 @@ export async function submitInterestAction(_prev: InterestState, formData: FormD
     to: d.email,
     ...interestConfirmationEmail({ name: d.name.split(' ')[0] || d.name, reference: row.reference, verticalName: pillar?.name ?? vertical.name, href: canonicalUrl(pillar ? pillarHref(pillar) : verticalHref(vertical)), live: (pillar?.status ?? vertical.status) === 'live' }),
   })
+  await recordTransferConsent({ form: 'register_interest', subjectTable: 'interest_registrations', subjectId: null, subjectReference: row.reference })
   return ok({ reference: row.reference })
 }
 
@@ -114,6 +119,8 @@ const partnerSchema = z.object({
 /** "Become a partner" for banks, lenders, insurers and brokers (spec 24.2, 24.8). */
 export async function submitPartnerAction(_prev: InterestState, formData: FormData): Promise<InterestState> {
   if (await spamCheckDrop(formData, 'submit_partner')) return ok({ reference: 'HLP-0' })
+  const noConsent = transferConsentMissing(formData)
+  if (noConsent) return noConsent
   const parsed = partnerSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   const d = parsed.data
@@ -150,5 +157,6 @@ export async function submitPartnerAction(_prev: InterestState, formData: FormDa
     return fail('We could not send your application. Please try again.')
   }
   await sendEmail({ to: d.email, ...partnerApplicationEmail({ name: d.contact_name.split(' ')[0] || d.contact_name, organisation: d.organisation_name, reference: row.reference, verticalName: vertical.name }) })
+  await recordTransferConsent({ form: 'become_partner', subjectTable: 'partner_applications', subjectId: null, subjectReference: row.reference })
   return ok({ reference: row.reference })
 }

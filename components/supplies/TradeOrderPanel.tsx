@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { submitTradeOrderAction, tradeBasketOpenAction } from '@/app/actions/trade-order-actions'
-import { OrderRequestFields } from '@/components/supply/OrderRequestForm'
+import { OrderRequestFields, OrderRequestTermsLine } from '@/components/supply/OrderRequestForm'
 import { FormAlert, Honeypot, SubmitButton } from '@/components/forms/FormParts'
 import { Turnstile } from '@/components/forms/Turnstile'
 import { NoResetForm } from '@/components/forms/NoResetForm'
@@ -65,6 +65,7 @@ export function TradeOrderPanel({ items, onSent }: { items: QuoteItem[]; onSent:
           <SubmitButton fullWidth size="lg" pendingText="Sending…">
             {CUSTOMER_TEXT.submit}
           </SubmitButton>
+          <OrderRequestTermsLine />
         </NoResetForm>
       )}
       <p className="text-small text-muted">{TRADE_TEXT.basketNote}</p>

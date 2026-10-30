@@ -5,7 +5,7 @@ import { CircleCheck } from 'lucide-react'
 import { joinWorkerRegisterAction, type PhoneFormState } from '@/app/actions/job-phone-actions'
 import { Checkbox, Field, Input, describedBy } from '@/components/ui/Field'
 import { PhoneInput } from '@/components/ui/PhoneInput'
-import { FormAlert, Honeypot, SubmitButton } from '@/components/forms/FormParts'
+import { FormAlert, Honeypot, SubmitButton, TransferConsent } from '@/components/forms/FormParts'
 import { Turnstile } from '@/components/forms/Turnstile'
 import { NoResetForm } from '@/components/forms/NoResetForm'
 import { useJobsI18n } from '@/lib/i18n/client'
@@ -13,6 +13,7 @@ import { TRADES } from '@/lib/jobs'
 import { CONTACT_METHODS, LANGUAGES, REGISTER_AVAILABILITY } from '@/lib/jobs-phone'
 import { cn } from '@/lib/cn'
 import { ChoiceChips } from './ChoiceChips'
+import { TRANSFER_CONSENT_TEXT } from '@/lib/data-transfer'
 
 /** "Looking for work? Tell us you're available" (Jobs Phase 2, W-B): staff-only register, no account or email. */
 export function WorkerRegisterForm() {
@@ -70,6 +71,7 @@ export function WorkerRegisterForm() {
           aria-invalid={bad('consent') || undefined}
         />
       </div>
+      <TransferConsent error={errors.transfer_consent} label={t(TRANSFER_CONSENT_TEXT)} />
       <Turnstile action="worker_register" />
       <SubmitButton fullWidth size="lg" pendingText={t('Sending…')}>
         {t('Join the register')}

@@ -110,7 +110,7 @@ export function customerStatusLabel(r: { status: string; reservedUntil: string |
     case 'checking_stock':
       return 'Checking stock'
     case 'reserved':
-      return `Reserved until ${addisDateTime(r.reservedUntil)} (Addis Ababa time): pay ${formatETBCents(r.totalCents)} by then`
+      return `Reserved until ${addisDateTime(r.reservedUntil)} (Addis Ababa time): pay ${formatETBCents(r.totalCents)} (including VAT) by then`
     case 'partially_reserved':
       return 'Part of your order is available'
     case 'unavailable':

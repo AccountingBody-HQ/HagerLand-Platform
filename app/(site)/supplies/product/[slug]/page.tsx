@@ -99,7 +99,8 @@ export default async function ProductPage(props: { params: Promise<{ slug: strin
             {(p.sku || p.model_number) && <p className="mt-1 text-small text-muted">{[p.sku && `SKU ${p.sku}`, p.model_number && `Model ${p.model_number}`].filter(Boolean).join(' · ')}</p>}
           </div>
           <div className="flex flex-wrap gap-2">
-            {p.seller_is_hagerland && <Badge tone="gold">Sold by {brand.divisions.supply}</Badge>}
+            {/* QC-2 (W2): HagerLand's own products (including partner-sourced ones) say HagerLand Supply; other businesses' products name their seller. */}
+            {p.seller_is_hagerland ? <Badge tone="gold">Sold by {brand.divisions.supply}</Badge> : p.seller_name ? <Badge tone="gold">Sold by {p.seller_name}</Badge> : null}
             <Badge tone={stock.tone}>{stock.label}</Badge>
           </div>
           <div className="rounded-lg bg-stone-50 p-4">
@@ -121,7 +122,7 @@ export default async function ProductPage(props: { params: Promise<{ slug: strin
             {ordering && p.price_type === 'on_request' && <p className="mt-1 text-small text-muted">{CUSTOMER_TEXT.priceLine}</p>}
             {tradePricing ? <TradePrice productId={p.id} unit={unitLabel(p.unit, 1)} /> : <TradePrice productId={p.id} />}
             {p.price_type !== 'on_request' && p.price_updated_at && <p className="mt-1 text-small text-muted">Price updated {formatDate(p.price_updated_at)}</p>}
-            {volatile && <p className="mt-1 text-small text-warning-dark">Prices change often — we confirm today&apos;s price on your quote.</p>}
+            {volatile && <p className="mt-1 text-small text-warning-dark">Prices include VAT. They change often — we confirm today&apos;s price on your quote.</p>}
             <ul className="mt-3 space-y-1 text-small text-muted">
               {Number(p.min_order_qty) > 1 && <li>Minimum order: {Number(p.min_order_qty)} {unitLabel(p.unit, Number(p.min_order_qty))}</li>}
               {p.pack_size && <li>Pack size: {p.pack_size}</li>}

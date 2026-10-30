@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import sharp from 'sharp'
-import { adminSession, createUser, db, mailWithSubject, randomPhone, setPillarModes, signIn, uniqueEmail } from './helpers'
+import { adminSession, createUser, db, mailWithSubject, randomPhone, setPillarModes, signIn, uniqueEmail, tickTransferConsent } from './helpers'
 
 /** Manage Property: the owner portal (spec 26.7) and HagerLand's own team in Repair & Maintain (spec 26.8). */
 
@@ -52,6 +52,7 @@ test('owner portal: only linked owners see their property, with inspections, sta
   // Messages both ways.
   await op.goto(`/owner/${mp!.id}`)
   await op.getByLabel('Message to HagerLand').fill('Please check the garden gate.')
+  await tickTransferConsent(op)
   await op.getByRole('button', { name: 'Send message' }).click()
   await expect(op.getByText('Message sent.')).toBeVisible()
   await page.reload()

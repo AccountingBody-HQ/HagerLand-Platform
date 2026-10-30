@@ -8,9 +8,8 @@ import { z } from 'zod'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { assertAdmin, assertOwner, audit } from '@/lib/admin/guard'
 import { fail, ok, type ActionResult } from '@/lib/action-result'
-import { SUPPLY_SWITCHES_TAG, readSupplySwitches } from '@/lib/supply/partner-switches'
-import { readPaymentDetails } from '@/lib/supply/order-requests-data'
-import { NOT_YET_USED, REGISTER_PATH, SUPPLY_SWITCH_KEYS, type SupplySwitch } from '@/lib/supply/partner-rules'
+import { SUPPLY_SWITCHES_TAG, readUnlockFacts } from '@/lib/supply/partner-switches'
+import { REGISTER_PATH, SUPPLY_SWITCH_KEYS, unlockLine, unlockMissing, type SupplySwitch } from '@/lib/supply/partner-rules'
 import { markLegalSwitchChange } from '@/lib/content/legal'
 
 type Msg = ActionResult<{ message: string }>
@@ -22,17 +21,18 @@ const SWITCH_NAMES: Record<SupplySwitch, string> = {
   homeBusinessRow: 'Homepage “Sell through HagerLand” row',
 }
 
-/** Owner only: one S6-1 switch on or off. Switches nothing uses yet stay off (L10). */
+/** Owner only: one S6-1 switch on or off. Catalogue ordering and trade price agreements need their unlock (QC-2). */
 export async function setSupplySwitchAction(which: string, on: boolean): Promise<Msg> {
   await assertAdmin(AREA)
   await assertOwner()
   const parsed = z.object({ which: z.enum(Object.keys(SUPPLY_SWITCH_KEYS) as [SupplySwitch, ...SupplySwitch[]]), on: z.boolean() }).safeParse({ which, on })
   if (!parsed.success) return fail('Choose a switch.')
-  // S6-2: customers cannot be told how to pay while the payment details are empty.
-  if (parsed.data.on && parsed.data.which === 'catalogueOrdering' && !(await readPaymentDetails())) return fail('Add the payment details in Settings first.')
-  // S6-4: trade prices on orders need catalogue ordering on first.
-  if (parsed.data.on && parsed.data.which === 'tradePricing' && !(await readSupplySwitches()).catalogueOrdering) return fail('Switch on catalogue ordering first.')
-  if (parsed.data.on && NOT_YET_USED.includes(parsed.data.which)) return fail('This switch is used from a later release and cannot be switched on yet.')
+  // QC-2: checked here, at the moment of switching (not only on the page): an active payment method and the company
+  // name in Settings; trade price agreements also need catalogue ordering on (S6-4).
+  if (parsed.data.on) {
+    const missing = unlockMissing(parsed.data.which, await readUnlockFacts())
+    if (missing.length) return fail(unlockLine(missing))
+  }
   const key = SUPPLY_SWITCH_KEYS[parsed.data.which]
   const db = getAdminSupabase()
   const { data: before } = await db.from('site_settings').select('value').eq('key', key).maybeSingle()

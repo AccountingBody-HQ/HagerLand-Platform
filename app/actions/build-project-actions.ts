@@ -20,6 +20,7 @@ import { renderEmail } from '@/lib/email/layout'
 import { canonicalUrl } from '@/lib/site'
 import { log } from '@/lib/log'
 import { spamCheckDrop } from '@/lib/spam-check'
+import { accountConsentRefusal } from '@/lib/data-transfer-server'
 
 export type ProjectState = ActionResult<{ id: string; reference: string }> | null
 
@@ -53,6 +54,9 @@ export async function createBuildProjectAction(_prev: ProjectState, formData: Fo
   if (await spamCheckDrop(formData, 'create_build_project')) return ok({ id: '', reference: 'HLP-0' })
   const user = await getUser()
   if (!user) return fail('Please sign in first, so you can follow your project in your account.')
+  // QC-2: signed-in forms rely on the account's data-transfer notice (confirmed at the top of the account pages).
+  const consentRefusal = await accountConsentRefusal(user.id)
+  if (consentRefusal) return fail(consentRefusal)
   const parsed = schema.safeParse({ ...Object.fromEntries(formData), services: formData.getAll('services') })
   if (!parsed.success) return invalid(parsed.error)
   const d = parsed.data

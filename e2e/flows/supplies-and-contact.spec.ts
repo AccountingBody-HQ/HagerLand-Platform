@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { adminSession, adminSetPillarModes, asFreshVisitor, db, randomPhone, trackErrors } from '../helpers'
+import { adminSession, adminSetPillarModes, asFreshVisitor, db, randomPhone, trackErrors, tickTransferConsent } from '../helpers'
 
 test('a guest builds a quote list, requests a quote, and HagerLand issues it', async ({ browser, page }) => {
   test.setTimeout(180_000)
@@ -19,6 +19,7 @@ test('a guest builds a quote list, requests a quote, and HagerLand issues it', a
   await expect(page.getByText(pname)).toBeVisible()
   await page.fill('#q-name', 'Meron Girma')
   await page.fill('#q-phone', randomPhone())
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Request my quote' }).click()
   await page.waitForURL(/\/supplies\/quote\/sent\?ref=HLQ-/)
   const ref = new URL(page.url()).searchParams.get('ref')!
@@ -52,6 +53,7 @@ test('a guest sends a materials list with a file', async ({ page }) => {
   await expect(page.locator('input[type=hidden][name=files]')).toHaveCount(1, { timeout: 20_000 })
   await page.fill('#q-name', 'Hana Tadesse')
   await page.fill('#q-phone', randomPhone())
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Request my quote' }).click()
   await page.waitForURL(/\/supplies\/quote\/sent\?ref=HLQ-/)
   const ref = new URL(page.url()).searchParams.get('ref')!
@@ -75,6 +77,8 @@ test('register interest in HagerLand Developments and send a contact message', a
   const form = page.locator('form', { has: page.locator('#ri-empty-name') })
   await page.fill('#ri-empty-name', 'Yonas Bekele')
   await page.fill('#ri-empty-phone', randomPhone())
+  await tickTransferConsent(form)
+  await tickTransferConsent(form)
   await form.locator('button[type=submit]').click()
   await expect(page.getByText('Thanks, your interest is registered')).toBeVisible()
   const { data: e } = await db().from('enquiries').select('id, target_type, intent').eq('name', 'Yonas Bekele').order('created_at', { ascending: false }).limit(1).single()
@@ -85,6 +89,7 @@ test('register interest in HagerLand Developments and send a contact message', a
   await page.fill('#contact-name', 'Selam Abebe')
   await page.fill('#contact-phone', randomPhone())
   await page.fill('#contact-message', 'Do you deliver cement to Adama?')
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Send message' }).click()
   await expect(page.getByText('Your enquiry has been sent')).toBeVisible()
   const { data: c } = await db().from('enquiries').select('id, target_type').eq('name', 'Selam Abebe').order('created_at', { ascending: false }).limit(1).single()

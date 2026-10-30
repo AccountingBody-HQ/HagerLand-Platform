@@ -15,6 +15,7 @@ import { teamInvitationEmail } from '@/lib/email/templates'
 import { canonicalUrl } from '@/lib/site'
 import { log } from '@/lib/log'
 import { revalidateEntity } from '@/lib/revalidate'
+import { accountConsentRefusal } from '@/lib/data-transfer-server'
 
 type Done = ActionResult<{ message: string }>
 const LAST_OWNER = 'This is the only owner. Make someone else an owner first.'
@@ -118,6 +119,9 @@ export async function removeMemberAction(userId: string): Promise<Done> {
 /** Accept an invitation: only with the invited email address, before it expires. */
 export async function acceptInvitationAction(token: string): Promise<Done> {
   const user = await requireUser(`/invite/${token}`)
+  // QC-2: signed-in forms rely on the account's data-transfer notice (confirmed at the top of the account pages).
+  const consentRefusal = await accountConsentRefusal(user.id)
+  if (consentRefusal) return fail(consentRefusal)
   if (!isWellFormedToken(token)) return fail('This invitation link is not valid.')
   const db = getAdminSupabase()
   const { data: inv } = await db.from('org_invitations').select('id, org_id, email, role, expires_at, accepted_at, revoked_at').eq('token_hash', hashRequestToken(token)).maybeSingle()

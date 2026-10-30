@@ -1183,6 +1183,37 @@ export type Database = {
         }
         Relationships: []
       }
+      data_transfer_consents: {
+        Row: {
+          consent_version: string
+          created_at: string
+          form: string
+          id: string
+          subject_id: string | null
+          subject_reference: string | null
+          subject_table: string
+        }
+        ComputedFields: never
+        Insert: {
+          consent_version: string
+          created_at?: string
+          form: string
+          id?: string
+          subject_id?: string | null
+          subject_reference?: string | null
+          subject_table: string
+        }
+        Update: {
+          consent_version?: string
+          created_at?: string
+          form?: string
+          id?: string
+          subject_id?: string | null
+          subject_reference?: string | null
+          subject_table?: string
+        }
+        Relationships: []
+      }
       deals: {
         Row: {
           closed_at: string | null
@@ -2938,6 +2969,39 @@ export type Database = {
           },
         ]
       }
+      order_request_payment_receipts: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          payment_id: string
+          receipt_number: string
+        }
+        ComputedFields: never
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          payment_id: string
+          receipt_number: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          payment_id?: string
+          receipt_number?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'order_request_payment_receipts_payment_id_fkey'
+            columns: ['payment_id']
+            isOneToOne: false
+            referencedRelation: 'order_request_payments'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       order_request_payments: {
         Row: {
           amount_cents: number
@@ -2951,6 +3015,7 @@ export type Database = {
           occurred_on: string
           order_request_id: string
           reason: string | null
+          receipt_number: string | null
           reference: string | null
           reverses_entry_id: string | null
           supply_order_id: string | null
@@ -2968,6 +3033,7 @@ export type Database = {
           occurred_on: string
           order_request_id: string
           reason?: string | null
+          receipt_number?: string | null
           reference?: string | null
           reverses_entry_id?: string | null
           supply_order_id?: string | null
@@ -2984,6 +3050,7 @@ export type Database = {
           occurred_on?: string
           order_request_id?: string
           reason?: string | null
+          receipt_number?: string | null
           reference?: string | null
           reverses_entry_id?: string | null
           supply_order_id?: string | null
@@ -7970,6 +8037,40 @@ export type Database = {
             referencedColumns: ['id']
           },
         ]
+      }
+      supply_payment_methods: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string | null
+          id: string
+          instructions: string
+          name: string
+          sort_order: number
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          instructions: string
+          name: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          instructions?: string
+          name?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       supply_quote_lines: {
         Row: {

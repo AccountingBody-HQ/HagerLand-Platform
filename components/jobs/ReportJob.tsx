@@ -5,7 +5,7 @@ import { Flag } from 'lucide-react'
 import { submitJobReportAction } from '@/app/actions/job-report-actions'
 import { Dialog } from '@/components/ui/Dialog'
 import { Field, Input, Textarea } from '@/components/ui/Field'
-import { FormAlert, Honeypot, SubmitButton } from '@/components/forms/FormParts'
+import { FormAlert, Honeypot, SubmitButton, TransferConsent } from '@/components/forms/FormParts'
 import { Turnstile } from '@/components/forms/Turnstile'
 import { NoResetForm } from '@/components/forms/NoResetForm'
 
@@ -49,6 +49,7 @@ function ReportJobForm({ jobId, text }: { jobId: string; text: ReportJobText }) 
       <Field label={text.contact} htmlFor="jrep-contact" optional hint={text.contactHint}>
         <Input id="jrep-contact" name="contact" maxLength={254} />
       </Field>
+      <TransferConsent error={errors.transfer_consent} />
       <Turnstile action="job_report" />
       <SubmitButton fullWidth pendingText={text.sending}>
         {text.send}

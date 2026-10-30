@@ -90,7 +90,7 @@ export function OrganisationForm({
       {duplicates.length > 0 && !confirmNew && duplicateMode === 'admin' && (
         <div className="rounded-lg border border-gold/40 bg-gold-soft p-5">
           <h2 className="font-display text-h3 font-bold">Possible duplicates</h2>
-          <p className="mt-1 text-small text-muted">These businesses have the same phone number or a similar name. Open one to check it. If it is the same business, do not create a new one: add the supply record there, or use “Merge duplicate”.</p>
+          <p className="mt-1 text-small text-muted">These businesses have the same phone number or a similar name. Open one to check it. If it is the same business, do not create a new one: add the supply record there, or ask the owner to merge them.</p>
           <ul className="mt-4 space-y-2">
             {duplicates.map((d) => (
               <li key={d.id} className="rounded-md bg-white p-3 text-small">

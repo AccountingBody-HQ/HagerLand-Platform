@@ -7,16 +7,19 @@ vi.mock('server-only', () => ({}))
 
 const state = vi.hoisted(() => ({
   switches: { registration: false, catalogueOrdering: false, tradePricing: false, homeBusinessRow: false },
-  paymentDetails: '',
+  // QC-2: the owner's active payment methods (replace the old single payment-details text).
+  methods: [] as { id: string; name: string; instructions: string; active: boolean; sortOrder: number }[],
+  unlock: { activePaymentMethods: 0, legalName: '', catalogueOrdering: false },
   rpc: [] as { name: string; args: unknown }[],
   inserts: [] as { table: string; row: unknown }[],
   owner: true,
   emails: [] as string[],
 }))
 
-vi.mock('@/lib/supply/partner-switches', () => ({ readSupplySwitches: async () => state.switches, readSupplySwitchesCached: async () => state.switches, SUPPLY_SWITCHES_TAG: 'supply-switches' }))
+vi.mock('@/lib/supply/partner-switches', () => ({ readSupplySwitches: async () => state.switches, readSupplySwitchesCached: async () => state.switches, readUnlockFacts: async () => state.unlock, SUPPLY_SWITCHES_TAG: 'supply-switches' }))
+vi.mock('@/lib/supply/payment-methods-data', () => ({ activePaymentMethods: async () => state.methods.filter((m) => m.active), listPaymentMethods: async () => state.methods }))
+vi.mock('@/lib/data-transfer-server', () => ({ recordTransferConsent: async () => undefined, accountConsentRefusal: async () => null, accountConsented: async () => true }))
 vi.mock('@/lib/supply/order-requests-data', () => ({
-  readPaymentDetails: async () => state.paymentDetails,
   orderableProduct: async () => true,
   sendCustomerEmail: async (_id: string, kind: string) => (state.emails.push(kind), true),
   expireDueOrderRequests: async () => 0,
@@ -55,7 +58,8 @@ vi.mock('@/lib/security', async (real) => ({ ...(await real<typeof import('@/lib
 
 beforeEach(() => {
   state.switches = { registration: false, catalogueOrdering: false, tradePricing: false, homeBusinessRow: false }
-  state.paymentDetails = ''
+  state.methods = []
+  state.unlock = { activePaymentMethods: 0, legalName: '', catalogueOrdering: false }
   state.rpc = []
   state.inserts = []
   state.owner = true
@@ -146,7 +150,7 @@ describe('approved customer text (section 3), verbatim', () => {
     const label = (status: string) => customerStatusLabel({ status, reservedUntil: '2026-10-31T11:30:00Z', totalCents: 2701500 })
     expect(label('submitted')).toBe('Checking stock')
     expect(label('checking_stock')).toBe('Checking stock')
-    expect(label('reserved')).toBe('Reserved until 31 Oct 2026, 14:30 (Addis Ababa time): pay ETB 27,015 by then')
+    expect(label('reserved')).toBe('Reserved until 31 Oct 2026, 14:30 (Addis Ababa time): pay ETB 27,015 (including VAT) by then')
     expect(label('partially_reserved')).toBe('Part of your order is available')
     expect(label('unavailable')).toBe('Not available')
     expect(label('paid')).toBe('Paid')
@@ -164,7 +168,7 @@ describe('approved customer text (section 3), verbatim', () => {
     const R = 'HLR-2026-000001'
     const cases: [ReturnType<typeof T.orderRequestPaidEmail>, string, string][] = [
       [T.orderRequestReceivedEmail({ reference: R, link: 'https://www.hagerland.com/supplies/order-requests/x' }), `We received your order request (${R})`, 'Thank you. We are checking stock and will contact you. You have not paid anything yet.'],
-      [T.orderRequestReservedEmail({ reference: R, until: '31 Oct 2026, 14:30', amount: 'ETB 27,015', paymentDetails: 'CBE 1000123456789, HagerLand' }), `Your items are reserved (${R})`, `Good news: we have reserved your items until 31 Oct 2026, 14:30 (Addis Ababa time). To confirm your order, pay ETB 27,015 to HagerLand by then. Please include ${R} with your payment. Payment details: CBE 1000123456789, HagerLand. If we do not receive payment by then, the reservation ends and you will not be charged.`],
+      [T.orderRequestReservedEmail({ reference: R, until: '31 Oct 2026, 14:30', amount: 'ETB 27,015', methods: [{ name: 'CBE Birr', instructions: '1000123456789, HagerLand' }] }), `Your items are reserved (${R})`, `Good news: we have reserved your items until 31 Oct 2026, 14:30 (Addis Ababa time). To confirm your order, pay ETB 27,015 (including VAT) to HagerLand by then. Please include ${R} with your payment. How to pay:\n\nCBE Birr\n1000123456789, HagerLand\n\nIf we do not receive payment by then, the reservation ends and you will not be charged.`],
       [T.orderRequestPartialEmail({ reference: R, available: 'Cement (20 bags)', unavailable: 'Cement (10 bags)' }), `Part of your order is available (${R})`, 'We can reserve Cement (20 bags), but not Cement (10 bags). Reply to this email or call us to tell us whether you want the available items. You have not been charged.'],
       [T.orderRequestUnavailableEmail({ reference: R, items: 'Cement (30 bags)' }), `We could not confirm stock (${R})`, 'Sorry, we could not confirm stock for Cement (30 bags). You have not been charged.'],
       [T.orderRequestExpiredEmail({ reference: R }), `Your reservation has ended (${R})`, `Your reservation ${R} ended because we did not receive payment in time. If you still need the items, send a new request. Prices and stock may have changed.`],
@@ -182,7 +186,7 @@ describe('approved customer text (section 3), verbatim', () => {
 })
 
 describe('the public form', () => {
-  const good = { product_id: '33333333-3333-4333-8333-333333333333', quantity: '30', name: 'Kebede Alemu', phone: '0911 223 344', email: '', delivery_location_id: '44444444-4444-4444-8444-444444444444', delivery_address: 'Bole, near Edna Mall', needed_by: '', note: '' }
+  const good = { product_id: '33333333-3333-4333-8333-333333333333', quantity: '30', name: 'Kebede Alemu', phone: '0911 223 344', email: '', delivery_location_id: '44444444-4444-4444-8444-444444444444', delivery_address: 'Bole, near Edna Mall', needed_by: '', note: '', transfer_consent: 'on' }
   const form = (v: Record<string, string>) => {
     const f = new FormData()
     for (const [k, x] of Object.entries(v)) f.append(k, x)
@@ -238,24 +242,24 @@ describe('the hourly job', () => {
 })
 
 describe('owner money steps', () => {
-  it('no reservation (and no switch) while the payment details are empty', async () => {
+  it('no reservation (and no switch) without an active payment method', async () => {
     const { reserveAction } = await import('@/app/roodber8/actions/order-requests')
-    expect(await reserveAction(REQ, { hours: '48', delivery: '0', prices: { [LINE]: '850.50' } })).toEqual({ ok: false, error: 'Add the payment details in Settings first: the customer needs them to pay.' })
+    expect(await reserveAction(REQ, { hours: '48', delivery: '0', prices: { [LINE]: '850.50' } })).toEqual({ ok: false, error: 'Add an active payment method in Supplies → Payment methods first: the customer needs it to pay.' })
     expect(state.rpc).toEqual([])
-    state.paymentDetails = 'CBE 1000123456789'
+    state.methods = [{ id: 'm1', name: 'CBE Birr', instructions: '1000123456789', active: true, sortOrder: 0 }]
     expect((await reserveAction(REQ, { hours: '48', delivery: '1500', prices: { [LINE]: '850.50' } })).ok).toBe(true)
     expect(state.rpc[0]).toEqual({ name: 'order_request_reserve', args: { p_request: REQ, p_hours: 48, p_delivery_cents: 150000, p_prices: [{ line_id: LINE, price_cents: 85050 }], p_actor: 'test' } })
     expect(state.emails).toEqual(['reserved'])
     expect(await reserveAction(REQ, { hours: '200', delivery: '0', prices: {} })).toEqual({ ok: false, error: 'A reservation lasts between 1 and 168 hours.' })
     const { setSupplySwitchAction } = await import('@/app/roodber8/actions/supply-switches')
-    state.paymentDetails = ''
-    expect(await setSupplySwitchAction('catalogueOrdering', true)).toMatchObject({ ok: false, error: 'Add the payment details in Settings first.' })
-    state.paymentDetails = 'CBE 1000123456789'
-    expect(await setSupplySwitchAction('catalogueOrdering', true)).toMatchObject({ ok: false, error: 'This switch is used from a later release and cannot be switched on yet.' })
+    // QC-2: the switch needs an active payment method and the company name (checked on the server).
+    expect(await setSupplySwitchAction('catalogueOrdering', true)).toMatchObject({ ok: false, error: 'Cannot be switched on yet: add an active payment method in Supplies → Payment methods; enter the company name in Settings → Legal entity.' })
+    state.unlock = { activePaymentMethods: 1, legalName: '', catalogueOrdering: false }
+    expect(await setSupplySwitchAction('catalogueOrdering', true)).toMatchObject({ ok: false, error: 'Cannot be switched on yet: enter the company name in Settings → Legal entity.' })
   })
   it('Operations are refused every money step (server checks)', async () => {
     state.owner = false
-    state.paymentDetails = 'CBE 1000123456789'
+    state.methods = [{ id: 'm1', name: 'CBE Birr', instructions: '1000123456789', active: true, sortOrder: 0 }]
     const a = await import('@/app/roodber8/actions/order-requests')
     await expect(a.reserveAction(REQ, { hours: '48', delivery: '0', prices: {} })).rejects.toThrow('owner only')
     await expect(a.recordPaymentAction(REQ, { type: 'customer_payment', amount: '100', date: '2026-10-29', method: 'bank_transfer', reference: '', note: '' })).rejects.toThrow('owner only')

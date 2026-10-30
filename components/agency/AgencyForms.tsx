@@ -8,7 +8,7 @@ import { Checkbox, Field, Input, Select, Textarea, describedBy } from '@/compone
 import { Combobox } from '@/components/ui/Combobox'
 import { PhoneInput } from '@/components/ui/PhoneInput'
 import { PriceInput } from '@/components/ui/PriceInput'
-import { FormAlert, Honeypot, SubmitButton } from '@/components/forms/FormParts'
+import { FormAlert, Honeypot, SubmitButton, TransferConsent } from '@/components/forms/FormParts'
 import { Turnstile } from '@/components/forms/Turnstile'
 import { NoResetForm } from '@/components/forms/NoResetForm'
 import { TimeZoneFields } from '@/components/forms/TimeZoneFields'
@@ -52,10 +52,11 @@ function Contact({ p, errors, emailRequired }: { p: string; errors: Record<strin
   )
 }
 
-function Footer({ p, submit, action }: { p: string; submit: string; action: string }) {
+function Footer({ p, submit, action, errors }: { p: string; submit: string; action: string; errors: Record<string, string> }) {
   return (
     <>
       <Checkbox id={`${p}-consent`} name="marketing_consent" label="Email me about properties that match what I am looking for" description="Optional. You can stop these at any time." />
+      <TransferConsent error={errors.transfer_consent} />
       <Turnstile action={action} />
       <SubmitButton fullWidth size="lg" pendingText="Sending…">
         {submit}
@@ -92,7 +93,7 @@ function Shell({ action, state, children }: { action: (fd: FormData) => void; st
 /** "Book a valuation" with HagerLand's estate agency (spec 26.5). */
 export function ValuationForm({ purposes }: { purposes: ('sale' | 'rent')[] }) {
   const { state, action, errors } = useAgencyForm(requestValuationAction, 'valuation')
-  if (state?.ok) return <Done title="Valuation requested" text="An agent will contact you to arrange a visit." reference={state.data.reference} />
+  if (state?.ok) return <Done title="Market appraisal requested" text="An agent will contact you to arrange a visit." reference={state.data.reference} />
   const p = 'val'
   return (
     <Shell action={action} state={state}>
@@ -130,7 +131,7 @@ export function ValuationForm({ purposes }: { purposes: ('sale' | 'rent')[] }) {
       </Field>
       <Contact p={p} errors={errors} emailRequired />
       <TimeZoneFields idPrefix={p} />
-      <Footer p={p} submit="Book my valuation" action="valuation" />
+      <Footer errors={errors} p={p} submit="Book my market appraisal" action="valuation" />
     </Shell>
   )
 }
@@ -164,7 +165,7 @@ export function ViewingForm({ propertyId }: { propertyId: string }) {
       <Field label="Message" htmlFor={`${p}-msg`} optional>
         <Textarea id={`${p}-msg`} name="message" rows={3} maxLength={2000} />
       </Field>
-      <Footer p={p} submit="Request a viewing" action="viewing" />
+      <Footer errors={errors} p={p} submit="Request a viewing" action="viewing" />
     </Shell>
   )
 }
@@ -191,7 +192,7 @@ export function OfferForm({ propertyId }: { propertyId: string }) {
         <Checkbox id={`${p}-understood`} name="understood" label="I understand this offer is an expression of interest only" description="It does not bind me or the owner. Nothing is agreed until a written sale agreement is signed." />
         {errors.understood && <p className="mt-1 text-small text-error">{errors.understood}</p>}
       </div>
-      <Footer p={p} submit="Send my offer" action="offer" />
+      <Footer errors={errors} p={p} submit="Send my offer" action="offer" />
     </Shell>
   )
 }
@@ -250,7 +251,7 @@ export function ApplyForm({ propertyId }: { propertyId: string }) {
           ))}
         </ul>
       )}
-      <Footer p={p} submit="Send my application" action="apply" />
+      <Footer errors={errors} p={p} submit="Send my application" action="apply" />
     </Shell>
   )
 }

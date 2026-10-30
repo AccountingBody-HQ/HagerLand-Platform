@@ -129,7 +129,7 @@ export default function HowItWorksPage() {
           {[
             { icon: Circle, title: 'Listed', text: 'We added this business from public information so customers can find it. It has not been claimed by its owner yet.' },
             { icon: CircleCheck, title: 'Claimed', text: 'The owner manages the profile. We confirmed they represent the business.' },
-            { icon: BadgeCheck, title: 'Verified', text: 'We checked the business’s trade licence (and licence grade for contractors). The date of the check is shown on the badge.' },
+            { icon: BadgeCheck, title: 'Verified', text: 'We checked the business’s trade licence and tax number (TIN), and the licence grade for contractors. The date of the check is shown on the badge.' },
           ].map((v) => (
             <li key={v.title} className="rounded-lg border border-border bg-white p-5">
               <v.icon className={`size-7 ${v.title === 'Verified' ? 'text-gold' : 'text-green'}`} aria-hidden />

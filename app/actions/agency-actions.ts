@@ -21,6 +21,8 @@ import { formatETB, formatPhone } from '@/lib/format'
 import { PROPERTY_TYPES, type PropertyType } from '@/lib/labels'
 import { log } from '@/lib/log'
 import { spamCheckDrop } from '@/lib/spam-check'
+import { transferConsentMissing } from '@/lib/data-transfer'
+import { recordTransferConsent } from '@/lib/data-transfer-server'
 
 export type AgencyState = ActionResult<{ reference: string }> | null
 
@@ -57,6 +59,8 @@ const valuationSchema = z
 /** "Book a valuation" with HagerLand's estate agency (spec 26.5): a contact, a lead instruction and a valuation request. */
 export async function requestValuationAction(_prev: AgencyState, formData: FormData): Promise<AgencyState> {
   if (await spamCheckDrop(formData, 'request_valuation')) return ok({ reference: 'HLVA-0' })
+  const noConsent = transferConsentMissing(formData)
+  if (noConsent) return noConsent
   const parsed = valuationSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   const d = parsed.data
@@ -99,6 +103,7 @@ export async function requestValuationAction(_prev: AgencyState, formData: FormD
   if (ins) await logActivity('instruction', ins.id, 'created', `Lead from valuation request ${row.reference}.`, 'website')
   await sendEmail({ to: d.email, ...valuationReceivedEmail({ name: d.name.split(' ')[0] || d.name, reference: row.reference, preferredTimes: d.preferred_times ?? null }) })
   await notifyTeam(`Valuation request ${row.reference}: ${d.name}`, 'New valuation request', [['Reference', row.reference], ['Name', d.name], ['Phone', formatPhone(d.phone)], ['For', d.purpose === 'sale' ? 'Sale' : 'Letting'], ['Property', typeLabel], ['Preferred times', d.preferred_times ?? ''], ['Time zone', d.time_zone ?? '']], `/roodber8/agency/valuations/${row.id}`, d.email)
+  await recordTransferConsent({ form: 'valuation', subjectTable: 'agency_valuations', subjectId: row.id, subjectReference: row.reference })
   return ok({ reference: row.reference })
 }
 
@@ -121,6 +126,8 @@ function textRequired(max: number, message: string) {
 /** "Book a viewing" on a listing HagerLand markets (spec 26.5). */
 export async function bookViewingAction(_prev: AgencyState, formData: FormData): Promise<AgencyState> {
   if (await spamCheckDrop(formData, 'book_viewing')) return ok({ reference: 'HLVW-0' })
+  const noConsent = transferConsentMissing(formData)
+  if (noConsent) return noConsent
   const parsed = viewingSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   const d = parsed.data
@@ -143,6 +150,7 @@ export async function bookViewingAction(_prev: AgencyState, formData: FormData):
   const mode = d.mode === 'video' ? 'Video call' : 'In person'
   if (d.email) await sendEmail({ to: d.email, ...viewingRequestedEmail({ name: d.name.split(' ')[0] || d.name, reference: row.reference, property: listing.title, mode }) })
   await notifyTeam(`Viewing request ${row.reference}: ${listing.title}`, 'New viewing request', [['Reference', row.reference], ['Property', listing.title], ['Name', d.name], ['Phone', formatPhone(d.phone)], ['How', mode], ['Preferred times', d.preferred_times], ['Time zone', d.time_zone ?? '']], `/roodber8/agency/viewings/${row.id}`, d.email ?? null)
+  await recordTransferConsent({ form: 'viewing', subjectTable: 'agency_viewings', subjectId: row.id, subjectReference: row.reference })
   return ok({ reference: row.reference })
 }
 
@@ -161,6 +169,8 @@ const offerSchema = z.object({
 /** "Make an offer" on a sale HagerLand markets: a non-binding expression of interest (spec 26.5). */
 export async function makeOfferAction(_prev: AgencyState, formData: FormData): Promise<AgencyState> {
   if (await spamCheckDrop(formData, 'make_offer')) return ok({ reference: 'HLOF-0' })
+  const noConsent = transferConsentMissing(formData)
+  if (noConsent) return noConsent
   const parsed = offerSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   const d = parsed.data
@@ -183,6 +193,7 @@ export async function makeOfferAction(_prev: AgencyState, formData: FormData): P
   await logActivity('offer', row.id, 'created', `Offer of ${formatETB(amount)} made on the website.`, 'website')
   if (d.email) await sendEmail({ to: d.email, ...offerReceivedEmail({ name: d.name.split(' ')[0] || d.name, reference: row.reference, property: listing.title, amount }) })
   await notifyTeam(`Offer ${row.reference}: ${formatETB(amount)} on ${listing.title}`, 'New offer', [['Reference', row.reference], ['Property', listing.title], ['Offer', formatETB(amount)], ['Name', d.name], ['Phone', formatPhone(d.phone)], ['Funding', d.funding_note ?? ''], ['Conditions', d.conditions ?? '']], `/roodber8/agency/offers/${row.id}`, d.email ?? null)
+  await recordTransferConsent({ form: 'offer', subjectTable: 'agency_offers', subjectId: row.id, subjectReference: row.reference })
   return ok({ reference: row.reference })
 }
 
@@ -204,6 +215,8 @@ const applySchema = z.object({
 /** "Apply to rent" on a let HagerLand markets (spec 26.5): details, optional private documents, referencing in admin. */
 export async function applyToRentAction(_prev: AgencyState, formData: FormData): Promise<AgencyState> {
   if (await spamCheckDrop(formData, 'apply_to_rent')) return ok({ reference: 'HLRA-0' })
+  const noConsent = transferConsentMissing(formData)
+  if (noConsent) return noConsent
   const parsed = applySchema.safeParse({ ...Object.fromEntries(formData), files: formData.getAll('files') })
   if (!parsed.success) return invalid(parsed.error)
   const d = parsed.data
@@ -226,5 +239,6 @@ export async function applyToRentAction(_prev: AgencyState, formData: FormData):
   await logActivity('application', row.id, 'created', `Application made on the website${d.files.length ? ` with ${d.files.length} document${d.files.length === 1 ? '' : 's'}` : ''}.`, 'website')
   await sendEmail({ to: d.email, ...applicationReceivedEmail({ name: d.name.split(' ')[0] || d.name, reference: row.reference, property: listing.title }) })
   await notifyTeam(`Rental application ${row.reference}: ${listing.title}`, 'New application to rent', [['Reference', row.reference], ['Property', listing.title], ['Name', d.name], ['Phone', formatPhone(d.phone)], ['Move in', d.move_in_date ?? ''], ['Occupants', d.occupants ? String(d.occupants) : '']], `/roodber8/agency/applications/${row.id}`, d.email)
+  await recordTransferConsent({ form: 'apply_to_rent', subjectTable: 'rental_applications', subjectId: row.id, subjectReference: row.reference })
   return ok({ reference: row.reference })
 }

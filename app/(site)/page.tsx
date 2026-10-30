@@ -98,7 +98,7 @@ export default async function HomePage() {
 
   const proofPoints = [
     { icon: ClipboardList, title: 'Every listing checked', text: 'Our team reviews every listing and profile before it goes live.' },
-    { icon: BadgeCheck, title: 'Verified means verified', text: 'A business shows the Verified badge only after we have checked its documents.' },
+    { icon: BadgeCheck, title: 'Verified means verified', text: 'A business shows the Verified badge only after we have checked its trade licence and tax number.' },
     { icon: Clock, title: 'Always up to date', text: 'Listings expire unless their owner renews them, so old listings do not stay up.' },
     { icon: Hammer, title: 'Built by construction people', text: `${brand.divisions.supply} sources building materials, so we know real costs and quality.` },
   ]

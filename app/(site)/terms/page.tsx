@@ -29,6 +29,7 @@ export default async function TermsPage() {
         </TextSection>
         <TextSection title={n(`What ${brand.name} is`)}>
           <p>{brand.name} is an online platform where people list and find property, construction materials, professionals and services in Ethiopia, and request quotes for work, including people who live abroad. Unless a listing is labelled as {brand.divisions.supply} or {brand.divisions.developments}, we are not a party to any agreement between you and another user, and we do not own, sell or let the properties listed by others.</p>
+          <p>Some products on {brand.name} are sold by other businesses. Their product pages say “Sold by” and the business name, and the contract for those products is between you and that business.</p>
         </TextSection>
         <TextSection title={n('Our dual role')}>
           <p>{brand.name} also sells construction materials through {brand.divisions.supply}, offers estate agency services, and intends to develop homes through {brand.divisions.developments}. Our own products, services and projects are always clearly labelled. They are not ranked above other listings in organic search results, and any promoted placement is marked as such.</p>
@@ -55,7 +56,7 @@ export default async function TermsPage() {
           <p>We review listings and profiles before they are published and may edit formatting, ask for changes, refuse, pause or remove any content, and suspend or close accounts that break these terms. We may keep records of removed content where the law requires or to prevent abuse.</p>
         </TextSection>
         <TextSection title={n('Third-party listings')}>
-          <p>Listings by other users are their responsibility. We do not guarantee that any listing is accurate, available or lawful, or that any user will complete a transaction. Always view a property and check the title deed (carta) and lease documents before paying anything. Our <Link href="/help#safety">safety advice</Link> explains what to check.</p>
+          <p>Listings by other users are their responsibility. We do not guarantee that any listing is accurate, available or lawful, or that any user will complete a transaction. Always view a property and check the title deed (carta) and lease documents before paying anything. Our <Link href="/help#safety">safety advice</Link> explains what to check. When we say we check listings, partners or businesses, we mean we review them before they appear and make the checks described on our How it works page. A check is not a guarantee.</p>
         </TextSection>
         <TextSection title={n('Verification badges')}>
           <p>“Listed”, “Claimed” and “Verified” describe the checks we have made, explained on our <Link href="/how-it-works">How it works</Link> page.</p>
@@ -67,10 +68,23 @@ export default async function TermsPage() {
             <li>Quotes are valid for 3 days unless the quote states otherwise. Prices of volatile materials such as steel and cement are confirmed on each quote.</li>
             <li>A quote is not a contract. An order is made only when you confirm the quote with us and we confirm payment and delivery terms with you.</li>
             <li>Prices and availability shown on product pages are a guide and may change before your quote is issued.</li>
-            {/* S6-2: only while catalogue ordering is on (approved text). */}
-            {supplySwitches.catalogueOrdering && <li>When you buy from {brand.divisions.supply}, HagerLand is the seller. A reservation holds stock until the time shown. It ends automatically if we do not receive payment by then.</li>}
           </ul>
         </TextSection>
+        {/* QC-2 (W8): only while catalogue ordering is on (approved text). */}
+        {supplySwitches.catalogueOrdering && (
+          <TextSection title={n(`Buying from ${brand.divisions.supply}`)}>
+            <ul>
+              <li>When you buy from {brand.divisions.supply}, the seller is {brand.legalName}, {brand.legalAddress}.</li>
+              <li>Prices are in Ethiopian Birr (ETB) and include VAT.</li>
+              <li>When we reserve your order, we tell you the total and how long the reservation lasts. A reservation ends automatically if we do not receive your payment by then, and you are not charged.</li>
+              <li>Pay only by one of the payment methods shown on your order page, and include your order reference. We give you an official receipt for every payment.</li>
+              <li>We deliver in Addis Ababa. Your goods become yours, and our responsibility for them ends, when they are delivered.</li>
+              <li>Please check your goods when they arrive. If anything is missing, damaged or not what you ordered, tell us as soon as you can.</li>
+              <li>You can cancel before we confirm delivery is on its way, and we refund what you paid by the same method. After that, we accept returns of goods that are faulty or not what you ordered.</li>
+              <li>Nothing in these terms affects your rights under Ethiopian consumer law.</li>
+            </ul>
+          </TextSection>
+        )}
         <TextSection title={n('Enquiries and contact details')}>
           <p>When you send an enquiry, we share your name, contact details and message with the recipient so they can reply. Contact details shown on listings may only be used to discuss that listing. Do not use them for marketing.</p>
         </TextSection>
@@ -88,10 +102,11 @@ export default async function TermsPage() {
         </TextSection>
         <TextSection title={n('Jobs')}>
           <p>Employers are responsible for their job adverts and for treating applicants fairly and lawfully. Employers must never ask candidates for money. Applicants’ details and CVs may only be used to recruit for the job applied for. When {brand.name} recruits for an employer (a staffing requirement), the service and its fees are agreed with the employer in writing; candidates are never charged.</p>
-          {/* Jobs Phase 3 (W row 19): shown only while the owner's recruitment desk switch is on. */}
-          <p>Anyone can report a job; HagerLand reviews reports and may pause or remove a job.</p>
+          {/* QC-2 (W37): shown only while "Report this job" (jobs_reports_enabled) is on. */}
+          {jobsSwitches.reportsEnabled && <p>Anyone can report a job; HagerLand reviews reports and may pause or remove a job.</p>}
           {/* Jobs Phase 4 (W27): shown only while the owner's private-client switch is on. */}
           {jobsSwitches.privateClientPosts && <p>HagerLand may post jobs for private clients, labelled &quot;Posted by HagerLand for a private client&quot;. HagerLand checks these jobs and handles the applications.</p>}
+          {/* Jobs Phase 3 (W row 19): shown only while the owner's recruitment desk switch is on. */}
           {jobsSwitches.recruitmentDesk && (
             <p>The fee is either a fixed amount or a percentage of pay, as agreed in writing before work starts. If a person we place leaves within the replacement period in that agreement, we look for a replacement at no extra cost. Employers may use the details of people we introduce only for that requirement.</p>
           )}
@@ -130,21 +145,20 @@ export default async function TermsPage() {
           </ul>
         </TextSection>
         <TextSection title={n('Intellectual property')}>
-          <p>The {brand.name} name, logo and site design belong to us. You keep ownership of the content you upload, and you give us a licence to host, display, adapt (for example resize photos) and share it on {brand.name} and in our marketing of your listing, for as long as it is on the site and for a reasonable time after.</p>
+          <p>{brand.name}® is a registered trade mark of AccountingBody Ltd in the United Kingdom. The {brand.name} name, logo and site design are protected, and you may not use them without written permission. You keep ownership of the content you upload, and you give us a licence to host, display, adapt (for example resize photos) and share it on {brand.name} and in our marketing of your listing, for as long as it is on the site and for a reasonable time after.</p>
         </TextSection>
         <TextSection title={n('Liability')}>
           <p>We provide the site with reasonable care, but we do not promise that it will always be available or error-free. To the extent the law allows, we are not liable for losses arising from dealings between users, from content posted by others, or for indirect losses. Nothing in these terms limits liability that cannot be limited by law.</p>
         </TextSection>
         <TextSection title={n('Changes')}>
-          <p>We may update these terms. The date at the top shows the latest version. If a change is significant we will tell registered users by email.</p>
+          <p>We may update these terms. The date at the top shows the latest version. If a change significantly affects you, we will tell you before it applies.</p>
           {/* Jobs Phase 5 (W20): only while the Amharic version or Amharic for Jobs is on. */}
           {amharicOn && <p>These terms are written in English. If a translation differs, the English version applies.</p>}
         </TextSection>
-        {legal.governingLaw && (
-          <TextSection title={n('Governing law')}>
-            <p>These terms are governed by {legal.governingLaw}.</p>
-          </TextSection>
-        )}
+        {/* QC-2 (W4): always shown; the Settings "governing law" value is no longer used here. */}
+        <TextSection title={n('Governing law')}>
+          <p>These terms are governed by the laws of the Federal Democratic Republic of Ethiopia, and the courts of Addis Ababa deal with any dispute. If you are a consumer living outside Ethiopia, you keep any rights that the law where you live gives you and that cannot be removed by agreement.</p>
+        </TextSection>
         <TextSection title={n('Contact')}>
           <p>
             Questions about these terms? <Link href="/contact">Contact us</Link>.

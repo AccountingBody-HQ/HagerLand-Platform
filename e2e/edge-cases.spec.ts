@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { adminSession, asFreshVisitor, createProvider, createUser, db, linkMatching, mailWithSubject, randomPhone, seedPublishedProperty, signIn, uniqueEmail } from './helpers'
+import { adminSession, asFreshVisitor, createProvider, createUser, db, linkMatching, mailWithSubject, randomPhone, seedPublishedProperty, signIn, uniqueEmail, tickTransferConsent } from './helpers'
 
 /** Edge cases from spec 25.4: accounts, listings, search, forms, admin, email, privacy and legacy. */
 
@@ -55,6 +55,7 @@ test.describe('accounts', () => {
     await page.locator('#su-phone').fill(randomPhone())
     await page.fill('#su-password', 'another-long-password-1')
     await page.locator('#su-terms').check()
+    await tickTransferConsent(page)
     await page.getByRole('button', { name: 'Create account', exact: true }).click()
     await expect(page.getByRole('heading', { name: 'Check your email' })).toBeVisible()
   })
@@ -308,6 +309,7 @@ test.describe('search and forms', () => {
     await page.fill('#contact-phone', randomPhone())
     await page.fill('#contact-message', 'This message comes from a bot.')
     await page.locator('#hl_zq9').evaluate((el: HTMLInputElement) => (el.value = 'spam'))
+    await tickTransferConsent(page)
     await page.getByRole('button', { name: 'Send message' }).click()
     await expect(page.getByText('Your enquiry has been sent')).toBeVisible()
     expect((await db().from('enquiries').select('id').eq('name', name)).data).toHaveLength(0)
@@ -318,6 +320,7 @@ test.describe('search and forms', () => {
     await page.fill('#contact-name', human)
     await page.fill('#contact-phone', randomPhone())
     await page.fill('#contact-message', 'Clicking twice should send one message.')
+    await tickTransferConsent(page)
     const button = page.getByRole('button', { name: 'Send message' })
     await button.dblclick()
     await expect(page.getByText('Your enquiry has been sent')).toBeVisible()
@@ -332,6 +335,7 @@ test.describe('search and forms', () => {
     await page.fill('#sr-details', 'These details must still be here after the error.')
     await page.fill('#sr-name', 'Kept Name')
     await page.fill('#sr-phone', '12')
+    await tickTransferConsent(page)
     await page.getByRole('button', { name: 'Send my request' }).click()
     await expect(page.getByText(/phone/i).first()).toBeVisible()
     await expect(page.locator('#sr-title')).toHaveValue('Kept title after an error')

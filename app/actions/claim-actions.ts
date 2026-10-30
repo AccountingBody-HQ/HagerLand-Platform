@@ -14,6 +14,7 @@ import { sendEmail } from '@/lib/email/send'
 import { adminNoticeEmail, claimSubmittedEmail } from '@/lib/email/templates'
 import { canonicalUrl } from '@/lib/site'
 import { spamCheckDrop } from '@/lib/spam-check'
+import { accountConsentRefusal } from '@/lib/data-transfer-server'
 
 const schema = z.object({
   org_id: z.uuid(),
@@ -26,6 +27,9 @@ const schema = z.object({
 
 export async function submitClaimAction(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
   const user = await requireUser()
+  // QC-2: signed-in forms rely on the account's data-transfer notice (confirmed at the top of the account pages).
+  const consentRefusal = await accountConsentRefusal(user.id)
+  if (consentRefusal) return fail(consentRefusal)
   if (!isEmailConfirmed(user)) return fail('Please confirm your email address first.')
   if (await spamCheckDrop(formData, 'submit_claim')) return ok(undefined)
   // Fix F-7: at most 5 claims per person per day.

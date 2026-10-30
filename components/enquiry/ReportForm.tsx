@@ -3,7 +3,7 @@
 import { useActionState } from 'react'
 import { submitReportAction } from '@/app/actions/report-actions'
 import { Field, Input, Textarea } from '@/components/ui/Field'
-import { FormAlert, Honeypot, SubmitButton } from '@/components/forms/FormParts'
+import { FormAlert, Honeypot, SubmitButton, TransferConsent } from '@/components/forms/FormParts'
 import { Turnstile } from '@/components/forms/Turnstile'
 import { NoResetForm } from '@/components/forms/NoResetForm'
 
@@ -44,6 +44,7 @@ export function ReportForm({ target }: { target: { type: 'property' | 'organisat
       <Field label="Your phone or email" htmlFor="rep-contact" optional hint="Only if you're happy for us to follow up.">
         <Input id="rep-contact" name="reporter_contact" maxLength={254} />
       </Field>
+      <TransferConsent error={errors.transfer_consent} />
       <Turnstile action="report" />
       <SubmitButton fullWidth pendingText="Sending…">
         Send report

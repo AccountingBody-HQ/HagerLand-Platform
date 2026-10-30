@@ -2,7 +2,9 @@ import { notFound } from 'next/navigation'
 import { getUser } from '@/lib/auth'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { hashRequestToken, isWellFormedToken } from '@/lib/service-requests/token'
-import { expireDueOrderRequests, loadCustomerOrderRequest, readPaymentDetails } from '@/lib/supply/order-requests-data'
+import { expireDueOrderRequests, loadCustomerOrderRequest } from '@/lib/supply/order-requests-data'
+import { activePaymentMethods } from '@/lib/supply/payment-methods-data'
+import { referenceLine } from '@/lib/supply/payment-methods'
 import { CUSTOMER_TEXT, customerStatusLabel } from '@/lib/supply/order-requests'
 import { unitLabel } from '@/lib/units'
 import { Container } from '@/components/ui/Layout'
@@ -45,7 +47,8 @@ export default async function CustomerOrderRequestPage(props: { params: Promise<
   }
   const r = await loadCustomerOrderRequest(id)
   if (!r) notFound()
-  const paymentDetails = r.status === 'reserved' ? await readPaymentDetails() : ''
+  // QC-2: the owner's active payment methods, in order (none: the section is left out).
+  const methods = r.status === 'reserved' ? await activePaymentMethods() : []
   return (
     <Container className="max-w-2xl py-10 lg:py-16">
       {searchParams.sent === '1' && (
@@ -70,12 +73,20 @@ export default async function CustomerOrderRequestPage(props: { params: Promise<
           )
         })}
       </ul>
-      {r.status === 'reserved' && paymentDetails && (
+      {r.status === 'reserved' && methods.length > 0 && (
         <section aria-labelledby="how-to-pay" className="mt-8">
           <h2 id="how-to-pay" className="hl-h3">
             {CUSTOMER_TEXT.howToPay}
           </h2>
-          <p className="mt-3 whitespace-pre-line rounded-lg border border-border bg-white p-4">{paymentDetails}</p>
+          <ul className="mt-3 space-y-3">
+            {methods.map((m) => (
+              <li key={m.id} className="rounded-lg border border-border bg-white p-4" data-testid="how-to-pay-method">
+                <p className="font-semibold text-ink">{m.name}</p>
+                <p className="mt-1 whitespace-pre-line">{m.instructions}</p>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-3">{referenceLine(r.reference)}</p>
         </section>
       )}
     </Container>

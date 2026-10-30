@@ -7,7 +7,7 @@ import { submitQuoteAction } from '@/app/actions/quote-actions'
 import { Field, Input, Textarea, describedBy } from '@/components/ui/Field'
 import { PhoneInput } from '@/components/ui/PhoneInput'
 import { Combobox } from '@/components/ui/Combobox'
-import { FormAlert, Honeypot, SubmitButton } from '@/components/forms/FormParts'
+import { FormAlert, Honeypot, SubmitButton, TransferConsent } from '@/components/forms/FormParts'
 import { Turnstile } from '@/components/forms/Turnstile'
 import { FileDrop, type UploadedDoc } from '@/components/media/FileDrop'
 import { readUtm } from '@/components/enquiry/UtmCapture'
@@ -99,6 +99,7 @@ export function QuoteRequestForm({ source, items, withFiles, onSent }: { source:
           <Input id="q-addr" name="delivery_address" maxLength={300} />
         </Field>
       </div>
+      <TransferConsent error={errors.transfer_consent} />
       <Turnstile action="quote" />
       <SubmitButton size="lg" fullWidth pendingText="Sending…">
         Request my quote

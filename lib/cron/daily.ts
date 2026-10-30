@@ -41,6 +41,7 @@ import { REGISTRATION_WAITING } from '@/lib/supply/partner-rules'
 import { readSupplySwitches } from '@/lib/supply/partner-switches'
 import { expireDueOrderRequests } from '@/lib/supply/order-requests-data'
 import { SPAM_DROP_ROUTE, spamDropsSince } from '@/lib/spam-check'
+import { CONSENT_FAILED_ROUTE, consentFailuresSince } from '@/lib/data-transfer-server'
 
 const DAY = 86_400_000
 const BATCH = 500
@@ -329,10 +330,12 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent' | 'st
     ['Jobs closed today', s.jobsExpired],
     // QC-1a: forms the spam check stopped (counts only; shown only when above 0).
     ['Messages stopped by the spam check in the last 24 hours', spamDropsSince(since)],
+    // QC-2: data-transfer consent records that could not be saved (never silent; shown only when above 0).
+    ['Data-transfer consent records that failed to save in the last 24 hours', consentFailuresSince(since)],
   ]
   const [values, errors] = await Promise.all([
     Promise.all(counts.map(([, v]) => v)),
-    db.from('errors').select('route, message, count').gte('last_seen_at', since).neq('route', SPAM_DROP_ROUTE).order('count', { ascending: false }).limit(5),
+    db.from('errors').select('route, message, count').gte('last_seen_at', since).neq('route', SPAM_DROP_ROUTE).neq('route', CONSENT_FAILED_ROUTE).order('count', { ascending: false }).limit(5),
   ])
   counts.forEach(([label], i) => {
     const v = values[i]

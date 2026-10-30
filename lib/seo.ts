@@ -59,6 +59,9 @@ export function organizationJsonLd(sameAs: string[]): Record<string, unknown> {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: brand.name,
+    // QC-2 (W6): the company behind HagerLand.
+    legalName: brand.legalName,
+    address: { '@type': 'PostalAddress', addressLocality: 'Addis Ababa', addressCountry: 'ET' },
     description: brand.descriptor,
     url: CANONICAL_URL,
     logo: `${CANONICAL_URL}/logo.png`,

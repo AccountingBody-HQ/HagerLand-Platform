@@ -6,7 +6,8 @@ import { submitOrderRequestAction } from '@/app/actions/order-request-actions'
 import { Field, Input, Textarea, describedBy } from '@/components/ui/Field'
 import { Combobox } from '@/components/ui/Combobox'
 import { PhoneInput } from '@/components/ui/PhoneInput'
-import { FormAlert, Honeypot, SubmitButton } from '@/components/forms/FormParts'
+import Link from 'next/link'
+import { FormAlert, Honeypot, SubmitButton, TransferConsent } from '@/components/forms/FormParts'
 import { Turnstile } from '@/components/forms/Turnstile'
 import { NoResetForm } from '@/components/forms/NoResetForm'
 import { CUSTOMER_TEXT } from '@/lib/supply/order-requests'
@@ -35,7 +36,25 @@ export function OrderRequestForm({ productId, unit, minOrder }: { productId: str
       <SubmitButton fullWidth size="lg" pendingText="Sending…">
         {CUSTOMER_TEXT.submit}
       </SubmitButton>
+      <OrderRequestTermsLine />
     </NoResetForm>
+  )
+}
+
+/** QC-2 (W7): under the order request button, in the same style as the enquiry form. */
+export function OrderRequestTermsLine() {
+  return (
+    <p className="text-caption text-muted">
+      By sending, you accept our{' '}
+      <Link href="/terms" className="underline">
+        Terms
+      </Link>{' '}
+      and{' '}
+      <Link href="/privacy" className="underline">
+        Privacy Policy
+      </Link>
+      .
+    </p>
   )
 }
 
@@ -66,6 +85,7 @@ export function OrderRequestFields({ errors }: { errors: Record<string, string> 
       <Field label="Anything else we should know?" htmlFor="or-note" error={errors.note} optional>
         <Textarea id="or-note" name="note" rows={3} maxLength={2000} invalid={Boolean(errors.note)} />
       </Field>
+      <TransferConsent error={errors.transfer_consent} />
     </>
   )
 }

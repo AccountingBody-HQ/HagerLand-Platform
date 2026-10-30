@@ -1095,8 +1095,17 @@
     "draft": ""
   },
   {
+    "key": "I agree that HagerLand stores my details on secure servers outside Ethiopia (mainly in the European Union) to provide this service.",
+    "where": [
+      "lib/data-transfer.ts (W17 tick)"
+    ],
+    "draft": ""
+  },
+  {
     "key": "I am 18 or older",
     "where": [
+      "components/jobs/ApplyForm.tsx",
+      "components/jobs/CandidateForm.tsx",
       "components/jobs/PhoneApplyForm.tsx",
       "components/jobs/WorkerRegisterForm.tsx"
     ],
@@ -1821,6 +1830,7 @@
   {
     "key": "Please check the highlighted fields.",
     "where": [
+      "app/actions/job-actions.ts",
       "lib/jobs-phone.ts (PHONE_MESSAGES)",
       "lib/callbacks.ts (call-back box and form)"
     ],
@@ -1839,6 +1849,13 @@
       "lib/jobs-phone.ts (PHONE_MESSAGES)",
       "lib/job-reports.ts (REPORT_MESSAGES)",
       "lib/callbacks.ts (call-back box and form)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Please confirm the notice at the top of your account first.",
+    "where": [
+      "lib/data-transfer.ts (account notice refusal)"
     ],
     "draft": ""
   },
@@ -2653,6 +2670,13 @@
     "where": [
       "app/actions/job-actions.ts",
       "lib/jobs-phone.ts (PHONE_MESSAGES)"
+    ],
+    "draft": ""
+  },
+  {
+    "key": "Tick the box to continue.",
+    "where": [
+      "lib/data-transfer.ts (W17 tick, field error)"
     ],
     "draft": ""
   },

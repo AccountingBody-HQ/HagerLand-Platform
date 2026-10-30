@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { adminSession, asFreshVisitor, createProvider, db, linkMatching, mailWithSubject, signIn, testPhotos, uniqueEmail, randomPhone } from '../helpers'
+import { adminSession, asFreshVisitor, createProvider, db, linkMatching, mailWithSubject, signIn, testPhotos, uniqueEmail, randomPhone, tickTransferConsent } from '../helpers'
 
 /** Service request engine (spec 24.5): customer → HagerLand → provider → quote → choice. */
 
@@ -39,6 +39,7 @@ async function submitRequest(page: Page, email: string, opts: { emergency?: bool
   await page.fill('#sr-name', 'Hanna Customer')
   await page.fill('#sr-phone', opts.phone ?? randomPhone())
   await page.fill('#sr-email', email)
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Send my request' }).click()
   await page.waitForURL(/\/request-service\/sent\?ref=HLS-/)
   const ref = new URL(page.url()).searchParams.get('ref') ?? ''
@@ -163,6 +164,7 @@ test('when every provider declines, the request goes back to HagerLand and admin
   await guest.fill('#sr-name', 'Dawit Customer')
   await guest.fill('#sr-phone', randomPhone())
   await guest.fill('#sr-email', email)
+  await tickTransferConsent(guest)
   await guest.getByRole('button', { name: 'Send my request' }).click()
   await guest.waitForURL(/\/request-service\/sent/)
   const ref = new URL(guest.url()).searchParams.get('ref') ?? ''
@@ -211,6 +213,7 @@ test('guest links expire, and a new one can be requested without revealing wheth
   await page.fill('#sr-name', 'Meron Abroad')
   await page.fill('#sr-phone', `+4477009${String(Date.now()).slice(-5)}`)
   await page.fill('#sr-email', email)
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Send my request' }).click()
   await page.waitForURL(/\/request-service\/sent/)
   const ref = new URL(page.url()).searchParams.get('ref') ?? ''

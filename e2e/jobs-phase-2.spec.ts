@@ -3,7 +3,7 @@ import crypto from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { createClient } from '@supabase/supabase-js'
 import { authenticator } from 'otplib'
-import { adminSession, asFreshVisitor, createProvider, createUser, db, mailWithSubject, randomPhone, signIn, uniqueEmail, submitStaffSignIn } from './helpers'
+import { adminSession, asFreshVisitor, createProvider, createUser, db, mailWithSubject, randomPhone, signIn, uniqueEmail, submitStaffSignIn, tickTransferConsent } from './helpers'
 
 /** Jobs Phase 2 (migration 0040): AB's journeys J1–J8 on the local copy. Switches are flipped through the owner page. */
 
@@ -128,10 +128,12 @@ test('J7: with both switches off (the live default) every door is closed; trades
   expect(sitemap).not.toContain('apply-by-phone')
   // Crafted calls to the server actions are refused and store nothing.
   const phone = randomPhone()
-  const res = await callAction(page, 'job-phone-actions', 'applyByPhoneAction', { job_id: job.id, name: 'Crafted Caller', phone, trade: 'mason', area: 'Bole', preferred_contact: 'call', language: 'am', adult: 'on', consent: 'on' })
-  expect(res).toContain('Something went wrong. Please refresh the page.')
-  const reg = await callAction(page, 'job-phone-actions', 'joinWorkerRegisterAction', { name: 'Crafted Caller', phone, trades: 'mason', area: 'Bole', availability: 'now', preferred_contact: 'call', language: 'am', adult: 'on', consent: 'on' })
-  expect(reg).toContain('Something went wrong. Please refresh the page.')
+  const res = await callAction(page, 'job-phone-actions', 'applyByPhoneAction', { job_id: job.id, name: 'Crafted Caller', phone, trade: 'mason', area: 'Bole', preferred_contact: 'call', language: 'am', adult: 'on', consent: 'on', transfer_consent: 'on' })
+  // QC-2: a crafted request is refused either by the data-transfer check or by the switch; nothing is saved.
+  expect(res).toMatch(/Something went wrong\. Please refresh the page\.|Tick the box to continue\./)
+  const reg = await callAction(page, 'job-phone-actions', 'joinWorkerRegisterAction', { name: 'Crafted Caller', phone, trades: 'mason', area: 'Bole', availability: 'now', preferred_contact: 'call', language: 'am', adult: 'on', consent: 'on', transfer_consent: 'on' })
+  // QC-2: a crafted request is refused either by the data-transfer check or by the switch; nothing is saved.
+  expect(reg).toMatch(/Something went wrong\. Please refresh the page\.|Tick the box to continue\./)
   expect((await db().from('job_applications').select('id').eq('phone', phone)).data ?? []).toHaveLength(0)
   expect((await db().from('worker_register').select('id').eq('phone', phone)).data ?? []).toHaveLength(0)
   // Trades and daily labour work whatever the switches say.
@@ -158,6 +160,7 @@ test('J1: a worker applies by phone; duplicates, closed jobs, limits, missing ti
   const local = randomPhone().replace('+251', '0')
   applicantPhone = `+251${local.slice(1)}`
   await fillPhoneForm(page, { name: applicantName, local })
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Send my application' }).click()
   await expect(page.getByRole('heading', { name: 'Application sent' })).toBeVisible()
   const ref = (await page.getByText(/^Your reference is HLA-/).textContent())?.match(/HLA-\d{4}-\d{6}/)?.[0]
@@ -176,12 +179,14 @@ test('J1: a worker applies by phone; duplicates, closed jobs, limits, missing ti
   // The same phone again for the same job.
   await page.goto(`/jobs/${job.slug}/apply-by-phone`)
   await fillPhoneForm(page, { name: applicantName, local })
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Send my application' }).click()
   await expect(page.getByText("We couldn't send this application. If you've already applied for this job with this phone number, you don't need to apply again.")).toBeVisible()
 
   // A foreign number written with its country code is accepted.
   await page.goto(`/jobs/${job.slug}/apply-by-phone`)
   await fillPhoneForm(page, { name: 'Selam Abroad', local: `7700${Math.floor(100000 + Math.random() * 899999)}`, code: '+44', contact: 'Phone call', language: 'English' })
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Send my application' }).click()
   await expect(page.getByRole('heading', { name: 'Application sent' })).toBeVisible()
 
@@ -190,6 +195,7 @@ test('J1: a worker applies by phone; duplicates, closed jobs, limits, missing ti
   await fillPhoneForm(page, { name: 'No Tick', local: randomPhone().replace('+251', '0') })
   await page.getByLabel('I am 18 or older').uncheck()
   await page.locator('#pa-adult').evaluate((el) => el.removeAttribute('required'))
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Send my application' }).click()
   await expect(page.getByText('Please check the highlighted fields.')).toBeVisible()
   expect((await db().from('job_applications').select('id').eq('name', 'No Tick')).data ?? []).toHaveLength(0)
@@ -198,6 +204,7 @@ test('J1: a worker applies by phone; duplicates, closed jobs, limits, missing ti
   await page.goto(`/jobs/${job.slug}/apply-by-phone`)
   await fillPhoneForm(page, { name: 'Bot Filler', local: randomPhone().replace('+251', '0') })
   await page.locator('input[name="hl_zq9"]').evaluate((el: HTMLInputElement) => (el.value = 'spam'))
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Send my application' }).click()
   await expect(page.getByRole('heading', { name: 'Application sent' })).toBeVisible()
   expect((await db().from('job_applications').select('id').eq('name', 'Bot Filler')).data ?? []).toHaveLength(0)
@@ -207,6 +214,7 @@ test('J1: a worker applies by phone; duplicates, closed jobs, limits, missing ti
   await page.goto(`/jobs/${closing.slug}/apply-by-phone`)
   await fillPhoneForm(page, { name: 'Late Applicant', local: randomPhone().replace('+251', '0') })
   await db().from('job_posts').update({ status: 'archived' }).eq('id', closing.id)
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Send my application' }).click()
   await expect(page.getByText('This job is no longer open.')).toBeVisible()
 
@@ -216,6 +224,7 @@ test('J1: a worker applies by phone; duplicates, closed jobs, limits, missing ti
   for (let i = 0; i < 6; i++) {
     await busy.goto(`/jobs/${job.slug}/apply-by-phone`)
     await fillPhoneForm(busy, { name: `Busy Worker ${i}`, local: randomPhone().replace('+251', '0') })
+    await tickTransferConsent(busy)
     await busy.getByRole('button', { name: 'Send my application' }).click()
     if (i < 5) await expect(busy.getByRole('heading', { name: 'Application sent' })).toBeVisible()
     else await expect(busy.getByText('You have sent several applications recently. Please try again later.')).toBeVisible()
@@ -291,6 +300,7 @@ test('J3: a worker joins the register (and again); only Owner and Operations see
     await form.getByText('Tigrinya', { exact: true }).click()
     await form.getByLabel('I am 18 or older').check()
     await form.getByLabel(/^I agree that HagerLand keeps my details to contact me about work/).check()
+    await tickTransferConsent(form)
     await form.getByRole('button', { name: 'Join the register' }).click()
     const done = form.getByText(/^Thank you\. You're on the register\. Your reference is HLW-\d{4}-\d{6}\.$/)
     await expect(done).toBeVisible()

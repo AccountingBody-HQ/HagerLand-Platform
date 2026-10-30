@@ -6,7 +6,7 @@ import { CircleCheck } from 'lucide-react'
 import { submitInterestAction } from '@/app/actions/interest-actions'
 import { Checkbox, Field, Input, Select, Textarea, describedBy } from '@/components/ui/Field'
 import { PhoneInput } from '@/components/ui/PhoneInput'
-import { FormAlert, Honeypot, SubmitButton } from '@/components/forms/FormParts'
+import { FormAlert, Honeypot, SubmitButton, TransferConsent } from '@/components/forms/FormParts'
 import { Turnstile } from '@/components/forms/Turnstile'
 import { readUtm } from '@/components/enquiry/UtmCapture'
 import { COUNTRIES, OTHER_COUNTRY } from '@/lib/countries'
@@ -130,6 +130,7 @@ export function InterestForm({
         <Textarea id={id('message')} name="message" rows={3} maxLength={2000} invalid={Boolean(errors.message)} />
       </Field>
       <Checkbox id={id('consent')} name="marketing_consent" label="Also send me occasional HagerLand news" description="Optional. You can unsubscribe at any time." />
+      <TransferConsent error={errors.transfer_consent} />
       <Turnstile action="interest" />
       <SubmitButton fullWidth size="lg" pendingText="Sending…">
         {submitLabel}

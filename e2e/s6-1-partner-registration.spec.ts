@@ -2,7 +2,7 @@ import crypto from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { authenticator } from 'otplib'
-import { adminSession, allMail, asFreshVisitor, assertLocalStack, db, mailWithSubject, linkMatching, signUp, submitStaffSignIn, testPhotos, uniqueEmail } from './helpers'
+import { adminSession, allMail, asFreshVisitor, assertLocalStack, db, mailWithSubject, linkMatching, signUp, submitStaffSignIn, testPhotos, uniqueEmail, tickTransferConsent } from './helpers'
 
 /**
  * S6-1 private partner registration, partner area and product drafts: AB's whole journey on the local copy and local
@@ -153,6 +153,7 @@ test('the owner switches registration on; row 2 needs its own switch too; a visi
   await noHorizontalScroll(visitor)
 
   // Missing fields: the site's existing texts.
+  await tickTransferConsent(visitor)
   await visitor.getByRole('button', { name: 'Send registration' }).click()
   await expect(visitor.getByText('Please check the highlighted fields.').first()).toBeVisible()
   await visitor.fill('#pr-business', PARTNER)
@@ -165,6 +166,7 @@ test('the owner switches registration on; row 2 needs its own switch too; a visi
   await visitor.fill('#pr-email', APPLICANT_EMAIL)
   await visitor.fill('#pr-tin', '0012345678')
   await visitor.check('#pr-consent')
+  await tickTransferConsent(visitor)
   await visitor.getByRole('button', { name: 'Send registration' }).click()
   await expect(visitor.getByText(/Thank you\. Your registration HLB-\d{4}-\d{6} is with our team\. We will contact you to talk about terms\./)).toBeVisible()
   await visitor.close()
@@ -369,6 +371,7 @@ test('bad-actor sweep: nothing public, no email and no CSV carries the partner',
   await page.fill('#ask-phone', '0933000222')
   await page.fill('#ask-email', customer)
   await page.fill('#ask-message', 'Do you deliver to Bole?')
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Send enquiry' }).click()
   await expect.poll(async () => (await db().from('enquiries').select('id').eq('target_id', shared.productId!)).data?.length ?? 0).toBeGreaterThan(0)
   const { data: enquiries } = await db().from('enquiries').select('recipient_org_id').eq('target_id', shared.productId!)

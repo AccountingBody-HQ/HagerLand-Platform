@@ -1,18 +1,16 @@
 import Link from 'next/link'
 import { buildMetadata } from '@/lib/seo'
 import { brand } from '@/lib/brand'
-import { getBusinessDetails } from '@/lib/data/business'
 import { amharicVersionOn, legalUpdated } from '@/lib/content/legal'
 import { Container } from '@/components/ui/Layout'
 import { PageHero, TextSection } from '@/components/content/PageHero'
-import { LegalEntity } from '@/components/content/LegalEntity'
 import { readSupplySwitches } from '@/lib/supply/partner-switches'
 
 export const revalidate = 3600
 export const metadata = buildMetadata({ title: 'Privacy policy', description: 'What personal information HagerLand collects, why we use it, who we share it with, how long we keep it, and your rights, including getting a copy of your data.', path: '/privacy' })
 
 export default async function PrivacyPage() {
-  const [business, updated, amharicOn, supplySwitches] = await Promise.all([getBusinessDetails(), legalUpdated('privacy'), amharicVersionOn(), readSupplySwitches()])
+  const [updated, amharicOn, supplySwitches] = await Promise.all([legalUpdated('privacy'), amharicVersionOn(), readSupplySwitches()])
   // S6-1: the partner registration lines show only while the owner's registration switch is on.
   const partnerLines = supplySwitches.registration
   // S6-2: the order request lines show only while catalogue ordering is on.
@@ -22,8 +20,10 @@ export default async function PrivacyPage() {
       <PageHero crumb="Privacy" title="Privacy policy" intro={`Last updated ${updated}`} />
       <Container className="max-w-3xl space-y-10 py-12 sm:py-16">
         <TextSection title="Who we are">
-          <p>This policy explains how {brand.name} handles personal information.</p>
-          <LegalEntity legal={business.legal} />
+          {/* QC-2 (W20): replaces the Settings operator line on this page. */}
+          <p>
+            {brand.legalName}, {brand.legalAddress}, runs {brand.name} and is responsible for your personal information. For people in the UK, AccountingBody Ltd is our UK contact. To ask about your information, <Link href="/contact">contact us</Link>.
+          </p>
         </TextSection>
         <TextSection title="What we collect">
           <ul>
@@ -60,6 +60,7 @@ export default async function PrivacyPage() {
             <li>To send you service emails, such as listing approvals, expiry reminders and quote updates.</li>
             <li>To send you news and offers, only if you have chosen to receive them. You can opt out at any time.</li>
           </ul>
+          <p className="mt-3">We use your information because we need it to provide what you ask for (accounts, enquiries, quotes, requests and orders); because you agreed (news and offers, storing your details outside Ethiopia, introductions to employers); because the law requires it (tax and accounting records); or to keep {brand.name} safe (reviews, fraud and spam checks).</p>
         </TextSection>
         <TextSection title="Who we share it with">
           <ul>
@@ -73,13 +74,13 @@ export default async function PrivacyPage() {
             <li><strong>Owners and landlords we act for:</strong> when you book a viewing, make an offer or apply to rent a property we market, we share your details, offer or application with the owner so they can decide. We do not share documents you upload beyond what is needed to consider the application.</li>
             <li><strong>Providers you review:</strong> your first name, rating and review are published on their profile after we check them.</li>
             <li><strong>Visitors to your listing:</strong> the contact details you choose to show are revealed to visitors who ask for them.</li>
-            <li><strong>Service providers who run the site for us:</strong> Supabase (database, file storage and sign-in), Vercel (hosting), Resend (email), Cloudflare (bot protection) and Google (maps on listing pages). They process data only on our instructions.</li>
+            <li><strong>Service providers who run the site for us:</strong> Supabase (database, file storage and sign-in), Vercel (hosting), Resend (email), Cloudflare (bot protection), Google (maps on listing pages, only when you open one), our map image provider (map pages) and YouTube (development videos, only when you play one). They process data only on our instructions.</li>
             <li><strong>Authorities:</strong> where the law requires it.</li>
           </ul>
           <p>We do not sell personal information.</p>
         </TextSection>
         <TextSection title="People outside Ethiopia">
-          <p>Many people use {brand.name} from abroad. Our service providers may store and process information outside Ethiopia. We protect it in the same way wherever it is processed, and we only use providers that keep it secure.</p>
+          <p>Many people use {brand.name} from abroad. Our database and files are kept on servers in the European Union (Ireland). Our hosting, email and bot-check providers may process information in other countries, including the United States. We ask for your agreement before storing your details outside Ethiopia, and we use providers that commit in their terms to keep information secure.</p>
         </TextSection>
         <TextSection title="How long we keep it">
           <ul>
@@ -104,14 +105,20 @@ export default async function PrivacyPage() {
             <li>Reports about listings or businesses: your details, contact and the coded internet address are deleted 12 months after the report or our decision on it, whichever is later; the reason and what we did about it are kept.</li>
             <li>Worker register: deleted 12 months after you last updated it.</li>
             <li>Call-back requests: deleted 12 months after the request or our last call, whichever is later. If you tell us you did not ask for the call, we delete your number straight away and keep only a coded version for 30 days to stop repeat calls.</li>
-            <li>Valuation requests, viewings, offers and applications to rent: 24 months after the last activity, unless they lead to a sale or tenancy, which we keep for as long as the law requires for our records.</li>
+            <li>Market appraisal requests, viewings, offers and applications to rent: 24 months after the last activity, unless they lead to a sale or tenancy, which we keep for as long as the law requires for our records.</li>
             <li>Agency contact records and requirements: while we act for you or you want matching listings, and removed on request.</li>
             <li>Newsletter: until you unsubscribe (one click in every email).</li>
           </ul>
         </TextSection>
         <TextSection title="Your rights">
           <p>We handle personal information in line with the data protection laws that apply to us and to you, including Ethiopia’s personal data protection law and, for people in the UK, the UK GDPR. We use your information to provide the services you ask for, to keep the platform safe, to meet legal duties and, for news and offers, only with your consent.</p>
-          <p className="mt-3">You can see and update your details in your account, download a copy of your data (My account → Settings → Download my data), ask us to correct or delete it, and object to marketing. To delete your account, go to My account → Settings. For anything else, <Link href="/contact">contact us</Link>.</p>
+          <p className="mt-3">
+            You can see and update your details in your account and download a copy of the main details in your account (My account → Settings → Download my data); for a copy of everything else we hold about you, <Link href="/contact">contact us</Link>. You can also ask us to correct or delete your information, and object to marketing. To delete your account, go to My account → Settings. For anything else, <Link href="/contact">contact us</Link>.
+          </p>
+          <p className="mt-3">If you are unhappy with how we handle your information, please tell us first. You can also complain to the Ethiopian Communications Authority, which oversees personal data protection in Ethiopia, or, if you are in the UK, to the Information Commissioner&apos;s Office (ICO).</p>
+        </TextSection>
+        <TextSection title="Children">
+          <p>{brand.name} is for adults. You must be 18 or older to create an account or to apply for work through {brand.name}.</p>
         </TextSection>
         <TextSection title="Security">
           <p>Access to personal information is restricted, verification documents, applications and inspection photos are stored privately and opened through links that expire after 10 minutes, and contact details are only released one at a time on request.</p>

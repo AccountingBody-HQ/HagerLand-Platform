@@ -12,6 +12,8 @@ import { verifyTurnstileToken } from '@/lib/turnstile'
 import { absoluteUrl } from '@/lib/site'
 import { log, maskEmail } from '@/lib/log'
 import { spamCheckDrop } from '@/lib/spam-check'
+import { transferConsentMissing } from '@/lib/data-transfer'
+import { recordTransferConsent } from '@/lib/data-transfer-server'
 
 const GENERIC_AUTH_ERROR = 'Something went wrong. Please try again in a moment.'
 
@@ -27,6 +29,8 @@ function callbackUrl(next: string): string {
 
 export async function signUpAction(_prev: ActionResult<{ email: string }> | null, formData: FormData): Promise<ActionResult<{ email: string }>> {
   if (await spamCheckDrop(formData, 'sign_up')) return ok({ email: '' })
+  const noConsent = transferConsentMissing(formData)
+  if (noConsent) return noConsent
   const parsed = signupSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   if (await limited('signup', 5, 3600)) return fail('Too many sign-up attempts. Please wait an hour and try again.')
@@ -36,7 +40,7 @@ export async function signUpAction(_prev: ActionResult<{ email: string }> | null
   const { intent, full_name, email, phone, password } = parsed.data
   // After confirming, people return to where they started (e.g. a team invitation), else to onboarding.
   const next = formData.get('next') ? safeNextPath(formData.get('next')) : '/onboarding'
-  const { error } = await getServerSupabase().auth.signUp({
+  const { data: signed, error } = await getServerSupabase().auth.signUp({
     email,
     password,
     options: {
@@ -50,6 +54,8 @@ export async function signUpAction(_prev: ActionResult<{ email: string }> | null
     if (error.code === 'over_email_send_rate_limit') return fail('Too many emails sent. Please wait a few minutes and try again.')
     return fail(GENERIC_AUTH_ERROR)
   }
+  // QC-2: the new account's data-transfer consent (W17), so the account notice is never shown to it.
+  if (signed.user?.id) await recordTransferConsent({ form: 'sign_up', subjectTable: 'profiles', subjectId: signed.user.id })
   return ok({ email })
 }
 

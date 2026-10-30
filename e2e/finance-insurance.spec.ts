@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { adminSetPillarModes, asFreshVisitor, createProvider, db, randomPhone, seedPublishedProperty, setPillarModes, uniqueEmail } from './helpers'
+import { adminSetPillarModes, asFreshVisitor, createProvider, db, randomPhone, seedPublishedProperty, setPillarModes, uniqueEmail, tickTransferConsent } from './helpers'
 
 /** Finance and insurance through licensed partners (spec 24.8). */
 
@@ -49,6 +49,7 @@ test('with Aggregate on, finance requests go through the engine to a lender, and
     await page.fill('#sr-name', 'Finance Applicant')
     await page.fill('#sr-phone', randomPhone())
     await page.fill('#sr-email', uniqueEmail('finance'))
+    await tickTransferConsent(page)
     await page.getByRole('button', { name: 'Send my request' }).click()
     await page.waitForURL(/\/request-service\/sent/)
     const ref = new URL(page.url()).searchParams.get('ref') ?? ''

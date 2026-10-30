@@ -282,6 +282,8 @@
     "components/jobs/PhoneApplyForm.tsx"
   ],
   "I am 18 or older": [
+    "components/jobs/ApplyForm.tsx",
+    "components/jobs/CandidateForm.tsx",
     "components/jobs/PhoneApplyForm.tsx",
     "components/jobs/WorkerRegisterForm.tsx"
   ],
@@ -489,6 +491,9 @@
   ],
   "Photos or documents": [
     "components/service-requests/ServiceRequestForm.tsx"
+  ],
+  "Please check the highlighted fields.": [
+    "app/actions/job-actions.ts"
   ],
   "Please check the status and notes.": [
     "app/actions/job-actions.ts"

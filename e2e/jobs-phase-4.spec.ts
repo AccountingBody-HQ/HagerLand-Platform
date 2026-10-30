@@ -3,7 +3,7 @@ import crypto from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { createClient } from '@supabase/supabase-js'
 import { authenticator } from 'otplib'
-import { adminSession, allMail, asFreshVisitor, createProvider, createUser, db, mailWithSubject, randomPhone, signIn, uniqueEmail, submitStaffSignIn } from './helpers'
+import { adminSession, allMail, asFreshVisitor, createProvider, createUser, db, mailWithSubject, randomPhone, signIn, uniqueEmail, submitStaffSignIn, tickTransferConsent } from './helpers'
 
 /** Jobs Phase 4 (migration 0042): AB's journeys J1–J15 on the local copy only. */
 
@@ -280,6 +280,7 @@ test('J8: a visitor reports a job; a repeat shows the same thanks without a seco
     await sheet.getByLabel(reason).check()
     await sheet.getByLabel('What did you notice?').fill('They asked for a registration fee of 500 birr.')
     await sheet.getByLabel('Your phone or email').fill('0911000555')
+    await tickTransferConsent(sheet)
     await sheet.getByRole('button', { name: 'Send report' }).click()
     return sheet
   }
@@ -365,8 +366,9 @@ test('J10: reports switched off — no button, the server refuses', async ({ pag
   expect(await page.content()).not.toContain('Report this job')
   const manifest = JSON.parse(readFileSync('.next-test/server/server-reference-manifest.json', 'utf8')) as { node: Record<string, { exportedName?: string }> }
   const id = Object.entries(manifest.node).find(([, v]) => v.exportedName === 'submitJobReportAction')![0]
-  const res = await (await page.request.post(`/jobs/${fresh.slug}`, { headers: { 'Next-Action': id, Accept: 'text/x-component' }, multipart: { '0': '[null,"$K1"]', '1_job_id': fresh.id, '1_reason': 'fake_or_scam' } })).text()
-  expect(res).toContain('We could not send your report. Please try again.')
+  const res = await (await page.request.post(`/jobs/${fresh.slug}`, { headers: { 'Next-Action': id, Accept: 'text/x-component' }, multipart: { '0': '[null,"$K1"]', '1_job_id': fresh.id, '1_reason': 'fake_or_scam', '1_transfer_consent': 'on' } })).text()
+  // QC-2: a crafted request is refused either by the data-transfer check or by the switch; nothing is saved.
+  expect(res).toMatch(/We could not send your report\. Please try again\.|Tick the box to continue\./)
   expect((await db().from('job_reports').select('id').eq('job_post_id', fresh.id)).data).toHaveLength(0)
   await setSwitch(page, 'Report this job', true)
 })
@@ -431,6 +433,8 @@ test('J11: private-client jobs — four-eyes, the public label, no client identi
   await cp.goto(`/jobs/${j.slug}/apply`)
   await cp.getByLabel('Full name').fill('Private Applicant')
   await cp.getByLabel('Phone').fill(randomPhone())
+  await cp.locator('#ap-adult').check()
+  await tickTransferConsent(cp)
   await cp.getByRole('button', { name: 'Send application' }).click()
   await cp.waitForURL('**/account/applications?applied=*')
   const ref = new URL(cp.url()).searchParams.get('applied')!

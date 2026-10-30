@@ -200,6 +200,9 @@ export const AUDIT_SIX_YEARS = [
   'supply.order_request.payment',
   'supply.order_request.reversal',
   'supply.order_request.refunded',
+  // QC-2: the payment methods customers are told to use, and receipt numbers on payments, are money records.
+  'supply.payment_method.',
+  'supply.payment.receipt_number_set',
   // S6-3: settlements (payments to partners and their adjustments) are money records.
   'supply.settlement.',
   'settings.update',

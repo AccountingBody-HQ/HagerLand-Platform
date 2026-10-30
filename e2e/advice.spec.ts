@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { adminSession, asFreshVisitor, db, latestMail, seedPublishedProperty, uniqueEmail } from './helpers'
+import { adminSession, asFreshVisitor, db, latestMail, seedPublishedProperty, uniqueEmail, tickTransferConsent } from './helpers'
 
 /** Knowledge & Advice (spec 26.10): market insight, area guides, checklists and glossary drafts, newsletter. */
 
@@ -55,9 +55,11 @@ test('newsletter: separate consent is required and recorded; unsubscribe is one 
   await page.goto('/advice')
   const form = page.locator('form').filter({ has: page.getByRole('button', { name: 'Sign up' }) })
   await page.locator('#nl-email').fill(email)
+  await tickTransferConsent(form)
   await form.getByRole('button', { name: 'Sign up' }).click()
   await expect(form.getByText('Tick the box to agree to receive the newsletter')).toBeVisible()
-  await form.getByRole('checkbox').check()
+  await form.getByRole('checkbox', { name: /email me HagerLand/ }).check()
+  await tickTransferConsent(form)
   await form.getByRole('button', { name: 'Sign up' }).click()
   await expect(page.getByText('Thank you. Check your email for a confirmation.')).toBeVisible()
   const { data } = await db().from('newsletter_subscriptions').select('status, consent_text').eq('email', email).single()

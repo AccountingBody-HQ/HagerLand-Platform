@@ -6,7 +6,7 @@ import { submitPartnerRegistrationAction } from '@/app/actions/partner-registrat
 import { Checkbox, Field, Input, Textarea, describedBy } from '@/components/ui/Field'
 import { Combobox } from '@/components/ui/Combobox'
 import { PhoneInput } from '@/components/ui/PhoneInput'
-import { FormAlert, Honeypot, SubmitButton } from '@/components/forms/FormParts'
+import { FormAlert, Honeypot, SubmitButton, TransferConsent } from '@/components/forms/FormParts'
 import { Turnstile } from '@/components/forms/Turnstile'
 import { NoResetForm } from '@/components/forms/NoResetForm'
 import { CONSENT_TEXT, FORM_ROLES, type PartnerRole } from '@/lib/supply/partner-rules'
@@ -88,6 +88,7 @@ export function PartnerRegistrationForm({ categories, role }: { categories: { id
         <Checkbox id="pr-consent" name="consent" label={CONSENT_TEXT} aria-invalid={Boolean(errors.consent)} />
         {errors.consent && <p className="mt-1 text-small text-error">{errors.consent}</p>}
       </div>
+      <TransferConsent error={errors.transfer_consent} />
       <Turnstile action="partner_registration" />
       <SubmitButton fullWidth size="lg" pendingText="Sending…">
         Send registration

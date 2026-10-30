@@ -5,8 +5,8 @@ import { z } from 'zod'
 import { UNITS } from '@/lib/units'
 import { checkbox, decimalFromForm, intFromForm, nameSchema, optionalEmailSchema, optionalText, optionalUuid, phoneSchema, textSchema } from '@/lib/validation/common'
 
-/** Owner switches (all start off). Before HagerLand Ltd (Ethiopia), bank and VAT exist, only registration and the
- * homepage row may ever be switched on; ordering and trade pricing are used from later jobs (S6-2, S6-4). */
+/** Owner switches (all start off). Catalogue ordering and trade price agreements can be switched on only when their
+ * conditions are met (QC-2: unlockMissing below). */
 export const SUPPLY_SWITCH_KEYS = {
   registration: 'supply_partner_registration',
   catalogueOrdering: 'supply_catalogue_ordering',
@@ -14,8 +14,41 @@ export const SUPPLY_SWITCH_KEYS = {
   homeBusinessRow: 'home_business_row',
 } as const
 export type SupplySwitch = keyof typeof SUPPLY_SWITCH_KEYS
-/** Switches nothing uses yet: the owner page shows them off and refuses to switch them on (L10). */
-export const NOT_YET_USED: readonly SupplySwitch[] = ['catalogueOrdering', 'tradePricing']
+/** QC-2 (AB, LR-1): the owner's unlock for catalogue ordering and trade price agreements (approved admin wording). */
+export const UNLOCK_TEXT = {
+  ready: 'Can be switched on: an active payment method and the company name in Settings are in place.',
+  notYet: 'Cannot be switched on yet:',
+  needMethod: 'add an active payment method in Supplies → Payment methods',
+  needName: 'enter the company name in Settings → Legal entity',
+  needCatalogue: 'switch on Catalogue ordering first',
+} as const
+
+/** The switches that need the unlock conditions. */
+export const UNLOCK_SWITCHES: readonly SupplySwitch[] = ['catalogueOrdering', 'tradePricing']
+
+export interface UnlockFacts {
+  activePaymentMethods: number
+  legalName: string
+  catalogueOrdering: boolean
+}
+
+/**
+ * What is still missing before a switch may be turned on (empty: it may). Both need an active payment method and
+ * the company name in Settings → Legal entity; trade price agreements also need catalogue ordering on (S6-4).
+ */
+export function unlockMissing(which: SupplySwitch, f: UnlockFacts): string[] {
+  if (!UNLOCK_SWITCHES.includes(which)) return []
+  const missing: string[] = []
+  if (f.activePaymentMethods < 1) missing.push(UNLOCK_TEXT.needMethod)
+  if (!f.legalName.trim()) missing.push(UNLOCK_TEXT.needName)
+  if (which === 'tradePricing' && !f.catalogueOrdering) missing.push(UNLOCK_TEXT.needCatalogue)
+  return missing
+}
+
+/** The admin line under a switch: ready, or "Cannot be switched on yet:" and what is missing. */
+export function unlockLine(missing: readonly string[]): string {
+  return missing.length ? `${UNLOCK_TEXT.notYet} ${missing.join('; ')}.` : UNLOCK_TEXT.ready
+}
 
 /** The public path family. */
 export const REGISTER_PATH = '/sell-through-hagerland/register'

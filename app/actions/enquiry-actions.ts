@@ -16,6 +16,8 @@ import { log } from '@/lib/log'
 import { formatPhone } from '@/lib/format'
 import { parseUtm } from '@/lib/utm'
 import { spamCheckDrop } from '@/lib/spam-check'
+import { transferConsentMissing } from '@/lib/data-transfer'
+import { recordTransferConsent } from '@/lib/data-transfer-server'
 
 const schema = z
   .object({
@@ -43,6 +45,8 @@ export type EnquiryState = ActionResult<{ reference: string }> | null
 /** Unified enquiry submission (spec 12). */
 export async function submitEnquiryAction(_prev: EnquiryState, formData: FormData): Promise<EnquiryState> {
   if (await spamCheckDrop(formData, 'submit_enquiry')) return ok({ reference: 'HLE-0' })
+  const noConsent = transferConsentMissing(formData)
+  if (noConsent) return noConsent
   const parsed = schema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   const d = parsed.data
@@ -125,5 +129,6 @@ export async function submitEnquiryAction(_prev: EnquiryState, formData: FormDat
         : enquiryConfirmationEmail({ name: d.name, reference: row.reference, targetLabel: target.label, recipientLabel: target.recipientName, message: d.message })),
     })
   }
+  await recordTransferConsent({ form: 'enquiry', subjectTable: 'enquiries', subjectId: row.id, subjectReference: row.reference })
   return ok({ reference: row.reference })
 }

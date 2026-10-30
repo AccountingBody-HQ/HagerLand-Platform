@@ -12,6 +12,9 @@ export const brand = {
   /** Short form of the master line for page titles (≤ 60 characters with the name). */
   titleLine: 'Property, construction and everything around it',
   descriptor: "Ethiopia's construction and property platform",
+  /** QC-2 (AB, LR-1): the company customers deal with, shown in email footers, the privacy policy and structured data. */
+  legalName: 'HagerLand LTD',
+  legalAddress: 'Addis Ababa, Ethiopia',
   divisions: {
     supply: 'HagerLand Supply',
     developments: 'HagerLand Developments',

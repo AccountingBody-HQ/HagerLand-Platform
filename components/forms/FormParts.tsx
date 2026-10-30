@@ -1,11 +1,13 @@
 'use client'
 
-import type { ReactNode } from 'react'
+import { useId, type ReactNode } from 'react'
 import { useFormPending } from '@/components/forms/NoResetForm'
 import { CircleAlert, CircleCheck, Info } from 'lucide-react'
 import { Button, type ButtonProps } from '@/components/ui/Button'
 import { cn } from '@/lib/cn'
 import { HONEYPOT_FIELD } from '@/lib/honeypot'
+import { Checkbox } from '@/components/ui/Field'
+import { TRANSFER_CONSENT_FIELD, TRANSFER_CONSENT_TEXT } from '@/lib/data-transfer'
 
 /** Submit button that shows a spinner and blocks double-submits while the action runs. */
 export function SubmitButton({ children, pendingText, ...rest }: ButtonProps & { pendingText?: string }) {
@@ -56,6 +58,20 @@ export function Honeypot() {
         spellCheck={false}
         defaultValue=""
       />
+    </div>
+  )
+}
+
+/**
+ * QC-2 (W17): the shared, required data-transfer tick, built once for every public form. The server checks it again
+ * (lib/data-transfer.ts). `label` lets a form pass the same text through its translation function.
+ */
+export function TransferConsent({ error, label }: { error?: string; label?: string }) {
+  const id = useId()
+  return (
+    <div className={error ? 'rounded-md ring-2 ring-error' : undefined}>
+      <Checkbox id={`tc-${id}`} name={TRANSFER_CONSENT_FIELD} label={label ?? TRANSFER_CONSENT_TEXT} required aria-invalid={error ? true : undefined} />
+      {error && <p className="mt-1 text-small text-error">{error}</p>}
     </div>
   )
 }

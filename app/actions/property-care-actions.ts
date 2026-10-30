@@ -20,6 +20,8 @@ import { formatPhone } from '@/lib/format'
 import { parseUtm } from '@/lib/utm'
 import { log } from '@/lib/log'
 import { spamCheckDrop } from '@/lib/spam-check'
+import { transferConsentMissing } from '@/lib/data-transfer'
+import { recordTransferConsent } from '@/lib/data-transfer-server'
 
 export type CareState = ActionResult<{ reference: string }> | null
 
@@ -48,6 +50,8 @@ const schema = z
 /** "Request a consultation" for HagerLand Property Care (spec 24.6). Goes to the Property Care pipeline in admin. */
 export async function requestPropertyCareAction(_prev: CareState, formData: FormData): Promise<CareState> {
   if (await spamCheckDrop(formData, 'request_property_care')) return ok({ reference: 'HLC-0' })
+  const noConsent = transferConsentMissing(formData)
+  if (noConsent) return noConsent
   const parsed = schema.safeParse({ ...Object.fromEntries(formData), services: formData.getAll('services') })
   if (!parsed.success) return invalid(parsed.error)
   const d = parsed.data
@@ -101,5 +105,6 @@ export async function requestPropertyCareAction(_prev: CareState, formData: Form
       }),
     })
   }
+  await recordTransferConsent({ form: 'property_care', subjectTable: 'property_care_requests', subjectId: row.id, subjectReference: row.reference })
   return ok({ reference: row.reference })
 }

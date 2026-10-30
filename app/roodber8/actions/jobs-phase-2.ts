@@ -71,6 +71,8 @@ export async function setJobsSwitchAction(which: string, on: boolean, lawyerConf
   revalidatePath('/roodber8/jobs', 'layout')
   // Jobs Phase 6: job lists outside /jobs (company pages, site search) read the same cached job data.
   revalidateTag(listTag('job'))
+  // QC-2 (W37): the "Anyone can report a job" sentence on /terms follows the reports switch.
+  if (parsed.data.which === 'reports') revalidatePath('/terms')
   if (parsed.data.which === 'private_client') {
     revalidatePath('/terms')
     revalidatePath('/sitemap/jobs.xml')

@@ -2,7 +2,7 @@ import 'server-only'
 import { brand } from '@/lib/brand'
 import { formatETBCents, formatDate } from '@/lib/format'
 import { canonicalUrl } from '@/lib/site'
-import { renderEmail, type RenderedEmail } from './layout'
+import { renderEmail, type EmailList, type RenderedEmail } from './layout'
 import { ATTENTION_TODAY, NOTHING_TODAY } from '@/lib/cron/digest-text'
 
 const LISTER_REASON = 'You are receiving this because you have a listing or business profile on HagerLand.'
@@ -166,7 +166,7 @@ export function quoteIssuedEmail(p: { name: string; reference: string; totalCent
     heading: 'Your quote is ready',
     paragraphs: [
       `Hello ${p.name},`,
-      p.totalCents !== null ? `Your quote total is ${formatETBCents(p.totalCents)}.` : 'Your quote is ready.',
+      p.totalCents !== null ? `Your quote total is ${formatETBCents(p.totalCents)}, including VAT.` : 'Your quote is ready.',
       p.hasDocument ? 'You can view the full quote from your account, or reply to this email for a copy.' : '',
       `Prices are valid for ${p.validDays} days unless stated otherwise. Reply to this email or call us to confirm your order and delivery.`,
     ].filter(Boolean),
@@ -623,14 +623,15 @@ export function partnerRegistrationInternalEmail(p: { reference: string; busines
 // an email. The first email carries the private link to the order request page; the footer reuses the existing
 // enquiry sentence, so no new public wording is added.
 // ---------------------------------------------------------------------------------------------------------------
-const ORDER_REQUEST_REASON = 'You are receiving this because you sent an enquiry on HagerLand.'
+const ORDER_REQUEST_REASON = 'You are receiving this because you sent an order request to HagerLand Supply.'
 
-function orderRequestEmail(subject: string, body: string, link?: { reference: string; href: string }): RenderedEmail {
+function orderRequestEmail(subject: string, body: string | (string | EmailList)[], link?: { reference: string; href: string }): RenderedEmail {
+  const paragraphs = typeof body === 'string' ? [body] : body
   return renderEmail({
     subject,
-    preheader: body,
+    preheader: typeof paragraphs[0] === 'string' ? paragraphs[0] : subject,
     heading: subject,
-    paragraphs: [body],
+    paragraphs,
     ...(link ? { button: { label: `Order request ${link.reference}`, href: link.href } } : {}),
     reason: ORDER_REQUEST_REASON,
   })
@@ -640,11 +641,13 @@ export function orderRequestReceivedEmail(p: { reference: string; link: string }
   return orderRequestEmail(`We received your order request (${p.reference})`, 'Thank you. We are checking stock and will contact you. You have not paid anything yet.', { reference: p.reference, href: p.link })
 }
 
-export function orderRequestReservedEmail(p: { reference: string; until: string; amount: string; paymentDetails: string }): RenderedEmail {
-  return orderRequestEmail(
-    `Your items are reserved (${p.reference})`,
-    `Good news: we have reserved your items until ${p.until} (Addis Ababa time). To confirm your order, pay ${p.amount} to HagerLand by then. Please include ${p.reference} with your payment. Payment details: ${p.paymentDetails}. If we do not receive payment by then, the reservation ends and you will not be charged.`,
-  )
+/** QC-2 (W13): the amount includes VAT, and "How to pay" lists the owner's active payment methods (name, then how). */
+export function orderRequestReservedEmail(p: { reference: string; until: string; amount: string; methods: { name: string; instructions: string }[] }): RenderedEmail {
+  return orderRequestEmail(`Your items are reserved (${p.reference})`, [
+    `Good news: we have reserved your items until ${p.until} (Addis Ababa time). To confirm your order, pay ${p.amount} (including VAT) to HagerLand by then. Please include ${p.reference} with your payment. How to pay:`,
+    { items: p.methods.map((m) => ({ title: m.name, text: m.instructions })) },
+    'If we do not receive payment by then, the reservation ends and you will not be charged.',
+  ])
 }
 
 export function orderRequestPartialEmail(p: { reference: string; available: string; unavailable: string }): RenderedEmail {
@@ -665,8 +668,10 @@ export function orderRequestExpiredEmail(p: { reference: string }): RenderedEmai
   )
 }
 
-export function orderRequestPaidEmail(p: { reference: string; amount: string }): RenderedEmail {
-  return orderRequestEmail(`Payment received (${p.reference})`, `Thank you. We received ${p.amount} for ${p.reference}. We will contact you to arrange delivery.`)
+/** QC-2 (W14): the receipt number sentence appears only when a receipt number is recorded on the payment. */
+export function orderRequestPaidEmail(p: { reference: string; amount: string; receiptNumber?: string | null }): RenderedEmail {
+  const receipt = p.receiptNumber ? ` Your receipt number is ${p.receiptNumber}.` : ''
+  return orderRequestEmail(`Payment received (${p.reference})`, `Thank you. We received ${p.amount} for ${p.reference}.${receipt} We will contact you to arrange delivery.`)
 }
 
 export function orderRequestCancelledEmail(p: { reference: string; refundAmount: string | null }): RenderedEmail {

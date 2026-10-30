@@ -10,6 +10,7 @@ import { checkbox, textSchema } from '@/lib/validation/common'
 import { createManagedRepairRequest } from '@/lib/maintenance'
 import { serviceOn } from '@/lib/pillars'
 import { getPillars } from '@/lib/data/pillars'
+import { accountConsentRefusal } from '@/lib/data-transfer-server'
 
 export type RepairState = ActionResult<{ reference: string }> | null
 
@@ -25,6 +26,9 @@ const schema = z.object({
  */
 export async function reportRepairAction(source: 'tenancy' | 'owner', recordId: string, _prev: RepairState, formData: FormData): Promise<RepairState> {
   const user = await requireUser('/account')
+  // QC-2: signed-in forms rely on the account's data-transfer notice (confirmed at the top of the account pages).
+  const consentRefusal = await accountConsentRefusal(user.id)
+  if (consentRefusal) return fail(consentRefusal)
   if (!z.uuid().safeParse(recordId).success) return fail('Not found.')
   const p = schema.safeParse(Object.fromEntries(formData))
   if (!p.success) return invalid(p.error)

@@ -7,7 +7,7 @@ import { CircleCheck } from 'lucide-react'
 import { submitEnquiryAction } from '@/app/actions/enquiry-actions'
 import { Field, Input, Select, Textarea, describedBy } from '@/components/ui/Field'
 import { PhoneInput } from '@/components/ui/PhoneInput'
-import { FormAlert, Honeypot, SubmitButton } from '@/components/forms/FormParts'
+import { FormAlert, Honeypot, SubmitButton, TransferConsent } from '@/components/forms/FormParts'
 import { Turnstile } from '@/components/forms/Turnstile'
 import { readUtm } from './UtmCapture'
 import { track } from '@/lib/analytics'
@@ -180,6 +180,7 @@ export function EnquiryForm({
         </Select>
       </Field>
       {askCallTimes && <TimeZoneFields idPrefix={idPrefix} />}
+      <TransferConsent error={errors.transfer_consent} />
       <Turnstile action="enquiry" />
       <SubmitButton fullWidth size="lg" pendingText="Sending…">
         {submitLabel}

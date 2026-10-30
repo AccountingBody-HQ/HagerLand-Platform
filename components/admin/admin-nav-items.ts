@@ -1,6 +1,6 @@
 /** The admin menu (spec 18.2, 26), in groups. Staff see the items their role may open (lib/admin/roles.ts). */
 import {
-  type LucideIcon, Banknote, Scale, ShoppingCart, PackagePlus, ToggleRight, BadgePercent, BarChart3, MailWarning, BookOpen, Calculator, Briefcase, Building2, LayoutGrid, UserSearch, KeySquare, FileSignature, UserPlus, Coins, Wrench, ListChecks, Receipt, KeyRound, ClipboardCheck, ClipboardList, FileClock, FolderTree, Gauge, Import, Inbox, ShieldCheck, MapPin, Megaphone, Package, Settings, Store, Users, HandCoins, House, Layers, HardHat, Mail, Star, TrendingUp, Activity, UserCog, Truck, PackageCheck, BookText, FileBarChart, PhoneCall,
+  type LucideIcon, Wallet, Banknote, Scale, ShoppingCart, PackagePlus, ToggleRight, BadgePercent, BarChart3, MailWarning, BookOpen, Calculator, Briefcase, Building2, LayoutGrid, UserSearch, KeySquare, FileSignature, UserPlus, Coins, Wrench, ListChecks, Receipt, KeyRound, ClipboardCheck, ClipboardList, FileClock, FolderTree, Gauge, Import, Inbox, ShieldCheck, MapPin, Megaphone, Package, Settings, Store, Users, HandCoins, House, Layers, HardHat, Mail, Star, TrendingUp, Activity, UserCog, Truck, PackageCheck, BookText, FileBarChart, PhoneCall,
 } from 'lucide-react'
 import { roleCanAccess, type StaffRole } from '@/lib/admin/roles'
 
@@ -43,6 +43,7 @@ export const ADMIN_NAV_GROUPS: readonly AdminNavGroup[] = [
       { href: '/roodber8/supply/product-drafts', label: 'Partner product drafts', icon: PackagePlus, badgeKey: 'partnerDrafts' },
       { href: '/roodber8/supply/order-requests', label: 'Order requests', icon: ShoppingCart, badgeKey: 'orderRequests' },
       { href: '/roodber8/supply/switches', label: 'Supply switches', icon: ToggleRight },
+      { href: '/roodber8/supply/payment-methods', label: 'Payment methods', icon: Wallet },
       { href: '/roodber8/supply/orders', label: 'Supply orders', icon: PackageCheck },
       { href: '/roodber8/supply/performance', label: 'Partner performance', icon: Gauge },
       { href: '/roodber8/products', label: 'Products', icon: Package },

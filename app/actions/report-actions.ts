@@ -9,6 +9,8 @@ import { rateLimit } from '@/lib/rate-limit'
 import { verifyTurnstileToken } from '@/lib/turnstile'
 import { optionalText } from '@/lib/validation/common'
 import { spamCheckDrop } from '@/lib/spam-check'
+import { transferConsentMissing } from '@/lib/data-transfer'
+import { recordTransferConsent } from '@/lib/data-transfer-server'
 
 const schema = z.object({
   entity_type: z.enum(['property', 'development', 'organisation', 'product']),
@@ -20,6 +22,8 @@ const schema = z.object({
 
 export async function submitReportAction(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
   if (await spamCheckDrop(formData, 'submit_report')) return ok(undefined)
+  const noConsent = transferConsentMissing(formData)
+  if (noConsent) return noConsent
   const parsed = schema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   const ip = getClientIp(await headers())
@@ -28,5 +32,6 @@ export async function submitReportAction(_prev: ActionResult | null, formData: F
   if (!(await verifyTurnstileToken(formData.get('cf-turnstile-response') as string | null, ip))) return fail('Please complete the security check and try again.')
   const { error } = await getAdminSupabase().from('reports').insert({ ...parsed.data, details: parsed.data.details ?? null, reporter_contact: parsed.data.reporter_contact ?? null, ip_hash: ipHash })
   if (error) return fail('We could not send your report. Please try again.')
+  await recordTransferConsent({ form: 'report_listing', subjectTable: 'reports', subjectId: null, subjectReference: null })
   return ok(undefined, 'Thank you. Our team will look into it.')
 }

@@ -26,7 +26,7 @@ export function TradePrice({ productId, unit }: { productId: string; unit?: stri
   if (cents === null) return null
   return (
     <p className="mt-2 inline-flex items-center gap-1.5 rounded-md bg-gold-soft px-2.5 py-1 text-small font-semibold text-ink">
-      <BadgePercent className="size-4 text-gold" aria-hidden /> {unit ? TRADE_TEXT.productPrice(cents, unit) : `Your trade price: ${formatETBCents(cents)}`}
+      <BadgePercent className="size-4 text-gold" aria-hidden /> {unit ? TRADE_TEXT.productPrice(cents, unit) : `Your trade price: ${formatETBCents(cents)} (including VAT)`}
     </p>
   )
 }

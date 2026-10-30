@@ -7,6 +7,7 @@ import { getAdminSupabase } from '@/lib/supabase/admin'
 import { getUser } from '@/lib/auth'
 import { fail, invalid, ok, type ActionResult } from '@/lib/action-result'
 import { textSchema } from '@/lib/validation/common'
+import { accountConsentRefusal } from '@/lib/data-transfer-server'
 
 type Msg = ActionResult<{ message: string }>
 const FREQ = z.enum(['instant', 'daily', 'weekly', 'off'])
@@ -24,6 +25,9 @@ const schema = z.object({
 export async function saveSearchAction(_prev: Msg | null, formData: FormData): Promise<Msg> {
   const user = await getUser()
   if (!user) return fail('Sign in to save searches.')
+  // QC-2: signed-in forms rely on the account's data-transfer notice (confirmed at the top of the account pages).
+  const consentRefusal = await accountConsentRefusal(user.id)
+  if (consentRefusal) return fail(consentRefusal)
   const parsed = schema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   const d = parsed.data

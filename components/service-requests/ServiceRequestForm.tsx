@@ -9,7 +9,7 @@ import { Field, Input, Select, Textarea, describedBy } from '@/components/ui/Fie
 import { Combobox, type ComboOption } from '@/components/ui/Combobox'
 import { PhoneInput } from '@/components/ui/PhoneInput'
 import { FileDrop, type UploadedDoc } from '@/components/media/FileDrop'
-import { FormAlert, Honeypot, SubmitButton } from '@/components/forms/FormParts'
+import { FormAlert, Honeypot, SubmitButton, TransferConsent } from '@/components/forms/FormParts'
 import { Turnstile } from '@/components/forms/Turnstile'
 import { readUtm } from '@/components/enquiry/UtmCapture'
 import { COUNTRIES, OTHER_COUNTRY } from '@/lib/countries'
@@ -20,6 +20,7 @@ import { track } from '@/lib/analytics'
 import { NoResetForm } from '@/components/forms/NoResetForm'
 import { useJobsI18n } from '@/lib/i18n/client'
 import { fill, type Translate } from '@/lib/i18n/translate'
+import { TRANSFER_CONSENT_TEXT } from '@/lib/data-transfer'
 
 const asIs: Translate = (s) => s
 
@@ -327,6 +328,7 @@ export function ServiceRequestForm({
         </div>
       </fieldset>
 
+      <TransferConsent error={errors.transfer_consent} label={t(TRANSFER_CONSENT_TEXT)} />
       <Turnstile action="service_request" />
       <SubmitButton fullWidth size="lg" pendingText={t('Sending…')}>
         {t('Send my request')}

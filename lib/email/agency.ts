@@ -10,13 +10,13 @@ const account = (path: string) => ({ label: 'See it in your account', href: cano
 
 export function valuationReceivedEmail(p: { name: string; reference: string; preferredTimes: string | null }): RenderedEmail {
   return renderEmail({
-    subject: `Your valuation request (${p.reference})`,
+    subject: `Your market appraisal request (${p.reference})`,
     preheader: 'A HagerLand agent will contact you to arrange a visit.',
-    heading: 'Thank you: we will arrange your valuation',
+    heading: 'Thank you: we will arrange your market appraisal',
     paragraphs: [
       `Hello ${p.name},`,
-      `We have your request for a valuation by ${brand.name}'s estate agency. An agent will contact you${p.preferredTimes ? ` (you said: ${p.preferredTimes})` : ''} to arrange a visit.`,
-      'A valuation is our opinion of what the property could sell or let for. There is no obligation to instruct us afterwards.',
+      `We have your request for a market appraisal by ${brand.name}'s estate agency. An agent will contact you${p.preferredTimes ? ` (you said: ${p.preferredTimes})` : ''} to arrange a visit.`,
+      'A market appraisal is our opinion of what the property could sell or let for, not a formal valuation by a licensed valuer. There is no obligation to instruct us afterwards.',
     ],
     details: [['Reference', p.reference]],
     button: account('/account/agency'),

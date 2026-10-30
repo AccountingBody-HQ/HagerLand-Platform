@@ -21,8 +21,8 @@ export default async function QuoteSentPage(props: { searchParams: Promise<{ ref
         )}
         <ol className="mt-6 space-y-2 text-left text-muted">
           <li>1. {brand.divisions.supply} checks prices and availability for every item.</li>
-          <li>2. We contact you with one clear quote, including delivery.</li>
-          <li>3. You confirm, and we arrange payment and delivery with you directly.</li>
+          <li>2. We contact you with one clear quote, including VAT and delivery in Addis Ababa.</li>
+          <li>3. You confirm, pay HagerLand by one of the payment methods we give you, and we deliver.</li>
         </ol>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row [&>*]:flex-1">
           <ButtonLink href="/supplies">Back to supplies</ButtonLink>

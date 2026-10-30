@@ -3,7 +3,7 @@ import crypto from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { authenticator } from 'otplib'
-import { adminSession, assertLocalStack, createProvider, db, randomPhone, signUp, uniqueEmail, submitStaffSignIn } from './helpers'
+import { adminSession, assertLocalStack, createProvider, db, randomPhone, signUp, uniqueEmail, submitStaffSignIn, tickTransferConsent } from './helpers'
 
 /**
  * Tidy T-2 (migration 0045): AB's journeys J1–J13 on the local copy only. Switches are turned on here only on the
@@ -166,10 +166,12 @@ test('J3 + J4: staff send a phone-only staffing request from a call-back; nobody
   await fill(ops, `E2E T2 phone-only ${stamp}`)
   // "Email" as the preferred reply with no email is refused.
   await ops.locator('#sr-pref').selectOption('email')
+  await tickTransferConsent(ops)
   await ops.getByRole('button', { name: 'Send my request' }).click()
   await expect(ops.getByText('Choose phone, WhatsApp or Telegram, or add an email')).toBeVisible()
   await ops.locator('#sr-pref').selectOption('phone')
   const seen = new Set(await mailIds())
+  await tickTransferConsent(ops)
   await ops.getByRole('button', { name: 'Send my request' }).click()
   await ops.waitForURL('**/roodber8/jobs/callbacks?made=HLS-*')
   const ref = new URL(ops.url()).searchParams.get('made') ?? ''
@@ -191,6 +193,7 @@ test('J3 + J4: staff send a phone-only staffing request from a call-back; nobody
     await p.goto(url)
     await fill(p, `E2E T2 refused ${Math.random()}`)
     if (extra) await extra(p)
+    await tickTransferConsent(p)
     await p.getByRole('button', { name: 'Send my request' }).click()
     await expect(p.getByText('Enter a valid email address')).toBeVisible()
   }

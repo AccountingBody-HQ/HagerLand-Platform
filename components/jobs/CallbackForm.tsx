@@ -5,12 +5,13 @@ import { CircleCheck } from 'lucide-react'
 import { submitCallbackAction, type CallbackFormState } from '@/app/actions/callback-actions'
 import { Checkbox, Field, Input, Select, Textarea, describedBy } from '@/components/ui/Field'
 import { PhoneInput } from '@/components/ui/PhoneInput'
-import { FormAlert, Honeypot, SubmitButton } from '@/components/forms/FormParts'
+import { FormAlert, Honeypot, SubmitButton, TransferConsent } from '@/components/forms/FormParts'
 import { Turnstile } from '@/components/forms/Turnstile'
 import { NoResetForm } from '@/components/forms/NoResetForm'
 import { useJobsI18n } from '@/lib/i18n/client'
 import { CALLBACK_LANGUAGES, CALLBACK_TEXT, CALLBACK_TIMES } from '@/lib/callbacks'
 import { ChoiceChips } from './ChoiceChips'
+import { TRANSFER_CONSENT_TEXT } from '@/lib/data-transfer'
 
 /** "Ask for a call" (Jobs Phase 5, AB's approved wording W10–W14). `countries`: the existing "outside Ethiopia" list. */
 export function CallbackForm({ countries }: { countries: { code: string; name: string }[] }) {
@@ -67,6 +68,7 @@ export function CallbackForm({ countries }: { countries: { code: string; name: s
       <div className={bad('consent') ? 'rounded-md ring-2 ring-error' : undefined}>
         <Checkbox id="cb-consent" name="consent" label={t(CALLBACK_TEXT.consent)} required aria-invalid={bad('consent') || undefined} />
       </div>
+      <TransferConsent error={errors.transfer_consent} label={t(TRANSFER_CONSENT_TEXT)} />
       <Turnstile action="job_callback" />
       <SubmitButton fullWidth size="lg" pendingText={t('Sending…')}>
         {t(CALLBACK_TEXT.submit)}

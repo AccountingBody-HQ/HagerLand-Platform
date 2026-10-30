@@ -7,7 +7,7 @@ import { requestPropertyCareAction } from '@/app/actions/property-care-actions'
 import { Checkbox, Field, Input, Select, Textarea, describedBy } from '@/components/ui/Field'
 import { Combobox } from '@/components/ui/Combobox'
 import { PhoneInput } from '@/components/ui/PhoneInput'
-import { FormAlert, Honeypot, SubmitButton } from '@/components/forms/FormParts'
+import { FormAlert, Honeypot, SubmitButton, TransferConsent } from '@/components/forms/FormParts'
 import { Turnstile } from '@/components/forms/Turnstile'
 import { readUtm } from '@/components/enquiry/UtmCapture'
 import { COUNTRIES, OTHER_COUNTRY, countryByCode } from '@/lib/countries'
@@ -151,6 +151,7 @@ export function PropertyCareForm() {
         <Textarea id="pc-msg" name="message" rows={4} maxLength={2000} />
       </Field>
       <Checkbox id="pc-consent" name="marketing_consent" label="Also send me occasional HagerLand news" description="Optional. You can unsubscribe at any time." />
+      <TransferConsent error={errors.transfer_consent} />
       <Turnstile action="property_care" />
       <SubmitButton fullWidth size="lg" pendingText="Sending…">
         Request a consultation

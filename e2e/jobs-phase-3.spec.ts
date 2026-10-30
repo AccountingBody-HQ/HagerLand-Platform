@@ -3,7 +3,7 @@ import crypto from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { createClient } from '@supabase/supabase-js'
 import { authenticator } from 'otplib'
-import { adminSession, allMail, asFreshVisitor, createProvider, createUser, db, linkMatching, mailWithSubject, randomPhone, signIn, uniqueEmail, submitStaffSignIn } from './helpers'
+import { adminSession, allMail, asFreshVisitor, createProvider, createUser, db, linkMatching, mailWithSubject, randomPhone, signIn, uniqueEmail, submitStaffSignIn, tickTransferConsent } from './helpers'
 
 /** Jobs Phase 3 (migration 0041): AB's journeys J1–J8 for the recruitment desk, on the local copy only. */
 
@@ -104,6 +104,7 @@ async function sendStaffing(page: Page, o: { email: string; abroad: 'Yes' | 'No'
   await expect(page.getByText('This helps us arrange calls at a time that suits you.')).toBeVisible()
   await page.locator('fieldset', { hasText: 'Are you based outside Ethiopia?' }).getByText(o.abroad, { exact: true }).click()
   if (o.country) await page.getByLabel('Which country are you in?').selectOption({ label: o.country })
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Send my request' }).click()
   await page.waitForURL('**/request-service/sent?ref=*')
   const { data } = await db().from('service_requests').select('id, reference, answers').eq('title', o.title).single()
@@ -189,6 +190,7 @@ test('J1: staffing requests with the abroad question; assigning opens one desk a
   await page.getByLabel('Your name').fill('No Answer')
   await page.locator('#sr-phone').fill(randomPhone())
   await page.getByLabel('Email').fill(uniqueEmail('p3-noanswer'))
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Send my request' }).click()
   await page.waitForURL('**/request-service/sent?ref=*')
   const { data: unanswered } = await db().from('service_requests').select('answers').eq('title', `E2E P3 no answer ${stamp}`).single()
@@ -206,6 +208,7 @@ test('J1: staffing requests with the abroad question; assigning opens one desk a
   await page.locator('#sr-phone').fill(randomPhone())
   await page.getByLabel('Email').fill(uniqueEmail('p3-nocountry'))
   await page.locator('fieldset', { hasText: 'Are you based outside Ethiopia?' }).getByText('Yes', { exact: true }).click()
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Send my request' }).click()
   await expect(page.getByText('Choose one of the options')).toBeVisible()
   expect((await db().from('service_requests').select('id').eq('title', `E2E P3 no country ${stamp}`)).data ?? []).toHaveLength(0)

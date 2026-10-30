@@ -2,7 +2,7 @@ import crypto from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { authenticator } from 'otplib'
-import { adminSession, asFreshVisitor, assertLocalStack, createUser, db, mailWithSubject, signIn, submitStaffSignIn, uniqueEmail } from './helpers'
+import { adminSession, asFreshVisitor, assertLocalStack, createUser, db, mailWithSubject, signIn, submitStaffSignIn, uniqueEmail, tickTransferConsent } from './helpers'
 
 /**
  * S6-4 per-customer trade prices and multi-item trade order requests, on the local copy and local mail catcher only.
@@ -15,7 +15,8 @@ test.beforeAll(() => assertLocalStack())
 test.beforeEach(({}, info) => test.skip(info.project.name !== 'desktop', 'server journeys at one width (the 375 px checks set their own size)'))
 
 const stamp = Date.now()
-const PAYMENT_DETAILS = `CBE account 1000 2345 6789, HagerLand Supply ${stamp}`
+// QC-2: an active payment method (replaces the old single payment-details text).
+const METHOD = { name: `CBE Birr ${stamp}`, instructions: `Account 1000 2345 6789, HagerLand LTD ${stamp}` }
 const NAMES = { p1: `Paving slab S64 ${stamp}`, p2: `Kerb stone S64 ${stamp}`, p3: `Garden fence S64 ${stamp}` }
 const PARTNER_1 = `Sululta Stone S64 ${stamp}`
 const PARTNER_2 = `Burayu Fencing S64 ${stamp}`
@@ -26,7 +27,8 @@ function psql(sql: string): string {
 }
 function switches(on: boolean) {
   psql(`update public.site_settings set value = '${on}'::jsonb where key in ('supply_catalogue_ordering', 'supply_trade_pricing')`)
-  psql(`update public.site_settings set value = '${on ? JSON.stringify(PAYMENT_DETAILS) : '""'}'::jsonb where key = 'supply_payment_details'`)
+  psql(`delete from public.supply_payment_methods where name = '${METHOD.name}'`)
+  if (on) psql(`insert into public.supply_payment_methods (name, instructions) values ('${METHOD.name}', '${METHOD.instructions}')`)
 }
 function addisLocal(msFromNow: number): string {
   const p = new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Addis_Ababa', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).formatToParts(new Date(Date.now() + msFromNow))
@@ -127,7 +129,7 @@ async function accountPage(browser: Browser, who: Person, width = 1280): Promise
 async function switchesOffChecks(browser: Browser) {
   const a = await accountPage(browser, seeded.a!)
   // The existing general trade price, with its existing wording (no "per bag"); nothing where there is none.
-  expect(await tradePriceText(a, seeded.p!.p1.slug)).toBe('Your trade price: ETB 740')
+  expect(await tradePriceText(a, seeded.p!.p1.slug)).toBe('Your trade price: ETB 740 (including VAT)')
   expect(await tradePriceText(a, seeded.p!.p2.slug)).toBeNull()
   await expect(a.getByRole('link', { name: 'Request to order' })).toHaveCount(0)
   await fillBasket(a, basket())
@@ -140,7 +142,7 @@ async function switchesOffChecks(browser: Browser) {
   await expect(a.getByRole('link', { name: 'Your trade orders' })).toHaveCount(0)
   await a.close()
   const b = await accountPage(browser, seeded.b!)
-  expect(await tradePriceText(b, seeded.p!.p1.slug)).toBe('Your trade price: ETB 740')
+  expect(await tradePriceText(b, seeded.p!.p1.slug)).toBe('Your trade price: ETB 740 (including VAT)')
   await b.close()
   const visitor = await browser.newPage()
   await asFreshVisitor(visitor)
@@ -234,13 +236,13 @@ test('the owner adds trade prices for customer A; below cost and overlaps are re
 test('switches on: A sees their own prices per unit; B sees the general one; a visitor sees nothing (375 px)', async ({ browser }) => {
   switches(true)
   const a = await accountPage(browser, seeded.a!, 375)
-  expect(await tradePriceText(a, seeded.p!.p1.slug)).toBe('Your trade price: ETB 750 per bag')
+  expect(await tradePriceText(a, seeded.p!.p1.slug)).toBe('Your trade price: ETB 750 per bag (including VAT)')
   await noHorizontalScroll(a)
-  expect(await tradePriceText(a, seeded.p!.p2.slug)).toBe('Your trade price: ETB 522.50 per bag')
-  expect(await tradePriceText(a, seeded.p!.p3.slug)).toBe('Your trade price: ETB 1,125.92 per bag')
+  expect(await tradePriceText(a, seeded.p!.p2.slug)).toBe('Your trade price: ETB 522.50 per bag (including VAT)')
+  expect(await tradePriceText(a, seeded.p!.p3.slug)).toBe('Your trade price: ETB 1,125.92 per bag (including VAT)')
   // A's prices never reach anyone else, even when asked for directly.
   const asB = await accountPage(browser, seeded.b!, 375)
-  expect(await tradePriceText(asB, seeded.p!.p1.slug)).toBe('Your trade price: ETB 740 per bag')
+  expect(await tradePriceText(asB, seeded.p!.p1.slug)).toBe('Your trade price: ETB 740 per bag (including VAT)')
   expect(await tradePriceText(asB, seeded.p!.p2.slug)).toBeNull()
   const bApi = await asB.request.get(`/api/trade-prices?ids=${seeded.p!.p1.id},${seeded.p!.p2.id},${seeded.p!.p3.id}&effective=1`)
   expect(await bApi.json()).toEqual({ prices: { [seeded.p!.p1.id]: 74000 } })
@@ -278,6 +280,7 @@ test('A orders the whole basket (3 items, 2 partners) as one order request; a cu
   await a.locator('#or-area').fill('Bole')
   await a.getByRole('option', { name: /^Bole/ }).first().click()
   await a.fill('#or-address', CUSTOMER.address)
+  await tickTransferConsent(a)
   await a.getByRole('button', { name: 'Send order request' }).click()
   await a.waitForURL(/\/supplies\/order-requests\/[A-Za-z0-9_-]{43}\?sent=1$/)
   const reference = (await a.locator('h1').textContent())!.replace('Order request ', '').trim()
@@ -350,7 +353,7 @@ test('stock check → reservation priced from A’s trade terms (one override, i
   const card = a.locator('li', { hasText: journey.reference! })
   await expect(card).toContainText('12,350.00')
   await expect(card).toContainText('5,000.00')
-  await expect(card).toContainText(/Reserved until .* \(Addis Ababa time\): pay ETB 12,350 by then/)
+  await expect(card).toContainText(/Reserved until .* \(Addis Ababa time\): pay ETB 12,350 \(including VAT\) by then/)
   await noHorizontalScroll(a)
   // The reference opens the S6-2 order request page.
   await card.getByRole('link', { name: journey.reference! }).click()

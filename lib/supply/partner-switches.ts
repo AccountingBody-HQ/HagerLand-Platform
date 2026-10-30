@@ -3,7 +3,7 @@ import { cache } from 'react'
 import { unstable_cache } from 'next/cache'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { log } from '@/lib/log'
-import { SUPPLY_SWITCH_KEYS, type SupplySwitch } from '@/lib/supply/partner-rules'
+import { SUPPLY_SWITCH_KEYS, type SupplySwitch, type UnlockFacts } from '@/lib/supply/partner-rules'
 
 /**
  * S6-1 owner switches (site_settings, never public; migration 0048 adds them all off). If the settings cannot be read,
@@ -42,3 +42,21 @@ export const readSupplySwitches = cache(readFromDatabase)
  * those paths, so a change shows at once; otherwise it is re-read within 5 minutes.
  */
 export const readSupplySwitchesCached = unstable_cache(readFromDatabase, ['supply-switches'], { tags: [SUPPLY_SWITCHES_TAG], revalidate: 300 })
+
+/**
+ * QC-2: the facts behind the owner's unlock, read fresh (never cached) at the moment of switching. A read that fails
+ * counts as "not in place", so a switch is never turned on by mistake.
+ */
+export async function readUnlockFacts(): Promise<UnlockFacts> {
+  const db = getAdminSupabase()
+  const [methods, legal, switches] = await Promise.all([
+    db.from('supply_payment_methods').select('id', { count: 'exact', head: true }).eq('active', true),
+    db.from('site_settings').select('value').eq('key', 'legal_entity').maybeSingle(),
+    readFromDatabase(),
+  ])
+  if (methods.error) log.error('supply', 'payment methods could not be counted', methods.error)
+  if (legal.error) log.error('supply', 'legal entity could not be read', legal.error)
+  const value = legal.data?.value
+  const name = !legal.error && value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>).name : ''
+  return { activePaymentMethods: methods.error ? 0 : (methods.count ?? 0), legalName: typeof name === 'string' ? name : '', catalogueOrdering: switches.catalogueOrdering }
+}
