@@ -417,7 +417,7 @@ describe('approved wording W1–W41, verbatim', () => {
   })
   it('verification, developments and market appraisal (W31–W33, W36, W38–W40)', async () => {
     expect(read('app/(site)/how-it-works/page.tsx')).toContain('We checked the business’s trade licence and tax number (TIN), and the licence grade for contractors. The date of the check is shown on the badge.')
-    expect(read('lib/org-labels.ts')).toContain("Verified: HagerLand checked this business's trade licence and tax number.")
+    expect(read('lib/org-labels.ts')).toContain("Verified: HagerLand checked this business's trade licence.")
     expect(read('app/(site)/agents/page.tsx')).toContain('Verified agents have had their trade licence and tax number checked.')
     expect(read('app/(site)/contractors/page.tsx')).toContain('Businesses marked Verified have had their trade licence and tax number checked by HagerLand;')
     expect(read('app/(site)/professionals/[service]/[[...location]]/page.tsx')).toContain('Verified businesses have had their trade licence and tax number checked by our team.')

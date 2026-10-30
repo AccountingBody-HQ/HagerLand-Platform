@@ -44,7 +44,7 @@ export const PILLAR_CONTENT: Record<PillarKey, PillarContent> = {
       { label: 'Sell with HagerLand', href: '/agency/sell', icon: 'handshake', agency: 'sales' },
     ],
     direct: [
-      { label: 'Sell with HagerLand', href: '/agency/sell', text: 'Valuation, marketing, viewings and offers handled by our agents.', icon: 'handshake', agency: 'sales' },
+      { label: 'Sell with HagerLand', href: '/agency/sell', text: 'Market appraisal, marketing, viewings and offers handled by our agents.', icon: 'handshake', agency: 'sales' },
       { label: 'Buyer representation', href: '/agency/buyer-representation', text: 'We search, check and negotiate on your behalf.', icon: 'user-check', agency: 'sales' },
       { label: 'Property sourcing', href: '/agency/property-sourcing', text: 'Tell us your brief and we find what fits.', icon: 'search-check', agency: 'sales' },
       { label: 'Developer sales', href: '/agency/developer-sales', text: 'Sales and marketing for developers’ projects.', icon: 'building-2', agency: 'sales' },

@@ -63,7 +63,7 @@ export async function CategoryPage({ categorySlug, subSlug, searchParams }: { ca
       <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="hl-h1">{current.name}</h1>
-          <p className="mt-2 max-w-3xl text-muted">{current.seo_intro ?? `${current.name} from HagerLand Supply. Add items to your quote list, or send your full materials list for one clear price with delivery.`}</p>
+          <p className="mt-2 max-w-3xl text-muted">{current.seo_intro ?? `${current.name} from HagerLand Supply. Add items to your quote list, or send your full materials list for one clear price with delivery in Addis Ababa.`}</p>
         </div>
         <QuoteListLink />
       </div>

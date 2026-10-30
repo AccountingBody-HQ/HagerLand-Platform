@@ -22,7 +22,7 @@ export const AGENCY_SERVICES: AgencyService[] = [
     title: 'Sell with HagerLand',
     short: 'We market your property, arrange viewings and negotiate for you.',
     intro: 'Selling a home, land or a commercial property in Ethiopia takes time and local knowledge. We can handle the sale for you, from the asking price to the signed agreement.',
-    includes: ['Advice on the asking price, with a valuation if you want one', 'Photos and a clear listing marked “Marketed by HagerLand”', 'Checking buyers and arranging viewings', 'Negotiating offers on your behalf', 'Coordinating the paperwork with lawyers and the authorities'],
+    includes: ['Advice on the asking price, with a market appraisal if you want one', 'Photos and a clear listing marked “Marketed by HagerLand”', 'Checking buyers and arranging viewings', 'Negotiating offers on your behalf', 'Coordinating the paperwork with lawyers and the authorities'],
     steps: [
       { title: 'Talk to us', text: 'Tell us about the property and your plans.' },
       { title: 'Agree terms', text: 'We confirm in writing what we will do and our fee.' },
@@ -135,7 +135,7 @@ export const AGENCY_CAPABILITIES: { label: string; slug: string }[] = [
   { label: 'Seller representation', slug: 'sell' },
   { label: 'Property sourcing', slug: 'property-sourcing' },
   { label: 'Property marketing', slug: 'sell' },
-  { label: 'Valuation coordination', slug: 'sell' },
+  { label: 'Market appraisal coordination', slug: 'sell' },
   { label: 'Viewing coordination', slug: 'buyer-representation' },
   { label: 'Negotiation assistance', slug: 'buyer-representation' },
   { label: 'Diaspora property acquisition', slug: 'property-sourcing' },

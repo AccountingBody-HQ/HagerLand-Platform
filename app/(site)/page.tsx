@@ -210,7 +210,7 @@ export default async function HomePage() {
             <ol className="mt-6 space-y-4">
               {[
                 { icon: FileText, text: 'Send your list, or add products to a quote' },
-                { icon: ClipboardList, text: 'Get one clear price, including delivery' },
+                { icon: ClipboardList, text: 'Get one clear price, including delivery in Addis Ababa' },
                 { icon: Truck, text: 'Materials delivered to your site' },
               ].map((s, i) => (
                 <li key={s.text} className="flex items-center gap-4">

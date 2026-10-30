@@ -87,7 +87,7 @@ export default async function AgencyServicePage(props: { params: Promise<{ servi
             </div>
             {(s.slug === 'sell' || s.slug === 'let' || s.slug === 'landlords') && (
               <ButtonLink href="/agency/valuation" variant="secondary">
-                Book a valuation first
+                Book a market appraisal first
               </ButtonLink>
             )}
             {s.slug === 'landlords' && (

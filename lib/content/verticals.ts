@@ -113,7 +113,7 @@ export const COMING_SOON: Record<VerticalKey, ComingSoonContent> = {
   },
   'building-supplies': {
     headline: 'Building supplies, one clear price',
-    what: ['Construction materials for every stage of a build, from cement and steel to tiles and fittings, with clear quotes and delivery to site.'],
+    what: ['Construction materials for every stage of a build, from cement and steel to tiles and fittings, with clear quotes and delivery to site in Addis Ababa.'],
     whoFor: ['Homeowners building or renovating', 'Contractors and builders', 'Developers'],
     how: [
       { title: 'Send your list', text: 'Or add products to a quote.' },
