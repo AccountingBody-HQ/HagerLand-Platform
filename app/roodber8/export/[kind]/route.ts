@@ -9,6 +9,9 @@ import { lastMonths, monthlyReport } from '@/lib/admin/aggregate'
 import { agencyKpis } from '@/lib/admin/agency-reports'
 import { demandReport, SOURCE_LABEL } from '@/lib/admin/demand'
 import { pillarKpis } from '@/lib/admin/performance'
+import { addisDayStart, todayInAddis } from '@/lib/supply/shortlist'
+import { auditCsvRange } from '@/lib/admin/audit-range'
+import { daysBefore } from '@/lib/retention'
 
 export const dynamic = 'force-dynamic'
 
@@ -122,7 +125,13 @@ export async function GET(request: NextRequest, props: { params: Promise<{ kind:
       break
     }
     case 'audit': {
-      const { data } = await readAll(() => db.from('audit_log').select('created_at, actor, action, entity_type, entity_label, entity_id, diff').order('created_at', { ascending: false }), { maxRows: REPORT_MAX_ROWS })
+      // QC-1a: one period of Addis Ababa dates (From and To included), by default the last 90 days.
+      const range = auditCsvRange(sp.get('from'), sp.get('to'), todayInAddis())
+      if (!range) return new NextResponse('Choose a To date on or after the From date.', { status: 400 })
+      const { data } = await readAll(
+        () => db.from('audit_log').select('created_at, actor, action, entity_type, entity_label, entity_id, diff').gte('created_at', addisDayStart(range.from)).lt('created_at', addisDayStart(daysBefore(range.to, -1))).order('created_at', { ascending: false }),
+        { maxRows: REPORT_MAX_ROWS },
+      )
       rows = data ?? []
       break
     }
@@ -152,9 +161,11 @@ export async function GET(request: NextRequest, props: { params: Promise<{ kind:
     }
     case 'demand': {
       // One calendar month (spec 26.13 monthly export), every demand signal with its pillar, category, place and country.
-      const month = /^\d{4}-\d{2}$/.test(sp.get('month') ?? '') ? (sp.get('month') as string) : new Date().toISOString().slice(0, 7)
-      const start = new Date(`${month}-01T00:00:00Z`)
-      const end = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 1))
+      // An Addis Ababa calendar month (QC-1a), from midnight on the 1st in Addis Ababa.
+      const month = /^\d{4}-\d{2}$/.test(sp.get('month') ?? '') ? (sp.get('month') as string) : todayInAddis().slice(0, 7)
+      const start = new Date(addisDayStart(`${month}-01`))
+      const [y, m] = month.split('-').map(Number)
+      const end = new Date(addisDayStart(`${m === 12 ? y + 1 : y}-${String(m === 12 ? 1 : m + 1).padStart(2, '0')}-01`))
       const r = await demandReport(start, end)
       rows = r.signals.map((x) => ({ date: x.at.slice(0, 10), source: SOURCE_LABEL[x.source], pillar: x.pillar ?? '', category: x.category, place: x.place, country: x.country, count: x.weight }))
       columns = ['date', 'source', 'pillar', 'category', 'place', 'country', 'count']
@@ -200,7 +211,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ kind:
   }
 
   await audit('export.csv', { type: params.kind, label: `${rows.length} rows` })
-  const stamp = new Date().toISOString().slice(0, 10)
+  const stamp = todayInAddis()
   return new NextResponse(`﻿${toCsv(rows, columns)}`, {
     headers: {
       'Content-Type': 'text/csv; charset=utf-8',

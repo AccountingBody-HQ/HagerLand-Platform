@@ -22,6 +22,8 @@ import { ActionButton } from '@/components/forms/ActionButton'
 import { ActionForm } from '@/components/forms/ActionForm'
 import { JobForm } from '@/components/jobs/JobForm'
 import { JobsNotLive } from '@/components/jobs/JobsNotLive'
+import { LoadFailed } from '@/components/account/LoadFailed'
+import { log } from '@/lib/log'
 
 export async function generateMetadata() {
   const { t } = await getJobsI18n()
@@ -38,12 +40,20 @@ export default async function EmployerJobPage(
   if ((await getVertical('jobs'))?.status !== 'live') return <JobsNotLive />
   if (!/^[0-9a-f-]{36}$/.test(params.id)) notFound()
   const supabase = getServerSupabase()
-  const { data: job } = await supabase.from('job_posts').select('*').eq('id', params.id).maybeSingle()
+  const { data: job, error } = await supabase.from('job_posts').select('*').eq('id', params.id).maybeSingle()
+  if (error) {
+    log.error('account', 'job failed to load', error)
+    return <LoadFailed what="this job" />
+  }
   if (!job) notFound()
-  const [{ data: apps }, loc] = await Promise.all([
+  const [{ data: apps, error: appsError }, loc] = await Promise.all([
     supabase.from('job_applications').select('id, reference, name, email, phone, cover_note, cv_path, status, employer_notes, created_at, channel, trade, area_text, preferred_contact, language').eq('job_id', job.id).order('created_at', { ascending: false }),
     getLocationById(job.location_id),
   ])
+  if (appsError) {
+    log.error('account', 'job applications failed to load', appsError)
+    return <LoadFailed what="this job" />
+  }
   const s = LISTING_STATUS_LABELS[job.status]
   const editable = !['published', 'removed'].includes(job.status)
   return (

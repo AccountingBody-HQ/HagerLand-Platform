@@ -8,17 +8,22 @@ import { AccountPageHeader } from '@/components/account/PageHeader'
 import { EmptyState } from '@/components/ui/Layout'
 import { ButtonLink } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
+import { LoadFailed } from '@/components/account/LoadFailed'
+import { log } from '@/lib/log'
 
 export const metadata = { title: 'Building projects' }
 
 export default async function ProjectsPage() {
   const user = await requireUser('/account/projects')
-  const { data } = await getAdminSupabase().from('build_projects').select('id, reference, title, status, created_at').eq('user_id', user.id).order('created_at', { ascending: false })
+  const { data, error } = await getAdminSupabase().from('build_projects').select('id, reference, title, status, created_at').eq('user_id', user.id).order('created_at', { ascending: false })
+  if (error) log.error('account', 'building projects failed to load', error)
   const rows = data ?? []
   return (
     <div>
       <AccountPageHeader title="Building projects" description="Each project keeps its design, engineering, contractor, materials and finance requests together." action={<ButtonLink href="/build/project" size="sm">Start a project</ButtonLink>} />
-      {rows.length === 0 ? (
+      {error ? (
+        <LoadFailed what="your building projects" />
+      ) : rows.length === 0 ? (
         <EmptyState icon={<HardHat />} title="No projects yet" description="Start a building project to get matched with architects, engineers, contractors and a materials quote, all under one reference." actions={<ButtonLink href="/build/project">Start a building project</ButtonLink>} />
       ) : (
         <ul className="divide-y divide-border rounded-lg border border-border bg-white">

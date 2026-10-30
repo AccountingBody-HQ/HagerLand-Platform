@@ -11,6 +11,7 @@ import { fail, ok, type ActionResult } from '@/lib/action-result'
 import { SUPPLY_SWITCHES_TAG, readSupplySwitches } from '@/lib/supply/partner-switches'
 import { readPaymentDetails } from '@/lib/supply/order-requests-data'
 import { NOT_YET_USED, REGISTER_PATH, SUPPLY_SWITCH_KEYS, type SupplySwitch } from '@/lib/supply/partner-rules'
+import { markLegalSwitchChange } from '@/lib/content/legal'
 
 type Msg = ActionResult<{ message: string }>
 
@@ -35,9 +36,16 @@ export async function setSupplySwitchAction(which: string, on: boolean): Promise
   const key = SUPPLY_SWITCH_KEYS[parsed.data.which]
   const db = getAdminSupabase()
   const { data: before } = await db.from('site_settings').select('value').eq('key', key).maybeSingle()
+  // QC-1a: a switch that shows or hides /privacy or /terms text moves that page's "Last updated" date, first.
+  let legal: Awaited<ReturnType<typeof markLegalSwitchChange>>
+  try {
+    legal = await markLegalSwitchChange(key, before?.value ?? false, parsed.data.on)
+  } catch {
+    return fail('Could not save the setting.')
+  }
   const { error } = await db.from('site_settings').upsert({ key, value: parsed.data.on, updated_at: new Date().toISOString() })
   if (error) return fail('Could not save the setting.')
-  await audit('supply.switch', { type: 'setting', label: key }, { from: before?.value ?? false, to: parsed.data.on })
+  await audit('supply.switch', { type: 'setting', label: key }, { from: before?.value ?? false, to: parsed.data.on, ...(legal ? { legal_dates: legal } : {}) })
   // The homepage row, the registration page and the privacy lines read these switches.
   revalidateTag(SUPPLY_SWITCHES_TAG)
   revalidatePath('/')

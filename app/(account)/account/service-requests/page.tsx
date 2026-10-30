@@ -8,17 +8,22 @@ import { AccountPageHeader } from '@/components/account/PageHeader'
 import { EmptyState } from '@/components/ui/Layout'
 import { ButtonLink } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
+import { LoadFailed } from '@/components/account/LoadFailed'
+import { log } from '@/lib/log'
 
 export const metadata = { title: 'My service requests' }
 
 export default async function MyServiceRequestsPage() {
   const user = await requireUser('/account/service-requests')
-  const { data } = await getServerSupabase().from('service_requests').select('id, reference, title, status, urgency, created_at, category:service_categories(slug)').eq('requester_user_id', user.id).order('created_at', { ascending: false }).limit(100)
+  const { data, error } = await getServerSupabase().from('service_requests').select('id, reference, title, status, urgency, created_at, category:service_categories(slug)').eq('requester_user_id', user.id).order('created_at', { ascending: false }).limit(100)
+  if (error) log.error('account', 'service requests failed to load', error)
   const rows = data ?? []
   return (
     <div>
       <AccountPageHeader title="My service requests" description="Requests you sent for building work, repairs and other services, with the quotes you received." action={<ButtonLink href="/request-service">Request a service</ButtonLink>} />
-      {rows.length === 0 ? (
+      {error ? (
+        <LoadFailed what="your service requests" />
+      ) : rows.length === 0 ? (
         <EmptyState icon={<Wrench />} title="No requests yet" description="Need a plumber, a builder or an architect? Describe the job once and get quotes from up to three providers at a time." actions={<ButtonLink href="/request-service">Request a service</ButtonLink>} />
       ) : (
         <ul className="divide-y divide-border rounded-lg border border-border bg-white">

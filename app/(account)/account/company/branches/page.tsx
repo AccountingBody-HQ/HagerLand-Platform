@@ -9,6 +9,8 @@ import { Combobox } from '@/components/ui/Combobox'
 import { Input } from '@/components/ui/Field'
 import { ActionForm } from '@/components/forms/ActionForm'
 import { ActionButton } from '@/components/forms/ActionButton'
+import { LoadFailed } from '@/components/account/LoadFailed'
+import { log } from '@/lib/log'
 
 export const metadata = { title: 'Branches' }
 
@@ -41,11 +43,13 @@ export default async function BranchesPage() {
   const active = await getActiveMembership()
   if (!active) return <EmptyState icon={<MapPin />} title="Branches are for business accounts" />
   const manager = active.role === 'owner' || active.role === 'admin'
-  const { data } = await getServerSupabase().from('org_branches').select('*').eq('org_id', active.org.id).order('sort').order('created_at')
+  const { data, error } = await getServerSupabase().from('org_branches').select('*').eq('org_id', active.org.id).order('sort').order('created_at')
   const branches = await Promise.all((data ?? []).map(async (b) => ({ ...b, loc: await getLocationById(b.location_id) })))
+  if (error) log.error('account', 'branches failed to load', error)
   return (
     <div className="space-y-6">
       <AccountPageHeader title="Branches" description="Other offices of your business. They appear on your public profile with their place and address; customers still contact you through your profile." />
+      {error && <LoadFailed what="your branches" />}
       {branches.map((b) => (
         <Card key={b.id} className="p-5 sm:p-6">
           {manager ? (

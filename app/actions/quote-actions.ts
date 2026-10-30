@@ -7,7 +7,7 @@ import { getUser } from '@/lib/auth'
 import { fail, invalid, ok, type ActionResult } from '@/lib/action-result'
 import { getClientIp, hashIp } from '@/lib/security'
 import { rateLimit } from '@/lib/rate-limit'
-import { isHoneypotFilled, verifyTurnstileToken } from '@/lib/turnstile'
+import { verifyTurnstileToken } from '@/lib/turnstile'
 import { nameSchema, optionalEmailSchema, optionalText, optionalUuid, phoneSchema } from '@/lib/validation/common'
 import { UNITS, unitLabel } from '@/lib/units'
 import { hagerlandInbox } from '@/lib/enquiries'
@@ -16,6 +16,7 @@ import { quoteInternalEmail, quoteReceivedEmail } from '@/lib/email/templates'
 import { canonicalUrl } from '@/lib/site'
 import { formatPhone } from '@/lib/format'
 import { log } from '@/lib/log'
+import { spamCheckDrop } from '@/lib/spam-check'
 
 const itemSchema = z
   .object({
@@ -47,7 +48,7 @@ export type QuoteState = ActionResult<{ reference: string }> | null
 
 /** Quote request from the quote list or a materials list (spec 10.5, 10.6). */
 export async function submitQuoteAction(_prev: QuoteState, formData: FormData): Promise<QuoteState> {
-  if (isHoneypotFilled(formData)) return ok({ reference: 'HLQ-0' })
+  if (await spamCheckDrop(formData, 'submit_quote')) return ok({ reference: 'HLQ-0' })
   let items: unknown = []
   try {
     items = JSON.parse(String(formData.get('items') ?? '[]'))

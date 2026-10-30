@@ -45,7 +45,7 @@ test.describe('pillar navigation (spec 26.4)', () => {
     await page.goto('/')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('One platform for property, construction and everything around it.')
     await expect(page.locator('main .hl-eyebrow').first()).toHaveText("Ethiopia's property and construction platform")
-    await expect(page.getByText('Buy, rent, build and manage property in Ethiopia, with verified partners, wherever you live.').first()).toBeVisible()
+    await expect(page.getByText('Buy, rent, build and manage property in Ethiopia, with partners we check, wherever you live.').first()).toBeVisible()
     const start = page.locator('section[aria-labelledby="start-title"]')
     await expect(start.getByRole('heading', { level: 2, name: 'Start here' })).toBeVisible()
     await expect(start.getByRole('heading', { level: 3 })).toHaveText(['Building & Construction Supplies', 'Jobs, Recruitment & Staffing', 'Knowledge & Advice'])

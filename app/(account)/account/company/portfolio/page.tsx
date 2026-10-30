@@ -9,6 +9,8 @@ import { Badge } from '@/components/ui/Badge'
 import { ButtonLink } from '@/components/ui/Button'
 import { MediaImage } from '@/components/media/MediaImage'
 import { LISTING_STATUS_LABELS } from '@/lib/labels'
+import { LoadFailed } from '@/components/account/LoadFailed'
+import { log } from '@/lib/log'
 
 export const metadata = { title: 'Portfolio' }
 
@@ -16,11 +18,13 @@ export default async function PortfolioListPage() {
   await requireUser('/account/company/portfolio')
   const active = await getActiveMembership()
   if (!active) return <EmptyState icon={<FolderKanban />} title="Create a business profile first" actions={<ButtonLink href="/onboarding?business=1">Create a business profile</ButtonLink>} />
-  const { data } = await getServerSupabase().from('portfolio_projects').select('id, title, status, year, cover_path').eq('org_id', active.org.id).neq('status', 'archived').order('created_at', { ascending: false })
+  const { data, error } = await getServerSupabase().from('portfolio_projects').select('id, title, status, year, cover_path').eq('org_id', active.org.id).neq('status', 'archived').order('created_at', { ascending: false })
+  if (error) log.error('account', 'portfolio failed to load', error)
   const projects = data ?? []
   return (
     <div className="space-y-6">
       <AccountPageHeader title="Portfolio" description="Show real projects. Profiles with photos of finished work get far more enquiries." />
+      {error && <LoadFailed what="your portfolio" />}
       {projects.length > 0 && (
         <ul className="grid gap-4 sm:grid-cols-2">
           {projects.map((p) => {

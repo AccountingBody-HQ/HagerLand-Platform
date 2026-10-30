@@ -5,6 +5,7 @@ import { toCsv } from '@/lib/admin/csv'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { readAll, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import { loadAgreements } from '@/lib/supply/trade-prices-data'
+import { todayInAddis } from '@/lib/supply/shortlist'
 
 export const dynamic = 'force-dynamic'
 
@@ -35,7 +36,7 @@ export async function GET() {
     note: a.note ?? '',
   }))
   await audit('trade_price.export', { type: 'trade_price_agreements', label: `${rows.length} rows` })
-  const stamp = new Date().toISOString().slice(0, 10)
+  const stamp = todayInAddis()
   return new NextResponse(`﻿${toCsv(rows)}`, {
     headers: { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': `attachment; filename="hagerland-trade-prices-${stamp}.csv"`, 'Cache-Control': 'no-store' },
   })

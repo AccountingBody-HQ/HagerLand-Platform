@@ -121,7 +121,7 @@ export default async function JobsPage(props: { searchParams: Promise<Params> })
       </Section>
       <Section>
         <div className="lg:grid lg:grid-cols-[300px_1fr] lg:gap-10">
-          <aside>
+          <div>
             <form action={href('/jobs')} method="get" className="space-y-5 rounded-lg border border-border bg-white p-5">
               <div>
                 <label htmlFor="j-q" className="mb-2 block text-small font-semibold">
@@ -190,7 +190,7 @@ export default async function JobsPage(props: { searchParams: Promise<Params> })
                 <CallbackBox t={t} href={href} />
               </div>
             )}
-          </aside>
+          </div>
           <div className="mt-8 min-w-0 lg:mt-0">
             {company && <h2 className="hl-h3 mb-2">{fill(t('Jobs at {company}'), { company: company.name ?? '' })}</h2>}
             <p className="mb-4 text-muted" role="status">

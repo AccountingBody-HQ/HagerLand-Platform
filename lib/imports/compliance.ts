@@ -98,7 +98,8 @@ export const isExpired = (fetchedAt: string, today: string) => daysLeft(fetchedA
 export function compliance(org: ImportedOrg, today: string): Compliance {
   const google = org.sources.filter((s) => s.source === 'google_places' && !s.clearedAt && s.fetchedAt)
   const googleFields = google.map((s) => s.field)
-  const expiredFields = google.filter((s) => isExpired(s.fetchedAt as string, today)).map((s) => s.field)
+  // Always in FIELD_LABEL order (QC-1a): the database returns sources in no fixed order.
+  const expiredFields = google.filter((s) => isExpired(s.fetchedAt as string, today)).map((s) => s.field).sort((a, b) => TRACKED_FIELDS.indexOf(a) - TRACKED_FIELDS.indexOf(b))
   const left = google.length ? Math.min(...google.map((s) => daysLeft(s.fetchedAt as string, today))) : null
   const name = org.sources.find((s) => s.field === 'name')
   const nameConfirmed = Boolean(name && name.source !== 'google_places')

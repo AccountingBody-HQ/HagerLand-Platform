@@ -4,11 +4,15 @@ import { getAdminSupabase } from '@/lib/supabase/admin'
 import { escapeLikePattern } from '@/lib/security'
 import { formatDate } from '@/lib/format'
 import { AdminHeader, DataTable, FilterBar, FilterField, filterInput, SimplePager } from '@/components/admin/AdminUi'
-import { ButtonLink } from '@/components/ui/Button'
+import { Button } from '@/components/ui/Button'
+import { AUDIT_CSV_DAYS, auditCsvRange } from '@/lib/admin/audit-range'
+import { daysBefore } from '@/lib/retention'
+import { addisDayStart, todayInAddis } from '@/lib/supply/shortlist'
 import { must } from '@/lib/admin/must'
 
 export const metadata = { title: 'Audit log' }
 const PAGE = 100
+const DAY = /^\d{4}-\d{2}-\d{2}$/
 
 const ENTITY_PATH: Record<string, string> = {
   property: '/roodber8/properties',
@@ -40,9 +44,11 @@ export default async function AuditPage(props: { searchParams: Promise<Record<st
   if (searchParams.q) q = q.ilike('entity_label', `%${escapeLikePattern(searchParams.q.trim().slice(0, 80))}%`)
   if (searchParams.action) q = q.ilike('action', `${escapeLikePattern(searchParams.action.trim().slice(0, 60))}%`)
   if (searchParams.type) q = q.eq('entity_type', searchParams.type.slice(0, 40))
-  if (searchParams.from) q = q.gte('created_at', `${searchParams.from}T00:00:00Z`)
-  if (searchParams.to) q = q.lte('created_at', `${searchParams.to}T23:59:59Z`)
+  // QC-1a: From and To are Addis Ababa dates (a day starts at midnight in Addis Ababa).
+  if (searchParams.from && DAY.test(searchParams.from)) q = q.gte('created_at', addisDayStart(searchParams.from))
+  if (searchParams.to && DAY.test(searchParams.to)) q = q.lt('created_at', addisDayStart(daysBefore(searchParams.to, -1)))
   const { data, count } = must(await q.order('created_at', { ascending: false }).range((page - 1) * PAGE, page * PAGE - 1))
+  const csv = auditCsvRange(searchParams.from, searchParams.to, todayInAddis())
   const params = new URLSearchParams(Object.entries(searchParams).filter((e): e is [string, string] => Boolean(e[1]) && e[0] !== 'page'))
   return (
     <div>
@@ -50,9 +56,20 @@ export default async function AuditPage(props: { searchParams: Promise<Record<st
         title="Audit log"
         description="Every admin action, newest first."
         actions={
-          <ButtonLink href="/roodber8/export/audit" variant="secondary" size="sm">
-            Export CSV
-          </ButtonLink>
+          <form action="/roodber8/export/audit" method="get" className="flex flex-wrap items-end gap-2">
+            <label className="text-small">
+              <span className="block text-muted">Export from</span>
+              <input type="date" name="from" defaultValue={csv?.from} className={filterInput} />
+            </label>
+            <label className="text-small">
+              <span className="block text-muted">Export to</span>
+              <input type="date" name="to" defaultValue={csv?.to} className={filterInput} />
+            </label>
+            <Button type="submit" variant="secondary" size="sm">
+              Export CSV
+            </Button>
+            <span className="w-full text-caption text-muted">Addis Ababa dates. Empty: the last {AUDIT_CSV_DAYS} days.</span>
+          </form>
         }
       />
       <FilterBar action="/roodber8/audit">

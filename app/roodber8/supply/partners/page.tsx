@@ -7,6 +7,7 @@ import { offerCounts } from '@/lib/supply/offers-data'
 import { labelFor, RELATIONSHIP_STATUSES, SUPPLY_ROLES } from '@/lib/supply/partners'
 import { ButtonLink } from '@/components/ui/Button'
 import { AdminHeader, DataTable, FilterBar, FilterField, Panel, SimplePager, StatusBadge, filterInput } from '@/components/admin/AdminUi'
+import { todayInAddis } from '@/lib/supply/shortlist'
 
 export const metadata = { title: 'Supply partners' }
 
@@ -27,7 +28,7 @@ export default async function SupplyPartnersPage(props: { searchParams: Promise<
   const rows = all.slice((page - 1) * PER_PAGE, page * PER_PAGE)
   const filtered = Boolean(status || role || due || q || prices)
   const hrefFor = (p: number) => `/roodber8/supply/partners?${new URLSearchParams({ ...(status && { status }), ...(role && { role }), ...(due && { due: '1' }), ...(prices && { prices }), ...(q && { q }), page: String(p) })}`
-  const today = new Date().toISOString().slice(0, 10)
+  const today = todayInAddis()
 
   return (
     <div>

@@ -11,7 +11,9 @@ describe('report aggregation', () => {
 
   it('finds the Monday of a week', () => {
     expect(weekStart(new Date('2026-10-13T10:00:00Z'))).toBe('2026-10-12')
-    expect(weekStart(new Date('2026-10-18T23:00:00Z'))).toBe('2026-10-12')
+    // Sunday 23:00 UTC is already Monday 02:00 in Addis Ababa: the next week (QC-1a).
+    expect(weekStart(new Date('2026-10-18T23:00:00Z'))).toBe('2026-10-19')
+    expect(weekStart(new Date('2026-10-18T20:59:00Z'))).toBe('2026-10-12')
     expect(weekStart(new Date('2026-10-12T00:00:00Z'))).toBe('2026-10-12')
   })
 

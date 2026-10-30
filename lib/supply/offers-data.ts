@@ -5,6 +5,7 @@ import { getAdminSupabase } from '@/lib/supabase/admin'
 import { readAll, readAllIn, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import type { Database } from '@/lib/database.types'
 import { addDays } from './offers'
+import { todayInAddis } from '@/lib/supply/shortlist'
 
 export type OfferRow = Database['public']['Tables']['supplier_offers']['Row']
 
@@ -17,7 +18,7 @@ export interface OfferCounts {
 export const EXPIRING_DAYS = 7
 
 export function today(): string {
-  return new Date().toISOString().slice(0, 10)
+  return todayInAddis()
 }
 
 /** Current prices per partner: total, expiring within 7 days (not yet expired) and already expired. */

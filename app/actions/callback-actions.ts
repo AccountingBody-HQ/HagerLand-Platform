@@ -4,12 +4,13 @@ import { headers } from 'next/headers'
 import { fail, ok, type ActionResult } from '@/lib/action-result'
 import { getClientIp, hashIp } from '@/lib/security'
 import { rateLimit } from '@/lib/rate-limit'
-import { isHoneypotFilled, verifyTurnstileToken } from '@/lib/turnstile'
+import { verifyTurnstileToken } from '@/lib/turnstile'
 import { readJobsSwitches } from '@/lib/jobs-switches'
 import { CALLBACK_LIMITS, CALLBACK_TEXT, callbackFieldErrors, callbackSchema } from '@/lib/callbacks'
 import { submitCallback } from '@/lib/callbacks-data'
 import { getJobsI18n } from '@/lib/i18n/server'
 import { translateResult } from '@/lib/i18n/translate'
+import { spamCheckDrop } from '@/lib/spam-check'
 
 export type CallbackFormState = ActionResult<{ message: string }> | null
 
@@ -19,7 +20,7 @@ export type CallbackFormState = ActionResult<{ message: string }> | null
  * new row. Nothing is emailed or texted to anyone.
  */
 async function submitCallbackActionImpl(_prev: CallbackFormState, formData: FormData): Promise<CallbackFormState> {
-  if (isHoneypotFilled(formData)) return ok({ message: CALLBACK_TEXT.thanks })
+  if (await spamCheckDrop(formData, 'submit_callback')) return ok({ message: CALLBACK_TEXT.thanks })
   if (!(await readJobsSwitches()).callbacks) return fail(CALLBACK_TEXT.unavailable)
   const parsed = callbackSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return fail(CALLBACK_TEXT.check, callbackFieldErrors(parsed.error))

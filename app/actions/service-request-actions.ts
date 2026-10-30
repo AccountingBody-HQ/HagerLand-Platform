@@ -8,7 +8,7 @@ import { getUser } from '@/lib/auth'
 import { fail, invalid, ok, type ActionResult } from '@/lib/action-result'
 import { getClientIp, hashIp } from '@/lib/security'
 import { rateLimit } from '@/lib/rate-limit'
-import { isHoneypotFilled, verifyTurnstileToken } from '@/lib/turnstile'
+import { verifyTurnstileToken } from '@/lib/turnstile'
 import { emailSchema, nameSchema, optionalEmailSchema, optionalText, optionalUuid, phoneSchema, preferredContactSchema, textSchema } from '@/lib/validation/common'
 import { COUNTRY_CODES } from '@/lib/countries'
 import { getRequestableCategory } from '@/lib/data/service-requests'
@@ -30,6 +30,7 @@ import { adminActor, audit, isOwnerOrOperationsSession } from '@/lib/admin/guard
 import { linkCallbackToRequest, openCallback } from '@/lib/callbacks-data'
 import { phoneOnlyAllowed } from '@/lib/service-requests/phone-only'
 import { translateResult } from '@/lib/i18n/translate'
+import { spamCheckDrop } from '@/lib/spam-check'
 
 /** `phoneOnly`: staff sent it for a caller with no email (Tidy T-2): the form goes back to the call-back queue. */
 export type RequestState = ActionResult<{ reference: string; phoneOnly?: boolean }> | null
@@ -65,7 +66,7 @@ const phoneOnlySchema = fields
 
 /** "Request a service" (spec 24.5): validates, stores, emails the customer a link, tells HagerLand. */
 async function submitServiceRequestActionImpl(_prev: RequestState, formData: FormData): Promise<RequestState> {
-  if (isHoneypotFilled(formData)) return ok({ reference: 'HLS-0' })
+  if (await spamCheckDrop(formData, 'submit_service_request')) return ok({ reference: 'HLS-0' })
   const raw: Record<string, unknown> = Object.fromEntries(formData)
   for (const k of Array.from(new Set(Array.from(formData.keys())))) if (k.startsWith('q_')) raw[k] = formData.getAll(k)
   const phoneOnly = await phoneOnlyAllowed(
@@ -237,7 +238,7 @@ const resendSchema = z.object({ email: emailSchema, reference: z.string().trim()
 
 /** Sends a fresh guest link. Always answers the same way, so it never reveals whether a request exists. */
 export async function resendRequestLinkAction(_prev: ActionResult<{ message: string }> | null, formData: FormData): Promise<ActionResult<{ message: string }>> {
-  if (isHoneypotFilled(formData)) return ok({ message: 'If the details match a request, we have emailed a new link.' })
+  if (await spamCheckDrop(formData, 'resend_request_link')) return ok({ message: 'If the details match a request, we have emailed a new link.' })
   const parsed = resendSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   const ip = getClientIp(await headers())

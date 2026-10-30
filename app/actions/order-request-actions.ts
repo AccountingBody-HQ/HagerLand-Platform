@@ -6,7 +6,7 @@ import { getUser } from '@/lib/auth'
 import { fail, invalid, ok, type ActionResult } from '@/lib/action-result'
 import { getClientIp, hashIp } from '@/lib/security'
 import { rateLimit } from '@/lib/rate-limit'
-import { isHoneypotFilled, verifyTurnstileToken } from '@/lib/turnstile'
+import { verifyTurnstileToken } from '@/lib/turnstile'
 import { newRequestToken } from '@/lib/service-requests/token'
 import { readSupplySwitches } from '@/lib/supply/partner-switches'
 import { orderableProduct, sendCustomerEmail } from '@/lib/supply/order-requests-data'
@@ -18,6 +18,7 @@ import { canonicalUrl } from '@/lib/site'
 import { todayInAddis } from '@/lib/supply/shortlist'
 import { log } from '@/lib/log'
 import type { Database } from '@/lib/database.types'
+import { spamCheckDrop } from '@/lib/spam-check'
 
 // The generated types mark every SQL argument as required; these may be NULL, which order_request_submit (0049) accepts.
 type SubmitArgs = Database['public']['Functions']['order_request_submit']['Args']
@@ -31,7 +32,7 @@ const FAILED = 'Something went wrong. Please refresh the page.'
  * makes the request and its item; the customer gets a private link to its page.
  */
 export async function submitOrderRequestAction(_prev: OrderRequestState, formData: FormData): Promise<OrderRequestState> {
-  if (isHoneypotFilled(formData)) return ok({ reference: 'HLR-0', path: '/supplies' })
+  if (await spamCheckDrop(formData, 'submit_order_request')) return ok({ reference: 'HLR-0', path: '/supplies' })
   // The form is "not found" while the switch is off; a form left open from before is refused too (L6).
   if (!(await readSupplySwitches()).catalogueOrdering) return fail(FAILED)
   const parsed = orderRequestSchema.safeParse(Object.fromEntries(formData))

@@ -6,12 +6,13 @@ import { getUser } from '@/lib/auth'
 import { fail, invalid, ok, type ActionResult } from '@/lib/action-result'
 import { getClientIp, hashIp } from '@/lib/security'
 import { rateLimit } from '@/lib/rate-limit'
-import { isHoneypotFilled, verifyTurnstileToken } from '@/lib/turnstile'
+import { verifyTurnstileToken } from '@/lib/turnstile'
 import { readJobsSwitches } from '@/lib/jobs-switches'
 import { REPORT_LIMITS, REPORT_MESSAGES, jobReportSchema } from '@/lib/job-reports'
 import { storeJobReport } from '@/lib/job-reports-data'
 import { getJobsI18n } from '@/lib/i18n/server'
 import { translateResult } from '@/lib/i18n/translate'
+import { spamCheckDrop } from '@/lib/spam-check'
 
 /**
  * "Report this job" (Jobs Phase 4): anyone, signed in or not. Turnstile, honeypot and limits (5 an hour, 20 a day per
@@ -19,7 +20,7 @@ import { translateResult } from '@/lib/i18n/translate'
  * (AB's approved wording W17–W18): they never say whether the job, the report or a reporter exists.
  */
 async function submitJobReportActionImpl(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
-  if (isHoneypotFilled(formData)) return ok(undefined, REPORT_MESSAGES.thanks)
+  if (await spamCheckDrop(formData, 'submit_job_report')) return ok(undefined, REPORT_MESSAGES.thanks)
   if (!(await readJobsSwitches()).reportsEnabled) return fail(REPORT_MESSAGES.failed)
   const parsed = jobReportSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)

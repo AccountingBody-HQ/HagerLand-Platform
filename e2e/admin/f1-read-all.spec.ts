@@ -167,7 +167,8 @@ test('J4: CSV exports list every row (more than 1,000)', async ({ page }, info) 
   }
   // The audit-log export writes its own audit row after reading, so the count is taken just before.
   psql(`insert into public.audit_log (actor, action, entity_type, entity_label) select 'e2e-f1', 'e2e.f1_seed', 'test', 'E2E F1 ' || g from generate_series(1, ${N}) g`)
-  const audit = count('select count(*) from public.audit_log')
+  // QC-1a: the export covers the last 90 Addis Ababa days by default.
+  const audit = count("select count(*) from public.audit_log where created_at >= (((now() at time zone 'Africa/Addis_Ababa')::date - 89)::timestamp at time zone 'Africa/Addis_Ababa')")
   expect(audit).toBeGreaterThan(1000)
   expect((await csv(page, '/roodber8/export/audit')).rows).toHaveLength(audit)
 })
@@ -192,12 +193,17 @@ test('J6: Imports compliance with more than 1,000 imported businesses: complete,
   test.skip(info.project.name !== 'desktop', 'admin at desktop width')
   test.setTimeout(240_000)
   psql(`insert into public.organisations (kind, name, slug, status, source, google_place_id, created_at) select 'supplier', 'E2E F1 Import ' || g, 'e2e-f1-import-${stamp}-' || g, 'draft', 'import', 'f1-place-${stamp}-' || g, now() - interval '2 days' from generate_series(1, 1100) g`)
-  const truth = count(`select count(*) from public.organisations o where o.source = 'import' or exists (select 1 from public.org_field_sources f where f.org_id = o.id and f.is_current)`)
-  expect(truth).toBeGreaterThan(1000)
-  await adminSession(page)
-  const res = await page.goto('/roodber8/imports/compliance')
-  expect(res?.status()).toBe(200)
-  expect((await csv(page, '/roodber8/imports/compliance/export')).rows).toHaveLength(truth)
+  try {
+    const truth = count(`select count(*) from public.organisations o where o.source = 'import' or exists (select 1 from public.org_field_sources f where f.org_id = o.id and f.is_current)`)
+    expect(truth).toBeGreaterThan(1000)
+    await adminSession(page)
+    const res = await page.goto('/roodber8/imports/compliance')
+    expect(res?.status()).toBe(200)
+    expect((await csv(page, '/roodber8/imports/compliance/export')).rows).toHaveLength(truth)
+  } finally {
+    // QC-1a: the 1,100 businesses would crowd later tests (lists, merge choices) in a long run.
+    psql(`delete from public.organisations where slug like 'e2e-f1-import-${stamp}-%'`)
+  }
 })
 
 test('J7: digest counts that read rows are right with more than 1,000 rows', async ({ page }, info) => {

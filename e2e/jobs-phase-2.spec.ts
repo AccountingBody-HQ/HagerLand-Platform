@@ -25,7 +25,7 @@ async function setSwitch(page: Page, label: 'Apply by phone' | 'Worker register'
 }
 
 /** F-5 (and S6-1's partner kinds): the keeping-period kinds run in the same daily run; this test's records are not among them. */
-const NO_KEEPING_PERIOD_COUNTS = Object.fromEntries(['enquiries', 'service_requests', 'quote_requests', 'property_care', 'managed_properties', 'build_projects', 'partner_applications', 'claims', 'trade_accounts', 'supply_contacts', 'audit_log', 'partner_registrations', 'partner_drafts', 'order_requests'].map((k) => [k, 0]))
+const NO_KEEPING_PERIOD_COUNTS = Object.fromEntries(['enquiries', 'service_requests', 'quote_requests', 'property_care', 'managed_properties', 'build_projects', 'partner_applications', 'claims', 'trade_accounts', 'supply_contacts', 'audit_log', 'partner_registrations', 'partner_drafts', 'order_requests', 'agency_valuations', 'agency_contacts'].map((k) => [k, 0]))
 
 async function setMode(page: Page, mode: 'dry_run' | 'live') {
   await adminSession(page)
@@ -197,7 +197,7 @@ test('J1: a worker applies by phone; duplicates, closed jobs, limits, missing ti
   // Honeypot: looks sent, nothing stored.
   await page.goto(`/jobs/${job.slug}/apply-by-phone`)
   await fillPhoneForm(page, { name: 'Bot Filler', local: randomPhone().replace('+251', '0') })
-  await page.locator('input[name="hl_extra_field"]').evaluate((el: HTMLInputElement) => (el.value = 'spam'))
+  await page.locator('input[name="hl_zq9"]').evaluate((el: HTMLInputElement) => (el.value = 'spam'))
   await page.getByRole('button', { name: 'Send my application' }).click()
   await expect(page.getByRole('heading', { name: 'Application sent' })).toBeVisible()
   expect((await db().from('job_applications').select('id').eq('name', 'Bot Filler')).data ?? []).toHaveLength(0)

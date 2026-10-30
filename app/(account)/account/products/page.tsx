@@ -9,6 +9,8 @@ import { AccountPageHeader } from '@/components/account/PageHeader'
 import { ButtonLink } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
 import { EmptyState } from '@/components/ui/Layout'
+import { LoadFailed } from '@/components/account/LoadFailed'
+import { log } from '@/lib/log'
 
 export const metadata = { title: 'Products' }
 
@@ -18,7 +20,8 @@ export default async function MyProductsPage() {
   const active = await getActiveMembership()
   if (!active || !(SELLER_KINDS as readonly string[]).includes(active.org.kind))
     return <EmptyState icon={<Package />} title="Products are for supplier accounts" description="Suppliers and manufacturers can list their products on HagerLand Supply." />
-  const { data } = await getServerSupabase().from('products').select('id, name, status, price_type, price_etb_cents, pending_changes, is_special_buy, updated_at').eq('seller_org_id', active.org.id).neq('status', 'archived').order('updated_at', { ascending: false })
+  const { data, error } = await getServerSupabase().from('products').select('id, name, status, price_type, price_etb_cents, pending_changes, is_special_buy, updated_at').eq('seller_org_id', active.org.id).neq('status', 'archived').order('updated_at', { ascending: false })
+  if (error) log.error('account', 'products failed to load', error)
   const rows = data ?? []
   return (
     <div>
@@ -31,7 +34,9 @@ export default async function MyProductsPage() {
           </ButtonLink>
         }
       />
-      {rows.length === 0 ? (
+      {error ? (
+        <LoadFailed what="your products" />
+      ) : rows.length === 0 ? (
         <EmptyState icon={<Package />} title="No products yet" actions={<ButtonLink href="/account/products/new">Add your first product</ButtonLink>} />
       ) : (
         <ul className="space-y-3">

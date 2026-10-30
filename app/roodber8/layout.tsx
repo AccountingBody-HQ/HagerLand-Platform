@@ -19,8 +19,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <div className="flex min-h-dvh flex-col bg-stone-100">
       <header className="hl-admin-chrome sticky top-0 z-40 flex h-14 items-center gap-3 border-b border-white/10 bg-ink px-3 text-white">
+        {/* QC-1a: the public "Skip to content" pattern; light on the dark admin header. */}
+        <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-2 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-ink">
+          Skip to content
+        </a>
         <AdminMobileMenu badges={badges} role={role} />
-        <Link href="/roodber8" className="flex items-center gap-2 font-display font-extrabold">
+        <Link href="/roodber8" aria-label="HagerLand admin" className="flex items-center gap-2 font-display font-extrabold">
           <LogoMark className="size-7" /> <span className="hidden sm:inline">HagerLand admin</span>
         </Link>
         {session?.kind === 'staff' && <span className="ml-auto hidden text-small text-white/70 md:inline">{session.name} · {session.role}</span>}

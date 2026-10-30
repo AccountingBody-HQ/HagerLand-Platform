@@ -218,7 +218,8 @@ describe('switches off close every door (L6)', () => {
     expect(state.upserts).toEqual([])
     state.owner = true
     expect(await setSupplySwitchAction('registration', true)).toMatchObject({ ok: true })
-    expect(state.upserts).toEqual([expect.objectContaining({ key: 'supply_partner_registration', value: true })])
+    // QC-1a: the /privacy date moves first (registration shows /privacy lines), then the switch.
+    expect(state.upserts).toEqual([expect.objectContaining({ key: 'legal_switch_changed', value: { privacy: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/) } }), expect.objectContaining({ key: 'supply_partner_registration', value: true })])
   })
 })
 

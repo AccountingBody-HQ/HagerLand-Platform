@@ -5,6 +5,7 @@ import { useFormPending } from '@/components/forms/NoResetForm'
 import { CircleAlert, CircleCheck, Info } from 'lucide-react'
 import { Button, type ButtonProps } from '@/components/ui/Button'
 import { cn } from '@/lib/cn'
+import { HONEYPOT_FIELD } from '@/lib/honeypot'
 
 /** Submit button that shows a spinner and blocks double-submits while the action runs. */
 export function SubmitButton({ children, pendingText, ...rest }: ButtonProps & { pendingText?: string }) {
@@ -37,10 +38,24 @@ export function FormAlert({ tone = 'error', children, className }: { tone?: 'err
 
 /** Invisible field that only bots fill in. */
 export function Honeypot() {
+  // QC-1a: hidden off-screen (not display:none, which some bots skip). The name and the hints keep browsers and
+  // password managers (1Password, LastPass, Bitwarden, Dashlane) from filling it in for real people.
   return (
     <div aria-hidden className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
-      <label htmlFor="hl_extra_field">Leave this empty</label>
-      <input id="hl_extra_field" name="hl_extra_field" type="text" tabIndex={-1} autoComplete="off" />
+      <label htmlFor={HONEYPOT_FIELD}>Leave this empty</label>
+      <input
+        id={HONEYPOT_FIELD}
+        name={HONEYPOT_FIELD}
+        type="text"
+        tabIndex={-1}
+        autoComplete="off"
+        data-1p-ignore="true"
+        data-lpignore="true"
+        data-bwignore="true"
+        data-form-type="other"
+        spellCheck={false}
+        defaultValue=""
+      />
     </div>
   )
 }

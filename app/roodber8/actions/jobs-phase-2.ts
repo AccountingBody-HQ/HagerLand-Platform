@@ -15,6 +15,7 @@ import { DESK_SWITCH_KEY, RETENTION_MONTHS_KEY, todayAddis } from '@/lib/jobs-de
 import { PRIVATE_CLIENT_SWITCH_KEY, REPORTS_SWITCH_KEY } from '@/lib/job-reports'
 import { VERIFICATION_EXPIRY_KEY, VERIFICATION_EXPIRY_STARTED_KEY } from '@/lib/verification'
 import { listTag } from '@/lib/revalidate'
+import { markLegalSwitchChange } from '@/lib/content/legal'
 
 type Msg = ActionResult<{ message: string }>
 
@@ -54,11 +55,18 @@ export async function setJobsSwitchAction(which: string, on: boolean, lawyerConf
   const key = SWITCH_KEYS[parsed.data.which]
   const db = getAdminSupabase()
   const { data: before } = await db.from('site_settings').select('value').eq('key', key).maybeSingle()
+  // QC-1a: a switch that shows or hides /privacy or /terms text moves that page's "Last updated" date, first.
+  let legal: Awaited<ReturnType<typeof markLegalSwitchChange>>
+  try {
+    legal = await markLegalSwitchChange(key, before?.value ?? false, parsed.data.on)
+  } catch {
+    return fail('Could not save the setting.')
+  }
   const { error } = await db.from('site_settings').upsert({ key, value: parsed.data.on, updated_at: new Date().toISOString() })
   if (error) return fail('Could not save the setting.')
   // Legacy badges get 90 days from the day the clean-up is switched on (F3); switching it on again starts a new 90 days.
   if (parsed.data.which === 'verification_expiry') await db.from('site_settings').upsert({ key: VERIFICATION_EXPIRY_STARTED_KEY, value: parsed.data.on ? todayAddis() : 'off', updated_at: new Date().toISOString() })
-  await audit('jobs.switch', { type: 'setting', label: key }, { from: before?.value ?? false, to: parsed.data.on })
+  await audit('jobs.switch', { type: 'setting', label: key }, { from: before?.value ?? false, to: parsed.data.on, ...(legal ? { legal_dates: legal } : {}) })
   revalidatePath('/jobs', 'layout')
   revalidatePath('/roodber8/jobs', 'layout')
   // Jobs Phase 6: job lists outside /jobs (company pages, site search) read the same cached job data.
@@ -75,6 +83,10 @@ export async function setJobsSwitchAction(which: string, on: boolean, lawyerConf
     revalidatePath('/privacy')
     revalidatePath('/terms')
     revalidatePath('/sitemap/jobs.xml')
+  }
+  if (legal) {
+    revalidatePath('/privacy')
+    revalidatePath('/terms')
   }
   if (parsed.data.which === 'recruitment_desk') {
     revalidatePath('/terms')

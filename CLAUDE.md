@@ -36,7 +36,7 @@ Every job follows these, even when the prompt does not repeat them. Where a rule
 **E. Safety** (the rules under "Working rules" and "Gotchas" still apply in full)
 16. Never write to the live database and never run SQL against it; on live and preview be a read-only visitor (no form submissions). Migrations are handed to AB with a read-only PASS/FAIL verify query (kept in `docs/sql/`, not `supabase/migrations/`), never applied to live by Claude Code.
 17. Never touch legacy tables. Never print or commit secrets or `.env` files. Never change Vercel, Supabase, Resend, Cloudflare, GitHub or DNS settings.
-18. New branch from current `main` for every job. Build before every commit. Never force-push. Merge into `main` only when the prompt authorises release (an exact release phrase, or "AB authorises release in this session").
+18. New branch from current `main` for every job. Build before every commit. Never force-push. Merge into `main` only when the prompt authorises release (an exact release phrase, or "AB authorises release in this session"). After committing, run the unit suite once more before pushing (some tests only read committed files).
 19. Release procedure: normal merge commit → wait for production Ready → read-only live checks (`/api/health` shows the merge SHA) → on any failure `git revert -m 1 <sha>`, push and explain → one line under "Releases" in `docs/LAUNCH_REPORT.md`.
 
 **F. Tests**

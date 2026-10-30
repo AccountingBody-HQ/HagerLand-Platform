@@ -11,6 +11,8 @@ import { MediaImage } from '@/components/media/MediaImage'
 import { LISTING_STATUS_LABELS } from '@/lib/labels'
 import { formatETB } from '@/lib/format'
 import { canRenew } from '@/lib/listing-rules'
+import { LoadFailed } from '@/components/account/LoadFailed'
+import { log } from '@/lib/log'
 
 export const metadata = { title: 'My listings' }
 
@@ -22,11 +24,12 @@ function daysLeft(expires: string | null): number | null {
 export default async function MyListingsPage() {
   await requireUser('/account/listings')
   const supabase = getServerSupabase()
-  const { data: rows } = await supabase
+  const { data: rows, error } = await supabase
     .from('properties')
     .select('id, slug, title, status, purpose, price_etb, price_on_request, expires_at, views_count, enquiries_count, updated_at, pending_changes, rejection_reason')
     .neq('status', 'removed')
     .order('updated_at', { ascending: false })
+  if (error) log.error('account', 'listings failed to load', error)
   const listings = rows ?? []
   const ids = listings.map((l) => l.id)
   const { data: covers } = ids.length
@@ -45,7 +48,9 @@ export default async function MyListingsPage() {
           </ButtonLink>
         }
       />
-      {listings.length === 0 ? (
+      {error ? (
+        <LoadFailed what="your listings" />
+      ) : listings.length === 0 ? (
         <EmptyState icon={<House />} title="You haven't listed a property yet" description="List a home, plot or commercial space. We review it and send enquiries straight to you." actions={<ButtonLink href="/account/listings/new">List your first property</ButtonLink>} />
       ) : (
         <ul className="space-y-3">

@@ -40,6 +40,7 @@ import { feesOwedOver30Days } from '@/lib/jobs-fee-report-data'
 import { REGISTRATION_WAITING } from '@/lib/supply/partner-rules'
 import { readSupplySwitches } from '@/lib/supply/partner-switches'
 import { expireDueOrderRequests } from '@/lib/supply/order-requests-data'
+import { SPAM_DROP_ROUTE, spamDropsSince } from '@/lib/spam-check'
 
 const DAY = 86_400_000
 const BATCH = 500
@@ -326,10 +327,12 @@ async function digestLines(now: number, s: Omit<DailySummary, 'digestSent' | 'st
     ['Listings expired today', s.expired],
     ['Quotes expired today', s.quotesExpired],
     ['Jobs closed today', s.jobsExpired],
+    // QC-1a: forms the spam check stopped (counts only; shown only when above 0).
+    ['Messages stopped by the spam check in the last 24 hours', spamDropsSince(since)],
   ]
   const [values, errors] = await Promise.all([
     Promise.all(counts.map(([, v]) => v)),
-    db.from('errors').select('route, message, count').gte('last_seen_at', since).order('count', { ascending: false }).limit(5),
+    db.from('errors').select('route, message, count').gte('last_seen_at', since).neq('route', SPAM_DROP_ROUTE).order('count', { ascending: false }).limit(5),
   ])
   counts.forEach(([label], i) => {
     const v = values[i]
