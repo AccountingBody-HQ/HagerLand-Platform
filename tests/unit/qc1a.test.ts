@@ -160,7 +160,8 @@ describe('F8 legal dates follow the switches', () => {
   })
   it('/privacy text changed in this job: its date is the release date; /terms and /cookies unchanged', async () => {
     const { LEGAL_WRITTEN } = await import('@/lib/content/legal')
-    expect(LEGAL_WRITTEN).toEqual({ terms: '2026-10-29', privacy: '2026-10-30', cookies: '2026-10-14' })
+    // QC-2 changed the text of all three pages: each is dated the QC-2 release day.
+    expect(LEGAL_WRITTEN).toEqual({ terms: '2026-10-30', privacy: '2026-10-30', cookies: '2026-10-30' })
     expect(read('app/(site)/privacy/page.tsx')).toContain('<li>Market appraisal requests, viewings, offers and applications to rent: 24 months after the last activity, unless they lead to a sale or tenancy, which we keep for as long as the law requires for our records.</li>')
   })
 })
