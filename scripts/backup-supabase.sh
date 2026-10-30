@@ -17,6 +17,9 @@ umask 077
 
 SCRIPT_VERSION="2026-10-30.bk1"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+# BK-1b: plain reasons for connection failures, the error sanitiser and the connection-string shape checks.
+# shellcheck source=scripts/lib/backup-connect.sh
+. "$ROOT/scripts/lib/backup-connect.sh"
 OUT_DIR="$ROOT/backups"
 STAMP="$(date -u +%Y%m%d-%H%M)"
 NAME="hagerland-backup-$STAMP"
@@ -27,6 +30,8 @@ DB_URL=""
 API_URL=""
 SERVICE_KEY=""
 PASSPHRASE=""
+RAW_URL=""
+RAW_PW=""
 CHECK_DIR=""
 AUTO=0
 CHECK_FILE=""
@@ -39,7 +44,7 @@ fail() { printf '\nThe backup STOPPED: %s\n' "$*" >&2; exit 1; }
 # Whatever happens (an error, Ctrl+C, a closed terminal), nothing unencrypted is left behind.
 cleanup() {
   local code=$?
-  unset PGPASSWORD SERVICE_KEY PASSPHRASE HL_BACKUP_DB_URL HL_BACKUP_SERVICE_ROLE_KEY HL_BACKUP_PASSPHRASE
+  unset PGPASSWORD SERVICE_KEY PASSPHRASE RAW_URL RAW_PW HL_BACKUP_DB_URL HL_BACKUP_SERVICE_ROLE_KEY HL_BACKUP_PASSPHRASE
   wipe_check_dir
   if [ "$DONE" != 1 ]; then
     if [ -n "$ENC" ]; then rm -rf "$WORK" "$ENC.partial" "$ENC" "$ENC.sha256"; fi
@@ -173,6 +178,7 @@ if [ "$AUTO" = 1 ]; then
   # Automatic mode: the three values come from the environment, are copied into this script's memory and removed from
   # the environment, so no tool it runs can see them. They are never printed.
   DB_URL="$HL_BACKUP_DB_URL"
+  RAW_URL="$HL_BACKUP_DB_URL"
   SERVICE_KEY="$HL_BACKUP_SERVICE_ROLE_KEY"
   PASSPHRASE="$HL_BACKUP_PASSPHRASE"
   unset HL_BACKUP_DB_URL HL_BACKUP_SERVICE_ROLE_KEY HL_BACKUP_PASSPHRASE
@@ -180,10 +186,18 @@ if [ "$AUTO" = 1 ]; then
   [[ "$DB_URL" != *"[YOUR-PASSWORD]"* ]] || fail "HL_BACKUP_DB_URL still contains [YOUR-PASSWORD]: put the database password in its place."
   # scheme://user:password@host:port/db  (the last @ ends the password, so a password may contain @)
   if [[ "$DB_URL" =~ ^([a-z]+://)([^:@/]+):(.+)@([^@/]+(/[^@]*)?)$ ]]; then
-    PGPASSWORD="$(url_decode "${BASH_REMATCH[3]}")"
+    RAW_PW="${BASH_REMATCH[3]}"
+    PGPASSWORD="$(url_decode "$RAW_PW")"
     DB_URL="${BASH_REMATCH[1]}${BASH_REMATCH[2]}@${BASH_REMATCH[4]}"
   else
     fail "HL_BACKUP_DB_URL has no password in it (it should look like postgresql://postgres.<ref>:<password>@<host>:5432/postgres)."
+  fi
+  # BK-1b: safe shape checks before connecting (not for the local copy). They never print the password.
+  case "$DB_URL" in *@localhost[:/]* | *@127.0.0.1[:/]*) problems="" ;; *) problems="$(url_shape_problems "$DB_URL" "$RAW_PW")" ;; esac
+  if [ -n "$problems" ]; then
+    printf '\nHL_BACKUP_DB_URL is not quite right:\n' >&2
+    printf '%s\n' "$problems" | sed 's/^/  - /' >&2
+    fail "the connection string in HL_BACKUP_DB_URL needs fixing (see above). Copy it again from Supabase → Connect → Session pooler."
   fi
   [ -n "$PGPASSWORD" ] || fail "HL_BACKUP_DB_URL has an empty password."
   export PGPASSWORD
@@ -209,6 +223,7 @@ read -r DB_URL
 if [[ "$DB_URL" != postgres* || "$DB_URL" != *":[YOUR-PASSWORD]@"* ]]; then
   fail "that does not look like the Session pooler string. Copy it again, with [YOUR-PASSWORD] still in it."
 fi
+RAW_URL="$DB_URL"
 DB_URL="${DB_URL/:\[YOUR-PASSWORD\]@/@}"
 echo "2) Type or paste your database password (nothing appears as you type), then press Enter:"
 read -rs PGPASSWORD
@@ -266,7 +281,32 @@ install_client() {
 }
 command -v psql >/dev/null || install_client 17
 say "Checking the connection (read-only)..."
-SERVER_NUM="$(q 'show server_version_num' 2>&1)" || fail "could not connect to the database. Check the password and that you copied the Session pooler string."
+# BK-1b: if the connection fails, say why in one plain line, with the database's own words underneath (secrets removed).
+connect_or_explain() {
+  local out out2 retry="" reason
+  if out="$(q 'show server_version_num' 2>&1)"; then SERVER_NUM="$out"; return 0; fi
+  # A secure-connection problem: one more try with sslmode=require (unless that is what was used).
+  if is_ssl_error "$out" && [ "${PGSSLMODE:-}" != require ]; then
+    if out2="$(PGSSLMODE=require q 'show server_version_num' 2>&1)"; then
+      export PGSSLMODE=require
+      echo "The first try could not set up the secure connection; it worked again with sslmode=require."
+      SERVER_NUM="$out2"
+      return 0
+    fi
+    out="$out2"
+    retry="Tried again with sslmode=require: that did not work either."
+  fi
+  reason="$(connection_reason "$out" "$RAW_URL" "$RAW_PW" "$PGPASSWORD" "$SERVICE_KEY" "$PASSPHRASE")"
+  case "$reason" in
+    "Reason from the database:"*) printf '\nThe database connection failed.\n  %s\n' "$reason" >&2 ;;
+    *) printf '\nThe database connection failed.\n  Reason: %s\n' "$reason" >&2 ;;
+  esac
+  sanitise_error "$out" "$RAW_URL" "$RAW_PW" "$PGPASSWORD" "$SERVICE_KEY" "$PASSPHRASE" | sed 's/^/  Details: /' >&2
+  if [ -n "$retry" ]; then printf '  %s\n' "$retry" >&2; fi
+  fail "could not connect to the database (reason above)."
+}
+connect_or_explain
+unset RAW_URL RAW_PW
 SERVER_MAJOR=$((SERVER_NUM / 10000))
 # The backup tools must be the database's version or newer: the closest installed one, otherwise install the matching one.
 PG_BIN=""

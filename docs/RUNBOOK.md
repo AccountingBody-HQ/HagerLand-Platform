@@ -55,7 +55,28 @@ In a Codespace terminal on `main`: `bash scripts/backup-supabase.sh`. It asks fo
 ### 1f. When a run fails
 
 - GitHub emails a failed **scheduled** run to the GitHub account that last changed the workflow's schedule (and a failed manual run to whoever pressed the button), if that account's notifications allow it: your GitHub picture → **Settings → Notifications → Actions** → "Notify me for failed workflows only", with email ticked.
-- Open the run: the red step's message says what went wrong in plain words (for example "could not connect to the database" after a password reset: update `HL_BACKUP_DB_URL`). Fix it, then press **Run workflow** again (1c). A failed run keeps nothing, so nothing unencrypted is left anywhere.
+- Open the run: the red step's message says what went wrong in plain words. Fix it, then press **Run workflow** again (1c). A failed run keeps nothing, so nothing unencrypted is left anywhere.
+- **"HL_BACKUP_DB_URL is not quite right"** (checked before connecting; the password is never shown). Each line names the wrong part:
+  - the user should be `postgres.<project ref>` (postgres, a dot, then 20 letters and numbers);
+  - the address after `@` should end with `.pooler.supabase.com`;
+  - the port should be `5432` (6543 is the Transaction pooler: use the **Session** pooler);
+  - the database name at the end should be `postgres`;
+  - no spaces, no square brackets, no `YOUR-PASSWORD`.
+  Copy the string again from Supabase → **Connect** → **Session pooler**, put the password in, and update the secret.
+- **"The database connection failed."** is followed by one **Reason** line and the database's own words (**Details**, with any password or key shown as `[hidden]`):
+
+  | Reason line | What to do |
+  |---|---|
+  | The database refused the password… | Copy the current database password into the string again (Supabase → Connect → Session pooler), then update `HL_BACKUP_DB_URL`. If you are not sure of the password, reset it (Project Settings → Database) and use the new one. |
+  | Supabase has paused new connections for a while after too many failed sign-in attempts… | Do nothing for about 30 minutes. Check the password in the secret carefully, then run it **once**. Repeated tries keep the pause going. |
+  | Supabase does not recognise the project or user… | The user part must be `postgres.<project ref>`, exactly as the Session pooler string shows it. Copy the whole string again. |
+  | The database address could not be found… | The part after `@` is mistyped. Copy the string again. |
+  | The database could not be reached from this machine (network)… | Supabase → **Database → Settings → Network restrictions**: allow all addresses (GitHub's machines change). Use the Session pooler (port 5432). |
+  | The secure connection could not be set up. | The backup already tried again with `sslmode=require`. Run it again later. If it keeps happening, send the Details line to your developer. |
+  | The database has too many open connections right now… | Wait a few minutes and run it again. |
+  | Supabase refused the connection because the project is paused or restricted… | Open the project in Supabase, restore or unpause it, then run it again. |
+  | The database closed the connection straight away… | The project may be restarting or paused: check it is active in Supabase, then run it again. |
+  | Reason from the database: … | Something less common. Send that line to your developer. |
 - No email does not prove success: look at **Actions → Weekly backup** each Monday (the digest reminds you). GitHub switches scheduled workflows off in a public repository after 60 days with no new commits; if that happens, the page shows a button to switch it back on.
 
 ### 1g. Test-restore every quarter (into the local copy, never live)
