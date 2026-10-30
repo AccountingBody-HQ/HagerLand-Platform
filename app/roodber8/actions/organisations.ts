@@ -9,10 +9,11 @@ import { revalidatePath, revalidateTag } from 'next/cache'
 import { z } from 'zod'
 import { escapeLikePattern } from '@/lib/security'
 import { getAdminSupabase } from '@/lib/supabase/admin'
-import { adminActor, assertAdmin, audit, changedFields } from '@/lib/admin/guard'
-import { findPossibleDuplicates } from '@/lib/supply/data'
+import { adminActor, assertAdmin, assertOwner, audit, changedFields } from '@/lib/admin/guard'
+import { findPossibleDuplicates, supplyPartnerOrgIds } from '@/lib/supply/data'
 import { organisationFormValues, organisationSchema, USER_ORG_KINDS } from '@/lib/validation/organisation'
 import { fail, invalid, ok, type ActionResult } from '@/lib/action-result'
+import { MERGE_PARTNER_REFUSED } from '@/lib/admin/merge'
 import { shortId, slugify } from '@/lib/slug'
 import { listTag, revalidateEntity } from '@/lib/revalidate'
 import type { OrgFormState } from '@/app/(account)/account/company/org-actions'
@@ -280,20 +281,27 @@ async function mergeSupplierOffers(sourceId: string, targetId: string, sourceNam
  */
 export async function searchMergeTargetsAction(sourceId: string, query: string): Promise<ActionResult<{ results: { id: string; label: string }[] }>> {
   await assertAdmin(AREA)
+  // QC-1b: merging is for the owner only (Operations may open the organisation pages, not merge them).
+  await assertOwner()
   const q = query.trim().slice(0, 80)
   if (!z.uuid().safeParse(sourceId).success) return fail('Organisation not found.')
   if (q.length < 2) return fail('Type at least 2 letters.')
   const db = getAdminSupabase()
   const { data: source } = await db.from('organisations').select('id, kind').eq('id', sourceId).maybeSingle()
   if (!source) return fail('Organisation not found.')
+  if ((await supplyPartnerOrgIds([source.id])).size) return fail(MERGE_PARTNER_REFUSED)
   const base = () => db.from('organisations').select('id, name, short_id').eq('kind', source.kind).neq('id', source.id).neq('status', 'archived')
+  // Supply partners are left out after the search, so it reads a few more than the 20 shown.
   const [byName, byRef] = await Promise.all([
-    base().ilike('name', `%${escapeLikePattern(q)}%`).order('name').limit(20),
+    base().ilike('name', `%${escapeLikePattern(q)}%`).order('name').limit(60),
     /^[a-z0-9]{4,12}$/i.test(q) ? base().eq('short_id', q.toLowerCase()).limit(1) : Promise.resolve({ data: [], error: null }),
   ])
   if (byName.error || byRef.error) return fail('The search could not be run. Please try again.')
+  const found = [...(byRef.data ?? []), ...(byName.data ?? [])]
+  const partners = await supplyPartnerOrgIds(found.map((o) => o.id))
   const seen = new Set<string>()
-  const results = [...(byRef.data ?? []), ...(byName.data ?? [])]
+  const results = found
+    .filter((o) => !partners.has(o.id))
     .filter((o) => (seen.has(o.id) ? false : (seen.add(o.id), true)))
     .slice(0, 20)
     .map((o) => ({ id: o.id, label: o.short_id ? `${o.name} (${o.short_id})` : o.name }))
@@ -302,6 +310,7 @@ export async function searchMergeTargetsAction(sourceId: string, query: string):
 
 export async function mergeOrganisationsAction(sourceId: string, targetId: string): Promise<ActionResult<{ message: string }>> {
   await assertAdmin(AREA)
+  await assertOwner()
   if (!z.uuid().safeParse(sourceId).success || !z.uuid().safeParse(targetId).success || sourceId === targetId) return fail('Choose a different organisation to merge into.')
   const db = getAdminSupabase()
   const [{ data: source }, { data: target }] = await Promise.all([
@@ -313,6 +322,8 @@ export async function mergeOrganisationsAction(sourceId: string, targetId: strin
   // Nothing is merged into a HagerLand organisation (its members could read HagerLand's applications).
   const { data: targetFlags } = await db.from('organisations').select('is_hagerland').eq('id', targetId).maybeSingle()
   if (targetFlags?.is_hagerland) return fail('Nothing can be merged into a HagerLand organisation.')
+  // QC-1b: a private supply partner on either side is never merged (its terms, money and portal stay with it).
+  if ((await supplyPartnerOrgIds([sourceId, targetId])).size) return fail(MERGE_PARTNER_REFUSED)
   const { data: members } = await db.from('organisation_members').select('user_id, role').eq('org_id', sourceId)
   if (members?.length) await db.from('organisation_members').upsert(members.map((m) => ({ org_id: targetId, user_id: m.user_id, role: m.role })), { onConflict: 'org_id,user_id', ignoreDuplicates: true })
   // Archived first: an archived duplicate may lose its last owner (every live organisation keeps one).

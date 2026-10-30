@@ -300,13 +300,13 @@ test('F10: Dry run counts and a Live run clears exactly the right valuations and
   const up = await d.storage.from('private-docs').upload(reportPath, Buffer.from('%PDF-1.4 qc1a'), { contentType: 'application/pdf' })
   expect(up.error).toBeNull()
   const val = (contactId: string, status: string, when: string, instruction: string | null = null, report: string | null = null) =>
-    psqlId(`insert into public.agency_valuations (purpose, contact_id, instruction_id, status, address_line, details, notes, report_path, value_low_etb, value_high_etb, outcome, created_at, updated_at) values ('sale', '${contactId}', ${instruction ? `'${instruction}'` : 'null'}, '${status}', 'House ${stamp}, Bole', 'Three bedrooms ${stamp}', 'Owner notes ${stamp}', ${report ? `'${report}'` : 'null'}, 6500000, 7000000, 'not_instructed', ${when}, ${when}) returning id`)
+    psqlId(`insert into public.agency_valuations (purpose, contact_id, instruction_id, status, address_line, details, notes, report_path, preferred_times, time_zone, ip_hash, value_low_etb, value_high_etb, outcome, created_at, updated_at) values ('sale', '${contactId}', ${instruction ? `'${instruction}'` : 'null'}, '${status}', 'House ${stamp}, Bole', 'Three bedrooms ${stamp}', 'Owner notes ${stamp}', ${report ? `'${report}'` : 'null'}, 'Weekday mornings', 'Europe/London', 'iphash${stamp}', 6500000, 7000000, 'not_instructed', ${when}, ${when}) returning id`)
   const vDue = val(cDue, 'completed', old, null, reportPath)
   const vOpenInstr = val(cOpen, 'completed', old, openInstruction)
   const vBooked = val(cNew, 'booked', old)
   const vRecent = val(cNew, 'completed', `now() - interval '23 months'`)
   const ids = [vDue, vOpenInstr, vBooked, vRecent]
-  const row = (id: string) => psql(`select coalesce(address_line, '∅') || '|' || coalesce(details, '∅') || '|' || coalesce(notes, '∅') || '|' || coalesce(report_path, '∅') || '|' || value_low_etb || '|' || status from public.agency_valuations where id = '${id}'`)
+  const row = (id: string) => psql(`select coalesce(address_line, '∅') || '|' || coalesce(details, '∅') || '|' || coalesce(notes, '∅') || '|' || coalesce(report_path, '∅') || '|' || coalesce(preferred_times, '∅') || '|' || coalesce(time_zone, '∅') || '|' || coalesce(ip_hash, '∅') || '|' || value_low_etb || '|' || status from public.agency_valuations where id = '${id}'`)
   const contactRow = (id: string) => psql(`select name || '|' || coalesce(email, '∅') || '|' || coalesce(phone, '∅') from public.agency_contacts where id = '${id}'`)
   const before = Object.fromEntries(ids.map((id) => [id, row(id)]))
   const moneyBefore = await agencyFigures(page)
@@ -333,8 +333,9 @@ test('F10: Dry run counts and a Live run clears exactly the right valuations and
   } finally {
     psql(`update public.site_settings set value = '"dry_run"'::jsonb where key = 'jobs_data_cleanup_mode'`)
   }
-  // Exactly the due valuation: address, details, notes and report gone; amounts and status stay.
-  expect(row(vDue)).toBe('∅|∅|∅|∅|6500000|completed')
+  // Exactly the due valuation: address, details, notes, report, preferred times, time zone and IP fingerprint gone
+  // (QC-1b); amounts and status stay.
+  expect(row(vDue)).toBe('∅|∅|∅|∅|∅|∅|∅|6500000|completed')
   for (const id of [vOpenInstr, vBooked, vRecent]) expect(row(id)).toBe(before[id])
   expect((await d.storage.from('private-docs').download(reportPath)).error).not.toBeNull()
   // Exactly the due contact: anonymised; the one with an open instruction and the recent one untouched.

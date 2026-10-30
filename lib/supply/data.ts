@@ -1,7 +1,7 @@
 import 'server-only'
 // Supply partners (admin): reads for the organisation panel and the partner list. Service role only: the tables
 // have no grants, so nothing here is reachable by visitors, customers or suppliers.
-import { readAll, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
+import { readAll, readAllIn, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { escapeLikePattern } from '@/lib/security'
 import { signedDocumentUrl } from '@/lib/storage'
@@ -21,6 +21,16 @@ export async function getSupplyPartner(orgId: string): Promise<{ partner: Supply
   ])
   const evidence = await Promise.all((partner?.evidence_paths ?? []).map(async (path) => ({ path, url: await signedDocumentUrl(path) })))
   return { partner, contacts: contacts ?? [], evidence }
+}
+
+/** QC-1b: which of these organisations are private supply partners (a partner record, or named on a partner registration). */
+export async function supplyPartnerOrgIds(orgIds: readonly string[]): Promise<Set<string>> {
+  const db = getAdminSupabase()
+  const [partners, registrations] = await Promise.all([
+    readAllIn(orgIds, (part) => db.from('supply_partners').select('org_id').in('org_id', part), { maxRows: REPORT_MAX_ROWS, key: 'org_id' }),
+    readAllIn(orgIds, (part) => db.from('partner_registrations').select('id, org_id').in('org_id', part), { maxRows: REPORT_MAX_ROWS }),
+  ])
+  return new Set([...partners.data, ...registrations.data].map((r) => r.org_id))
 }
 
 export interface PossibleDuplicate {

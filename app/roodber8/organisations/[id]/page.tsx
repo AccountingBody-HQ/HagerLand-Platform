@@ -20,7 +20,8 @@ import { SingleImageUpload } from '@/components/media/SingleImageUpload'
 import { FormAlert } from '@/components/forms/FormParts'
 import { SupplyPartnerPanel } from '@/components/admin/SupplyPartnerPanel'
 import { ScrollToSection } from '@/components/admin/ScrollToSection'
-import { findPossibleDuplicates, getSupplyPartner } from '@/lib/supply/data'
+import { findPossibleDuplicates, getSupplyPartner, supplyPartnerOrgIds } from '@/lib/supply/data'
+import { MERGE_PARTNER_REFUSED } from '@/lib/admin/merge'
 import { offerCounts } from '@/lib/supply/offers-data'
 import { partnerAgreements } from '@/lib/supply/agreements-data'
 import { AgreementsPanel } from '@/components/admin/SupplyAgreements'
@@ -63,7 +64,7 @@ export default async function AdminOrgPage(
     notesFor('organisation', o.id),
     auditFor(o.id),
   ]))
-  const [supply, prices, owner] = await Promise.all([getSupplyPartner(o.id), offerCounts([o.id]), isOwnerSession()])
+  const [supply, prices, owner, partnerIds] = await Promise.all([getSupplyPartner(o.id), offerCounts([o.id]), isOwnerSession(), supplyPartnerOrgIds([o.id])])
   // Jobs Phase 4: the recorded checks behind the Verified badge (newest first).
   const { data: checks } = must(await db.from('employer_verifications').select('id, status, licence_number, licence_expires_on, licence_check_method, licence_checked_at, tin_checked_at, phone_checked_at, phone_check_note, site_visit_at, verified_by, verified_at, valid_until, needs_recheck_since, revoked_at, revoked_by, revoked_reason').eq('organisation_id', o.id).order('created_at', { ascending: false }))
   const liveCheck = (checks ?? []).find((c) => ['active', 'needs_recheck'].includes(c.status)) ?? null
@@ -307,9 +308,9 @@ export default async function AdminOrgPage(
           <Panel title="Members">
             <MembersTool orgId={o.id} members={memberEmails} />
           </Panel>
-          {!isHl && (
+          {owner && !isHl && (
             <Panel title="Merge duplicate">
-              <MergeTool orgId={o.id} />
+              {partnerIds.has(o.id) ? <p className="text-small text-muted">{MERGE_PARTNER_REFUSED}</p> : <MergeTool orgId={o.id} />}
             </Panel>
           )}
           <Panel title="Internal notes">

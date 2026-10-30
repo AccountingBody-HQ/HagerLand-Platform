@@ -8,11 +8,11 @@ test.beforeAll(() => assertLocalStack())
 // Addis Ababa dates, as the pages use (QC-1a: a UTC date failed every day from 21:00 to 24:00 UTC).
 const iso = (days: number) => addisDay(new Date(Date.now() + days * 86_400_000))
 
-async function seedPartner(name: string) {
+async function seedPartner(name: string, opts: { partnerRecord?: boolean } = {}) {
   const d = db()
   const slug = `${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now()}`
   const { data: org } = await d.from('organisations').insert({ kind: 'supplier', name, slug, status: 'draft', source: 'admin' }).select('id').single()
-  await d.from('supply_partners').insert({ org_id: org!.id, relationship_status: 'active' })
+  if (opts.partnerRecord !== false) await d.from('supply_partners').insert({ org_id: org!.id, relationship_status: 'active' })
   return org!.id
 }
 
@@ -190,8 +190,9 @@ test('merging a duplicate moves its prices; for the same item the newer stays cu
   const d = db()
   const stamp = Date.now()
   const cat = await cementCategory()
-  const dup = await seedPartner(`Piassa Steel Dup ${stamp}`)
-  const keep = await seedPartner(`Piassa Steel Keep ${stamp}`)
+  // QC-1b: supply partners are never merged, so these are two ordinary businesses with prices.
+  const dup = await seedPartner(`Piassa Steel Dup ${stamp}`, { partnerRecord: false })
+  const keep = await seedPartner(`Piassa Steel Keep ${stamp}`, { partnerRecord: false })
   const offer = (orgId: string, cents: number, priceDate: string, key = 'rebar 12mm') => ({ org_id: orgId, category_id: cat, item_name: key, item_key: key, unit: 'piece', price_etb_cents: cents, price_date: priceDate, valid_until: iso(7), source: 'direct_call' })
   try {
     const seeded = await d.from('supplier_offers').insert([offer(dup, 99000, iso(0)), offer(dup, 4000, iso(0), 'hollow block'), offer(keep, 95000, iso(-3))])
