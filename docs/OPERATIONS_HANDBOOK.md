@@ -175,7 +175,9 @@ HagerLand Supply sells products that partners (manufacturers, importers, supplie
   - settlements and payments to partners, partner statements and the supply reconciliation;
   - trade prices agreed with trade customers (the "Trade prices" part of a trade account);
   - customer prices, reservations, payments and refunds on order requests;
-  - any switch (partner registration, catalogue ordering, trade prices) and the payment details.
+  - any switch (partner registration, catalogue ordering, trade prices), the payment methods (owner only: Supplies → Payment methods) and receipt numbers.
+
+- **Payment methods and receipts (QC-2):** the ways customers pay are managed by AB only (Supplies → Payment methods); customers see them when their order is reserved. AB records the official receipt number with each payment. If a customer asks how to pay or for a receipt, pass it to AB; never give payment details yourself.
 
   If you think something there is wrong, tell AB; never ask a partner or a customer for money or promise a price.
 
