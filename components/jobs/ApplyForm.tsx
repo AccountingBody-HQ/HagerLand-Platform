@@ -4,10 +4,11 @@ import { useActionState, useState } from 'react'
 import { FileText } from 'lucide-react'
 import { applyForJobAction, type ApplyState } from '@/app/actions/job-actions'
 import { Checkbox, Field, Input, Textarea } from '@/components/ui/Field'
-import { FormAlert, SubmitButton } from '@/components/forms/FormParts'
+import { FormAlert, SubmitButton, TransferConsent } from '@/components/forms/FormParts'
 import { FileDrop } from '@/components/media/FileDrop'
 import { NoResetForm } from '@/components/forms/NoResetForm'
 import { useJobsI18n } from '@/lib/i18n/client'
+import { TRANSFER_CONSENT_TEXT } from '@/lib/data-transfer'
 
 /** Apply with a CV (PDF or Word, private) and a cover note (spec 24.9). */
 export function ApplyForm({ jobId, userId, defaults }: { jobId: string; userId: string; defaults: { name: string; email: string; phone: string; profileCv: string | null } }) {
@@ -60,6 +61,12 @@ export function ApplyForm({ jobId, userId, defaults }: { jobId: string; userId: 
         {errors.cv_path && <p className="text-small text-error">{errors.cv_path}</p>}
         <p className="text-small text-muted">{t('Your CV is never public. Only this employer and HagerLand can open it.')}</p>
       </fieldset>
+      {/* QC-2 (W19, W17): both required, both checked again on the server. */}
+      <div className={errors.adult ? 'rounded-md ring-2 ring-error' : undefined}>
+        <Checkbox id="ap-adult" name="adult" label={t('I am 18 or older')} required aria-invalid={errors.adult ? true : undefined} />
+        {errors.adult && <p className="mt-1 text-small text-error">{errors.adult}</p>}
+      </div>
+      <TransferConsent error={errors.transfer_consent} label={t(TRANSFER_CONSENT_TEXT)} />
       <SubmitButton size="lg" className="w-full sm:w-auto" pendingText={t('Sending…')}>
         {t('Send application')}
       </SubmitButton>

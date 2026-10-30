@@ -115,6 +115,10 @@ export function CandidateForm({ userId, defaults }: { userId: string; defaults: 
         />
       </fieldset>
       <Checkbox id="cp-placement" name="placement_wanted" label={t('Register me for placement help')} description={t('HagerLand may contact you about suitable roles from our recruitment requests. We introduce you to an employer only after you agree.')} defaultChecked={defaults.placement_wanted} />
+      <div className={errors.adult ? 'rounded-md ring-2 ring-error' : undefined}>
+        <Checkbox id="cp-adult" name="adult" label={t('I am 18 or older')} required aria-invalid={errors.adult ? true : undefined} />
+        {errors.adult && <p className="mt-1 text-small text-error">{errors.adult}</p>}
+      </div>
       <SubmitButton pendingText={t('Saving…')}>{t('Save profile')}</SubmitButton>
     </NoResetForm>
   )

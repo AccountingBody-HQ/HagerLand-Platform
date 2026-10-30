@@ -105,8 +105,8 @@ export default async function SuppliesHub() {
         <ol className="grid gap-4 md:grid-cols-3">
           {[
             { icon: FileText, title: 'Send your list', text: 'Add products to your quote list, upload a bill of quantities, or simply type what you need.' },
-            { icon: ClipboardList, title: 'Get a clear quote', text: 'We check prices and availability and send you one quote, including delivery.' },
-            { icon: Truck, title: 'Delivered to site', text: 'You confirm, and we arrange payment and delivery directly with you.' },
+            { icon: ClipboardList, title: 'Get a clear quote', text: 'We check prices and availability and send you one quote, including VAT and delivery in Addis Ababa.' },
+            { icon: Truck, title: 'Delivered to site', text: 'You confirm, pay HagerLand by one of the payment methods we give you, and we deliver.' },
           ].map((s, i) => (
             <li key={s.title} className="rounded-lg border border-border bg-white p-6">
               <span className="flex size-10 items-center justify-center rounded-full bg-green-soft font-display font-bold text-green">{i + 1}</span>

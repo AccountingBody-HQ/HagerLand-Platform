@@ -13,12 +13,16 @@ import { hagerlandInbox } from '@/lib/enquiries'
 import { sendEmail } from '@/lib/email/send'
 import { adminNoticeEmail } from '@/lib/email/templates'
 import { canonicalUrl } from '@/lib/site'
+import { accountConsentRefusal } from '@/lib/data-transfer-server'
 
 type Msg = ActionResult<{ message: string }>
 
 /** A message from the owner of a managed property to HagerLand (spec 26.7). */
 export async function sendOwnerMessageAction(propertyId: string, _prev: Msg | null, formData: FormData): Promise<Msg> {
   const user = await requireUser('/owner')
+  // QC-2: signed-in forms rely on the account's data-transfer notice (confirmed at the top of the account pages).
+  const consentRefusal = await accountConsentRefusal(user.id)
+  if (consentRefusal) return fail(consentRefusal)
   if (!serviceOn(await getPillars(), 'manage', 'owner-portal')) return fail('The owner portal is not available at the moment.')
   if (!z.uuid().safeParse(propertyId).success) return fail('Not found.')
   const p = z.object({ body: textSchema(4000, { min: 2, label: 'Message' }) }).safeParse(Object.fromEntries(formData))

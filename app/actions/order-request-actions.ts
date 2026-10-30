@@ -19,6 +19,8 @@ import { todayInAddis } from '@/lib/supply/shortlist'
 import { log } from '@/lib/log'
 import type { Database } from '@/lib/database.types'
 import { spamCheckDrop } from '@/lib/spam-check'
+import { transferConsentMissing } from '@/lib/data-transfer'
+import { recordTransferConsent } from '@/lib/data-transfer-server'
 
 // The generated types mark every SQL argument as required; these may be NULL, which order_request_submit (0049) accepts.
 type SubmitArgs = Database['public']['Functions']['order_request_submit']['Args']
@@ -33,6 +35,8 @@ const FAILED = 'Something went wrong. Please refresh the page.'
  */
 export async function submitOrderRequestAction(_prev: OrderRequestState, formData: FormData): Promise<OrderRequestState> {
   if (await spamCheckDrop(formData, 'submit_order_request')) return ok({ reference: 'HLR-0', path: '/supplies' })
+  const noConsent = transferConsentMissing(formData)
+  if (noConsent) return noConsent
   // The form is "not found" while the switch is off; a form left open from before is refused too (L6).
   if (!(await readSupplySwitches()).catalogueOrdering) return fail(FAILED)
   const parsed = orderRequestSchema.safeParse(Object.fromEntries(formData))
@@ -78,5 +82,6 @@ export async function submitOrderRequestAction(_prev: OrderRequestState, formDat
   await sendCustomerEmail(row.id, 'received', { link: canonicalUrl(path) })
   const inbox = await hagerlandInbox('supply')
   if (inbox) await sendEmail({ to: inbox, from: 'supply', ...orderRequestInternalEmail({ reference: row.reference, adminUrl: canonicalUrl(`/roodber8/supply/order-requests/${row.id}`) }) })
+  await recordTransferConsent({ form: 'order_request', subjectTable: 'order_requests', subjectId: null, subjectReference: row.reference })
   return ok({ reference: row.reference, path })
 }

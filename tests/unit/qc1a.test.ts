@@ -125,13 +125,14 @@ describe('F8 legal dates follow the switches', () => {
       supply_catalogue_ordering: ['terms', 'privacy'],
       jobs_private_client_posts: ['terms'],
       jobs_recruitment_desk: ['terms'],
+      jobs_reports_enabled: ['terms'],
       jobs_amharic: ['terms', 'privacy'],
       amharic_enabled: ['terms', 'privacy'],
     })
     expect(legalPagesChanged('supply_catalogue_ordering', false, true)).toEqual(['terms', 'privacy'])
     expect(legalPagesChanged('supply_catalogue_ordering', true, false)).toEqual(['terms', 'privacy'])
     expect(legalPagesChanged('supply_catalogue_ordering', true, true)).toEqual([])
-    for (const k of ['supply_trade_pricing', 'home_business_row', 'jobs_phone_apply', 'jobs_worker_register', 'jobs_reports_enabled', 'jobs_callbacks', 'org_verification_expiry']) expect(legalPagesChanged(k, false, true), k).toEqual([])
+    for (const k of ['supply_trade_pricing', 'home_business_row', 'jobs_phone_apply', 'jobs_worker_register', 'jobs_callbacks', 'org_verification_expiry']) expect(legalPagesChanged(k, false, true), k).toEqual([])
     expect(withLegalSwitchDate({ terms: '2026-10-01', junk: 'x' }, ['privacy'], '2026-10-30')).toEqual({ terms: '2026-10-01', privacy: '2026-10-30' })
     expect(withLegalSwitchDate(null, ['terms', 'privacy'], '2026-10-30')).toEqual({ terms: '2026-10-30', privacy: '2026-10-30' })
   })
@@ -139,7 +140,7 @@ describe('F8 legal dates follow the switches', () => {
     const privacy = read('app/(site)/privacy/page.tsx')
     const terms = read('app/(site)/terms/page.tsx')
     expect(privacy.match(/supplySwitches\.\w+/g)?.sort()).toEqual(['supplySwitches.catalogueOrdering', 'supplySwitches.registration'])
-    expect(Array.from(new Set(terms.match(/(supplySwitches|jobsSwitches)\.\w+/g))).sort()).toEqual(['jobsSwitches.privateClientPosts', 'jobsSwitches.recruitmentDesk', 'supplySwitches.catalogueOrdering'])
+    expect(Array.from(new Set(terms.match(/(supplySwitches|jobsSwitches)\.\w+/g))).sort()).toEqual(['jobsSwitches.privateClientPosts', 'jobsSwitches.recruitmentDesk', 'jobsSwitches.reportsEnabled', 'supplySwitches.catalogueOrdering'])
     expect(read('lib/content/legal.ts')).toContain('return s.amharic_enabled === true || s.jobs_amharic === true')
   })
   it('the switch actions write the date first, in the same action and audit entry; never into the override boxes', () => {
@@ -160,7 +161,7 @@ describe('F8 legal dates follow the switches', () => {
   it('/privacy text changed in this job: its date is the release date; /terms and /cookies unchanged', async () => {
     const { LEGAL_WRITTEN } = await import('@/lib/content/legal')
     expect(LEGAL_WRITTEN).toEqual({ terms: '2026-10-29', privacy: '2026-10-30', cookies: '2026-10-14' })
-    expect(read('app/(site)/privacy/page.tsx')).toContain('<li>Valuation requests, viewings, offers and applications to rent: 24 months after the last activity, unless they lead to a sale or tenancy, which we keep for as long as the law requires for our records.</li>')
+    expect(read('app/(site)/privacy/page.tsx')).toContain('<li>Market appraisal requests, viewings, offers and applications to rent: 24 months after the last activity, unless they lead to a sale or tenancy, which we keep for as long as the law requires for our records.</li>')
   })
 })
 
@@ -227,7 +228,7 @@ describe('F10 valuations and agency contacts', () => {
     expect(d).not.toMatch(/from\('agency_(valuations|contacts)'\)\.delete\(/)
   })
   it('the switches page has the approved line', () => {
-    expect(read('app/roodber8/jobs/data/page.tsx')).toContain("['Valuations and agency contacts', 'Address, details, notes and report cleared 24 months after the last activity, once completed or cancelled; never while an instruction or tenancy is open.']")
+    expect(read('app/roodber8/jobs/data/page.tsx')).toContain("['Valuations and agency contacts', 'Address, details, notes, report, preferred times, time zone and IP code cleared 24 months after the last activity, once completed or cancelled; never while an instruction or tenancy is open.']") // QC-2 (T2)
   })
 })
 

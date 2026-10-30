@@ -6,7 +6,7 @@ import { CircleCheck } from 'lucide-react'
 import { submitPartnerAction } from '@/app/actions/interest-actions'
 import { Field, Input, Select, Textarea, describedBy } from '@/components/ui/Field'
 import { PhoneInput } from '@/components/ui/PhoneInput'
-import { FormAlert, Honeypot, SubmitButton } from '@/components/forms/FormParts'
+import { FormAlert, Honeypot, SubmitButton, TransferConsent } from '@/components/forms/FormParts'
 import { Turnstile } from '@/components/forms/Turnstile'
 import { COUNTRIES, OTHER_COUNTRY } from '@/lib/countries'
 import { PARTNER_TYPE_LABELS, type PartnerType } from '@/lib/content/verticals'
@@ -84,6 +84,7 @@ export function PartnerForm({ verticalKey, types, idPrefix = 'par' }: { vertical
       <Field label="What would you like to offer?" htmlFor={id('message')} error={errors.message} optional>
         <Textarea id={id('message')} name="message" rows={3} maxLength={2000} invalid={Boolean(errors.message)} />
       </Field>
+      <TransferConsent error={errors.transfer_consent} />
       <Turnstile action="partner" />
       <SubmitButton fullWidth size="lg" variant="secondary" pendingText="Sending…">
         Apply to partner

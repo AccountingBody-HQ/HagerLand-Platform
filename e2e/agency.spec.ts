@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { adminSession, asFreshVisitor, createUser, db, latestMail, mailWithSubject, seedPublishedProperty, setPillarModes, signIn, uniqueEmail } from './helpers'
+import { adminSession, asFreshVisitor, createUser, db, latestMail, mailWithSubject, seedPublishedProperty, setPillarModes, signIn, uniqueEmail, tickTransferConsent } from './helpers'
 
 /** HagerLand estate agency operations and the rent & let lifecycle (spec 26.1, 26.5, 26.6). */
 
@@ -26,7 +26,7 @@ test('book a valuation: contact, lead instruction and valuation are created; adm
   await asFreshVisitor(page)
   const email = uniqueEmail('valuation')
   await page.goto('/agency/valuation')
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Book a valuation')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Book a market appraisal')
   await page.getByLabel('Type of property').selectOption('villa')
   await page.getByLabel('Where is it?').fill('Bole')
   await page.getByRole('option', { name: /^Bole/ }).first().click()
@@ -35,8 +35,9 @@ test('book a valuation: contact, lead instruction and valuation are created; adm
   await page.locator('input[name="email"]').fill(email)
   await expect(page.getByLabel('Your time zone')).not.toHaveValue('')
   await page.getByLabel('Best times to call you').fill('Weekday evenings')
-  await page.getByRole('button', { name: 'Book my valuation' }).click()
-  await expect(page.getByText('Valuation requested')).toBeVisible()
+  await tickTransferConsent(page)
+  await page.getByRole('button', { name: 'Book my market appraisal' }).click()
+  await expect(page.getByText('Market appraisal requested')).toBeVisible()
   const { data: v } = await db().from('agency_valuations').select('id, reference, status, instruction_id, contact:agency_contacts(roles, email)').eq('preferred_times', 'Weekday evenings').order('created_at', { ascending: false }).limit(1).single()
   expect(v?.status).toBe('requested')
   expect(v?.contact).toMatchObject({ roles: ['vendor'], email })
@@ -84,9 +85,11 @@ test('a HagerLand-marketed sale: book a video viewing, confirm it with a link, r
   await page.getByLabel('Your name').fill('Dawit Buyer')
   await page.locator('input[id$="-phone"]').fill('912345678')
   await page.locator('input[name="email"]').fill(email)
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Request a viewing' }).click()
   await expect(page.getByText('Tell us when suits you')).toBeVisible()
   await page.getByLabel('When would suit you?').fill('Saturday morning')
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Request a viewing' }).click()
   await expect(page.getByText('Viewing requested')).toBeVisible()
   const { data: vw } = await db().from('agency_viewings').select('id, reference, mode, instruction_id').eq('email', email).single()
@@ -121,9 +124,11 @@ test('make an offer: non-binding wording enforced; accepting puts the instructio
   await page.getByLabel('Your name').fill('Meron Offer')
   await page.locator('input[id$="-phone"]').fill('913456789')
   await page.locator('input[name="email"]').fill(email)
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Send my offer' }).click()
   await expect(page.getByText('Please confirm you understand an offer is not binding')).toBeVisible()
   await page.getByLabel('I understand this offer is an expression of interest only').check()
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Send my offer' }).click()
   await expect(page.getByText('Offer sent')).toBeVisible()
   const { data: o } = await db().from('agency_offers').select('id, reference, amount_etb').eq('email', email).single()
@@ -170,6 +175,7 @@ test('lettings: apply to rent, approve, create a tenancy linked to Property Care
   await page.locator('input[name="email"]').fill(tenant.email)
   await page.getByLabel('Number of people living there').fill('2')
   await page.getByLabel('Your work').fill('Engineer at a construction firm')
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Send my application' }).click()
   await expect(page.getByText('Application sent')).toBeVisible()
   const { data: app } = await db().from('rental_applications').select('id, reference, occupants').eq('email', tenant.email).single()

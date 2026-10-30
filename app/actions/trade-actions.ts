@@ -12,6 +12,7 @@ import { adminNoticeEmail, tradeApplicationEmail } from '@/lib/email/templates'
 import { hagerlandInbox } from '@/lib/enquiries'
 import { canonicalUrl } from '@/lib/site'
 import { log } from '@/lib/log'
+import { accountConsentRefusal } from '@/lib/data-transfer-server'
 
 const schema = z.object({
   business_name: textSchema(160, { min: 2, label: 'Business name' }),
@@ -25,6 +26,9 @@ const schema = z.object({
 /** A signed-in business applies for a trade account; HagerLand decides (spec 25.2e). */
 export async function applyTradeAction(_prev: ActionResult<{ reference: string }> | null, formData: FormData): Promise<ActionResult<{ reference: string }>> {
   const user = await requireUser('/supplies/trade')
+  // QC-2: signed-in forms rely on the account's data-transfer notice (confirmed at the top of the account pages).
+  const consentRefusal = await accountConsentRefusal(user.id)
+  if (consentRefusal) return fail(consentRefusal)
   const parsed = schema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   if (!(await rateLimit(`trade-apply:${user.id}`, 5, 86_400)).allowed) return fail('Please try again tomorrow.')

@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { asFreshVisitor, db, mailWithSubject, randomPhone, uniqueEmail } from './helpers'
+import { asFreshVisitor, db, mailWithSubject, randomPhone, uniqueEmail, tickTransferConsent } from './helpers'
 
 /** Jobs Phase 1b: what happens next after a staffing requirement (thank-you page, email, tab title). */
 
@@ -18,6 +18,7 @@ async function send(page: Page, slug: string, fill: (p: Page) => Promise<void>) 
   await page.getByLabel('Your name').fill('Tigist Customer')
   await page.locator('#sr-phone').fill(randomPhone())
   await page.getByLabel('Email').fill(email)
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Send my request' }).click()
   await page.waitForURL('**/request-service/sent?ref=*')
   const { data } = await db().from('service_requests').select('id, reference').eq('title', title).single()

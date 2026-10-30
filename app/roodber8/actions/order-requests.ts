@@ -11,7 +11,8 @@ import { fail, ok, type ActionResult } from '@/lib/action-result'
 import { parsePriceEtb } from '@/lib/supply/offers'
 import { todayInAddis } from '@/lib/supply/shortlist'
 import { EDITABLE, reservationHours, type OrderRequestStatus } from '@/lib/supply/order-requests'
-import { readPaymentDetails, sendCustomerEmail } from '@/lib/supply/order-requests-data'
+import { sendCustomerEmail } from '@/lib/supply/order-requests-data'
+import { activePaymentMethods } from '@/lib/supply/payment-methods-data'
 
 type Msg = ActionResult<{ message: string }>
 
@@ -227,7 +228,7 @@ export async function reserveAction(id: string, input: z.input<typeof reserveSch
     if (cents === null) return fail('Enter a customer price for every available item, like 850 or 850.50.')
     prices.push({ line_id: lineId, price_cents: cents })
   }
-  if (!(await readPaymentDetails())) return fail('Add the payment details in Settings first: the customer needs them to pay.')
+  if (!(await activePaymentMethods()).length) return fail('Add an active payment method in Supplies → Payment methods first: the customer needs it to pay.')
   const { data: total, error } = await getAdminSupabase().rpc('order_request_reserve', { p_request: id, p_hours: hours, p_delivery_cents: delivery, p_prices: prices, p_actor: (await adminActor()).slice(0, 120) })
   if (error) return dbError(error, 'Could not reserve.')
   const emailed = await sendCustomerEmail(id, 'reserved')
@@ -242,6 +243,8 @@ const paymentSchema = z.object({
   date: z.iso.date({ error: 'Enter the date' }),
   method: z.enum(['bank_transfer', 'telebirr', 'cbe_birr', 'cash', 'card', 'other']),
   reference: z.string().trim().max(120),
+  // QC-2: the official receipt number (issued outside the website), optional.
+  receipt_number: z.string().trim().max(64, 'Use 64 characters or fewer').optional().default(''),
   note: z.string().trim().max(1000),
 })
 
@@ -269,6 +272,7 @@ export async function recordPaymentAction(id: string, input: z.input<typeof paym
     occurred_on: d.date,
     method: d.method,
     reference: d.reference || null,
+    receipt_number: d.receipt_number || null,
     note: d.note || null,
     created_by: (await adminActor()).slice(0, 120),
   })
@@ -276,11 +280,32 @@ export async function recordPaymentAction(id: string, input: z.input<typeof paym
   const { data: after } = await db.from('order_requests').select('status').eq('id', id).maybeSingle()
   const paid = r.status === 'reserved' && after?.status === 'paid'
   const emailed = paid ? await sendCustomerEmail(id, 'paid') : false
-  await audit('supply.order_request.payment', { type: 'order_request', id, label: r.reference }, { entry_type: d.type, amount_cents: amount, paid, emailed })
+  await audit('supply.order_request.payment', { type: 'order_request', id, label: r.reference }, { entry_type: d.type, amount_cents: amount, receipt_number: d.receipt_number || null, paid, emailed })
   refresh(id)
   if (paid) return ok({ message: emailed ? 'Recorded. Paid in full: the customer was emailed.' : 'Recorded. Paid in full.' })
   if (d.type === 'customer_payment' && ['expired', 'cancelled'].includes(after?.status ?? '')) return ok({ message: 'Recorded. The reservation had ended, so the request is not paid: reopen it (check stock again) or refund.' })
   return ok({ message: 'Recorded.' })
+}
+
+/**
+ * QC-2, owner: add or correct a payment's receipt number later. Payments are append-only, so the new number is a new
+ * row in order_request_payment_receipts; the latest one counts.
+ */
+export async function setReceiptNumberAction(id: string, entryId: string, receiptNumber: string): Promise<Msg> {
+  await assertAdmin(AREA)
+  await assertOwner()
+  const receipt = String(receiptNumber ?? '').trim()
+  if (receipt.length < 1 || receipt.length > 64) return fail('Enter the receipt number (up to 64 characters).')
+  const r = await loadRequest(id)
+  if (!r || !z.uuid().safeParse(entryId).success) return fail('Order request not found.')
+  const db = getAdminSupabase()
+  const { data: entry } = await db.from('order_request_payments').select('id, order_request_id, entry_type').eq('id', entryId).maybeSingle()
+  if (!entry || entry.order_request_id !== id || entry.entry_type !== 'customer_payment') return fail('Entry not found.')
+  const { error } = await db.from('order_request_payment_receipts').insert({ payment_id: entryId, receipt_number: receipt, created_by: (await adminActor()).slice(0, 120) })
+  if (error) return dbError(error, 'Could not save the receipt number.')
+  await audit('supply.payment.receipt_number_set', { type: 'order_request', id, label: r.reference }, { entry: entryId, receipt_number: receipt })
+  refresh(id)
+  return ok({ message: 'Receipt number saved.' })
 }
 
 /** Owner: correct a mistaken entry with an exact reversal (entries are never changed or deleted). */

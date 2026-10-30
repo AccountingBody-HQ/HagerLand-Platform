@@ -101,7 +101,7 @@ export default async function ServicePage(
       <p className="mt-2 max-w-3xl text-muted">
         {intro ??
           (result.total > 0
-            ? `${result.total} ${result.total === 1 ? 'business offers' : 'businesses offer'} ${ctx.service.name.toLowerCase()} in ${place(ctx)} on HagerLand. Verified businesses have had their trade licence checked by our team.`
+            ? `${result.total} ${result.total === 1 ? 'business offers' : 'businesses offer'} ${ctx.service.name.toLowerCase()} in ${place(ctx)} on HagerLand. Verified businesses have had their trade licence and tax number checked by our team.`
             : `We're adding ${ctx.service.name.toLowerCase()} in ${place(ctx)}. Tell us what you need and we'll help you find someone.`)}
       </p>
       {ctx.node && ctx.node.children.length > 0 && (

@@ -51,7 +51,7 @@ const ALL: Record<string, () => RenderedEmail> = {
   partnerRegistrationReceived: () => T.partnerRegistrationReceivedEmail({ reference: 'HLB-2026-000001', business: X }),
   partnerInvitation: () => T.partnerInvitationEmail({ name: X, business: X, link: url }),
   orderRequestReceived: () => T.orderRequestReceivedEmail({ reference: X, link: url }),
-  orderRequestReserved: () => T.orderRequestReservedEmail({ reference: X, until: '31 Oct 2026, 14:30', amount: 'ETB 27,015', paymentDetails: X }),
+  orderRequestReserved: () => T.orderRequestReservedEmail({ reference: X, until: '31 Oct 2026, 14:30', amount: 'ETB 27,015', methods: [{ name: X, instructions: X }] }),
   orderRequestPartial: () => T.orderRequestPartialEmail({ reference: X, available: X, unavailable: X }),
   orderRequestUnavailable: () => T.orderRequestUnavailableEmail({ reference: X, items: X }),
   orderRequestExpired: () => T.orderRequestExpiredEmail({ reference: X }),

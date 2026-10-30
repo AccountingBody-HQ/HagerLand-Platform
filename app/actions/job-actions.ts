@@ -24,6 +24,8 @@ import { withUniqueRetry } from '@/lib/unique-retry'
 import { trackServer } from '@/lib/analytics-server'
 import { getJobsI18n } from '@/lib/i18n/server'
 import { translateResult } from '@/lib/i18n/translate'
+import { TRANSFER_CONSENT_ERROR, transferConsentMissing } from '@/lib/data-transfer'
+import { accountConsentRefusal, recordTransferConsent } from '@/lib/data-transfer-server'
 
 async function jobsLive(): Promise<boolean> {
   return (await getVertical('jobs'))?.status === 'live'
@@ -92,6 +94,10 @@ export type ApplyState = ActionResult<{ reference: string }> | null
 /** A signed-in candidate applies with a CV (PDF or Word) and a cover note (spec 24.9). */
 async function applyForJobActionImpl(_prev: ApplyState, formData: FormData): Promise<ApplyState> {
   const user = await requireUser('/jobs')
+  const noConsent = transferConsentMissing(formData)
+  if (noConsent) return noConsent
+  // QC-2 (W19): online applicants confirm they are 18 or older (checked here, never trusted from the page).
+  if (formData.get('adult') !== 'on') return fail('Please check the highlighted fields.', { adult: TRANSFER_CONSENT_ERROR })
   if (!(await jobsLive())) return fail(NOT_LIVE)
   const parsed = applicationSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
@@ -123,6 +129,7 @@ async function applyForJobActionImpl(_prev: ApplyState, formData: FormData): Pro
     managers.length ? sendEmail({ to: managers, ...newApplicationEmail({ orgName: privateClient ? brand.name : (job.employer_name ?? 'there'), title: job.title ?? '', reference: row.reference, applicantName: d.name, url: canonicalUrl(privateClient ? `/roodber8/jobs/${job.id}` : `/account/jobs/${job.id}`) }) }) : Promise.resolve(false),
     sendEmail({ to: d.email, ...applicationReceivedEmail({ name: d.name.split(' ')[0], title: job.title ?? '', employer: privateClient ? brand.name : (job.employer_name ?? ''), reference: row.reference }) }),
   ])
+  await recordTransferConsent({ form: 'job_application', subjectTable: 'job_applications', subjectId: row.id, subjectReference: row.reference })
   await trackServer('job_application_submitted')
   redirect((await getJobsI18n()).href(`/account/applications?applied=${row.reference}`))
 }
@@ -167,6 +174,10 @@ async function updateApplicationActionImpl(_prev: ActionResult<{ message: string
 async function saveCandidateProfileActionImpl(_prev: ActionResult<{ message: string }> | null, formData: FormData): Promise<ActionResult<{ message: string }>> {
   const user = await requireUser('/account/candidate')
   if (!(await jobsLive())) return fail(NOT_LIVE)
+  // QC-2: the account's data-transfer notice first (signed-in forms rely on it), then the age tick (W19).
+  const refusal = await accountConsentRefusal(user.id)
+  if (refusal) return fail(refusal)
+  if (formData.get('adult') !== 'on') return fail('Please check the highlighted fields.', { adult: TRANSFER_CONSENT_ERROR })
   const parsed = candidateSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
   const d = parsed.data

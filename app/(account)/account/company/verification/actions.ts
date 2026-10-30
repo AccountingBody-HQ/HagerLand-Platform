@@ -8,6 +8,7 @@ import { fail, ok, type ActionResult } from '@/lib/action-result'
 import { sendEmail } from '@/lib/email/send'
 import { adminNoticeEmail } from '@/lib/email/templates'
 import { canonicalUrl } from '@/lib/site'
+import { accountConsentRefusal } from '@/lib/data-transfer-server'
 
 const schema = z.object({
   trade_licence: z.string().min(1, 'Upload your trade licence'),
@@ -18,6 +19,9 @@ const schema = z.object({
 
 export async function submitVerificationAction(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
   const user = await requireUser('/account/company/verification')
+  // QC-2: signed-in forms rely on the account's data-transfer notice (confirmed at the top of the account pages).
+  const consentRefusal = await accountConsentRefusal(user.id)
+  if (consentRefusal) return fail(consentRefusal)
   const active = await getActiveMembership()
   if (!active || !['owner', 'admin'].includes(active.role)) return fail('Only owners and admins can request verification.')
   const parsed = schema.safeParse(Object.fromEntries(Array.from(formData.entries()).filter(([, v]) => v !== '')))

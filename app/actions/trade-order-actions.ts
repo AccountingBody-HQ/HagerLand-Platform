@@ -21,6 +21,8 @@ import { log } from '@/lib/log'
 import type { Database } from '@/lib/database.types'
 import type { OrderRequestState } from '@/app/actions/order-request-actions'
 import { spamCheckDrop } from '@/lib/spam-check'
+import { transferConsentMissing } from '@/lib/data-transfer'
+import { recordTransferConsent } from '@/lib/data-transfer-server'
 
 // The generated types mark every SQL argument as required; these may be NULL, which order_request_submit (0049) accepts.
 type SubmitArgs = Database['public']['Functions']['order_request_submit']['Args']
@@ -50,6 +52,8 @@ export async function tradeBasketOpenAction(productIds: string[]): Promise<boole
  */
 export async function submitTradeOrderAction(_prev: OrderRequestState, formData: FormData): Promise<OrderRequestState> {
   if (await spamCheckDrop(formData, 'submit_trade_order')) return ok({ reference: 'HLR-0', path: '/supplies' })
+  const noConsent = transferConsentMissing(formData)
+  if (noConsent) return noConsent
   const user = await getUser()
   if (!user) return fail(FAILED)
   let rawItems: unknown
@@ -106,5 +110,6 @@ export async function submitTradeOrderAction(_prev: OrderRequestState, formData:
   await sendCustomerEmail(row.id, 'received', { link: canonicalUrl(path) })
   const inbox = await hagerlandInbox('supply')
   if (inbox) await sendEmail({ to: inbox, from: 'supply', ...orderRequestInternalEmail({ reference: row.reference, adminUrl: canonicalUrl(`/roodber8/supply/order-requests/${row.id}`) }) })
+  await recordTransferConsent({ form: 'trade_order', subjectTable: 'order_requests', subjectId: null, subjectReference: row.reference })
   return ok({ reference: row.reference, path })
 }

@@ -14,6 +14,8 @@ import { partnerRegistrationReceivedEmail } from '@/lib/email/templates'
 import { log } from '@/lib/log'
 import type { Database } from '@/lib/database.types'
 import { spamCheckDrop } from '@/lib/spam-check'
+import { transferConsentMissing } from '@/lib/data-transfer'
+import { recordTransferConsent } from '@/lib/data-transfer-server'
 
 // The generated types mark every SQL argument as required text; these may be NULL, which partner_register (0048) accepts.
 type PartnerRegisterArgs = Database['public']['Functions']['partner_register']['Args']
@@ -26,6 +28,8 @@ export type PartnerRegistrationState = ActionResult<{ reference: string }> | nul
  */
 export async function submitPartnerRegistrationAction(_prev: PartnerRegistrationState, formData: FormData): Promise<PartnerRegistrationState> {
   if (await spamCheckDrop(formData, 'submit_partner_registration')) return ok({ reference: 'HLB-0' })
+  const noConsent = transferConsentMissing(formData)
+  if (noConsent) return noConsent
   // The page is "not found" while the switch is off; a form left open from before is refused too (L6).
   if (!(await readSupplySwitches()).registration) return fail('Something went wrong. Please refresh the page.')
   const parsed = registrationSchema.safeParse(registrationFormValues(formData))
@@ -68,5 +72,6 @@ export async function submitPartnerRegistrationAction(_prev: PartnerRegistration
   }
   if (d.email) await sendEmail({ to: d.email, from: 'supply', ...partnerRegistrationReceivedEmail({ reference: row.reference, business: d.business_name }) })
   await notifyNewRegistration({ id: row.id, reference: row.reference, business: d.business_name, roles: d.roles.map((r) => ROLE_LABEL[r as PartnerRole]).join(', ') })
+  await recordTransferConsent({ form: 'partner_registration', subjectTable: 'partner_registrations', subjectId: null, subjectReference: row.reference })
   return ok({ reference: row.reference })
 }

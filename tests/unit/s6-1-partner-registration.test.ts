@@ -12,7 +12,9 @@ const state = vi.hoisted(() => ({
   owner: true,
 }))
 
-vi.mock('@/lib/supply/partner-switches', () => ({ readSupplySwitches: async () => state.switches, readSupplySwitchesCached: async () => state.switches, SUPPLY_SWITCHES_TAG: 'supply-switches' }))
+vi.mock('@/lib/supply/partner-switches', () => ({ readSupplySwitches: async () => state.switches, readSupplySwitchesCached: async () => state.switches, readUnlockFacts: async () => ({ activePaymentMethods: 0, legalName: '', catalogueOrdering: false }), SUPPLY_SWITCHES_TAG: 'supply-switches' }))
+// QC-2: consent records are written by the shared helper (tested in qc2.test.ts).
+vi.mock('@/lib/data-transfer-server', () => ({ recordTransferConsent: async () => undefined, accountConsentRefusal: async () => null, accountConsented: async () => true }))
 vi.mock('@/lib/supabase/admin', () => ({
   getAdminSupabase: () => ({
     rpc: (name: string, args: unknown) => {
@@ -61,7 +63,7 @@ function form(values: Record<string, string | string[]>): FormData {
   return f
 }
 const CITY = '11111111-1111-4111-8111-111111111111'
-const GOOD = { business_name: 'Abebe Cement PLC', roles: ['manufacturer', 'supplier'], city_id: CITY, contact_name: 'Abebe Kebede', phone: '0911 234 567', consent: 'on' }
+const GOOD = { business_name: 'Abebe Cement PLC', roles: ['manufacturer', 'supplier'], city_id: CITY, contact_name: 'Abebe Kebede', phone: '0911 234 567', consent: 'on', transfer_consent: 'on' }
 
 describe('registration form rules', () => {
   it('normalises the phone to +251, keeps every chosen role and requires consent', async () => {
@@ -207,10 +209,10 @@ describe('switches off close every door (L6)', () => {
     expect(privacy.match(/\{partnerLines && <li>/g)).toHaveLength(2)
     expect(readFileSync('app/sitemap.ts', 'utf8')).not.toContain('sell-through-hagerland')
   })
-  it('switches nothing uses yet cannot be switched on; the others need the owner', async () => {
+  it('ordering and trade pricing cannot be switched on without their unlock; the others need the owner', async () => {
     const { setSupplySwitchAction } = await import('@/app/roodber8/actions/supply-switches')
-    // S6-2: catalogue ordering first needs the payment details (empty here), and it is locked anyway.
-    expect(await setSupplySwitchAction('catalogueOrdering', true)).toMatchObject({ ok: false, error: 'Add the payment details in Settings first.' })
+    // QC-2: catalogue ordering needs an active payment method and the company name (neither here).
+    expect(await setSupplySwitchAction('catalogueOrdering', true)).toMatchObject({ ok: false, error: 'Cannot be switched on yet: add an active payment method in Supplies → Payment methods; enter the company name in Settings → Legal entity.' })
     expect(await setSupplySwitchAction('tradePricing', true)).toMatchObject({ ok: false })
     expect(state.upserts).toEqual([])
     state.owner = false

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { adminSession, asFreshVisitor, db, latestMail, setPillarModes, uniqueEmail } from './helpers'
+import { adminSession, asFreshVisitor, db, latestMail, setPillarModes, uniqueEmail, tickTransferConsent } from './helpers'
 
 /** Vertical registry, navigation, coming-soon pages and interest capture (spec 24.1–24.3). */
 
@@ -100,6 +100,7 @@ test.describe('coming-soon pages', () => {
     await form.getByLabel('Email').fill(email)
     await form.getByLabel('Country you live in').selectOption('GB')
     await form.getByLabel('City').fill('London')
+    await tickTransferConsent(form)
     await form.getByRole('button', { name: 'Register my interest' }).click()
     await expect(page.getByText('Thanks, your interest is registered')).toBeVisible()
     const { data } = await db().from('interest_registrations').select('reference, category, country_code, currency, vertical_key').eq('email', email).single()
@@ -120,6 +121,7 @@ test.describe('coming-soon pages', () => {
     const form = page.locator('#register')
     await form.getByLabel('Your name').fill('Abebe')
     await form.getByLabel('Email').fill('not-an-email')
+    await tickTransferConsent(form)
     await form.getByRole('button', { name: 'Register my interest' }).click()
     await expect(form.getByText('Enter a valid email address')).toBeVisible()
     await expect(form.getByLabel('Your name')).toHaveValue('Abebe')
@@ -134,6 +136,7 @@ test.describe('coming-soon pages', () => {
     await form.getByLabel('Type of organisation').selectOption('bank')
     await form.getByLabel('Your name').fill('Partner Person')
     await form.getByLabel('Work email').fill(email)
+    await tickTransferConsent(form)
     await form.getByRole('button', { name: 'Apply to partner' }).click()
     await expect(page.getByText('Thanks, we have your application')).toBeVisible()
     await adminSession(page)

@@ -15,6 +15,7 @@ import {
   ReasonStep,
   ReleaseHoldButton,
   ReserveForm,
+  ReceiptNumberButton,
   ReverseEntryButton,
   StartCheckButton,
   StockOutcomeButtons,
@@ -22,7 +23,8 @@ import {
 import { ADMIN_STATUS_LABEL, EDITABLE, addisDateTime } from '@/lib/supply/order-requests'
 import { RULE_LABEL } from '@/lib/supply/trade-prices'
 import { termsLabel } from '@/lib/supply/terms'
-import { expireDueOrderRequests, loadAdminOrderRequest, readPaymentDetails } from '@/lib/supply/order-requests-data'
+import { expireDueOrderRequests, loadAdminOrderRequest } from '@/lib/supply/order-requests-data'
+import { activePaymentMethods } from '@/lib/supply/payment-methods-data'
 import { todayInAddis } from '@/lib/supply/shortlist'
 import { log } from '@/lib/log'
 
@@ -49,7 +51,7 @@ export default async function OrderRequestPage(props: { params: Promise<{ id: st
   const decided = r.lines.every((l) => l.status !== 'requested')
   const someAvailable = r.lines.some((l) => l.status === 'confirmed' || l.status === 'short')
   const someMissing = r.lines.some((l) => l.status === 'unavailable' || l.status === 'short')
-  const paymentDetails = owner ? await readPaymentDetails() : ''
+  const methodCount = owner ? (await activePaymentMethods()).length : 0
   const reservable = owner && (r.status === 'partially_reserved' || (checking && decided && someAvailable && !someMissing))
   return (
     <div className="max-w-5xl space-y-5">
@@ -128,7 +130,7 @@ export default async function OrderRequestPage(props: { params: Promise<{ id: st
 
       {reservable && (
         <Panel title="Reserve (owner)">
-          {!paymentDetails && <FormAlert>Add the payment details in Settings first: the customer needs them to pay.</FormAlert>}
+          {methodCount === 0 && <FormAlert>Add an active payment method in Supplies → Payment methods first: the customer needs it to pay.</FormAlert>}
           <p className="mb-3 text-small text-muted">Each available item needs a partner hold that lasts until the reservation ends. The customer is emailed the amount, the end time and how to pay.</p>
           <ReserveForm
             id={r.id}
@@ -174,10 +176,12 @@ export default async function OrderRequestPage(props: { params: Promise<{ id: st
                     {formatDate(e.occurredOn)} · {ENTRY_LABEL[e.type] ?? e.type} · {formatETBCents(e.amountCents)}
                     {e.method ? ` · ${e.method.replace('_', ' ')}` : ''}
                     {e.reference ? ` · ${e.reference}` : ''}
+                    {e.receiptNumber ? ` · receipt ${e.receiptNumber}` : ''}
                     {e.reason ? ` · ${e.reason}` : ''}
                     {e.note ? ` · ${e.note}` : ''}
                     {e.reversed ? ' · reversed' : ''}
                   </span>
+                  {!e.reversed && e.type === 'customer_payment' && <ReceiptNumberButton id={r.id} entryId={e.id} current={e.receiptNumber} />}
                   {!e.reversed && (e.type === 'customer_payment' || e.type === 'refund') && <ReverseEntryButton id={r.id} entryId={e.id} />}
                 </li>
               ))}

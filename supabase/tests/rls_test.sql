@@ -2132,6 +2132,60 @@ select pg_temp.record_check('create_profile_on_signup still fires: a new account
 delete from auth.users where id = '00000000-0000-4000-8000-0000000001b1';
 select pg_temp.record_check('QC-1b sign-up check left nothing behind', not exists (select 1 from auth.users where id = '00000000-0000-4000-8000-0000000001b1') and not exists (select 1 from public.profiles where id = '00000000-0000-4000-8000-0000000001b1'));
 
+-- ---------- QC-2 (0053): payment methods, data-transfer consents, later receipt numbers ----------
+reset role;
+select set_config('hl.qc2_tables', 'supply_payment_methods,data_transfer_consents,order_request_payment_receipts', false);
+set role anon;
+select pg_temp.record_check('Anonymous cannot read ' || name, pg_temp.read_denied(name)) from unnest(string_to_array(current_setting('hl.qc2_tables'), ',')) as t(name);
+select pg_temp.record_check('Anonymous cannot add a payment method', pg_temp.write_denied($q$insert into public.supply_payment_methods (name, instructions) values ('RLS', 'RLS')$q$));
+select pg_temp.record_check('Anonymous cannot add a consent record', pg_temp.write_denied($q$insert into public.data_transfer_consents (form, subject_table, consent_version) values ('rls', 'rls', 'rls')$q$));
+reset role;
+set role authenticated;
+select set_config('request.jwt.claims', '{"sub": "00000000-0000-4000-8000-000000000001", "role": "authenticated"}', false), set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000001', false);
+select pg_temp.record_check('Signed-in user cannot read ' || name, pg_temp.read_denied(name)) from unnest(string_to_array(current_setting('hl.qc2_tables'), ',')) as t(name);
+select pg_temp.record_check('Signed-in user cannot add a payment method', pg_temp.write_denied($q$insert into public.supply_payment_methods (name, instructions) values ('RLS', 'RLS')$q$));
+select pg_temp.record_check('Signed-in user cannot add a consent record', pg_temp.write_denied($q$insert into public.data_transfer_consents (form, subject_table, consent_version) values ('rls', 'rls', 'rls')$q$));
+select pg_temp.record_check('Signed-in user cannot add a receipt number', pg_temp.write_denied($q$insert into public.order_request_payment_receipts (payment_id, receipt_number) values (gen_random_uuid(), 'RLS')$q$));
+reset role;
+set role service_role;
+do $$
+declare
+  res text := '';
+  v_id uuid;
+  v_ok boolean;
+begin
+  begin
+    insert into public.supply_payment_methods (name, instructions) values ('RLS TEST QC2 telebirr', 'RLS') returning id into v_id;
+    res := res || case when (select active and sort_order = 0 from public.supply_payment_methods where id = v_id) then 'PASS' else 'FAIL' end || E' · The website (service role) adds a payment method: active, first in order\n';
+    update public.supply_payment_methods set active = false where id = v_id;
+    res := res || case when (select not active and updated_at >= created_at from public.supply_payment_methods where id = v_id) then 'PASS' else 'FAIL' end || E' · A payment method can be switched off (never deleted by the app)\n';
+    v_ok := false;
+    begin
+      insert into public.supply_payment_methods (name, instructions) values ('', 'x');
+    exception when check_violation then v_ok := true;
+    end;
+    res := res || case when v_ok then 'PASS' else 'FAIL' end || E' · A payment method needs a name\n';
+    insert into public.data_transfer_consents (form, subject_table, subject_id, subject_reference, consent_version) values ('rls', 'profiles', gen_random_uuid(), 'RLS', 'w17-2026-10') returning id into v_id;
+    res := res || case when v_id is not null then 'PASS' else 'FAIL' end || E' · The website records a data-transfer consent\n';
+    v_ok := false;
+    begin
+      insert into public.order_request_payments (order_request_id, entry_type, direction, amount_cents, occurred_on, receipt_number)
+        values (gen_random_uuid(), 'customer_payment', 'in', 1, current_date, repeat('x', 65));
+    exception when check_violation or foreign_key_violation then v_ok := true;
+    end;
+    res := res || case when v_ok then 'PASS' else 'FAIL' end || E' · A receipt number longer than 64 characters (or on no request) is refused\n';
+    raise exception 'hl_rollback';
+  exception when others then
+    if sqlerrm <> 'hl_rollback' then res := res || 'FAIL · QC-2 checks stopped early: ' || sqlerrm || E'\n'; end if;
+  end;
+  perform set_config('hl.results', current_setting('hl.results') || res, false);
+end $$;
+reset role;
+select pg_temp.record_check('QC-2 checks left nothing behind', not exists (select 1 from public.supply_payment_methods where name like 'RLS TEST QC2%') and not exists (select 1 from public.data_transfer_consents where form = 'rls'));
+select pg_temp.record_check('Receipt numbers added later are append-only (no change, no deletion)',
+  exists (select 1 from pg_trigger where tgname = 'order_request_payment_receipts_append_only' and tgrelid = 'public.order_request_payment_receipts'::regclass)
+  and exists (select 1 from pg_trigger where tgname = 'order_request_payments_append_only' and tgrelid = 'public.order_request_payments'::regclass));
+
 -- ---------- Clean up ----------
 reset role;
 select set_config('request.jwt.claims', '', false), set_config('request.jwt.claim.sub', '', false);

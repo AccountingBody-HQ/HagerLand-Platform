@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { adminSession, adminSetPillarModes, createProvider, createUser, db, mailWithSubject, signIn, testPhotos } from './helpers'
+import { adminSession, adminSetPillarModes, createProvider, createUser, db, mailWithSubject, signIn, testPhotos, tickTransferConsent } from './helpers'
 
 /** Jobs & Recruitment (spec 24.9), development progress updates (25.2j) and Our Developments (24.10). */
 
@@ -109,6 +109,8 @@ test('switched live: an employer posts a job, HagerLand approves it, a candidate
   await cand.locator('#cp-headline').fill(`Civil engineer, 6 years on high-rise projects ${stamp}`)
   await cand.locator('#cp-skills').fill('AutoCAD, site supervision, formwork')
   await cand.locator('#cp-vis-employers').check()
+  // QC-2 (W19): candidates confirm they are 18 or older.
+  await cand.locator('#cp-adult').check()
   await cand.getByRole('button', { name: 'Save profile' }).click()
   await expect(cand.getByText(/Employers on HagerLand can now find it/)).toBeVisible()
 
@@ -117,6 +119,9 @@ test('switched live: an employer posts a job, HagerLand approves it, a candidate
   await cand.getByRole('link', { name: 'Apply now' }).click()
   await expect(cand.getByLabel('Send the CV saved in my candidate profile')).toBeChecked()
   await cand.locator('#ap-note').fill('I have run concrete works on three G+10 buildings.')
+  // QC-2 (W19): online applicants confirm they are 18 or older.
+  await cand.locator('#ap-adult').check()
+  await tickTransferConsent(cand)
   await cand.getByRole('button', { name: 'Send application' }).click()
   await cand.waitForURL(/\/account\/applications\?applied=HLA-/)
   await expect(cand.getByText(/Your application has been sent/)).toBeVisible()
@@ -125,6 +130,8 @@ test('switched live: an employer posts a job, HagerLand approves it, a candidate
 
   // Applying twice is refused.
   await cand.goto(`/jobs/${job!.slug}/apply`)
+  await cand.locator('#ap-adult').check()
+  await tickTransferConsent(cand)
   await cand.getByRole('button', { name: 'Send application' }).click()
   await expect(cand.getByText('You have already applied for this job')).toBeVisible()
 

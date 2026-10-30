@@ -48,7 +48,7 @@ export default async function SettingsPage() {
       </Panel>
       <Panel title="Payment details shown to customers">
         <p className="mb-3 text-small text-muted">
-          Shown to a customer when you reserve their order request (in the email and on their order page): for example the bank, account name and number, and telebirr or CBE Birr numbers. While this is empty, no reservation can be sent and catalogue ordering cannot be switched on.
+          No longer used. Payment methods are now managed in Supplies → Payment methods.
         </p>
         <SettingsForm section="payments" fields={[{ name: 'supply_payment_details', label: 'Payment details', type: 'textarea', value: typeof s.supply_payment_details === 'string' ? s.supply_payment_details : '' }]} />
       </Panel>

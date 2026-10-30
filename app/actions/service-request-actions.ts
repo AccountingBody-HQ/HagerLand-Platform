@@ -31,6 +31,8 @@ import { linkCallbackToRequest, openCallback } from '@/lib/callbacks-data'
 import { phoneOnlyAllowed } from '@/lib/service-requests/phone-only'
 import { translateResult } from '@/lib/i18n/translate'
 import { spamCheckDrop } from '@/lib/spam-check'
+import { transferConsentMissing } from '@/lib/data-transfer'
+import { recordTransferConsent } from '@/lib/data-transfer-server'
 
 /** `phoneOnly`: staff sent it for a caller with no email (Tidy T-2): the form goes back to the call-back queue. */
 export type RequestState = ActionResult<{ reference: string; phoneOnly?: boolean }> | null
@@ -67,6 +69,8 @@ const phoneOnlySchema = fields
 /** "Request a service" (spec 24.5): validates, stores, emails the customer a link, tells HagerLand. */
 async function submitServiceRequestActionImpl(_prev: RequestState, formData: FormData): Promise<RequestState> {
   if (await spamCheckDrop(formData, 'submit_service_request')) return ok({ reference: 'HLS-0' })
+  const noConsent = transferConsentMissing(formData)
+  if (noConsent) return noConsent
   const raw: Record<string, unknown> = Object.fromEntries(formData)
   for (const k of Array.from(new Set(Array.from(formData.keys())))) if (k.startsWith('q_')) raw[k] = formData.getAll(k)
   const phoneOnly = await phoneOnlyAllowed(
@@ -157,6 +161,7 @@ async function submitServiceRequestActionImpl(_prev: RequestState, formData: For
       }),
     })
   }
+  await recordTransferConsent({ form: 'service_request', subjectTable: 'service_requests', subjectId: row.id, subjectReference: row.reference })
   return ok({ reference: row.reference, ...(d.email ? {} : { phoneOnly: true }) })
 }
 

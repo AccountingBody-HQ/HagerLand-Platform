@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { adminSession, asFreshVisitor, createUser, db, linkMatching, mailWithSubject, randomPhone, uniqueEmail } from './helpers'
+import { adminSession, asFreshVisitor, createUser, db, linkMatching, mailWithSubject, randomPhone, uniqueEmail, tickTransferConsent } from './helpers'
 
 /** Jobs Phase 1c: a staffing customer never sees provider or quote wording; every other service is unchanged. */
 
@@ -26,6 +26,7 @@ async function send(page: Page, slug: string, email: string) {
   await page.getByLabel('Your name').fill('Tigist Customer')
   await page.locator('#sr-phone').fill(randomPhone())
   await page.getByLabel('Email').fill(email)
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Send my request' }).click()
   await page.waitForURL('**/request-service/sent?ref=*')
   const { data } = await db().from('service_requests').select('id, reference').eq('title', title).single()

@@ -12,6 +12,8 @@ export const LEGAL_PAGES_FOR_SETTING: Readonly<Record<string, readonly LegalPage
   supply_catalogue_ordering: ['terms', 'privacy'],
   jobs_private_client_posts: ['terms'],
   jobs_recruitment_desk: ['terms'],
+  // QC-2 (W37): "Anyone can report a job …" shows on /terms only while the reports switch is on.
+  jobs_reports_enabled: ['terms'],
   jobs_amharic: ['terms', 'privacy'],
   amharic_enabled: ['terms', 'privacy'],
 }

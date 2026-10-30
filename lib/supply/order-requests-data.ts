@@ -4,7 +4,8 @@ import 'server-only'
 // read the partner or the cost. Logs carry ids and counts only.
 import { getAdminSupabase } from '@/lib/supabase/admin'
 import { must } from '@/lib/admin/must'
-import { readAll, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
+import { readAll, readAllIn, REPORT_MAX_ROWS } from '@/lib/admin/read-all'
+import { activePaymentMethods } from '@/lib/supply/payment-methods-data'
 import { sendEmail } from '@/lib/email/send'
 import {
   orderRequestCancelledEmail,
@@ -23,13 +24,25 @@ import { resolveTerms, type SuggestedTerms } from '@/lib/supply/terms'
 import { readSupplySwitches } from '@/lib/supply/partner-switches'
 import type { TradePriceRule } from '@/lib/supply/trade-prices'
 
-export const PAYMENT_DETAILS_KEY = 'supply_payment_details'
+/**
+ * QC-2: the receipt number of each payment: the latest one added later (append-only receipts table), otherwise the one
+ * entered with the payment. Payments without one are left out.
+ */
+export async function receiptNumbers(payments: readonly { id: string; receipt_number: string | null }[]): Promise<Map<string, string>> {
+  const out = new Map<string, string>()
+  for (const p of payments) if (p.receipt_number) out.set(p.id, p.receipt_number)
+  const { data } = await readAllIn(payments.map((p) => p.id), (part) => getAdminSupabase().from('order_request_payment_receipts').select('id, payment_id, receipt_number, created_at').in('payment_id', part), { maxRows: REPORT_MAX_ROWS, key: ['created_at', 'id'] })
+  for (const r of data) out.set(r.payment_id, r.receipt_number)
+  return out
+}
 
-/** The owner's payment details for customers ('' when not set or unreadable: then nothing that needs them may happen). */
-export async function readPaymentDetails(): Promise<string> {
-  const { data, error } = await getAdminSupabase().from('site_settings').select('value').eq('key', PAYMENT_DETAILS_KEY).maybeSingle()
-  if (error) log.error('order-requests', 'payment details could not be read', error)
-  return !error && typeof data?.value === 'string' ? data.value.trim() : ''
+/** QC-2 (W14): the receipt number of the customer payment that made the request paid (the latest one), if any. */
+async function latestPaymentReceipt(id: string): Promise<string | null> {
+  const { data, error } = await getAdminSupabase().from('order_request_payments').select('id, receipt_number').eq('order_request_id', id).eq('entry_type', 'customer_payment').order('created_at', { ascending: false }).limit(1)
+  if (error) log.error('order-requests', 'receipt number could not be read', error)
+  const last = data?.[0]
+  if (!last) return null
+  return (await receiptNumbers([last])).get(last.id) ?? null
 }
 
 /** A published HagerLand Supply product with an active partner source (the only products that can be ordered). */
@@ -88,7 +101,7 @@ export async function sendCustomerEmail(id: string, kind: CustomerEmailKind, ext
         mail = orderRequestReceivedEmail({ reference: r.reference, link: extra.link ?? '' })
         break
       case 'reserved':
-        mail = orderRequestReservedEmail({ reference: r.reference, until: addisDateTime(r.reserved_until), amount: formatETBCents(r.customer_total_cents), paymentDetails: (await readPaymentDetails()).replace(/\s*\n\s*/g, ', ') })
+        mail = orderRequestReservedEmail({ reference: r.reference, until: addisDateTime(r.reserved_until), amount: formatETBCents(r.customer_total_cents), methods: await activePaymentMethods() })
         break
       case 'partial': {
         const [available, unavailable] = await Promise.all([itemsOf(id, ['confirmed', 'short']), unavailableItems(id)])
@@ -102,7 +115,7 @@ export async function sendCustomerEmail(id: string, kind: CustomerEmailKind, ext
         mail = orderRequestExpiredEmail({ reference: r.reference })
         break
       case 'paid':
-        mail = orderRequestPaidEmail({ reference: r.reference, amount: formatETBCents(await receivedCents(id)) })
+        mail = orderRequestPaidEmail({ reference: r.reference, amount: formatETBCents(await receivedCents(id)), receiptNumber: await latestPaymentReceipt(id) })
         break
       case 'cancelled':
         mail = orderRequestCancelledEmail({ reference: r.reference, refundAmount: null })
@@ -217,7 +230,7 @@ export interface AdminOrderRequest {
     netCents: number
     receivedCents: number
     heldCents: number
-    entries: { id: string; type: string; amountCents: number; occurredOn: string; method: string | null; reference: string | null; reason: string | null; note: string | null; reversed: boolean; supplyOrderId: string | null; createdBy: string | null; createdAt: string }[]
+    entries: { id: string; type: string; amountCents: number; occurredOn: string; method: string | null; reference: string | null; receiptNumber: string | null; reason: string | null; note: string | null; reversed: boolean; supplyOrderId: string | null; createdBy: string | null; createdAt: string }[]
   }
 }
 
@@ -318,6 +331,7 @@ export async function loadAdminOrderRequest(id: string, owner: boolean): Promise
       db.rpc('order_request_held_cents', { p_request: id }).then(must),
     ])
     const reversed = new Set((entries ?? []).filter((e) => e.reverses_entry_id).map((e) => e.reverses_entry_id))
+    const receipts = await receiptNumbers(entries ?? [])
     view.money = {
       linesTotalCents: r.lines_total_cents,
       deliveryCents: r.delivery_charge_cents,
@@ -325,7 +339,7 @@ export async function loadAdminOrderRequest(id: string, owner: boolean): Promise
       netCents: Number(net.data ?? 0),
       receivedCents: Number(received.data ?? 0),
       heldCents: Number(held.data ?? 0),
-      entries: (entries ?? []).map((e) => ({ id: e.id, type: e.entry_type, amountCents: e.amount_cents, occurredOn: e.occurred_on, method: e.method, reference: e.reference, reason: e.reason, note: e.note, reversed: reversed.has(e.id), supplyOrderId: e.supply_order_id, createdBy: e.created_by, createdAt: e.created_at })),
+      entries: (entries ?? []).map((e) => ({ id: e.id, type: e.entry_type, amountCents: e.amount_cents, occurredOn: e.occurred_on, method: e.method, reference: e.reference, receiptNumber: receipts.get(e.id) ?? null, reason: e.reason, note: e.note, reversed: reversed.has(e.id), supplyOrderId: e.supply_order_id, createdBy: e.created_by, createdAt: e.created_at })),
     }
   }
   return view

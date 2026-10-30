@@ -19,6 +19,8 @@ import { log } from '@/lib/log'
 import { getJobsI18n } from '@/lib/i18n/server'
 import { translateResult } from '@/lib/i18n/translate'
 import { spamCheckDrop } from '@/lib/spam-check'
+import { transferConsentMissing } from '@/lib/data-transfer'
+import { recordTransferConsent } from '@/lib/data-transfer-server'
 
 export type PhoneFormState = ActionResult<{ reference: string }> | null
 
@@ -42,6 +44,8 @@ async function allowed(prefix: string, ip: string, phone: string, visitor: reado
  */
 async function applyByPhoneActionImpl(_prev: PhoneFormState, formData: FormData): Promise<PhoneFormState> {
   if (await spamCheckDrop(formData, 'apply_by_phone')) return ok({ reference: 'HLA-0' })
+  const noConsent = transferConsentMissing(formData)
+  if (noConsent) return noConsent
   if (!(await readJobsSwitches()).phoneApply) return fail(PHONE_MESSAGES.unavailable)
   if ((await getVertical('jobs'))?.status !== 'live') return fail(JOBS_NOT_LIVE)
   const parsed = phoneApplicationSchema.safeParse(Object.fromEntries(formData))
@@ -72,6 +76,7 @@ async function applyByPhoneActionImpl(_prev: PhoneFormState, formData: FormData)
   const inbox = privateClient ? await hagerlandInbox('general') : null
   const managers = privateClient ? (inbox ? [inbox] : []) : await orgManagerEmails(job.employer_org_id)
   if (managers.length) await sendEmail({ to: managers, ...newApplicationEmail({ orgName: privateClient ? brand.name : (job.employer_name ?? 'there'), title: job.title ?? '', reference: row.reference, applicantName: d.name, url: canonicalUrl(privateClient ? `/roodber8/jobs/${job.id}` : `/account/jobs/${job.id}`), byPhone: true }) })
+  await recordTransferConsent({ form: 'apply_by_phone', subjectTable: 'job_applications', subjectId: row.id, subjectReference: row.reference })
   return ok({ reference: row.reference })
 }
 
@@ -82,6 +87,8 @@ async function applyByPhoneActionImpl(_prev: PhoneFormState, formData: FormData)
  */
 async function joinWorkerRegisterActionImpl(_prev: PhoneFormState, formData: FormData): Promise<PhoneFormState> {
   if (await spamCheckDrop(formData, 'join_worker_register')) return ok({ reference: 'HLW-0' })
+  const noConsent = transferConsentMissing(formData)
+  if (noConsent) return noConsent
   if (!(await readJobsSwitches()).workerRegister) return fail(PHONE_MESSAGES.unavailable)
   if ((await getVertical('jobs'))?.status !== 'live') return fail(JOBS_NOT_LIVE)
   const parsed = workerRegisterSchema.safeParse({ ...Object.fromEntries(formData), trades: formData.getAll('trades') })
@@ -112,6 +119,7 @@ async function joinWorkerRegisterActionImpl(_prev: PhoneFormState, formData: For
   const first = await save()
   const result = first === 'retry' ? await save() : first
   if (!result || result === 'retry') return fail(PHONE_MESSAGES.unavailable)
+  await recordTransferConsent({ form: 'worker_register', subjectTable: 'worker_register', subjectId: null, subjectReference: result.reference })
   return ok(result)
 }
 

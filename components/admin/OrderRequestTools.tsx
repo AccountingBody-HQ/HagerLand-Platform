@@ -15,6 +15,7 @@ import {
   releaseHoldAction,
   reserveAction,
   reversePaymentAction,
+  setReceiptNumberAction,
   saveLineStockAction,
   startStockCheckAction,
 } from '@/app/roodber8/actions/order-requests'
@@ -22,6 +23,10 @@ import { Button } from '@/components/ui/Button'
 import { Field, Input, Select, Textarea } from '@/components/ui/Field'
 import { useToast } from '@/components/ui/Toast'
 import { DEFAULT_RESERVATION_HOURS } from '@/lib/supply/order-requests'
+
+/** QC-2 admin wording for receipt numbers. */
+const RECEIPT_LABEL = 'Receipt number'
+const RECEIPT_HINT = 'The official receipt number for this payment (from the sales register or e-invoice).'
 
 type Result = { ok: true; data: { message: string } } | { ok: false; error: string }
 
@@ -177,7 +182,7 @@ export function ReserveForm({ id, lines }: { id: string; lines: { id: string; na
 /** Owner: a customer payment or a refund (offline: bank transfer, telebirr, CBE Birr, cash). */
 export function PaymentForm({ id, today }: { id: string; today: string }) {
   type Method = 'bank_transfer' | 'telebirr' | 'cbe_birr' | 'cash' | 'card' | 'other'
-  const [v, setV] = useState<{ type: 'customer_payment' | 'refund'; amount: string; date: string; method: Method; reference: string; note: string }>({ type: 'customer_payment', amount: '', date: today, method: 'bank_transfer', reference: '', note: '' })
+  const [v, setV] = useState<{ type: 'customer_payment' | 'refund'; amount: string; date: string; method: Method; reference: string; receipt_number: string; note: string }>({ type: 'customer_payment', amount: '', date: today, method: 'bank_transfer', reference: '', receipt_number: '', note: '' })
   const { pending, run } = useRun()
   return (
     <div className="grid gap-2 sm:grid-cols-3">
@@ -206,15 +211,38 @@ export function PaymentForm({ id, today }: { id: string; today: string }) {
       <Field label="Bank or transfer reference" htmlFor={`pr-${id}`} optional>
         <Input id={`pr-${id}`} value={v.reference} onChange={(e) => setV({ ...v, reference: e.target.value })} className="h-10" />
       </Field>
+      {v.type === 'customer_payment' && (
+        <Field label={RECEIPT_LABEL} htmlFor={`prn-${id}`} optional hint={RECEIPT_HINT}>
+          <Input id={`prn-${id}`} value={v.receipt_number} maxLength={64} onChange={(e) => setV({ ...v, receipt_number: e.target.value })} className="h-10" />
+        </Field>
+      )}
       <Field label="Note" htmlFor={`pn-${id}`} optional>
         <Input id={`pn-${id}`} value={v.note} onChange={(e) => setV({ ...v, note: e.target.value })} className="h-10" />
       </Field>
       <div className="sm:col-span-3">
-        <Button size="sm" disabled={pending} onClick={() => run(() => recordPaymentAction(id, v), () => setV({ ...v, amount: '', reference: '', note: '' }))}>
+        <Button size="sm" disabled={pending} onClick={() => run(() => recordPaymentAction(id, v), () => setV({ ...v, amount: '', reference: '', receipt_number: '', note: '' }))}>
           Record
         </Button>
       </div>
     </div>
+  )
+}
+
+/** QC-2, owner: add or correct a payment's receipt number (kept as a new entry; the latest counts). */
+export function ReceiptNumberButton({ id, entryId, current }: { id: string; entryId: string; current: string | null }) {
+  const { pending, run } = useRun()
+  return (
+    <Button
+      size="sm"
+      variant="ghost"
+      disabled={pending}
+      onClick={() => {
+        const value = window.prompt(`${RECEIPT_LABEL}. ${RECEIPT_HINT}`, current ?? '')
+        if (value && value.trim()) run(() => setReceiptNumberAction(id, entryId, value))
+      }}
+    >
+      {RECEIPT_LABEL}
+    </Button>
   )
 }
 

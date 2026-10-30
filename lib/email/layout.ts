@@ -11,12 +11,17 @@ export interface RenderedEmail {
   headers?: Record<string, string>
 }
 
+/** QC-2: a short list inside an email, e.g. the payment methods (title on one line, then its text). */
+export interface EmailList {
+  items: { title: string; text: string }[]
+}
+
 interface LayoutInput {
   subject: string
   preheader: string
   heading: string
-  /** Paragraphs of plain text (escaped here). */
-  paragraphs: string[]
+  /** Paragraphs of plain text (escaped here). QC-2: an entry may also be a short list (each item: a title, then its text). */
+  paragraphs: (string | EmailList)[]
   /** Optional key/value rows (escaped here). */
   details?: [string, string][]
   /** Optional quoted block of user-written text (escaped here). */
@@ -27,6 +32,9 @@ interface LayoutInput {
   footerLinks?: { label: string; href: string }[]
 }
 
+/** QC-2 (W5): the company line in every email footer, before "Questions?". */
+export const COMPANY_LINE = `${brand.legalName}, ${brand.legalAddress}`
+
 const green = '#1C7C4C'
 const ink = '#152238'
 const muted = '#5B6472'
@@ -35,7 +43,11 @@ const muted = '#5B6472'
 export function renderEmail(input: LayoutInput): RenderedEmail {
   const { subject, preheader, heading, paragraphs, details, quote, button, reason, footerLinks = [] } = input
   const p = paragraphs
-    .map((t) => `<p style="margin:0 0 16px;font-size:16px;line-height:24px;color:${ink}">${escapeHtml(t)}</p>`)
+    .map((t) =>
+      typeof t === 'string'
+        ? `<p style="margin:0 0 16px;font-size:16px;line-height:24px;color:${ink}">${escapeHtml(t)}</p>`
+        : `<ul style="margin:0 0 16px;padding-left:20px;font-size:16px;line-height:24px;color:${ink}">${t.items.map((i) => `<li style="margin:0 0 8px"><strong>${escapeHtml(i.title)}</strong><br><span style="white-space:pre-line">${escapeHtml(i.text)}</span></li>`).join('')}</ul>`,
+    )
     .join('')
   const rows = details?.length
     ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px;border:1px solid #E4E6E3;border-radius:10px">${details
@@ -63,7 +75,7 @@ export function renderEmail(input: LayoutInput): RenderedEmail {
 ${p}${rows}${q}${btn}
 </td></tr>
 <tr><td style="padding:20px 28px;background:#FAF9F7;font-size:12px;line-height:18px;color:${muted}">
-${escapeHtml(reason)}<br>${footerLinks.map((l) => `<a href="${escapeHtml(l.href)}" style="color:${green}">${escapeHtml(l.label)}</a> · `).join('')}Questions? <a href="${canonicalUrl('/contact')}" style="color:${green}">Contact HagerLand</a>
+${escapeHtml(reason)}<br>${escapeHtml(COMPANY_LINE)}<br>${footerLinks.map((l) => `<a href="${escapeHtml(l.href)}" style="color:${green}">${escapeHtml(l.label)}</a> · `).join('')}Questions? <a href="${canonicalUrl('/contact')}" style="color:${green}">Contact HagerLand</a>
 </td></tr></table></td></tr></table></body></html>`
 
   const textParts = [
@@ -71,13 +83,14 @@ ${escapeHtml(reason)}<br>${footerLinks.map((l) => `<a href="${escapeHtml(l.href)
     '',
     heading,
     '',
-    ...paragraphs.flatMap((t) => [t, '']),
+    ...paragraphs.flatMap((t) => (typeof t === 'string' ? [t, ''] : [...t.items.flatMap((i) => [i.title, i.text, '']), ''].slice(0, -1))),
     ...(details?.length ? [...details.map(([k, v]) => `${k}: ${v}`), ''] : []),
     ...(quote ? [quote, ''] : []),
     ...(button ? [`${button.label}: ${button.href}`, ''] : []),
     '--',
     reason,
     ...footerLinks.map((l) => `${l.label}: ${l.href}`),
+    COMPANY_LINE,
     `Contact HagerLand: ${canonicalUrl('/contact')}`,
   ]
   return { subject, html, text: textParts.join('\n') }

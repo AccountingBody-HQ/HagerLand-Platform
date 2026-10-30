@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import { expect, test, type Browser, type Page, type Request } from '@playwright/test'
 import { authenticator } from 'otplib'
-import { adminSession, allMail, assertLocalStack, createUser, db, randomPhone, signIn, uniqueEmail, submitStaffSignIn } from '../helpers'
+import { adminSession, allMail, assertLocalStack, createUser, db, randomPhone, signIn, uniqueEmail, submitStaffSignIn, tickTransferConsent } from '../helpers'
 
 // The "Supply A–Z test" of docs/LIVE_JOURNEY_TEST.md as one journey through the real admin screens, on the local copy
 // only: a new private supplier, its prices and agreement, a customer's materials list, suppliers asked and chosen,
@@ -262,6 +262,7 @@ test('T1 steps 5–13 with T2 (model A), T3 (model B) and T4 (unhappy paths)', a
   await customer.fill('#q-email', S.customer.email)
   await customer.fill('#q-loc', 'Bole')
   await customer.getByRole('option', { name: /^Bole/ }).first().click()
+  await tickTransferConsent(customer)
   await customer.getByRole('button', { name: 'Request my quote' }).click()
   await customer.waitForURL(/\/supplies\/quote\/sent\?ref=HLQ-/)
   S.ref = new URL(customer.url()).searchParams.get('ref')!

@@ -1,6 +1,6 @@
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { adminSession, db, signIn } from './helpers'
+import { adminSession, db, signIn, tickTransferConsent } from './helpers'
 
 /**
  * Jobs Phase 5: English Jobs pages must stay exactly as they were when their text moved into t(). The visible text,
@@ -16,16 +16,25 @@ const EMPLOYER = 'snapshot-employer@test.hagerland.invalid'
 const CANDIDATE = 'snapshot-candidate@test.hagerland.invalid'
 const SLUG = 'e2e-snapshot-masons-bole'
 
+/** QC-2: like every account since sign-up has the W17 tick, these test accounts have confirmed the data-transfer notice. */
+async function confirmed(id: string): Promise<string> {
+  const d = db()
+  const { data } = await d.from('data_transfer_consents').select('id').eq('subject_table', 'profiles').eq('subject_id', id).limit(1)
+  if (!data?.length) await d.from('data_transfer_consents').insert({ form: 'sign_up', subject_table: 'profiles', subject_id: id, consent_version: 'w17-2026-10' })
+  return id
+}
+
 async function user(email: string, name: string): Promise<string> {
   const d = db()
   for (let page = 1; page <= 20; page++) {
     const { data } = await d.auth.admin.listUsers({ page, perPage: 1000 })
     const found = data.users.find((u) => u.email === email)
-    if (found) return found.id
+    if (found) return confirmed(found.id)
     if (data.users.length < 1000) break
   }
   const { data, error } = await d.auth.admin.createUser({ email, password: PASSWORD, email_confirm: true, user_metadata: { full_name: name } })
   if (error || !data.user) throw new Error(`user failed: ${error?.message}`)
+  await confirmed(data.user.id)
   await d.from('profiles').update({ full_name: name }).eq('id', data.user.id)
   return data.user.id
 }
@@ -125,6 +134,7 @@ async function record(page: Page, jobId: string, requestId: string) {
   out['report sheet'] = await page.getByRole('dialog').innerText()
   // Errors from the staffing form when nothing is filled in.
   await page.goto('/request-service/staffing')
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Send my request' }).click()
   await page.waitForTimeout(1500)
   out['staffing form errors'] = await page.locator('form').first().innerText()

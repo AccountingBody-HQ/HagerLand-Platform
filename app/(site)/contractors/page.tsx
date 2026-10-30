@@ -60,7 +60,7 @@ export default async function ContractorsPage() {
         <div className="mt-6 max-w-xl">
           <FinanceAsk categorySlug="construction-finance" text="Construction finance for your build, through licensed partners." />
         </div>
-        <p className="mt-6 max-w-3xl text-small text-muted">Ethiopian contractors are licensed by category and grade. Businesses marked Verified have had their trade licence checked by HagerLand; always see the licence and agree the work in a written contract before paying.</p>
+        <p className="mt-6 max-w-3xl text-small text-muted">Ethiopian contractors are licensed by category and grade. Businesses marked Verified have had their trade licence and tax number checked by HagerLand; always see the licence and agree the work in a written contract before paying.</p>
       </Section>
       <Section tone="stone">
         <SectionHeader title="Choose the work you need" />

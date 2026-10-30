@@ -7,7 +7,7 @@ import { signUpAction } from '@/app/(account)/auth-actions'
 import { SIGNUP_INTENTS, type SignupIntent } from '@/lib/validation/auth'
 import { Field, Input, describedBy } from '@/components/ui/Field'
 import { PhoneInput } from '@/components/ui/PhoneInput'
-import { FormAlert, Honeypot, SubmitButton } from '@/components/forms/FormParts'
+import { FormAlert, Honeypot, SubmitButton, TransferConsent } from '@/components/forms/FormParts'
 import { Turnstile } from '@/components/forms/Turnstile'
 import { cn } from '@/lib/cn'
 import { track } from '@/lib/analytics'
@@ -99,7 +99,7 @@ export function SignupFlow({ initialIntent, next }: { initialIntent: SignupInten
       <div className={cn('flex items-start gap-3', errors.terms && 'text-error')}>
         <input id="su-terms" name="terms" type="checkbox" className="mt-1 size-5 shrink-0 accent-green" aria-invalid={Boolean(errors.terms) || undefined} />
         <label htmlFor="su-terms" className="text-small">
-          I agree to the{' '}
+          I am 18 or older and I agree to the{' '}
           <Link href="/terms" className="font-semibold text-green underline" target="_blank">
             Terms
           </Link>{' '}
@@ -110,6 +110,7 @@ export function SignupFlow({ initialIntent, next }: { initialIntent: SignupInten
           .{errors.terms && <span className="block">{errors.terms}</span>}
         </label>
       </div>
+      <TransferConsent error={errors.transfer_consent} />
       <Turnstile action="signup" />
       <SubmitButton fullWidth pendingText="Creating your account…">
         Create account

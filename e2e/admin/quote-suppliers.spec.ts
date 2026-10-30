@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process'
 import { expect, test, type Page } from '@playwright/test'
 import { createClient } from '@supabase/supabase-js'
 import { authenticator } from 'otplib'
-import { adminSession, assertLocalStack, createUser, db, mailWithSubject, randomPhone, signIn, SUPABASE_URL, uniqueEmail, submitStaffSignIn } from '../helpers'
+import { adminSession, assertLocalStack, createUser, db, mailWithSubject, randomPhone, signIn, SUPABASE_URL, uniqueEmail, submitStaffSignIn, tickTransferConsent } from '../helpers'
 
 test.describe.configure({ mode: 'serial' })
 test.beforeAll(() => {
@@ -89,6 +89,7 @@ test('AB’s journey J0–J10 and J12: items, suggestions, asking, replies, comp
     await page.fill('#q-email', user.email)
     await page.fill('#q-loc', 'Bole')
     await page.getByRole('option', { name: /^Bole/ }).first().click()
+    await tickTransferConsent(page)
     await page.getByRole('button', { name: 'Request my quote' }).click()
     await page.waitForURL(/\/supplies\/quote\/sent\?ref=HLQ-/)
     const ref = new URL(page.url()).searchParams.get('ref')!

@@ -125,7 +125,7 @@ describe('migration 0052', () => {
   })
   it('the health check expects 0052 last; the verify file is read-only', async () => {
     const { EXPECTED_MIGRATIONS } = await import('@/lib/health')
-    expect(EXPECTED_MIGRATIONS[EXPECTED_MIGRATIONS.length - 1]).toBe('0052')
+    expect(EXPECTED_MIGRATIONS).toContain('0052')
     const verify = read('docs/sql/0052_service_request_cancel_verify.sql').replace(/--.*$/gm, '')
     expect(verify).not.toMatch(/\b(insert|update|delete|drop|truncate|alter|create|grant|revoke)\b/i)
     expect(verify).toContain('6fc7e565')

@@ -26,10 +26,10 @@ export function generateMetadata() {
 }
 
 const STEPS = [
-  { icon: LandPlot, title: 'Land', text: 'We secure land with clear title and lease documents before we plan anything.' },
+  { icon: LandPlot, title: 'Land', text: 'We will secure land with clear title and lease documents before we plan anything.' },
   { icon: PencilRuler, title: 'Design', text: 'Architects and engineers design homes for how families in Ethiopia live.' },
   { icon: Truck, title: 'Materials', text: `${brand.divisions.supply} sources the materials, so we control quality and cost.` },
-  { icon: Hammer, title: 'Build & handover', text: 'We manage the build directly and hand over with the documents in order.' },
+  { icon: Hammer, title: 'Build & handover', text: 'We will manage the build directly and hand over with the documents in order.' },
 ]
 
 /** Current, coming-soon and completed projects (Vision §11). */

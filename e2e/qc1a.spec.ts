@@ -2,7 +2,7 @@ import crypto from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { expect, test, type APIRequestContext, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
-import { adminSession, allMail, asFreshVisitor, assertLocalStack, createUser, db, randomPhone, seedShowcase, signIn, uniqueEmail, type Showcase } from './helpers'
+import { adminSession, allMail, asFreshVisitor, assertLocalStack, createUser, db, randomPhone, seedShowcase, signIn, uniqueEmail, type Showcase, tickTransferConsent } from './helpers'
 import { addisDay } from '../lib/jobs-privacy'
 
 /**
@@ -104,6 +104,7 @@ async function sendContact(page: Page, name: string, email: string) {
   await page.fill('#contact-phone', randomPhone())
   await page.fill('#contact-email', email)
   await page.fill('#contact-message', `QC-1a contact check ${name}`)
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Send message' }).click()
   await expect(page.getByText('Your enquiry has been sent')).toBeVisible()
 }
@@ -145,6 +146,7 @@ test('F5: a normal message is saved and emailed; a filled spam check shows the s
       legacy.value = 'spam'
       el.after(legacy)
     })
+    await tickTransferConsent(page)
     await page.getByRole('button', { name: 'Send message' }).click()
     await expect(page.getByText('Your enquiry has been sent')).toBeVisible()
     await page.waitForTimeout(1500)
@@ -174,15 +176,21 @@ test('F6: a failed read on an account page shows the error sentence, never "noth
   await signIn(page, user.email, user.password)
   await page.goto('/account/service-requests')
   await expect(page.getByText('No requests yet')).toBeVisible()
-  // Signed-in reads use the "authenticated" role; the building projects page reads on the server.
+  // Signed-in reads use the "authenticated" role; the building projects page reads on the server. QC-2 (T3): signed-in
+  // users may read only some columns of service_requests, so exactly those column grants are put back afterwards.
+  const grantedColumns = psql("select string_agg(quote_ident(column_name), ', ' order by column_name) from information_schema.column_privileges where table_schema = 'public' and table_name = 'service_requests' and grantee = 'authenticated' and privilege_type = 'SELECT'")
+  const tableGrant = psql("select count(*) from information_schema.role_table_grants where table_schema = 'public' and table_name = 'service_requests' and grantee = 'authenticated' and privilege_type = 'SELECT'")
+  expect(grantedColumns.length).toBeGreaterThan(0)
   psql('revoke select on public.service_requests from authenticated')
   try {
     await page.goto('/account/service-requests')
     await expect(page.getByText('We could not load your service requests just now. Please refresh the page.')).toBeVisible()
     await expect(page.getByText('No requests yet')).toHaveCount(0)
   } finally {
-    psql('grant select on public.service_requests to authenticated')
+    psql(tableGrant === '0' ? `grant select (${grantedColumns}) on public.service_requests to authenticated` : 'grant select on public.service_requests to authenticated')
   }
+  expect(psql("select string_agg(quote_ident(column_name), ', ' order by column_name) from information_schema.column_privileges where table_schema = 'public' and table_name = 'service_requests' and grantee = 'authenticated' and privilege_type = 'SELECT'")).toBe(grantedColumns)
+  expect(psql("select count(*) from information_schema.role_table_grants where table_schema = 'public' and table_name = 'service_requests' and grantee = 'authenticated' and privilege_type = 'SELECT'")).toBe(tableGrant)
   await page.goto('/account/projects')
   await expect(page.getByText('No projects yet')).toBeVisible()
   psql('revoke select on public.build_projects from service_role')
@@ -323,7 +331,7 @@ test('F10: Dry run counts and a Live run clears exactly the right valuations and
     await adminSession(page)
     await page.goto('/roodber8/jobs/data')
     await expect(page.getByText('Valuations and agency contacts')).toBeVisible()
-    await expect(page.getByText('Address, details, notes and report cleared 24 months after the last activity, once completed or cancelled; never while an instruction or tenancy is open.')).toBeVisible()
+    await expect(page.getByText('Address, details, notes, report, preferred times, time zone and IP code cleared 24 months after the last activity, once completed or cancelled; never while an instruction or tenancy is open.')).toBeVisible()
     // Live.
     psql(`update public.site_settings set value = '"live"'::jsonb where key = 'jobs_data_cleanup_mode'`)
     const live = await cron(request)
@@ -357,7 +365,7 @@ test('F10: Dry run counts and a Live run clears exactly the right valuations and
   }
   // The privacy page names valuation requests.
   await page.goto('/privacy')
-  await expect(page.getByText('Valuation requests, viewings, offers and applications to rent: 24 months after the last activity, unless they lead to a sale or tenancy, which we keep for as long as the law requires for our records.')).toBeVisible()
+  await expect(page.getByText('Market appraisal requests, viewings, offers and applications to rent: 24 months after the last activity, unless they lead to a sale or tenancy, which we keep for as long as the law requires for our records.')).toBeVisible()
 })
 
 // ---------------------------------------------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { asFreshVisitor, db, uniqueEmail, randomPhone } from './helpers'
+import { asFreshVisitor, db, uniqueEmail, randomPhone, tickTransferConsent } from './helpers'
 
 /** Repairs & Maintenance and Contractors on the request engine (spec 24.5, PLATFORM_VISION §4–6). */
 
@@ -25,10 +25,12 @@ test('an emergency plumbing repair asks its own questions, keeps answers on erro
   await page.fill('#sr-phone', randomPhone())
   const email = uniqueEmail('emergency')
   await page.fill('#sr-email', email)
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Send my request' }).click()
   await expect(page.getByText('Please answer this question').first()).toBeVisible()
   await expect(page.locator('#sr-title')).toHaveValue('Burst pipe in the bathroom')
   await page.getByText('Leak', { exact: true }).click()
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Send my request' }).click()
   await page.waitForURL(/\/request-service\/sent/)
   const ref = new URL(page.url()).searchParams.get('ref') ?? ''

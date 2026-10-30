@@ -164,7 +164,7 @@ function Duplicates({ duplicates }: { duplicates: { id: string; name: string; st
           </li>
         ))}
       </ul>
-      <p className="mt-2">If one is the same business, use “Merge duplicate” (on this page or theirs) before creating the record.</p>
+      <p className="mt-2">If one is the same business, ask the owner to merge them before creating the record.</p>
     </div>
   )
 }

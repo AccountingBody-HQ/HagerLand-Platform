@@ -11,6 +11,8 @@ import { submitCallback } from '@/lib/callbacks-data'
 import { getJobsI18n } from '@/lib/i18n/server'
 import { translateResult } from '@/lib/i18n/translate'
 import { spamCheckDrop } from '@/lib/spam-check'
+import { transferConsentMissing } from '@/lib/data-transfer'
+import { recordTransferConsent } from '@/lib/data-transfer-server'
 
 export type CallbackFormState = ActionResult<{ message: string }> | null
 
@@ -21,6 +23,8 @@ export type CallbackFormState = ActionResult<{ message: string }> | null
  */
 async function submitCallbackActionImpl(_prev: CallbackFormState, formData: FormData): Promise<CallbackFormState> {
   if (await spamCheckDrop(formData, 'submit_callback')) return ok({ message: CALLBACK_TEXT.thanks })
+  const noConsent = transferConsentMissing(formData)
+  if (noConsent) return noConsent
   if (!(await readJobsSwitches()).callbacks) return fail(CALLBACK_TEXT.unavailable)
   const parsed = callbackSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return fail(CALLBACK_TEXT.check, callbackFieldErrors(parsed.error))
@@ -31,6 +35,7 @@ async function submitCallbackActionImpl(_prev: CallbackFormState, formData: Form
   if (!(await verifyTurnstileToken(formData.get('cf-turnstile-response') as string | null, ip))) return fail(CALLBACK_TEXT.security)
   const result = await submitCallback(parsed.data, ipHash)
   if (result === 'error') return fail(CALLBACK_TEXT.unavailable)
+  await recordTransferConsent({ form: 'callback', subjectTable: 'callback_requests', subjectId: null, subjectReference: null })
   return ok({ message: CALLBACK_TEXT.thanks })
 }
 

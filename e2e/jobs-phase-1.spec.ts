@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test'
 import crypto from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { authenticator } from 'otplib'
-import { adminSession, asFreshVisitor, createProvider, createUser, db, firstLink, latestMail, mailWithSubject, randomPhone, uniqueEmail, submitStaffSignIn } from './helpers'
+import { adminSession, asFreshVisitor, createProvider, createUser, db, firstLink, latestMail, mailWithSubject, randomPhone, uniqueEmail, submitStaffSignIn, tickTransferConsent } from './helpers'
 
 /** Jobs Phase 1 (docs/HAGERLAND_JOBS_BLUEPRINT.md section 9): AB's journeys J1–J8 on the local copy. */
 
@@ -103,6 +103,7 @@ test('J1: an employer sends a staffing requirement in hiring words; HagerLand se
   await page.getByLabel('Pay offered (optional)').fill('ETB 800 per day')
   await fillRequestBasics(page, title)
   await page.getByLabel('Email').fill(email)
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Send my request' }).click()
   await page.waitForURL('**/request-service/sent?ref=*')
   const { data: row } = await db().from('service_requests').select('id, reference, details, budget_band, answers').eq('title', title).single()
@@ -135,6 +136,7 @@ test('J1: an employer sends a staffing requirement in hiring words; HagerLand se
       form.appendChild(i)
     }
   })
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Send my request' }).click()
   await page.waitForURL('**/request-service/sent?ref=*')
   const { data: row2 } = await db().from('service_requests').select('details, budget_band, answers').eq('title', title2).single()
@@ -167,6 +169,7 @@ test('J2: other services keep their budget bands, sidebar, footer and location t
   await page.locator('#sr-budget').selectOption('ETB 10,000 – 50,000')
   await fillRequestBasics(page, title)
   await page.getByLabel('Email').fill(uniqueEmail('plumber'))
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Send my request' }).click()
   await page.waitForURL('**/request-service/sent?ref=*')
   const { data } = await db().from('service_requests').select('details, budget_band').eq('title', title).single()
@@ -199,6 +202,7 @@ test('J3: "Post a job" returns to the job form after signing in or signing up; b
   await page.fill('#su-phone', '911234567')
   await page.fill('#su-password', 'correct-horse-battery')
   await page.check('#su-terms')
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Create account' }).click()
   await expect(page.getByText('Check your email')).toBeVisible()
   await page.setExtraHTTPHeaders({})
@@ -376,6 +380,7 @@ test('J6: "International placements" is offered nowhere and refused when crafted
   await page.locator('#jobs-reg-category').selectOption('international-placements')
   await page.locator('#jobs-reg-name').fill('Crafted Register')
   await page.locator('#jobs-reg-email').fill(regEmail)
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Join the register' }).click()
   await expect(page.getByText('Choose one of the listed options').first()).toBeVisible()
   expect((await db().from('interest_registrations').select('id').eq('email', regEmail)).data ?? []).toHaveLength(0)

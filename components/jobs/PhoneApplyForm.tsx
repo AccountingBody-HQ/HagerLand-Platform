@@ -6,13 +6,14 @@ import { CircleCheck } from 'lucide-react'
 import { applyByPhoneAction, type PhoneFormState } from '@/app/actions/job-phone-actions'
 import { Checkbox, Field, Input, Select, describedBy } from '@/components/ui/Field'
 import { PhoneInput } from '@/components/ui/PhoneInput'
-import { FormAlert, Honeypot, SubmitButton } from '@/components/forms/FormParts'
+import { FormAlert, Honeypot, SubmitButton, TransferConsent } from '@/components/forms/FormParts'
 import { Turnstile } from '@/components/forms/Turnstile'
 import { NoResetForm } from '@/components/forms/NoResetForm'
 import { useJobsI18n } from '@/lib/i18n/client'
 import { TRADES } from '@/lib/jobs'
 import { CONTACT_METHODS, LANGUAGES } from '@/lib/jobs-phone'
 import { ChoiceChips } from './ChoiceChips'
+import { TRANSFER_CONSENT_TEXT } from '@/lib/data-transfer'
 
 /** Apply by phone (Jobs Phase 2): no account or email; both ticks are required (W-A). */
 export function PhoneApplyForm({ jobId }: { jobId: string }) {
@@ -61,6 +62,7 @@ export function PhoneApplyForm({ jobId }: { jobId: string }) {
         <Checkbox id="pa-adult" name="adult" label={t('I am 18 or older')} required aria-invalid={bad('adult') || undefined} />
         <Checkbox id="pa-consent" name="consent" label={t('I agree that HagerLand shares my name, phone, trade and area with this employer so they can contact me about this job.')} required aria-invalid={bad('consent') || undefined} />
       </div>
+      <TransferConsent error={errors.transfer_consent} label={t(TRANSFER_CONSENT_TEXT)} />
       <Turnstile action="job_phone_apply" />
       <SubmitButton fullWidth size="lg" pendingText={t('Sending…')}>
         {t('Send my application')}

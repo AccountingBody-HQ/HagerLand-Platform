@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { adminSession, asFreshVisitor, createUser, db, linkMatching, mailWithSubject, randomPhone, seedPublishedProperty, signIn } from './helpers'
+import { adminSession, asFreshVisitor, createUser, db, linkMatching, mailWithSubject, randomPhone, seedPublishedProperty, signIn, tickTransferConsent } from './helpers'
 
 /** Estate agency, save, compare, valuation, financing, saved searches and alerts, map and type pages (spec 24.7, 25.2a/b/l). */
 
@@ -14,6 +14,7 @@ test('agency pages explain each service and their enquiries reach the HagerLand 
   const name = `Agency Seller ${Date.now()}`
   await page.locator('#ag-sell-name').fill(name)
   await page.locator('#ag-sell-phone').fill(randomPhone())
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Send', exact: true }).click()
   await expect(page.getByText('Your enquiry has been sent')).toBeVisible()
   await adminSession(page)

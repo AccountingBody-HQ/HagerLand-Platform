@@ -17,7 +17,7 @@ export const metadata = buildMetadata({
 
 const STANDARDS = [
   { icon: ClipboardCheck, title: 'Every listing checked', text: 'Our team reviews every listing and profile before it is published.' },
-  { icon: BadgeCheck, title: 'Verified means verified', text: 'The Verified badge appears only after we have checked a business’s documents.' },
+  { icon: BadgeCheck, title: 'Verified means verified', text: 'The Verified badge appears only after we have checked a business’s trade licence and tax number.' },
   { icon: Clock, title: 'Always up to date', text: 'Listings expire unless their owner renews them, so old listings do not stay up.' },
   { icon: Scale, title: 'Our own projects, clearly labelled', text: 'HagerLand’s own developments and supplies are always labelled and never given hidden priority in search.' },
 ]

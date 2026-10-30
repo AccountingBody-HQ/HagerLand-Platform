@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { adminSession, db, latestMail, randomPhone, signUp, testPhotos, trackErrors } from '../helpers'
+import { adminSession, db, latestMail, randomPhone, signUp, testPhotos, trackErrors, tickTransferConsent } from '../helpers'
 
 /**
  * The core marketplace journey, end to end on the local stack:
@@ -68,6 +68,7 @@ test('owner lists a property, admin approves, visitor enquires, owner receives i
   await visitor.fill('#panel-name', 'Sara Tesfaye')
   await visitor.fill('#panel-phone', randomPhone())
   await visitor.fill('#panel-email', 'sara@test.hagerland.invalid')
+  await tickTransferConsent(visitor.locator('form', { has: visitor.locator('#panel-name') }))
   await visitor.locator('form', { has: visitor.locator('#panel-name') }).locator('button[type=submit]').click()
   await expect(visitor.getByText('Your enquiry has been sent')).toBeVisible()
   await visitor.close()

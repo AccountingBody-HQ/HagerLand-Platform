@@ -12,6 +12,8 @@ import { Container } from '@/components/ui/Layout'
 import { RETURN_PATH_HEADER, safeNextPath } from '@/lib/return-path'
 import { readSupplySwitches } from '@/lib/supply/partner-switches'
 import { approvedTradeAccount } from '@/lib/supply/trade-prices-data'
+import { accountConsented } from '@/lib/data-transfer-server'
+import { AccountConsentNotice } from '@/components/account/AccountConsentNotice'
 
 export const dynamic = 'force-dynamic'
 
@@ -30,6 +32,8 @@ export default async function AccountLayout({ children }: { children: React.Reac
   ])
   // S6-4: "Your trade orders" only for an approved trade customer, and only while trade pricing is on.
   const tradeOrders = (await readSupplySwitches()).tradePricing && Boolean(await approvedTradeAccount(user.id))
+  // QC-2: accounts that have not confirmed the data-transfer notice see it at the top of every account page.
+  const consented = await accountConsented(user.id)
   const items = accountNavItems(active, count ?? 0, offered ?? 0, jobsLive, { agency: agency.any, owner: Boolean(owned) && serviceOn(pillars, 'manage', 'owner-portal'), tradeOrders })
 
   return (
@@ -47,7 +51,10 @@ export default async function AccountLayout({ children }: { children: React.Reac
           )}
           <AccountNav items={items} />
         </aside>
-        <div className="mt-6 min-w-0 lg:mt-0">{children}</div>
+        <div className="mt-6 min-w-0 lg:mt-0">
+          {!consented && <AccountConsentNotice />}
+          {children}
+        </div>
       </div>
     </Container>
   )

@@ -132,12 +132,14 @@ describe('switch gating', () => {
     expect(tradeOrderingOpen({ tradePricing: false, catalogueOrdering: true })).toBe(false)
     expect(tradeOrderingOpen({ tradePricing: false, catalogueOrdering: false })).toBe(false)
   })
-  it('the switch stays locked off, needs catalogue ordering first, and shows AB’s note', async () => {
-    const { NOT_YET_USED } = await import('@/lib/supply/partner-rules')
-    expect(NOT_YET_USED).toContain('tradePricing')
+  it('QC-2: the switch needs the unlock (a payment method, the company name) and catalogue ordering first', async () => {
+    const { unlockMissing, unlockLine } = await import('@/lib/supply/partner-rules')
+    expect(unlockMissing('tradePricing', { activePaymentMethods: 1, legalName: 'HagerLand LTD', catalogueOrdering: false })).toEqual(['switch on Catalogue ordering first'])
+    expect(unlockMissing('tradePricing', { activePaymentMethods: 1, legalName: 'HagerLand LTD', catalogueOrdering: true })).toEqual([])
+    expect(unlockLine(['switch on Catalogue ordering first'])).toBe('Cannot be switched on yet: switch on Catalogue ordering first.')
     const action = read('app/roodber8/actions/supply-switches.ts')
-    expect(action).toContain("parsed.data.which === 'tradePricing' && !(await readSupplySwitches()).catalogueOrdering) return fail('Switch on catalogue ordering first.')")
-    expect(read('app/roodber8/supply/switches/page.tsx')).toContain('Waits for HagerLand Ltd (Ethiopia), a bank account and VAT registration.')
+    expect(action).toContain('const missing = unlockMissing(parsed.data.which, await readUnlockFacts())')
+    expect(read('app/roodber8/supply/switches/page.tsx')).not.toContain('Waits for HagerLand Ltd (Ethiopia), a bank account and VAT registration.')
   })
   it('my_trade_prices and the reservation read the switch in the database; the API and pages read it too', () => {
     expect(code).toMatch(/my_trade_prices[\s\S]*st\.key = 'supply_trade_pricing' and st\.value = 'true'::jsonb/)
@@ -150,7 +152,7 @@ describe('switch gating', () => {
   it('switch Off: the general trade price path is exactly as before (product_trade_prices, same text)', () => {
     const route = read('app/api/trade-prices/route.ts')
     expect(route).toContain("const { data } = await getServerSupabase().rpc('product_trade_prices', { p_ids: ids.data })")
-    expect(read('components/supplies/TradePrice.tsx')).toContain('`Your trade price: ${formatETBCents(cents)}`')
+    expect(read('components/supplies/TradePrice.tsx')).toContain('`Your trade price: ${formatETBCents(cents)} (including VAT)`') // QC-2 (W12)
     expect(code).not.toContain('product_trade_prices')
   })
 })
@@ -158,8 +160,8 @@ describe('switch gating', () => {
 describe('approved customer text (S6-4 brief, section 3, verbatim)', () => {
   it('product page, basket and account page', async () => {
     const { TRADE_TEXT } = await import('@/lib/supply/trade-prices')
-    expect(TRADE_TEXT.productPrice(75000, 'bag')).toBe('Your trade price: ETB 750 per bag')
-    expect(TRADE_TEXT.productPrice(83650, 'bag')).toBe('Your trade price: ETB 836.50 per bag')
+    expect(TRADE_TEXT.productPrice(75000, 'bag')).toBe('Your trade price: ETB 750 per bag (including VAT)')
+    expect(TRADE_TEXT.productPrice(83650, 'bag')).toBe('Your trade price: ETB 836.50 per bag (including VAT)')
     expect(TRADE_TEXT.basketButton).toBe('Request to order these items')
     expect(TRADE_TEXT.basketNote).toBe('No payment now. We check stock first, then reserve it for you.')
     expect(TRADE_TEXT.ordersHeading).toBe('Your trade orders')

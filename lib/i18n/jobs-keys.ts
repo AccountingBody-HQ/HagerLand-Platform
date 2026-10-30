@@ -15,6 +15,7 @@ import { EMPLOYER_ABROAD_TEXT } from '@/lib/service-requests/employer-abroad'
 import { CALLBACK_TEXT, CALLBACK_TIMES } from '@/lib/callbacks'
 import { SHARE_TEXT, TELEGRAM_SHARE_TEXT } from '@/lib/jobs-share'
 import { STAFFING_DB_KEYS, STAFFING_DB_PLACE } from './jobs-db-keys'
+import { ACCOUNT_CONSENT_TEXT, TRANSFER_CONSENT_ERROR, TRANSFER_CONSENT_TEXT } from '@/lib/data-transfer'
 
 function listKeys(): [string, string][] {
   const staffing = requestFormCopy(STAFFING_SLUG)
@@ -29,6 +30,10 @@ function listKeys(): [string, string][] {
     ...APPLICATION_STATUSES.map((x): [string, string] => [x.label, 'lib/jobs.ts (APPLICATION_STATUSES)']),
     ...AVAILABILITY.map((x): [string, string] => [x.label, 'lib/jobs.ts (AVAILABILITY)']),
     [JOBS_NOT_LIVE, 'lib/jobs.ts (JOBS_NOT_LIVE)'],
+    // QC-2: the shared data-transfer tick (W17) and its field error, shown on the Jobs forms.
+    [TRANSFER_CONSENT_TEXT, 'lib/data-transfer.ts (W17 tick)'],
+    [TRANSFER_CONSENT_ERROR, 'lib/data-transfer.ts (W17 tick, field error)'],
+    [ACCOUNT_CONSENT_TEXT.refusal, 'lib/data-transfer.ts (account notice refusal)'],
     ...JOB_CATEGORIES.map((x): [string, string] => [x.label, 'lib/content/verticals.ts (JOB_CATEGORIES)']),
     ...CONTACT_METHODS.map((x): [string, string] => [x.label, 'lib/jobs-phone.ts (CONTACT_METHODS)']),
     ...LANGUAGES.map((x): [string, string] => [x.label, 'lib/jobs-phone.ts (LANGUAGES)']),

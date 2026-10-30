@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import { expect, type Page } from '@playwright/test'
+import { expect, type Locator, type Page } from '@playwright/test'
 import sharp from 'sharp'
 import fs from 'node:fs'
 import path from 'node:path'
@@ -54,6 +54,7 @@ export async function signUp(page: Page, opts: { type: 'owner' | 'agent' | 'deve
   await page.fill('#su-phone', '911234567')
   await page.fill('#su-password', 'correct-horse-battery')
   await page.check('#su-terms')
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Create account' }).click()
   await expect(page.getByText('Check your email')).toBeVisible()
   await page.setExtraHTTPHeaders({})
@@ -197,7 +198,16 @@ export async function createUser(opts: { name?: string } = {}): Promise<{ id: st
   const password = 'correct-horse-battery'
   const { data, error } = await d.auth.admin.createUser({ email, password, email_confirm: true, user_metadata: { full_name: opts.name ?? 'Test User' } })
   if (error || !data.user) throw new Error(`createUser failed: ${error?.message}`)
+  // QC-2: like a new sign-up, the account has confirmed the data-transfer notice (W17).
+  await d.from('data_transfer_consents').insert({ form: 'sign_up', subject_table: 'profiles', subject_id: data.user.id, consent_version: 'w17-2026-10' })
   return { id: data.user.id, email, password }
+}
+
+/** QC-2 (W17): the required data-transfer tick on public forms. Ticks the visible one, if the form shows it. */
+export const TRANSFER_CONSENT_LABEL = 'I agree that HagerLand stores my details on secure servers outside Ethiopia (mainly in the European Union) to provide this service.'
+export async function tickTransferConsent(scope: Page | Locator): Promise<void> {
+  const box = scope.getByLabel(TRANSFER_CONSENT_LABEL, { exact: true }).filter({ visible: true })
+  if (await box.count()) await box.first().check()
 }
 
 export async function createProvider(opts: { name: string; serviceSlug: string; locationPath: string; verified?: boolean }): Promise<{ orgId: string; orgSlug: string; user: { id: string; email: string; password: string } }> {

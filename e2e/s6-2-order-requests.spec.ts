@@ -2,7 +2,7 @@ import crypto from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { authenticator } from 'otplib'
-import { adminSession, allMail, asFreshVisitor, assertLocalStack, createUser, db, mailWithSubject, signIn, submitStaffSignIn, uniqueEmail } from './helpers'
+import { adminSession, allMail, asFreshVisitor, assertLocalStack, createUser, db, mailWithSubject, signIn, submitStaffSignIn, uniqueEmail, tickTransferConsent } from './helpers'
 
 /**
  * S6-2 order requests, stock reservations and the payment window: the whole journey to the cent on the local copy and
@@ -21,7 +21,13 @@ const PARTNER_PHONE = `+251911${String(stamp).slice(-6)}`
 const SKU_1 = `KCP-${stamp}`
 const COST_1 = 61337 // ETB 613.37: distinctive, so the sweep can look for it
 const COST_2 = 98765 // ETB 987.65
-const PAYMENT_DETAILS = `CBE account 1000 2345 6789, HagerLand Supply ${stamp}`
+// QC-2: the owner's payment methods (an active pair and one switched off, which customers never see).
+const METHODS = [
+  { name: `CBE Birr ${stamp}`, instructions: `Account 1000 2345 6789, HagerLand LTD ${stamp}`, active: true, sort: 0 },
+  { name: `telebirr ${stamp}`, instructions: `Merchant 123456 ${stamp}`, active: true, sort: 1 },
+  { name: `Old bank ${stamp}`, instructions: `Do not use ${stamp}`, active: false, sort: 2 },
+]
+const RECEIPT = `FS-${stamp % 1_000_000}`
 const CUSTOMER = { name: 'Selamawit Bekele', phone: `0922${String(stamp).slice(-6)}`, email: uniqueEmail('s6-2-customer'), address: `House ${stamp % 1000}, near Edna Mall` }
 
 function psql(sql: string): string {
@@ -29,7 +35,9 @@ function psql(sql: string): string {
 }
 function ordering(on: boolean) {
   psql(`update public.site_settings set value = '${on}'::jsonb where key = 'supply_catalogue_ordering'`)
-  psql(`update public.site_settings set value = '${on ? JSON.stringify(PAYMENT_DETAILS) : '""'}'::jsonb where key = 'supply_payment_details'`)
+  // Local test data only: this run's methods are added while ordering is on and removed afterwards.
+  psql(`delete from public.supply_payment_methods where name like '% ${stamp}'`)
+  if (on) for (const m of METHODS) psql(`insert into public.supply_payment_methods (name, instructions, active, sort_order) values ('${m.name}', '${m.instructions}', ${m.active}, ${m.sort})`)
 }
 function addisLocal(msFromNow: number): string {
   const p = new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Addis_Ababa', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).formatToParts(new Date(Date.now() + msFromNow))
@@ -109,6 +117,7 @@ async function sendRequest(browser: Browser, opts: { slug: string; quantity: str
   await page.locator('#or-area').fill('Bole')
   await page.getByRole('option', { name: /^Bole/ }).first().click()
   await page.fill('#or-address', CUSTOMER.address)
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Send order request' }).click()
   await page.waitForURL(/\/supplies\/order-requests\/[A-Za-z0-9_-]{43}\?sent=1$/)
   const reference = (await page.locator('h1').textContent())!.replace('Order request ', '').trim()
@@ -134,7 +143,8 @@ test('ordering off: the product page is unchanged, the form is not found, no /te
   await expect(page.getByText('Lead time: about 3 days')).toBeVisible()
   expect((await page.goto(`/supplies/product/${seeded.p1!.slug}/order`))?.status()).toBe(404)
   await page.goto('/terms')
-  await expect(page.getByText('HagerLand is the seller', { exact: false })).toHaveCount(0)
+  await expect(page.getByText('the seller is HagerLand LTD', { exact: false })).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: /Buying from HagerLand Supply/ })).toHaveCount(0)
   await page.goto('/privacy')
   await expect(page.getByText('Order requests:', { exact: false })).toHaveCount(0)
   // The hourly job does nothing while ordering is off.
@@ -149,7 +159,17 @@ test('ordering on: the product page offers "Request to order"; a visitor sends a
   await expect(page.getByText('We confirm the price when we reserve your order.')).toBeVisible()
   await expect(page.getByText('Typical lead time: 3 days. We confirm it when we reserve your order.')).toBeVisible()
   await page.goto('/terms')
-  await expect(page.getByText('When you buy from HagerLand Supply, HagerLand is the seller. A reservation holds stock until the time shown. It ends automatically if we do not receive payment by then.')).toBeVisible()
+  // QC-2 (W8): the "Buying from HagerLand Supply" section, only while ordering is on.
+  await expect(page.getByRole('heading', { name: /Buying from HagerLand Supply/ })).toBeVisible()
+  for (const line of [
+    'When you buy from HagerLand Supply, the seller is HagerLand LTD, Addis Ababa, Ethiopia.',
+    'Prices are in Ethiopian Birr (ETB) and include VAT.',
+    'Pay only by one of the payment methods shown on your order page, and include your order reference. We give you an official receipt for every payment.',
+    'We deliver in Addis Ababa. Your goods become yours, and our responsibility for them ends, when they are delivered.',
+    'Nothing in these terms affects your rights under Ethiopian consumer law.',
+  ])
+    await expect(page.getByText(line)).toBeVisible()
+  await expect(page.getByText('HagerLand is the seller. A reservation holds stock', { exact: false })).toHaveCount(0)
   await page.goto('/privacy')
   await expect(page.getByText('Suppliers fulfilling your order:', { exact: false })).toBeVisible()
 
@@ -206,12 +226,20 @@ test('owner prices and reserves (email 2 with the payment details); the customer
   expect(hours).toBeLessThanOrEqual(48)
   const until = new Intl.DateTimeFormat('en-GB', { timeZone: 'Africa/Addis_Ababa', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(r!.reserved_until!))
   const mail = await mailWithSubject(CUSTOMER.email, `Your items are reserved (${journey.reference})`)
-  expect(mail.text).toContain(`Good news: we have reserved your items until ${until} (Addis Ababa time). To confirm your order, pay ETB 31,815 to HagerLand by then. Please include ${journey.reference} with your payment. Payment details: ${PAYMENT_DETAILS}. If we do not receive payment by then, the reservation ends and you will not be charged.`)
+  // QC-2 (W13): the amount includes VAT; the active methods, in order (name, then how); never the switched-off one.
+  expect(mail.text).toContain(`Good news: we have reserved your items until ${until} (Addis Ababa time). To confirm your order, pay ETB 31,815 (including VAT) to HagerLand by then. Please include ${journey.reference} with your payment. How to pay:\n\n${METHODS[0].name}\n${METHODS[0].instructions}\n\n${METHODS[1].name}\n${METHODS[1].instructions}\n\nIf we do not receive payment by then, the reservation ends and you will not be charged.`)
+  expect(mail.text).not.toContain(METHODS[2].name)
+  expect(mail.text).toContain('HagerLand LTD, Addis Ababa, Ethiopia')
+  expect(mail.text).toContain('You are receiving this because you sent an order request to HagerLand Supply.')
   const customer = await browser.newPage({ viewport: { width: 375, height: 800 } })
   await customer.goto(journey.path!)
-  await expect(customer.getByTestId('order-request-status')).toHaveText(`Reserved until ${until} (Addis Ababa time): pay ETB 31,815 by then`)
+  await expect(customer.getByTestId('order-request-status')).toHaveText(`Reserved until ${until} (Addis Ababa time): pay ETB 31,815 (including VAT) by then`)
   await expect(customer.getByRole('heading', { name: 'How to pay' })).toBeVisible()
-  await expect(customer.getByText(PAYMENT_DETAILS)).toBeVisible()
+  await expect(customer.getByTestId('how-to-pay-method')).toHaveCount(2)
+  await expect(customer.getByTestId('how-to-pay-method').nth(0)).toContainText(METHODS[0].name)
+  await expect(customer.getByTestId('how-to-pay-method').nth(1)).toContainText(METHODS[1].instructions)
+  await expect(customer.getByText(METHODS[2].name)).toHaveCount(0)
+  await expect(customer.getByText(`Include your order reference ${journey.reference} with your payment.`)).toBeVisible()
   await noHorizontalScroll(customer)
   await customer.close()
 })
@@ -223,11 +251,15 @@ test('a part payment is not "paid"; full payment is (email 6); supplier orders t
   await toast(page, 'Recorded.')
   expect(await status(journey.id!)).toBe('reserved')
   await page.fill(`#pa-${journey.id}`, '11,815')
+  // QC-2: the official receipt number, recorded with the payment that completes it.
+  await page.fill(`#prn-${journey.id}`, RECEIPT)
   await page.getByRole('button', { name: 'Record', exact: true }).click()
   await toast(page, 'Recorded. Paid in full: the customer was emailed.')
   expect(await status(journey.id!)).toBe('paid')
   const paidMail = await mailWithSubject(CUSTOMER.email, `Payment received (${journey.reference})`)
-  expect(paidMail.text).toContain(`Thank you. We received ETB 31,815 for ${journey.reference}. We will contact you to arrange delivery.`)
+  expect(paidMail.text).toContain(`Thank you. We received ETB 31,815 for ${journey.reference}. Your receipt number is ${RECEIPT}. We will contact you to arrange delivery.`)
+  const { data: pays } = await db().from('order_request_payments').select('amount_cents, receipt_number').eq('order_request_id', journey.id!).order('created_at')
+  expect(pays).toEqual([{ amount_cents: 2000000, receipt_number: null }, { amount_cents: 1181500, receipt_number: RECEIPT }])
   await page.reload()
   await page.getByRole('button', { name: 'Create supplier orders' }).click()
   await toast(page, /Supplier orders HLO-\d{4}-\d{6}, HLO-\d{4}-\d{6} created and paid from the customer's payment\./)

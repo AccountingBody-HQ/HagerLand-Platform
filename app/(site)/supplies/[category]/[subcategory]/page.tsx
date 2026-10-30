@@ -12,7 +12,7 @@ export async function generateMetadata(
   const params = await props.params
   const { root, sub } = await resolveCategory(params.category, params.subcategory)
   const name = sub?.name ?? root.name
-  return buildMetadata({ title: sub?.seo_title ?? `${name} — ${root.name}`, description: truncateDescription(sub?.seo_intro ?? `${name} from HagerLand Supply. Add to your quote list for a clear price with delivery anywhere we deliver.`), path: `/supplies/${root.slug}/${sub?.slug}`, noindex: Object.keys(searchParams).length > 0 })
+  return buildMetadata({ title: sub?.seo_title ?? `${name} — ${root.name}`, description: truncateDescription(sub?.seo_intro ?? `${name} from HagerLand Supply. Add to your quote list for a clear price with delivery in Addis Ababa.`), path: `/supplies/${root.slug}/${sub?.slug}`, noindex: Object.keys(searchParams).length > 0 })
 }
 
 export default async function Page(

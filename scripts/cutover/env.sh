@@ -2,6 +2,9 @@
 #   Rehearsal on the local copy:  CUTOVER_DB=local bash scripts/cutover/<step>.sh
 #   Production (only after AB has typed GO LIVE):  CUTOVER_DB=live HL_CONFIRM=GO-LIVE bash scripts/cutover/<step>.sh
 # The live connection string is read from SUPABASE_DB_URL in .env.local (AB adds it); it is never printed.
+# QC-2: retired. The live connection string exists only as the backup workflow's GitHub secret (CLAUDE.md rule 17a).
+echo "These one-off cutover scripts are retired (CLAUDE.md rule 17a)." >&2
+exit 1
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 

@@ -16,7 +16,7 @@ export default async function AgentsPage(props: { searchParams: Promise<RawParam
       path="/agents"
       crumb="Estate agents"
       title="Estate agents and brokers"
-      intro="Agents who know the area and list their properties on HagerLand. Verified agents have had their trade licence checked."
+      intro="Agents who know the area and list their properties on HagerLand. Verified agents have had their trade licence and tax number checked."
       kinds={['agency']}
       searchParams={searchParams}
       defaultSort="listings"

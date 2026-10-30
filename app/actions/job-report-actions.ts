@@ -13,6 +13,8 @@ import { storeJobReport } from '@/lib/job-reports-data'
 import { getJobsI18n } from '@/lib/i18n/server'
 import { translateResult } from '@/lib/i18n/translate'
 import { spamCheckDrop } from '@/lib/spam-check'
+import { transferConsentMissing } from '@/lib/data-transfer'
+import { recordTransferConsent } from '@/lib/data-transfer-server'
 
 /**
  * "Report this job" (Jobs Phase 4): anyone, signed in or not. Turnstile, honeypot and limits (5 an hour, 20 a day per
@@ -21,6 +23,8 @@ import { spamCheckDrop } from '@/lib/spam-check'
  */
 async function submitJobReportActionImpl(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
   if (await spamCheckDrop(formData, 'submit_job_report')) return ok(undefined, REPORT_MESSAGES.thanks)
+  const noConsent = transferConsentMissing(formData)
+  if (noConsent) return noConsent
   if (!(await readJobsSwitches()).reportsEnabled) return fail(REPORT_MESSAGES.failed)
   const parsed = jobReportSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
@@ -36,6 +40,7 @@ async function submitJobReportActionImpl(_prev: ActionResult | null, formData: F
   const user = await getUser()
   const res = await storeJobReport({ jobId: d.job_id, reason: d.reason, details: d.details ?? null, contact: d.contact ?? null, userId: user?.id ?? null, ipHash })
   if (res === 'failed') return fail(REPORT_MESSAGES.failed)
+  await recordTransferConsent({ form: 'report_job', subjectTable: 'job_reports', subjectId: null, subjectReference: null })
   return ok(undefined, REPORT_MESSAGES.thanks)
 }
 

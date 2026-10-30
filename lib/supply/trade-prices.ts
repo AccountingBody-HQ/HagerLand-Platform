@@ -85,7 +85,7 @@ export function tradeOrderingOpen(s: { tradePricing: boolean; catalogueOrdering:
 // Customer wording (approved text, verbatim)
 // ---------------------------------------------------------------------------------------------------------------
 export const TRADE_TEXT = {
-  productPrice: (cents: number, unit: string) => `Your trade price: ${formatETBCents(cents)} per ${unit}`,
+  productPrice: (cents: number, unit: string) => `Your trade price: ${formatETBCents(cents)} per ${unit} (including VAT)`,
   basketButton: 'Request to order these items',
   basketNote: 'No payment now. We check stock first, then reserve it for you.',
   ordersHeading: 'Your trade orders',

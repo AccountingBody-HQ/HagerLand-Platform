@@ -48,6 +48,8 @@ vi.mock('@/lib/admin/notify', () => ({ ownerEmails: async () => ['owner@test.hag
 vi.mock('@/lib/revalidate', () => ({ revalidateEntity: () => undefined }))
 vi.mock('@/lib/auth', () => ({ requireUser: async () => ({ id: 'user-1', email: 'u@test.hagerland.invalid', email_confirmed_at: '2026-01-01' }), isEmailConfirmed: () => true, getProfile: async () => null }))
 vi.mock('@/lib/turnstile', () => ({ isHoneypotFilled: () => false, verifyTurnstileToken: async () => true }))
+// QC-2: this account has confirmed the data-transfer notice.
+vi.mock('@/lib/data-transfer-server', () => ({ accountConsentRefusal: async () => null, accountConsented: async () => true, recordTransferConsent: async () => undefined }))
 vi.mock('@/lib/env', () => ({ isSupabaseConfigured: () => true }))
 vi.mock('next/cache', () => ({ revalidatePath: () => undefined }))
 vi.mock('next/headers', () => ({ headers: async () => new Headers() }))

@@ -17,6 +17,8 @@ import { canonicalUrl } from '@/lib/site'
 import { formatPhone } from '@/lib/format'
 import { log } from '@/lib/log'
 import { spamCheckDrop } from '@/lib/spam-check'
+import { transferConsentMissing } from '@/lib/data-transfer'
+import { recordTransferConsent } from '@/lib/data-transfer-server'
 
 const itemSchema = z
   .object({
@@ -49,6 +51,8 @@ export type QuoteState = ActionResult<{ reference: string }> | null
 /** Quote request from the quote list or a materials list (spec 10.5, 10.6). */
 export async function submitQuoteAction(_prev: QuoteState, formData: FormData): Promise<QuoteState> {
   if (await spamCheckDrop(formData, 'submit_quote')) return ok({ reference: 'HLQ-0' })
+  const noConsent = transferConsentMissing(formData)
+  if (noConsent) return noConsent
   let items: unknown = []
   try {
     items = JSON.parse(String(formData.get('items') ?? '[]'))
@@ -137,5 +141,6 @@ export async function submitQuoteAction(_prev: QuoteState, formData: FormData): 
       }),
     })
   }
+  await recordTransferConsent({ form: 'quote_request', subjectTable: 'quote_requests', subjectId: q.id, subjectReference: q.reference })
   return ok({ reference: q.reference })
 }

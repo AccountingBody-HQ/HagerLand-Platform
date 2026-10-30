@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { adminSession, asFreshVisitor, db, mailWithSubject, testPhotos, uniqueEmail } from './helpers'
+import { adminSession, asFreshVisitor, db, mailWithSubject, testPhotos, uniqueEmail, tickTransferConsent } from './helpers'
 
 /** Diaspora Services and HagerLand Property Care (spec 24.6). */
 
@@ -57,6 +57,7 @@ test('an owner abroad requests a Property Care consultation; HagerLand moves it 
   await owner.getByLabel('Who uses it now?').selectOption('tenanted')
   await owner.getByLabel('Inspections with photo reports').check()
   await owner.getByLabel('Rent collection').check()
+  await tickTransferConsent(owner)
   await owner.getByRole('button', { name: 'Request a consultation' }).click()
   await expect(owner.getByText('Thank you, we will be in touch')).toBeVisible()
   const { data: lead } = await db().from('property_care_requests').select('id, reference, services, country_code, status').eq('email', email).single()

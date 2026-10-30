@@ -5,7 +5,7 @@ import { copyFileSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { authenticator } from 'otplib'
-import { adminSession, asFreshVisitor, createProvider, db, mailWithSubject, randomPhone, signIn, uniqueEmail, submitStaffSignIn } from './helpers'
+import { adminSession, asFreshVisitor, createProvider, db, mailWithSubject, randomPhone, signIn, uniqueEmail, submitStaffSignIn, tickTransferConsent } from './helpers'
 import { BANNED } from './plain-language-words'
 
 /**
@@ -96,6 +96,7 @@ async function fillCallback(page: Page, phone: string, opts: { name?: string } =
   await page.getByLabel('Area').fill('Bole')
   await page.getByText('Afternoon', { exact: true }).click()
   await page.getByLabel('HagerLand may call me on this number about my request.').check()
+  await tickTransferConsent(page)
   await page.getByRole('button', { name: 'Ask for a call' }).click()
 }
 
@@ -487,6 +488,7 @@ test('J9: call-backs On — ask, repeats, limits, and every queue outcome (incl.
   await form.locator('#sr-location').fill('Bole')
   await form.getByRole('option', { name: /^Bole/ }).first().click()
   await form.getByLabel('Email').fill(uniqueEmail('p5-caller'))
+  await tickTransferConsent(form)
   await form.getByRole('button', { name: 'Send my request' }).click()
   await form.waitForURL('**/request-service/sent**')
   await expect.poll(async () => (await rows(toRequest))[0]?.outcome).toBe('staffing_request')

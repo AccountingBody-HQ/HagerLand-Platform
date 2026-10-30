@@ -16,6 +16,8 @@ import { canonicalUrl } from '@/lib/site'
 import { log } from '@/lib/log'
 import { NEWSLETTER_CONSENT } from '@/lib/newsletter'
 import { spamCheckDrop } from '@/lib/spam-check'
+import { transferConsentMissing } from '@/lib/data-transfer'
+import { recordTransferConsent } from '@/lib/data-transfer-server'
 
 export type NewsletterState = ActionResult<{ message: string }> | null
 
@@ -32,6 +34,8 @@ const schema = z.object({
  */
 export async function subscribeNewsletterAction(_prev: NewsletterState, formData: FormData): Promise<NewsletterState> {
   if (await spamCheckDrop(formData, 'subscribe_newsletter')) return ok({ message: 'Thank you.' })
+  const noConsent = transferConsentMissing(formData)
+  if (noConsent) return noConsent
   const p = schema.safeParse(Object.fromEntries(formData))
   if (!p.success) return invalid(p.error)
   const ip = getClientIp(await headers())
@@ -60,6 +64,7 @@ export async function subscribeNewsletterAction(_prev: NewsletterState, formData
       footerLinks: [{ label: 'Unsubscribe', href: unsubscribe }],
     }),
   })
+  await recordTransferConsent({ form: 'newsletter', subjectTable: 'newsletter_subscriptions', subjectId: null, subjectReference: null })
   return ok({ message: 'Thank you. Check your email for a confirmation.' })
 }
 
