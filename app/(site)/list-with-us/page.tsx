@@ -2,6 +2,8 @@ import { Check } from 'lucide-react'
 import { buildMetadata, faqJsonLd } from '@/lib/seo'
 import { getBusinessDetails } from '@/lib/data/business'
 import { getVerticals } from '@/lib/data/verticals'
+import { readSupplySwitchesCached } from '@/lib/supply/partner-switches'
+import { REGISTER_PATH } from '@/lib/supply/partner-rules'
 import { AUDIENCES, LIST_WITH_US_FAQ } from '@/lib/content/list-with-us'
 import { Container, Section } from '@/components/ui/Layout'
 import { ButtonLink } from '@/components/ui/Button'
@@ -25,7 +27,9 @@ const AUDIENCE_VERTICAL: Record<string, { key: 'jobs' | 'finance'; soon: { label
 }
 
 export default async function ListWithUsPage() {
-  const [business, verticals] = await Promise.all([getBusinessDetails(), getVerticals()])
+  const [business, verticals, supplySwitches] = await Promise.all([getBusinessDetails(), getVerticals(), readSupplySwitchesCached()])
+  // QC-3: the same two switches as the homepage "Sell through HagerLand" row.
+  const sellThrough = supplySwitches.homeBusinessRow && supplySwitches.registration
   const audiences = AUDIENCES.flatMap((a) => {
     const dep = AUDIENCE_VERTICAL[a.id]
     if (!dep) return [a]
@@ -85,6 +89,21 @@ export default async function ListWithUsPage() {
           <Accordion items={LIST_WITH_US_FAQ.map((f, i) => ({ id: `lwu-${i}`, title: f.question, content: f.answer }))} />
         </div>
       </Section>
+      {sellThrough && (
+        <Section compact labelledBy="sell-through-h">
+          <div className="flex flex-col gap-6 rounded-xl border border-border bg-white p-6 sm:p-8 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <h2 id="sell-through-h" className="hl-h2">
+                Supply building materials?
+              </h2>
+              <p className="mt-2 text-muted">Reach builders, homeowners and contractors across Ethiopia through HagerLand Supply.</p>
+            </div>
+            <ButtonLink href={REGISTER_PATH} className="lg:min-w-52">
+              Sell through HagerLand
+            </ButtonLink>
+          </div>
+        </Section>
+      )}
       <JsonLd data={faqJsonLd(LIST_WITH_US_FAQ)} />
     </>
   )

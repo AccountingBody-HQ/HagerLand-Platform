@@ -163,6 +163,10 @@ To check it ran: the admin dashboard shows "Last daily run" (and a warning if th
 
 The pre-existing `rate_limits` table is not cleaned unless you set `CRON_PURGE_RATE_LIMITS=true` in Vercel. It only holds short-lived counters, so switching it on after launch is safe.
 
+### 4a. Rate-limit clean-up
+
+Rate-limit clean-up (D5): Vercel Production environment variable CRON_PURGE_RATE_LIMITS=true since 31 Oct 2026 (Config type). The daily cron clears old rate-limit entries.
+
 Health checks: `/api/health` answers `ok` for anyone when the website is up (use it for an uptime monitor; it checks nothing else). `/api/health/full` with the header `Authorization: Bearer <CRON_SECRET>` answers true/false for each setting being present, the database, every migration, the storage buckets and the email domain. Details, and what neither checks: section 11.
 
 ## 5. Errors
@@ -256,6 +260,8 @@ npm run test:e2e:build && npm run test:e2e   # browser tests against the local c
 - Does **not** check (listed in `notChecked`): whether the daily job ran (see the daily digest email and the run lists in admin), whether emails were actually delivered (admin → Email problems), whether the Turnstile keys or secrets are correct, and whether the live data matches the verify files. **The proof for a migration is its read-only verify file in `docs/sql/`** (every row PASS), not this address.
 - If a value is false: `env.<NAME>` — the variable is missing in Vercel (tell your developer; never paste the value in chat). `database` — Supabase is down or paused (Supabase dashboard). `migrations` — a migration the code needs has not been applied on live: apply it with its verify file (section 2) or roll back the release. `storage` — a bucket is missing or has the wrong privacy (Supabase → Storage). `emailDomain` — the domain is not verified in Resend (Resend → Domains).
 - `scripts/preflight.sh` reads this address and lists any check that is not true (names only).
+
+Uptime monitor (D4, 31 Oct 2026): UptimeRobot (free plan) checks https://www.hagerland.com/api/health every 5 minutes and emails an alert to AB if it stops answering, and again when it is back. Test alert received 31 Oct 2026.
 
 **If no digest arrives by 08:00 London (Fix F-2).** The digest is sent every day, so no email means a problem.
 1. Check your spam or junk folder for "HagerLand daily digest".

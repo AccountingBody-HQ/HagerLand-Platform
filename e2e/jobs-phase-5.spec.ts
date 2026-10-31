@@ -94,6 +94,8 @@ async function fillCallback(page: Page, phone: string, opts: { name?: string } =
   await page.locator('#cb-phone').fill(phone)
   await page.getByLabel('What do you need?').fill('10 masons in Bole from next month.')
   await page.getByLabel('Area').fill('Bole')
+  // QC-3: nothing is chosen at first, so the caller picks the language and the time.
+  await page.locator('fieldset', { hasText: 'Language for the call' }).getByText('Amharic', { exact: true }).click()
   await page.getByText('Afternoon', { exact: true }).click()
   await page.getByLabel('HagerLand may call me on this number about my request.').check()
   await tickTransferConsent(page)

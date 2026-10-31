@@ -51,13 +51,13 @@ export default async function MyAgencyPage() {
         <EmptyState
           icon={<KeyRound />}
           title="Nothing here yet"
-          description="Book a valuation, or a viewing on a property marketed by HagerLand, and you can follow it here."
-          actions={<ButtonLink href="/agency/valuation">Book a valuation</ButtonLink>}
+          description="Book a market appraisal, or a viewing on a property marketed by HagerLand, and you can follow it here."
+          actions={<ButtonLink href="/agency/valuation">Book a market appraisal</ButtonLink>}
         />
       )}
-      <Group title="Valuations" count={r.valuations.length}>
+      <Group title="Market appraisals" count={r.valuations.length}>
         {r.valuations.map((v) => (
-          <Row key={v.id} title={`Valuation for ${v.purpose === 'sale' ? 'sale' : 'letting'}`} meta={[v.reference, v.appointment_at ? `Visit ${formatAppointment(v.appointment_at)}` : `Requested ${formatDate(v.created_at)}`, v.value_low_etb && v.value_high_etb ? `${formatETB(v.value_low_etb)} – ${formatETB(v.value_high_etb)}` : null].filter(Boolean).join(' · ')} status={v.status} />
+          <Row key={v.id} title={`Market appraisal for ${v.purpose === 'sale' ? 'sale' : 'letting'}`} meta={[v.reference, v.appointment_at ? `Visit ${formatAppointment(v.appointment_at)}` : `Requested ${formatDate(v.created_at)}`, v.value_low_etb && v.value_high_etb ? `${formatETB(v.value_low_etb)} – ${formatETB(v.value_high_etb)}` : null].filter(Boolean).join(' · ')} status={v.status} />
         ))}
       </Group>
       <Group title="Viewings" count={r.viewings.length}>
