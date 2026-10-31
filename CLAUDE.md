@@ -6,6 +6,7 @@ HagerLand is being relaunched as **Ethiopia's construction and property platform
 - **Read `docs/HAGERLAND_RELAUNCH_SPEC.md` before any work**, and again after a context compaction or in a new session. It decides everything; where it lists something under Section 23 ("Needs AB"), ask, never invent.
 - Progress, decisions and deviations: `docs/RELAUNCH_PROGRESS.md`. Update it at the end of every work package.
 - Live database structure before the relaunch: `docs/legacy-schema-snapshot.md` (query: `docs/sql/wp0_legacy_schema_snapshot.sql`).
+- Single plan: AB's Claude Doc 'HagerLand Development Roadmap to v1 Complete' (31 Oct 2026) is the only plan to v1 complete. Work its stages in order; new ideas go to its Ideas inbox, never mid-stage.
 
 ## Standards for every job (AB's rules)
 Every job follows these, even when the prompt does not repeat them. Where a rule below overlaps one elsewhere in this file, the stricter one applies; the existing safety rules always win.

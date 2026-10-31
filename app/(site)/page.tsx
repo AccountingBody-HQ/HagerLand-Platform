@@ -153,7 +153,8 @@ export default async function HomePage() {
       {/* S6-1: row 2 for businesses, only while the owner's homepage switch and partner registration are both on. */}
       {supplySwitches.homeBusinessRow && supplySwitches.registration && <BusinessRow t={t} lh={lh} />}
 
-      <ServicesSection all={siteNav.all} t={t} lh={lh} freeListing={business.freeListingConfirmed} />
+      {/* QC-3: the professionals card's "Sell through HagerLand" link follows the same two switches as row 2. */}
+      <ServicesSection all={siteNav.all} t={t} lh={lh} freeListing={business.freeListingConfirmed} sellThrough={supplySwitches.homeBusinessRow && supplySwitches.registration} />
 
       {live.property && (
       <Section tone="stone">

@@ -6,6 +6,7 @@ import { DynamicIcon } from '@/components/ui/DynamicIcon'
 import { SoonBadge } from '@/components/verticals/SoonBadge'
 import { ButtonLink } from '@/components/ui/Button'
 import { cn } from '@/lib/cn'
+import { REGISTER_PATH } from '@/lib/supply/partner-rules'
 
 type T = (s: string) => string
 
@@ -97,7 +98,7 @@ export function PriorityBand({ all, t, lh, hasGuides }: { all: AllServices; t: T
  * for people living abroad and for professionals and suppliers. Plain customer language only; "Coming soon"
  * is the one availability label visitors see.
  */
-export function ServicesSection({ all, t, lh, freeListing }: { all: AllServices; t: T; lh: (h: string) => string; freeListing: boolean }) {
+export function ServicesSection({ all, t, lh, freeListing, sellThrough }: { all: AllServices; t: T; lh: (h: string) => string; freeListing: boolean; sellThrough: boolean }) {
   return (
     <section aria-labelledby="services-title" className="bg-white py-16 sm:py-24">
       <Container>
@@ -164,6 +165,11 @@ export function ServicesSection({ all, t, lh, freeListing }: { all: AllServices;
                     {t('Browse professionals')}
                   </Link>
                 </div>
+                {sellThrough && (
+                  <Link href={lh(REGISTER_PATH)} className="mt-3 inline-flex min-h-12 items-center justify-center rounded-md px-5 font-semibold text-white ring-1 ring-white/30 hover:bg-white/10">
+                    {t('Sell through HagerLand')}
+                  </Link>
+                )}
               </div>
             )}
           </div>

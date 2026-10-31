@@ -64,6 +64,12 @@ AB typed GO LIVE on 15 Oct 2026 with the checklist status recorded under "Checkl
 8. **First week**: read the daily digest, admin → Email problems and the error count every day; run PageSpeed Insights on `/`, `/supplies` and a company page.
 9. Optional: copy `CRON_SECRET` from Vercel into `.env.local` so `bash scripts/preflight.sh` can check `/api/health/full` on production; then run it once.
 
+### Later items done
+
+- **D4 done (31 Oct 2026):** uptime monitor on `/api/health` (UptimeRobot, every 5 minutes; RUNBOOK section 11).
+- **D5 done (31 Oct 2026):** `CRON_PURGE_RATE_LIMITS=true` in Vercel Production; the daily cron clears old rate-limit entries (RUNBOOK section 4a).
+- LR-2 done (31 Oct 2026): Supply Partner Agreement version 2 (buy-and-resell, HagerLand collects and delivers, partner hidden, payment after delivery proof against a valid invoice with legal withholding) is final and kept in AB's Claude Docs as 'HagerLand Supply Partner Agreement (Version 2)'.
+
 This report is in four parts:
 
 1. What is finished, and the evidence

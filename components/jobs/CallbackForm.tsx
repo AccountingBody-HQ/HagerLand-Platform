@@ -46,8 +46,8 @@ export function CallbackForm({ countries }: { countries: { code: string; name: s
       <Field label={t(CALLBACK_TEXT.area)} htmlFor="cb-area" required>
         <Input id="cb-area" name="area" maxLength={200} required invalid={bad('area')} />
       </Field>
-      <ChoiceChips legend={t(CALLBACK_TEXT.language)} name="language" options={CALLBACK_LANGUAGES.map((o) => ({ value: o.value, label: t(o.label) }))} defaultValue="am" invalid={bad('language')} />
-      <ChoiceChips legend={t(CALLBACK_TEXT.time)} name="time_of_day" options={CALLBACK_TIMES.map((o) => ({ value: o.value, label: t(o.label) }))} defaultValue="any" invalid={bad('time_of_day')} />
+      <ChoiceChips legend={t(CALLBACK_TEXT.language)} name="language" options={CALLBACK_LANGUAGES.map((o) => ({ value: o.value, label: t(o.label) }))} invalid={bad('language')} />
+      <ChoiceChips legend={t(CALLBACK_TEXT.time)} name="time_of_day" options={CALLBACK_TIMES.map((o) => ({ value: o.value, label: t(o.label) }))} invalid={bad('time_of_day')} />
       <div className="space-y-3">
         <Checkbox id="cb-abroad" name="based_abroad" label={t(CALLBACK_TEXT.abroad)} checked={abroad} onChange={(e) => setAbroad(e.target.checked)} />
         {abroad && (
